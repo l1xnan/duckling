@@ -14,8 +14,8 @@ export DUCKDB_INCLUDE_DIR=./libduckdb
 ```
 Windows:
 ```
-$env:DUCKDB_LIB_DIR='D:\Code\DuckStudio\libduckdb'
-$env:DUCKDB_INCLUDE_DIR='D:\Code\DuckStudio\libduckdb'
-$env:LD_LIBRARY_PATH='D:\Code\DuckStudio\libduckdb'
-$env:PATH+='D:\Code\DuckStudio\libduckdb'
+$env:DUCKDB_LIB_DIR='D:\Code\DuckStudio\src-tauri\libduckdb'
+$env:DUCKDB_INCLUDE_DIR='D:\Code\DuckStudio\src-tauri\libduckdb'
+$env:LD_LIBRARY_PATH='D:\Code\DuckStudio\src-tauri\libduckdb'
+$env:PATH+='D:\Code\DuckStudio\src-tauri\libduckdb'
 ```
