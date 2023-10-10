@@ -45,18 +45,16 @@ jobs:
         with:
           node-version: 18
 
-      - id: cache-rustup
-        name: Cache Rust toolchain
-        uses: actions/cache@v3
-        with:
-          path: ~/.rustup
-          key: toolchain-${{ matrix.os }}-${{ matrix.rust-version }}
+
       - name: Install dependencies
         run: pnpm install
+
       - name: install Rust stable
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
         with:
-          toolchain: stable
+          workspaces: './src-tauri -> target'
 
       - name: install webkit2gtk (ubuntu only)
         if: matrix.os == 'ubuntu-latest'
