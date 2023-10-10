@@ -52,12 +52,12 @@ jobs:
         run: pnpm run tauri build
       - uses: tauri-apps/tauri-action@v0
         env:
-          GITHUB_TOKEN: ${{ secrets.JUPYTER_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           # TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           # TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
-          tagName: Desktop-v__VERSION__
-          releaseName: "JupyterLab Desktop v__VERSION__"
+          tagName: v__VERSION__
+          releaseName: "DuckStudio v__VERSION__"
           releaseBody: "See the assets to download this version and install."
           releaseDraft: true
           prerelease: false
