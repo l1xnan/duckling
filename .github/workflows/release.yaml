@@ -29,6 +29,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
       - uses: pnpm/action-setup@v2
         with:
           version: 8
@@ -36,12 +44,20 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+
+      - id: cache-rustup
+        name: Cache Rust toolchain
+        uses: actions/cache@v3
+        with:
+          path: ~/.rustup
+          key: toolchain-${{ matrix.os }}-${{ matrix.rust-version }}
       - name: Install dependencies
         run: pnpm install
       - name: install Rust stable
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+
       - name: install webkit2gtk (ubuntu only)
         if: matrix.os == 'ubuntu-latest'
         run: |
