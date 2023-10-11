@@ -1,8 +1,14 @@
+import {
+  AppShell,
+  Burger,
+  Group,
+  MantineProvider,
+  Button,
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import { invoke } from "@tauri-apps/api/tauri";
 import { Table, tableFromIPC } from "apache-arrow";
 import { useState } from "react";
-import "./App.css";
-import reactLogo from "./assets/react.svg";
 import Dataset from "./Dataset";
 
 interface ValidationResponse {
@@ -10,6 +16,8 @@ interface ValidationResponse {
   preview: Array<number>;
 }
 function App() {
+  const [opened, { toggle }] = useDisclosure();
+
   const [greetMsg, setGreetMsg] = useState("");
   const [name, setName] = useState("");
   const [data, setData] = useState([]);
@@ -52,26 +60,51 @@ function App() {
   }
 
   return (
-    <div className="container">
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-
-          read_parquet();
+    <MantineProvider>
+      <AppShell
+        header={{ height: 60 }}
+        navbar={{
+          width: 300,
+          breakpoint: "sm",
+          collapsed: { mobile: !opened },
         }}
+        padding="md"
       >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Read</button>
-      </form>
-      <p>{greetMsg}</p>
-      <Dataset data={data} columns={schema} />
-    </div>
+        <AppShell.Header>
+          <Group h="100%" px="md">
+            <Burger
+              opened={opened}
+              onClick={toggle}
+              hiddenFrom="sm"
+              size="sm"
+            />
+          </Group>
+        </AppShell.Header>
+        <AppShell.Navbar p="md">Navbar</AppShell.Navbar>
+        <AppShell.Main>
+          <form
+            className="row"
+            onSubmit={(e) => {
+              e.preventDefault();
+              greet();
+
+              read_parquet();
+            }}
+          >
+            <input
+              id="greet-input"
+              onChange={(e) => setName(e.currentTarget.value)}
+              placeholder="Enter a name..."
+            />
+            <Button type="submit" color="violet">
+              Read
+            </Button>
+          </form>
+          <p>{greetMsg}</p>
+          <Dataset data={data} columns={schema} />
+        </AppShell.Main>
+      </AppShell>
+    </MantineProvider>
   );
 }
 
