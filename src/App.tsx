@@ -14,6 +14,9 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { TreeView } from "@mui/x-tree-view/TreeView";
 import { TreeItem } from "@mui/x-tree-view/TreeItem";
+
+import * as dialog from "@tauri-apps/plugin-dialog";
+
 interface ValidationResponse {
   row_count: number;
   preview: Array<number>;
@@ -43,7 +46,7 @@ function App() {
   const [data, setData] = useState([]);
   const [schema, setSchema] = useState([]);
 
-  async function greet() {
+  async function openDirectory(name?: string) {
     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
     const pathTree = await invoke("greet", { name });
     console.log(pathTree);
@@ -115,13 +118,23 @@ function App() {
           </TreeView>
         </AppShell.Navbar>
         <AppShell.Main>
+          <Button
+            onClick={async () => {
+              const res = await dialog.open({
+                directory: true,
+              });
+              if (res) {
+                openDirectory(res);
+              }
+            }}
+          >
+            Open
+          </Button>
           <form
             className="row"
             onSubmit={(e) => {
               e.preventDefault();
-              greet();
-
-              // read_parquet();
+              openDirectory();
             }}
           >
             <input

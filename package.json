@@ -22,6 +22,7 @@
     "@mui/x-tree-view": "6.0.0-beta.0",
     "@tabler/icons-react": "^2.39.0",
     "@tauri-apps/api": "2.0.0-alpha.8",
+    "@tauri-apps/plugin-dialog": "2.0.0-alpha.1",
     "apache-arrow": "^13.0.0",
     "dayjs": "^1.11.10",
     "mantine-react-table": "2.0.0-alpha.1",
