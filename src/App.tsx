@@ -24,10 +24,10 @@ const genDirTree = (tree) => {
     return null;
   }
   if (tree.children.length == 0) {
-    <TreeItem key={tree.name} nodeId={tree.name} label={tree.name} />;
+    <TreeItem key={tree.path} nodeId={tree.path} label={tree.name} />;
   }
   return (
-    <TreeItem key={tree.name} nodeId={tree.name} label={tree.name}>
+    <TreeItem key={tree.path} nodeId={tree.path} label={tree.name}>
       {tree.children?.map((item) => {
         return genDirTree(item);
       })}
@@ -50,10 +50,10 @@ function App() {
     setPathTree(pathTree);
   }
 
-  async function read_parquet() {
+  async function read_parquet(path: string) {
     const { row_count, preview }: ValidationResponse = await invoke(
       "read_parquet",
-      { path: name }
+      { path }
     );
     const table: Table = tableFromIPC(Uint8Array.from(preview));
     console.log(row_count, table);
@@ -107,6 +107,9 @@ function App() {
             aria-label="file system navigator"
             defaultCollapseIcon={<ExpandMoreIcon />}
             defaultExpandIcon={<ChevronRightIcon />}
+            onNodeSelect={(_, nodeId) => {
+              read_parquet(nodeId);
+            }}
           >
             {genDirTree(pathTree)}
           </TreeView>
