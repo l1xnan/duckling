@@ -10,22 +10,44 @@ import { invoke } from "@tauri-apps/api/tauri";
 import { Table, tableFromIPC } from "apache-arrow";
 import { useState } from "react";
 import Dataset from "./Dataset";
-
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { TreeView } from "@mui/x-tree-view/TreeView";
+import { TreeItem } from "@mui/x-tree-view/TreeItem";
 interface ValidationResponse {
   row_count: number;
   preview: Array<number>;
 }
+
+const genDirTree = (tree) => {
+  if (!tree) {
+    return null;
+  }
+  if (tree.children.length == 0) {
+    <TreeItem key={tree.name} nodeId={tree.name} label={tree.name} />;
+  }
+  return (
+    <TreeItem key={tree.name} nodeId={tree.name} label={tree.name}>
+      {tree.children?.map((item) => {
+        return genDirTree(item);
+      })}
+    </TreeItem>
+  );
+};
+
 function App() {
   const [opened, { toggle }] = useDisclosure();
 
-  const [greetMsg, setGreetMsg] = useState("");
+  const [pathTree, setPathTree] = useState();
   const [name, setName] = useState("");
   const [data, setData] = useState([]);
   const [schema, setSchema] = useState([]);
 
   async function greet() {
     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    setGreetMsg(await invoke("greet", { name }));
+    const pathTree = await invoke("greet", { name });
+    console.log(pathTree);
+    setPathTree(pathTree);
   }
 
   async function read_parquet() {
@@ -80,7 +102,15 @@ function App() {
             />
           </Group>
         </AppShell.Header>
-        <AppShell.Navbar p="md">Navbar</AppShell.Navbar>
+        <AppShell.Navbar p="md">
+          <TreeView
+            aria-label="file system navigator"
+            defaultCollapseIcon={<ExpandMoreIcon />}
+            defaultExpandIcon={<ChevronRightIcon />}
+          >
+            {genDirTree(pathTree)}
+          </TreeView>
+        </AppShell.Navbar>
         <AppShell.Main>
           <form
             className="row"
@@ -88,7 +118,7 @@ function App() {
               e.preventDefault();
               greet();
 
-              read_parquet();
+              // read_parquet();
             }}
           >
             <input
@@ -100,7 +130,6 @@ function App() {
               Read
             </Button>
           </form>
-          <p>{greetMsg}</p>
           <Dataset data={data} columns={schema} />
         </AppShell.Main>
       </AppShell>

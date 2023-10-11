@@ -19,6 +19,7 @@
     "@mui/icons-material": "^5.14.13",
     "@mui/material": "^5.14.13",
     "@mui/x-date-pickers": "^6.16.1",
+    "@mui/x-tree-view": "6.0.0-beta.0",
     "@tabler/icons-react": "^2.39.0",
     "@tauri-apps/api": "2.0.0-alpha.8",
     "apache-arrow": "^13.0.0",
