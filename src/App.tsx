@@ -8,12 +8,13 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import { invoke } from "@tauri-apps/api/tauri";
 import { Table, tableFromIPC } from "apache-arrow";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Dataset from "./Dataset";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { TreeView } from "@mui/x-tree-view/TreeView";
 import { TreeItem } from "@mui/x-tree-view/TreeItem";
+import { listen } from "@tauri-apps/api/event";
 
 import * as dialog from "@tauri-apps/plugin-dialog";
 
@@ -84,6 +85,16 @@ function App() {
     console.table(schema);
   }
 
+  useEffect(() => {
+    const unlisten = listen("open-directory", (e) => {
+      console.log(e.payload);
+
+      openDirectory(e.payload as string);
+    });
+    return () => {
+      unlisten.then((f) => f());
+    };
+  }, []);
   return (
     <MantineProvider>
       <AppShell

@@ -2,10 +2,14 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use arrow::{ipc::writer::StreamWriter, record_batch::RecordBatch};
+use duckdb::{params, Connection, Result};
 use std::fmt::format;
 use std::path::Path;
-
-use duckdb::{params, Connection, Result};
+use tauri::{
+  menu::{CheckMenuItemBuilder, MenuBuilder, MenuItemBuilder, SubmenuBuilder},
+  Manager,
+};
+use tauri_plugin_dialog::DialogExt;
 
 use duckdb::arrow::util::pretty::print_batches;
 use serde::{Deserialize, Serialize};
@@ -49,11 +53,7 @@ fn directory_tree(path: &str) -> FileNode {
         } else {
           node.children.push(FileNode {
             path: path.display().to_string(),
-            name: path
-              .file_name()
-              .unwrap()
-              .to_string_lossy()
-              .to_string(),
+            name: path.file_name().unwrap().to_string_lossy().to_string(),
             is_dir: false,
             children: Vec::new(),
           });
@@ -82,7 +82,7 @@ fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::Arro
 async fn read_parquet(path: String) -> ValidationResponse {
   let db = Connection::open_in_memory().unwrap();
 
-  let sql = format!("select * from read_parquet('{}')", path);
+  let sql = format!("select * from read_parquet('{}') limit 1000", path);
   let mut stmt = db.prepare(sql.as_str()).unwrap();
 
   let frames = stmt.query_arrow(duckdb::params![]).unwrap();
@@ -102,6 +102,42 @@ async fn read_parquet(path: String) -> ValidationResponse {
 
 fn main() {
   tauri::Builder::default()
+    .plugin(tauri_plugin_dialog::init())
+    .setup(|app| {
+      let toggle = MenuItemBuilder::with_id("toggle", "Toggle").build(app);
+      let check = CheckMenuItemBuilder::new("Mark").build(app);
+      let submenu = SubmenuBuilder::new(app, "File")
+        .text("open-file", "Open File")
+        .text("open-directory", "Open Directory")
+        .separator()
+        .check("Is Awesome", "Demo")
+        .build()?;
+
+      let menu = MenuBuilder::new(app)
+        .items(&[&submenu, &toggle, &check])
+        .build()?;
+      app.set_menu(menu)?;
+
+      app.on_menu_event(move |app, event| {
+        println!("{:?}", event.id());
+
+        let id = event.id();
+        if event.id() == check.id() {
+          println!(
+            "`check` triggered, do something! is checked? {}",
+            check.is_checked().unwrap()
+          );
+        } else if event.id() == "toggle" {
+          println!("toggle triggered!");
+        } else if id == "open-directory" {
+          let path = app.dialog().file().blocking_pick_folder();
+          if let Some(dir) = path {
+            app.emit_all("open-directory", dir);
+          }
+        }
+      });
+      Ok(())
+    })
     .invoke_handler(tauri::generate_handler![greet, read_parquet])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
