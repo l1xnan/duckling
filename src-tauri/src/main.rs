@@ -3,11 +3,19 @@
 
 use arrow::{ipc::writer::StreamWriter, record_batch::RecordBatch};
 use std::fmt::format;
+use std::path::Path;
 
 use duckdb::{params, Connection, Result};
 
 use duckdb::arrow::util::pretty::print_batches;
+use serde::{Deserialize, Serialize};
+use std::fs;
 
+#[derive(Debug, Serialize, Deserialize)]
+struct FileNode {
+  name: String,
+  children: Vec<FileNode>,
+}
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct ValidationResponse {
   /// The total number of rows that were selected.
@@ -17,9 +25,37 @@ pub struct ValidationResponse {
   pub preview: Vec<u8>,
 }
 
+fn directory_tree(path: &str) -> FileNode {
+  let mut node = FileNode {
+    name: path.to_string(),
+    children: Vec::new(),
+  };
+
+  if let Ok(entries) = fs::read_dir(path) {
+    for entry in entries {
+      if let Ok(entry) = entry {
+        let path = entry.path();
+        if path.is_dir() {
+          let child_node = directory_tree(path.to_str().unwrap());
+          node.children.push(child_node);
+        } else {
+          node.children.push(FileNode {
+            name: path.display().to_string(),
+            children: Vec::new(),
+          });
+        }
+      }
+    }
+  }
+
+  node
+}
+
 #[tauri::command]
-fn greet(name: &str) -> String {
-  format!("Hello, {}! You've been greeted from Rust!", name)
+fn greet(name: &str) -> FileNode {
+  let tree = directory_tree(name);
+  println!("{:#?}", tree);
+  tree
 }
 
 fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::ArrowError> {
