@@ -1,8 +1,13 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/tauri";
+import { Table, tableFromIPC } from "apache-arrow";
+import { useState } from "react";
 import "./App.css";
+import reactLogo from "./assets/react.svg";
 
+interface ValidationResponse {
+  row_count: number;
+  preview: Array<number>;
+}
 function App() {
   const [greetMsg, setGreetMsg] = useState("");
   const [name, setName] = useState("");
@@ -10,6 +15,30 @@ function App() {
   async function greet() {
     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
     setGreetMsg(await invoke("greet", { name }));
+  }
+
+  async function read_parquet() {
+    const { row_count, preview }: ValidationResponse = await invoke(
+      "read_parquet",
+      { path: name }
+    );
+    const table: Table = tableFromIPC(Uint8Array.from(preview));
+    console.log(row_count, table);
+    console.table(table.toArray());
+
+    const array = table.toArray();
+    console.table(array.map((item: any) => item.toJSON()));
+
+    const schema = table.schema.fields.map((field: any) => {
+      const fs = {
+        name: field.name,
+        data_type: field.type.toString(),
+        nullable: field.nullable,
+      };
+      return fs;
+    });
+
+    console.table(schema);
   }
 
   return (
@@ -35,6 +64,8 @@ function App() {
         onSubmit={(e) => {
           e.preventDefault();
           greet();
+
+          read_parquet();
         }}
       >
         <input
