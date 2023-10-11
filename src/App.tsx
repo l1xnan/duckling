@@ -3,6 +3,7 @@ import { Table, tableFromIPC } from "apache-arrow";
 import { useState } from "react";
 import "./App.css";
 import reactLogo from "./assets/react.svg";
+import Dataset from "./Dataset";
 
 interface ValidationResponse {
   row_count: number;
@@ -11,6 +12,8 @@ interface ValidationResponse {
 function App() {
   const [greetMsg, setGreetMsg] = useState("");
   const [name, setName] = useState("");
+  const [data, setData] = useState([]);
+  const [schema, setSchema] = useState([]);
 
   async function greet() {
     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -24,41 +27,32 @@ function App() {
     );
     const table: Table = tableFromIPC(Uint8Array.from(preview));
     console.log(row_count, table);
-    console.table(table.toArray());
 
     const array = table.toArray();
-    console.table(array.map((item: any) => item.toJSON()));
 
     const schema = table.schema.fields.map((field: any) => {
-      const fs = {
+      return {
         name: field.name,
         data_type: field.type.toString(),
         nullable: field.nullable,
       };
-      return fs;
     });
 
+    const data = array.map((item: any) => item.toJSON());
+
+    setData(data);
+    setSchema(
+      schema.map(({ name }: any) => ({
+        accessorKey: name,
+        header: name,
+      }))
+    );
+    console.table(data);
     console.table(schema);
   }
 
   return (
     <div className="container">
-      <h1>Welcome to Tauri!</h1>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
       <form
         className="row"
         onSubmit={(e) => {
@@ -73,10 +67,10 @@ function App() {
           onChange={(e) => setName(e.currentTarget.value)}
           placeholder="Enter a name..."
         />
-        <button type="submit">Greet</button>
+        <button type="submit">Read</button>
       </form>
-
       <p>{greetMsg}</p>
+      <Dataset data={data} columns={schema} />
     </div>
   );
 }
