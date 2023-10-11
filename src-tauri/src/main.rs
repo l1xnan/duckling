@@ -14,6 +14,8 @@ use std::fs;
 #[derive(Debug, Serialize, Deserialize)]
 struct FileNode {
   name: String,
+  path: String,
+  is_dir: bool,
   children: Vec<FileNode>,
 }
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
@@ -27,7 +29,13 @@ pub struct ValidationResponse {
 
 fn directory_tree(path: &str) -> FileNode {
   let mut node = FileNode {
-    name: path.to_string(),
+    path: path.to_string(),
+    name: Path::new(path)
+      .file_name()
+      .unwrap()
+      .to_string_lossy()
+      .to_string(),
+    is_dir: Path::new(path).is_dir(),
     children: Vec::new(),
   };
 
@@ -40,7 +48,13 @@ fn directory_tree(path: &str) -> FileNode {
           node.children.push(child_node);
         } else {
           node.children.push(FileNode {
-            name: path.display().to_string(),
+            path: path.display().to_string(),
+            name: path
+              .file_name()
+              .unwrap()
+              .to_string_lossy()
+              .to_string(),
+            is_dir: false,
             children: Vec::new(),
           });
         }
