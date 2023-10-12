@@ -1,54 +1,113 @@
 import {
+  MRT_ColumnDef,
   MaterialReactTable,
   useMaterialReactTable,
 } from "material-react-table";
+import { useMemo } from "react";
 
-export default function Dataset({ data, columns }: any) {
+type SchemaType = {
+  name: string;
+  dataType: string;
+  nullable: string;
+};
+
+interface DatasetProps {
+  data: any[];
+  schema: SchemaType[];
+}
+
+export default function Dataset({ data, schema }: DatasetProps) {
+  const columns = useMemo<MRT_ColumnDef<any>[]>(
+    () =>
+      schema?.map(({ name, dataType }) => ({
+        accessorKey: name,
+        header: name,
+        accessorFn:
+          dataType !== "Int64" ? undefined : (row) => row?.[name].toString(),
+        muiTableBodyCellProps: {
+          align:
+            dataType.includes("Int") || dataType.includes("Float")
+              ? "right"
+              : "left",
+        },
+      })),
+    [schema]
+  );
+
   const table = useMaterialReactTable({
     columns,
     data,
-    enableRowSelection: true,
     initialState: {
       density: "compact",
     },
+    enableRowVirtualization: true,
+    enableRowSelection: false,
+    enableRowPinning: true,
+    rowPinningDisplayMode: "select-sticky",
+
+    enableStickyHeader: true,
+    enablePagination: false,
     defaultDisplayColumn: {
       enableResizing: true,
     },
-    enableBottomToolbar: false,
+    enableDensityToggle: false,
     enableColumnResizing: true,
+    enableColumnOrdering: true,
+    enableColumnPinning: true,
     enableColumnVirtualization: true,
     enableGlobalFilterModes: true,
-    enablePagination: false,
     enablePinning: true,
     enableRowNumbers: true,
-    enableRowVirtualization: true,
     muiTableContainerProps: {
       sx: {
-        // maxHeight: "600px",
         maxHeight: "calc(100vh - 60px)",
-        // overflowX: "auto",
         fontFamily: "Consolas",
+        borderTop: "1px solid #e2e2e2",
       },
     },
+    muiTopToolbarProps: {},
     muiTableProps: {
       sx: {
         borderSpacing: 0,
+        boxSizing: "border-box",
+      },
+    },
+    muiTableHeadRowProps: {
+      sx: {
+        boxShadow: "1px 0 2px rgba(0, 0, 0, 0.1)",
       },
     },
     muiTableHeadCellProps: {
       sx: {
         lineHeight: 1,
         fontFamily: "Consolas",
+        borderRight: "1px solid #e2e2e2",
+      },
+    },
+    muiTableBodyProps: {
+      sx: {
+        "&:nth-of-type(odd)": {
+          backgroundColor: "white",
+        },
+        "&:nth-of-type(even)": {
+          backgroundColor: "grey ",
+        },
+      },
+    },
+    muiTableBodyRowProps: {
+      sx: {
+        "&:*": {
+          backgroundColor: "grey",
+        },
       },
     },
     muiTableBodyCellProps: {
       sx: {
-        // maxHeight: "calc(100vh - 80px)",
-        // overflow: "auto",
-        // p: 1,
+        p: 1,
         fontSize: 10,
         fontFamily: "Consolas",
-        border: "1px solid #f2f2f2",
+        borderBottom: "1px solid #e2e2e2",
+        borderRight: "1px solid #e2e2e2",
         lineHeight: 1,
         borderCollapse: "collapse",
       },

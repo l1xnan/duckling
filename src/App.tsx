@@ -1,15 +1,15 @@
 import { useDisclosure } from "@mantine/hooks";
 import { invoke } from "@tauri-apps/api/tauri";
+// @ts-ignore
 import { Table, tableFromIPC } from "apache-arrow";
 import { useEffect, useState } from "react";
 import Dataset from "./Dataset";
 import { listen } from "@tauri-apps/api/event";
-import { IconFolder, IconFile } from "@tabler/icons-react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 import * as dialog from "@tauri-apps/plugin-dialog";
 import FileTreeView, { FileNode } from "./FileTree";
-import { Box, Button } from "@mui/material";
+import { Box, Button, CssBaseline } from "@mui/material";
 
 interface ValidationResponse {
   row_count: number;
@@ -21,9 +21,13 @@ const theme = createTheme({
   shadows: [...Array(25).fill("none")],
   palette: {
     mode: "light",
+    // mode: "dark",
+  },
+  typography: {
+    fontFamily: "Consolas",
+    fontSize: 14,
   },
 });
-
 
 const DialogButton = () => {
   return (
@@ -45,16 +49,14 @@ const DialogButton = () => {
 function App() {
   const [opened, { toggle }] = useDisclosure();
 
-  const [fileTree, setFileTree] = useState<FileNode | null>(null);
+  const [folders, setFolders] = useState<FileNode[]>([]);
   const [data, setData] = useState([]);
   const [schema, setSchema] = useState([]);
 
   async function openDirectory(name?: string) {
-    // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
     const fileTree: FileNode = await invoke("greet", { name });
-    console.log(fileTree);
     if (!!fileTree) {
-      setFileTree(fileTree);
+      setFolders([...folders, fileTree]);
     }
   }
 
@@ -71,20 +73,17 @@ function App() {
     const schema = table.schema.fields.map((field: any) => {
       return {
         name: field.name,
-        data_type: field.type.toString(),
+        dataType: field.type.toString(),
+        type: field.type,
         nullable: field.nullable,
+        metadata: field.metadata,
       };
     });
 
     const data = array.map((item: any) => item.toJSON());
 
     setData(data);
-    setSchema(
-      schema.map(({ name }: any) => ({
-        accessorKey: name,
-        header: name,
-      }))
-    );
+    setSchema(schema);
     console.table(data);
     console.table(schema);
   }
@@ -101,6 +100,7 @@ function App() {
   }, []);
   return (
     <ThemeProvider theme={theme}>
+      <CssBaseline enableColorScheme />
       <Box
         sx={{
           display: "flex",
@@ -109,24 +109,24 @@ function App() {
           pr: 0,
           p: 0,
           m: 0,
-          // overflow: "hidden",
         }}
       >
         <Box
           sx={{
             flexShrink: 0,
             width: 300,
-            maxHeight: "100vh",
+            minHeight: "100vh",
             height: "100%",
             overflow: "auto",
             pr: 1,
             pb: 5,
+            borderRight: "1px solid #e2e2e2",
           }}
         >
-          {fileTree ? (
+          {folders ? (
             <ThemeProvider theme={theme}>
               <FileTreeView
-                data={fileTree}
+                data={folders}
                 onNodeSelect={(_, nodeId) => {
                   if (nodeId.endsWith(".parquet")) {
                     read_parquet(nodeId);
@@ -145,7 +145,7 @@ function App() {
             overflow: "hidden",
           }}
         >
-          <Dataset data={data} columns={schema} />
+          <Dataset data={data} schema={schema} />
         </Box>
       </Box>
     </ThemeProvider>

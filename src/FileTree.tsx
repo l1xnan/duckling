@@ -13,7 +13,7 @@ export interface FileNode {
 }
 
 export interface FileTreeProps extends TreeViewProps<undefined> {
-  data: FileNode;
+  data: FileNode[];
 }
 
 export default function FileTree({
@@ -54,7 +54,7 @@ export default function FileTree({
       onNodeSelect={onNodeSelect}
       {...rest}
     >
-      {renderTree(data)}
+      {data?.map((item) => renderTree(item))}
     </TreeView>
   );
 }
