@@ -47,6 +47,9 @@ dependencies:
   apache-arrow:
     specifier: ^13.0.0
     version: 13.0.0
+  clsx:
+    specifier: ^2.0.0
+    version: 2.0.0
   dayjs:
     specifier: ^1.11.10
     version: 1.11.10
