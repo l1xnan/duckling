@@ -1,57 +1,61 @@
-import {
-  AppShell,
-  Burger,
-  Group,
-  MantineProvider,
-  Button,
-} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { invoke } from "@tauri-apps/api/tauri";
 import { Table, tableFromIPC } from "apache-arrow";
 import { useEffect, useState } from "react";
 import Dataset from "./Dataset";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { TreeView } from "@mui/x-tree-view/TreeView";
-import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import { listen } from "@tauri-apps/api/event";
+import { IconFolder, IconFile } from "@tabler/icons-react";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 import * as dialog from "@tauri-apps/plugin-dialog";
+import FileTreeView, { FileNode } from "./FileTree";
+import { Box, Button } from "@mui/material";
 
 interface ValidationResponse {
   row_count: number;
   preview: Array<number>;
 }
 
-const genDirTree = (tree) => {
-  if (!tree) {
-    return null;
-  }
-  if (tree.children.length == 0) {
-    <TreeItem key={tree.path} nodeId={tree.path} label={tree.name} />;
-  }
+const theme = createTheme({
+  // @ts-ignore
+  shadows: [...Array(25).fill("none")],
+  palette: {
+    mode: "light",
+  },
+});
+
+
+const DialogButton = () => {
   return (
-    <TreeItem key={tree.path} nodeId={tree.path} label={tree.name}>
-      {tree.children?.map((item) => {
-        return genDirTree(item);
-      })}
-    </TreeItem>
+    <Button
+      onClick={async () => {
+        const res = await dialog.open({
+          directory: true,
+        });
+        if (res) {
+          // openDirectory(res);
+        }
+      }}
+    >
+      Open
+    </Button>
   );
 };
 
 function App() {
   const [opened, { toggle }] = useDisclosure();
 
-  const [pathTree, setPathTree] = useState();
-  const [name, setName] = useState("");
+  const [fileTree, setFileTree] = useState<FileNode | null>(null);
   const [data, setData] = useState([]);
   const [schema, setSchema] = useState([]);
 
   async function openDirectory(name?: string) {
     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    const pathTree = await invoke("greet", { name });
-    console.log(pathTree);
-    setPathTree(pathTree);
+    const fileTree: FileNode = await invoke("greet", { name });
+    console.log(fileTree);
+    if (!!fileTree) {
+      setFileTree(fileTree);
+    }
   }
 
   async function read_parquet(path: string) {
@@ -96,71 +100,55 @@ function App() {
     };
   }, []);
   return (
-    <MantineProvider>
-      <AppShell
-        header={{ height: 60 }}
-        navbar={{
-          width: 300,
-          breakpoint: "sm",
-          collapsed: { mobile: !opened },
+    <ThemeProvider theme={theme}>
+      <Box
+        sx={{
+          display: "flex",
+          maxHeight: "100vh",
+          height: "100%",
+          pr: 0,
+          p: 0,
+          m: 0,
+          // overflow: "hidden",
         }}
-        padding="md"
       >
-        <AppShell.Header>
-          <Group h="100%" px="md">
-            <Burger
-              opened={opened}
-              onClick={toggle}
-              hiddenFrom="sm"
-              size="sm"
-            />
-          </Group>
-        </AppShell.Header>
-        <AppShell.Navbar p="md">
-          <TreeView
-            aria-label="file system navigator"
-            defaultCollapseIcon={<ExpandMoreIcon />}
-            defaultExpandIcon={<ChevronRightIcon />}
-            onNodeSelect={(_, nodeId) => {
-              read_parquet(nodeId);
-            }}
-          >
-            {genDirTree(pathTree)}
-          </TreeView>
-        </AppShell.Navbar>
-        <AppShell.Main>
-          <Button
-            onClick={async () => {
-              const res = await dialog.open({
-                directory: true,
-              });
-              if (res) {
-                openDirectory(res);
-              }
-            }}
-          >
-            Open
-          </Button>
-          <form
-            className="row"
-            onSubmit={(e) => {
-              e.preventDefault();
-              openDirectory();
-            }}
-          >
-            <input
-              id="greet-input"
-              onChange={(e) => setName(e.currentTarget.value)}
-              placeholder="Enter a name..."
-            />
-            <Button type="submit" color="violet">
-              Read
-            </Button>
-          </form>
+        <Box
+          sx={{
+            flexShrink: 0,
+            width: 300,
+            maxHeight: "100vh",
+            height: "100%",
+            overflow: "auto",
+            pr: 1,
+            pb: 5,
+          }}
+        >
+          {fileTree ? (
+            <ThemeProvider theme={theme}>
+              <FileTreeView
+                data={fileTree}
+                onNodeSelect={(_, nodeId) => {
+                  if (nodeId.endsWith(".parquet")) {
+                    read_parquet(nodeId);
+                  }
+                }}
+              />
+            </ThemeProvider>
+          ) : null}
+        </Box>
+        <Box
+          sx={{
+            flexGrow: 1,
+            height: "100vh",
+            maxHeight: "100vh",
+            width: "calc(100vw - 300px)",
+            overflow: "hidden",
+          }}
+        >
           <Dataset data={data} columns={schema} />
-        </AppShell.Main>
-      </AppShell>
-    </MantineProvider>
+        </Box>
+      </Box>
+    </ThemeProvider>
   );
 }
 
