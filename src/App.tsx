@@ -116,7 +116,7 @@ function App() {
             flexShrink: 0,
             width: 300,
             minHeight: "100vh",
-            height: "100%",
+            height: "100vh",
             overflow: "auto",
             pr: 1,
             pb: 5,

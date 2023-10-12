@@ -4,6 +4,7 @@ import {
   useMaterialReactTable,
 } from "material-react-table";
 import { useMemo } from "react";
+import * as dayjs from "dayjs";
 
 type SchemaType = {
   name: string;
@@ -19,18 +20,27 @@ interface DatasetProps {
 export default function Dataset({ data, schema }: DatasetProps) {
   const columns = useMemo<MRT_ColumnDef<any>[]>(
     () =>
-      schema?.map(({ name, dataType }) => ({
-        accessorKey: name,
-        header: name,
-        accessorFn:
-          dataType !== "Int64" ? undefined : (row) => row?.[name].toString(),
-        muiTableBodyCellProps: {
-          align:
-            dataType.includes("Int") || dataType.includes("Float")
-              ? "right"
-              : "left",
-        },
-      })),
+      schema?.map(({ name, dataType }) => {
+        let accessorFn = undefined;
+        if (dataType === "Int64") {
+          accessorFn = (row: any) => row?.[name].toString();
+        } else if (dataType.includes("Float")) {
+          accessorFn = (row: any) => row?.[name].toFixed(4);
+        } else if (dataType.includes("Date32")) {
+          accessorFn = (row: any) => dayjs(row?.[name]).format("YYYY-MM-DD");
+        }
+        return {
+          accessorKey: name,
+          header: name,
+          accessorFn,
+          muiTableBodyCellProps: {
+            align:
+              dataType.includes("Int") || dataType.includes("Float")
+                ? "right"
+                : "left",
+          },
+        };
+      }),
     [schema]
   );
 
@@ -82,6 +92,7 @@ export default function Dataset({ data, schema }: DatasetProps) {
         lineHeight: 1,
         fontFamily: "Consolas",
         borderRight: "1px solid #e2e2e2",
+        p: `6px`,
       },
     },
     muiTableBodyProps: {
@@ -103,9 +114,8 @@ export default function Dataset({ data, schema }: DatasetProps) {
     },
     muiTableBodyCellProps: {
       sx: {
-        p: 1,
+        p: `6px`,
         fontSize: 10,
-        fontFamily: "Consolas",
         borderBottom: "1px solid #e2e2e2",
         borderRight: "1px solid #e2e2e2",
         lineHeight: 1,
