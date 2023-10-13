@@ -5,17 +5,8 @@ import {
 } from "material-react-table";
 import { useContext, useMemo } from "react";
 import * as dayjs from "dayjs";
-import {
-  Box,
-  ClickAwayListener,
-  Divider,
-  Grow,
-  MenuItem,
-  MenuList,
-  Paper,
-  Popper,
-} from "@mui/material";
-import { IconCaretUpDown, IconCaretUpDownFilled } from "@tabler/icons-react";
+import { Box, Divider, Stack } from "@mui/material";
+import { IconCaretUpDownFilled } from "@tabler/icons-react";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
@@ -256,13 +247,17 @@ export default function Dataset({ data, schema }: DatasetProps) {
     },
   });
   return (
-    <Box>
-      <Box
+    <Box sx={{}}>
+      <Stack
+        direction="row"
+        spacing={1}
+        alignItems="center"
         sx={(theme) => ({
           backgroundColor: isDarkTheme(theme) ? "#2b2d30" : "#f7f8fa",
           height: 32,
-          display: "flex",
-          alignItems: "center",
+          "& MuiSvgIcon-root": {
+            fontSize: 16,
+          },
         })}
       >
         <KeyboardDoubleArrowLeftIcon />
@@ -272,7 +267,7 @@ export default function Dataset({ data, schema }: DatasetProps) {
         <KeyboardDoubleArrowRightIcon />
         <Divider orientation="vertical" flexItem />
         <SyncIcon />
-      </Box>
+      </Stack>
       <Box
         sx={(theme) => ({
           backgroundColor: isDarkTheme(theme) ? "#2b2d30" : "#f7f8fa",
@@ -293,6 +288,8 @@ export default function Dataset({ data, schema }: DatasetProps) {
         <Box
           sx={{
             flexGrow: 0,
+            ml: 1,
+            mr: 1,
           }}
         >
           WHERE
@@ -302,6 +299,8 @@ export default function Dataset({ data, schema }: DatasetProps) {
         <Box
           sx={{
             flexGrow: 0,
+            mr: 1,
+            ml: 1,
           }}
         >
           ORDER BY

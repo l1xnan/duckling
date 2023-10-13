@@ -11,25 +11,88 @@ const theme: ThemeOptions = {
   },
   typography: {
     fontFamily: "Consolas",
-    fontSize: 14,
+    fontSize: 12,
+    body1: {},
   },
   components: {
+    MuiButton: {
+      defaultProps: {
+        size: "small",
+      },
+    },
+    MuiFilledInput: {
+      defaultProps: {
+        margin: "dense",
+      },
+    },
+    MuiFormControl: {
+      defaultProps: {
+        margin: "dense",
+      },
+    },
+    MuiFormHelperText: {
+      defaultProps: {
+        margin: "dense",
+      },
+    },
+    MuiIconButton: {
+      defaultProps: {
+        size: "small",
+      },
+    },
+    MuiInputBase: {
+      defaultProps: {
+        margin: "dense",
+      },
+    },
+    MuiInputLabel: {
+      defaultProps: {
+        margin: "dense",
+      },
+    },
+    MuiListItem: {
+      defaultProps: {
+        dense: true,
+      },
+    },
+    MuiOutlinedInput: {
+      defaultProps: {
+        margin: "dense",
+      },
+    },
+    MuiFab: {
+      defaultProps: {
+        size: "small",
+      },
+    },
+    MuiTable: {
+      defaultProps: {
+        size: "small",
+      },
+    },
+    MuiTextField: {
+      defaultProps: {
+        margin: "dense",
+      },
+    },
+    MuiToolbar: {
+      defaultProps: {
+        variant: "dense",
+      },
+    },
     MuiCssBaseline: {
       styleOverrides: {
         body: {
           scrollbarColor: "#6b6b6b #2b2b2b",
           "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
-            // backgroundColor: "#2b2b2b",
             backgroundColor: "#fcfcfc",
             width: "0.6em",
             height: "0.6em",
           },
           "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
             borderRadius: 0,
-            // backgroundColor: "#6b6b6b",
             backgroundColor: "#bdbdbd",
             minHeight: 12,
-            // border: "2px solid #2b2b2b",
           },
           "&::-webkit-scrollbar-thumb:focus, & *::-webkit-scrollbar-thumb:focus":
             {
@@ -52,16 +115,13 @@ const theme: ThemeOptions = {
   },
 };
 
-export const lightTheme = createTheme({
-  ...theme,
+export const lightTheme = createTheme(theme, {
   palette: {
     mode: "light",
   },
 });
 
-// #4d4e51
-export const darkTheme = createTheme({
-  ...theme,
+export const darkTheme = createTheme(theme, {
   palette: {
     mode: "dark",
     background: {
@@ -77,32 +137,13 @@ export const darkTheme = createTheme({
         body: {
           scrollbarColor: "#6b6b6b #2b2b2b",
           "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
-            // backgroundColor: "#2b2b2b",
             backgroundColor: "#4d4e51",
             width: "0.6em",
-            // backgroundColor: "#6b6b6b",
           },
           "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
             borderRadius: 0,
             minHeight: 12,
             backgroundColor: "#5c5d5e",
-            // border: "2px solid #2b2b2b",
-          },
-          height: "0.6em",
-          "&::-webkit-scrollbar-thumb:focus, & *::-webkit-scrollbar-thumb:focus":
-            {
-              backgroundColor: "#959595",
-            },
-          "&::-webkit-scrollbar-thumb:active, & *::-webkit-scrollbar-thumb:active":
-            {
-              backgroundColor: "#959595",
-            },
-          "&::-webkit-scrollbar-thumb:hover, & *::-webkit-scrollbar-thumb:hover":
-            {
-              backgroundColor: "#959595",
-            },
-          "&::-webkit-scrollbar-corner, & *::-webkit-scrollbar-corner": {
-            backgroundColor: "#2b2b2b",
           },
         },
       },
