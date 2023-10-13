@@ -1,70 +1,21 @@
 import { useDisclosure } from "@mantine/hooks";
+import { Box, Button, CssBaseline } from "@mui/material";
+import { ThemeProvider } from "@mui/material/styles";
+import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/tauri";
+import * as dialog from "@tauri-apps/plugin-dialog";
 // @ts-ignore
 import { Table, tableFromIPC } from "apache-arrow";
 import { useEffect, useState } from "react";
-import Dataset from "./Dataset";
-import { listen } from "@tauri-apps/api/event";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
 
-import * as dialog from "@tauri-apps/plugin-dialog";
+import Dataset from "./Dataset";
 import FileTreeView, { FileNode } from "./FileTree";
-import { Box, Button, CssBaseline } from "@mui/material";
+import theme from "./theme";
 
 interface ValidationResponse {
   row_count: number;
   preview: Array<number>;
 }
-
-const theme = createTheme({
-  // @ts-ignore
-  shadows: [...Array(25).fill("none")],
-  palette: {
-    mode: "light",
-    // mode: "dark",
-  },
-  typography: {
-    fontFamily: "Consolas",
-    fontSize: 14,
-  },
-  components: {
-    MuiCssBaseline: {
-      styleOverrides: {
-        body: {
-          scrollbarColor: "#6b6b6b #2b2b2b",
-          "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
-            // backgroundColor: "#2b2b2b",
-            backgroundColor: "#fcfcfc",
-            width: "0.6em",
-            height: "0.6em",
-          },
-          "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
-            borderRadius: 0,
-            // backgroundColor: "#6b6b6b",
-            backgroundColor: "#8b8b8b",
-            minHeight: 12,
-            // border: "2px solid #2b2b2b",
-          },
-          "&::-webkit-scrollbar-thumb:focus, & *::-webkit-scrollbar-thumb:focus":
-            {
-              backgroundColor: "#959595",
-            },
-          "&::-webkit-scrollbar-thumb:active, & *::-webkit-scrollbar-thumb:active":
-            {
-              backgroundColor: "#959595",
-            },
-          "&::-webkit-scrollbar-thumb:hover, & *::-webkit-scrollbar-thumb:hover":
-            {
-              backgroundColor: "#959595",
-            },
-          "&::-webkit-scrollbar-corner, & *::-webkit-scrollbar-corner": {
-            backgroundColor: "#2b2b2b",
-          },
-        },
-      },
-    },
-  },
-});
 
 const DialogButton = () => {
   return (
