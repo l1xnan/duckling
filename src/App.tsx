@@ -7,6 +7,7 @@ import * as dialog from "@tauri-apps/plugin-dialog";
 // @ts-ignore
 import { Table, tableFromIPC } from "apache-arrow";
 import { useEffect, useState } from "react";
+import { useLocalStorageState } from "ahooks";
 
 import Dataset from "./Dataset";
 import FileTreeView, { FileNode } from "./FileTree";
@@ -37,14 +38,16 @@ const DialogButton = () => {
 function App() {
   const [opened, { toggle }] = useDisclosure();
 
-  const [folders, setFolders] = useState<FileNode[]>([]);
+  const [folders, setFolders] = useLocalStorageState<FileNode[]>("folders", {
+    defaultValue: [],
+  });
   const [data, setData] = useState([]);
   const [schema, setSchema] = useState([]);
 
   async function openDirectory(name?: string) {
     const fileTree: FileNode = await invoke("greet", { name });
     if (!!fileTree) {
-      setFolders([...folders, fileTree]);
+      setFolders([...(folders ?? []), fileTree]);
     }
   }
 

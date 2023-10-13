@@ -31,6 +31,7 @@
     "@tauri-apps/api": "2.0.0-alpha.8",
     "@tauri-apps/plugin-dialog": "2.0.0-alpha.1",
     "@uiw/react-codemirror": "^4.21.19",
+    "ahooks": "^3.7.8",
     "apache-arrow": "^13.0.0",
     "clsx": "^2.0.0",
     "dayjs": "^1.11.10",
