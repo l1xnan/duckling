@@ -92,15 +92,35 @@ export default function Dataset({ data, schema }: DatasetProps) {
         },
       };
     });
-    const first = {
+    const first: MRT_ColumnDef<any> = {
       accessorKey: "__index__",
       header: " ",
+      maxSize: 50,
       accessorFn: (row: any) => {
         console.log(row);
-        return row.account_id;
+        return row.account_id.toString();
       },
       muiTableBodyCellProps: {
-        color: "#e3e3e3",
+        align: "right",
+        sx: {
+          color: "#aeb3c2",
+          boxShadow: 0,
+          backgroundColor: "white",
+          borderRight: "1px solid #ebecf0",
+          p: `6px`,
+          fontSize: 10,
+          lineHeight: 1,
+        },
+      },
+      muiTableHeadCellProps: {
+        sx: {
+          color: "#aeb3c2",
+          boxShadow: 0,
+          backgroundColor: "#efefef",
+          borderRight: "1px solid #ebecf0",
+          fontSize: 10,
+          lineHeight: 1,
+        },
       },
     };
     return [first, ...main];
@@ -111,6 +131,9 @@ export default function Dataset({ data, schema }: DatasetProps) {
     data,
     initialState: {
       density: "compact",
+      columnPinning: {
+        left: ["__index__"],
+      },
     },
     // virtual
     enableRowVirtualization: true,
@@ -133,10 +156,10 @@ export default function Dataset({ data, schema }: DatasetProps) {
     enableDensityToggle: false,
     enableColumnResizing: false, // resize column width
     enableColumnOrdering: false,
-    enableColumnPinning: false,
+    enableColumnPinning: true,
     // enableGlobalFilterModes: true,
-    enablePinning: false,
-    enableRowNumbers: true,
+    enablePinning: true,
+    // enableRowNumbers: true,
     muiTablePaperProps: {
       elevation: 0, //change the mui box shadow
       //customize paper styles
@@ -206,9 +229,9 @@ export default function Dataset({ data, schema }: DatasetProps) {
       sx: {
         p: `6px`,
         fontSize: 10,
+        lineHeight: 1,
         borderBottom: "1px solid #e2e2e2",
         borderRight: "1px solid #e2e2e2",
-        lineHeight: 1,
         borderCollapse: "collapse",
       },
     },
