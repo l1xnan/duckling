@@ -6,12 +6,13 @@ import { invoke } from "@tauri-apps/api/tauri";
 import * as dialog from "@tauri-apps/plugin-dialog";
 // @ts-ignore
 import { Table, tableFromIPC } from "apache-arrow";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocalStorageState } from "ahooks";
 
 import Dataset from "./Dataset";
 import FileTreeView, { FileNode } from "./FileTree";
-import theme from "./theme";
+import { ColorModeContext, darkTheme, lightTheme } from "./theme";
+import { isDarkTheme } from "./utils";
 
 interface ValidationResponse {
   row_count: number;
@@ -37,6 +38,7 @@ const DialogButton = () => {
 
 function App() {
   const [opened, { toggle }] = useDisclosure();
+  const [mode, setMode] = useState<"light" | "dark">("dark");
 
   const [folders, setFolders] = useLocalStorageState<FileNode[]>("folders", {
     defaultValue: [],
@@ -89,33 +91,46 @@ function App() {
       unlisten.then((f) => f());
     };
   }, []);
+  const colorMode = useMemo(
+    () => ({
+      toggleColorMode: () => {
+        setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
+      },
+    }),
+    []
+  );
+
+  const theme = useMemo(
+    () => (mode == "dark" ? darkTheme : lightTheme),
+    [mode]
+  );
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline enableColorScheme />
-      <Box
-        sx={{
-          display: "flex",
-          maxHeight: "100vh",
-          height: "100%",
-          pr: 0,
-          p: 0,
-          m: 0,
-        }}
-      >
+    <ColorModeContext.Provider value={colorMode}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline enableColorScheme />
         <Box
           sx={{
-            flexShrink: 0,
-            width: 300,
-            minHeight: "100vh",
-            height: "100vh",
-            overflow: "auto",
-            pr: 1,
-            pb: 5,
-            borderRight: "1px solid #e2e2e2",
+            display: "flex",
+            maxHeight: "100vh",
+            height: "100%",
+            pr: 0,
+            p: 0,
+            m: 0,
           }}
         >
-          {folders ? (
-            <ThemeProvider theme={theme}>
+          <Box
+            sx={{
+              flexShrink: 0,
+              width: 300,
+              minHeight: "100vh",
+              height: "100vh",
+              overflow: "auto",
+              pr: 1,
+              pb: 5,
+              borderRight: isDarkTheme(theme) ? "1px solid #1e1f22" : "1px solid #e2e2e2",
+            }}
+          >
+            {folders ? (
               <FileTreeView
                 data={folders}
                 onNodeSelect={(_, nodeId) => {
@@ -124,22 +139,22 @@ function App() {
                   }
                 }}
               />
-            </ThemeProvider>
-          ) : null}
+            ) : null}
+          </Box>
+          <Box
+            sx={{
+              flexGrow: 1,
+              height: "100vh",
+              maxHeight: "100vh",
+              width: "calc(100vw - 300px)",
+              overflow: "hidden",
+            }}
+          >
+            <Dataset data={data} schema={schema} />
+          </Box>
         </Box>
-        <Box
-          sx={{
-            flexGrow: 1,
-            height: "100vh",
-            maxHeight: "100vh",
-            width: "calc(100vw - 300px)",
-            overflow: "hidden",
-          }}
-        >
-          <Dataset data={data} schema={schema} />
-        </Box>
-      </Box>
-    </ThemeProvider>
+      </ThemeProvider>
+    </ColorModeContext.Provider>
   );
 }
 

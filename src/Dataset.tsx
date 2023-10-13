@@ -3,7 +3,7 @@ import {
   MaterialReactTable,
   useMaterialReactTable,
 } from "material-react-table";
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import * as dayjs from "dayjs";
 import {
   Box,
@@ -22,6 +22,8 @@ import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import Dropdown from "./components/Dropdown";
 import SyncIcon from "@mui/icons-material/Sync";
+import { ColorModeContext } from "./theme";
+import { isDarkTheme } from "./utils";
 type SchemaType = {
   name: string;
   dataType: string;
@@ -34,6 +36,8 @@ interface DatasetProps {
 }
 
 export default function Dataset({ data, schema }: DatasetProps) {
+  const colorMode = useContext(ColorModeContext);
+
   const columns = useMemo<MRT_ColumnDef<any>[]>(() => {
     const main: MRT_ColumnDef<any>[] = schema?.map(({ name, dataType }) => {
       let accessorFn = undefined;
@@ -98,29 +102,34 @@ export default function Dataset({ data, schema }: DatasetProps) {
       maxSize: 50,
       accessorFn: (row: any) => {
         console.log(row);
-        return row.account_id.toString();
+        return 111;
       },
       muiTableBodyCellProps: {
         align: "right",
-        sx: {
+        sx: (theme) => ({
           color: "#aeb3c2",
           boxShadow: 0,
-          backgroundColor: "white",
-          borderRight: "1px solid #ebecf0",
+          backgroundColor: theme.palette.mode === "dark" ? "#2b2d30" : "white",
+          borderRight: isDarkTheme(theme)
+            ? "1px solid #1e1f22"
+            : "1px solid #ebecf0",
+
           p: `6px`,
           fontSize: 10,
           lineHeight: 1,
-        },
+        }),
       },
       muiTableHeadCellProps: {
-        sx: {
+        sx: (theme) => ({
           color: "#aeb3c2",
           boxShadow: 0,
-          backgroundColor: "#efefef",
-          borderRight: "1px solid #ebecf0",
+          backgroundColor: isDarkTheme(theme) ? "#2e2f32" : "#efefef",
+          borderRight: isDarkTheme(theme)
+            ? "1px solid #1e1f22"
+            : "1px solid #e2e2e2",
           fontSize: 10,
           lineHeight: 1,
-        },
+        }),
       },
     };
     return [first, ...main];
@@ -169,11 +178,13 @@ export default function Dataset({ data, schema }: DatasetProps) {
       },
     },
     muiTableContainerProps: {
-      sx: {
+      sx: (theme) => ({
         maxHeight: "calc(100vh - 60px)",
         fontFamily: "Consolas",
-        borderTop: "1px solid #e2e2e2",
-      },
+        borderTop: isDarkTheme(theme)
+          ? "1px solid #393b40"
+          : "1px solid #e2e2e2",
+      }),
     },
     muiTopToolbarProps: {},
     muiTableProps: {
@@ -184,21 +195,24 @@ export default function Dataset({ data, schema }: DatasetProps) {
     },
     muiTableHeadProps: {},
     muiTableHeadRowProps: {
-      sx: {
+      sx: (theme) => ({
         boxShadow: "1px 0 2px rgba(0, 0, 0, 0.1)",
-        backgroundColor: "#f7f8fa",
-      },
+        backgroundColor: isDarkTheme(theme) ? "#2b2d30" : "#f7f8fa",
+      }),
     },
 
     muiTableHeadCellProps: (_) => ({
       //no useTheme hook needed, just use the `sx` prop with the theme callback
-      sx: (_theme) => ({
+      sx: (theme) => ({
         // justifyContent: "space-between",
         // width: "100%",
         alignItems: "center",
         lineHeight: 1,
         fontFamily: "Consolas",
-        borderRight: "1px solid #e2e2e2",
+        borderRight: isDarkTheme(theme)
+          ? "1px solid #1e1f22"
+          : "1px solid #e2e2e2",
+
         p: `6px`,
         "& .Mui-TableHeadCell-Content-Wrapper": {
           width: "100%",
@@ -226,25 +240,30 @@ export default function Dataset({ data, schema }: DatasetProps) {
       },
     },
     muiTableBodyCellProps: {
-      sx: {
+      sx: (theme) => ({
         p: `6px`,
         fontSize: 10,
         lineHeight: 1,
-        borderBottom: "1px solid #e2e2e2",
-        borderRight: "1px solid #e2e2e2",
+        backgroundColor: "#1e1f22",
         borderCollapse: "collapse",
-      },
+        borderBottom: isDarkTheme(theme)
+          ? "1px solid #313438"
+          : "1px solid #ebecf0",
+        borderRight: isDarkTheme(theme)
+          ? "1px solid #313438"
+          : "1px solid #ebecf0",
+      }),
     },
   });
   return (
     <Box>
       <Box
-        sx={{
-          backgroundColor: "#f7f8fa",
+        sx={(theme) => ({
+          backgroundColor: isDarkTheme(theme) ? "#2b2d30" : "#f7f8fa",
           height: 32,
           display: "flex",
           alignItems: "center",
-        }}
+        })}
       >
         <KeyboardDoubleArrowLeftIcon />
         <KeyboardArrowLeftIcon />
@@ -255,19 +274,21 @@ export default function Dataset({ data, schema }: DatasetProps) {
         <SyncIcon />
       </Box>
       <Box
-        sx={{
-          backgroundColor: "#f7f8fa",
+        sx={(theme) => ({
+          backgroundColor: isDarkTheme(theme) ? "#2b2d30" : "#f7f8fa",
           height: 32,
           display: "flex",
           alignItems: "center",
-          border: "1px solid #ebecf0",
+          border: isDarkTheme(theme)
+            ? "1px solid #393b40"
+            : "1px solid  #f7f8fa",
           "& input, & input:focus-visible": {
             border: "none",
             height: "100%",
             padding: 0,
             outlineWidth: 0,
           },
-        }}
+        })}
       >
         <Box
           sx={{
