@@ -103,18 +103,20 @@ async fn read_parquet(path: String) -> ValidationResponse {
 fn main() {
   tauri::Builder::default()
     .plugin(tauri_plugin_dialog::init())
+    .plugin(tauri_plugin_shell::init())
     .setup(|app| {
-      let toggle = MenuItemBuilder::with_id("toggle", "Toggle").build(app);
-      let check = CheckMenuItemBuilder::new("Mark").build(app);
-      let submenu = SubmenuBuilder::new(app, "File")
+      let file_menu = SubmenuBuilder::new(app, "File")
         .text("open-file", "Open File")
         .text("open-directory", "Open Directory")
         .separator()
-        .check("Is Awesome", "Demo")
+        .text("exit", "Exit")
         .build()?;
 
+      let toggle = MenuItemBuilder::with_id("toggle", "Toggle").build(app);
+      let help = CheckMenuItemBuilder::new("Help").build(app);
+
       let menu = MenuBuilder::new(app)
-        .items(&[&submenu, &toggle, &check])
+        .items(&[&file_menu, &toggle, &help])
         .build()?;
       app.set_menu(menu)?;
 
@@ -122,11 +124,13 @@ fn main() {
         println!("{:?}", event.id());
 
         let id = event.id();
-        if event.id() == check.id() {
+        if event.id() == help.id() {
           println!(
             "`check` triggered, do something! is checked? {}",
-            check.is_checked().unwrap()
+            help.is_checked().unwrap()
           );
+
+          // open(&self, path, with)
         } else if event.id() == "toggle" {
           println!("toggle triggered!");
         } else if id == "open-directory" {
