@@ -79,10 +79,10 @@ fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::Arro
 }
 
 #[tauri::command]
-async fn read_parquet(path: String) -> ValidationResponse {
+async fn read_parquet(path: String, limit: i32, offset: i32) -> ValidationResponse {
   let db = Connection::open_in_memory().unwrap();
 
-  let sql = format!("select * from read_parquet('{}') limit 1000", path);
+  let sql = format!("select * from read_parquet('{path}') limit {limit} offset {offset}");
   let mut stmt = db.prepare(sql.as_str()).unwrap();
 
   let frames = stmt.query_arrow(duckdb::params![]).unwrap();
