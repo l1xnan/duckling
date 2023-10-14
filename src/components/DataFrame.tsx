@@ -8,10 +8,13 @@ import * as dayjs from "dayjs";
 import { Box } from "@mui/material";
 import { IconCaretUpDownFilled } from "@tabler/icons-react";
 import { isDarkTheme } from "../utils";
-type SchemaType = {
+
+export type SchemaType = {
   name: string;
   dataType: string;
-  nullable: string;
+  type: any;
+  nullable: boolean;
+  metadata: any;
 };
 
 interface DatasetProps {
@@ -19,21 +22,40 @@ interface DatasetProps {
   schema: SchemaType[];
 }
 
+function display(dataType: string, name: string) {
+  return (row: any) => {
+    try {
+      const value = row?.[name];
+      if (value === null) {
+        return "<null>";
+      }
+      if (dataType === "Bool") {
+        return value.toString();
+      } else if (dataType.includes("Int")) {
+        return value.toString();
+      } else if (dataType.includes("Float")) {
+        return value.toFixed(4);
+      } else if (dataType.includes("Decimal")) {
+        return value.toString();
+      } else if (dataType.includes("Date32")) {
+        return dayjs(value)?.format("YYYY-MM-DD");
+      } else {
+        return value.toString();
+      }
+    } catch (error) {
+      console.error(row, name, error);
+      return `\<${error}\>`;
+    }
+  };
+}
+
 export default function Dataset({ data, schema }: DatasetProps) {
   const columns = useMemo<MRT_ColumnDef<any>[]>(() => {
     const main: MRT_ColumnDef<any>[] = schema?.map(({ name, dataType }) => {
-      let accessorFn = undefined;
-      if (dataType === "Int64") {
-        accessorFn = (row: any) => row?.[name].toString();
-      } else if (dataType.includes("Float")) {
-        accessorFn = (row: any) => row?.[name].toFixed(4);
-      } else if (dataType.includes("Date32")) {
-        accessorFn = (row: any) => dayjs(row?.[name]).format("YYYY-MM-DD");
-      }
       return {
         accessorKey: name,
         header: name,
-        accessorFn,
+        accessorFn: display(dataType, name),
         // maxSize: 100,
         Header: ({ column }) => {
           return (
@@ -76,16 +98,12 @@ export default function Dataset({ data, schema }: DatasetProps) {
               ? "right"
               : "left",
         },
-      };
+      } as MRT_ColumnDef<any>;
     });
     const first: MRT_ColumnDef<any> = {
       accessorKey: "__index__",
       header: " ",
       maxSize: 50,
-      accessorFn: (row: any) => {
-        console.log(row);
-        return 111;
-      },
       muiTableBodyCellProps: {
         align: "right",
         sx: (theme) => ({
@@ -153,7 +171,12 @@ export default function Dataset({ data, schema }: DatasetProps) {
     enableColumnPinning: true,
     // enableGlobalFilterModes: true,
     enablePinning: true,
-    // enableRowNumbers: true,
+    enableRowNumbers: false,
+    muiTableProps: {
+      sx: {
+        tableLayout: "fixed",
+      },
+    },
     muiTablePaperProps: {
       elevation: 0, //change the mui box shadow
       //customize paper styles

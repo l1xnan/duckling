@@ -11,6 +11,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@apache-arrow/ts": "^13.0.0",
     "@codemirror/autocomplete": "^6.10.1",
     "@codemirror/commands": "^6.3.0",
     "@codemirror/lang-sql": "^6.5.4",

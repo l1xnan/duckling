@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@apache-arrow/ts':
+    specifier: ^13.0.0
+    version: 13.0.0
   '@codemirror/autocomplete':
     specifier: ^6.10.1
     version: 6.10.1(@codemirror/language@6.9.1)(@codemirror/state@6.3.0)(@codemirror/view@6.21.3)(@lezer/common@1.1.0)
@@ -130,6 +133,21 @@ packages:
       '@jridgewell/gen-mapping': 0.3.3
       '@jridgewell/trace-mapping': 0.3.19
     dev: true
+
+  /@apache-arrow/ts@13.0.0:
+    resolution: {integrity: sha512-G3nNWYu25QqXT0m/bs2MMBU+jYxoPYpPjLZJS9Lj5eF1Lg1d0juRjaoW8J/jMVWfXyFo1IYLHeEmfnuoRBB8fA==}
+    dependencies:
+      '@types/command-line-args': 5.2.0
+      '@types/command-line-usage': 5.0.2
+      '@types/node': 20.3.0
+      '@types/pad-left': 2.1.1
+      command-line-args: 5.2.1
+      command-line-usage: 7.0.1
+      flatbuffers: 23.5.26
+      json-bignum: 0.0.3
+      pad-left: 2.1.0
+      tslib: 2.6.2
+    dev: false
 
   /@babel/code-frame@7.22.13:
     resolution: {integrity: sha512-XktuhWlJ5g+3TJXc5upd9Ks1HutSArik6jf2eAjYFyIOf4ej3RN+184cZbzDvbPnuTJIUhPKKJE3cIsYTiAT3w==}

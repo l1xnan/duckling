@@ -1,7 +1,7 @@
-import { Box, Divider, Stack } from "@mui/material";
+import { Box, Divider, IconButton, Stack } from "@mui/material";
 import { invoke } from "@tauri-apps/api/tauri";
-// @ts-ignore
-import { Table, tableFromIPC } from "apache-arrow";
+
+import { Table, tableFromIPC } from "@apache-arrow/ts";
 import { useEffect, useState } from "react";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
@@ -9,7 +9,7 @@ import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import Dropdown, { PageSizeProps } from "@/components/Dropdown";
 import SyncIcon from "@mui/icons-material/Sync";
-import DataFrame from "@/components/DataFrame";
+import DataFrame, { SchemaType } from "@/components/DataFrame";
 import { isDarkTheme } from "@/utils";
 
 interface ValidationResponse {
@@ -21,8 +21,8 @@ export interface DatasetProps {
 }
 
 function Dataset({ tableName }: DatasetProps) {
-  const [data, setData] = useState([]);
-  const [schema, setSchema] = useState([]);
+  const [data, setData] = useState<any[]>([]);
+  const [schema, setSchema] = useState<SchemaType[]>([]);
   const [rowCount, setRowCount] = useState(0);
 
   useEffect(() => {
@@ -32,14 +32,10 @@ function Dataset({ tableName }: DatasetProps) {
   async function read_parquet(path: string) {
     const { row_count, preview }: ValidationResponse = await invoke(
       "read_parquet",
-      { path, limit: 1000, offset: 0 }
+      { path, limit: 500, offset: 0 }
     );
     const table: Table = tableFromIPC(Uint8Array.from(preview));
-    console.log(row_count, table);
-
-    const array = table.toArray();
-
-    const schema = table.schema.fields.map((field: any) => {
+    const schema: SchemaType[] = table.schema.fields.map((field: any) => {
       return {
         name: field.name,
         dataType: field.type.toString(),
@@ -49,25 +45,32 @@ function Dataset({ tableName }: DatasetProps) {
       };
     });
 
-    const data = array.map((item: any) => item.toJSON());
+    const data = table.toArray().map((item: any, i: number) => ({
+      __index__: i + 1,
+      ...item.toJSON(),
+    }));
 
     setData(data);
     setSchema(schema);
     setRowCount(row_count);
-    console.table(data);
+    console.log(row_count, table);
+    console.table([...data.slice(0, 10)]);
     console.table(schema);
   }
 
   return (
     <Box>
-      <PageSizeToolbar rowCount={rowCount} />
+      <PageSizeToolbar
+        rowCount={rowCount}
+        sync={() => read_parquet(tableName)}
+      />
       <InputToolbar />
       <DataFrame data={data} schema={schema} />
     </Box>
   );
 }
 
-function PageSizeToolbar({ rowCount }: PageSizeProps) {
+function PageSizeToolbar({ rowCount, sync }: PageSizeProps) {
   return (
     <Stack
       direction="row"
@@ -104,7 +107,9 @@ function PageSizeToolbar({ rowCount }: PageSizeProps) {
         <KeyboardArrowRightIcon />
         <KeyboardDoubleArrowRightIcon />
         <Divider orientation="vertical" flexItem />
-        <SyncIcon />
+        <IconButton onClick={sync}>
+          <SyncIcon />
+        </IconButton>
       </Stack>
     </Stack>
   );

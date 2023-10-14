@@ -43,6 +43,7 @@ const StyledMenu = styled((props: MenuProps) => (
 
 export interface PageSizeProps {
   rowCount: number;
+  sync: () => void;
 }
 
 export default function Dropdown({ rowCount }: PageSizeProps) {
@@ -83,7 +84,7 @@ export default function Dropdown({ rowCount }: PageSizeProps) {
           Page Size
         </MenuItem>
         {[10, 100, 500, 1000, "Custom..."].map((item) => (
-          <MenuItem onClick={handleClose} disableRipple>
+          <MenuItem key={item} onClick={handleClose} disableRipple>
             {item}
           </MenuItem>
         ))}
