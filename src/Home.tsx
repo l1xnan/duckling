@@ -22,7 +22,7 @@ import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArro
 import Dropdown, { PageSizeProps } from "./components/Dropdown";
 import SyncIcon from "@mui/icons-material/Sync";
 import ToggleColorMode from "./components/ToggleColorMode";
-import Dataset from "./components/Dataset";
+import Dataset from "./components/DataFrame";
 import FileTreeView, { FileNode } from "./FileTree";
 import { isDarkTheme } from "./utils";
 import { Content, Layout, Sidebar } from "./components/Layout";
