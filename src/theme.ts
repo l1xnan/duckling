@@ -120,6 +120,7 @@ const theme: ThemeOptions = {
 export const lightTheme = createTheme(theme, {
   palette: {
     mode: "light",
+    divider: "#ebecf0",
     background: {
       default: "#f7f8fa",
     },

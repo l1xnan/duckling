@@ -1,5 +1,13 @@
-import { Box, Button, CssBaseline, Divider, Stack } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import {
+  Box,
+  BoxProps,
+  Button,
+  CssBaseline,
+  Divider,
+  Stack,
+  Typography,
+} from "@mui/material";
+import { styled, useTheme, withStyles } from "@mui/material/styles";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/tauri";
 import * as dialog from "@tauri-apps/plugin-dialog";
@@ -11,12 +19,13 @@ import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
-import Dropdown from "./components/Dropdown";
+import Dropdown, { PageSizeProps } from "./components/Dropdown";
 import SyncIcon from "@mui/icons-material/Sync";
 import ToggleColorMode from "./components/ToggleColorMode";
 import Dataset from "./components/Dataset";
 import FileTreeView, { FileNode } from "./FileTree";
 import { isDarkTheme } from "./utils";
+import { Content, Layout, Sidebar } from "./components/Layout";
 
 interface ValidationResponse {
   row_count: number;
@@ -47,6 +56,7 @@ function Database() {
   });
   const [data, setData] = useState([]);
   const [schema, setSchema] = useState([]);
+  const [rowCount, setRowCount] = useState(0);
 
   async function openDirectory(name?: string) {
     const fileTree: FileNode = await invoke("greet", { name });
@@ -58,7 +68,7 @@ function Database() {
   async function read_parquet(path: string) {
     const { row_count, preview }: ValidationResponse = await invoke(
       "read_parquet",
-      { path }
+      { path, limit: 1000, offset: 0 }
     );
     const table: Table = tableFromIPC(Uint8Array.from(preview));
     console.log(row_count, table);
@@ -79,6 +89,7 @@ function Database() {
 
     setData(data);
     setSchema(schema);
+    setRowCount(row_count);
     console.table(data);
     console.table(schema);
   }
@@ -95,26 +106,20 @@ function Database() {
   }, []);
 
   return (
-    <Box>
-      <Box
-        sx={{
-          display: "flex",
-          maxHeight: "100vh",
-          height: "100%",
-          pr: 0,
-          p: 0,
-          m: 0,
-        }}
-      >
+    <Layout>
+      <Sidebar>
+        <ToolbarBox>
+          <Typography fontWeight={800}>Database</Typography>
+          <ToggleColorMode />
+        </ToolbarBox>
         <Box
           sx={{
-            flexShrink: 0,
-            width: 300,
-            minHeight: "100vh",
-            height: "100vh",
+            width: "100%",
+            maxHeight: "calc(100vh - 32px)",
+            height: "calc(100vh - 32px)",
             overflow: "auto",
             pr: 1,
-            pb: 5,
+            pb: 2,
             borderRight: isDarkTheme(theme)
               ? "1px solid #1e1f22"
               : "1px solid #e2e2e2",
@@ -131,25 +136,17 @@ function Database() {
             />
           ) : null}
         </Box>
-        <Box
-          sx={{
-            flexGrow: 1,
-            height: "100vh",
-            maxHeight: "100vh",
-            width: "calc(100vw - 300px)",
-            overflow: "hidden",
-          }}
-        >
-          <PageSizeToolbar />
-          <InputToolbar />
-          <Dataset data={data} schema={schema} />
-        </Box>
-      </Box>
-    </Box>
+      </Sidebar>
+      <Content>
+        <PageSizeToolbar rowCount={rowCount} />
+        <InputToolbar />
+        <Dataset data={data} schema={schema} />
+      </Content>
+    </Layout>
   );
 }
 
-function PageSizeToolbar() {
+function PageSizeToolbar({ rowCount }: PageSizeProps) {
   return (
     <Stack
       direction="row"
@@ -182,16 +179,25 @@ function PageSizeToolbar() {
       >
         <KeyboardDoubleArrowLeftIcon />
         <KeyboardArrowLeftIcon />
-        <Dropdown />
+        <Dropdown rowCount={rowCount} />
         <KeyboardArrowRightIcon />
         <KeyboardDoubleArrowRightIcon />
         <Divider orientation="vertical" flexItem />
         <SyncIcon />
       </Stack>
-      <ToggleColorMode />
     </Stack>
   );
 }
+
+const ToolbarBox = styled(Box)<BoxProps>(({ theme }) => ({
+  height: 32,
+  width: "100%",
+  paddingLeft: "1rem",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  borderBottom: isDarkTheme(theme) ? "1px solid #1e1f22" : "1px solid #e2e2e2",
+}));
 
 export function InputToolbar() {
   return (
@@ -201,7 +207,9 @@ export function InputToolbar() {
         height: 32,
         display: "flex",
         alignItems: "center",
-        border: isDarkTheme(theme) ? "1px solid #393b40" : "1px solid  #f7f8fa",
+        borderTop: isDarkTheme(theme)
+          ? "1px solid #393b40"
+          : "1px solid #ebecf0",
         "& input, & input:focus-visible": {
           border: "none",
           height: "100%",

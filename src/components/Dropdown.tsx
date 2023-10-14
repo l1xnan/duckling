@@ -12,29 +12,25 @@ const StyledMenu = styled((props: MenuProps) => (
     elevation={0}
     anchorOrigin={{
       vertical: "bottom",
-      horizontal: "right",
+      horizontal: "left",
     }}
     transformOrigin={{
       vertical: "top",
-      horizontal: "right",
+      horizontal: "left",
     }}
     {...props}
   />
 ))(({ theme }) => ({
   "& .MuiPaper-root": {
     borderRadius: 0,
-    // marginTop: theme.spacing(1),
-    minWidth: 120,
     backgroundColor: isDarkTheme(theme) ? "#2b2d30" : "#ffffff",
-    fontSize: 10,
     color: !isDarkTheme(theme) ? "rgb(55, 65, 81)" : theme.palette.grey[300],
-    borderColor: isDarkTheme(theme) ? "1px solid #43454a" : "1px solid #b9bdc9",
+    border: isDarkTheme(theme) ? "1px solid #43454a" : "1px solid #b9bdc9",
     boxShadow:
       "rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1)  10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
-    "& .MuiMenu-list": {
-      padding: "2px 0",
-    },
+    "& .MuiMenu-list": {},
     "& .MuiMenuItem-root": {
+      padding: "4px 8px",
       "&:active": {
         backgroundColor: alpha(
           theme.palette.primary.main,
@@ -42,13 +38,14 @@ const StyledMenu = styled((props: MenuProps) => (
         ),
       },
     },
-    "& *": {
-      fontSize: 1,
-    },
   },
 }));
 
-export default function Dropdown() {
+export interface PageSizeProps {
+  rowCount: number;
+}
+
+export default function Dropdown({ rowCount }: PageSizeProps) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -69,30 +66,23 @@ export default function Dropdown() {
         onClick={handleClick}
         endIcon={<KeyboardArrowDownIcon />}
       >
-        1 rows
+        {rowCount} rows
       </Button>
       <StyledMenu
-        MenuListProps={{
-          "aria-labelledby": "demo-customized-button",
-        }}
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
         sx={{
           "&+.MuiDivider-root": {
-            marginTop: 4,
-            marginBottom: 4,
+            // marginTop: 4,
+            // marginBottom: 4,
           },
         }}
       >
-        <MenuItem>Count Rows</MenuItem>
-        <Divider
-          sx={{
-            marginBlockEnd: 4,
-            marginBlockStart: 4,
-          }}
-        />
-        {[10, 100, 500, 1000].map((item) => (
+        <MenuItem sx={{ fontWeight: 600 }} disabled>
+          Page Size
+        </MenuItem>
+        {[10, 100, 500, 1000, "Custom..."].map((item) => (
           <MenuItem onClick={handleClose} disableRipple>
             {item}
           </MenuItem>
