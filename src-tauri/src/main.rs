@@ -26,6 +26,7 @@ struct FileNode {
 pub struct ValidationResponse {
   /// The total number of rows that were selected.
   pub row_count: usize,
+  pub total_count: usize,
   /// A preview of the first N records, serialized as an Apache Arrow array
   /// using their IPC format.
   pub preview: Vec<u8>,
@@ -82,6 +83,12 @@ fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::Arro
 async fn read_parquet(path: String, limit: i32, offset: i32) -> ValidationResponse {
   let db = Connection::open_in_memory().unwrap();
 
+  let count_sql = format!("select count(1) from read_parquet('{path}')");
+
+  let total_count: usize = db
+    .query_row(count_sql.as_str(), [], |row| row.get(0))
+    .unwrap();
+
   let sql = format!("select * from read_parquet('{path}') limit {limit} offset {offset}");
   let mut stmt = db.prepare(sql.as_str()).unwrap();
 
@@ -96,6 +103,7 @@ async fn read_parquet(path: String, limit: i32, offset: i32) -> ValidationRespon
 
   ValidationResponse {
     row_count,
+    total_count,
     preview: serialize_preview(&record_batch).unwrap(),
   }
 }
