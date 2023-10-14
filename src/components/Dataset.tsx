@@ -91,9 +91,12 @@ export default function Dataset({ data, schema }: DatasetProps) {
         sx: (theme) => ({
           color: "#aeb3c2",
           boxShadow: 0,
-          backgroundColor: theme.palette.mode === "dark" ? "#2b2d30" : "white",
-          borderRight: isDarkTheme(theme)
-            ? "1px solid #1e1f22"
+          backgroundColor: isDarkTheme(theme) ? "#2b2d30" : "#ffffff",
+          boxRightSizing: "1px",
+          borderRightStyle: "solid",
+          borderRightColor: isDarkTheme(theme) ? "#1e1f22" : "#ebecf0",
+          borderBottom: isDarkTheme(theme)
+            ? "1px solid #313438"
             : "1px solid #ebecf0",
 
           p: `6px`,
@@ -226,7 +229,7 @@ export default function Dataset({ data, schema }: DatasetProps) {
         p: `6px`,
         fontSize: 10,
         lineHeight: 1,
-        backgroundColor: "#1e1f22",
+        backgroundColor: isDarkTheme(theme) ? "#1e1f22" : "#ffffff",
         borderCollapse: "collapse",
         borderBottom: isDarkTheme(theme)
           ? "1px solid #313438"

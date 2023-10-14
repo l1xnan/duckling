@@ -4,7 +4,6 @@ import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { useContext } from "react";
 import { ColorModeContext } from "../theme";
 
-
 export default function ToggleColorMode() {
   const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
@@ -21,11 +20,7 @@ export default function ToggleColorMode() {
       }}
     >
       <Tooltip title={`${theme.palette.mode} mode`}>
-        <IconButton
-          sx={{ ml: 1 }}
-          onClick={colorMode.toggleColorMode}
-          color="inherit"
-        >
+        <IconButton sx={{}} onClick={colorMode.toggleColorMode} color="inherit">
           {theme.palette.mode === "dark" ? (
             <Brightness7Icon />
           ) : (
