@@ -1,7 +1,9 @@
 import { ThemeOptions, createTheme } from "@mui/material/styles";
 import { createContext } from "react";
 
-export const ColorModeContext = createContext({ toggleColorMode: () => {} });
+export const ColorModeContext = createContext({
+  toggleColorMode: () => {},
+});
 
 const theme: ThemeOptions = {
   // @ts-ignore
@@ -118,8 +120,14 @@ const theme: ThemeOptions = {
 export const lightTheme = createTheme(theme, {
   palette: {
     mode: "light",
+    background: {
+      default: "#f7f8fa",
+    },
+    text: {
+      primary: "#1e1e1e",
+    },
   },
-});
+} as ThemeOptions);
 
 export const darkTheme = createTheme(theme, {
   palette: {

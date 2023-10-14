@@ -1,18 +1,13 @@
-import { useDisclosure } from "@mantine/hooks";
-import { Box, Button, CssBaseline } from "@mui/material";
+import { Button, CssBaseline } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
-import { listen } from "@tauri-apps/api/event";
-import { invoke } from "@tauri-apps/api/tauri";
 import * as dialog from "@tauri-apps/plugin-dialog";
 // @ts-ignore
 import { Table, tableFromIPC } from "apache-arrow";
-import { useEffect, useMemo, useState } from "react";
-import { useLocalStorageState } from "ahooks";
+import { useMemo, useState } from "react";
 
-import Dataset from "./Dataset";
-import FileTreeView, { FileNode } from "./FileTree";
 import { ColorModeContext, darkTheme, lightTheme } from "./theme";
-import { isDarkTheme } from "./utils";
+import Database from "./Database";
+import { useLocalStorageState } from "ahooks";
 
 interface ValidationResponse {
   row_count: number;
@@ -37,60 +32,9 @@ const DialogButton = () => {
 };
 
 function App() {
-  const [opened, { toggle }] = useDisclosure();
-  const [mode, setMode] = useState<"light" | "dark">("dark");
-
-  const [folders, setFolders] = useLocalStorageState<FileNode[]>("folders", {
-    defaultValue: [],
+  const [mode, setMode] = useLocalStorageState<"light" | "dark">("mode", {
+    defaultValue: "light",
   });
-  const [data, setData] = useState([]);
-  const [schema, setSchema] = useState([]);
-
-  async function openDirectory(name?: string) {
-    const fileTree: FileNode = await invoke("greet", { name });
-    if (!!fileTree) {
-      setFolders([...(folders ?? []), fileTree]);
-    }
-  }
-
-  async function read_parquet(path: string) {
-    const { row_count, preview }: ValidationResponse = await invoke(
-      "read_parquet",
-      { path }
-    );
-    const table: Table = tableFromIPC(Uint8Array.from(preview));
-    console.log(row_count, table);
-
-    const array = table.toArray();
-
-    const schema = table.schema.fields.map((field: any) => {
-      return {
-        name: field.name,
-        dataType: field.type.toString(),
-        type: field.type,
-        nullable: field.nullable,
-        metadata: field.metadata,
-      };
-    });
-
-    const data = array.map((item: any) => item.toJSON());
-
-    setData(data);
-    setSchema(schema);
-    console.table(data);
-    console.table(schema);
-  }
-
-  useEffect(() => {
-    const unlisten = listen("open-directory", (e) => {
-      console.log(e.payload);
-
-      openDirectory(e.payload as string);
-    });
-    return () => {
-      unlisten.then((f) => f());
-    };
-  }, []);
   const colorMode = useMemo(
     () => ({
       toggleColorMode: () => {
@@ -104,55 +48,12 @@ function App() {
     () => (mode == "dark" ? darkTheme : lightTheme),
     [mode]
   );
+
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline enableColorScheme />
-        <Box
-          sx={{
-            display: "flex",
-            maxHeight: "100vh",
-            height: "100%",
-            pr: 0,
-            p: 0,
-            m: 0,
-          }}
-        >
-          <Box
-            sx={{
-              flexShrink: 0,
-              width: 300,
-              minHeight: "100vh",
-              height: "100vh",
-              overflow: "auto",
-              pr: 1,
-              pb: 5,
-              borderRight: isDarkTheme(theme) ? "1px solid #1e1f22" : "1px solid #e2e2e2",
-            }}
-          >
-            {folders ? (
-              <FileTreeView
-                data={folders}
-                onNodeSelect={(_, nodeId) => {
-                  if (nodeId.endsWith(".parquet")) {
-                    read_parquet(nodeId);
-                  }
-                }}
-              />
-            ) : null}
-          </Box>
-          <Box
-            sx={{
-              flexGrow: 1,
-              height: "100vh",
-              maxHeight: "100vh",
-              width: "calc(100vw - 300px)",
-              overflow: "hidden",
-            }}
-          >
-            <Dataset data={data} schema={schema} />
-          </Box>
-        </Box>
+        <Database />
       </ThemeProvider>
     </ColorModeContext.Provider>
   );

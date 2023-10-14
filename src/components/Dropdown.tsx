@@ -25,10 +25,10 @@ const StyledMenu = styled((props: MenuProps) => (
     borderRadius: 0,
     // marginTop: theme.spacing(1),
     minWidth: 120,
-    backgroundColor: "#2b2d30",
+    backgroundColor: isDarkTheme(theme) ? "#2b2d30" : "#ffffff",
     fontSize: 10,
     color: !isDarkTheme(theme) ? "rgb(55, 65, 81)" : theme.palette.grey[300],
-    border: "1px solid #43454a",
+    borderColor: isDarkTheme(theme) ? "1px solid #43454a" : "1px solid #b9bdc9",
     boxShadow:
       "rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1)  10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
     "& .MuiMenu-list": {

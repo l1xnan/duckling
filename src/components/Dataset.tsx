@@ -3,18 +3,11 @@ import {
   MaterialReactTable,
   useMaterialReactTable,
 } from "material-react-table";
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import * as dayjs from "dayjs";
-import { Box, Divider, Stack } from "@mui/material";
+import { Box } from "@mui/material";
 import { IconCaretUpDownFilled } from "@tabler/icons-react";
-import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
-import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
-import Dropdown from "./components/Dropdown";
-import SyncIcon from "@mui/icons-material/Sync";
-import { ColorModeContext } from "./theme";
-import { isDarkTheme } from "./utils";
+import { isDarkTheme } from "../utils";
 type SchemaType = {
   name: string;
   dataType: string;
@@ -27,8 +20,6 @@ interface DatasetProps {
 }
 
 export default function Dataset({ data, schema }: DatasetProps) {
-  const colorMode = useContext(ColorModeContext);
-
   const columns = useMemo<MRT_ColumnDef<any>[]>(() => {
     const main: MRT_ColumnDef<any>[] = schema?.map(({ name, dataType }) => {
       let accessorFn = undefined;
@@ -246,67 +237,9 @@ export default function Dataset({ data, schema }: DatasetProps) {
       }),
     },
   });
+
   return (
     <Box sx={{}}>
-      <Stack
-        direction="row"
-        spacing={1}
-        alignItems="center"
-        sx={(theme) => ({
-          backgroundColor: isDarkTheme(theme) ? "#2b2d30" : "#f7f8fa",
-          height: 32,
-          "& MuiSvgIcon-root": {
-            fontSize: 16,
-          },
-        })}
-      >
-        <KeyboardDoubleArrowLeftIcon />
-        <KeyboardArrowLeftIcon />
-        <Dropdown />
-        <KeyboardArrowRightIcon />
-        <KeyboardDoubleArrowRightIcon />
-        <Divider orientation="vertical" flexItem />
-        <SyncIcon />
-      </Stack>
-      <Box
-        sx={(theme) => ({
-          backgroundColor: isDarkTheme(theme) ? "#2b2d30" : "#f7f8fa",
-          height: 32,
-          display: "flex",
-          alignItems: "center",
-          border: isDarkTheme(theme)
-            ? "1px solid #393b40"
-            : "1px solid  #f7f8fa",
-          "& input, & input:focus-visible": {
-            border: "none",
-            height: "100%",
-            padding: 0,
-            outlineWidth: 0,
-          },
-        })}
-      >
-        <Box
-          sx={{
-            flexGrow: 0,
-            ml: 1,
-            mr: 1,
-          }}
-        >
-          WHERE
-        </Box>
-        <input />
-        <Divider orientation="vertical" flexItem />
-        <Box
-          sx={{
-            flexGrow: 0,
-            mr: 1,
-            ml: 1,
-          }}
-        >
-          ORDER BY
-        </Box>
-        <input />
-      </Box>
       <MaterialReactTable table={table} />
     </Box>
   );
