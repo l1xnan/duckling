@@ -8,14 +8,7 @@ import * as dayjs from "dayjs";
 import { Box } from "@mui/material";
 import { IconCaretUpDownFilled } from "@tabler/icons-react";
 import { isDarkTheme } from "../utils";
-
-export type SchemaType = {
-  name: string;
-  dataType: string;
-  type: any;
-  nullable: boolean;
-  metadata: any;
-};
+import { SchemaType } from "../stores/store";
 
 interface DatasetProps {
   data: any[];
@@ -172,11 +165,6 @@ export default function Dataset({ data, schema }: DatasetProps) {
     // enableGlobalFilterModes: true,
     enablePinning: true,
     enableRowNumbers: false,
-    muiTableProps: {
-      sx: {
-        tableLayout: "fixed",
-      },
-    },
     muiTablePaperProps: {
       elevation: 0, //change the mui box shadow
       //customize paper styles
@@ -199,6 +187,7 @@ export default function Dataset({ data, schema }: DatasetProps) {
       sx: {
         borderSpacing: 0,
         boxSizing: "border-box",
+        tableLayout: "fixed",
       },
     },
     muiTableHeadProps: {},

@@ -5,7 +5,7 @@ import Menu, { MenuProps } from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Divider from "@mui/material/Divider";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { isDarkTheme } from "../utils";
+import { isDarkTheme } from "@/utils";
 
 const StyledMenu = styled((props: MenuProps) => (
   <Menu
@@ -42,11 +42,10 @@ const StyledMenu = styled((props: MenuProps) => (
 }));
 
 export interface PageSizeProps {
-  rowCount: number;
-  sync: () => void;
+  content: string;
 }
 
-export default function Dropdown({ rowCount }: PageSizeProps) {
+export default function Dropdown({ content }: PageSizeProps) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -67,7 +66,7 @@ export default function Dropdown({ rowCount }: PageSizeProps) {
         onClick={handleClick}
         endIcon={<KeyboardArrowDownIcon />}
       >
-        {rowCount} rows
+        {content}
       </Button>
       <StyledMenu
         anchorEl={anchorEl}

@@ -67,6 +67,16 @@ const theme: ThemeOptions = {
         size: "small",
       },
     },
+    MuiMenuList: {
+      defaultProps: {
+        dense: true,
+      },
+    },
+    MuiMenuItem: {
+      defaultProps: {
+        dense: true,
+      },
+    },
     MuiTable: {
       defaultProps: {
         size: "small",

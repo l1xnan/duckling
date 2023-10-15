@@ -1,19 +1,19 @@
 import { Box, Divider, IconButton, Stack } from "@mui/material";
-import { invoke } from "@tauri-apps/api/tauri";
 
-import { Table, tableFromIPC } from "@apache-arrow/ts";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import Dropdown, { PageSizeProps } from "@/components/Dropdown";
 import SyncIcon from "@mui/icons-material/Sync";
-import DataFrame, { SchemaType } from "@/components/DataFrame";
+import DataFrame from "@/components/DataFrame";
 import { isDarkTheme } from "@/utils";
+import { read_parquet, useStore } from "../stores/store";
 
 interface ValidationResponse {
   row_count: number;
+  total_count: number;
   preview: Array<number>;
 }
 export interface DatasetProps {
@@ -21,56 +21,42 @@ export interface DatasetProps {
 }
 
 function Dataset({ tableName }: DatasetProps) {
-  const [data, setData] = useState<any[]>([]);
-  const [schema, setSchema] = useState<SchemaType[]>([]);
-  const [rowCount, setRowCount] = useState(0);
+  const setData = useStore((state) => state.setData);
+  const data = useStore((state) => state.data);
+  const schema = useStore((state) => state.schema);
+  const setTableName = useStore((state) => state.setTableName);
 
   useEffect(() => {
-    read_parquet(tableName);
-  }, [tableName]);
-
-  async function read_parquet(path: string) {
-    const { row_count, preview }: ValidationResponse = await invoke(
-      "read_parquet",
-      { path, limit: 500, offset: 0 }
-    );
-    const table: Table = tableFromIPC(Uint8Array.from(preview));
-    const schema: SchemaType[] = table.schema.fields.map((field: any) => {
-      return {
-        name: field.name,
-        dataType: field.type.toString(),
-        type: field.type,
-        nullable: field.nullable,
-        metadata: field.metadata,
-      };
+    setTableName(tableName);
+    read_parquet(tableName).then((res) => {
+      setData(res);
     });
-
-    const data = table.toArray().map((item: any, i: number) => ({
-      __index__: i + 1,
-      ...item.toJSON(),
-    }));
-
-    setData(data);
-    setSchema(schema);
-    setRowCount(row_count);
-    console.log(row_count, table);
-    console.table([...data.slice(0, 10)]);
-    console.table(schema);
-  }
+  }, [tableName]);
 
   return (
     <Box>
-      <PageSizeToolbar
-        rowCount={rowCount}
-        sync={() => read_parquet(tableName)}
-      />
+      <PageSizeToolbar />
       <InputToolbar />
       <DataFrame data={data} schema={schema} />
     </Box>
   );
 }
 
-function PageSizeToolbar({ rowCount, sync }: PageSizeProps) {
+function PageSizeToolbar() {
+  const increase = useStore((state) => state.increase);
+  const decrease = useStore((state) => state.decrease);
+  const toFirst = useStore((state) => state.toFirst);
+  const data = useStore((state) => state.data);
+  const page = useStore((state) => state.page);
+  const perPage = useStore((state) => state.perPage);
+  const tableName = useStore((state) => state.tableName);
+  const totalCount = useStore((state) => state.totalCount);
+
+  const count = data.length;
+  const start = perPage * (page - 1) + 1;
+  const end = start + count - 1;
+  const content = count >= totalCount ? `${count} rows` : `${start}-${end}`;
+
   return (
     <Stack
       direction="row"
@@ -101,13 +87,27 @@ function PageSizeToolbar({ rowCount, sync }: PageSizeProps) {
           },
         })}
       >
-        <KeyboardDoubleArrowLeftIcon />
-        <KeyboardArrowLeftIcon />
-        <Dropdown rowCount={rowCount} />
-        <KeyboardArrowRightIcon />
-        <KeyboardDoubleArrowRightIcon />
+        <IconButton color="inherit" onClick={toFirst}>
+          <KeyboardDoubleArrowLeftIcon />
+        </IconButton>
+        <IconButton color="inherit" onClick={decrease}>
+          <KeyboardArrowLeftIcon />
+        </IconButton>
+        <Dropdown content={content} />
+        {count < totalCount ? `of ${totalCount}` : null}
+        <IconButton color="inherit" onClick={increase}>
+          <KeyboardArrowRightIcon />
+        </IconButton>
+        <IconButton color="inherit" onClick={decrease}>
+          <KeyboardDoubleArrowRightIcon />
+        </IconButton>
         <Divider orientation="vertical" flexItem />
-        <IconButton onClick={sync}>
+        <IconButton
+          color="inherit"
+          onClick={() => {
+            read_parquet(tableName as string);
+          }}
+        >
           <SyncIcon />
         </IconButton>
       </Stack>
