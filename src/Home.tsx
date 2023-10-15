@@ -11,12 +11,8 @@ import { Content, Layout, Sidebar } from "@/components/Layout";
 import ToggleColorMode from "@/components/ToggleColorMode";
 import { isDarkTheme } from "@/utils";
 import { useLocalStorageState } from "ahooks";
-import { useEffect, useState } from "react";
-
-interface ValidationResponse {
-  row_count: number;
-  preview: Array<number>;
-}
+import { useEffect } from "react";
+import { useStore } from "@/stores/store";
 
 const DialogButton = () => {
   return (
@@ -40,7 +36,6 @@ function Home() {
   const [folders, setFolders] = useLocalStorageState<FileNode[]>("folders", {
     defaultValue: [],
   });
-  const [tableName, setTableName] = useState<string | null>(null);
 
   async function openDirectory(name?: string) {
     const fileTree: FileNode = await invoke("greet", { name });
@@ -59,7 +54,9 @@ function Home() {
       unlisten.then((f) => f());
     };
   }, []);
-
+  const setStore = useStore((state) => state.setStore);
+  const tableName = useStore((state) => state.tableName);
+  console.log(tableName, !!tableName);
   return (
     <Layout>
       <Sidebar>
@@ -85,7 +82,11 @@ function Home() {
               data={folders}
               onNodeSelect={(_, nodeId) => {
                 if (nodeId.endsWith(".parquet")) {
-                  setTableName(nodeId);
+                  setStore({
+                    page: 1,
+                    perPage: 500,
+                    tableName: nodeId,
+                  })
                 }
               }}
             />
@@ -93,8 +94,8 @@ function Home() {
         </Box>
       </Sidebar>
       <Content>
-        {tableName ? (
-          <Dataset tableName={tableName} />
+        {!!tableName ? (
+          <Dataset />
         ) : (
           <Box
             sx={{

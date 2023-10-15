@@ -5,39 +5,32 @@ import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
-import Dropdown, { PageSizeProps } from "@/components/Dropdown";
+import Dropdown from "@/components/Dropdown";
 import SyncIcon from "@mui/icons-material/Sync";
 import DataFrame from "@/components/DataFrame";
 import { isDarkTheme } from "@/utils";
 import { read_parquet, useStore } from "../stores/store";
 
-interface ValidationResponse {
-  row_count: number;
-  total_count: number;
-  preview: Array<number>;
-}
 export interface DatasetProps {
   tableName: string;
 }
 
-function Dataset({ tableName }: DatasetProps) {
-  const setData = useStore((state) => state.setData);
+function Dataset() {
+  const refresh = useStore((state) => state.refresh);
   const data = useStore((state) => state.data);
   const schema = useStore((state) => state.schema);
-  const setTableName = useStore((state) => state.setTableName);
-
+  const tableName = useStore((state) => state.tableName);
+  const page = useStore((state) => state.page);
+  const perPage = useStore((state) => state.perPage);
   useEffect(() => {
-    setTableName(tableName);
-    read_parquet(tableName).then((res) => {
-      setData(res);
-    });
-  }, [tableName]);
+    refresh().then(() => {});
+  }, [tableName, page, perPage]);
 
   return (
     <Box>
       <PageSizeToolbar />
       <InputToolbar />
-      <DataFrame data={data} schema={schema} />
+      <DataFrame data={data ?? []} schema={schema ?? []} />
     </Box>
   );
 }
@@ -46,6 +39,7 @@ function PageSizeToolbar() {
   const increase = useStore((state) => state.increase);
   const decrease = useStore((state) => state.decrease);
   const toFirst = useStore((state) => state.toFirst);
+  const toLast = useStore((state) => state.toLast);
   const data = useStore((state) => state.data);
   const page = useStore((state) => state.page);
   const perPage = useStore((state) => state.perPage);
@@ -87,18 +81,18 @@ function PageSizeToolbar() {
           },
         })}
       >
-        <IconButton color="inherit" onClick={toFirst}>
+        <IconButton color="inherit" onClick={toFirst} disabled={page <= 1}>
           <KeyboardDoubleArrowLeftIcon />
         </IconButton>
-        <IconButton color="inherit" onClick={decrease}>
+        <IconButton color="inherit" onClick={decrease} disabled={page <= 1}>
           <KeyboardArrowLeftIcon />
         </IconButton>
         <Dropdown content={content} />
         {count < totalCount ? `of ${totalCount}` : null}
-        <IconButton color="inherit" onClick={increase}>
+        <IconButton color="inherit" onClick={increase}  disabled={page >= Math.ceil(totalCount / perPage)}>
           <KeyboardArrowRightIcon />
         </IconButton>
-        <IconButton color="inherit" onClick={decrease}>
+        <IconButton color="inherit" onClick={toLast}  disabled={page >= Math.ceil(totalCount / perPage)}>
           <KeyboardDoubleArrowRightIcon />
         </IconButton>
         <Divider orientation="vertical" flexItem />

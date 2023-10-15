@@ -44,55 +44,56 @@ function display(dataType: string, name: string) {
 
 export default function Dataset({ data, schema }: DatasetProps) {
   const columns = useMemo<MRT_ColumnDef<any>[]>(() => {
-    const main: MRT_ColumnDef<any>[] = schema?.map(({ name, dataType }) => {
-      return {
-        accessorKey: name,
-        header: name,
-        accessorFn: display(dataType, name),
-        // maxSize: 100,
-        Header: ({ column }) => {
-          return (
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                width: "100%",
-                height: 20,
-                lineHeight: 1,
-              }}
-            >
-              <Box sx={{}}>{name}</Box>
+    const main: MRT_ColumnDef<any>[] =
+      schema?.map(({ name, dataType }) => {
+        return {
+          accessorKey: name,
+          header: name,
+          accessorFn: display(dataType, name),
+          // maxSize: 100,
+          Header: ({ column }) => {
+            return (
               <Box
                 sx={{
-                  fontSize: 1,
-                  "& *": {
-                    maxHeight: "12px",
-                    height: "12px",
-                    maxWidth: "12px",
-                    fontWeight: 400,
-                  },
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  height: 20,
+                  lineHeight: 1,
                 }}
               >
-                <IconCaretUpDownFilled />
+                <Box sx={{}}>{name}</Box>
+                <Box
+                  sx={{
+                    fontSize: 1,
+                    "& *": {
+                      maxHeight: "12px",
+                      height: "12px",
+                      maxWidth: "12px",
+                      fontWeight: 400,
+                    },
+                  }}
+                >
+                  <IconCaretUpDownFilled />
+                </Box>
               </Box>
-            </Box>
-          );
-        },
-        muiTableBodyCellProps: {
-          align:
-            dataType.includes("Int") || dataType.includes("Float")
-              ? "right"
-              : "left",
-        },
-        muiTableHeadCellProps: {
-          align:
-            dataType.includes("Int") || dataType.includes("Float")
-              ? "right"
-              : "left",
-        },
-      } as MRT_ColumnDef<any>;
-    });
+            );
+          },
+          muiTableBodyCellProps: {
+            align:
+              dataType.includes("Int") || dataType.includes("Float")
+                ? "right"
+                : "left",
+          },
+          muiTableHeadCellProps: {
+            align:
+              dataType.includes("Int") || dataType.includes("Float")
+                ? "right"
+                : "left",
+          },
+        } as MRT_ColumnDef<any>;
+      }) ?? [];
     const first: MRT_ColumnDef<any> = {
       accessorKey: "__index__",
       header: " ",

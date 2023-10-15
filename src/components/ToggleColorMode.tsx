@@ -17,10 +17,18 @@ export default function ToggleColorMode() {
         bgcolor: "background.default",
         color: "text.primary",
         borderRadius: 1,
+        fontSize: 12,
       }}
     >
       <Tooltip title={`${theme.palette.mode} mode`}>
-        <IconButton sx={{}} onClick={colorMode.toggleColorMode} color="inherit">
+        <IconButton
+          sx={{
+            height: "12px",
+            maxHeight: "12px",
+          }}
+          onClick={colorMode.toggleColorMode}
+          color="inherit"
+        >
           {theme.palette.mode === "dark" ? (
             <Brightness7Icon />
           ) : (
