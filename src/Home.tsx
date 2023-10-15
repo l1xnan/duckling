@@ -1,4 +1,11 @@
-import { Box, BoxProps, Button, Typography } from "@mui/material";
+import {
+  Box,
+  BoxProps,
+  Button,
+  IconButton,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/tauri";
@@ -9,36 +16,23 @@ import Dataset from "@/components/Dataset";
 import FileTreeView, { FileNode } from "@/components/FileTree";
 import { Content, Layout, Sidebar } from "@/components/Layout";
 import ToggleColorMode from "@/components/ToggleColorMode";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
 import { isDarkTheme } from "@/utils";
 import { useLocalStorageState } from "ahooks";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "@/stores/store";
-
-const DialogButton = () => {
-  return (
-    <Button
-      onClick={async () => {
-        const res = await dialog.open({
-          directory: true,
-        });
-        if (res) {
-          // openDirectory(res);
-        }
-      }}
-    >
-      Open
-    </Button>
-  );
-};
 
 function Home() {
   const theme = useTheme();
+
+  const [selectedPath, setSelectedPath] = useState<string | null>(null);
   const [folders, setFolders] = useLocalStorageState<FileNode[]>("folders", {
     defaultValue: [],
   });
 
   async function openDirectory(name?: string) {
-    const fileTree: FileNode = await invoke("greet", { name });
+    const fileTree: FileNode = await invoke("get_folder_tree", { name });
     if (!!fileTree) {
       setFolders([...(folders ?? []), fileTree]);
     }
@@ -62,7 +56,33 @@ function Home() {
       <Sidebar>
         <ToolbarBox>
           <Typography fontWeight={800}>Database Explorer</Typography>
-          <ToggleColorMode />
+
+          <Stack direction="row">
+            <IconButton
+              onClick={async () => {
+                const res = await dialog.open({
+                  directory: true,
+                });
+                if (res) {
+                  openDirectory(res);
+                }
+              }}
+            >
+              <AddIcon />
+            </IconButton>
+            <IconButton
+              onClick={async () => {
+                setFolders(
+                  folders?.filter(
+                    (folder) => !(folder.path === selectedPath && folder.is_dir)
+                  )
+                );
+              }}
+            >
+              <RemoveIcon />
+            </IconButton>
+            <ToggleColorMode />
+          </Stack>
         </ToolbarBox>
         <Box
           sx={{
@@ -81,12 +101,13 @@ function Home() {
             <FileTreeView
               data={folders}
               onNodeSelect={(_, nodeId) => {
+                setSelectedPath(nodeId);
                 if (nodeId.endsWith(".parquet")) {
                   setStore({
                     page: 1,
                     perPage: 500,
                     tableName: nodeId,
-                  })
+                  });
                 }
               }}
             />

@@ -69,10 +69,8 @@ fn directory_tree(path: &str) -> FileNode {
 }
 
 #[tauri::command]
-fn greet(name: &str) -> FileNode {
-  let tree = directory_tree(name);
-  println!("{:#?}", tree);
-  tree
+fn get_folder_tree(name: &str) -> FileNode {
+  directory_tree(name)
 }
 
 fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::ArrowError> {
@@ -138,7 +136,7 @@ fn main() {
       let menu = MenuBuilder::new(app)
         .items(&[&file_menu, &toggle, &help])
         .build()?;
-      app.set_menu(menu)?;
+      // app.set_menu(menu)?;
 
       app.on_menu_event(move |app, event| {
         println!("{:?}", event.id());
@@ -162,7 +160,7 @@ fn main() {
       });
       Ok(())
     })
-    .invoke_handler(tauri::generate_handler![greet, read_parquet])
+    .invoke_handler(tauri::generate_handler![get_folder_tree, read_parquet])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
