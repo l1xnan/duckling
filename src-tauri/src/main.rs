@@ -1,5 +1,6 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+use anyhow::anyhow;
 
 use arrow::{ipc::writer::StreamWriter, record_batch::RecordBatch};
 use duckdb::{params, Connection, Result};
@@ -22,7 +23,8 @@ struct FileNode {
   is_dir: bool,
   children: Vec<FileNode>,
 }
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+
+#[derive(Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct ValidationResponse {
   /// The total number of rows that were selected.
   pub row_count: usize,
@@ -79,9 +81,9 @@ fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::Arro
   writer.into_inner()
 }
 
-#[tauri::command]
-async fn read_parquet(path: String, limit: i32, offset: i32) -> ValidationResponse {
-  let db = Connection::open_in_memory().unwrap();
+fn _read_parquet(path: String, limit: i32, offset: i32) -> anyhow::Result<ValidationResponse> {
+  let db = Connection::open_in_memory()
+    .map_err(|err| anyhow!("Failed to open database connection: {}", err))?;
 
   let count_sql = format!("select count(1) from read_parquet('{path}')");
 
@@ -101,10 +103,20 @@ async fn read_parquet(path: String, limit: i32, offset: i32) -> ValidationRespon
   let row_count = stmt.row_count();
   let record_batch = arrow::compute::concat_batches(&schema, &records).unwrap();
 
-  ValidationResponse {
+  Ok(ValidationResponse {
     row_count,
     total_count,
     preview: serialize_preview(&record_batch).unwrap(),
+  })
+}
+
+#[tauri::command]
+async fn read_parquet(path: String, limit: i32, offset: i32) -> ValidationResponse {
+  let res = _read_parquet(path, limit, offset);
+  if let Ok(data) = res {
+    data
+  } else {
+    ValidationResponse::default()
   }
 }
 
