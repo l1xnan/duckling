@@ -90,23 +90,27 @@ function Home() {
               : "1px solid #e2e2e2",
           }}
         >
-          {folders ? (
-            <FileTreeView
-              data={folders}
-              onNodeSelect={(_, nodeId) => {
-                setSelectedPath(nodeId);
-                if (nodeId.endsWith(".parquet")) {
-                  setStore({
-                    page: 1,
-                    perPage: 500,
-                    tableName: nodeId,
-                    orderBy: undefined,
-                    sqlWhere: undefined,
-                  });
-                }
-              }}
-            />
-          ) : null}
+          {folders?.map((folder) => {
+            return (
+              <FileTreeView
+                key={folder.path}
+                data={folder}
+                selected={selectedPath}
+                onNodeSelect={(_, nodeId) => {
+                  setSelectedPath(nodeId);
+                  if (nodeId.endsWith(".parquet")) {
+                    setStore({
+                      page: 1,
+                      perPage: 500,
+                      tableName: nodeId,
+                      orderBy: undefined,
+                      sqlWhere: undefined,
+                    });
+                  }
+                }}
+              />
+            );
+          })}
         </Box>
       </Sidebar>
       <Content>

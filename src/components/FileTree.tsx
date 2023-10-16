@@ -14,11 +14,12 @@ export interface FileNode {
 }
 
 export interface FileTreeProps extends TreeViewProps<undefined> {
-  data: FileNode[];
+  data: FileNode;
 }
 
 export default function FileTree({
   data,
+  selected,
   onNodeSelect,
   ...rest
 }: FileTreeProps) {
@@ -61,14 +62,14 @@ export default function FileTree({
     <TreeView
       aria-label="file tree"
       defaultCollapseIcon={<ExpandMoreIcon />}
-      defaultExpanded={data?.map((item) => item.path) ?? []}
       defaultExpandIcon={<ChevronRightIcon />}
       onNodeSelect={onNodeSelect}
       onNodeToggle={handleToggle}
       expanded={expanded}
+      selected={selected}
       {...rest}
     >
-      {data?.map((item) => renderTree(item))}
+      {renderTree(data)}
     </TreeView>
   );
 }
