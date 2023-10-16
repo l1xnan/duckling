@@ -6,7 +6,6 @@ pub fn get_folder_tree(name: &str) -> FileNode {
   api::directory_tree(name)
 }
 
-
 #[tauri::command]
 pub async fn show_tables(path: String) -> ValidationResponse {
   let res = api::show_tables(path);
@@ -17,10 +16,9 @@ pub async fn show_tables(path: String) -> ValidationResponse {
   }
 }
 
-
 #[tauri::command]
 pub async fn query(sql: String, limit: i32, offset: i32) -> ValidationResponse {
-  let res = api::query(sql, limit, offset);
+  let res = api::query(":memory:", sql, limit, offset);
   if let Ok(data) = res {
     data
   } else {

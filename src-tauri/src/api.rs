@@ -23,9 +23,18 @@ fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::Arro
   writer.into_inner()
 }
 
-pub fn query(sql: String, limit: i32, offset: i32) -> anyhow::Result<ValidationResponse> {
-  let db = Connection::open_in_memory()
-    .map_err(|err| anyhow!("Failed to open database connection: {}", err))?;
+pub fn query(
+  path: &str,
+  sql: String,
+  limit: i32,
+  offset: i32,
+) -> anyhow::Result<ValidationResponse> {
+  let con = if path == ":memory:" {
+    Connection::open_in_memory()
+  } else {
+    Connection::open(path)
+  };
+  let db = con.map_err(|err| anyhow!("Failed to open database connection: {}", err))?;
 
   println!("sql: {}", sql);
 
