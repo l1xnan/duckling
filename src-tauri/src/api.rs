@@ -10,11 +10,39 @@ use std::fs;
 #[derive(Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct ValidationResponse {
   /// The total number of rows that were selected.
-  pub row_count: usize,
   pub total_count: u64,
   /// A preview of the first N records, serialized as an Apache Arrow array
   /// using their IPC format.
   pub preview: Vec<u8>,
+}
+
+#[derive(Debug, Default, serde::Serialize, serde::Deserialize)]
+pub struct ArrowResponse {
+  /// The total number of rows that were selected.
+  pub total: u64,
+  /// A preview of the first N records, serialized as an Apache Arrow array
+  /// using their IPC format.
+  pub data: Vec<u8>,
+
+  pub code: i32,
+  pub message: String,
+}
+
+pub fn convert(res: anyhow::Result<ValidationResponse>) -> ArrowResponse {
+  match res {
+    Ok(data) => ArrowResponse {
+      total: data.total_count,
+      data: data.preview,
+      code: 0,
+      message: "".to_string(),
+    },
+    Err(err) => ArrowResponse {
+      total: 0,
+      data: vec![],
+      code: 401,
+      message: err.to_string(),
+    },
+  }
 }
 
 fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::ArrowError> {
@@ -55,7 +83,6 @@ pub fn query(
   let record_batch = arrow::compute::concat_batches(&schema, &records).unwrap();
 
   Ok(ValidationResponse {
-    row_count: 0,
     total_count,
     preview: serialize_preview(&record_batch).unwrap(),
   })
@@ -69,7 +96,6 @@ pub fn show_tables(path: String) -> anyhow::Result<ValidationResponse> {
   let records: Vec<RecordBatch> = frames.collect();
   let record_batch = arrow::compute::concat_batches(&schema, &records).unwrap();
   Ok(ValidationResponse {
-    row_count: records.len(),
     total_count: records.len() as u64,
     preview: serialize_preview(&record_batch).unwrap(),
   })
