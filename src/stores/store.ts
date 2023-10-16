@@ -16,7 +16,7 @@ interface ValidationResponse {
   preview: Array<number>;
 }
 
-export interface DatasetState {
+type DatasetField = {
   page: number;
   totalCount: number;
   data: any[];
@@ -24,14 +24,17 @@ export interface DatasetState {
   tableName?: string;
   schema: SchemaType[];
   orderBy?: OrderByType;
-  setStore?: (res: object) => void;
+  sqlWhere?: string;
+};
+
+export interface DatasetState extends DatasetField {
+  setStore?: (res: Partial<DatasetField>) => void;
   setOrderBy?: (name: string) => void;
   increase: () => void;
   toFirst: () => void;
   toLast: () => void;
   setTableName: (tableName: string) => void;
   decrease: () => void;
-  sqlWhere?: string;
   setSQLWhere: (value: string) => void;
   refresh: () => Promise<void>;
 }

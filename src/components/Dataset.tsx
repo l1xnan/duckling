@@ -6,7 +6,6 @@ import {
   InputLabel,
   Stack,
 } from "@mui/material";
-
 import { useEffect, useState } from "react";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
@@ -14,9 +13,9 @@ import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import Dropdown from "@/components/Dropdown";
 import SyncIcon from "@mui/icons-material/Sync";
-import DataFrame from "@/components/DataFrame";
 import { isDarkTheme } from "@/utils";
 import { convertOrderBy, useStore } from "../stores/store";
+import { GridExample } from "./AgTable";
 
 export interface DatasetProps {
   tableName: string;
@@ -36,11 +35,14 @@ function Dataset() {
   }, [tableName, page, perPage, orderBy, sqlWhere]);
 
   return (
-    <Box>
+    <Stack>
       <PageSizeToolbar />
       <InputToolbar />
-      <DataFrame data={data ?? []} schema={schema ?? []} />
-    </Box>
+      <Box>
+        {/* <DataFrame data={data ?? []} schema={schema ?? []} /> */}
+        <GridExample data={data ?? []} schema={schema ?? []} />
+      </Box>
+    </Stack>
   );
 }
 

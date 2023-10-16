@@ -100,6 +100,8 @@ function Home() {
                     page: 1,
                     perPage: 500,
                     tableName: nodeId,
+                    orderBy: undefined,
+                    sqlWhere: undefined,
                   });
                 }
               }}

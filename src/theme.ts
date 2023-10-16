@@ -97,9 +97,8 @@ const theme: ThemeOptions = {
         body: {
           scrollbarColor: "#6b6b6b #2b2b2b",
           "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
-            backgroundColor: "#fcfcfc",
-            width: "0.6em",
-            height: "0.6em",
+            width: "9px",
+            height: "12px",
           },
           "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
             borderRadius: 0,
@@ -118,9 +117,6 @@ const theme: ThemeOptions = {
             {
               backgroundColor: "#959595",
             },
-          "&::-webkit-scrollbar-corner, & *::-webkit-scrollbar-corner": {
-            backgroundColor: "#2b2b2b",
-          },
         },
       },
     },
@@ -142,6 +138,27 @@ export const lightTheme = createTheme(theme, {
       disabled: "#b2b2b2",
     },
   },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          scrollbarColor: "#6b6b6b #2b2b2b",
+          "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
+            backgroundColor: "#f7f8fa",
+            width: "0.6em",
+          },
+          "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
+            borderRadius: 0,
+            minHeight: 12,
+            backgroundColor: "#d2d3d4",
+          },
+          "&::-webkit-scrollbar-corner, & *::-webkit-scrollbar-corner": {
+            backgroundColor: "#f7f8fa",
+          },
+        },
+      },
+    },
+  },
 } as ThemeOptions);
 
 export const darkTheme = createTheme(theme, {
@@ -161,13 +178,16 @@ export const darkTheme = createTheme(theme, {
         body: {
           scrollbarColor: "#6b6b6b #2b2b2b",
           "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
-            backgroundColor: "#4d4e51",
+            backgroundColor: "#2b2d30",
             width: "0.6em",
           },
           "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
             borderRadius: 0,
             minHeight: 12,
-            backgroundColor: "#5c5d5e",
+            backgroundColor: "#4d4e51",
+          },
+          "&::-webkit-scrollbar-corner, & *::-webkit-scrollbar-corner": {
+            backgroundColor: "#2b2b2b",
           },
         },
       },
