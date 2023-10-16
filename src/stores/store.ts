@@ -46,11 +46,17 @@ type StmtType = {
   orderBy?: OrderByType;
 };
 
+export function convertOrderBy({ name, desc }: OrderByType) {
+  if (!name) {
+    return undefined;
+  }
+  return `${name} ${desc ? "DESC" : ""}`;
+}
+
 function genStmt({ path, orderBy }: StmtType) {
   let stmt = `select * from read_parquet('${path}')`;
   if (!!orderBy && orderBy.name) {
-    const { name, desc } = orderBy;
-    stmt = `${stmt} order by ${name} ${desc ? "DESC" : ""}`;
+    stmt = `${stmt} order by ${convertOrderBy(orderBy)}`;
   }
   return stmt;
 }

@@ -30,6 +30,7 @@
     "@mui/x-tree-view": "6.0.0-beta.0",
     "@tabler/icons-react": "^2.39.0",
     "@tanstack/react-query": "^4.36.1",
+    "@tanstack/react-table": "^8.10.7",
     "@tauri-apps/api": "2.0.0-alpha.8",
     "@tauri-apps/plugin-dialog": "2.0.0-alpha.1",
     "@uiw/react-codemirror": "^4.21.19",

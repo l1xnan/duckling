@@ -9,7 +9,7 @@ import Dropdown from "@/components/Dropdown";
 import SyncIcon from "@mui/icons-material/Sync";
 import DataFrame from "@/components/DataFrame";
 import { isDarkTheme } from "@/utils";
-import { read_parquet, useStore } from "../stores/store";
+import { convertOrderBy, useStore } from "../stores/store";
 
 export interface DatasetProps {
   tableName: string;
@@ -44,8 +44,8 @@ function PageSizeToolbar() {
   const data = useStore((state) => state.data);
   const page = useStore((state) => state.page);
   const perPage = useStore((state) => state.perPage);
-  const tableName = useStore((state) => state.tableName);
   const totalCount = useStore((state) => state.totalCount);
+  const refresh = useStore((state) => state.refresh);
 
   const count = data.length;
   const start = perPage * (page - 1) + 1;
@@ -107,8 +107,8 @@ function PageSizeToolbar() {
         <Divider orientation="vertical" flexItem />
         <IconButton
           color="inherit"
-          onClick={() => {
-            read_parquet(tableName as string);
+          onClick={async () => {
+            await refresh();
           }}
         >
           <SyncIcon />
@@ -119,6 +119,7 @@ function PageSizeToolbar() {
 }
 
 export function InputToolbar() {
+  const orderBy = useStore((s) => s.orderBy);
   return (
     <Box
       sx={(theme) => ({
@@ -157,7 +158,7 @@ export function InputToolbar() {
       >
         ORDER BY
       </Box>
-      <input />
+      <input value={orderBy ? convertOrderBy(orderBy) : ""} />
     </Box>
   );
 }

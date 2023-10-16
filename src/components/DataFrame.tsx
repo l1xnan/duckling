@@ -6,7 +6,11 @@ import {
 import { useMemo } from "react";
 import * as dayjs from "dayjs";
 import { Box } from "@mui/material";
-import { IconCaretUpDownFilled } from "@tabler/icons-react";
+import {
+  IconCaretDownFilled,
+  IconCaretUpDownFilled,
+  IconCaretUpFilled,
+} from "@tabler/icons-react";
 import { isDarkTheme } from "@/utils";
 import { SchemaType } from "@/stores/store";
 import { useStore } from "@/stores/store";
@@ -45,7 +49,12 @@ function display(dataType: string, name: string) {
 
 export default function Dataset({ data, schema }: DatasetProps) {
   const setOrderBy = useStore((state) => state.setOrderBy);
+  const orderBy = useStore((state) => state.orderBy);
 
+  let orderMap = new Map();
+  if (orderBy) {
+    orderMap.set(orderBy.name, orderBy.desc);
+  }
   const columns = useMemo<MRT_ColumnDef<any>[]>(() => {
     const main: MRT_ColumnDef<any>[] =
       schema?.map(({ name, dataType }) => {
@@ -55,6 +64,7 @@ export default function Dataset({ data, schema }: DatasetProps) {
           accessorFn: display(dataType, name),
           // maxSize: 100,
           Header: ({ header }) => {
+            const isDesc = orderMap.get(name);
             return (
               <Box
                 sx={{
@@ -83,7 +93,13 @@ export default function Dataset({ data, schema }: DatasetProps) {
                     },
                   }}
                 >
-                  <IconCaretUpDownFilled />
+                  {isDesc === undefined ? (
+                    <IconCaretUpDownFilled />
+                  ) : !isDesc ? (
+                    <IconCaretUpFilled />
+                  ) : (
+                    <IconCaretDownFilled />
+                  )}
                 </Box>
               </Box>
             );
