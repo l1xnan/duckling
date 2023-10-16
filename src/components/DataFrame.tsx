@@ -11,7 +11,7 @@ import {
   IconCaretUpDownFilled,
   IconCaretUpFilled,
 } from "@tabler/icons-react";
-import { isDarkTheme } from "@/utils";
+import { getByteLength, isDarkTheme } from "@/utils";
 import { SchemaType } from "@/stores/store";
 import { useStore } from "@/stores/store";
 
@@ -47,30 +47,6 @@ function display(dataType: string, name: string) {
   };
 }
 
-function initWidth({ data, schema }: DatasetProps) {
-  const widths = Object.fromEntries(
-    schema.map(({ name }) => [name, getByteLength(name)])
-  );
-  // data.forEach((item) => {
-  //   Object.keys(widths).forEach((name) => {
-  //     widths[name] = Math.max(widths[name], item[name].toString().length);
-  //   });
-  // });
-  return widths;
-}
-
-function getByteLength(str: string) {
-  let length = 0;
-  for (let i = 0; i < str.length; i++) {
-    if (str[i].charCodeAt(0) > 255) {
-      length += 2;
-    } else {
-      length += 1;
-    }
-  }
-  return length;
-}
-
 export default function Dataset({ data, schema }: DatasetProps) {
   const setOrderBy = useStore((state) => state.setOrderBy);
   const orderBy = useStore((state) => state.orderBy);
@@ -80,7 +56,6 @@ export default function Dataset({ data, schema }: DatasetProps) {
     orderMap.set(orderBy.name, orderBy.desc);
   }
 
-  const widths = initWidth({ data, schema });
   const columns = useMemo<MRT_ColumnDef<any>[]>(() => {
     const main: MRT_ColumnDef<any>[] =
       schema?.map(({ name, dataType }) => {

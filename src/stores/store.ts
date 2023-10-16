@@ -31,6 +31,8 @@ export interface DatasetState {
   toLast: () => void;
   setTableName: (tableName: string) => void;
   decrease: () => void;
+  sqlWhere?: string;
+  setSQLWhere: (value: string) => void;
   refresh: () => Promise<void>;
 }
 
@@ -44,6 +46,7 @@ type StmtType = {
   page?: number;
   perPage?: number;
   orderBy?: OrderByType;
+  where?: string;
 };
 
 export function convertOrderBy({ name, desc }: OrderByType) {
@@ -53,8 +56,11 @@ export function convertOrderBy({ name, desc }: OrderByType) {
   return `${name} ${desc ? "DESC" : ""}`;
 }
 
-function genStmt({ path, orderBy }: StmtType) {
+function genStmt({ path, orderBy, where }: StmtType) {
   let stmt = `select * from read_parquet('${path}')`;
+  if (!!where && where.length > 0) {
+    stmt = `${stmt} where ${where}`;
+  }
   if (!!orderBy && orderBy.name) {
     stmt = `${stmt} order by ${convertOrderBy(orderBy)}`;
   }
@@ -68,10 +74,12 @@ export const useStore = create<DatasetState>((set, get) => ({
   totalCount: 0,
   schema: [],
   data: [],
+  sqlWhere: undefined,
   orderBy: undefined,
   setStore: (res: object) => set((_) => res),
   increase: () => set((state) => ({ page: state.page + 1 })),
   toFirst: () => set((_) => ({ page: 1 })),
+  setSQLWhere: (value: string) => set((_) => ({ sqlWhere: value })),
   toLast: () =>
     set((state) => {
       console.log(Math.ceil(state.totalCount / state.perPage));
@@ -107,8 +115,13 @@ export const useStore = create<DatasetState>((set, get) => ({
     const page = get().page;
     const perPage = get().perPage;
     const tableName = get().tableName;
+    const sqlWhere = get().sqlWhere;
     if (!!tableName) {
-      const sql = genStmt({ path: tableName, orderBy: get().orderBy });
+      const sql = genStmt({
+        path: tableName,
+        orderBy: get().orderBy,
+        where: sqlWhere,
+      });
       console.log("sql:", sql, get().orderBy);
       const data = await query(sql, perPage, (page - 1) * perPage);
       set({ ...data });

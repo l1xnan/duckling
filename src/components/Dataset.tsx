@@ -1,6 +1,13 @@
-import { Box, Divider, IconButton, Stack } from "@mui/material";
+import {
+  Box,
+  Divider,
+  IconButton,
+  InputBase,
+  InputLabel,
+  Stack,
+} from "@mui/material";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
@@ -23,9 +30,10 @@ function Dataset() {
   const page = useStore((state) => state.page);
   const perPage = useStore((state) => state.perPage);
   const orderBy = useStore((state) => state.orderBy);
+  const sqlWhere = useStore((state) => state.sqlWhere);
   useEffect(() => {
     refresh().then(() => {});
-  }, [tableName, page, perPage, orderBy]);
+  }, [tableName, page, perPage, orderBy, sqlWhere]);
 
   return (
     <Box>
@@ -120,45 +128,70 @@ function PageSizeToolbar() {
 
 export function InputToolbar() {
   const orderBy = useStore((s) => s.orderBy);
+  const setSQLWhere = useStore((s) => s.setSQLWhere);
+
+  const [stmtWhere, setStmtWhere] = useState("");
+  const [stmtOrder, setStmtOrder] = useState(
+    orderBy ? convertOrderBy(orderBy) : ""
+  );
+
+  useEffect(() => {
+    setStmtOrder(orderBy ? convertOrderBy(orderBy) : "");
+  }, [orderBy]);
   return (
     <Box
       sx={(theme) => ({
-        backgroundColor: isDarkTheme(theme) ? "#2b2d30" : "#f7f8fa",
+        backgroundColor: isDarkTheme(theme) ? "#1e1f22" : "#ffffff",
         height: 32,
         display: "flex",
         alignItems: "center",
         borderTop: isDarkTheme(theme)
           ? "1px solid #393b40"
           : "1px solid #ebecf0",
-        "& input, & input:focus-visible": {
+        "& input, & input:focus-visible, & .MuiInputBase-root": {
           border: "none",
           height: "100%",
           padding: 0,
           outlineWidth: 0,
+          backgroundColor: isDarkTheme(theme) ? "#1e1f22" : "#ffffff",
         },
       })}
     >
-      <Box
-        sx={{
-          flexGrow: 0,
-          ml: 1,
-          mr: 1,
-        }}
-      >
-        WHERE
-      </Box>
-      <input />
+      <Stack direction="row">
+        <Box sx={{ flexGrow: 0, mr: 1, ml: 1 }}>
+          <InputLabel sx={{ width: "auto" }}>WHERE</InputLabel>
+        </Box>
+        <InputBase
+          color="primary"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setSQLWhere(stmtWhere);
+            }
+          }}
+          onChange={(e) => {
+            setStmtWhere(e.target.value);
+          }}
+        />
+      </Stack>
       <Divider orientation="vertical" flexItem />
-      <Box
-        sx={{
-          flexGrow: 0,
-          mr: 1,
-          ml: 1,
-        }}
-      >
-        ORDER BY
-      </Box>
-      <input value={orderBy ? convertOrderBy(orderBy) : ""} />
+      <Stack direction="row">
+        <Box sx={{ flexGrow: 0, mr: 1, ml: 1 }}>
+          <InputLabel>ORDER BY</InputLabel>
+        </Box>
+        <InputBase
+          value={stmtOrder}
+          fullWidth
+          color="primary"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setSQLWhere(stmtWhere);
+            }
+          }}
+          onChange={(e) => {
+            setStmtOrder(e.target.value);
+          }}
+        />
+      </Stack>
     </Box>
   );
 }
