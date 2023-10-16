@@ -1,17 +1,8 @@
-import {
-  Box,
-  BoxProps,
-  Button,
-  IconButton,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, BoxProps, IconButton, Stack, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/tauri";
 import * as dialog from "@tauri-apps/plugin-dialog";
-// @ts-ignore
-import { Table, tableFromIPC } from "apache-arrow";
 import Dataset from "@/components/Dataset";
 import FileTreeView, { FileNode } from "@/components/FileTree";
 import { Content, Layout, Sidebar } from "@/components/Layout";
@@ -59,6 +50,7 @@ function Home() {
 
           <Stack direction="row">
             <IconButton
+              color="inherit"
               onClick={async () => {
                 const res = await dialog.open({
                   directory: true,
@@ -71,6 +63,7 @@ function Home() {
               <AddIcon />
             </IconButton>
             <IconButton
+              color="inherit"
               onClick={async () => {
                 setFolders(
                   folders?.filter(

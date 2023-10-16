@@ -36,7 +36,7 @@ pub struct ValidationResponse {
 
 fn directory_tree(path: &str) -> FileNode {
   let mut node = FileNode {
-    path: path.to_string(),
+    path: path.to_string().replace("\\", "/"),
     name: Path::new(path)
       .file_name()
       .unwrap()
@@ -55,7 +55,7 @@ fn directory_tree(path: &str) -> FileNode {
           node.children.push(child_node);
         } else {
           node.children.push(FileNode {
-            path: path.display().to_string(),
+            path: path.display().to_string().replace("\\", "/"),
             name: path.file_name().unwrap().to_string_lossy().to_string(),
             is_dir: false,
             children: Vec::new(),
@@ -79,38 +79,39 @@ fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::Arro
   writer.into_inner()
 }
 
-fn _read_parquet(path: String, limit: i32, offset: i32) -> anyhow::Result<ValidationResponse> {
+fn _query(sql: String, limit: i32, offset: i32) -> anyhow::Result<ValidationResponse> {
   let db = Connection::open_in_memory()
     .map_err(|err| anyhow!("Failed to open database connection: {}", err))?;
 
-  let count_sql = format!("select count(1) from read_parquet('{path}')");
+  println!("sql: {}", sql);
 
+  // get total row count
+  let count_sql = format!("select count(1) from ({sql})");
   let total_count: usize = db
     .query_row(count_sql.as_str(), [], |row| row.get(0))
     .unwrap();
 
-  let sql = format!("select * from read_parquet('{path}') limit {limit} offset {offset}");
+
+  // query
+  let sql = format!("{sql} limit {limit} offset {offset}");
   let mut stmt = db.prepare(sql.as_str()).unwrap();
-
   let frames = stmt.query_arrow(duckdb::params![]).unwrap();
-
+  println!("sql: {}", sql);
   let schema = frames.get_schema();
-
   let records: Vec<RecordBatch> = frames.collect();
 
-  let row_count = stmt.row_count();
   let record_batch = arrow::compute::concat_batches(&schema, &records).unwrap();
 
   Ok(ValidationResponse {
-    row_count,
+    row_count: 0,
     total_count,
     preview: serialize_preview(&record_batch).unwrap(),
   })
 }
 
 #[tauri::command]
-async fn read_parquet(path: String, limit: i32, offset: i32) -> ValidationResponse {
-  let res = _read_parquet(path, limit, offset);
+async fn query(sql: String, limit: i32, offset: i32) -> ValidationResponse {
+  let res = _query(sql, limit, offset);
   if let Ok(data) = res {
     data
   } else {
@@ -160,7 +161,7 @@ fn main() {
       });
       Ok(())
     })
-    .invoke_handler(tauri::generate_handler![get_folder_tree, read_parquet])
+    .invoke_handler(tauri::generate_handler![get_folder_tree, query])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }

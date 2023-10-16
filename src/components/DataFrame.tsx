@@ -7,8 +7,9 @@ import { useMemo } from "react";
 import * as dayjs from "dayjs";
 import { Box } from "@mui/material";
 import { IconCaretUpDownFilled } from "@tabler/icons-react";
-import { isDarkTheme } from "../utils";
-import { SchemaType } from "../stores/store";
+import { isDarkTheme } from "@/utils";
+import { SchemaType } from "@/stores/store";
+import { useStore } from "@/stores/store";
 
 interface DatasetProps {
   data: any[];
@@ -43,6 +44,8 @@ function display(dataType: string, name: string) {
 }
 
 export default function Dataset({ data, schema }: DatasetProps) {
+  const setOrderBy = useStore((state) => state.setOrderBy);
+
   const columns = useMemo<MRT_ColumnDef<any>[]>(() => {
     const main: MRT_ColumnDef<any>[] =
       schema?.map(({ name, dataType }) => {
@@ -51,7 +54,7 @@ export default function Dataset({ data, schema }: DatasetProps) {
           header: name,
           accessorFn: display(dataType, name),
           // maxSize: 100,
-          Header: ({ column }) => {
+          Header: ({ header }) => {
             return (
               <Box
                 sx={{
@@ -61,6 +64,11 @@ export default function Dataset({ data, schema }: DatasetProps) {
                   width: "100%",
                   height: 20,
                   lineHeight: 1,
+                  pl: "6px",
+                  pr: "6px",
+                }}
+                onClick={() => {
+                  setOrderBy(name);
                 }}
               >
                 <Box sx={{}}>{name}</Box>
@@ -160,10 +168,11 @@ export default function Dataset({ data, schema }: DatasetProps) {
       enableResizing: true,
     },
     enableDensityToggle: false,
-    enableColumnResizing: false, // resize column width
+    enableColumnResizing: true, // resize column width
     enableColumnOrdering: false,
     enableColumnPinning: true,
     // enableGlobalFilterModes: true,
+
     enablePinning: true,
     enableRowNumbers: false,
     muiTablePaperProps: {
@@ -211,7 +220,7 @@ export default function Dataset({ data, schema }: DatasetProps) {
           ? "1px solid #1e1f22"
           : "1px solid #e2e2e2",
 
-        p: `6px`,
+        p: 0,
         "& .Mui-TableHeadCell-Content-Wrapper": {
           width: "100%",
         },

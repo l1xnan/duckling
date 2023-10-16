@@ -22,9 +22,10 @@ function Dataset() {
   const tableName = useStore((state) => state.tableName);
   const page = useStore((state) => state.page);
   const perPage = useStore((state) => state.perPage);
+  const orderBy = useStore((state) => state.orderBy);
   useEffect(() => {
     refresh().then(() => {});
-  }, [tableName, page, perPage]);
+  }, [tableName, page, perPage, orderBy]);
 
   return (
     <Box>
@@ -89,10 +90,18 @@ function PageSizeToolbar() {
         </IconButton>
         <Dropdown content={content} />
         {count < totalCount ? `of ${totalCount}` : null}
-        <IconButton color="inherit" onClick={increase}  disabled={page >= Math.ceil(totalCount / perPage)}>
+        <IconButton
+          color="inherit"
+          onClick={increase}
+          disabled={page >= Math.ceil(totalCount / perPage)}
+        >
           <KeyboardArrowRightIcon />
         </IconButton>
-        <IconButton color="inherit" onClick={toLast}  disabled={page >= Math.ceil(totalCount / perPage)}>
+        <IconButton
+          color="inherit"
+          onClick={toLast}
+          disabled={page >= Math.ceil(totalCount / perPage)}
+        >
           <KeyboardDoubleArrowRightIcon />
         </IconButton>
         <Divider orientation="vertical" flexItem />
