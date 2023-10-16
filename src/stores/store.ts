@@ -10,10 +10,11 @@ export type SchemaType = {
   metadata: any;
 };
 
-interface ValidationResponse {
-  row_count: number;
-  total_count: number;
-  preview: Array<number>;
+interface ArrowResponse {
+  total: number;
+  data: Array<number>;
+  code: number;
+  message: string;
 }
 
 type DatasetField = {
@@ -132,13 +133,13 @@ export const useStore = create<DatasetState>((set, get) => ({
   },
 }));
 
-interface ValidationResponse {
-  row_count: number;
-  total_count: number;
-  preview: Array<number>;
-}
-
-type ResultType = { totalCount: number; data: any[]; schema: SchemaType[] };
+type ResultType = {
+  totalCount: number;
+  data: any[];
+  schema: SchemaType[];
+  code: number;
+  message: string;
+};
 
 type OptionType = {
   limit: number;
@@ -146,8 +147,8 @@ type OptionType = {
   order?: string;
 };
 
-export function convert(preview: Array<number>, totalCount: number) {
-  const table: Table = tableFromIPC(Uint8Array.from(preview));
+export function convertArrow(arrowData: Array<number>, totalCount: number) {
+  const table: Table = tableFromIPC(Uint8Array.from(arrowData));
   const schema: SchemaType[] = table.schema.fields.map((field: any) => {
     return {
       name: field.name,
@@ -172,14 +173,27 @@ export function convert(preview: Array<number>, totalCount: number) {
   };
 }
 
+function convert(res: ArrowResponse): ResultType {
+  const { data, total, code, message } = res;
+  if (code === 0) {
+    return {
+      ...convertArrow(data, total),
+      code,
+      message,
+    };
+  }
+  return {
+    data: [],
+    schema: [],
+    totalCount: 0,
+    code,
+    message,
+  };
+}
+
 export async function showTables(path?: string) {
-  const { preview, total_count }: ValidationResponse = await invoke(
-    "show_tables",
-    {
-      path,
-    }
-  );
-  return convert(preview, total_count);
+  const res = await invoke<ArrowResponse>("show_tables", { path });
+  return convert(res);
 }
 
 export async function query(
@@ -187,23 +201,25 @@ export async function query(
   limit: number,
   offset: number
 ): Promise<ResultType> {
-  const { preview, total_count }: ValidationResponse = await invoke("query", {
+  const res = await invoke<ArrowResponse>("query", {
     sql,
     limit,
     offset,
   });
-  return convert(preview, total_count);
+  return convert(res);
 }
 
 export async function read_parquet(
   path: string,
   { limit = 500, offset = 0, order }: OptionType
 ): Promise<ResultType> {
-  const { preview, total_count }: ValidationResponse = await invoke(
-    "read_parquet",
-    { path, limit, offset, order }
-  );
-  return convert(preview, total_count);
+  const res = await invoke<ArrowResponse>("read_parquet", {
+    path,
+    limit,
+    offset,
+    order,
+  });
+  return convert(res);
 }
 
 export const useParquet = () => {
