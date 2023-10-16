@@ -136,6 +136,10 @@ export const lightTheme = createTheme(theme, {
     },
     text: {
       primary: "#1e1e1e",
+      secondary: "#1e1e1e",
+    },
+    action: {
+      disabled: "#b2b2b2",
     },
   },
 } as ThemeOptions);
@@ -148,6 +152,7 @@ export const darkTheme = createTheme(theme, {
     },
     text: {
       primary: "#ced0d6",
+      secondary: "#ced0d6",
     },
   },
   components: {
