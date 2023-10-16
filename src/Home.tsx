@@ -11,8 +11,22 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import { isDarkTheme } from "@/utils";
 import { useLocalStorageState } from "ahooks";
 import { useEffect, useState } from "react";
-import { useStore } from "@/stores/store";
-import { IconDatabasePlus, IconFolderPlus } from "@tabler/icons-react";
+import { showTables, useStore } from "@/stores/store";
+import {
+  IconDatabasePlus,
+  IconFolderPlus,
+  IconRefresh,
+} from "@tabler/icons-react";
+
+export const MuiIconButton = styled((props) => (
+  <IconButton color="inherit" {...props} />
+))<BoxProps>(({}) => ({
+  "& *": {
+    fontSize: 16,
+    height: 16,
+    width: 16,
+  },
+}));
 
 function Home() {
   const theme = useTheme();
@@ -49,8 +63,7 @@ function Home() {
           <Typography fontWeight={800}>Database Explorer</Typography>
 
           <Stack direction="row">
-            <IconButton
-              color="inherit"
+            <MuiIconButton
               onClick={async () => {
                 const res = await dialog.open({
                   directory: true,
@@ -68,9 +81,8 @@ function Home() {
               }}
             >
               <IconFolderPlus />
-            </IconButton>
-            <IconButton
-              color="inherit"
+            </MuiIconButton>
+            <MuiIconButton
               onClick={async () => {
                 const res = await dialog.open({
                   directory: false,
@@ -85,16 +97,9 @@ function Home() {
                   openDirectory(res.path);
                 }
               }}
-              sx={{
-                "& *": {
-                  fontSize: 16,
-                  height: 16,
-                  width: 16,
-                },
-              }}
             >
               <IconDatabasePlus />
-            </IconButton>
+            </MuiIconButton>
             <IconButton
               color="inherit"
               onClick={async () => {
@@ -107,6 +112,33 @@ function Home() {
             >
               <RemoveIcon />
             </IconButton>
+            <MuiIconButton
+              color="inherit"
+              onClick={async () => {
+                console.log(selectedPath);
+                if (selectedPath && selectedPath.endsWith(".duckdb")) {
+                  const res = await showTables(selectedPath);
+                  console.log(res);
+                  setFolders(
+                    folders?.map((item) => {
+                      if (item.path == selectedPath) {
+                        item.children = res.data.map(({ name }) => ({
+                          name,
+                          path: name,
+                          type: "table",
+                          children: [],
+                        }));
+                        return item;
+                      }
+                      return item;
+                    })
+                  );
+                  console.log(folders);
+                }
+              }}
+            >
+              <IconRefresh />
+            </MuiIconButton>
             <ToggleColorMode />
           </Stack>
         </ToolbarBox>

@@ -4,18 +4,20 @@ import { Typography } from "@mui/material";
 import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import { TreeView, TreeViewProps } from "@mui/x-tree-view/TreeView";
 import {
+  IconDatabase,
   IconFile,
-  IconFileDatabase,
   IconFilePower,
   IconFileTypeCsv,
   IconFileTypeXls,
   IconFolder,
   IconFolderOpen,
+  IconTable,
 } from "@tabler/icons-react";
 import * as React from "react";
 
 export interface FileNode {
   name: string;
+  type?: string;
   path: string;
   is_dir: boolean;
   children: FileNode[];
@@ -25,19 +27,20 @@ export interface FileTreeProps extends TreeViewProps<undefined> {
   data: FileNode;
 }
 
-const getFileTypeIcon = (path: string) => {
-  const ext = path.split(".")[1];
-
-  if (ext == "duckdb") {
-    return <IconFileDatabase />;
+const getFileTypeIcon = (type: string) => {
+  if (type == "duckdb") {
+    return <IconDatabase />;
   }
-  if (ext == "csv") {
+  if (type == "table") {
+    return <IconTable />;
+  }
+  if (type == "csv") {
     return <IconFileTypeCsv />;
   }
-  if (ext == "xlsx") {
+  if (type == "xlsx") {
     return <IconFileTypeXls />;
   }
-  if (ext == "parquet") {
+  if (type == "parquet") {
     return <IconFilePower />;
   }
   return <IconFile />;
@@ -66,7 +69,7 @@ export default function FileTree({
       }
       icon={
         !node.is_dir ? (
-          getFileTypeIcon(node.path)
+          getFileTypeIcon(node?.type ?? node.path.split(".")[1])
         ) : expanded.includes(node.path) ? (
           <IconFolderOpen />
         ) : (

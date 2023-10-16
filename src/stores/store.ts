@@ -172,6 +172,16 @@ export function convert(preview: Array<number>, totalCount: number) {
   };
 }
 
+export async function showTables(path?: string) {
+  const { preview, total_count }: ValidationResponse = await invoke(
+    "show_tables",
+    {
+      path,
+    }
+  );
+  return convert(preview, total_count);
+}
+
 export async function query(
   sql: string,
   limit: number,

@@ -68,6 +68,30 @@ fn directory_tree(path: &str) -> FileNode {
   node
 }
 
+fn _show_tables(path: String) -> Result<ValidationResponse> {
+  let db = Connection::open(path)?;
+  let mut stmt = db.prepare("SHOW TABLES").unwrap();
+  let frames = stmt.query_arrow(duckdb::params![]).unwrap();
+  let schema = frames.get_schema();
+  let records: Vec<RecordBatch> = frames.collect();
+  let record_batch = arrow::compute::concat_batches(&schema, &records).unwrap();
+  Ok(ValidationResponse {
+    row_count: records.len(),
+    total_count: records.len(),
+    preview: serialize_preview(&record_batch).unwrap(),
+  })
+}
+
+#[tauri::command]
+async fn show_tables(path: String) -> ValidationResponse {
+  let res = _show_tables(path);
+  if let Ok(data) = res {
+    data
+  } else {
+    ValidationResponse::default()
+  }
+}
+
 #[tauri::command]
 fn get_folder_tree(name: &str) -> FileNode {
   directory_tree(name)
@@ -90,7 +114,6 @@ fn _query(sql: String, limit: i32, offset: i32) -> anyhow::Result<ValidationResp
   let total_count: usize = db
     .query_row(count_sql.as_str(), [], |row| row.get(0))
     .unwrap();
-
 
   // query
   let sql = format!("{sql} limit {limit} offset {offset}");
@@ -161,7 +184,11 @@ fn main() {
       });
       Ok(())
     })
-    .invoke_handler(tauri::generate_handler![get_folder_tree, query])
+    .invoke_handler(tauri::generate_handler![
+      get_folder_tree,
+      query,
+      show_tables
+    ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
