@@ -7,12 +7,12 @@ import Dataset from "@/components/Dataset";
 import FileTreeView, { FileNode } from "@/components/FileTree";
 import { Content, Layout, Sidebar } from "@/components/Layout";
 import ToggleColorMode from "@/components/ToggleColorMode";
-import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { isDarkTheme } from "@/utils";
 import { useLocalStorageState } from "ahooks";
 import { useEffect, useState } from "react";
 import { useStore } from "@/stores/store";
+import { IconDatabasePlus, IconFolderPlus } from "@tabler/icons-react";
 
 function Home() {
   const theme = useTheme();
@@ -59,8 +59,41 @@ function Home() {
                   openDirectory(res);
                 }
               }}
+              sx={{
+                "& *": {
+                  fontSize: 16,
+                  height: 16,
+                  width: 16,
+                },
+              }}
             >
-              <AddIcon />
+              <IconFolderPlus />
+            </IconButton>
+            <IconButton
+              color="inherit"
+              onClick={async () => {
+                const res = await dialog.open({
+                  directory: false,
+                  filters: [
+                    {
+                      name: "Data File",
+                      extensions: ["duckdb", "parquet", "csv"],
+                    },
+                  ],
+                });
+                if (res) {
+                  openDirectory(res.path);
+                }
+              }}
+              sx={{
+                "& *": {
+                  fontSize: 16,
+                  height: 16,
+                  width: 16,
+                },
+              }}
+            >
+              <IconDatabasePlus />
             </IconButton>
             <IconButton
               color="inherit"
@@ -90,10 +123,10 @@ function Home() {
               : "1px solid #e2e2e2",
           }}
         >
-          {folders?.map((folder) => {
+          {folders?.map((folder, i) => {
             return (
               <FileTreeView
-                key={folder.path}
+                key={i}
                 data={folder}
                 selected={selectedPath}
                 onNodeSelect={(_, nodeId) => {

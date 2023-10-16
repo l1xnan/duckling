@@ -3,7 +3,15 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Typography } from "@mui/material";
 import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import { TreeView, TreeViewProps } from "@mui/x-tree-view/TreeView";
-import { IconFile, IconFolder, IconFolderOpen } from "@tabler/icons-react";
+import {
+  IconFile,
+  IconFileDatabase,
+  IconFilePower,
+  IconFileTypeCsv,
+  IconFileTypeXls,
+  IconFolder,
+  IconFolderOpen,
+} from "@tabler/icons-react";
 import * as React from "react";
 
 export interface FileNode {
@@ -16,6 +24,24 @@ export interface FileNode {
 export interface FileTreeProps extends TreeViewProps<undefined> {
   data: FileNode;
 }
+
+const getFileTypeIcon = (path: string) => {
+  const ext = path.split(".")[1];
+
+  if (ext == "duckdb") {
+    return <IconFileDatabase />;
+  }
+  if (ext == "csv") {
+    return <IconFileTypeCsv />;
+  }
+  if (ext == "xlsx") {
+    return <IconFileTypeXls />;
+  }
+  if (ext == "parquet") {
+    return <IconFilePower />;
+  }
+  return <IconFile />;
+};
 
 export default function FileTree({
   data,
@@ -40,7 +66,7 @@ export default function FileTree({
       }
       icon={
         !node.is_dir ? (
-          <IconFile />
+          getFileTypeIcon(node.path)
         ) : expanded.includes(node.path) ? (
           <IconFolderOpen />
         ) : (
