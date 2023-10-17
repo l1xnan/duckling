@@ -7,6 +7,7 @@ use tauri::Manager;
 use serde::{Deserialize, Serialize};
 use std::env::{current_dir, set_current_dir};
 use std::fs;
+use log::info;
 
 #[derive(Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct ArrowData {
@@ -52,13 +53,21 @@ fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::Arro
   writer.into_inner()
 }
 
-pub fn query(path: &str, sql: String, limit: i32, offset: i32) -> anyhow::Result<ArrowData> {
+pub fn query(
+  path: &str,
+  sql: String,
+  limit: i32,
+  offset: i32,
+  cwd: Option<String>,
+) -> anyhow::Result<ArrowData> {
   let con = if path == ":memory:" {
     Connection::open_in_memory()
   } else {
-    let p = PathBuf::from(path);
-    // set_current_dir(p.parent().unwrap().parent().unwrap());
-    println!("current_dir: {}", current_dir()?.display());
+    if let Some(current_dir) = cwd {
+      set_current_dir(current_dir);
+    }
+
+    info!("current_dir: {}", current_dir()?.display());
     Connection::open(path)
   };
   let db = con.map_err(|err| anyhow!("Failed to open database connection: {}", err))?;

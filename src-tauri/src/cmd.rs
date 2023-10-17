@@ -19,8 +19,15 @@ pub async fn show_tables(path: String) -> ArrowResponse {
 }
 
 #[tauri::command]
-pub async fn query(path: String, sql: String, limit: i32, offset: i32) -> ArrowResponse {
-  let res = api::query(path.as_str(), sql, limit, offset);
+pub async fn query(
+  path: String,
+  sql: String,
+  limit: i32,
+  offset: i32,
+  // current working directory
+  cwd: Option<String>,
+) -> ArrowResponse {
+  let res = api::query(path.as_str(), sql, limit, offset, cwd);
   api::convert(res)
 }
 
