@@ -37,6 +37,7 @@ export default (props: HeadCellProps) => {
         lineHeight: 1,
         pl: "6px",
         pr: "6px",
+        fontSize: "14px",
       }}
       onClick={() => {
         setOrderBy(key);

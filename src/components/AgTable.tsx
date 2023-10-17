@@ -28,13 +28,23 @@ export const GridExample = ({ data, schema }: TableProps) => {
       agColumnHeader: HeaderCell,
     };
   }, []);
+
+  const row0 = data?.[0] ?? {};
   const columnDefs = useMemo<any[]>(() => {
     const main: any[] =
       schema?.map(({ name, dataType }) => {
         return {
           headerName: name,
           field: name,
-          width: Math.min(getByteLength(name) * 10 + 30, 200),
+          width: Math.min(
+            Math.max(
+              getByteLength(name),
+              getByteLength(row0?.[name]?.toString() ?? "0")
+            ) *
+              12 +
+              30,
+            200
+          ),
         };
       }) ?? [];
 
