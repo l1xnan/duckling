@@ -42,8 +42,13 @@ function Home() {
       setFolders([...(folders ?? []), fileTree]);
     }
   }
+  async function openUrl() {
+    const path: string = await invoke("opened_urls");
+    console.log(path);
+  }
 
   useEffect(() => {
+    openUrl();
     const unlisten = listen("open-directory", (e) => {
       console.log(e.payload);
 
