@@ -139,9 +139,9 @@ export const useStore = create<DatasetState>((set, get) => ({
 
     if (table?.root?.endsWith(".duckdb")) {
       path = table.root;
-    } else if (table?.root?.endsWith(".csv")) {
+    } else if (tableName.endsWith(".csv")) {
       tableName = `read_csv('${table.tableName}')`;
-    } else if (table?.root?.endsWith(".parquet")) {
+    } else if (tableName.endsWith(".parquet")) {
       tableName = `read_parquet('${table.tableName}')`;
     }
     const sql = genStmt({
