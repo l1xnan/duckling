@@ -21,6 +21,15 @@ import { MuiIconButton } from "@/components/MuiIconButton";
 import DBConfig, { useDBConfigStore } from "./components/DBConfig";
 import { FileNode, useDBStore } from "@/stores/db";
 
+export const DatasetEmpty = styled((props) => <Box {...props} />)<BoxProps>(
+  ({}) => ({
+    display: "flex",
+    marginTop: "20%",
+    height: "100%",
+    justifyContent: "center",
+  })
+);
+
 function Home() {
   const [selectedTable, setSelectedTable] = useState<DTableType | null>(null);
   const dbList = useDBStore((state) => state.dbList);
@@ -56,41 +65,59 @@ function Home() {
 
   const onOpen = useDBConfigStore((state) => state.onOpen);
 
+  async function handleRemoveDB() {
+    removeDB(selectedTable?.root!);
+  }
+  async function handleAppendDB() {
+    const res = await dialog.open({
+      directory: false,
+      filters: [
+        {
+          name: "Data File",
+          extensions: ["duckdb", "parquet", "csv"],
+        },
+      ],
+    });
+    if (res) {
+      openDirectory(res.path);
+    }
+  }
+
+  async function handleAppendFolder() {
+    const res = await dialog.open({
+      directory: true,
+    });
+    if (res) {
+      openDirectory(res);
+    }
+  }
+
+  async function handleRefresh() {
+    console.log(selectedTable);
+    if (selectedTable && selectedTable.tableName.endsWith(".duckdb")) {
+      const res = await showTables(selectedTable.root);
+      console.log(res);
+      updateDB({
+        path: selectedTable.root,
+        children: res.data.map(({ table_name, table_type }) => ({
+          name: table_name,
+          path: table_name,
+          type: table_type == "VIEW" ? "view" : "table",
+          is_dir: false,
+        })),
+      });
+    }
+  }
   return (
     <Layout>
       <Sidebar>
         <ToolbarBox>
           <Typography fontWeight={800}>Database Explorer</Typography>
-
           <Stack direction="row">
-            <MuiIconButton
-              onClick={async () => {
-                const res = await dialog.open({
-                  directory: true,
-                });
-                if (res) {
-                  openDirectory(res);
-                }
-              }}
-            >
+            <MuiIconButton onClick={handleAppendFolder}>
               <IconFolderPlus />
             </MuiIconButton>
-            <MuiIconButton
-              onClick={async () => {
-                const res = await dialog.open({
-                  directory: false,
-                  filters: [
-                    {
-                      name: "Data File",
-                      extensions: ["duckdb", "parquet", "csv"],
-                    },
-                  ],
-                });
-                if (res) {
-                  openDirectory(res.path);
-                }
-              }}
-            >
+            <MuiIconButton onClick={handleAppendDB}>
               <IconDatabasePlus />
             </MuiIconButton>
             {/* <DBConfig db={selectedTable} /> */}
@@ -106,34 +133,12 @@ function Home() {
                   .map((item) => item.data.path)
                   .includes(selectedTable?.tableName!)
               }
-              onClick={async () => {
-                removeDB(selectedTable?.root!);
-              }}
+              onClick={handleRemoveDB}
             >
               <RemoveIcon />
             </MuiIconButton>
-            <MuiIconButton
-              // refresh tree
-              onClick={async () => {
-                console.log(selectedTable);
-                if (
-                  selectedTable &&
-                  selectedTable.tableName.endsWith(".duckdb")
-                ) {
-                  const res = await showTables(selectedTable.root);
-                  console.log(res);
-                  updateDB({
-                    path: selectedTable.root,
-                    children: res.data.map(({ table_name, table_type }) => ({
-                      name: table_name,
-                      path: table_name,
-                      type: table_type == "VIEW" ? "view" : "table",
-                      is_dir: false,
-                    })),
-                  });
-                }
-              }}
-            >
+            {/* refresh tree */}
+            <MuiIconButton onClick={handleRefresh}>
               <IconRefresh />
             </MuiIconButton>
             <ToggleColorMode />
@@ -153,20 +158,7 @@ function Home() {
           ))}
         </TreeViewWrapper>
       </Sidebar>
-      <Content>
-        {!!table?.tableName ? (
-          <Dataset />
-        ) : (
-          <Box
-            sx={{
-              display: "flex",
-              marginTop: "20%",
-              height: "100%",
-              justifyContent: "center",
-            }}
-          />
-        )}
-      </Content>
+      <Content>{!!table?.tableName ? <Dataset /> : <DatasetEmpty />}</Content>
     </Layout>
   );
 }
