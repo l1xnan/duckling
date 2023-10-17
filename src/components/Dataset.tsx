@@ -4,6 +4,7 @@ import {
   IconButton,
   InputBase,
   InputLabel,
+  Snackbar,
   Stack,
 } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -16,6 +17,7 @@ import SyncIcon from "@mui/icons-material/Sync";
 import { isDarkTheme } from "@/utils";
 import { convertOrderBy, useStore } from "../stores/store";
 import { GridExample } from "./AgTable";
+import { message } from "@tauri-apps/plugin-dialog";
 
 export interface DatasetProps {
   tableName: string;
@@ -25,14 +27,36 @@ function Dataset() {
   const refresh = useStore((state) => state.refresh);
   const data = useStore((state) => state.data);
   const schema = useStore((state) => state.schema);
-  const tableName = useStore((state) => state.tableName);
+  const table = useStore((state) => state.table);
   const page = useStore((state) => state.page);
   const perPage = useStore((state) => state.perPage);
   const orderBy = useStore((state) => state.orderBy);
   const sqlWhere = useStore((state) => state.sqlWhere);
+  const code = useStore((state) => state.code);
+  const message = useStore((state) => state.message);
+  const [open, setOpen] = useState(false);
+
   useEffect(() => {
     refresh().then(() => {});
-  }, [tableName, page, perPage, orderBy, sqlWhere]);
+  }, [table, page, perPage, orderBy, sqlWhere]);
+
+  useEffect(() => {
+    if (code != 0) {
+      setOpen(true);
+    }
+  }, [table, code, message]);
+
+  console.log(message);
+  const handleClose = (
+    event: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpen(false);
+  };
 
   return (
     <Stack>
@@ -42,6 +66,15 @@ function Dataset() {
         {/* <DataFrame data={data ?? []} schema={schema ?? []} /> */}
         <GridExample data={data ?? []} schema={schema ?? []} />
       </Box>
+
+      {message?.length ?? 0 > 0 ? (
+        <Snackbar
+          open={open}
+          autoHideDuration={6000}
+          onClose={handleClose}
+          message={message ?? ""}
+        />
+      ) : null}
     </Stack>
   );
 }

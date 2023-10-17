@@ -21,6 +21,21 @@
         "icons/128x128@2x.png",
         "icons/icon.icns",
         "icons/icon.ico"
+      ],
+      "windows": {
+        "wix": {
+          "fragmentPaths": []
+        }
+      },
+      "fileAssociations": [
+        {
+          "ext": ["duckdb"],
+          "mimeType": "application/octet-stream"
+        },
+        {
+          "ext": ["parquet"],
+          "mimeType": "application/octet-stream"
+        }
       ]
     },
     "security": {

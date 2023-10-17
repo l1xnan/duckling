@@ -1,9 +1,11 @@
+import { DTableType } from "@/stores/store";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Typography } from "@mui/material";
 import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import { TreeView, TreeViewProps } from "@mui/x-tree-view/TreeView";
 import {
+  IconBorderOuter,
   IconDatabase,
   IconFile,
   IconFilePower,
@@ -20,11 +22,7 @@ export interface FileNode {
   type?: string;
   path: string;
   is_dir: boolean;
-  children: FileNode[];
-}
-
-export interface FileTreeProps extends TreeViewProps<undefined> {
-  data: FileNode;
+  children?: FileNode[];
 }
 
 const getFileTypeIcon = (type: string) => {
@@ -33,6 +31,9 @@ const getFileTypeIcon = (type: string) => {
   }
   if (type == "table") {
     return <IconTable />;
+  }
+  if (type == "view") {
+    return <IconBorderOuter />;
   }
   if (type == "csv") {
     return <IconFileTypeCsv />;
@@ -46,10 +47,17 @@ const getFileTypeIcon = (type: string) => {
   return <IconFile />;
 };
 
+export interface FileTreeProps extends TreeViewProps<boolean> {
+  data: FileNode;
+  dbKey: number;
+  onSelectTable: (item: DTableType) => void;
+}
+
 export default function FileTree({
+  dbKey,
   data,
   selected,
-  onNodeSelect,
+  onSelectTable,
   ...rest
 }: FileTreeProps) {
   const renderTree = (node: FileNode) => (
@@ -87,12 +95,19 @@ export default function FileTree({
   const handleToggle = (_: React.SyntheticEvent, nodeIds: string[]) => {
     setExpanded(nodeIds);
   };
+
   return (
     <TreeView
       aria-label="file tree"
       defaultCollapseIcon={<ExpandMoreIcon />}
       defaultExpandIcon={<ChevronRightIcon />}
-      onNodeSelect={onNodeSelect}
+      onNodeSelect={(_, nodeIds) => {
+        onSelectTable({
+          key: dbKey,
+          path: data.path,
+          tableName: nodeIds as string,
+        });
+      }}
       onNodeToggle={handleToggle}
       expanded={expanded}
       selected={selected}

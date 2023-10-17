@@ -11,7 +11,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import { isDarkTheme } from "@/utils";
 import { useLocalStorageState } from "ahooks";
 import { useEffect, useState } from "react";
-import { showTables, useStore } from "@/stores/store";
+import { showTables, useStore, DTableType } from "@/stores/store";
 import {
   IconDatabasePlus,
   IconFolderPlus,
@@ -31,7 +31,7 @@ export const MuiIconButton = styled((props) => (
 function Home() {
   const theme = useTheme();
 
-  const [selectedPath, setSelectedPath] = useState<string | null>(null);
+  const [selectedTable, setSelectedTable] = useState<DTableType | null>(null);
   const [folders, setFolders] = useLocalStorageState<FileNode[]>("folders", {
     defaultValue: [],
   });
@@ -54,8 +54,8 @@ function Home() {
     };
   }, []);
   const setStore = useStore((state) => state.setStore);
-  const tableName = useStore((state) => state.tableName);
-  console.log(tableName, !!tableName);
+  const table = useStore((state) => state.table);
+  console.log(table);
   return (
     <Layout>
       <Sidebar>
@@ -105,7 +105,8 @@ function Home() {
               onClick={async () => {
                 setFolders(
                   folders?.filter(
-                    (folder) => !(folder.path === selectedPath && folder.is_dir)
+                    (folder) =>
+                      !(folder.path === selectedTable?.path && folder.is_dir)
                   )
                 );
               }}
@@ -114,20 +115,26 @@ function Home() {
             </IconButton>
             <MuiIconButton
               color="inherit"
+              // refresh tree
               onClick={async () => {
-                console.log(selectedPath);
-                if (selectedPath && selectedPath.endsWith(".duckdb")) {
-                  const res = await showTables(selectedPath);
+                console.log(selectedTable);
+                if (
+                  selectedTable &&
+                  selectedTable.tableName.endsWith(".duckdb")
+                ) {
+                  const res = await showTables(selectedTable.path);
                   console.log(res);
                   setFolders(
                     folders?.map((item) => {
-                      if (item.path == selectedPath) {
-                        item.children = res.data.map(({ name }) => ({
-                          name,
-                          path: name,
-                          type: "table",
-                          children: [],
-                        }));
+                      if (item.path == selectedTable.path) {
+                        item.children = res.data.map(
+                          ({ table_name, table_type }) => ({
+                            name: table_name,
+                            path: table_name,
+                            type: table_type == "VIEW" ? "view" : "table",
+                            is_dir: false,
+                          })
+                        );
                         return item;
                       }
                       return item;
@@ -159,15 +166,18 @@ function Home() {
             return (
               <FileTreeView
                 key={i}
+                dbKey={i}
                 data={folder}
-                selected={selectedPath}
-                onNodeSelect={(_, nodeId) => {
-                  setSelectedPath(nodeId);
-                  if (nodeId.endsWith(".parquet")) {
-                    setStore({
+                selected={
+                  selectedTable?.key == i ? selectedTable.tableName : null
+                }
+                onSelectTable={(item: DTableType) => {
+                  setSelectedTable(item);
+                  if (!item.tableName.endsWith(".duckdb")) {
+                    setStore!({
                       page: 1,
                       perPage: 500,
-                      tableName: nodeId,
+                      table: item,
                       orderBy: undefined,
                       sqlWhere: undefined,
                     });
@@ -179,7 +189,7 @@ function Home() {
         </Box>
       </Sidebar>
       <Content>
-        {!!tableName ? (
+        {!!table?.tableName ? (
           <Dataset />
         ) : (
           <Box

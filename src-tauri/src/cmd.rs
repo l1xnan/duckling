@@ -1,5 +1,5 @@
 use crate::api;
-use crate::api::{FileNode, ArrowResponse};
+use crate::api::{ArrowResponse, FileNode};
 
 #[tauri::command]
 pub fn get_folder_tree(name: &str) -> FileNode {
@@ -13,7 +13,7 @@ pub async fn show_tables(path: String) -> ArrowResponse {
 }
 
 #[tauri::command]
-pub async fn query(sql: String, limit: i32, offset: i32) -> ArrowResponse {
-  let res = api::query(":memory:", sql, limit, offset);
+pub async fn query(path: String, sql: String, limit: i32, offset: i32) -> ArrowResponse {
+  let res = api::query(path.as_str(), sql, limit, offset);
   api::convert(res)
 }

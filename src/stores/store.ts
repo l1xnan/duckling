@@ -17,12 +17,21 @@ interface ArrowResponse {
   message: string;
 }
 
-type DatasetField = {
+export type DTableType = {
+  key: number;
+  path: string;
+  tableName: string;
+};
+
+export type DatasetField = {
   page: number;
   totalCount: number;
   data: any[];
   perPage: number;
   tableName?: string;
+  table?: DTableType;
+  code?: number;
+  message?: string;
   schema: SchemaType[];
   orderBy?: OrderByType;
   sqlWhere?: string;
@@ -46,7 +55,7 @@ type OrderByType = {
 };
 
 type StmtType = {
-  path: string;
+  tableName: string;
   page?: number;
   perPage?: number;
   orderBy?: OrderByType;
@@ -60,8 +69,8 @@ export function convertOrderBy({ name, desc }: OrderByType) {
   return `${name} ${desc ? "DESC" : ""}`;
 }
 
-function genStmt({ path, orderBy, where }: StmtType) {
-  let stmt = `select * from read_parquet('${path}')`;
+function genStmt({ tableName, orderBy, where }: StmtType) {
+  let stmt = `select * from ${tableName}`;
   if (!!where && where.length > 0) {
     stmt = `${stmt} where ${where}`;
   }
@@ -79,7 +88,8 @@ export const useStore = create<DatasetState>((set, get) => ({
   schema: [],
   data: [],
   sqlWhere: undefined,
-  orderBy: undefined,
+  code: 0,
+  message: undefined,
   setStore: (res: object) => set((_) => res),
   increase: () => set((state) => ({ page: state.page + 1 })),
   toFirst: () => set((_) => ({ page: 1 })),
@@ -118,18 +128,30 @@ export const useStore = create<DatasetState>((set, get) => ({
   refresh: async () => {
     const page = get().page;
     const perPage = get().perPage;
-    const tableName = get().tableName;
+    const table = get().table;
     const sqlWhere = get().sqlWhere;
-    if (!!tableName) {
-      const sql = genStmt({
-        path: tableName,
-        orderBy: get().orderBy,
-        where: sqlWhere,
-      });
-      console.log("sql:", sql, get().orderBy);
-      const data = await query(sql, perPage, (page - 1) * perPage);
-      set({ ...data });
+    if (!table || !table.tableName) {
+      return;
     }
+
+    let path = ":memory:";
+    let tableName = table.tableName;
+
+    if (table?.path?.endsWith(".duckdb")) {
+      path = table.path;
+    } else {
+      tableName = `read_parquet('${table.tableName}')`;
+    }
+    const sql = genStmt({
+      tableName,
+      orderBy: get().orderBy,
+      where: sqlWhere,
+    });
+
+    console.log("query:", path, sql);
+    const data = await query(path, sql, perPage, (page - 1) * perPage);
+    console.log(data);
+    set({ ...data });
   },
 }));
 
@@ -197,11 +219,13 @@ export async function showTables(path?: string) {
 }
 
 export async function query(
+  path: string,
   sql: string,
   limit: number,
   offset: number
 ): Promise<ResultType> {
   const res = await invoke<ArrowResponse>("query", {
+    path,
     sql,
     limit,
     offset,
