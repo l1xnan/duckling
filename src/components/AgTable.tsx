@@ -155,6 +155,7 @@ export const GridExample = ({ data, schema }: TableProps) => {
           "--ag-row-height": "25px",
           "--ag-list-item-height": "30px",
           "--ag-font-size": "10px",
+          "--ag-font-family": `Consolas, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`,
           "--ag-border-color": isDarkTheme(theme) ? "#313438" : "#ebecf0",
           "--ag-cell-horizontal-border": isDarkTheme(theme)
             ? "1px solid #313438"
