@@ -108,6 +108,10 @@ function Home() {
       });
     }
   }
+
+  const isRoot = dbList
+    .map((item) => item.data.path)
+    .includes(selectedTable?.tableName!);
   return (
     <Layout>
       <Sidebar>
@@ -127,18 +131,11 @@ function Home() {
             >
               <IconDatabaseCog />
             </MuiIconButton>
-            <MuiIconButton
-              disabled={
-                !dbList
-                  .map((item) => item.data.path)
-                  .includes(selectedTable?.tableName!)
-              }
-              onClick={handleRemoveDB}
-            >
+            <MuiIconButton disabled={!isRoot} onClick={handleRemoveDB}>
               <RemoveIcon />
             </MuiIconButton>
             {/* refresh tree */}
-            <MuiIconButton onClick={handleRefresh}>
+            <MuiIconButton disabled={!isRoot} onClick={handleRefresh}>
               <IconRefresh />
             </MuiIconButton>
             <ToggleColorMode />
