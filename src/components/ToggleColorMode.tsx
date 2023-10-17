@@ -1,41 +1,20 @@
-import { Box, IconButton, Tooltip, useTheme } from "@mui/material";
+import { Tooltip, useTheme } from "@mui/material";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { useContext } from "react";
-import { ColorModeContext } from "../theme";
+import { ColorModeContext } from "@/theme";
+import { isDarkTheme } from "@/utils";
+import { MuiIconButton } from "./MuiIconButton";
 
 export default function ToggleColorMode() {
   const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        bgcolor: "background.default",
-        color: "text.primary",
-        borderRadius: 1,
-        fontSize: 12,
-      }}
-    >
-      <Tooltip title={`${theme.palette.mode} mode`}>
-        <IconButton
-          sx={{
-            height: "12px",
-            maxHeight: "12px",
-          }}
-          onClick={colorMode.toggleColorMode}
-          color="inherit"
-        >
-          {theme.palette.mode === "dark" ? (
-            <Brightness7Icon />
-          ) : (
-            <Brightness4Icon />
-          )}
-        </IconButton>
-      </Tooltip>
-    </Box>
+    <Tooltip title={`${theme.palette.mode} mode`}>
+      <MuiIconButton onClick={colorMode.toggleColorMode}>
+        {isDarkTheme(theme) ? <Brightness7Icon /> : <Brightness4Icon />}
+      </MuiIconButton>
+    </Tooltip>
   );
 }

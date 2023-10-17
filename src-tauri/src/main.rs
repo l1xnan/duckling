@@ -1,8 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use log::info;
-use std::{env, sync::Mutex};
+use std::env;
 use tauri::menu::{CheckMenuItemBuilder, MenuBuilder, MenuItemBuilder, SubmenuBuilder};
 use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
@@ -60,7 +59,7 @@ fn main() {
         } else if id == "open-directory" {
           let path = app.dialog().file().blocking_pick_folder();
           if let Some(dir) = path {
-            app.emit_all("open-directory", dir);
+            let _ = app.emit_all("open-directory", dir);
           }
         }
       });
@@ -87,7 +86,7 @@ fn main() {
           "".into()
         };
 
-        info!("opened_urls: {}", opened_urls);
+        log::info!("opened_urls: {}", opened_urls);
       }
 
       Ok(())

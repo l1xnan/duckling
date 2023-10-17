@@ -1,4 +1,4 @@
-import { DTableType } from "@/stores/store";
+import { DTableType, useStore } from "@/stores/store";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Typography } from "@mui/material";
@@ -15,14 +15,17 @@ import {
   IconFolderOpen,
   IconTable,
 } from "@tabler/icons-react";
-import * as React from "react";
+import { useMemo, useState } from "react";
 
-export interface FileNode {
-  name: string;
-  type?: string;
-  path: string;
-  is_dir: boolean;
-  children?: FileNode[];
+import { FileNode } from "@/stores/db";
+
+
+export function flattenTree(fileNode: FileNode, map: Map<string, FileNode>) {
+  map.set(fileNode.path, fileNode);
+
+  fileNode?.children?.forEach((child) => {
+    flattenTree(child, map);
+  });
 }
 
 const getFileTypeIcon = (type: string) => {
@@ -49,17 +52,24 @@ const getFileTypeIcon = (type: string) => {
 
 export interface FileTreeProps extends TreeViewProps<boolean> {
   data: FileNode;
-  dbKey: number;
+  rootKey: number;
   onSelectTable: (item: DTableType) => void;
 }
 
 export default function FileTree({
-  dbKey,
+  rootKey,
   data,
   selected,
   onSelectTable,
   ...rest
 }: FileTreeProps) {
+  const fileMap = useMemo(() => {
+    let fileMap = new Map();
+    flattenTree(data, fileMap);
+    return fileMap;
+  }, [rootKey, data]);
+  const setStore = useStore((state) => state.setStore);
+
   const renderTree = (node: FileNode) => (
     <TreeItem
       key={node.path}
@@ -91,7 +101,7 @@ export default function FileTree({
     </TreeItem>
   );
 
-  const [expanded, setExpanded] = React.useState<string[]>([]);
+  const [expanded, setExpanded] = useState<string[]>([]);
   const handleToggle = (_: React.SyntheticEvent, nodeIds: string[]) => {
     setExpanded(nodeIds);
   };
@@ -102,11 +112,22 @@ export default function FileTree({
       defaultCollapseIcon={<ExpandMoreIcon />}
       defaultExpandIcon={<ChevronRightIcon />}
       onNodeSelect={(_, nodeIds) => {
-        onSelectTable({
-          key: dbKey,
-          path: data.path,
+        const node = fileMap.get(nodeIds);
+        let item = {
+          rootKey,
+          root: data.path,
           tableName: nodeIds as string,
-        });
+        };
+        onSelectTable(item);
+        if (node && !node?.is_dir && !node.path.endsWith(".duckdb")) {
+          setStore!({
+            page: 1,
+            perPage: 500,
+            table: item,
+            orderBy: undefined,
+            sqlWhere: undefined,
+          });
+        }
       }}
       onNodeToggle={handleToggle}
       expanded={expanded}

@@ -18,8 +18,8 @@ interface ArrowResponse {
 }
 
 export type DTableType = {
-  key: number;
-  path: string;
+  rootKey: number;
+  root: string;
   tableName: string;
 };
 
@@ -137,8 +137,8 @@ export const useStore = create<DatasetState>((set, get) => ({
     let path = ":memory:";
     let tableName = table.tableName;
 
-    if (table?.path?.endsWith(".duckdb")) {
-      path = table.path;
+    if (table?.root?.endsWith(".duckdb")) {
+      path = table.root;
     } else {
       tableName = `read_parquet('${table.tableName}')`;
     }

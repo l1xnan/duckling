@@ -11,7 +11,7 @@ export const Content = styled(Box)<BoxProps>(({}) => ({
 
 export const Sidebar = styled(Box)<BoxProps>(({ theme }) => ({
   flexShrink: 0,
-  width: 300,
+  width: 320,
   minHeight: "100vh",
   height: "100vh",
   overflow: "auto",

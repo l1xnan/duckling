@@ -4,10 +4,10 @@ use duckdb::Connection;
 use std::path::{Path, PathBuf};
 use tauri::Manager;
 
+use log::info;
 use serde::{Deserialize, Serialize};
 use std::env::{current_dir, set_current_dir};
 use std::fs;
-use log::info;
 
 #[derive(Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct ArrowData {
@@ -64,7 +64,7 @@ pub fn query(
     Connection::open_in_memory()
   } else {
     if let Some(current_dir) = cwd {
-      set_current_dir(current_dir);
+      let _ = set_current_dir(current_dir);
     }
 
     info!("current_dir: {}", current_dir()?.display());
@@ -114,39 +114,41 @@ pub struct FileNode {
   name: String,
   path: String,
   is_dir: bool,
-  children: Vec<FileNode>,
+  children: Option<Vec<FileNode>>,
+  file_type: Option<String>,
 }
 
 pub fn directory_tree(path: &str) -> FileNode {
-  let mut node = FileNode {
-    path: path.to_string().replace("\\", "/"),
-    name: Path::new(path)
-      .file_name()
-      .unwrap()
-      .to_string_lossy()
-      .to_string(),
-    is_dir: Path::new(path).is_dir(),
-    children: Vec::new(),
+  let _path = Path::new(path);
+  let name = _path.file_name().unwrap().to_string_lossy().to_string();
+  let is_dir = _path.is_dir();
+  let file_type = if is_dir {
+    None
+  } else {
+    Some(_path.extension().unwrap().to_string_lossy().to_string())
   };
 
-  if let Ok(entries) = fs::read_dir(path) {
-    for entry in entries {
-      if let Ok(entry) = entry {
-        let path = entry.path();
-        if path.is_dir() {
-          let child_node = directory_tree(path.to_str().unwrap());
-          node.children.push(child_node);
-        } else {
-          node.children.push(FileNode {
-            path: path.display().to_string().replace("\\", "/"),
-            name: path.file_name().unwrap().to_string_lossy().to_string(),
-            is_dir: false,
-            children: Vec::new(),
-          });
+  let mut children = None;
+
+  if is_dir {
+    if let Ok(entries) = fs::read_dir(path) {
+      let mut child_nodes = Vec::new();
+      for entry in entries {
+        if let Ok(entry) = entry {
+          let child_path = entry.path();
+          let child_node = directory_tree(child_path.to_str().unwrap());
+          child_nodes.push(child_node);
         }
       }
+      children = Some(child_nodes);
     }
   }
 
-  node
+  FileNode {
+    name,
+    path: path.to_string().replace("\\", "/"),
+    is_dir,
+    children,
+    file_type,
+  }
 }
