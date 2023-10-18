@@ -39,7 +39,7 @@ export default function FormDialog() {
 
   useEffect(() => {
     setCwd(db?.cwd ?? "");
-  });
+  }, [db?.cwd]);
 
   const handleSubmit = () => {
     updateCwd(cwd, db?.root!);

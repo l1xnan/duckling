@@ -13,7 +13,7 @@ export default function ToggleColorMode() {
   return (
     <Tooltip title={`${theme.palette.mode} mode`}>
       <MuiIconButton onClick={colorMode.toggleColorMode}>
-        {isDarkTheme(theme) ? <Brightness7Icon /> : <Brightness4Icon />}
+        {isDarkTheme(theme) ? <Brightness7Icon fontSize="small"/> : <Brightness4Icon fontSize="small"/>}
       </MuiIconButton>
     </Tooltip>
   );
