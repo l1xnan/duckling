@@ -21,6 +21,7 @@ export type DTableType = {
   rootKey: number;
   root: string;
   tableName: string;
+  cwd?: string;
 };
 
 export type DatasetField = {
@@ -144,6 +145,8 @@ export const useStore = create<DatasetState>((set, get) => ({
     } else if (tableName.endsWith(".parquet")) {
       tableName = `read_parquet('${table.tableName}')`;
     }
+
+    table.rootKey;
     const sql = genStmt({
       tableName,
       orderBy: get().orderBy,
@@ -151,7 +154,13 @@ export const useStore = create<DatasetState>((set, get) => ({
     });
 
     console.log("query:", path, sql);
-    const data = await query(path, sql, perPage, (page - 1) * perPage);
+    const data = await query({
+      path,
+      sql,
+      limit: perPage,
+      offset: (page - 1) * perPage,
+      cwd: table.cwd,
+    });
     console.log(data);
     set({ ...data });
   },
@@ -220,18 +229,16 @@ export async function showTables(path?: string) {
   return convert(res);
 }
 
-export async function query(
-  path: string,
-  sql: string,
-  limit: number,
-  offset: number
-): Promise<ResultType> {
-  const res = await invoke<ArrowResponse>("query", {
-    path,
-    sql,
-    limit,
-    offset,
-  });
+export type QueryParams = {
+  path: string;
+  sql: string;
+  limit: number;
+  offset: number;
+  cwd?: string;
+};
+
+export async function query(params: QueryParams): Promise<ResultType> {
+  const res = await invoke<ArrowResponse>("query", params);
   return convert(res);
 }
 

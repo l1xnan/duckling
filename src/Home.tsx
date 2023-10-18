@@ -64,6 +64,12 @@ function Home() {
   const table = useStore((state) => state.table);
 
   const onOpen = useDBConfigStore((state) => state.onOpen);
+  const setDB = useDBConfigStore((state) => state.setDB);
+
+  const handleOpen = () => {
+    setDB(selectedTable!);
+    onOpen();
+  };
 
   async function handleRemoveDB() {
     removeDB(selectedTable?.root!);
@@ -124,13 +130,15 @@ function Home() {
             <MuiIconButton onClick={handleAppendDB}>
               <IconDatabasePlus />
             </MuiIconButton>
-            {/* <DBConfig db={selectedTable} /> */}
+            {/* db config */}
+            <DBConfig />
             <MuiIconButton
-              disabled={!selectedTable?.root?.endsWith(".duckdb")}
-              onClick={onOpen}
+              disabled={!(isRoot && selectedTable?.root?.endsWith(".duckdb"))}
+              onClick={handleOpen}
             >
               <IconDatabaseCog />
             </MuiIconButton>
+            {/* remove db */}
             <MuiIconButton disabled={!isRoot} onClick={handleRemoveDB}>
               <RemoveIcon />
             </MuiIconButton>
@@ -146,7 +154,7 @@ function Home() {
             <FileTreeView
               key={i}
               rootKey={i}
-              data={db.data}
+              db={db}
               selected={
                 selectedTable?.rootKey == i ? selectedTable.tableName : null
               }

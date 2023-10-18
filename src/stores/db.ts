@@ -8,7 +8,7 @@ export interface FileNode {
   children?: FileNode[];
 }
 
-type DBType = {
+export type DBType = {
   data: FileNode;
   cwd?: string;
 };
@@ -18,6 +18,7 @@ interface DBState {
   append: (db: DBType) => void;
   update: (db: Partial<FileNode>) => void;
   remove: (dbName: string) => void;
+  setCwd: (cwd: string, path: string) => void;
 }
 
 export const useDBStore = create<DBState>()(
@@ -45,6 +46,17 @@ export const useDBStore = create<DBState>()(
                 };
               }
               return item;
+            }),
+          })),
+        setCwd: (cwd: string, path: string) =>
+          set((state) => ({
+            dbList: state.dbList.map((item) => {
+              return item.data.path == path
+                ? {
+                    ...item,
+                    cwd,
+                  }
+                : item;
             }),
           })),
       }),

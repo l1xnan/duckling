@@ -17,8 +17,7 @@ import {
 } from "@tabler/icons-react";
 import { useMemo, useState } from "react";
 
-import { FileNode } from "@/stores/db";
-
+import { DBType, FileNode } from "@/stores/db";
 
 export function flattenTree(fileNode: FileNode, map: Map<string, FileNode>) {
   map.set(fileNode.path, fileNode);
@@ -51,23 +50,25 @@ const getFileTypeIcon = (type: string) => {
 };
 
 export interface FileTreeProps extends TreeViewProps<boolean> {
-  data: FileNode;
   rootKey: number;
+  db: DBType;
   onSelectTable: (item: DTableType) => void;
 }
 
 export default function FileTree({
   rootKey,
-  data,
+  db,
   selected,
   onSelectTable,
   ...rest
 }: FileTreeProps) {
+  const data = db.data;
+
   const fileMap = useMemo(() => {
     let fileMap = new Map();
     flattenTree(data, fileMap);
     return fileMap;
-  }, [rootKey, data]);
+  }, [rootKey, db]);
   const setStore = useStore((state) => state.setStore);
 
   const renderTree = (node: FileNode) => (
@@ -117,6 +118,7 @@ export default function FileTree({
           rootKey,
           root: data.path,
           tableName: nodeIds as string,
+          cwd: db.cwd,
         };
         onSelectTable(item);
         if (node && !node?.is_dir && !node.path.endsWith(".duckdb")) {

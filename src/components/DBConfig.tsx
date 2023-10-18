@@ -9,32 +9,46 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { create } from "zustand";
 import { useState } from "react";
 import { DTableType } from "@/stores/store";
+import { useDBStore } from "@/stores/db";
 
 type FormDialogType = {
   open: boolean;
+  db?: DTableType;
   setOpen: (open: boolean) => void;
+  setDB: (db: DTableType) => void;
   onOpen: () => void;
   onClose: () => void;
 };
 
 export const useDBConfigStore = create<FormDialogType>((set) => ({
   open: false,
+  db: undefined,
   setOpen: (open: boolean) => set((_) => ({ open })),
   onOpen: () => set((_) => ({ open: true })),
   onClose: () => set((_) => ({ open: false })),
+  setDB: (db: DTableType) => set((_) => ({ db })),
 }));
 
-export default function FormDialog({ db }: { db: DTableType }) {
+export default function FormDialog() {
   const open = useDBConfigStore((state) => state.open);
+  const db = useDBConfigStore((state) => state.db);
   const onClose = useDBConfigStore((state) => state.onClose);
+  const updateCwd = useDBStore((state) => state.setCwd);
 
   const [cwd, setCwd] = useState("");
 
   const handleSubmit = () => {
+    updateCwd(cwd, db?.root!);
     onClose();
   };
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      sx={{
+        backgroundColor: "#ffffff",
+      }}
+    >
       <DialogTitle>DuckDB</DialogTitle>
       <DialogContent>
         <DialogContentText>
