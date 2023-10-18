@@ -12,6 +12,9 @@ DuckStudio 是使用 Tauri 构建的轻量级桌面应用，用于快速浏览 `
 
 打开数据文件夹或者 `*.duckdb` 文件。
 
+![screenshot](./assets/screenshot.png)
+
+
 ## 开发
 
 如果 `bundled` 构建失败，可以下载在 duckdb releases 页面下载对应平台和版本的 libduckdb 文件，例如：[libduckdb-windows-amd64.zip](https://github.com/duckdb/duckdb/releases/download/v0.9.1/libduckdb-windows-amd64.zip) 到 `./src-tauri` 文件夹。
