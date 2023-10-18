@@ -1,21 +1,17 @@
-# Tauri + React + Typescript
+# DuckStudio
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+DuckStudio is a lightweight desktop applications, the use of Tauri build for fast browsing `parquet` / `CSV` file data and database data for [DuckDB](https://github.com/duckdb/duckdb).
 
-## Recommended IDE Setup
+## Installation
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+From [releases](https://github.com/l1xnan/DuckStudio/releases) page to download the latest installation package, for installation.
 
+For Windows platform, you can download and [install Webview2 offline](<(https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section)>) if you cannot install Webview2 due to network problems.
 
-## Dev
-```
-export DUCKDB_LIB_DIR=./libduckdb
-export DUCKDB_INCLUDE_DIR=./libduckdb
-```
-Windows:
-```
-$env:DUCKDB_LIB_DIR="$pwd\src-tauri\libduckdb"
-$env:DUCKDB_INCLUDE_DIR=$env:DUCKDB_LIB_DIR
-$env:LD_LIBRARY_PATH=$env:DUCKDB_LIB_DIR
-$env:PATH+=$env:DUCKDB_LIB_DIR
-```
+## Usage
+
+Open the data folder or `*.duckdb` file.
+
+## Development
+
+If `bundled` fails to build, download the libduckdb releases file for platform and version in the duckdb releases page(e.g. [libduckdb-windows-amd64.zip](https://github.com/duckdb/duckdb/releases/download/v0.9.1/libduckdb-windows-amd64.zip)), unzip to `./src-tauri` folder.
