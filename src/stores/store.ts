@@ -42,6 +42,7 @@ export type DatasetField = {
 export interface DatasetState extends DatasetField {
   setStore?: (res: Partial<DatasetField>) => void;
   setOrderBy?: (name: string) => void;
+  setPerPage?: (perPage: number) => void;
   increase: () => void;
   toFirst: () => void;
   toLast: () => void;
@@ -129,6 +130,7 @@ export const useStore = create<DatasetState>((set, get) => ({
       };
     }),
   setTableName: (tableName: string) => set((_) => ({ tableName })),
+  setPerPage: (perPage: number) => set((_) => ({ perPage })),
   decrease: () => set((state) => ({ page: state.page - 1 })),
   refresh: async () => {
     const page = get().page;

@@ -6,6 +6,8 @@ import MenuItem from "@mui/material/MenuItem";
 import Divider from "@mui/material/Divider";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { isDarkTheme } from "@/utils";
+import { useState } from "react";
+import { useStore } from "@/stores/store";
 
 const StyledMenu = styled((props: MenuProps) => (
   <Menu
@@ -46,7 +48,7 @@ export interface PageSizeProps {
 }
 
 export default function Dropdown({ content }: PageSizeProps) {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -54,6 +56,8 @@ export default function Dropdown({ content }: PageSizeProps) {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const setPerPage = useStore((state) => state.setPerPage);
 
   return (
     <div>
@@ -82,11 +86,19 @@ export default function Dropdown({ content }: PageSizeProps) {
         <MenuItem sx={{ fontWeight: 600 }} disabled>
           Page Size
         </MenuItem>
-        {[10, 100, 500, 1000, "Custom..."].map((item) => (
-          <MenuItem key={item} onClick={handleClose} disableRipple>
+        {[10, 100, 500, 1000].map((item) => (
+          <MenuItem
+            key={item}
+            onClick={() => {
+              setPerPage!(item);
+              handleClose();
+            }}
+            disableRipple
+          >
             {item}
           </MenuItem>
         ))}
+        <MenuItem>Custom...</MenuItem>
         <Divider />
         <MenuItem>Change Default: 500</MenuItem>
       </StyledMenu>
