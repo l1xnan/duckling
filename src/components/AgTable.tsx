@@ -11,6 +11,7 @@ import HeaderCell from "./HeaderCell";
 interface TableProps {
   data: any[];
   schema: SchemaType[];
+  beautify?: boolean;
 }
 
 function columnWiths(name: string, row: any) {
@@ -33,7 +34,7 @@ function isNumber(dataType: string) {
   );
 }
 
-export const GridExample = ({ data, schema }: TableProps) => {
+export const AgTable = ({ data, schema, beautify }: TableProps) => {
   const gridRef = useRef<AgGridReact | null>(null);
   const theme = useTheme();
 
@@ -50,6 +51,7 @@ export const GridExample = ({ data, schema }: TableProps) => {
     };
   }, []);
 
+  console.log("beautify", beautify);
   const row0 = data?.[0] ?? {};
   const columnDefs = useMemo<any[]>(() => {
     const main: any[] =
@@ -61,6 +63,14 @@ export const GridExample = ({ data, schema }: TableProps) => {
           valueFormatter: dataType.includes("Date32")
             ? (params: any) => {
                 return dayjs(params.value)?.format("YYYY-MM-DD");
+              }
+            : beautify && dataType.includes("Float")
+            ? (params: any) => {
+                try {
+                  return params.value?.toFixed(4);
+                } catch (error) {
+                  return params.value;
+                }
               }
             : undefined,
 
@@ -88,7 +98,7 @@ export const GridExample = ({ data, schema }: TableProps) => {
       },
       ...main,
     ];
-  }, [schema]);
+  }, [schema, beautify]);
 
   const clearPinned = useCallback(() => {
     if (!gridRef.current) {

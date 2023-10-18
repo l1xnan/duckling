@@ -1,5 +1,5 @@
 import { Box, BoxProps, styled } from "@mui/material";
-import { isDarkTheme } from "../utils";
+import { isDarkTheme } from "@/utils";
 
 export const Content = styled(Box)<BoxProps>(({}) => ({
   flexGrow: 1,

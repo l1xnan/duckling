@@ -16,8 +16,9 @@ import Dropdown from "@/components/Dropdown";
 import SyncIcon from "@mui/icons-material/Sync";
 import { isDarkTheme } from "@/utils";
 import { convertOrderBy, useStore } from "../stores/store";
-import { GridExample } from "./AgTable";
-import { message } from "@tauri-apps/plugin-dialog";
+import { AgTable } from "./AgTable";
+import { IconDecimal } from "@tabler/icons-react";
+import { TablerSvgIcon } from "./MuiIconButton";
 
 export interface DatasetProps {
   tableName: string;
@@ -35,6 +36,7 @@ function Dataset() {
   const code = useStore((state) => state.code);
   const message = useStore((state) => state.message);
   const [open, setOpen] = useState(false);
+  const beautify = useStore((state) => state.beautify);
 
   useEffect(() => {
     refresh().then(() => {});
@@ -64,7 +66,7 @@ function Dataset() {
       <InputToolbar />
       <Box>
         {/* <DataFrame data={data ?? []} schema={schema ?? []} /> */}
-        <GridExample data={data ?? []} schema={schema ?? []} />
+        <AgTable data={data ?? []} schema={schema ?? []} beautify={beautify} />
       </Box>
 
       {message?.length ?? 0 > 0 ? (
@@ -89,6 +91,7 @@ function PageSizeToolbar() {
   const perPage = useStore((state) => state.perPage);
   const totalCount = useStore((state) => state.totalCount);
   const refresh = useStore((state) => state.refresh);
+  const setBeautify = useStore((state) => state.setBeautify);
 
   const count = data.length;
   const start = perPage * (page - 1) + 1;
@@ -147,6 +150,9 @@ function PageSizeToolbar() {
         >
           <KeyboardDoubleArrowRightIcon />
         </IconButton>
+        <IconButton color="inherit" onClick={setBeautify}>
+          <TablerSvgIcon icon={<IconDecimal />} />
+        </IconButton>
         <Divider orientation="vertical" flexItem />
         <IconButton
           color="inherit"
@@ -154,7 +160,7 @@ function PageSizeToolbar() {
             await refresh();
           }}
         >
-          <SyncIcon />
+          <SyncIcon fontSize="small" />
         </IconButton>
       </Stack>
     </Stack>

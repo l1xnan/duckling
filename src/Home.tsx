@@ -17,7 +17,7 @@ import {
   IconFolderPlus,
   IconRefresh,
 } from "@tabler/icons-react";
-import { MuiIconButton } from "@/components/MuiIconButton";
+import { MuiIconButton, TablerSvgIcon } from "@/components/MuiIconButton";
 import DBConfig, { useDBConfigStore } from "./components/DBConfig";
 import { FileNode, useDBStore } from "@/stores/db";
 

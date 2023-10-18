@@ -7,7 +7,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 
 import { create } from "zustand";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DTableType } from "@/stores/store";
 import { useDBStore } from "@/stores/db";
 
@@ -35,7 +35,11 @@ export default function FormDialog() {
   const onClose = useDBConfigStore((state) => state.onClose);
   const updateCwd = useDBStore((state) => state.setCwd);
 
-  const [cwd, setCwd] = useState("");
+  const [cwd, setCwd] = useState(db?.cwd ?? "");
+
+  useEffect(() => {
+    setCwd(db?.cwd ?? "");
+  });
 
   const handleSubmit = () => {
     updateCwd(cwd, db?.root!);

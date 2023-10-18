@@ -36,6 +36,7 @@ export type DatasetField = {
   schema: SchemaType[];
   orderBy?: OrderByType;
   sqlWhere?: string;
+  beautify?: boolean;
 };
 
 export interface DatasetState extends DatasetField {
@@ -48,6 +49,7 @@ export interface DatasetState extends DatasetField {
   decrease: () => void;
   setSQLWhere: (value: string) => void;
   refresh: () => Promise<void>;
+  setBeautify: () => void;
 }
 
 type OrderByType = {
@@ -91,8 +93,10 @@ export const useStore = create<DatasetState>((set, get) => ({
   sqlWhere: undefined,
   code: 0,
   message: undefined,
+  beautify: true,
   setStore: (res: object) => set((_) => res),
   increase: () => set((state) => ({ page: state.page + 1 })),
+  setBeautify: () => set((state) => ({ beautify: !state.beautify })),
   toFirst: () => set((_) => ({ page: 1 })),
   setSQLWhere: (value: string) => set((_) => ({ sqlWhere: value })),
   toLast: () =>
