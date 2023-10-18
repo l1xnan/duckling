@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "DuckStudio",
-    "version": "0.0.1"
+    "version": "0.0.2"
   },
   "tauri": {
     "bundle": {
@@ -29,11 +29,15 @@
       },
       "fileAssociations": [
         {
-          "ext": ["duckdb"],
+          "ext": [
+            "duckdb"
+          ],
           "mimeType": "application/octet-stream"
         },
         {
-          "ext": ["parquet"],
+          "ext": [
+            "parquet"
+          ],
           "mimeType": "application/octet-stream"
         }
       ]
@@ -50,6 +54,14 @@
         "width": 1000,
         "height": 800
       }
-    ]
+    ],
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://github.com/l1xnan/DuckStudio/releases/download/updater/update.json"
+      ],
+      "dialog": true,
+      "pubKey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEUxQTMyRkJEQzg5RUNCMUYKUldRZnk1N0l2UytqNFZTS1dMbFlsbnJuYWNaMGpVUEQwWDlBblBJUEM5cGZobFNHQ0Nicjd2TFQK"
+    }
   }
 }
