@@ -5,11 +5,11 @@ export const ColorModeContext = createContext({
   toggleColorMode: () => {},
 });
 
-const theme: ThemeOptions = {
+const initTheme: (mode: "dark" | "light") => ThemeOptions = (mode) => ({
   // @ts-ignore
   shadows: [...Array(25).fill("none")],
   palette: {
-    mode: "dark",
+    mode,
   },
   typography: {
     fontFamily: "Consolas",
@@ -121,9 +121,9 @@ const theme: ThemeOptions = {
       },
     },
   },
-};
+});
 
-export const lightTheme = createTheme(theme, {
+export const lightTheme = createTheme(initTheme("light"), {
   palette: {
     mode: "light",
     divider: "#ebecf0",
@@ -161,7 +161,7 @@ export const lightTheme = createTheme(theme, {
   },
 } as ThemeOptions);
 
-export const darkTheme = createTheme(theme, {
+export const darkTheme = createTheme(initTheme("dark"), {
   palette: {
     mode: "dark",
     background: {
