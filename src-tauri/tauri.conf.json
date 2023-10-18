@@ -29,18 +29,18 @@
       },
       "fileAssociations": [
         {
-          "ext": [
-            "duckdb"
-          ],
+          "ext": ["duckdb"],
           "mimeType": "application/octet-stream"
         },
         {
-          "ext": [
-            "parquet"
-          ],
+          "ext": ["parquet"],
           "mimeType": "application/octet-stream"
         }
-      ]
+      ],
+      "updater": {
+        "active": true,
+        "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEUxQTMyRkJEQzg5RUNCMUYKUldRZnk1N0l2UytqNFZTS1dMbFlsbnJuYWNaMGpVUEQwWDlBblBJUEM5cGZobFNHQ0Nicjd2TFQK"
+      }
     },
     "security": {
       "csp": null
@@ -54,14 +54,6 @@
         "width": 1000,
         "height": 800
       }
-    ],
-    "updater": {
-      "active": true,
-      "endpoints": [
-        "https://github.com/l1xnan/DuckStudio/releases/download/updater/update.json"
-      ],
-      "dialog": true,
-      "pubKey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEUxQTMyRkJEQzg5RUNCMUYKUldRZnk1N0l2UytqNFZTS1dMbFlsbnJuYWNaMGpVUEQwWDlBblBJUEM5cGZobFNHQ0Nicjd2TFQK"
-    }
+    ]
   }
 }
