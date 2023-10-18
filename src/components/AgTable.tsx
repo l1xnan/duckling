@@ -1,15 +1,36 @@
-import { useCallback, useMemo, useRef, useState } from "react";
-import { AgGridReact } from "ag-grid-react";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
+import { SchemaType, useStore } from "@/stores/store";
 import { getByteLength, isDarkTheme } from "@/utils";
 import { Box, useTheme } from "@mui/material";
-import { SchemaType, useStore } from "@/stores/store";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-alpine.css";
+import { AgGridReact } from "ag-grid-react";
+import dayjs from "dayjs";
+import { useCallback, useMemo, useRef } from "react";
 import HeaderCell from "./HeaderCell";
 
 interface TableProps {
   data: any[];
   schema: SchemaType[];
+}
+
+function columnWiths(name: string, row: any) {
+  return Math.min(
+    Math.max(
+      getByteLength(name),
+      getByteLength(row?.[name]?.toString() ?? "0")
+    ) *
+      12 +
+      30,
+    200
+  );
+}
+
+function isNumber(dataType: string) {
+  return (
+    dataType.includes("Int") ||
+    dataType.includes("Float") ||
+    dataType.includes("Decimal")
+  );
 }
 
 export const GridExample = ({ data, schema }: TableProps) => {
@@ -36,15 +57,18 @@ export const GridExample = ({ data, schema }: TableProps) => {
         return {
           headerName: name,
           field: name,
-          width: Math.min(
-            Math.max(
-              getByteLength(name),
-              getByteLength(row0?.[name]?.toString() ?? "0")
-            ) *
-              12 +
-              30,
-            200
-          ),
+          width: columnWiths(name, row0),
+          valueFormatter: dataType.includes("Date32")
+            ? (params: any) => {
+                return dayjs(params.value)?.format("YYYY-MM-DD");
+              }
+            : undefined,
+
+          cellStyle: isNumber(dataType)
+            ? {
+                textAlign: "right",
+              }
+            : undefined,
         };
       }) ?? [];
 
