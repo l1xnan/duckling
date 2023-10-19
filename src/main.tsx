@@ -14,7 +14,7 @@ import App from "./App";
 
 (async () => {
   const update = await check();
-  console.log(update?.version, update?.currentVersion);
+  console.log(update);
   if (update?.version != update?.currentVersion) {
     await update?.downloadAndInstall();
     await relaunch();
