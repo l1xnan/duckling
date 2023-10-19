@@ -1,4 +1,4 @@
-import { Box, BoxProps, Stack, Typography } from "@mui/material";
+import { Box, BoxProps, Icon, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/tauri";
@@ -8,6 +8,7 @@ import FileTreeView from "@/components/FileTree";
 import { Content, Layout, Sidebar } from "@/components/Layout";
 import ToggleColorMode from "@/components/ToggleColorMode";
 import RemoveIcon from "@mui/icons-material/Remove";
+import SettingsIcon from "@mui/icons-material/Settings";
 import { isDarkTheme } from "@/utils";
 import { useEffect, useState } from "react";
 import { showTables, useStore, DTableType } from "@/stores/store";
@@ -124,6 +125,23 @@ function Home() {
         <ToolbarBox>
           <Typography fontWeight={800}>Database Explorer</Typography>
           <Stack direction="row">
+            <ToggleColorMode />
+            <MuiIconButton
+              onClick={() => {
+                console.log("settings");
+              }}
+            >
+              <SettingsIcon />
+            </MuiIconButton>
+          </Stack>
+        </ToolbarBox>
+        <ToolbarBox>
+          <Stack
+            direction="row"
+            sx={{
+              marginLeft: -1,
+            }}
+          >
             <MuiIconButton onClick={handleAppendFolder}>
               <IconFolderPlus />
             </MuiIconButton>
@@ -146,7 +164,6 @@ function Home() {
             <MuiIconButton disabled={!isRoot} onClick={handleRefresh}>
               <IconRefresh />
             </MuiIconButton>
-            <ToggleColorMode />
           </Stack>
         </ToolbarBox>
         <TreeViewWrapper>
@@ -170,8 +187,8 @@ function Home() {
 
 const TreeViewWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   width: "100%",
-  maxHeight: "calc(100vh - 32px)",
-  height: "calc(100vh - 32px)",
+  maxHeight: "calc(100vh - 64px)",
+  height: "calc(100vh - 64px)",
   overflow: "auto",
   pr: 1,
   pb: 2,
