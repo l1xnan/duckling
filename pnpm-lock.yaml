@@ -96,8 +96,8 @@ dependencies:
     specifier: ^1.11.10
     version: 1.11.10
   mantine-react-table:
-    specifier: 2.0.0-alpha.1
-    version: 2.0.0-alpha.1(@mantine/core@7.1.2)(@mantine/dates@7.1.2)(@mantine/hooks@7.1.2)(@tabler/icons-react@2.39.0)(react-dom@18.2.0)(react@18.2.0)
+    specifier: 2.0.0-alpha.2
+    version: 2.0.0-alpha.2(@mantine/core@7.1.2)(@mantine/dates@7.1.2)(@mantine/hooks@7.1.2)(@tabler/icons-react@2.39.0)(react-dom@18.2.0)(react@18.2.0)
   material-react-table:
     specifier: 2.0.0-alpha.4
     version: 2.0.0-alpha.4(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.14.13)(@mui/material@5.14.13)(@mui/x-date-pickers@6.16.1)(react-dom@18.2.0)(react@18.2.0)
@@ -2189,8 +2189,8 @@ packages:
       yallist: 3.1.1
     dev: true
 
-  /mantine-react-table@2.0.0-alpha.1(@mantine/core@7.1.2)(@mantine/dates@7.1.2)(@mantine/hooks@7.1.2)(@tabler/icons-react@2.39.0)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-9lmZu7/1jGQEXQbRXyPTLhZQz1f5Y3HlJImDR6n5xRbbOkyP4XcacBP9KF7fW1HHctUh8Cc5q3mQnaeM/Hvssg==}
+  /mantine-react-table@2.0.0-alpha.2(@mantine/core@7.1.2)(@mantine/dates@7.1.2)(@mantine/hooks@7.1.2)(@tabler/icons-react@2.39.0)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-3jjwICubrduq/EnrdoHMSQmnWIT8bmmDGeCQIozbHcZAKMuvadpUKM6L8hCfpn9/rKC3bQKXkk/EfN/atwL5NQ==}
     engines: {node: '>=14'}
     peerDependencies:
       '@mantine/core': ^7.1

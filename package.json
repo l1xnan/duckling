@@ -41,7 +41,7 @@
     "apache-arrow": "^13.0.0",
     "clsx": "^2.0.0",
     "dayjs": "^1.11.10",
-    "mantine-react-table": "2.0.0-alpha.1",
+    "mantine-react-table": "2.0.0-alpha.2",
     "material-react-table": "2.0.0-alpha.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
