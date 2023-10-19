@@ -45,8 +45,8 @@ dependencies:
     specifier: 7.1.2
     version: 7.1.2(react@18.2.0)
   '@mui/icons-material':
-    specifier: ^5.14.13
-    version: 5.14.13(@mui/material@5.14.13)(@types/react@18.2.25)(react@18.2.0)
+    specifier: ^5.14.14
+    version: 5.14.14(@mui/material@5.14.13)(@types/react@18.2.25)(react@18.2.0)
   '@mui/material':
     specifier: ^5.14.13
     version: 5.14.13(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.25)(react-dom@18.2.0)(react@18.2.0)
@@ -100,7 +100,7 @@ dependencies:
     version: 2.0.0-alpha.1(@mantine/core@7.1.2)(@mantine/dates@7.1.2)(@mantine/hooks@7.1.2)(@tabler/icons-react@2.39.0)(react-dom@18.2.0)(react@18.2.0)
   material-react-table:
     specifier: 2.0.0-alpha.4
-    version: 2.0.0-alpha.4(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.14.13)(@mui/material@5.14.13)(@mui/x-date-pickers@6.16.1)(react-dom@18.2.0)(react@18.2.0)
+    version: 2.0.0-alpha.4(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.14.14)(@mui/material@5.14.13)(@mui/x-date-pickers@6.16.1)(react-dom@18.2.0)(react@18.2.0)
   react:
     specifier: ^18.2.0
     version: 18.2.0
@@ -954,8 +954,8 @@ packages:
     resolution: {integrity: sha512-3ZUbzcH4yloLKlV6Y+S0Edn2wef9t+EGHSfEkwVCn8E0ULdshifEFgfEroKRegQifDIwcKS/ofccxuZ8njTAYg==}
     dev: false
 
-  /@mui/icons-material@5.14.13(@mui/material@5.14.13)(@types/react@18.2.25)(react@18.2.0):
-    resolution: {integrity: sha512-fxKE1UrjI4xVxHe9IAGuVQZrc18dSBJg0P+Sqi2SZmcDUCShmgRq6Jq7l7GduvuMIkOSqAJdNgLtXmtmZkjtLg==}
+  /@mui/icons-material@5.14.14(@mui/material@5.14.13)(@types/react@18.2.25)(react@18.2.0):
+    resolution: {integrity: sha512-vwuaMsKvI7AWTeYqR8wYbpXijuU8PzMAJWRAq2DDIuOZPxjKyHlr8WQ25+azZYkIXtJ7AqnVb1ZmHdEyB4/kug==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
       '@mui/material': ^5.0.0
@@ -2212,7 +2212,7 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /material-react-table@2.0.0-alpha.4(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.14.13)(@mui/material@5.14.13)(@mui/x-date-pickers@6.16.1)(react-dom@18.2.0)(react@18.2.0):
+  /material-react-table@2.0.0-alpha.4(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.14.14)(@mui/material@5.14.13)(@mui/x-date-pickers@6.16.1)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-b/cwcRpkFaQTO1zoLYOB+3AjaTq3DRSpWdNGJ4TVXYk7SJr0adiafoYVswAYrowjJOm1qdfZWPUwhRoaT69UAg==}
     engines: {node: '>=14'}
     peerDependencies:
@@ -2226,7 +2226,7 @@ packages:
     dependencies:
       '@emotion/react': 11.11.1(@types/react@18.2.25)(react@18.2.0)
       '@emotion/styled': 11.11.0(@emotion/react@11.11.1)(@types/react@18.2.25)(react@18.2.0)
-      '@mui/icons-material': 5.14.13(@mui/material@5.14.13)(@types/react@18.2.25)(react@18.2.0)
+      '@mui/icons-material': 5.14.14(@mui/material@5.14.13)(@types/react@18.2.25)(react@18.2.0)
       '@mui/material': 5.14.13(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.25)(react-dom@18.2.0)(react@18.2.0)
       '@mui/x-date-pickers': 6.16.1(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/material@5.14.13)(@mui/system@5.14.13)(@types/react@18.2.25)(dayjs@1.11.10)(react-dom@18.2.0)(react@18.2.0)
       '@tanstack/match-sorter-utils': 8.8.4
