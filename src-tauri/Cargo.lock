@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "DuckStudio"
-version = "0.0.1"
+version = "0.0.3"
 dependencies = [
  "anyhow",
  "arrow",
@@ -16,6 +16,7 @@ dependencies = [
  "tauri-build",
  "tauri-plugin-dialog",
  "tauri-plugin-log",
+ "tauri-plugin-process",
  "tauri-plugin-shell",
  "tauri-plugin-updater",
  "url",
@@ -5063,6 +5064,15 @@ dependencies = [
  "tauri",
  "tauri-build",
  "time",
+]
+
+[[package]]
+name = "tauri-plugin-process"
+version = "2.0.0-alpha.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7c447ca0fd8302a68c02a853c5473d95b66aa3d58eb315e873c6ce43eca2961a"
+dependencies = [
+ "tauri",
 ]
 
 [[package]]
