@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "DuckStudio",
-    "version": "0.0.2"
+    "version": "../package.json"
   },
   "tauri": {
     "bundle": {
@@ -55,5 +55,10 @@
         "height": 800
       }
     ]
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": ["https://github.com/l1xnan/DuckStudio/releases/latest/download/latest.json"]
+    }
   }
 }
