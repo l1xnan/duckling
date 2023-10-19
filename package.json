@@ -55,6 +55,6 @@
     "@vitejs/plugin-react": "^4.0.3",
     "@vitejs/plugin-react-swc": "^3.4.0",
     "typescript": "^5.0.2",
-    "vite": "^4.4.4"
+    "vite": "^4.5.0"
   }
 }
