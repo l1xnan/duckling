@@ -1,5 +1,6 @@
 import {
   Box,
+  CircularProgress,
   Divider,
   IconButton,
   InputBase,
@@ -37,9 +38,16 @@ function Dataset() {
   const message = useStore((state) => state.message);
   const [open, setOpen] = useState(false);
   const beautify = useStore((state) => state.beautify);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    refresh().then(() => {});
+    (async () => {
+      try {
+        setLoading(true);
+        await refresh();
+      } catch (error) {}
+      setLoading(false);
+    })();
   }, [table, page, perPage, orderBy, sqlWhere]);
 
   useEffect(() => {
@@ -50,7 +58,7 @@ function Dataset() {
 
   console.log(message);
   const handleClose = (
-    event: React.SyntheticEvent | Event,
+    _event: React.SyntheticEvent | Event,
     reason?: string
   ) => {
     if (reason === "clickaway") {
@@ -65,8 +73,25 @@ function Dataset() {
       <PageSizeToolbar />
       <InputToolbar />
       <Box>
-        {/* <DataFrame data={data ?? []} schema={schema ?? []} /> */}
-        <AgTable data={data ?? []} schema={schema ?? []} beautify={beautify} />
+        {loading ? (
+          <Box
+            sx={{
+              display: "flex",
+              height: "calc(100vh - 64px)",
+              width: "100%",
+              marginTop: "30%",
+              justifyContent: "center",
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        ) : (
+          <AgTable
+            data={data ?? []}
+            schema={schema ?? []}
+            beautify={beautify}
+          />
+        )}
       </Box>
 
       {message?.length ?? 0 > 0 ? (
