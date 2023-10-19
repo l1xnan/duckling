@@ -18,6 +18,7 @@ fn main() {
     .manage(OpenedUrls(Default::default()))
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_shell::init())
+    .plugin(tauri_plugin_process::init())
     .plugin(
       tauri_plugin_log::Builder::new()
         .target(Target::new(TargetKind::Webview))
@@ -88,6 +89,11 @@ fn main() {
 
         log::info!("opened_urls: {}", opened_urls);
       }
+
+      #[cfg(desktop)]
+      app
+        .handle()
+        .plugin(tauri_plugin_updater::Builder::new().build())?;
 
       Ok(())
     })

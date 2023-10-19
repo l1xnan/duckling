@@ -1,6 +1,6 @@
 [package]
 name = "DuckStudio"
-version = "0.0.1"
+version = "0.0.3"
 description = "DuckStudio"
 authors = ["you"]
 license = ""
@@ -33,6 +33,7 @@ tauri = { version = "^2.0.0-alpha", features = [
 tauri-plugin-shell = "2.0.0-alpha"
 tauri-plugin-dialog = "2.0.0-alpha"
 tauri-plugin-log = "2.0.0-alpha"
+tauri_plugin_process = "2.0.0-alpha"
 
 anyhow = "1.0.75"
 url = "2.4.1"
