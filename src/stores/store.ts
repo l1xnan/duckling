@@ -1,5 +1,5 @@
 import { Table, tableFromIPC } from "@apache-arrow/ts";
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/primitives";
 import { create } from "zustand";
 import { useQuery } from "@tanstack/react-query";
 export type SchemaType = {

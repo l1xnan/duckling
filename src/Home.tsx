@@ -1,7 +1,7 @@
 import { Box, BoxProps, Icon, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { listen } from "@tauri-apps/api/event";
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/primitives";
 import * as dialog from "@tauri-apps/plugin-dialog";
 import Dataset from "@/components/Dataset";
 import FileTreeView from "@/components/FileTree";
