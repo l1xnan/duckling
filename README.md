@@ -1,6 +1,6 @@
 # DuckStudio
 
-[中文](./README.zh.md)
+English | [中文](./README.zh.md)
 
 DuckStudio is a lightweight desktop applications, the use of Tauri build for fast browsing `parquet` / `CSV` file data and database data for [DuckDB](https://github.com/duckdb/duckdb).
 

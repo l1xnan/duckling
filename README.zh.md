@@ -1,5 +1,7 @@
 # DuckStudio
 
+[English](./README.md) | 中文
+
 DuckStudio 是使用 Tauri 构建的轻量级桌面应用，用于快速浏览 `parquet`/`csv` 文件数据和 [DuckDB](https://github.com/duckdb/duckdb) 数据库数据。
 
 ## 安装
