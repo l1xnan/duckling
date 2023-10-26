@@ -1,4 +1,12 @@
-import { Box, BoxProps, Icon, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  BoxProps,
+  Icon,
+  Stack,
+  Tab,
+  Tabs,
+  Typography,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/primitives";
@@ -180,7 +188,18 @@ function Home() {
           ))}
         </TreeViewWrapper>
       </Sidebar>
-      <Content>{!!table?.tableName ? <Dataset /> : <DatasetEmpty />}</Content>
+      <Content>
+        {!!table?.tableName ? (
+          <>
+            <Tabs>
+              <Tab label={table?.tableName}></Tab>
+            </Tabs>
+            <Dataset />
+          </>
+        ) : (
+          <DatasetEmpty />
+        )}
+      </Content>
     </Layout>
   );
 }
