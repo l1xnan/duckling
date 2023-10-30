@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 import { persist, createJSONStorage, devtools } from "zustand/middleware";
+import { DTableType } from "./store";
 export interface FileNode {
   name: string;
   type?: string;
@@ -15,7 +16,10 @@ export type DBType = {
 };
 
 interface TabsState {
-  tabs: DBType[];
+  tabs: DTableType[];
+  activeTab?: DTableType;
+  append: (tab: DTableType) => void;
+  remove: (tab: string) => void;
 }
 
 export const useTabsStore = create<TabsState>()(
@@ -23,6 +27,12 @@ export const useTabsStore = create<TabsState>()(
     persist(
       (set) => ({
         tabs: [],
+        append: (tab: DTableType) =>
+          set((state) => ({ tabs: [...state.tabs, tab] })),
+        remove: (dbName: string) =>
+          set((state) => ({
+            tabs: state.tabs?.filter((item) => !(item.tableName === dbName)),
+          })),
       }),
       {
         name: "tabsStore",

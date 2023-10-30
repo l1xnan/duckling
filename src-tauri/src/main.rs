@@ -35,19 +35,19 @@ fn handle_menu(app: &mut tauri::App) -> tauri::Result<()> {
     println!("{:?}", event.id());
 
     let id = event.id();
-    if event.id() == help.id() {
+    if id == help.id() {
       println!(
         "`check` triggered, do something! is checked? {}",
         help.is_checked().unwrap()
       );
 
       // open(&self, path, with)
-    } else if event.id() == "toggle" {
+    } else if id == "toggle" {
       println!("toggle triggered!");
     } else if id == "open-directory" {
       let path = app.dialog().file().blocking_pick_folder();
       if let Some(dir) = path {
-        let _ = app.emit_all("open-directory", dir);
+        let _ = app.emit("open-directory", dir);
       }
     }
   });

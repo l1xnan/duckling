@@ -82,6 +82,9 @@ const initTheme: (mode: "dark" | "light") => ThemeOptions = (mode) => ({
         size: "small",
       },
     },
+    MuiTab: {
+      defaultProps: {},
+    },
     MuiTextField: {
       defaultProps: {
         margin: "dense",

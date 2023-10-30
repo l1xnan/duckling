@@ -18,6 +18,7 @@ import {
 import { useMemo, useState } from "react";
 
 import { DBType, FileNode } from "@/stores/db";
+import { useTabsStore } from "@/stores/tabs";
 
 export function flattenTree(fileNode: FileNode, map: Map<string, FileNode>) {
   map.set(fileNode.path, fileNode);
@@ -70,6 +71,8 @@ export default function FileTree({
     return fileMap;
   }, [rootKey, db]);
   const setStore = useStore((state) => state.setStore);
+  const appendTab = useTabsStore((state) => state.append);
+  const tabs = useTabsStore((state) => state.tabs);
 
   const renderTree = (node: FileNode) => (
     <TreeItem
@@ -109,7 +112,6 @@ export default function FileTree({
 
   return (
     <TreeView
-      aria-label="file tree"
       defaultCollapseIcon={<ExpandMoreIcon />}
       defaultExpandIcon={<ChevronRightIcon />}
       onNodeSelect={(_, nodeIds) => {
@@ -122,13 +124,17 @@ export default function FileTree({
         };
         onSelectTable(item);
         if (node && !node?.is_dir && !node.path.endsWith(".duckdb")) {
-          setStore!({
+          const tab = {
             page: 1,
             perPage: 500,
             table: item,
             orderBy: undefined,
             sqlWhere: undefined,
-          });
+          };
+          setStore!(tab);
+          if (!tabs?.map((tab) => tab.tableName).includes(item.tableName)) {
+            appendTab!(item);
+          }
         }
       }}
       onNodeToggle={handleToggle}

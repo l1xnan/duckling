@@ -29,6 +29,8 @@ import {
 import { MuiIconButton, TablerSvgIcon } from "@/components/MuiIconButton";
 import DBConfig, { useDBConfigStore } from "./components/DBConfig";
 import { FileNode, useDBStore } from "@/stores/db";
+import { useTabsStore } from "./stores/tabs";
+import { FileTab, FileTabs } from "./components/FileTabs";
 
 export const DatasetEmpty = styled((props) => <Box {...props} />)<BoxProps>(
   ({}) => ({
@@ -45,6 +47,7 @@ function Home() {
   const appendDB = useDBStore((state) => state.append);
   const removeDB = useDBStore((state) => state.remove);
   const updateDB = useDBStore((state) => state.update);
+  const tabs = useTabsStore((state) => state.tabs);
 
   async function openDirectory(name?: string) {
     const fileTree: FileNode = await invoke("get_folder_tree", { name });
@@ -127,6 +130,12 @@ function Home() {
   const isRoot = dbList
     .map((item) => item.data.path)
     .includes(selectedTable?.tableName!);
+
+  const [value, setValue] = useState(0);
+
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
   return (
     <Layout>
       <Sidebar>
@@ -191,9 +200,11 @@ function Home() {
       <Content>
         {!!table?.tableName ? (
           <>
-            <Tabs>
-              <Tab label={table?.tableName}></Tab>
-            </Tabs>
+            <FileTabs value={value} onChange={handleChange}>
+              {tabs.map((tab, i) => {
+                return <FileTab key={i} label={tab?.tableName} />;
+              })}
+            </FileTabs>
             <Dataset />
           </>
         ) : (
