@@ -8,7 +8,8 @@ import { DTableType, useStore } from "@/stores/store";
 import { useTabsStore } from "@/stores/tabs";
 import { isDarkTheme } from "@/utils";
 
-import { Box, BoxProps } from "@mui/material";
+import { Box, BoxProps, IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { styled } from "@mui/material/styles";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/primitives";
@@ -86,7 +87,26 @@ function Home() {
           <>
             <FileTabs value={value} onChange={handleChange}>
               {tabs.map((tab, i) => {
-                return <FileTab key={i} label={tab?.tableName} value={i} />;
+                return (
+                  <FileTab
+                    key={i}
+                    label={
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Box>{tab?.tableName}</Box>
+                        <IconButton component="div" onClick={(event) => {}}>
+                          <CloseIcon />
+                        </IconButton>
+                      </Box>
+                    }
+                    value={i}
+                  />
+                );
               })}
             </FileTabs>
             <Dataset />
