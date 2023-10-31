@@ -1,19 +1,18 @@
+import Dataset from "@/components/Dataset";
+import { FileTab, FileTabs } from "@/components/FileTabs";
+import FileTreeView from "@/components/FileTree";
+import { Content, Layout, Sidebar } from "@/components/Layout";
+import { SideToolbar } from "@/components/SideToolbar";
+import { FileNode, useDBStore } from "@/stores/db";
+import { DTableType, useStore } from "@/stores/store";
+import { useTabsStore } from "@/stores/tabs";
+import { isDarkTheme } from "@/utils";
+
 import { Box, BoxProps } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/primitives";
-import * as dialog from "@tauri-apps/plugin-dialog";
-import Dataset from "@/components/Dataset";
-import FileTreeView from "@/components/FileTree";
-import { Content, Layout, Sidebar } from "@/components/Layout";
-import { isDarkTheme } from "@/utils";
 import { useEffect, useState } from "react";
-import { showTables, useStore, DTableType } from "@/stores/store";
-import { useDBConfigStore } from "./components/DBConfig";
-import { FileNode, useDBStore } from "@/stores/db";
-import { useTabsStore } from "./stores/tabs";
-import { FileTab, FileTabs } from "./components/FileTabs";
-import { SideToolbar } from "./components/SideToolbar";
 
 export const DatasetEmpty = styled((props) => <Box {...props} />)<BoxProps>(
   ({}) => ({
