@@ -99,8 +99,12 @@ function Home() {
                         }}
                       >
                         <Box>{tab?.tableName}</Box>
-                        <IconButton component="div" onClick={(event) => {}}>
-                          <CloseIcon />
+                        <IconButton
+                          size="small"
+                          component="div"
+                          onClick={(event) => {}}
+                        >
+                          <CloseIcon fontSize="inherit" />
                         </IconButton>
                       </Box>
                     }
