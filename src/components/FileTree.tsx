@@ -1,7 +1,7 @@
 import { DTableType, useStore } from "@/stores/store";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import { TreeView, TreeViewProps } from "@mui/x-tree-view/TreeView";
 import {
@@ -79,24 +79,50 @@ export default function FileTree({
       key={node.path}
       nodeId={node.path}
       label={
-        <Typography
+        <Box
           sx={{
-            fontWeight: "inherit",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
+            display: "flex",
+            alignItems: "center",
+            p: 0,
+            pt: 0.5,
+            pb: 0.5,
+            fontSize: "12px",
+            height: "24px",
           }}
         >
-          {node.name}
-        </Typography>
-      }
-      icon={
-        !node.is_dir ? (
-          getFileTypeIcon(node?.type ?? node.path.split(".")[1])
-        ) : expanded.includes(node.path) ? (
-          <IconFolderOpen />
-        ) : (
-          <IconFolder />
-        )
+          <Box
+            color="inherit"
+            sx={{
+              mr: 1,
+              display: "flex",
+              alignItems: "center",
+              height: "100%",
+              "& svg": {
+                fontSize: "16px",
+                height: "16px",
+                width: "16px",
+              },
+            }}
+          >
+            {!node.is_dir ? (
+              getFileTypeIcon(node?.type ?? node.path.split(".")[1])
+            ) : expanded.includes(node.path) ? (
+              <IconFolderOpen />
+            ) : (
+              <IconFolder />
+            )}
+          </Box>
+
+          <Typography
+            sx={{
+              fontWeight: "inherit",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {node.name}
+          </Typography>
+        </Box>
       }
     >
       {Array.isArray(node.children)
