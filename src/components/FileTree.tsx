@@ -72,6 +72,7 @@ export default function FileTree({
   }, [rootKey, db]);
   const setStore = useStore((state) => state.setStore);
   const appendTab = useTabsStore((state) => state.append);
+  const updateTab = useTabsStore((state) => state.update);
   const tabs = useTabsStore((state) => state.tabs);
 
   const renderTree = (node: FileNode) => (
@@ -158,9 +159,8 @@ export default function FileTree({
             sqlWhere: undefined,
           };
           setStore!(tab);
-          if (!tabs?.map((tab) => tab.tableName).includes(item.tableName)) {
-            appendTab!(item);
-          }
+
+          updateTab!(item);
         }
       }}
       onNodeToggle={handleToggle}

@@ -17,18 +17,31 @@ export type DBType = {
 
 interface TabsState {
   tabs: DTableType[];
-  activeTab?: DTableType;
+  current?: DTableType;
   append: (tab: DTableType) => void;
+  update: (tab: DTableType) => void;
   remove: (tab: string) => void;
+  active: (tab: DTableType) => void;
 }
 
 export const useTabsStore = create<TabsState>()(
   devtools(
     persist(
-      (set) => ({
+      (set, get) => ({
         tabs: [],
         append: (tab: DTableType) =>
           set((state) => ({ tabs: [...state.tabs, tab] })),
+        active: (tab: DTableType) => set((_) => ({ current: tab })),
+        update: (item: DTableType) => {
+          if (
+            !get()
+              .tabs?.map((tab) => tab.tableName)
+              .includes(item.tableName)
+          ) {
+            get().append(item);
+          }
+          get().active(item);
+        },
         remove: (dbName: string) =>
           set((state) => ({
             tabs: state.tabs?.filter((item) => !(item.tableName === dbName)),

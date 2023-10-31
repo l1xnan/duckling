@@ -28,6 +28,8 @@ function Home() {
   const dbList = useDBStore((state) => state.dbList);
   const appendDB = useDBStore((state) => state.append);
   const tabs = useTabsStore((state) => state.tabs);
+  const curTab = useTabsStore((state) => state.current);
+  const activateTab = useTabsStore((state) => state.active);
 
   async function openDirectory(name?: string) {
     const fileTree: FileNode = await invoke("get_folder_tree", { name });
@@ -56,8 +58,9 @@ function Home() {
   const table = useStore((state) => state.table);
 
   const [value, setValue] = useState(0);
-
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
+    console.log("newValue:", newValue);
+    activateTab(tabs[newValue]);
     setValue(newValue);
   };
   return (
@@ -83,7 +86,7 @@ function Home() {
           <>
             <FileTabs value={value} onChange={handleChange}>
               {tabs.map((tab, i) => {
-                return <FileTab key={i} label={tab?.tableName} />;
+                return <FileTab key={i} label={tab?.tableName} value={i} />;
               })}
             </FileTabs>
             <Dataset />
