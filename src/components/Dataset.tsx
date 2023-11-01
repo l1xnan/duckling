@@ -8,7 +8,6 @@ import {
   Snackbar,
   Stack,
 } from "@mui/material";
-import { useEffect, useState } from "react";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
@@ -16,31 +15,85 @@ import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArro
 import Dropdown from "@/components/Dropdown";
 import SyncIcon from "@mui/icons-material/Sync";
 import { isDarkTheme } from "@/utils";
-import { convertOrderBy, useStore } from "../stores/store";
+import {
+  DTableType,
+  PageContext,
+  createPageStore,
+  usePageStore,
+} from "@/stores/store";
+import { convertOrderBy } from "@/utils";
 import { AgTable } from "./AgTable";
 import { IconDecimal } from "@tabler/icons-react";
 import { TablerSvgIcon } from "./MuiIconButton";
+import {
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import React from "react";
+import { FileTabPanel } from "./FileTabs";
 
 export interface DatasetProps {
   tableName: string;
 }
 
-function Dataset() {
-  const refresh = useStore((state) => state.refresh);
-  const data = useStore((state) => state.data);
-  const schema = useStore((state) => state.schema);
-  const table = useStore((state) => state.table);
-  const page = useStore((state) => state.page);
-  const perPage = useStore((state) => state.perPage);
-  const orderBy = useStore((state) => state.orderBy);
-  const sqlWhere = useStore((state) => state.sqlWhere);
-  const code = useStore((state) => state.code);
-  const message = useStore((state) => state.message);
+export const PageProvider = ({
+  table,
+  children,
+}: {
+  table: DTableType;
+  children: ReactNode;
+}) => {
+  const storeRef = useRef(createPageStore(table));
+  return (
+    <PageContext.Provider value={storeRef.current}>
+      {children}
+    </PageContext.Provider>
+  );
+};
+
+export const usePageStoreApi = () => {
+  const store = useContext(PageContext);
+  if (store === null) {
+    throw new Error("no provider");
+  }
+  return store;
+};
+
+export const MemoPanel = React.memo(
+  ({ table, idx }: { table: DTableType; idx: number }) => {
+    return (
+      <PageProvider table={table}>
+        <FileTabPanel value={`${idx}`}>
+          <MemoDataset />
+        </FileTabPanel>
+      </PageProvider>
+    );
+  }
+);
+
+export const MemoDataset = React.memo(function Dataset() {
+  const {
+    refresh,
+    data,
+    schema,
+    table,
+    page,
+    perPage,
+    orderBy,
+    sqlWhere,
+    code,
+    message,
+    beautify,
+  } = usePageStore();
+
   const [open, setOpen] = useState(false);
-  const beautify = useStore((state) => state.beautify);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+  const callback = useCallback(() => {
     (async () => {
       try {
         setLoading(true);
@@ -49,6 +102,9 @@ function Dataset() {
       setLoading(false);
     })();
   }, [table, page, perPage, orderBy, sqlWhere]);
+  useEffect(() => {
+    callback();
+  }, [callback]);
 
   useEffect(() => {
     if (code != 0) {
@@ -56,7 +112,6 @@ function Dataset() {
     }
   }, [table, code, message]);
 
-  console.log(message);
   const handleClose = (
     _event: React.SyntheticEvent | Event,
     reason?: string
@@ -104,19 +159,21 @@ function Dataset() {
       ) : null}
     </Stack>
   );
-}
+});
 
 function PageSizeToolbar() {
-  const increase = useStore((state) => state.increase);
-  const decrease = useStore((state) => state.decrease);
-  const toFirst = useStore((state) => state.toFirst);
-  const toLast = useStore((state) => state.toLast);
-  const data = useStore((state) => state.data);
-  const page = useStore((state) => state.page);
-  const perPage = useStore((state) => state.perPage);
-  const totalCount = useStore((state) => state.totalCount);
-  const refresh = useStore((state) => state.refresh);
-  const setBeautify = useStore((state) => state.setBeautify);
+  const {
+    refresh,
+    data,
+    page,
+    totalCount,
+    setBeautify,
+    increase,
+    decrease,
+    toFirst,
+    toLast,
+    perPage,
+  } = usePageStore();
 
   const count = data.length;
   const start = perPage * (page - 1) + 1;
@@ -193,8 +250,7 @@ function PageSizeToolbar() {
 }
 
 export function InputToolbar() {
-  const orderBy = useStore((s) => s.orderBy);
-  const setSQLWhere = useStore((s) => s.setSQLWhere);
+  const { orderBy, setSQLWhere } = usePageStore();
 
   const [stmtWhere, setStmtWhere] = useState("");
   const [stmtOrder, setStmtOrder] = useState(
@@ -262,4 +318,4 @@ export function InputToolbar() {
   );
 }
 
-export default Dataset;
+export default MemoDataset;

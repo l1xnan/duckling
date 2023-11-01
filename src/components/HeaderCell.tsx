@@ -1,11 +1,10 @@
-import { useStore } from "@/stores/store";
+import { usePageStore } from "@/stores/store";
 import { Box } from "@mui/material";
 import {
   IconCaretDownFilled,
   IconCaretUpDownFilled,
   IconCaretUpFilled,
 } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
 
 // https://ag-grid.com/react-data-grid/component-header/
 
@@ -17,8 +16,8 @@ interface HeadCellProps {
 }
 
 export default (props: HeadCellProps) => {
-  const setOrderBy = useStore((state) => state.setOrderBy);
-  const orderBy = useStore((state) => state.orderBy);
+  const { orderBy, setOrderBy } = usePageStore();
+
   const key = props.column.colId;
   let isDesc = orderBy?.name == key ? orderBy?.desc : undefined;
 

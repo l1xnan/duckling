@@ -1,4 +1,4 @@
-import { SchemaType, useStore } from "@/stores/store";
+import { SchemaType, usePageStore } from "@/stores/store";
 import { getByteLength, isDarkTheme } from "@/utils";
 import { Box, useTheme } from "@mui/material";
 import "ag-grid-community/styles/ag-grid.css";
@@ -161,7 +161,7 @@ export const AgTable = ({ data, schema, beautify }: TableProps) => {
     }
   }, []);
 
-  const orderBy = useStore((state) => state.orderBy);
+  const { orderBy } = usePageStore();
 
   const defaultColDef = useMemo(() => {
     return {

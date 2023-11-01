@@ -1,6 +1,8 @@
-import { Tab, TabProps, Tabs, styled } from "@mui/material";
+import { Box, Tab, TabProps, styled } from "@mui/material";
+import { TabList, TabPanelProps, useTabContext } from "@mui/lab";
+import { FunctionComponent, PropsWithChildren } from "react";
 
-export const FileTabs = styled(Tabs)({
+export const FileTabList = styled(TabList)({
   borderBottom: "1px solid #e8e8e8",
   maxHeight: "32px",
   minHeight: "32px",
@@ -35,3 +37,18 @@ export const FileTab = styled((props: TabProps) => (
     backgroundColor: "#d1eaff",
   },
 }));
+
+export const FileTabPanel: FunctionComponent<PropsWithChildren<TabPanelProps>> = ({
+  children,
+  value,
+}) => {
+  const { value: contextValue } = useTabContext() || {};
+  return (
+    <Box
+      sx={{ display: value === contextValue ? "block" : "none" }}
+      key={value}
+    >
+      {children}
+    </Box>
+  );
+};

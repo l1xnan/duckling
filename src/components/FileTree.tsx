@@ -1,4 +1,4 @@
-import { DTableType, useStore } from "@/stores/store";
+import { DTableType } from "@/stores/store";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Box, Typography } from "@mui/material";
@@ -70,10 +70,7 @@ export default function FileTree({
     flattenTree(data, fileMap);
     return fileMap;
   }, [rootKey, db]);
-  const setStore = useStore((state) => state.setStore);
-  const appendTab = useTabsStore((state) => state.append);
   const updateTab = useTabsStore((state) => state.update);
-  const tabs = useTabsStore((state) => state.tabs);
 
   const renderTree = (node: FileNode) => (
     <TreeItem
@@ -148,18 +145,19 @@ export default function FileTree({
           root: data.path,
           tableName: nodeIds as string,
           cwd: db.cwd,
+          id: `${rootKey}:${nodeIds}`,
         };
         onSelectTable(item);
         if (node && !node?.is_dir && !node.path.endsWith(".duckdb")) {
-          const tab = {
-            page: 1,
-            perPage: 500,
-            table: item,
-            orderBy: undefined,
-            sqlWhere: undefined,
-          };
-          setStore!(tab);
-
+          // const tab = {
+          //   page: 1,
+          //   perPage: 500,
+          //   table: item,
+          //   orderBy: undefined,
+          //   sqlWhere: undefined,
+          // };
+          // setStore!(tab);
+          console.log(item);
           updateTab!(item);
         }
       }}

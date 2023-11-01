@@ -7,7 +7,7 @@ import Divider from "@mui/material/Divider";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { isDarkTheme } from "@/utils";
 import { useState } from "react";
-import { useStore } from "@/stores/store";
+import { usePageStore } from "@/stores/store";
 
 const StyledMenu = styled((props: MenuProps) => (
   <Menu
@@ -57,7 +57,7 @@ export default function Dropdown({ content }: PageSizeProps) {
     setAnchorEl(null);
   };
 
-  const setPerPage = useStore((state) => state.setPerPage);
+  const { setPerPage } = usePageStore();
 
   return (
     <div>

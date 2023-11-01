@@ -12,8 +12,7 @@ import {
   IconCaretUpFilled,
 } from "@tabler/icons-react";
 import { getByteLength, isDarkTheme } from "@/utils";
-import { SchemaType } from "@/stores/store";
-import { useStore } from "@/stores/store";
+import { SchemaType, usePageStore } from "@/stores/store";
 
 interface DatasetProps {
   data: any[];
@@ -48,9 +47,7 @@ function display(dataType: string, name: string) {
 }
 
 export default function Dataset({ data, schema }: DatasetProps) {
-  const setOrderBy = useStore((state) => state.setOrderBy);
-  const orderBy = useStore((state) => state.orderBy);
-
+  const { setOrderBy, orderBy } = usePageStore();
   let orderMap = new Map();
   if (orderBy) {
     orderMap.set(orderBy.name, orderBy.desc);
