@@ -24,7 +24,7 @@
     "@mantine/dates": "7.1.5",
     "@mantine/form": "^7.1.7",
     "@mantine/hooks": "7.1.5",
-    "@mui/icons-material": "^5.14.15",
+    "@mui/icons-material": "^5.14.16",
     "@mui/lab": "5.0.0-alpha.151",
     "@mui/material": "^5.14.15",
     "@mui/x-date-pickers": "^6.17.0",
