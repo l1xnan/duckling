@@ -26,7 +26,7 @@
     "@mantine/hooks": "7.1.5",
     "@mui/icons-material": "^5.14.15",
     "@mui/lab": "5.0.0-alpha.151",
-    "@mui/material": "^5.14.15",
+    "@mui/material": "^5.14.16",
     "@mui/x-date-pickers": "^6.17.0",
     "@mui/x-tree-view": "6.0.0-beta.0",
     "@tabler/icons-react": "^2.40.0",
