@@ -28,7 +28,7 @@ export function flattenTree(fileNode: FileNode, map: Map<string, FileNode>) {
   });
 }
 
-const getFileTypeIcon = (type: string) => {
+export const getFileTypeIcon = (type: string) => {
   if (type == "duckdb") {
     return <IconDatabase />;
   }

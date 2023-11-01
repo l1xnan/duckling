@@ -19,6 +19,9 @@ export const FileTab = styled((props: TabProps) => (
   maxHeight: "32px",
   textTransform: "none",
   minWidth: 0,
+  margin: 0,
+  padding: 0,
+  paddingLeft: 9,
   [theme.breakpoints.up("sm")]: {
     minWidth: 0,
   },
@@ -38,10 +41,9 @@ export const FileTab = styled((props: TabProps) => (
   },
 }));
 
-export const FileTabPanel: FunctionComponent<PropsWithChildren<TabPanelProps>> = ({
-  children,
-  value,
-}) => {
+export const FileTabPanel: FunctionComponent<
+  PropsWithChildren<TabPanelProps>
+> = ({ children, value }) => {
   const { value: contextValue } = useTabContext() || {};
   return (
     <Box
