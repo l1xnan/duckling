@@ -134,8 +134,8 @@ devDependencies:
     specifier: ^4.1.0
     version: 4.1.0(vite@4.5.0)
   '@vitejs/plugin-react-swc':
-    specifier: ^3.4.0
-    version: 3.4.0(vite@4.5.0)
+    specifier: ^3.4.1
+    version: 3.4.1(vite@4.5.0)
   typescript:
     specifier: ^5.2.2
     version: 5.2.2
@@ -1419,7 +1419,6 @@ packages:
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: true
     optional: true
@@ -1429,7 +1428,6 @@ packages:
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: true
     optional: true
@@ -1439,7 +1437,6 @@ packages:
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: true
     optional: true
@@ -1449,7 +1446,6 @@ packages:
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: true
     optional: true
@@ -1858,8 +1854,8 @@ packages:
       - '@codemirror/search'
     dev: false
 
-  /@vitejs/plugin-react-swc@3.4.0(vite@4.5.0):
-    resolution: {integrity: sha512-m7UaA4Uvz82N/0EOVpZL4XsFIakRqrFKeSNxa1FBLSXGvWrWRBwmZb4qxk+ZIVAZcW3c3dn5YosomDgx62XWcQ==}
+  /@vitejs/plugin-react-swc@3.4.1(vite@4.5.0):
+    resolution: {integrity: sha512-7YQOQcVV5x1luD8nkbCDdyYygFvn1hjqJk68UvNAzY2QG4o4N5EwAhLLFNOcd1HrdMwDl0VElP8VutoWf9IvJg==}
     peerDependencies:
       vite: ^4
     dependencies:
