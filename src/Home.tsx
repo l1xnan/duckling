@@ -1,7 +1,4 @@
-import {
-  MemoDataset,
-  PageProvider,
-} from "@/components/Dataset";
+import { MemoDataset, PageProvider } from "@/components/Dataset";
 import { FileTab, FileTabList, FileTabPanel } from "@/components/FileTabs";
 import FileTreeView from "@/components/FileTree";
 import { Content, Layout, Sidebar } from "@/components/Layout";
@@ -33,6 +30,8 @@ function Home() {
   const [selectedTable, setSelectedTable] = useState<DTableType | null>(null);
   const dbList = useDBStore((state) => state.dbList);
   const appendDB = useDBStore((state) => state.append);
+  const size = useDBStore((state) => state.size);
+  const setSize = useDBStore((state) => state.setSize);
   const tabs = useTabsStore((state) => state.tabs);
   const activateTab = useTabsStore((state) => state.active);
   const removeTab = useTabsStore((state) => state.remove);
@@ -113,8 +112,13 @@ function Home() {
 
   return (
     <Layout>
-      <PanelGroup direction="horizontal">
-        <Panel defaultSize={30}>
+      <PanelGroup
+        direction="horizontal"
+        onLayout={(sizes) => {
+          setSize(sizes[0] || 30);
+        }}
+      >
+        <Panel defaultSize={size}>
           <Sidebar>
             <SideToolbar />
             <TreeViewWrapper>

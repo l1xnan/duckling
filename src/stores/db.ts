@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage, devtools } from "zustand/middleware";
+import { debounce } from "@/utils";
+
 export interface FileNode {
   name: string;
   type?: string;
@@ -14,19 +16,23 @@ export type DBType = {
 };
 
 interface DBState {
+  size: number;
   dbList: DBType[];
   append: (db: DBType) => void;
   update: (db: Partial<FileNode>) => void;
   remove: (dbName: string) => void;
   setCwd: (cwd: string, path: string) => void;
+  setSize: (size: number) => void;
 }
 
 export const useDBStore = create<DBState>()(
   devtools(
     persist(
       (set) => ({
+        size: 30,
         dbList: [],
         append: (db) => set((state) => ({ dbList: [...state.dbList, db] })),
+        setSize: debounce((size) => set((_) => ({ size }))),
         remove: (dbName) =>
           set((state) => ({
             dbList: state.dbList?.filter(

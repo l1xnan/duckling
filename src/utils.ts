@@ -29,3 +29,17 @@ export function genStmt({ tableName, orderBy, where }: StmtType) {
   }
   return stmt;
 }
+
+export const debounce = <F extends (...args: any[]) => any>(
+  func: F,
+  delay: number = 300
+) => {
+  let timeout: number = 0;
+
+  const debounced = (...args: any[]) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), delay);
+  };
+
+  return debounced;
+};
