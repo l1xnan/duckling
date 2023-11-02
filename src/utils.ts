@@ -3,6 +3,9 @@ import { OrderByType, StmtType } from "./stores/store";
 
 export const isDarkTheme = (theme: Theme) => theme.palette.mode === "dark";
 
+export const borderTheme = (theme: Theme) =>
+  isDarkTheme(theme) ? "1px solid #393b40" : "1px solid #ebecf0";
+
 export function getByteLength(str: string) {
   let length = 0;
   [...str].forEach((char) => {

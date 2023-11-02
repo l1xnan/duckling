@@ -1,16 +1,14 @@
 import { Box, Tab, TabProps, styled } from "@mui/material";
 import { TabList, TabPanelProps, useTabContext } from "@mui/lab";
 import { FunctionComponent, PropsWithChildren } from "react";
+import { borderTheme } from "@/utils";
 
-export const FileTabList = styled(TabList)({
-  borderBottom: "1px solid #e8e8e8",
+export const FileTabList = styled(TabList)(({ theme }) => ({
+  borderBottom: borderTheme(theme),
   maxHeight: "32px",
   minHeight: "32px",
-  backgroundColor: "white",
-  "& .MuiTabs-indicator": {
-    backgroundColor: "#1890ff",
-  },
-});
+  "& .MuiTabs-indicator": {},
+}));
 
 export const FileTab = styled((props: TabProps) => (
   <Tab disableRipple {...props} />
@@ -27,13 +25,11 @@ export const FileTab = styled((props: TabProps) => (
   },
   fontWeight: theme.typography.fontWeightRegular,
   marginRight: theme.spacing(1),
-  color: "rgba(0, 0, 0, 0.85)",
+  opacity: 0.8,
   "&:hover": {
-    color: "#40a9ff",
     opacity: 1,
   },
   "&.Mui-selected": {
-    color: "#1890ff",
     fontWeight: theme.typography.fontWeightMedium,
   },
   "&.Mui-focusVisible": {

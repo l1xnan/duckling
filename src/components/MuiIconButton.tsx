@@ -16,7 +16,7 @@ export const TablerSvgIcon = React.forwardRef<
 });
 
 export const MuiIconButton = styled((props) => (
-  <IconButton color="inherit" {...props} />
+  <IconButton color="inherit" size="small" {...props} />
 ))<IconButtonProps>(({}) => ({
   "& *": {
     fontSize: 16,

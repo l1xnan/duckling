@@ -4,16 +4,16 @@ import ToggleColorMode from "@/components/ToggleColorMode";
 import { FileNode, useDBStore } from "@/stores/db";
 import { DTableType } from "@/stores/store";
 import { showTables } from "@/api";
-import { isDarkTheme } from "@/utils";
+import { borderTheme } from "@/utils";
 import RemoveIcon from "@mui/icons-material/Remove";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { Box, BoxProps, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import {
-    IconDatabaseCog,
-    IconDatabasePlus,
-    IconFolderPlus,
-    IconRefresh,
+  IconDatabaseCog,
+  IconDatabasePlus,
+  IconFolderPlus,
+  IconRefresh,
 } from "@tabler/icons-react";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/primitives";
@@ -27,7 +27,7 @@ const ToolbarBox = styled(Box)<BoxProps>(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  borderBottom: isDarkTheme(theme) ? "1px solid #1e1f22" : "1px solid #e2e2e2",
+  borderBottom: borderTheme(theme),
 }));
 
 export function SideToolbar() {
@@ -129,7 +129,7 @@ export function SideToolbar() {
               console.log("settings");
             }}
           >
-            <SettingsIcon />
+            <SettingsIcon fontSize="inherit" />
           </MuiIconButton>
         </Stack>
       </ToolbarBox>

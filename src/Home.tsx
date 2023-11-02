@@ -146,7 +146,6 @@ const TreeViewWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   overflow: "auto",
   pr: 1,
   pb: 2,
-  borderRight: isDarkTheme(theme) ? "1px solid #1e1f22" : "1px solid #e2e2e2",
 }));
 
 export default Home;

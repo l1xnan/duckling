@@ -14,7 +14,7 @@ import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import Dropdown from "@/components/Dropdown";
 import SyncIcon from "@mui/icons-material/Sync";
-import { isDarkTheme } from "@/utils";
+import { borderTheme, isDarkTheme } from "@/utils";
 import {
   DTableType,
   PageContext,
@@ -189,7 +189,7 @@ function PageSizeToolbar() {
         backgroundColor: isDarkTheme(theme) ? "#2b2d30" : "#f7f8fa",
         height: 32,
         alignItems: "center",
-        border: isDarkTheme(theme) ? "1px solid #393b40" : "1px solid  #f7f8fa",
+        borderBottom: borderTheme(theme),
         "& input, & input:focus-visible": {
           border: "none",
           height: "100%",
@@ -267,9 +267,7 @@ export function InputToolbar() {
         height: 32,
         display: "flex",
         alignItems: "center",
-        borderTop: isDarkTheme(theme)
-          ? "1px solid #393b40"
-          : "1px solid #ebecf0",
+        borderBottom: borderTheme(theme),
         "& input, & input:focus-visible, & .MuiInputBase-root": {
           border: "none",
           height: "100%",

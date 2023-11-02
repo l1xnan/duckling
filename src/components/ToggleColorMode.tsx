@@ -11,8 +11,12 @@ export default function ToggleColorMode() {
 
   return (
     <Tooltip title={`${theme.palette.mode} mode`}>
-      <IconButton onClick={colorMode.toggleColorMode}>
-        {isDarkTheme(theme) ? <Brightness7Icon fontSize="small"/> : <Brightness4Icon fontSize="small"/>}
+      <IconButton onClick={colorMode.toggleColorMode} size="small">
+        {isDarkTheme(theme) ? (
+          <Brightness7Icon fontSize="inherit" />
+        ) : (
+          <Brightness4Icon fontSize="inherit" />
+        )}
       </IconButton>
     </Tooltip>
   );
