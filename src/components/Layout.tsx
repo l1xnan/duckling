@@ -16,6 +16,7 @@ export const Sidebar = styled(Box)<BoxProps>(({ theme }) => ({
   overflow: "auto",
   borderRight: borderTheme(theme),
 }));
+
 export const Layout = styled(Box)<BoxProps>(({ theme }) => ({
   maxHeight: "100vh",
   height: "100%",
