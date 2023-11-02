@@ -137,7 +137,12 @@ function Home() {
           </Sidebar>
         </Panel>
         <ResizeHandle />
-        <Panel>
+        <Panel
+          style={{
+            height: "100vh",
+            maxHeight: "100vh",
+          }}
+        >
           <Content>
             <TabContext value={currentTab?.id ?? ""}>
               <Box>{tabs?.length > 0 ? tabList : <DatasetEmpty />}</Box>

@@ -181,7 +181,7 @@ export const AgTable = ({ data, schema, beautify }: TableProps) => {
     <Box
       sx={{
         width: "100%",
-        height: "calc(100vh - 64px)",
+        height: "calc(100vh - 96px)",
 
         "&": {
           "--ag-grid-size": "4px",

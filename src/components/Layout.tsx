@@ -5,7 +5,6 @@ export const Content = styled(Box)<BoxProps>(({}) => ({
   flexGrow: 1,
   height: "100vh",
   maxHeight: "100vh",
-  width: "calc(100vw - 300px)",
   overflow: "hidden",
 }));
 
