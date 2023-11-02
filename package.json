@@ -47,6 +47,7 @@
     "material-react-table": "2.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-resizable-panels": "^0.0.55",
     "react-router-dom": "^6.17.0",
     "zustand": "^4.4.4"
   },

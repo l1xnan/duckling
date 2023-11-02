@@ -1,6 +1,5 @@
-import Dataset, {
+import {
   MemoDataset,
-  MemoPanel,
   PageProvider,
 } from "@/components/Dataset";
 import { FileTab, FileTabList, FileTabPanel } from "@/components/FileTabs";
@@ -10,8 +9,8 @@ import { SideToolbar } from "@/components/SideToolbar";
 import { FileNode, useDBStore } from "@/stores/db";
 import { DTableType } from "@/stores/store";
 import { useTabsStore } from "@/stores/tabs";
-import { isDarkTheme } from "@/utils";
 import TabContext from "@mui/lab/TabContext";
+import { Panel, PanelGroup } from "react-resizable-panels";
 
 import { Box, BoxProps, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -19,6 +18,7 @@ import { styled } from "@mui/material/styles";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/primitives";
 import { useEffect, useMemo, useState } from "react";
+import ResizeHandle from "@/components/ResizeHandle";
 
 export const DatasetEmpty = styled((props) => <Box {...props} />)<BoxProps>(
   ({}) => ({
@@ -113,28 +113,35 @@ function Home() {
 
   return (
     <Layout>
-      <Sidebar>
-        <SideToolbar />
-        <TreeViewWrapper>
-          {dbList.map((db, i) => (
-            <FileTreeView
-              key={i}
-              rootKey={i}
-              db={db}
-              selected={
-                selectedTable?.rootKey == i ? selectedTable.tableName : null
-              }
-              onSelectTable={setSelectedTable}
-            />
-          ))}
-        </TreeViewWrapper>
-      </Sidebar>
-      <Content>
-        <TabContext value={currentTab?.id ?? ""}>
-          <Box>{tabs?.length > 0 ? tabList : <DatasetEmpty />}</Box>
-          <Box>{items}</Box>
-        </TabContext>
-      </Content>
+      <PanelGroup direction="horizontal">
+        <Panel defaultSize={30}>
+          <Sidebar>
+            <SideToolbar />
+            <TreeViewWrapper>
+              {dbList.map((db, i) => (
+                <FileTreeView
+                  key={i}
+                  rootKey={i}
+                  db={db}
+                  selected={
+                    selectedTable?.rootKey == i ? selectedTable.tableName : null
+                  }
+                  onSelectTable={setSelectedTable}
+                />
+              ))}
+            </TreeViewWrapper>
+          </Sidebar>
+        </Panel>
+        <ResizeHandle />
+        <Panel>
+          <Content>
+            <TabContext value={currentTab?.id ?? ""}>
+              <Box>{tabs?.length > 0 ? tabList : <DatasetEmpty />}</Box>
+              <Box>{items}</Box>
+            </TabContext>
+          </Content>
+        </Panel>
+      </PanelGroup>
     </Layout>
   );
 }

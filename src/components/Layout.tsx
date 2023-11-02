@@ -11,17 +11,14 @@ export const Content = styled(Box)<BoxProps>(({}) => ({
 
 export const Sidebar = styled(Box)<BoxProps>(({ theme }) => ({
   flexShrink: 0,
-  width: 320,
   minHeight: "100vh",
   height: "100vh",
   overflow: "auto",
   borderRight: borderTheme(theme),
 }));
 export const Layout = styled(Box)<BoxProps>(({ theme }) => ({
-  display: "flex",
   maxHeight: "100vh",
   height: "100%",
-  pr: 0,
   p: 0,
   m: 0,
 }));
