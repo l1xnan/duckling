@@ -129,7 +129,7 @@ function Home() {
         sx={{ width: sizeLeft + "px" }}
       >
         <Sidebar>
-          <SideToolbar />
+          <SideToolbar selectedTable={selectedTable}/>
           <TreeViewWrapper>
             {dbList.map((db, i) => (
               <FileTreeView

@@ -18,7 +18,7 @@ import {
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/primitives";
 import * as dialog from "@tauri-apps/plugin-dialog";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const ToolbarBox = styled(Box)<BoxProps>(({ theme }) => ({
   height: 32,
@@ -30,8 +30,11 @@ const ToolbarBox = styled(Box)<BoxProps>(({ theme }) => ({
   borderBottom: borderTheme(theme),
 }));
 
-export function SideToolbar() {
-  const [selectedTable, _] = useState<DTableType | null>(null);
+export function SideToolbar({
+  selectedTable,
+}: {
+  selectedTable: DTableType | null;
+}) {
   const dbList = useDBStore((state) => state.dbList);
   const appendDB = useDBStore((state) => state.append);
   const removeDB = useDBStore((state) => state.remove);
