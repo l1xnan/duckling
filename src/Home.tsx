@@ -7,15 +7,16 @@ import { FileNode, useDBStore } from "@/stores/db";
 import { DTableType } from "@/stores/store";
 import { useTabsStore } from "@/stores/tabs";
 import TabContext from "@mui/lab/TabContext";
-import { Panel, PanelGroup } from "react-resizable-panels";
 
-import { Box, BoxProps, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { Box, BoxProps, IconButton } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/primitives";
 import { useEffect, useMemo, useState } from "react";
-import ResizeHandle from "@/components/ResizeHandle";
+
+import { useResize } from "@/hooks";
+import classes from "@/hooks/resize.module.css";
 
 export const DatasetEmpty = styled((props) => <Box {...props} />)<BoxProps>(
   ({}) => ({
@@ -64,7 +65,11 @@ function Home() {
 
   const tabList = useMemo(() => {
     return (
-      <FileTabList onChange={(_, value) => activateTab(value)}>
+      <FileTabList
+        variant="scrollable"
+        scrollButtons="auto"
+        onChange={(_, value) => activateTab(value)}
+      >
         {tabs.map((tab) => {
           return (
             <FileTab
@@ -110,52 +115,50 @@ function Home() {
     });
   }, [tabs]);
 
+  const [targetRefLeft, sizeLeft, actionLeft] = useResize(
+    size,
+    "left",
+    setSize
+  );
+
   return (
     <Layout>
-      <PanelGroup
-        direction="horizontal"
-        onLayout={(sizes) => {
-          setSize(sizes[0] || 30);
-        }}
+      <Box
+        ref={targetRefLeft}
+        className={classes.sideBar}
+        sx={{ width: sizeLeft + "px" }}
       >
-        <Panel defaultSize={size}>
-          <Sidebar>
-            <SideToolbar />
-            <TreeViewWrapper>
-              {dbList.map((db, i) => (
-                <FileTreeView
-                  key={i}
-                  rootKey={i}
-                  db={db}
-                  selected={
-                    selectedTable?.rootKey == i ? selectedTable.tableName : null
-                  }
-                  onSelectTable={setSelectedTable}
-                />
-              ))}
-            </TreeViewWrapper>
-          </Sidebar>
-        </Panel>
-        <ResizeHandle />
-        <Panel
-          style={{
-            height: "100vh",
-            maxHeight: "100vh",
-          }}
-        >
-          <Content>
-            <TabContext value={currentTab?.id ?? ""}>
-              <Box>{tabs?.length > 0 ? tabList : <DatasetEmpty />}</Box>
-              <Box>{items}</Box>
-            </TabContext>
-          </Content>
-        </Panel>
-      </PanelGroup>
+        <Sidebar>
+          <SideToolbar />
+          <TreeViewWrapper>
+            {dbList.map((db, i) => (
+              <FileTreeView
+                key={i}
+                rootKey={i}
+                db={db}
+                selected={
+                  selectedTable?.rootKey == i ? selectedTable.tableName : null
+                }
+                onSelectTable={setSelectedTable}
+              />
+            ))}
+          </TreeViewWrapper>
+        </Sidebar>
+        <div className={classes.controls}>
+          <div className={classes.resizeVertical} onMouseDown={actionLeft} />
+        </div>
+      </Box>
+      <Content sx={{ ml: `${sizeLeft}px` }}>
+        <TabContext value={currentTab?.id ?? ""}>
+          <Box>{tabs?.length > 0 ? tabList : <DatasetEmpty />}</Box>
+          <Box>{items}</Box>
+        </TabContext>
+      </Content>
     </Layout>
   );
 }
 
-const TreeViewWrapper = styled(Box)<BoxProps>(({ theme }) => ({
+const TreeViewWrapper = styled(Box)<BoxProps>(({}) => ({
   width: "100%",
   maxHeight: "calc(100vh - 64px)",
   height: "calc(100vh - 64px)",

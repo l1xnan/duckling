@@ -13,6 +13,7 @@ export const Sidebar = styled(Box)<BoxProps>(({ theme }) => ({
   minHeight: "100vh",
   height: "100vh",
   overflow: "auto",
+  width: "100%",
   borderRight: borderTheme(theme),
 }));
 

@@ -1,0 +1,33 @@
+.sideBar {
+  height: 100vh;
+  left: 0;
+  top: 0;
+  position: absolute;
+  display: flex;
+}
+
+.controls {
+  width: 4px;
+  opacity: 0;
+  z-index: 99;
+  position: absolute;
+  right: 0;
+  height: 100vh;
+}
+
+.controls:hover,
+.controls:active {
+  opacity: 1;
+  width: 4px;
+  background-color: #0078d4;
+}
+
+.resizeVertical {
+  top: 0;
+  display: block;
+  content: "";
+  position: absolute;
+  width: 4px;
+  height: 100vh;
+  cursor: e-resize;
+}
