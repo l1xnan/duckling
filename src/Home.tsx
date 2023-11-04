@@ -1,10 +1,7 @@
 import { MemoDataset, PageProvider } from "@/components/Dataset";
 import { FileTab, FileTabList, FileTabPanel } from "@/components/FileTabs";
-import FileTreeView from "@/components/FileTree";
 import { Content, Layout, Sidebar } from "@/components/Layout";
-import { SideToolbar } from "@/components/SideToolbar";
 import { FileNode, useDBStore } from "@/stores/db";
-import { DTableType } from "@/stores/store";
 import { useTabsStore } from "@/stores/tabs";
 import TabContext from "@mui/lab/TabContext";
 
@@ -13,10 +10,12 @@ import { Box, BoxProps, IconButton } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/primitives";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 
 import { useResize } from "@/hooks";
 import classes from "@/hooks/resize.module.css";
+import Editor from "./components/Editor";
+import SidebarTree from "./components/sidebar";
 
 export const DatasetEmpty = styled((props) => <Box {...props} />)<BoxProps>(
   ({}) => ({
@@ -24,12 +23,10 @@ export const DatasetEmpty = styled((props) => <Box {...props} />)<BoxProps>(
     marginTop: "20%",
     height: "100%",
     justifyContent: "center",
-  })
+  }),
 );
 
 function Home() {
-  const [selectedTable, setSelectedTable] = useState<DTableType | null>(null);
-  const dbList = useDBStore((state) => state.dbList);
   const appendDB = useDBStore((state) => state.append);
   const size = useDBStore((state) => state.size);
   const setSize = useDBStore((state) => state.setSize);
@@ -46,6 +43,7 @@ function Home() {
       });
     }
   }
+
   async function openUrl() {
     const path: string = await invoke("opened_urls");
     console.log(path);
@@ -118,7 +116,7 @@ function Home() {
   const [targetRefLeft, sizeLeft, actionLeft] = useResize(
     size,
     "left",
-    setSize
+    setSize,
   );
 
   return (
@@ -129,20 +127,7 @@ function Home() {
         sx={{ width: sizeLeft + "px" }}
       >
         <Sidebar>
-          <SideToolbar selectedTable={selectedTable} />
-          <TreeViewWrapper>
-            {dbList.map((db, i) => (
-              <FileTreeView
-                key={i}
-                rootKey={i}
-                db={db}
-                selected={
-                  selectedTable?.rootKey == i ? selectedTable.tableName : null
-                }
-                onSelectTable={setSelectedTable}
-              />
-            ))}
-          </TreeViewWrapper>
+          <SidebarTree />
         </Sidebar>
         <div className={classes.controls}>
           <div className={classes.resizeVertical} onMouseDown={actionLeft} />
@@ -157,14 +142,5 @@ function Home() {
     </Layout>
   );
 }
-
-const TreeViewWrapper = styled(Box)<BoxProps>(({}) => ({
-  width: "100%",
-  maxHeight: "calc(100vh - 64px)",
-  height: "calc(100vh - 64px)",
-  overflow: "auto",
-  pr: 1,
-  pb: 2,
-}));
 
 export default Home;

@@ -1,8 +1,6 @@
 import { DTableType } from "@/stores/store";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Box, Typography } from "@mui/material";
-import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import { TreeView, TreeViewProps } from "@mui/x-tree-view/TreeView";
 import {
   IconBorderOuter,
@@ -19,6 +17,7 @@ import { useMemo, useState } from "react";
 
 import { DBType, FileNode } from "@/stores/db";
 import { useTabsStore } from "@/stores/tabs";
+import { DBTreeItem, TreeItemLabel } from "./DBTreeItem";
 
 export function flattenTree(fileNode: FileNode, map: Map<string, FileNode>) {
   map.set(fileNode.path, fileNode);
@@ -78,61 +77,37 @@ export default function FileTree({
   }, [rootKey, db]);
   const updateTab = useTabsStore((state) => state.update);
 
+  const [contextMenu, setContextMenu] = useState<{
+    mouseX: number;
+    mouseY: number;
+  } | null>(null);
+  const handleContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setContextMenu(
+      contextMenu === null
+        ? {
+            mouseX: event.clientX + 2,
+            mouseY: event.clientY - 6,
+          }
+        : null
+    );
+  };
+
+  const handleClose = () => {
+    setContextMenu(null);
+  };
   const renderTree = (node: FileNode) => (
-    <TreeItem
+    <DBTreeItem
       key={node.path}
       nodeId={node.path}
-      label={
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            p: 0,
-            pt: 0.5,
-            pb: 0.5,
-            fontSize: "12px",
-            height: "24px",
-          }}
-        >
-          <Box
-            color="inherit"
-            sx={{
-              mr: 1,
-              display: "flex",
-              alignItems: "center",
-              height: "100%",
-              "& svg": {
-                fontSize: "16px",
-                height: "16px",
-                width: "16px",
-              },
-            }}
-          >
-            {getTypeIcon(
-              !node.is_dir
-                ? node?.type ?? node.path.split(".")[1]
-                : expanded.includes(node.path)
-                ? "folder-open"
-                : "folder"
-            )}
-          </Box>
-
-          <Typography
-            sx={{
-              fontWeight: "inherit",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {node.name}
-          </Typography>
-        </Box>
-      }
+      onContextMenu={handleContextMenu}
+      label={<TreeItemLabel nodeId={node.path} node={node} />}
     >
-      {Array.isArray(node.children)
+      {Array.isArray(node.children) && node.children.length > 0
         ? node.children.map((node) => renderTree(node))
         : null}
-    </TreeItem>
+    </DBTreeItem>
   );
 
   const [expanded, setExpanded] = useState<string[]>([]);
