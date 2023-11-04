@@ -33,7 +33,7 @@ export const useDBStore = create<DBState & DBAction>()(
     persist(
       (set) => ({
         // state
-        size: 30,
+        size: 300,
         dbList: [],
 
         // action
