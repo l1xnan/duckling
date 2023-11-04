@@ -21,7 +21,11 @@ export const ContextMenu = styled((props: MenuProps) => <Menu {...props} />)(
       boxShadow:
         "rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1)  10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
     },
-  })
+    "& .MuiDivider-root": {
+      marginTop: "4px",
+      marginBottom: "4px",
+    },
+  }),
 );
 
 interface ContextMenuItemProps extends MenuItemProps {
