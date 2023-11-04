@@ -1,12 +1,13 @@
 import { Box, Tab, TabProps, styled } from "@mui/material";
 import { TabList, TabPanelProps, useTabContext } from "@mui/lab";
 import { FunctionComponent, PropsWithChildren } from "react";
-import { borderTheme } from "@/utils";
+import { borderTheme, isDarkTheme } from "@/utils";
 
 export const FileTabList = styled(TabList)(({ theme }) => ({
   borderBottom: borderTheme(theme),
   maxHeight: "32px",
   minHeight: "32px",
+  backgroundColor: isDarkTheme(theme) ? "#26282e" : "white",
   "& .MuiTabs-indicator": {},
 }));
 
