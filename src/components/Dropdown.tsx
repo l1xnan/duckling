@@ -1,47 +1,10 @@
 import * as React from "react";
-import { styled, alpha } from "@mui/material/styles";
 import Button from "@mui/material/Button";
-import Menu, { MenuProps } from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
 import Divider from "@mui/material/Divider";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { isDarkTheme } from "@/utils";
 import { useState } from "react";
 import { usePageStore } from "@/stores/store";
-
-const StyledMenu = styled((props: MenuProps) => (
-  <Menu
-    elevation={0}
-    anchorOrigin={{
-      vertical: "bottom",
-      horizontal: "left",
-    }}
-    transformOrigin={{
-      vertical: "top",
-      horizontal: "left",
-    }}
-    {...props}
-  />
-))(({ theme }) => ({
-  "& .MuiPaper-root": {
-    borderRadius: 0,
-    backgroundColor: isDarkTheme(theme) ? "#2b2d30" : "#ffffff",
-    color: !isDarkTheme(theme) ? "rgb(55, 65, 81)" : theme.palette.grey[300],
-    border: isDarkTheme(theme) ? "1px solid #43454a" : "1px solid #b9bdc9",
-    boxShadow:
-      "rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1)  10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
-    "& .MuiMenu-list": {},
-    "& .MuiMenuItem-root": {
-      padding: "4px 8px",
-      "&:active": {
-        backgroundColor: alpha(
-          theme.palette.primary.main,
-          theme.palette.action.selectedOpacity
-        ),
-      },
-    },
-  },
-}));
+import { ContextMenu, ContextMenuItem } from "./ContextMenu";
 
 export interface PageSizeProps {
   content: string;
@@ -72,7 +35,7 @@ export default function Dropdown({ content }: PageSizeProps) {
       >
         {content}
       </Button>
-      <StyledMenu
+      <ContextMenu
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
@@ -83,11 +46,11 @@ export default function Dropdown({ content }: PageSizeProps) {
           },
         }}
       >
-        <MenuItem sx={{ fontWeight: 600 }} disabled>
+        <ContextMenuItem sx={{ fontWeight: 600 }} disabled>
           Page Size
-        </MenuItem>
+        </ContextMenuItem>
         {[10, 100, 500, 1000].map((item) => (
-          <MenuItem
+          <ContextMenuItem
             key={item}
             onClick={() => {
               setPerPage!(item);
@@ -96,12 +59,12 @@ export default function Dropdown({ content }: PageSizeProps) {
             disableRipple
           >
             {item}
-          </MenuItem>
+          </ContextMenuItem>
         ))}
-        <MenuItem>Custom...</MenuItem>
+        <ContextMenuItem>Custom...</ContextMenuItem>
         <Divider />
-        <MenuItem>Change Default: 500</MenuItem>
-      </StyledMenu>
+        <ContextMenuItem>Change Default: 500</ContextMenuItem>
+      </ContextMenu>
     </div>
   );
 }

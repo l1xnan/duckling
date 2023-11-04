@@ -25,9 +25,12 @@ import { convertOrderBy } from "@/utils";
 import { AgTable } from "./AgTable";
 import { IconDecimal } from "@tabler/icons-react";
 import { TablerSvgIcon } from "./MuiIconButton";
+
+import { useDeepCompareEffect } from "ahooks";
+
 import {
   ReactNode,
-  useCallback,
+  Suspense,
   useContext,
   useEffect,
   useRef,
@@ -91,20 +94,13 @@ export const MemoDataset = React.memo(function Dataset() {
   } = usePageStore();
 
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const callback = useCallback(() => {
+  useDeepCompareEffect(() => {
     (async () => {
       try {
-        setLoading(true);
         await refresh();
       } catch (error) {}
-      setLoading(false);
     })();
-  }, [table, page, perPage, orderBy, sqlWhere]);
-  useEffect(() => {
-    callback();
-  }, [callback]);
+  }, [page, perPage, orderBy, sqlWhere]);
 
   useEffect(() => {
     if (code != 0) {
@@ -128,25 +124,27 @@ export const MemoDataset = React.memo(function Dataset() {
       <PageSizeToolbar />
       <InputToolbar />
       <Box>
-        {loading ? (
-          <Box
-            sx={{
-              display: "flex",
-              height: "calc(100vh - 64px)",
-              width: "100%",
-              marginTop: "30%",
-              justifyContent: "center",
-            }}
-          >
-            <CircularProgress />
-          </Box>
-        ) : (
+        <Suspense
+          fallback={
+            <Box
+              sx={{
+                display: "flex",
+                height: "calc(100vh - 64px)",
+                width: "100%",
+                marginTop: "30%",
+                justifyContent: "center",
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          }
+        >
           <AgTable
             data={data ?? []}
             schema={schema ?? []}
             beautify={beautify}
           />
-        )}
+        </Suspense>
       </Box>
 
       {message?.length ?? 0 > 0 ? (
@@ -283,7 +281,7 @@ export function InputToolbar() {
         </Box>
         <InputBase
           color="primary"
-          onKeyDown={(e) => {
+          onKeyDown={async (e) => {
             if (e.key === "Enter") {
               setSQLWhere(stmtWhere);
             }
