@@ -4,7 +4,6 @@ import { Box, BoxProps, styled, useTheme } from "@mui/material";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { AgGridReact } from "ag-grid-react";
-import { ColumnState } from "ag-grid-community";
 
 import dayjs from "dayjs";
 import { useCallback, useMemo, useRef } from "react";
@@ -101,25 +100,8 @@ export const AgTable = ({ data, schema, beautify }: TableProps) => {
   }, [schema, beautify]);
 
   const clearPinned = useCallback(() => {
-    if (!gridRef.current) {
-      return;
-    }
-    gridRef.current.columnApi.applyColumnState({
-      defaultState: { pinned: null },
-    });
-  }, []);
-
-  const resetPinned = useCallback(() => {
-    if (!gridRef.current) {
-      return;
-    }
-    gridRef.current.columnApi.applyColumnState({
-      state: [
-        { colId: "rowNum", pinned: "left" },
-        { colId: "athlete", pinned: "left" },
-        { colId: "age", pinned: "left" },
-        { colId: "total", pinned: "right" },
-      ],
+    gridRef.current?.columnApi.applyColumnState({
+      state: [{ colId: "__index__", pinned: "left" }],
       defaultState: { pinned: null },
     });
   }, []);
