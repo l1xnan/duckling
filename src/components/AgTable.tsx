@@ -8,6 +8,7 @@ import { AgGridReact } from "ag-grid-react";
 import dayjs from "dayjs";
 import { useCallback, useMemo, useRef } from "react";
 import HeaderCell from "./HeaderCell";
+import { useSettingStore } from "@/stores/setting";
 interface TableProps {
   data: any[];
   schema: SchemaType[];
@@ -37,6 +38,7 @@ function isNumber(dataType: string) {
 export const AgTable = ({ data, schema, beautify }: TableProps) => {
   const gridRef = useRef<AgGridReact | null>(null);
   const theme = useTheme();
+  const precision = useSettingStore((state) => state.precision);
 
   const indexStyle = useMemo(
     () => ({
@@ -65,7 +67,7 @@ export const AgTable = ({ data, schema, beautify }: TableProps) => {
             : beautify && dataType.includes("Float")
             ? (params: any) => {
                 try {
-                  return params.value?.toFixed(4);
+                  return params.value?.toFixed(precision);
                 } catch (error) {
                   return params.value;
                 }

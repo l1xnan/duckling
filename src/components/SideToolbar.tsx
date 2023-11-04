@@ -1,12 +1,12 @@
 import DBConfig, { useDBConfigStore } from "@/components/DBConfig";
 import { MuiIconButton } from "@/components/MuiIconButton";
 import ToggleColorMode from "@/components/ToggleColorMode";
-import { FileNode, useDBStore } from "@/stores/db";
+import { useDBStore } from "@/stores/db";
 import { DTableType } from "@/stores/store";
 import { getFolderTree, showTables } from "@/api";
+import Setting from "@/components/Setting";
 import { borderTheme } from "@/utils";
 import RemoveIcon from "@mui/icons-material/Remove";
-import SettingsIcon from "@mui/icons-material/Settings";
 import { Box, BoxProps, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import {
@@ -127,13 +127,7 @@ export function SideToolbar({
         <Typography fontWeight={800}>Database Explorer</Typography>
         <Stack direction="row">
           <ToggleColorMode />
-          <MuiIconButton
-            onClick={() => {
-              console.log("settings");
-            }}
-          >
-            <SettingsIcon fontSize="inherit" />
-          </MuiIconButton>
+          <Setting />
         </Stack>
       </ToolbarBox>
       <ToolbarBox>
