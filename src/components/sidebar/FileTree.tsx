@@ -15,7 +15,7 @@ import {
 } from "@tabler/icons-react";
 import { useMemo, useState } from "react";
 
-import { DBType, FileNode } from "@/stores/db";
+import { DBType, FileNode, useDBStore } from "@/stores/db";
 import { useTabsStore } from "@/stores/tabs";
 import { DBTreeItem, TreeItemLabel } from "./DBTreeItem";
 
@@ -76,12 +76,10 @@ export default function FileTree({
     return fileMap;
   }, [rootKey, db]);
   const updateTab = useTabsStore((state) => state.update);
+  const contextMenu = useDBStore((state) => state.contextMenu);
+  const setContextMenu = useDBStore((state) => state.setContextMenu);
 
-  const [contextMenu, setContextMenu] = useState<{
-    mouseX: number;
-    mouseY: number;
-  } | null>(null);
-  const handleContextMenu = (event: React.MouseEvent) => {
+  const handleContextMenu = (event: React.MouseEvent, context: DTableType) => {
     event.preventDefault();
     event.stopPropagation();
     setContextMenu(
@@ -89,19 +87,28 @@ export default function FileTree({
         ? {
             mouseX: event.clientX + 2,
             mouseY: event.clientY - 6,
+            context,
           }
-        : null
+        : null,
     );
   };
 
-  const handleClose = () => {
-    setContextMenu(null);
-  };
   const renderTree = (node: FileNode) => (
     <DBTreeItem
       key={node.path}
       nodeId={node.path}
-      onContextMenu={handleContextMenu}
+      onContextMenu={(event) => {
+        const context = {
+          rootKey,
+          root: data.path,
+          tableName: node.path as string,
+          cwd: db.cwd,
+          id: `${rootKey}:${node.path}`,
+          type: "editor",
+        };
+
+        handleContextMenu(event, context);
+      }}
       label={<TreeItemLabel nodeId={node.path} node={node} />}
     >
       {Array.isArray(node.children) && node.children.length > 0

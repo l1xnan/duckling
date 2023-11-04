@@ -1,5 +1,5 @@
 import FileTreeView from "@/components/sidebar/FileTree";
-import { SideToolbar } from "@/components/SideToolbar";
+import { SideToolbar } from "@/components/sidebar/SideToolbar";
 import { FileNode, useDBStore } from "@/stores/db";
 import { DTableType } from "@/stores/store";
 
@@ -12,6 +12,8 @@ import { ContextMenu, ContextMenuItem } from "@/components/ContextMenu";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CodeIcon from "@mui/icons-material/Code";
+import { useTabsStore } from "@/stores/tabs";
+
 const TreeViewWrapper = styled(Box)<BoxProps>(({}) => ({
   width: "100%",
   maxHeight: "calc(100vh - 64px)",
@@ -25,6 +27,9 @@ function SidebarTree() {
   const [selectedTable, setSelectedTable] = useState<DTableType | null>(null);
   const dbList = useDBStore((state) => state.dbList);
   const appendDB = useDBStore((state) => state.append);
+  const contextMenu = useDBStore((state) => state.contextMenu);
+  const setContextMenu = useDBStore((state) => state.setContextMenu);
+  const updateTab = useTabsStore((state) => state.update);
 
   async function openDirectory(name?: string) {
     const fileTree: FileNode = await invoke("get_folder_tree", { name });
@@ -50,28 +55,11 @@ function SidebarTree() {
       unlisten.then((f) => f());
     };
   }, []);
-  const [contextMenu, setContextMenu] = useState<{
-    mouseX: number;
-    mouseY: number;
-  } | null>(null);
-
-
-  const handleContextMenu = (event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setContextMenu(
-      contextMenu === null
-        ? {
-            mouseX: event.clientX + 2,
-            mouseY: event.clientY - 6,
-          }
-        : null
-    );
-  };
 
   const handleClose = () => {
     setContextMenu(null);
   };
+
   return (
     <>
       <SideToolbar selectedTable={selectedTable} />
@@ -100,7 +88,15 @@ function SidebarTree() {
           <ContextMenuItem onClick={() => {}} icon={<SettingsIcon />}>
             <ListItemText>Properties</ListItemText>
           </ContextMenuItem>
-          <ContextMenuItem icon={<CodeIcon />} onClick={() => {}}>
+          <ContextMenuItem
+            icon={<CodeIcon />}
+            onClick={() => {
+              if (contextMenu?.context) {
+                updateTab!(contextMenu?.context);
+              }
+              handleClose();
+            }}
+          >
             Query Editor
           </ContextMenuItem>
           <Divider />
@@ -110,7 +106,7 @@ function SidebarTree() {
               handleClose();
             }}
           >
-            <ListItemText> Remove Data Source...</ListItemText>
+            <ListItemText>Remove Data Source...</ListItemText>
           </ContextMenuItem>
         </ContextMenu>
       </TreeViewWrapper>

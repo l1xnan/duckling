@@ -106,7 +106,7 @@ function Home() {
       return (
         <PageProvider key={tab.id} table={tab}>
           <FileTabPanel value={tab.id}>
-            <MemoDataset />
+            {tab.type === "editor" ? <Editor /> : <MemoDataset />}
           </FileTabPanel>
         </PageProvider>
       );

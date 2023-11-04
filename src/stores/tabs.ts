@@ -74,8 +74,8 @@ export const useTabsStore = create<TabsState & TabsAction>()(
       {
         name: "tabsStore",
         storage: createJSONStorage(() => localStorage),
-      }
-    )
+      },
+    ),
     // )
-  )
+  ),
 );

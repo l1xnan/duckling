@@ -38,6 +38,7 @@ import {
 } from "react";
 import React from "react";
 import { FileTabPanel } from "./FileTabs";
+import { ToolbarContainer } from "./Toolbar";
 
 export interface DatasetProps {
   tableName: string;
@@ -50,7 +51,9 @@ export const PageProvider = ({
   table: DTableType;
   children: ReactNode;
 }) => {
-  const storeRef = useRef(createPageStore(table));
+  const storeRef = useRef(
+    table.type == "editor" ? null : createPageStore(table),
+  );
   return (
     <PageContext.Provider value={storeRef.current}>
       {children}
@@ -75,7 +78,7 @@ export const MemoPanel = React.memo(
         </FileTabPanel>
       </PageProvider>
     );
-  }
+  },
 );
 
 export const MemoDataset = React.memo(function Dataset() {
@@ -110,7 +113,7 @@ export const MemoDataset = React.memo(function Dataset() {
 
   const handleClose = (
     _event: React.SyntheticEvent | Event,
-    reason?: string
+    reason?: string,
   ) => {
     if (reason === "clickaway") {
       return;
@@ -179,23 +182,7 @@ function PageSizeToolbar() {
   const content = count >= totalCount ? `${count} rows` : `${start}-${end}`;
 
   return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      justifyContent="space-between"
-      sx={(theme) => ({
-        backgroundColor: isDarkTheme(theme) ? "#2b2d30" : "#f7f8fa",
-        height: 32,
-        alignItems: "center",
-        borderBottom: borderTheme(theme),
-        "& input, & input:focus-visible": {
-          border: "none",
-          height: "100%",
-          padding: 0,
-          outlineWidth: 0,
-        },
-      })}
-    >
+    <ToolbarContainer>
       <Stack
         direction="row"
         spacing={1}
@@ -243,7 +230,7 @@ function PageSizeToolbar() {
           <SyncIcon fontSize="small" />
         </IconButton>
       </Stack>
-    </Stack>
+    </ToolbarContainer>
   );
 }
 
@@ -252,7 +239,7 @@ export function InputToolbar() {
 
   const [stmtWhere, setStmtWhere] = useState("");
   const [stmtOrder, setStmtOrder] = useState(
-    orderBy ? convertOrderBy(orderBy) : ""
+    orderBy ? convertOrderBy(orderBy) : "",
   );
 
   useEffect(() => {

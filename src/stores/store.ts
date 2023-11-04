@@ -23,6 +23,7 @@ export type DTableType = {
   tableName: string;
   cwd?: string;
   id: string;
+  type?: string;
 };
 
 export type DatasetField = {

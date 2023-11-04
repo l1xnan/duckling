@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage, devtools } from "zustand/middleware";
 import { debounce } from "@/utils";
+import { DTableType } from "./store";
 
 export interface FileNode {
   name: string;
@@ -15,9 +16,16 @@ export type DBType = {
   cwd?: string;
 };
 
+type ContextMenuType = {
+  mouseX: number;
+  mouseY: number;
+  context: DTableType;
+} | null;
+
 type DBState = {
   size: number;
   dbList: DBType[];
+  contextMenu: ContextMenuType;
 };
 
 type DBAction = {
@@ -26,6 +34,8 @@ type DBAction = {
   remove: (dbName: string) => void;
   setCwd: (cwd: string, path: string) => void;
   setSize: (size: number) => void;
+
+  setContextMenu: (contextMenu: ContextMenuType) => void;
 };
 
 export const useDBStore = create<DBState & DBAction>()(
@@ -36,13 +46,18 @@ export const useDBStore = create<DBState & DBAction>()(
         size: 300,
         dbList: [],
 
+        contextMenu: null,
+        setContextMenu: (contextMenu: ContextMenuType) => {
+          set((_) => ({ contextMenu }));
+        },
+
         // action
         append: (db) => set((state) => ({ dbList: [...state.dbList, db] })),
         setSize: debounce((size) => set((_) => ({ size }))),
         remove: (dbName) =>
           set((state) => ({
             dbList: state.dbList?.filter(
-              (item) => !(item.data.path === dbName)
+              (item) => !(item.data.path === dbName),
             ),
           })),
         update: ({ path, children }) =>
@@ -75,7 +90,7 @@ export const useDBStore = create<DBState & DBAction>()(
       {
         name: "dbStore",
         storage: createJSONStorage(() => localStorage),
-      }
-    )
-  )
+      },
+    ),
+  ),
 );
