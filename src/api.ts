@@ -1,6 +1,7 @@
 import { Table, tableFromIPC } from "@apache-arrow/ts";
 import { invoke } from "@tauri-apps/api/primitives";
 import { SchemaType, ArrowResponse } from "./stores/store";
+import { FileNode } from "@/stores/db";
 
 export type ResultType = {
   totalCount: number;
@@ -88,4 +89,9 @@ export async function read_parquet(
     order,
   });
   return convert(res);
+}
+
+export async function getFolderTree(name: string): Promise<FileNode> {
+  const fileTree: FileNode = await invoke("get_folder_tree", { name });
+  return fileTree;
 }

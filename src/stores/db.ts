@@ -15,22 +15,28 @@ export type DBType = {
   cwd?: string;
 };
 
-interface DBState {
+type DBState = {
   size: number;
   dbList: DBType[];
+};
+
+type DBAction = {
   append: (db: DBType) => void;
   update: (db: Partial<FileNode>) => void;
   remove: (dbName: string) => void;
   setCwd: (cwd: string, path: string) => void;
   setSize: (size: number) => void;
-}
+};
 
-export const useDBStore = create<DBState>()(
+export const useDBStore = create<DBState & DBAction>()(
   devtools(
     persist(
       (set) => ({
+        // state
         size: 30,
         dbList: [],
+
+        // action
         append: (db) => set((state) => ({ dbList: [...state.dbList, db] })),
         setSize: debounce((size) => set((_) => ({ size }))),
         remove: (dbName) =>

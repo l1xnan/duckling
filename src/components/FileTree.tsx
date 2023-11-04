@@ -28,7 +28,13 @@ export function flattenTree(fileNode: FileNode, map: Map<string, FileNode>) {
   });
 }
 
-export const getFileTypeIcon = (type: string) => {
+export const getTypeIcon = (type: string) => {
+  if (type == "folder-open") {
+    return <IconFolderOpen />;
+  }
+  if (type == "folder") {
+    return <IconFolder />;
+  }
   if (type == "duckdb") {
     return <IconDatabase />;
   }
@@ -102,12 +108,12 @@ export default function FileTree({
               },
             }}
           >
-            {!node.is_dir ? (
-              getFileTypeIcon(node?.type ?? node.path.split(".")[1])
-            ) : expanded.includes(node.path) ? (
-              <IconFolderOpen />
-            ) : (
-              <IconFolder />
+            {getTypeIcon(
+              !node.is_dir
+                ? node?.type ?? node.path.split(".")[1]
+                : expanded.includes(node.path)
+                ? "folder-open"
+                : "folder"
             )}
           </Box>
 
@@ -149,15 +155,6 @@ export default function FileTree({
         };
         onSelectTable(item);
         if (node && !node?.is_dir && !node.path.endsWith(".duckdb")) {
-          // const tab = {
-          //   page: 1,
-          //   perPage: 500,
-          //   table: item,
-          //   orderBy: undefined,
-          //   sqlWhere: undefined,
-          // };
-          // setStore!(tab);
-          console.log(item);
           updateTab!(item);
         }
       }}

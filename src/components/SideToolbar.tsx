@@ -3,7 +3,7 @@ import { MuiIconButton } from "@/components/MuiIconButton";
 import ToggleColorMode from "@/components/ToggleColorMode";
 import { FileNode, useDBStore } from "@/stores/db";
 import { DTableType } from "@/stores/store";
-import { showTables } from "@/api";
+import { getFolderTree, showTables } from "@/api";
 import { borderTheme } from "@/utils";
 import RemoveIcon from "@mui/icons-material/Remove";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -40,8 +40,8 @@ export function SideToolbar({
   const removeDB = useDBStore((state) => state.remove);
   const updateDB = useDBStore((state) => state.update);
 
-  async function openDirectory(name?: string) {
-    const fileTree: FileNode = await invoke("get_folder_tree", { name });
+  async function openDirectory(name: string) {
+    const fileTree = await getFolderTree(name);
     if (!!fileTree) {
       appendDB({
         data: fileTree,
