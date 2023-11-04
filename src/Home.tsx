@@ -83,7 +83,7 @@ function Home() {
                     alignItems: "center",
                   }}
                 >
-                  <Box>{tab?.tableName}</Box>
+                  <Box>{tab?.tableName.split("/").at(-1)}</Box>
                   <IconButton
                     size="small"
                     component="div"
@@ -129,7 +129,7 @@ function Home() {
         sx={{ width: sizeLeft + "px" }}
       >
         <Sidebar>
-          <SideToolbar selectedTable={selectedTable}/>
+          <SideToolbar selectedTable={selectedTable} />
           <TreeViewWrapper>
             {dbList.map((db, i) => (
               <FileTreeView
