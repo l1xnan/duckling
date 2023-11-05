@@ -7,13 +7,66 @@ import {
   useTreeItem,
   TreeItemContentProps,
 } from "@mui/x-tree-view/TreeItem";
-import { Box } from "@mui/material";
+import { Box, alpha, styled } from "@mui/material";
 import { getTypeIcon } from "./FileTree";
 import { FileNode } from "@/stores/db";
 
+const CustomContentRoot = styled("div")(({ theme }) => ({
+  WebkitTapHighlightColor: "transparent",
+  "&&:hover, &&.Mui-disabled, &&.Mui-focused, &&.Mui-selected, &&.Mui-selected.Mui-focused, &&.Mui-selected:hover":
+    {
+      backgroundColor: "transparent",
+    },
+  ".MuiTreeItem-contentBar": {
+    position: "absolute",
+    width: "100%",
+    height: 24,
+    left: 0,
+  },
+  "&:hover .MuiTreeItem-contentBar": {
+    backgroundColor: theme.palette.action.hover,
+    // Reset on touch devices, it doesn't add specificity
+    "@media (hover: none)": {
+      backgroundColor: "transparent",
+    },
+  },
+  "&.Mui-disabled .MuiTreeItem-contentBar": {
+    opacity: theme.palette.action.disabledOpacity,
+    backgroundColor: "transparent",
+  },
+  "&.Mui-focused .MuiTreeItem-contentBar": {
+    backgroundColor: theme.palette.action.focus,
+  },
+  "&.Mui-selected .MuiTreeItem-contentBar": {
+    backgroundColor: alpha(
+      theme.palette.primary.main,
+      theme.palette.action.selectedOpacity,
+    ),
+  },
+  "&.Mui-selected:hover .MuiTreeItem-contentBar": {
+    backgroundColor: alpha(
+      theme.palette.primary.main,
+      theme.palette.action.selectedOpacity + theme.palette.action.hoverOpacity,
+    ),
+    // Reset on touch devices, it doesn't add specificity
+    "@media (hover: none)": {
+      backgroundColor: alpha(
+        theme.palette.primary.main,
+        theme.palette.action.selectedOpacity,
+      ),
+    },
+  },
+  "&.Mui-selected.Mui-focused .MuiTreeItem-contentBar": {
+    backgroundColor: alpha(
+      theme.palette.primary.main,
+      theme.palette.action.selectedOpacity + theme.palette.action.focusOpacity,
+    ),
+  },
+}));
+
 const CustomContent = React.forwardRef(function CustomContent(
   props: TreeItemContentProps,
-  ref: React.Ref<HTMLDivElement>
+  ref: React.Ref<HTMLDivElement>,
 ) {
   const {
     classes,
@@ -40,19 +93,19 @@ const CustomContent = React.forwardRef(function CustomContent(
   const icon = iconProp || expansionIcon || displayIcon;
 
   const handleMouseDown = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
     preventSelection(event);
   };
 
   const handleExpansionClick = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
     handleExpansion(event);
   };
 
   const handleSelectionClick = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
     handleSelection(event);
   };
@@ -65,7 +118,7 @@ const CustomContent = React.forwardRef(function CustomContent(
     }
   };
   return (
-    <div
+    <CustomContentRoot
       {...other}
       className={clsx(className, classes.root, {
         [classes.expanded]: expanded,
@@ -77,19 +130,21 @@ const CustomContent = React.forwardRef(function CustomContent(
       onMouseDown={handleMouseDown}
       ref={ref}
     >
+      <div className="MuiTreeItem-contentBar" />
+
       <div onClick={handleExpansionClick} className={classes.iconContainer}>
         {icon}
       </div>
       <div onClick={handleSelectionClick} className={classes.label}>
         {label}
       </div>
-    </div>
+    </CustomContentRoot>
   );
 });
 
 export const DBTreeItem = React.forwardRef(function CustomTreeItem(
   props: TreeItemProps,
-  ref: React.Ref<HTMLLIElement>
+  ref: React.Ref<HTMLLIElement>,
 ) {
   return <TreeItem ContentComponent={CustomContent} {...props} ref={ref} />;
 });
@@ -135,7 +190,7 @@ export const TreeItemLabel = React.forwardRef(
               ? node?.type ?? node.path.split(".")[1]
               : expanded
               ? "folder-open"
-              : "folder"
+              : "folder",
           )}
         </Box>
 
@@ -150,5 +205,5 @@ export const TreeItemLabel = React.forwardRef(
         </Typography>
       </Box>
     );
-  }
+  },
 );

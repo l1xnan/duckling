@@ -143,6 +143,7 @@ export default function FileTree({
       onNodeToggle={handleToggle}
       expanded={expanded}
       selected={selected}
+      sx={{ position: "relative" }}
       {...rest}
     >
       {renderTree(data)}
