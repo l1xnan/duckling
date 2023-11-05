@@ -44,7 +44,10 @@ export const FileTabPanel: FunctionComponent<
   const { value: contextValue } = useTabContext() || {};
   return (
     <Box
-      sx={{ display: value === contextValue ? "block" : "none" }}
+      sx={{
+        display: value === contextValue ? "block" : "none",
+        height: "100%",
+      }}
       key={value}
     >
       {children}

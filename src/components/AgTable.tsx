@@ -19,11 +19,11 @@ function columnWiths(name: string, row: any) {
   return Math.min(
     Math.max(
       getByteLength(name),
-      getByteLength(row?.[name]?.toString() ?? "0")
+      getByteLength(row?.[name]?.toString() ?? "0"),
     ) *
       12 +
       30,
-    200
+    200,
   );
 }
 
@@ -45,7 +45,7 @@ export const AgTable = ({ data, schema, beautify }: TableProps) => {
       color: isDarkTheme(theme) ? "#aeb3c2" : "#aeb3c2",
     }),
 
-    [theme]
+    [theme],
   );
   const components = useMemo(() => {
     return {
@@ -145,8 +145,8 @@ export const AgTable = ({ data, schema, beautify }: TableProps) => {
 export const TableWrapper = styled((props: BoxProps) => <Box {...props} />)(
   ({ theme }) => ({
     width: "100%",
-    height: "calc(100vh - 96px)",
-
+    // height: "calc(100vh - 96px)",
+    height: "100%",
     "&": {
       "--ag-grid-size": "4px",
       //   "--ag-borders": "none",
@@ -172,5 +172,5 @@ export const TableWrapper = styled((props: BoxProps) => <Box {...props} />)(
       borderBottom: "none",
       borderTop: "none",
     },
-  })
+  }),
 );

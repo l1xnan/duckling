@@ -5,7 +5,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import { MuiIconButton } from "./MuiIconButton";
+import { MuiIconButton } from "../components/MuiIconButton";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { InputBase, ListItem, ListItemText } from "@mui/material";
 import { ReactNode } from "react";

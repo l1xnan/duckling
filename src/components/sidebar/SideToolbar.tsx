@@ -4,7 +4,7 @@ import ToggleColorMode from "@/components/ToggleColorMode";
 import { useDBStore } from "@/stores/db";
 import { DTableType } from "@/stores/store";
 import { getFolderTree, showTables } from "@/api";
-import Setting from "@/components/Setting";
+import Setting from "@/pages/Setting";
 import { borderTheme } from "@/utils";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { Box, BoxProps, Stack, Typography } from "@mui/material";
@@ -145,10 +145,7 @@ export function SideToolbar({
           </MuiIconButton>
           {/* db config */}
           <DBConfig />
-          <MuiIconButton
-            disabled={!(isRoot && selectedTable?.root?.endsWith(".duckdb"))}
-            onClick={handleOpen}
-          >
+          <MuiIconButton disabled={!isRoot} onClick={handleOpen}>
             <IconDatabaseCog />
           </MuiIconButton>
           {/* remove db */}

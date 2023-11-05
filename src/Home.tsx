@@ -14,7 +14,7 @@ import { useEffect, useMemo } from "react";
 
 import { useResize } from "@/hooks";
 import classes from "@/hooks/resize.module.css";
-import Editor from "./components/Editor";
+import Editor from "./pages/editor/Editor";
 import SidebarTree from "./components/sidebar";
 
 export const DatasetEmpty = styled((props) => <Box {...props} />)<BoxProps>(
@@ -136,7 +136,7 @@ function Home() {
       <Content sx={{ ml: `${sizeLeft}px` }}>
         <TabContext value={currentTab?.id ?? ""}>
           <Box>{tabs?.length > 0 ? tabList : <DatasetEmpty />}</Box>
-          <Box>{items}</Box>
+          <Box sx={{ height: "100%" }}>{items}</Box>
         </TabContext>
       </Content>
     </Layout>

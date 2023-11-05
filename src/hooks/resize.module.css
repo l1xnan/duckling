@@ -31,3 +31,41 @@
   height: 100vh;
   cursor: e-resize;
 }
+
+.resizeHorizontal {
+  display: block;
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  cursor: ns-resize;
+}
+
+
+
+
+.controlsH {
+  height: 4px;
+  width: 100%;
+  opacity: 0;
+  z-index: 99;
+  position: absolute;
+  right: 0;
+}
+
+.controlsH:hover,
+.controlsH:active {
+  opacity: 1;
+  background-color: #0078d4;
+}
+
+
+.rightBottom {
+  position: absolute;
+  bottom: 0;
+  /* width: 100vw; */
+  /* background-color: green; */
+  /* height: 100px;
+  min-height: 50px;
+  max-height: 300px; */
+}

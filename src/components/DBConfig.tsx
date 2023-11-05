@@ -46,14 +46,8 @@ export default function FormDialog() {
     onClose();
   };
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      sx={{
-        backgroundColor: "#ffffff",
-      }}
-    >
-      <DialogTitle>DuckDB</DialogTitle>
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>{db?.root.split("/").at(-1)}</DialogTitle>
       <DialogContent>
         <DialogContentText>
           Set DuckDB working directory for the read parquet relative path

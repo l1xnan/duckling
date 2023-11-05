@@ -26,7 +26,7 @@ export type DTableType = {
   type?: string;
 };
 
-export type DatasetField = {
+export type DatasetState = {
   page: number;
   totalCount: number;
   data: any[];
@@ -41,8 +41,8 @@ export type DatasetField = {
   beautify?: boolean;
 };
 
-export interface DatasetState extends DatasetField {
-  setStore?: (res: Partial<DatasetField>) => void;
+export type DatasetAction = {
+  setStore?: (res: Partial<DatasetState>) => void;
   setOrderBy?: (name: string) => void;
   setPerPage?: (perPage: number) => void;
   increase: () => void;
@@ -50,9 +50,9 @@ export interface DatasetState extends DatasetField {
   toLast: () => void;
   decrease: () => void;
   setSQLWhere: (value: string) => void;
-  refresh: () => Promise<void>;
+  refresh: (stmt?: string) => Promise<void>;
   setBeautify: () => void;
-}
+};
 
 export type OrderByType = {
   name: string;
@@ -80,7 +80,8 @@ export const usePageStore = () => {
 };
 
 export const createPageStore = (table: DTableType) =>
-  createStore<DatasetState>((set, get) => ({
+  createStore<DatasetState & DatasetAction>((set, get) => ({
+    // state
     page: 1,
     perPage: 500,
     table,
@@ -91,6 +92,8 @@ export const createPageStore = (table: DTableType) =>
     code: 0,
     message: undefined,
     beautify: true,
+
+    // action
     setStore: (res: object) => set((_) => res),
     increase: () => set((state) => ({ page: state.page + 1 })),
     setBeautify: () => set((state) => ({ beautify: !state.beautify })),
@@ -127,11 +130,8 @@ export const createPageStore = (table: DTableType) =>
       }),
     setPerPage: (perPage: number) => set((_) => ({ perPage })),
     decrease: () => set((state) => ({ page: state.page - 1 })),
-    refresh: async () => {
-      const page = get().page;
-      const perPage = get().perPage;
-      const table = get().table;
-      const sqlWhere = get().sqlWhere;
+    refresh: async (stmt?: string) => {
+      const { page, perPage, table, sqlWhere } = get();
       console.log("inner:", get());
       if (!table || !table.tableName) {
         return;
@@ -148,11 +148,13 @@ export const createPageStore = (table: DTableType) =>
         tableName = `read_parquet('${table.tableName}')`;
       }
 
-      const sql = genStmt({
-        tableName,
-        orderBy: get().orderBy,
-        where: sqlWhere,
-      });
+      const sql =
+        stmt ??
+        genStmt({
+          tableName,
+          orderBy: get().orderBy,
+          where: sqlWhere,
+        });
 
       console.log("query:", path, sql);
       const data = await query({
@@ -163,5 +165,7 @@ export const createPageStore = (table: DTableType) =>
         cwd: table.cwd,
       });
       set({ ...data });
+
+      console.log("refresh:", data);
     },
   }));

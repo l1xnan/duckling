@@ -3,6 +3,7 @@ import { immer } from "zustand/middleware/immer";
 
 import { persist, createJSONStorage, devtools } from "zustand/middleware";
 import { DTableType } from "./store";
+import { debounce } from "@mui/material";
 export interface FileNode {
   name: string;
   type?: string;
@@ -19,6 +20,8 @@ export type DBType = {
 interface TabsState {
   tabs: DTableType[];
   table?: DTableType;
+
+  docs: { [key: string]: string };
 }
 
 type TabsAction = {
@@ -26,6 +29,8 @@ type TabsAction = {
   update: (tab: DTableType) => void;
   remove: (key: string) => void;
   active: (idx: string) => void;
+
+  setStmt: (key: string, value: string) => void;
 };
 
 export const useTabsStore = create<TabsState & TabsAction>()(
@@ -35,6 +40,8 @@ export const useTabsStore = create<TabsState & TabsAction>()(
       (set, _get) => ({
         tabs: [],
         table: undefined,
+
+        docs: {},
         append: (tab: DTableType) =>
           set((state) => ({ tabs: [...state.tabs, tab] })),
         active: (index) =>
@@ -70,6 +77,12 @@ export const useTabsStore = create<TabsState & TabsAction>()(
             };
           });
         },
+
+        setStmt: debounce((key, stmt) =>
+          set((state) => ({
+            docs: { ...state.docs, [key]: stmt },
+          })),
+        ),
       }),
       {
         name: "tabsStore",

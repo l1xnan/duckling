@@ -22,23 +22,22 @@ import {
   usePageStore,
 } from "@/stores/store";
 import { convertOrderBy } from "@/utils";
-import { AgTable } from "./AgTable";
+import { AgTable } from "../../components/AgTable";
 import { IconDecimal } from "@tabler/icons-react";
-import { TablerSvgIcon } from "./MuiIconButton";
-
-import { useDeepCompareEffect } from "ahooks";
+import { TablerSvgIcon } from "../../components/MuiIconButton";
 
 import {
   ReactNode,
   Suspense,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
 import React from "react";
-import { FileTabPanel } from "./FileTabs";
-import { ToolbarContainer } from "./Toolbar";
+import { FileTabPanel } from "../../components/FileTabs";
+import { ToolbarContainer } from "../../components/Toolbar";
 
 export interface DatasetProps {
   tableName: string;
@@ -51,6 +50,9 @@ export const PageProvider = ({
   table: DTableType;
   children: ReactNode;
 }) => {
+  // const storeRef = useRef(
+  //   table.type == "editor" ? null : createPageStore(table),
+  // );
   const storeRef = useRef(createPageStore(table));
   return (
     <PageContext.Provider value={storeRef.current}>
@@ -72,44 +74,19 @@ export const MemoPanel = React.memo(
     return (
       <PageProvider table={table}>
         <FileTabPanel value={`${idx}`}>
-          <MemoDataset />
+          <DatasetItem />
         </FileTabPanel>
       </PageProvider>
     );
   },
 );
 
-export const MemoDataset = React.memo(function Dataset() {
-  const {
-    refresh,
-    data,
-    schema,
-    table,
-    page,
-    perPage,
-    orderBy,
-    sqlWhere,
-    code,
-    message,
-    beautify,
-  } = usePageStore();
+export function DatasetItem() {
+  const { data, schema, message, beautify } = usePageStore();
+
+  const dataSources = useMemo(() => data, [data]);
 
   const [open, setOpen] = useState(false);
-  useDeepCompareEffect(() => {
-    if (table?.type != "editor") {
-      (async () => {
-        try {
-          await refresh();
-        } catch (error) {}
-      })();
-    }
-  }, [page, perPage, orderBy, sqlWhere]);
-
-  useEffect(() => {
-    if (code != 0) {
-      setOpen(true);
-    }
-  }, [table, code, message]);
 
   const handleClose = (
     _event: React.SyntheticEvent | Event,
@@ -122,8 +99,9 @@ export const MemoDataset = React.memo(function Dataset() {
     setOpen(false);
   };
 
+  console.log("========", schema);
   return (
-    <Stack sx={{ height: "100%" }}>
+    <Stack height={"100%"}>
       <PageSizeToolbar />
       <InputToolbar />
       <Box sx={{ height: "100%" }}>
@@ -143,7 +121,7 @@ export const MemoDataset = React.memo(function Dataset() {
           }
         >
           <AgTable
-            data={data ?? []}
+            data={dataSources ?? []}
             schema={schema ?? []}
             beautify={beautify}
           />
@@ -153,14 +131,14 @@ export const MemoDataset = React.memo(function Dataset() {
       {message?.length ?? 0 > 0 ? (
         <Snackbar
           open={open}
-          autoHideDuration={6000}
+          autoHideDuration={3000}
           onClose={handleClose}
           message={message ?? ""}
         />
       ) : null}
     </Stack>
   );
-});
+}
 
 function PageSizeToolbar() {
   const {
@@ -301,4 +279,4 @@ export function InputToolbar() {
   );
 }
 
-export default MemoDataset;
+export default DatasetItem;

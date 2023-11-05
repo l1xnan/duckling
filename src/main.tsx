@@ -12,17 +12,21 @@ import App from "./App";
   detach();
 })();
 
-(async () => {
-  const update = await check();
-  console.log(update);
-  if (update?.version != update?.currentVersion) {
-    await update?.downloadAndInstall();
-    await relaunch();
-  }
-})();
+const isDev = import.meta.env.MODE === "development";
+
+if (!isDev) {
+  (async () => {
+    const update = await check();
+    console.log(update);
+    if (update?.version != update?.currentVersion) {
+      await update?.downloadAndInstall();
+      await relaunch();
+    }
+  })();
+}
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
 );
