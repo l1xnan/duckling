@@ -60,14 +60,13 @@ pub fn query(
   offset: i32,
   cwd: Option<String>,
 ) -> anyhow::Result<ArrowData> {
+  if let Some(current_dir) = cwd {
+    let _ = set_current_dir(current_dir);
+  }
+  info!("current_dir: {}", current_dir()?.display());
   let con = if path == ":memory:" {
     Connection::open_in_memory()
   } else {
-    if let Some(current_dir) = cwd {
-      let _ = set_current_dir(current_dir);
-    }
-
-    info!("current_dir: {}", current_dir()?.display());
     Connection::open(path)
   };
   let db = con.map_err(|err| anyhow!("Failed to open database connection: {}", err))?;
