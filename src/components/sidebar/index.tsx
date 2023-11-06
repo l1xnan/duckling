@@ -8,13 +8,14 @@ import { invoke } from '@tauri-apps/api/primitives';
 import { useEffect, useState } from 'react';
 
 import { ContextMenu, ContextMenuItem } from '@/components/ContextMenu';
+import { useDBConfigStore } from '@/components/DBConfig';
 import FileTreeView from '@/components/sidebar/FileTree';
 import { SideToolbar } from '@/components/sidebar/SideToolbar';
 import { FileNode, useDBStore } from '@/stores/db';
 import { DTableType } from '@/stores/store';
 import { useTabsStore } from '@/stores/tabs';
 
-const TreeViewWrapper = styled(Box)<BoxProps>(({}) => ({
+const TreeViewWrapper = styled(Box)<BoxProps>(() => ({
   width: '100%',
   maxHeight: 'calc(100vh - 64px)',
   height: 'calc(100vh - 64px)',
@@ -30,6 +31,8 @@ function SidebarTree() {
   const contextMenu = useDBStore((state) => state.contextMenu);
   const setContextMenu = useDBStore((state) => state.setContextMenu);
   const updateTab = useTabsStore((state) => state.update);
+  const removeDB = useDBStore((state) => state.remove);
+  const onOpen = useDBConfigStore((state) => state.onOpen);
 
   async function openDirectory(name?: string) {
     const fileTree: FileNode = await invoke('get_folder_tree', { name });
@@ -85,7 +88,13 @@ function SidebarTree() {
               : undefined
           }
         >
-          <ContextMenuItem onClick={() => {}} icon={<SettingsIcon />}>
+          <ContextMenuItem
+            onClick={() => {
+              onOpen();
+              handleClose();
+            }}
+            icon={<SettingsIcon />}
+          >
             <ListItemText>Properties</ListItemText>
           </ContextMenuItem>
           <ContextMenuItem
@@ -103,6 +112,9 @@ function SidebarTree() {
           <ContextMenuItem
             icon={<DeleteIcon />}
             onClick={() => {
+              if (contextMenu?.context?.root) {
+                removeDB(contextMenu?.context?.root);
+              }
               handleClose();
             }}
           >
