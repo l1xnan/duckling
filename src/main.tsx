@@ -12,6 +12,11 @@ import App from './App';
   detach();
 })();
 
+// disable right-click context menu
+document.oncontextmenu = function () {
+  return false;
+};
+
 const isDev = import.meta.env.MODE === 'development';
 
 if (!isDev) {
