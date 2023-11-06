@@ -33,21 +33,12 @@ export default function Dropdown({ content }: PageSizeProps) {
         variant="text"
         disableElevation
         onClick={handleClick}
+        sx={{ textTransform: 'none' }}
         endIcon={<KeyboardArrowDownIcon />}
       >
         {content}
       </Button>
-      <ContextMenu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        sx={{
-          '&+.MuiDivider-root': {
-            // marginTop: 4,
-            // marginBottom: 4,
-          },
-        }}
-      >
+      <ContextMenu anchorEl={anchorEl} open={open} onClose={handleClose}>
         <ContextMenuItem sx={{ fontWeight: 600 }} disabled>
           Page Size
         </ContextMenuItem>

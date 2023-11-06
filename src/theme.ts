@@ -6,6 +6,7 @@ export const ColorModeContext = createContext({
 });
 
 const initTheme: (mode: 'dark' | 'light') => ThemeOptions = (mode) => ({
+  spacing: 4,
   // @ts-ignore
   shadows: [...Array(25).fill('none')],
   palette: {
