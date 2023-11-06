@@ -14,8 +14,9 @@ DuckStudio 是使用 Tauri 构建的轻量级桌面应用，用于快速浏览 `
 
 打开数据文件夹或者 `*.duckdb` 文件。
 
-![screenshot](./assets/screenshot.png)
+![screenshot-dark](./assets/screenshot-dark.png)
 
+![screenshot](./assets/screenshot.png)
 
 ## 开发
 

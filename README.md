@@ -14,6 +14,8 @@ For Windows platform, you can download and [install Webview2 offline]((https://d
 
 Open the data folder or `*.duckdb` file.
 
+![screenshot-dark](./assets/screenshot-dark.png)
+
 ![screenshot](./assets/screenshot.png)
 
 ## Development
