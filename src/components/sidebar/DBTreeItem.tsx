@@ -1,4 +1,11 @@
-import { Box, alpha, styled } from '@mui/material';
+import {
+  Box,
+  Tooltip,
+  TooltipProps,
+  alpha,
+  styled,
+  tooltipClasses,
+} from '@mui/material';
 import Typography from '@mui/material/Typography';
 import {
   TreeItem,
@@ -156,6 +163,29 @@ interface TreeItemLabelProps {
   node: FileNode;
   nodeId: string;
 }
+
+export const NoMaxWidthTooltip = styled(
+  ({ className, ...props }: TooltipProps) => (
+    <Tooltip
+      PopperProps={{
+        modifiers: [
+          {
+            name: 'offset',
+            options: {
+              offset: [5, -10],
+            },
+          },
+        ],
+      }}
+      {...props}
+      classes={{ popper: className }}
+    />
+  ),
+)({
+  [`& .${tooltipClasses.tooltip}`]: {
+    maxWidth: 'none',
+  },
+});
 
 export const TreeItemLabel = React.forwardRef(
   (props: TreeItemLabelProps, ref) => {
