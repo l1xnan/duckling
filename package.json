@@ -56,8 +56,16 @@
     "@tauri-apps/cli": "2.0.0-alpha.16",
     "@types/react": "^18.2.33",
     "@types/react-dom": "^18.2.14",
+    "@typescript-eslint/eslint-plugin": "^6.9.1",
+    "@typescript-eslint/parser": "^6.9.1",
     "@vitejs/plugin-react": "^4.1.0",
     "@vitejs/plugin-react-swc": "^3.4.0",
+    "eslint": "^8.53.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "prettier": "^3.0.3",
     "typescript": "^5.2.2",
     "vite": "^4.5.0"
   }
