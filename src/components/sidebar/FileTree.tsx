@@ -81,8 +81,6 @@ export default function FileTree({
   const setContextMenu = useDBStore((state) => state.setContextMenu);
 
   const handleContextMenu = (event: React.MouseEvent, context: DTableType) => {
-    event.preventDefault();
-    event.stopPropagation();
     setContextMenu(
       contextMenu === null
         ? {
@@ -99,6 +97,11 @@ export default function FileTree({
       key={node.path}
       nodeId={node.path}
       onContextMenu={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (node.path != data.path) {
+          return;
+        }
         const context = {
           rootKey,
           root: data.path,
@@ -107,7 +110,6 @@ export default function FileTree({
           id: `${rootKey}:${node.path}`,
           type: 'editor',
         };
-
         handleContextMenu(event, context);
       }}
       label={<TreeItemLabel nodeId={node.path} node={node} />}
