@@ -15,6 +15,7 @@ import { getTypeIcon } from './FileTree';
 
 const CustomContentRoot = styled('div')(({ theme }) => ({
   WebkitTapHighlightColor: 'transparent',
+  whiteSpace: 'nowrap',
   '&&:hover, &&.Mui-disabled, &&.Mui-focused, &&.Mui-selected, &&.Mui-selected.Mui-focused, &&.Mui-selected:hover':
     {
       backgroundColor: 'transparent',
