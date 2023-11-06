@@ -37,7 +37,7 @@
     "@tauri-apps/plugin-log": "2.0.0-alpha.3",
     "@tauri-apps/plugin-process": "2.0.0-alpha.3",
     "@tauri-apps/plugin-updater": "2.0.0-alpha.3",
-    "@uiw/codemirror-theme-vscode": "^4.21.20",
+    "@uiw/codemirror-themes-all": "^4.21.20",
     "@uiw/react-codemirror": "^4.21.20",
     "ag-grid-community": "^30.2.0",
     "ag-grid-react": "^30.2.0",

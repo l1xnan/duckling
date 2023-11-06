@@ -83,7 +83,7 @@ dependencies:
   '@tauri-apps/plugin-updater':
     specifier: 2.0.0-alpha.3
     version: 2.0.0-alpha.3
-  '@uiw/codemirror-theme-vscode':
+  '@uiw/codemirror-themes-all':
     specifier: ^4.21.20
     version: 4.21.20(@codemirror/language@6.9.2)(@codemirror/state@6.3.1)(@codemirror/view@6.21.4)
   '@uiw/react-codemirror':

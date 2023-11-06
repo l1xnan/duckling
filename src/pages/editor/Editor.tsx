@@ -8,6 +8,9 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import classes from "@/hooks/resize.module.css";
 import { usePageStore } from "@/stores/store";
 import { useTabsStore } from "@/stores/tabs";
+import { basicLight, vscodeDark } from "@uiw/codemirror-themes-all";
+import { isDarkTheme } from "@/utils";
+
 import DatasetItem from "./DatasetItem";
 import { useResize } from "@/hooks";
 
@@ -24,6 +27,7 @@ export default function Editor() {
 
   const [targetRefTop, sizeTop, actionTop] = useResize(300, "bottom");
 
+  const theme = useTheme();
   return (
     <Box
       sx={{
@@ -54,8 +58,8 @@ export default function Editor() {
         <CodeMirror
           value={stmt}
           height={`calc(100vh - ${sizeTop + 64}px)`}
-          extensions={[sql({})]}
-          theme={vscodeDark}
+          extensions={[sql(), sqlSnippets]}
+          theme={isDarkTheme(theme) ? vscodeDark : basicLight}
           onChange={onChange}
         />
       </Box>
