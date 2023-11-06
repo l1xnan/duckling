@@ -1,10 +1,11 @@
-import { Theme } from "@mui/material";
-import { OrderByType, StmtType } from "./stores/store";
+import { Theme } from '@mui/material';
 
-export const isDarkTheme = (theme: Theme) => theme.palette.mode === "dark";
+import { OrderByType, StmtType } from './stores/store';
+
+export const isDarkTheme = (theme: Theme) => theme.palette.mode === 'dark';
 
 export const borderTheme = (theme: Theme) =>
-  isDarkTheme(theme) ? "1px solid #393b40" : "1px solid #ebecf0";
+  isDarkTheme(theme) ? '1px solid #393b40' : '1px solid #ebecf0';
 
 export function getByteLength(str: string) {
   let length = 0;
@@ -17,7 +18,7 @@ export function convertOrderBy({ name, desc }: OrderByType) {
   if (!name) {
     return undefined;
   }
-  return `${name} ${desc ? "DESC" : ""}`;
+  return `${name} ${desc ? 'DESC' : ''}`;
 }
 export function genStmt({ tableName, orderBy, where }: StmtType) {
   let stmt = `select * from ${tableName}`;
@@ -32,7 +33,7 @@ export function genStmt({ tableName, orderBy, where }: StmtType) {
 
 export const debounce = <F extends (...args: any[]) => any>(
   func: F,
-  delay: number = 300
+  delay: number = 300,
 ) => {
   let timeout: number = 0;
 

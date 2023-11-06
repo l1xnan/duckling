@@ -1,7 +1,9 @@
-import { create } from "zustand";
-import { persist, createJSONStorage, devtools } from "zustand/middleware";
-import { debounce } from "@/utils";
-import { DTableType } from "./store";
+import { create } from 'zustand';
+import { createJSONStorage, devtools, persist } from 'zustand/middleware';
+
+import { debounce } from '@/utils';
+
+import { DTableType } from './store';
 
 export interface FileNode {
   name: string;
@@ -88,7 +90,7 @@ export const useDBStore = create<DBState & DBAction>()(
           })),
       }),
       {
-        name: "dbStore",
+        name: 'dbStore',
         storage: createJSONStorage(() => localStorage),
       },
     ),

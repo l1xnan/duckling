@@ -1,5 +1,5 @@
-import { Button } from "@mui/material";
-import * as dialog from "@tauri-apps/plugin-dialog";
+import { Button } from '@mui/material';
+import * as dialog from '@tauri-apps/plugin-dialog';
 
 export default function DialogButton() {
   return (

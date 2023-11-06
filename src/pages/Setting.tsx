@@ -1,15 +1,17 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import { MuiIconButton } from "../components/MuiIconButton";
-import SettingsIcon from "@mui/icons-material/Settings";
-import { InputBase, ListItem, ListItemText } from "@mui/material";
-import { ReactNode } from "react";
-import { useSettingStore } from "@/stores/setting";
+import SettingsIcon from '@mui/icons-material/Settings';
+import { InputBase, ListItem, ListItemText } from '@mui/material';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import * as React from 'react';
+import { ReactNode } from 'react';
+
+import { useSettingStore } from '@/stores/setting';
+
+import { MuiIconButton } from '../components/MuiIconButton';
 
 interface ItemProps {
   label: ReactNode;
@@ -24,14 +26,14 @@ export const SettingItem: React.FC<ItemProps> = (props) => {
   const primary = !extra ? (
     label
   ) : (
-    <Box sx={{ display: "flex", alignItems: "center" }}>
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <span>{label}</span>
       {extra}
     </Box>
   );
 
   return (
-    <ListItem sx={{ pt: "5px", pb: "5px" }}>
+    <ListItem sx={{ pt: '5px', pb: '5px' }}>
       <ListItemText primary={primary} secondary={secondary} />
       {children}
     </ListItem>
@@ -57,7 +59,7 @@ export default function MaxWidthDialog() {
       <MuiIconButton
         onClick={() => {
           handleClickOpen();
-          console.log("settings");
+          console.log('settings');
         }}
       >
         <SettingsIcon fontSize="inherit" />
@@ -69,10 +71,10 @@ export default function MaxWidthDialog() {
             noValidate
             component="form"
             sx={{
-              display: "flex",
-              width: "100%",
-              flexDirection: "column",
-              m: "auto",
+              display: 'flex',
+              width: '100%',
+              flexDirection: 'column',
+              m: 'auto',
             }}
           >
             <SettingItem label="Float precision">

@@ -1,6 +1,7 @@
-import { create } from "zustand";
-import { persist, createJSONStorage, devtools } from "zustand/middleware";
-import { debounce } from "@/utils";
+import { create } from 'zustand';
+import { createJSONStorage, devtools, persist } from 'zustand/middleware';
+
+import { debounce } from '@/utils';
 
 type SettingState = {
   precision?: number;
@@ -18,9 +19,9 @@ export const useSettingStore = create<SettingState & SettingAction>()(
         setStore: debounce((state: object) => set((_) => ({ ...state }))),
       }),
       {
-        name: "settingStore",
+        name: 'settingStore',
         storage: createJSONStorage(() => localStorage),
-      }
-    )
-  )
+      },
+    ),
+  ),
 );

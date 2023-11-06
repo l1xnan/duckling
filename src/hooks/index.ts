@@ -1,15 +1,15 @@
-import { MouseEventHandler, MutableRefObject, useRef, useState } from "react";
+import { MouseEventHandler, MutableRefObject, useRef, useState } from 'react';
 
-type ResizeType = "top" | "bottom" | "right" | "left";
+type ResizeType = 'top' | 'bottom' | 'right' | 'left';
 
 export const useResize = (
   initialSize: number,
   type: ResizeType,
-  cb?: (size: number) => void
+  cb?: (size: number) => void,
 ): [
   MutableRefObject<HTMLElement | null>,
   number,
-  MouseEventHandler<HTMLElement>
+  MouseEventHandler<HTMLElement>,
 ] => {
   const targetRef: MutableRefObject<HTMLElement | null> = useRef(null);
   const [size, setSize] = useState(initialSize);
@@ -23,58 +23,58 @@ export const useResize = (
 
   const onMouseDownHandler: MouseEventHandler<HTMLElement> = (e) => {
     e.preventDefault();
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
-    document.addEventListener("mouseleave", onMouseUp);
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('mouseleave', onMouseUp);
     switch (type) {
-      case "top":
-      case "bottom": {
-        document.body.style.cursor = "ns-resize";
+      case 'top':
+      case 'bottom': {
+        document.body.style.cursor = 'ns-resize';
         break;
       }
-      case "right":
-      case "left": {
-        document.body.style.cursor = "e-resize";
+      case 'right':
+      case 'left': {
+        document.body.style.cursor = 'e-resize';
         break;
       }
       default:
-        throw new Error("Wrong type");
+        throw new Error('Wrong type');
     }
   };
 
   const onMouseMove = (e: MouseEvent) => {
     if (targetRef.current) {
-      targetRef.current.style.opacity = "60%";
+      targetRef.current.style.opacity = '60%';
       switch (type) {
-        case "top": {
+        case 'top': {
           callback(e.clientY);
           break;
         }
-        case "bottom": {
+        case 'bottom': {
           callback(window.innerHeight - e.clientY);
           break;
         }
-        case "right": {
+        case 'right': {
           callback(window.innerWidth - e.clientX);
           break;
         }
-        case "left": {
+        case 'left': {
           callback(e.clientX);
           break;
         }
         default:
-          throw new Error("Wrong type");
+          throw new Error('Wrong type');
       }
     }
   };
 
   const onMouseUp = () => {
-    document.removeEventListener("mousemove", onMouseMove);
-    document.removeEventListener("mouseup", onMouseUp);
-    document.removeEventListener("mouseleave", onMouseUp);
-    document.body.style.cursor = "default";
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    document.removeEventListener('mouseleave', onMouseUp);
+    document.body.style.cursor = 'default';
     if (targetRef.current) {
-      targetRef.current.style.opacity = "100%";
+      targetRef.current.style.opacity = '100%';
     }
   };
 

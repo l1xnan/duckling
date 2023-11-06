@@ -1,13 +1,15 @@
-import { usePageStore } from "@/stores/store";
-import { Box } from "@mui/material";
+import { Box } from '@mui/material';
 import {
   IconCaretDownFilled,
   IconCaretUpDownFilled,
   IconCaretUpFilled,
-} from "@tabler/icons-react";
-import { useState } from "react";
-import { ContextMenu, ContextMenuItem } from "./ContextMenu";
-import { ColumnState, ColumnApi } from "ag-grid-community";
+} from '@tabler/icons-react';
+import { ColumnApi, ColumnState } from 'ag-grid-community';
+import { useState } from 'react';
+
+import { usePageStore } from '@/stores/store';
+
+import { ContextMenu, ContextMenuItem } from './ContextMenu';
 
 // https://ag-grid.com/react-data-grid/component-header/
 interface HeadCellProps {
@@ -23,9 +25,9 @@ export default (props: HeadCellProps) => {
   const { orderBy, setOrderBy } = usePageStore();
 
   const key = props.column.colId;
-  let isDesc = orderBy?.name == key ? orderBy?.desc : undefined;
+  const isDesc = orderBy?.name == key ? orderBy?.desc : undefined;
 
-  if (props.column.colId == "__index__") {
+  if (props.column.colId == '__index__') {
     return;
   }
 
@@ -43,7 +45,7 @@ export default (props: HeadCellProps) => {
             mouseX: event.clientX + 2,
             mouseY: event.clientY - 6,
           }
-        : null
+        : null,
     );
   };
 
@@ -53,7 +55,7 @@ export default (props: HeadCellProps) => {
 
   const pinColumn = ({ colId, pinned }: ColumnState) => {
     const state = props.columnApi.getColumnState();
-    console.log("state:", state);
+    console.log('state:', state);
 
     props.columnApi.applyColumnState({
       state: state.map((col) =>
@@ -62,7 +64,7 @@ export default (props: HeadCellProps) => {
           : {
               colId: col.colId,
               pinned: col.pinned,
-            }
+            },
       ),
       defaultState: { pinned: null },
     });
@@ -70,18 +72,18 @@ export default (props: HeadCellProps) => {
   };
 
   return (
-    <Box onContextMenu={handleContextMenu} style={{ cursor: "context-menu" }}>
+    <Box onContextMenu={handleContextMenu} style={{ cursor: 'context-menu' }}>
       <Box
         sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          width: "100%",
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          width: '100%',
           height: 20,
           lineHeight: 1,
-          pl: "6px",
-          pr: "6px",
-          fontSize: "14px",
+          pl: '6px',
+          pr: '6px',
+          fontSize: '14px',
         }}
         onClick={() => {
           setOrderBy!(key);
@@ -104,7 +106,7 @@ export default (props: HeadCellProps) => {
           onClick={() => {
             pinColumn({
               colId: key,
-              pinned: "left",
+              pinned: 'left',
             });
           }}
         >
@@ -114,7 +116,7 @@ export default (props: HeadCellProps) => {
           onClick={() => {
             pinColumn({
               colId: key,
-              pinned: "right",
+              pinned: 'right',
             });
           }}
         >
@@ -141,10 +143,10 @@ const AscOrDescIcon = ({ isDesc }: { isDesc?: boolean }) => {
     <Box
       sx={{
         fontSize: 1,
-        "& *": {
-          maxHeight: "12px",
-          height: "12px",
-          maxWidth: "12px",
+        '& *': {
+          maxHeight: '12px',
+          height: '12px',
+          maxWidth: '12px',
           fontWeight: 400,
         },
       }}

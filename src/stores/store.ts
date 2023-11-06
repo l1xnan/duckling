@@ -1,7 +1,8 @@
-import { createStore, useStore } from "zustand";
-import { genStmt } from "@/utils";
-import { createContext, useContext } from "react";
-import { query } from "@/api";
+import { createContext, useContext } from 'react';
+import { createStore, useStore } from 'zustand';
+
+import { query } from '@/api';
+import { genStmt } from '@/utils';
 export type SchemaType = {
   name: string;
   dataType: string;
@@ -74,7 +75,7 @@ export const PageContext = createContext<ReturnType<
 export const usePageStore = () => {
   const store = useContext(PageContext);
   if (store === null) {
-    throw new Error("no provider");
+    throw new Error('no provider');
   }
   return useStore(store);
 };
@@ -132,19 +133,19 @@ export const createPageStore = (table: DTableType) =>
     decrease: () => set((state) => ({ page: state.page - 1 })),
     refresh: async (stmt?: string) => {
       const { page, perPage, table, sqlWhere } = get();
-      console.log("inner:", get());
+      console.log('inner:', get());
       if (!table || !table.tableName) {
         return;
       }
 
-      let path = ":memory:";
+      let path = ':memory:';
       let tableName = table.tableName;
 
-      if (table?.root?.endsWith(".duckdb")) {
+      if (table?.root?.endsWith('.duckdb')) {
         path = table.root;
-      } else if (tableName.endsWith(".csv")) {
+      } else if (tableName.endsWith('.csv')) {
         tableName = `read_csv('${table.tableName}')`;
-      } else if (tableName.endsWith(".parquet")) {
+      } else if (tableName.endsWith('.parquet')) {
         tableName = `read_parquet('${table.tableName}')`;
       }
 
@@ -156,7 +157,7 @@ export const createPageStore = (table: DTableType) =>
           where: sqlWhere,
         });
 
-      console.log("query:", path, sql);
+      console.log('query:', path, sql);
       const data = await query({
         path,
         sql,
@@ -166,6 +167,6 @@ export const createPageStore = (table: DTableType) =>
       });
       set({ ...data });
 
-      console.log("refresh:", data);
+      console.log('refresh:', data);
     },
   }));

@@ -1,21 +1,22 @@
-import React from "react";
-import "./index.css";
+import React from 'react';
+import './index.css';
 
 import {
-  getCoreRowModel,
   ColumnDef,
   flexRender,
+  getCoreRowModel,
   useReactTable,
-} from "@tanstack/react-table";
-import { makeData, Person } from "./makeData";
+} from '@tanstack/react-table';
+
+import { Person, makeData } from './makeData';
 
 const columns: ColumnDef<Person>[] = [
   {
-    header: "Name",
+    header: 'Name',
     footer: (props) => props.column.id,
   },
   {
-    header: "Info",
+    header: 'Info',
     footer: (props) => props.column.id,
   },
 ];
@@ -27,7 +28,7 @@ function App() {
     data,
     columns,
     enableColumnResizing: true,
-    columnResizeMode: "onChange",
+    columnResizeMode: 'onChange',
     getCoreRowModel: getCoreRowModel(),
     debugTable: true,
     debugHeaders: true,
@@ -46,20 +47,20 @@ function App() {
                   <th
                     key={header.id}
                     colSpan={header.colSpan}
-                    style={{ position: "relative", width: header.getSize() }}
+                    style={{ position: 'relative', width: header.getSize() }}
                   >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                     {header.column.getCanResize() && (
                       <div
                         onMouseDown={header.getResizeHandler()}
                         onTouchStart={header.getResizeHandler()}
                         className={`resizer ${
-                          header.column.getIsResizing() ? "isResizing" : ""
+                          header.column.getIsResizing() ? 'isResizing' : ''
                         }`}
                       ></div>
                     )}
@@ -78,7 +79,7 @@ function App() {
                     <td key={cell.id} style={{ width: cell.column.getSize() }}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </td>
                   );

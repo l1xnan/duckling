@@ -1,18 +1,19 @@
-import {
-  MRT_ColumnDef,
-  MaterialReactTable,
-  useMaterialReactTable,
-} from "material-react-table";
-import { useMemo } from "react";
-import * as dayjs from "dayjs";
-import { Box } from "@mui/material";
+import { Box } from '@mui/material';
 import {
   IconCaretDownFilled,
   IconCaretUpDownFilled,
   IconCaretUpFilled,
-} from "@tabler/icons-react";
-import { getByteLength, isDarkTheme } from "@/utils";
-import { SchemaType, usePageStore } from "@/stores/store";
+} from '@tabler/icons-react';
+import * as dayjs from 'dayjs';
+import {
+  MRT_ColumnDef,
+  MaterialReactTable,
+  useMaterialReactTable,
+} from 'material-react-table';
+import { useMemo } from 'react';
+
+import { SchemaType, usePageStore } from '@/stores/store';
+import { getByteLength, isDarkTheme } from '@/utils';
 
 interface DatasetProps {
   data: any[];
@@ -24,18 +25,18 @@ function display(dataType: string, name: string) {
     try {
       const value = row?.[name];
       if (value === null) {
-        return "<null>";
+        return '<null>';
       }
-      if (dataType === "Bool") {
+      if (dataType === 'Bool') {
         return value.toString();
-      } else if (dataType.includes("Int")) {
+      } else if (dataType.includes('Int')) {
         return value.toString();
-      } else if (dataType.includes("Float")) {
+      } else if (dataType.includes('Float')) {
         return value.toFixed(4);
-      } else if (dataType.includes("Decimal")) {
+      } else if (dataType.includes('Decimal')) {
         return value.toString();
-      } else if (dataType.includes("Date32")) {
-        return dayjs(value)?.format("YYYY-MM-DD");
+      } else if (dataType.includes('Date32')) {
+        return dayjs(value)?.format('YYYY-MM-DD');
       } else {
         return value.toString();
       }
@@ -48,7 +49,7 @@ function display(dataType: string, name: string) {
 
 export default function Dataset({ data, schema }: DatasetProps) {
   const { setOrderBy, orderBy } = usePageStore();
-  let orderMap = new Map();
+  const orderMap = new Map();
   if (orderBy) {
     orderMap.set(orderBy.name, orderBy.desc);
   }
@@ -66,14 +67,14 @@ export default function Dataset({ data, schema }: DatasetProps) {
             return (
               <Box
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  width: "100%",
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  width: '100%',
                   height: 20,
                   lineHeight: 1,
-                  pl: "6px",
-                  pr: "6px",
+                  pl: '6px',
+                  pr: '6px',
                 }}
                 onClick={() => {
                   setOrderBy(name);
@@ -83,10 +84,10 @@ export default function Dataset({ data, schema }: DatasetProps) {
                 <Box
                   sx={{
                     fontSize: 1,
-                    "& *": {
-                      maxHeight: "12px",
-                      height: "12px",
-                      maxWidth: "12px",
+                    '& *': {
+                      maxHeight: '12px',
+                      height: '12px',
+                      maxWidth: '12px',
                       fontWeight: 400,
                     },
                   }}
@@ -104,34 +105,34 @@ export default function Dataset({ data, schema }: DatasetProps) {
           },
           muiTableBodyCellProps: {
             align:
-              dataType.includes("Int") || dataType.includes("Float")
-                ? "right"
-                : "left",
+              dataType.includes('Int') || dataType.includes('Float')
+                ? 'right'
+                : 'left',
           },
           muiTableHeadCellProps: {
             align:
-              dataType.includes("Int") || dataType.includes("Float")
-                ? "right"
-                : "left",
+              dataType.includes('Int') || dataType.includes('Float')
+                ? 'right'
+                : 'left',
           },
         } as MRT_ColumnDef<any>;
       }) ?? [];
     const first: MRT_ColumnDef<any> = {
-      accessorKey: "__index__",
-      header: " ",
+      accessorKey: '__index__',
+      header: ' ',
       maxSize: 50,
       muiTableBodyCellProps: {
-        align: "right",
+        align: 'right',
         sx: (theme) => ({
-          color: "#aeb3c2",
+          color: '#aeb3c2',
           boxShadow: 0,
-          backgroundColor: isDarkTheme(theme) ? "#2b2d30" : "#ffffff",
-          boxRightSizing: "1px",
-          borderRightStyle: "solid",
-          borderRightColor: isDarkTheme(theme) ? "#1e1f22" : "#ebecf0",
+          backgroundColor: isDarkTheme(theme) ? '#2b2d30' : '#ffffff',
+          boxRightSizing: '1px',
+          borderRightStyle: 'solid',
+          borderRightColor: isDarkTheme(theme) ? '#1e1f22' : '#ebecf0',
           borderBottom: isDarkTheme(theme)
-            ? "1px solid #313438"
-            : "1px solid #ebecf0",
+            ? '1px solid #313438'
+            : '1px solid #ebecf0',
 
           p: `6px`,
           fontSize: 10,
@@ -140,12 +141,12 @@ export default function Dataset({ data, schema }: DatasetProps) {
       },
       muiTableHeadCellProps: {
         sx: (theme) => ({
-          color: "#aeb3c2",
+          color: '#aeb3c2',
           boxShadow: 0,
-          backgroundColor: isDarkTheme(theme) ? "#2e2f32" : "#efefef",
+          backgroundColor: isDarkTheme(theme) ? '#2e2f32' : '#efefef',
           borderRight: isDarkTheme(theme)
-            ? "1px solid #1e1f22"
-            : "1px solid #e2e2e2",
+            ? '1px solid #1e1f22'
+            : '1px solid #e2e2e2',
           fontSize: 10,
           lineHeight: 1,
         }),
@@ -158,9 +159,9 @@ export default function Dataset({ data, schema }: DatasetProps) {
     columns,
     data,
     initialState: {
-      density: "compact",
+      density: 'compact',
       columnPinning: {
-        left: ["__index__"],
+        left: ['__index__'],
       },
     },
     // virtual
@@ -176,7 +177,7 @@ export default function Dataset({ data, schema }: DatasetProps) {
     enableTopToolbar: false,
     enableRowSelection: false,
     enableRowPinning: false,
-    rowPinningDisplayMode: "select-sticky",
+    rowPinningDisplayMode: 'select-sticky',
     enablePagination: false,
     defaultDisplayColumn: {
       enableResizing: true,
@@ -193,32 +194,32 @@ export default function Dataset({ data, schema }: DatasetProps) {
       elevation: 0, //change the mui box shadow
       //customize paper styles
       sx: {
-        borderRadius: "0",
-        border: "none",
+        borderRadius: '0',
+        border: 'none',
       },
     },
     muiTableContainerProps: {
       sx: (theme) => ({
-        maxHeight: "calc(100vh - 60px)",
-        fontFamily: "Consolas",
+        maxHeight: 'calc(100vh - 60px)',
+        fontFamily: 'Consolas',
         borderTop: isDarkTheme(theme)
-          ? "1px solid #393b40"
-          : "1px solid #e2e2e2",
+          ? '1px solid #393b40'
+          : '1px solid #e2e2e2',
       }),
     },
     muiTopToolbarProps: {},
     muiTableProps: {
       sx: {
         borderSpacing: 0,
-        boxSizing: "border-box",
-        tableLayout: "fixed",
+        boxSizing: 'border-box',
+        tableLayout: 'fixed',
       },
     },
     muiTableHeadProps: {},
     muiTableHeadRowProps: {
       sx: (theme) => ({
-        boxShadow: "1px 0 2px rgba(0, 0, 0, 0.1)",
-        backgroundColor: isDarkTheme(theme) ? "#2b2d30" : "#f7f8fa",
+        boxShadow: '1px 0 2px rgba(0, 0, 0, 0.1)',
+        backgroundColor: isDarkTheme(theme) ? '#2b2d30' : '#f7f8fa',
       }),
     },
 
@@ -227,36 +228,36 @@ export default function Dataset({ data, schema }: DatasetProps) {
       sx: (theme) => ({
         // justifyContent: "space-between",
         // width: "100%",
-        alignItems: "center",
+        alignItems: 'center',
         lineHeight: 1,
-        fontFamily: "Consolas",
+        fontFamily: 'Consolas',
         borderRight: isDarkTheme(theme)
-          ? "1px solid #1e1f22"
-          : "1px solid #e2e2e2",
+          ? '1px solid #1e1f22'
+          : '1px solid #e2e2e2',
 
         p: 0,
-        "& .Mui-TableHeadCell-Content-Wrapper": {
-          width: "100%",
+        '& .Mui-TableHeadCell-Content-Wrapper': {
+          width: '100%',
         },
-        "& .Mui-TableHeadCell-Content-Labels": {
-          width: "100%",
+        '& .Mui-TableHeadCell-Content-Labels': {
+          width: '100%',
         },
       }),
     }),
     muiTableBodyProps: {
       sx: {
-        "&:nth-of-type(odd)": {
-          backgroundColor: "white",
+        '&:nth-of-type(odd)': {
+          backgroundColor: 'white',
         },
-        "&:nth-of-type(even)": {
-          backgroundColor: "grey ",
+        '&:nth-of-type(even)': {
+          backgroundColor: 'grey ',
         },
       },
     },
     muiTableBodyRowProps: {
       sx: {
-        "&:*": {
-          backgroundColor: "grey",
+        '&:*': {
+          backgroundColor: 'grey',
         },
       },
     },
@@ -265,14 +266,14 @@ export default function Dataset({ data, schema }: DatasetProps) {
         p: `6px`,
         fontSize: 10,
         lineHeight: 1,
-        backgroundColor: isDarkTheme(theme) ? "#1e1f22" : "#ffffff",
-        borderCollapse: "collapse",
+        backgroundColor: isDarkTheme(theme) ? '#1e1f22' : '#ffffff',
+        borderCollapse: 'collapse',
         borderBottom: isDarkTheme(theme)
-          ? "1px solid #313438"
-          : "1px solid #ebecf0",
+          ? '1px solid #313438'
+          : '1px solid #ebecf0',
         borderRight: isDarkTheme(theme)
-          ? "1px solid #313438"
-          : "1px solid #ebecf0",
+          ? '1px solid #313438'
+          : '1px solid #ebecf0',
       }),
     },
   });

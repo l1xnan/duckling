@@ -1,32 +1,33 @@
-import DBConfig, { useDBConfigStore } from "@/components/DBConfig";
-import { MuiIconButton } from "@/components/MuiIconButton";
-import ToggleColorMode from "@/components/ToggleColorMode";
-import { useDBStore } from "@/stores/db";
-import { DTableType } from "@/stores/store";
-import { getFolderTree, showTables } from "@/api";
-import Setting from "@/pages/Setting";
-import { borderTheme } from "@/utils";
-import RemoveIcon from "@mui/icons-material/Remove";
-import { Box, BoxProps, Stack, Typography } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import RemoveIcon from '@mui/icons-material/Remove';
+import { Box, BoxProps, Stack, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import {
   IconDatabaseCog,
   IconDatabasePlus,
   IconFolderPlus,
   IconRefresh,
-} from "@tabler/icons-react";
-import { listen } from "@tauri-apps/api/event";
-import { invoke } from "@tauri-apps/api/primitives";
-import * as dialog from "@tauri-apps/plugin-dialog";
-import { useEffect } from "react";
+} from '@tabler/icons-react';
+import { listen } from '@tauri-apps/api/event';
+import { invoke } from '@tauri-apps/api/primitives';
+import * as dialog from '@tauri-apps/plugin-dialog';
+import { useEffect } from 'react';
+
+import { getFolderTree, showTables } from '@/api';
+import DBConfig, { useDBConfigStore } from '@/components/DBConfig';
+import { MuiIconButton } from '@/components/MuiIconButton';
+import ToggleColorMode from '@/components/ToggleColorMode';
+import Setting from '@/pages/Setting';
+import { useDBStore } from '@/stores/db';
+import { DTableType } from '@/stores/store';
+import { borderTheme } from '@/utils';
 
 const ToolbarBox = styled(Box)<BoxProps>(({ theme }) => ({
   height: 32,
-  width: "100%",
-  paddingLeft: "1rem",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
+  width: '100%',
+  paddingLeft: '1rem',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
   borderBottom: borderTheme(theme),
 }));
 
@@ -42,20 +43,20 @@ export function SideToolbar({
 
   async function openDirectory(name: string) {
     const fileTree = await getFolderTree(name);
-    if (!!fileTree) {
+    if (fileTree) {
       appendDB({
         data: fileTree,
       });
     }
   }
   async function openUrl() {
-    const path: string = await invoke("opened_urls");
+    const path: string = await invoke('opened_urls');
     console.log(path);
   }
 
   useEffect(() => {
     openUrl();
-    const unlisten = listen("open-directory", (e) => {
+    const unlisten = listen('open-directory', (e) => {
       console.log(e.payload);
 
       openDirectory(e.payload as string);
@@ -81,8 +82,8 @@ export function SideToolbar({
       directory: false,
       filters: [
         {
-          name: "Data File",
-          extensions: ["duckdb", "parquet", "csv"],
+          name: 'Data File',
+          extensions: ['duckdb', 'parquet', 'csv'],
         },
       ],
     });
@@ -102,7 +103,7 @@ export function SideToolbar({
 
   async function handleRefresh() {
     console.log(selectedTable);
-    if (selectedTable && selectedTable.tableName.endsWith(".duckdb")) {
+    if (selectedTable && selectedTable.tableName.endsWith('.duckdb')) {
       const res = await showTables(selectedTable.root);
       console.log(res);
       updateDB({
@@ -110,7 +111,7 @@ export function SideToolbar({
         children: res.data.map(({ table_name, table_type }) => ({
           name: table_name,
           path: table_name,
-          type: table_type == "VIEW" ? "view" : "table",
+          type: table_type == 'VIEW' ? 'view' : 'table',
           is_dir: false,
         })),
       });

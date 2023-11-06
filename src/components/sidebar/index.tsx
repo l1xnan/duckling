@@ -1,24 +1,24 @@
-import FileTreeView from "@/components/sidebar/FileTree";
-import { SideToolbar } from "@/components/sidebar/SideToolbar";
-import { FileNode, useDBStore } from "@/stores/db";
-import { DTableType } from "@/stores/store";
+import CodeIcon from '@mui/icons-material/Code';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SettingsIcon from '@mui/icons-material/Settings';
+import { Box, BoxProps, Divider, ListItemText } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { listen } from '@tauri-apps/api/event';
+import { invoke } from '@tauri-apps/api/primitives';
+import { useEffect, useState } from 'react';
 
-import { Box, BoxProps, Divider, ListItemText } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { listen } from "@tauri-apps/api/event";
-import { invoke } from "@tauri-apps/api/primitives";
-import { useEffect, useState } from "react";
-import { ContextMenu, ContextMenuItem } from "@/components/ContextMenu";
-import DeleteIcon from "@mui/icons-material/Delete";
-import SettingsIcon from "@mui/icons-material/Settings";
-import CodeIcon from "@mui/icons-material/Code";
-import { useTabsStore } from "@/stores/tabs";
+import { ContextMenu, ContextMenuItem } from '@/components/ContextMenu';
+import FileTreeView from '@/components/sidebar/FileTree';
+import { SideToolbar } from '@/components/sidebar/SideToolbar';
+import { FileNode, useDBStore } from '@/stores/db';
+import { DTableType } from '@/stores/store';
+import { useTabsStore } from '@/stores/tabs';
 
 const TreeViewWrapper = styled(Box)<BoxProps>(({}) => ({
-  width: "100%",
-  maxHeight: "calc(100vh - 64px)",
-  height: "calc(100vh - 64px)",
-  overflow: "auto",
+  width: '100%',
+  maxHeight: 'calc(100vh - 64px)',
+  height: 'calc(100vh - 64px)',
+  overflow: 'auto',
   pr: 1,
   pb: 2,
 }));
@@ -32,21 +32,21 @@ function SidebarTree() {
   const updateTab = useTabsStore((state) => state.update);
 
   async function openDirectory(name?: string) {
-    const fileTree: FileNode = await invoke("get_folder_tree", { name });
-    if (!!fileTree) {
+    const fileTree: FileNode = await invoke('get_folder_tree', { name });
+    if (fileTree) {
       appendDB({
         data: fileTree,
       });
     }
   }
   async function openUrl() {
-    const path: string = await invoke("opened_urls");
+    const path: string = await invoke('opened_urls');
     console.log(path);
   }
 
   useEffect(() => {
     openUrl();
-    const unlisten = listen("open-directory", (e) => {
+    const unlisten = listen('open-directory', (e) => {
       console.log(e.payload);
 
       openDirectory(e.payload as string);

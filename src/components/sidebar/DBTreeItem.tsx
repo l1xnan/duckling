@@ -1,62 +1,64 @@
-import * as React from "react";
-import clsx from "clsx";
-import Typography from "@mui/material/Typography";
+import { Box, alpha, styled } from '@mui/material';
+import Typography from '@mui/material/Typography';
 import {
   TreeItem,
+  TreeItemContentProps,
   TreeItemProps,
   useTreeItem,
-  TreeItemContentProps,
-} from "@mui/x-tree-view/TreeItem";
-import { Box, alpha, styled } from "@mui/material";
-import { getTypeIcon } from "./FileTree";
-import { FileNode } from "@/stores/db";
+} from '@mui/x-tree-view/TreeItem';
+import clsx from 'clsx';
+import * as React from 'react';
 
-const CustomContentRoot = styled("div")(({ theme }) => ({
-  WebkitTapHighlightColor: "transparent",
-  "&&:hover, &&.Mui-disabled, &&.Mui-focused, &&.Mui-selected, &&.Mui-selected.Mui-focused, &&.Mui-selected:hover":
+import { FileNode } from '@/stores/db';
+
+import { getTypeIcon } from './FileTree';
+
+const CustomContentRoot = styled('div')(({ theme }) => ({
+  WebkitTapHighlightColor: 'transparent',
+  '&&:hover, &&.Mui-disabled, &&.Mui-focused, &&.Mui-selected, &&.Mui-selected.Mui-focused, &&.Mui-selected:hover':
     {
-      backgroundColor: "transparent",
+      backgroundColor: 'transparent',
     },
-  ".MuiTreeItem-contentBar": {
-    position: "absolute",
-    width: "100%",
+  '.MuiTreeItem-contentBar': {
+    position: 'absolute',
+    width: '100%',
     height: 24,
     left: 0,
   },
-  "&:hover .MuiTreeItem-contentBar": {
+  '&:hover .MuiTreeItem-contentBar': {
     backgroundColor: theme.palette.action.hover,
     // Reset on touch devices, it doesn't add specificity
-    "@media (hover: none)": {
-      backgroundColor: "transparent",
+    '@media (hover: none)': {
+      backgroundColor: 'transparent',
     },
   },
-  "&.Mui-disabled .MuiTreeItem-contentBar": {
+  '&.Mui-disabled .MuiTreeItem-contentBar': {
     opacity: theme.palette.action.disabledOpacity,
-    backgroundColor: "transparent",
+    backgroundColor: 'transparent',
   },
-  "&.Mui-focused .MuiTreeItem-contentBar": {
+  '&.Mui-focused .MuiTreeItem-contentBar': {
     backgroundColor: theme.palette.action.focus,
   },
-  "&.Mui-selected .MuiTreeItem-contentBar": {
+  '&.Mui-selected .MuiTreeItem-contentBar': {
     backgroundColor: alpha(
       theme.palette.primary.main,
       theme.palette.action.selectedOpacity,
     ),
   },
-  "&.Mui-selected:hover .MuiTreeItem-contentBar": {
+  '&.Mui-selected:hover .MuiTreeItem-contentBar': {
     backgroundColor: alpha(
       theme.palette.primary.main,
       theme.palette.action.selectedOpacity + theme.palette.action.hoverOpacity,
     ),
     // Reset on touch devices, it doesn't add specificity
-    "@media (hover: none)": {
+    '@media (hover: none)': {
       backgroundColor: alpha(
         theme.palette.primary.main,
         theme.palette.action.selectedOpacity,
       ),
     },
   },
-  "&.Mui-selected.Mui-focused .MuiTreeItem-contentBar": {
+  '&.Mui-selected.Mui-focused .MuiTreeItem-contentBar': {
     backgroundColor: alpha(
       theme.palette.primary.main,
       theme.palette.action.selectedOpacity + theme.palette.action.focusOpacity,
@@ -161,13 +163,13 @@ export const TreeItemLabel = React.forwardRef(
     return (
       <Box
         sx={{
-          display: "flex",
-          alignItems: "center",
+          display: 'flex',
+          alignItems: 'center',
           p: 0,
           pt: 0.5,
           pb: 0.5,
-          fontSize: "12px",
-          height: "24px",
+          fontSize: '12px',
+          height: '24px',
         }}
         ref={ref as React.Ref<HTMLDivElement>}
       >
@@ -175,30 +177,30 @@ export const TreeItemLabel = React.forwardRef(
           color="inherit"
           sx={{
             mr: 1,
-            display: "flex",
-            alignItems: "center",
-            height: "100%",
-            "& svg": {
-              fontSize: "16px",
-              height: "16px",
-              width: "16px",
+            display: 'flex',
+            alignItems: 'center',
+            height: '100%',
+            '& svg': {
+              fontSize: '16px',
+              height: '16px',
+              width: '16px',
             },
           }}
         >
           {getTypeIcon(
             !node.is_dir
-              ? node?.type ?? node.path.split(".")[1]
+              ? node?.type ?? node.path.split('.')[1]
               : expanded
-              ? "folder-open"
-              : "folder",
+              ? 'folder-open'
+              : 'folder',
           )}
         </Box>
 
         <Typography
           sx={{
-            fontWeight: "inherit",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
+            fontWeight: 'inherit',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
           }}
         >
           {node.name}

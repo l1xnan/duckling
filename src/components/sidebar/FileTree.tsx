@@ -1,7 +1,6 @@
-import { DTableType } from "@/stores/store";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { TreeView, TreeViewProps } from "@mui/x-tree-view/TreeView";
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { TreeView, TreeViewProps } from '@mui/x-tree-view/TreeView';
 import {
   IconBorderOuter,
   IconDatabase,
@@ -12,12 +11,14 @@ import {
   IconFolder,
   IconFolderOpen,
   IconTable,
-} from "@tabler/icons-react";
-import { useMemo, useState } from "react";
+} from '@tabler/icons-react';
+import { useMemo, useState } from 'react';
 
-import { DBType, FileNode, useDBStore } from "@/stores/db";
-import { useTabsStore } from "@/stores/tabs";
-import { DBTreeItem, TreeItemLabel } from "./DBTreeItem";
+import { DBType, FileNode, useDBStore } from '@/stores/db';
+import { DTableType } from '@/stores/store';
+import { useTabsStore } from '@/stores/tabs';
+
+import { DBTreeItem, TreeItemLabel } from './DBTreeItem';
 
 export function flattenTree(fileNode: FileNode, map: Map<string, FileNode>) {
   map.set(fileNode.path, fileNode);
@@ -28,28 +29,28 @@ export function flattenTree(fileNode: FileNode, map: Map<string, FileNode>) {
 }
 
 export const getTypeIcon = (type: string) => {
-  if (type == "folder-open") {
+  if (type == 'folder-open') {
     return <IconFolderOpen />;
   }
-  if (type == "folder") {
+  if (type == 'folder') {
     return <IconFolder />;
   }
-  if (type == "duckdb") {
+  if (type == 'duckdb') {
     return <IconDatabase />;
   }
-  if (type == "table") {
+  if (type == 'table') {
     return <IconTable />;
   }
-  if (type == "view") {
+  if (type == 'view') {
     return <IconBorderOuter />;
   }
-  if (type == "csv") {
+  if (type == 'csv') {
     return <IconFileTypeCsv />;
   }
-  if (type == "xlsx") {
+  if (type == 'xlsx') {
     return <IconFileTypeXls />;
   }
-  if (type == "parquet") {
+  if (type == 'parquet') {
     return <IconFilePower />;
   }
   return <IconFile />;
@@ -71,7 +72,7 @@ export default function FileTree({
   const data = db.data;
 
   const fileMap = useMemo(() => {
-    let fileMap = new Map();
+    const fileMap = new Map();
     flattenTree(data, fileMap);
     return fileMap;
   }, [rootKey, db]);
@@ -104,7 +105,7 @@ export default function FileTree({
           tableName: node.path as string,
           cwd: db.cwd,
           id: `${rootKey}:${node.path}`,
-          type: "editor",
+          type: 'editor',
         };
 
         handleContextMenu(event, context);
@@ -128,7 +129,7 @@ export default function FileTree({
       defaultExpandIcon={<ChevronRightIcon />}
       onNodeSelect={(_, nodeIds) => {
         const node = fileMap.get(nodeIds);
-        let item = {
+        const item = {
           rootKey,
           root: data.path,
           tableName: nodeIds as string,
@@ -136,14 +137,14 @@ export default function FileTree({
           id: `${rootKey}:${nodeIds}`,
         };
         onSelectTable(item);
-        if (node && !node?.is_dir && !node.path.endsWith(".duckdb")) {
+        if (node && !node?.is_dir && !node.path.endsWith('.duckdb')) {
           updateTab!(item);
         }
       }}
       onNodeToggle={handleToggle}
       expanded={expanded}
       selected={selected}
-      sx={{ position: "relative" }}
+      sx={{ position: 'relative' }}
       {...rest}
     >
       {renderTree(data)}

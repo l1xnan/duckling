@@ -1,9 +1,8 @@
-import { create } from "zustand";
-import { immer } from "zustand/middleware/immer";
+import { debounce } from '@mui/material';
+import { create } from 'zustand';
+import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
-import { persist, createJSONStorage, devtools } from "zustand/middleware";
-import { DTableType } from "./store";
-import { debounce } from "@mui/material";
+import { DTableType } from './store';
 export interface FileNode {
   name: string;
   type?: string;
@@ -85,7 +84,7 @@ export const useTabsStore = create<TabsState & TabsAction>()(
         ),
       }),
       {
-        name: "tabsStore",
+        name: 'tabsStore',
         storage: createJSONStorage(() => localStorage),
       },
     ),

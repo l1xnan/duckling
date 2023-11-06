@@ -1,15 +1,15 @@
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import TextField from '@mui/material/TextField';
+import { useEffect, useState } from 'react';
+import { create } from 'zustand';
 
-import { create } from "zustand";
-import { useEffect, useState } from "react";
-import { DTableType } from "@/stores/store";
-import { useDBStore } from "@/stores/db";
+import { useDBStore } from '@/stores/db';
+import { DTableType } from '@/stores/store';
 
 type FormDialogType = {
   open: boolean;
@@ -35,10 +35,10 @@ export default function FormDialog() {
   const onClose = useDBConfigStore((state) => state.onClose);
   const updateCwd = useDBStore((state) => state.setCwd);
 
-  const [cwd, setCwd] = useState(db?.cwd ?? "");
+  const [cwd, setCwd] = useState(db?.cwd ?? '');
 
   useEffect(() => {
-    setCwd(db?.cwd ?? "");
+    setCwd(db?.cwd ?? '');
   }, [db?.cwd]);
 
   const handleSubmit = () => {
@@ -47,7 +47,7 @@ export default function FormDialog() {
   };
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{db?.root.split("/").at(-1)}</DialogTitle>
+      <DialogTitle>{db?.root.split('/').at(-1)}</DialogTitle>
       <DialogContent>
         <DialogContentText>
           Set DuckDB working directory for the read parquet relative path

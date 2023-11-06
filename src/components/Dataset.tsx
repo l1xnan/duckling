@@ -1,3 +1,8 @@
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
+import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import SyncIcon from '@mui/icons-material/Sync';
 import {
   Box,
   CircularProgress,
@@ -7,38 +12,31 @@ import {
   InputLabel,
   Snackbar,
   Stack,
-} from "@mui/material";
-import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
-import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
-import Dropdown from "@/components/Dropdown";
-import SyncIcon from "@mui/icons-material/Sync";
-import { borderTheme, isDarkTheme } from "@/utils";
-import {
-  DTableType,
-  PageContext,
-  createPageStore,
-  usePageStore,
-} from "@/stores/store";
-import { convertOrderBy } from "@/utils";
-import { AgTable } from "./AgTable";
-import { IconDecimal } from "@tabler/icons-react";
-import { TablerSvgIcon } from "./MuiIconButton";
-
-import { useDeepCompareEffect } from "ahooks";
-
-import {
+} from '@mui/material';
+import { IconDecimal } from '@tabler/icons-react';
+import { useDeepCompareEffect } from 'ahooks';
+import React, {
   ReactNode,
   Suspense,
   useContext,
   useEffect,
   useRef,
   useState,
-} from "react";
-import React from "react";
-import { FileTabPanel } from "./FileTabs";
-import { ToolbarContainer } from "./Toolbar";
+} from 'react';
+
+import Dropdown from '@/components/Dropdown';
+import {
+  DTableType,
+  PageContext,
+  createPageStore,
+  usePageStore,
+} from '@/stores/store';
+import { borderTheme, convertOrderBy, isDarkTheme } from '@/utils';
+
+import { AgTable } from './AgTable';
+import { FileTabPanel } from './FileTabs';
+import { TablerSvgIcon } from './MuiIconButton';
+import { ToolbarContainer } from './Toolbar';
 
 export interface DatasetProps {
   tableName: string;
@@ -62,7 +60,7 @@ export const PageProvider = ({
 export const usePageStoreApi = () => {
   const store = useContext(PageContext);
   if (store === null) {
-    throw new Error("no provider");
+    throw new Error('no provider');
   }
   return store;
 };
@@ -96,7 +94,7 @@ export const MemoDataset = React.memo(function Dataset() {
 
   const [open, setOpen] = useState(false);
   useDeepCompareEffect(() => {
-    if (table?.type != "editor") {
+    if (table?.type != 'editor') {
       (async () => {
         try {
           await refresh();
@@ -115,7 +113,7 @@ export const MemoDataset = React.memo(function Dataset() {
     _event: React.SyntheticEvent | Event,
     reason?: string,
   ) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
 
@@ -123,19 +121,19 @@ export const MemoDataset = React.memo(function Dataset() {
   };
 
   return (
-    <Stack sx={{ height: "100%" }}>
+    <Stack sx={{ height: '100%' }}>
       <PageSizeToolbar />
       <InputToolbar />
-      <Box sx={{ height: "100%" }}>
+      <Box sx={{ height: '100%' }}>
         <Suspense
           fallback={
             <Box
               sx={{
-                display: "flex",
-                height: "calc(100vh - 64px)",
-                width: "100%",
-                marginTop: "30%",
-                justifyContent: "center",
+                display: 'flex',
+                height: 'calc(100vh - 64px)',
+                width: '100%',
+                marginTop: '30%',
+                justifyContent: 'center',
               }}
             >
               <CircularProgress />
@@ -155,7 +153,7 @@ export const MemoDataset = React.memo(function Dataset() {
           open={open}
           autoHideDuration={6000}
           onClose={handleClose}
-          message={message ?? ""}
+          message={message ?? ''}
         />
       ) : null}
     </Stack>
@@ -188,9 +186,9 @@ function PageSizeToolbar() {
         spacing={1}
         alignItems="center"
         sx={(theme) => ({
-          backgroundColor: isDarkTheme(theme) ? "#2b2d30" : "#f7f8fa",
+          backgroundColor: isDarkTheme(theme) ? '#2b2d30' : '#f7f8fa',
           height: 32,
-          "& MuiSvgIcon-root": {
+          '& MuiSvgIcon-root': {
             fontSize: 16,
           },
         })}
@@ -237,39 +235,39 @@ function PageSizeToolbar() {
 export function InputToolbar() {
   const { orderBy, setSQLWhere } = usePageStore();
 
-  const [stmtWhere, setStmtWhere] = useState("");
+  const [stmtWhere, setStmtWhere] = useState('');
   const [stmtOrder, setStmtOrder] = useState(
-    orderBy ? convertOrderBy(orderBy) : "",
+    orderBy ? convertOrderBy(orderBy) : '',
   );
 
   useEffect(() => {
-    setStmtOrder(orderBy ? convertOrderBy(orderBy) : "");
+    setStmtOrder(orderBy ? convertOrderBy(orderBy) : '');
   }, [orderBy]);
   return (
     <Box
       sx={(theme) => ({
-        backgroundColor: isDarkTheme(theme) ? "#1e1f22" : "#ffffff",
+        backgroundColor: isDarkTheme(theme) ? '#1e1f22' : '#ffffff',
         height: 32,
-        display: "flex",
-        alignItems: "center",
+        display: 'flex',
+        alignItems: 'center',
         borderBottom: borderTheme(theme),
-        "& input, & input:focus-visible, & .MuiInputBase-root": {
-          border: "none",
-          height: "100%",
+        '& input, & input:focus-visible, & .MuiInputBase-root': {
+          border: 'none',
+          height: '100%',
           padding: 0,
           outlineWidth: 0,
-          backgroundColor: isDarkTheme(theme) ? "#1e1f22" : "#ffffff",
+          backgroundColor: isDarkTheme(theme) ? '#1e1f22' : '#ffffff',
         },
       })}
     >
       <Stack direction="row">
         <Box sx={{ flexGrow: 0, mr: 1, ml: 1 }}>
-          <InputLabel sx={{ width: "auto" }}>WHERE</InputLabel>
+          <InputLabel sx={{ width: 'auto' }}>WHERE</InputLabel>
         </Box>
         <InputBase
           color="primary"
           onKeyDown={async (e) => {
-            if (e.key === "Enter") {
+            if (e.key === 'Enter') {
               setSQLWhere(stmtWhere);
             }
           }}
@@ -288,7 +286,7 @@ export function InputToolbar() {
           fullWidth
           color="primary"
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
+            if (e.key === 'Enter') {
               setSQLWhere(stmtWhere);
             }
           }}

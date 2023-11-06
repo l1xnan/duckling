@@ -1,6 +1,6 @@
-import { borderTheme, isDarkTheme } from "@/utils";
-import { Stack, StackProps, styled } from "@mui/material";
+import { Stack, StackProps, styled } from '@mui/material';
 
+import { borderTheme, isDarkTheme } from '@/utils';
 
 export const ToolbarContainer = styled((props: StackProps) => (
   <Stack
@@ -12,13 +12,13 @@ export const ToolbarContainer = styled((props: StackProps) => (
     {props.children}
   </Stack>
 ))(({ theme }) => ({
-  backgroundColor: isDarkTheme(theme) ? "#2b2d30" : "#f7f8fa",
+  backgroundColor: isDarkTheme(theme) ? '#2b2d30' : '#f7f8fa',
   height: 32,
-  alignItems: "center",
+  alignItems: 'center',
   borderBottom: borderTheme(theme),
-  "& input, & input:focus-visible": {
-    border: "none",
-    height: "100%",
+  '& input, & input:focus-visible': {
+    border: 'none',
+    height: '100%',
     padding: 0,
     outlineWidth: 0,
   },

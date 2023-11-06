@@ -1,7 +1,9 @@
-import { Table, tableFromIPC } from "@apache-arrow/ts";
-import { invoke } from "@tauri-apps/api/primitives";
-import { SchemaType, ArrowResponse } from "./stores/store";
-import { FileNode } from "@/stores/db";
+import { Table, tableFromIPC } from '@apache-arrow/ts';
+import { invoke } from '@tauri-apps/api/primitives';
+
+import { FileNode } from '@/stores/db';
+
+import { ArrowResponse, SchemaType } from './stores/store';
 
 export type ResultType = {
   totalCount: number;
@@ -61,7 +63,7 @@ function convert(res: ArrowResponse): ResultType {
 }
 
 export async function showTables(path?: string) {
-  const res = await invoke<ArrowResponse>("show_tables", { path });
+  const res = await invoke<ArrowResponse>('show_tables', { path });
   return convert(res);
 }
 
@@ -74,15 +76,15 @@ export type QueryParams = {
 };
 
 export async function query(params: QueryParams): Promise<ResultType> {
-  const res = await invoke<ArrowResponse>("query", params);
+  const res = await invoke<ArrowResponse>('query', params);
   return convert(res);
 }
 
 export async function read_parquet(
   path: string,
-  { limit = 500, offset = 0, order }: OptionType
+  { limit = 500, offset = 0, order }: OptionType,
 ): Promise<ResultType> {
-  const res = await invoke<ArrowResponse>("read_parquet", {
+  const res = await invoke<ArrowResponse>('read_parquet', {
     path,
     limit,
     offset,
@@ -92,6 +94,6 @@ export async function read_parquet(
 }
 
 export async function getFolderTree(name: string): Promise<FileNode> {
-  const fileTree: FileNode = await invoke("get_folder_tree", { name });
+  const fileTree: FileNode = await invoke('get_folder_tree', { name });
   return fileTree;
 }

@@ -1,10 +1,12 @@
-import * as React from "react";
-import Button from "@mui/material/Button";
-import Divider from "@mui/material/Divider";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { useState } from "react";
-import { usePageStore } from "@/stores/store";
-import { ContextMenu, ContextMenuItem } from "./ContextMenu";
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
+import * as React from 'react';
+import { useState } from 'react';
+
+import { usePageStore } from '@/stores/store';
+
+import { ContextMenu, ContextMenuItem } from './ContextMenu';
 
 export interface PageSizeProps {
   content: string;
@@ -25,9 +27,9 @@ export default function Dropdown({ content }: PageSizeProps) {
   return (
     <div>
       <Button
-        aria-controls={open ? "demo-customized-menu" : undefined}
+        aria-controls={open ? 'demo-customized-menu' : undefined}
         aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
+        aria-expanded={open ? 'true' : undefined}
         variant="text"
         disableElevation
         onClick={handleClick}
@@ -40,7 +42,7 @@ export default function Dropdown({ content }: PageSizeProps) {
         open={open}
         onClose={handleClose}
         sx={{
-          "&+.MuiDivider-root": {
+          '&+.MuiDivider-root': {
             // marginTop: 4,
             // marginBottom: 4,
           },

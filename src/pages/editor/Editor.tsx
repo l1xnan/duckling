@@ -1,18 +1,24 @@
-import CodeMirror, { ViewUpdate } from "@uiw/react-codemirror";
-import { sql } from "@codemirror/lang-sql";
-import { useCallback, useState } from "react";
-import { Box, IconButton } from "@mui/material";
-import { vscodeDark } from "@uiw/codemirror-theme-vscode";
-import { ToolbarContainer } from "../../components/Toolbar";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import classes from "@/hooks/resize.module.css";
-import { usePageStore } from "@/stores/store";
-import { useTabsStore } from "@/stores/tabs";
-import { basicLight, vscodeDark } from "@uiw/codemirror-themes-all";
-import { isDarkTheme } from "@/utils";
+import { PostgreSQL, schemaCompletionSource, sql } from '@codemirror/lang-sql';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import { Box, IconButton, useTheme } from '@mui/material';
+import { basicLight, vscodeDark } from '@uiw/codemirror-themes-all';
+import CodeMirror, { ViewUpdate } from '@uiw/react-codemirror';
+import { useCallback } from 'react';
 
-import DatasetItem from "./DatasetItem";
-import { useResize } from "@/hooks";
+import { ToolbarContainer } from '@/components/Toolbar';
+import { useResize } from '@/hooks';
+import classes from '@/hooks/resize.module.css';
+import { usePageStore } from '@/stores/store';
+import { useTabsStore } from '@/stores/tabs';
+import { isDarkTheme } from '@/utils';
+
+import DatasetItem from './DatasetItem';
+import { sqlCompletions } from './complation';
+
+const mySchema = { 'abc.table': ['id', 'name'] };
+const sqlSnippets = PostgreSQL.language.data.of({
+  autocomplete: [schemaCompletionSource({ schema: mySchema }), sqlCompletions],
+});
 
 export default function Editor() {
   const { table, refresh } = usePageStore();
@@ -25,26 +31,26 @@ export default function Editor() {
     setStmt(id, val);
   }, []);
 
-  const [targetRefTop, sizeTop, actionTop] = useResize(300, "bottom");
+  const [targetRefTop, sizeTop, actionTop] = useResize(300, 'bottom');
 
   const theme = useTheme();
   return (
     <Box
       sx={{
-        height: "calc(100vh - 32px)",
-        "& .cm-editor .cm-content": { fontFamily: "Consolas" },
-        "& *": { fontFamily: "Consolas" },
-        display: "flex",
-        flexDirection: "column",
-        position: "relative",
+        height: 'calc(100vh - 32px)',
+        '& .cm-editor .cm-content': { fontFamily: 'Consolas' },
+        '& *': { fontFamily: 'Consolas' },
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
       }}
     >
-      <Box sx={{ height: "100%" }}>
+      <Box sx={{ height: '100%' }}>
         <ToolbarContainer>
           <IconButton
             size="small"
             sx={{
-              color: "green",
+              color: 'green',
             }}
             onClick={async () => {
               if (stmt) {
@@ -66,7 +72,7 @@ export default function Editor() {
       <Box
         ref={targetRefTop}
         className={classes.rightBottom}
-        sx={{ height: sizeTop + "px", width: "100%" }}
+        sx={{ height: sizeTop + 'px', width: '100%' }}
       >
         <div className={classes.controlsH}>
           <div className={classes.resizeHorizontal} onMouseDown={actionTop} />
