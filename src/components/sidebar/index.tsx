@@ -8,7 +8,7 @@ import { invoke } from '@tauri-apps/api/primitives';
 import { useEffect, useState } from 'react';
 
 import { ContextMenu, ContextMenuItem } from '@/components/ContextMenu';
-import { useDBConfigStore } from '@/components/DBConfig';
+import DBConfig, { useDBConfigStore } from '@/components/DBConfig';
 import FileTreeView from '@/components/sidebar/FileTree';
 import { SideToolbar } from '@/components/sidebar/SideToolbar';
 import { FileNode, useDBStore } from '@/stores/db';
@@ -78,50 +78,57 @@ function SidebarTree() {
             onSelectTable={setSelectedTable}
           />
         ))}
-        <ContextMenu
-          open={contextMenu !== null}
-          onClose={handleClose}
-          anchorReference="anchorPosition"
-          anchorPosition={
-            contextMenu !== null
-              ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-              : undefined
-          }
-        >
-          <ContextMenuItem
-            onClick={() => {
-              onOpen();
-              handleClose();
-            }}
-            icon={<SettingsIcon />}
-          >
-            <ListItemText>Properties</ListItemText>
-          </ContextMenuItem>
-          <ContextMenuItem
-            icon={<CodeIcon />}
-            onClick={() => {
-              if (contextMenu?.context) {
-                updateTab!(contextMenu?.context);
-              }
-              handleClose();
-            }}
-          >
-            Query Editor
-          </ContextMenuItem>
-          <Divider />
-          <ContextMenuItem
-            icon={<DeleteIcon />}
-            onClick={() => {
-              if (contextMenu?.context?.root) {
-                removeDB(contextMenu?.context?.root);
-              }
-              handleClose();
-            }}
-          >
-            <ListItemText>Remove Data Source...</ListItemText>
-          </ContextMenuItem>
-        </ContextMenu>
       </TreeViewWrapper>
+
+      {/* ---------- modal/dialog ---------- */}
+
+      {/* db context menu */}
+      <ContextMenu
+        open={contextMenu !== null}
+        onClose={handleClose}
+        anchorReference="anchorPosition"
+        anchorPosition={
+          contextMenu !== null
+            ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+            : undefined
+        }
+      >
+        <ContextMenuItem
+          onClick={() => {
+            onOpen();
+            handleClose();
+          }}
+          icon={<SettingsIcon />}
+        >
+          <ListItemText>Properties</ListItemText>
+        </ContextMenuItem>
+        <ContextMenuItem
+          icon={<CodeIcon />}
+          onClick={() => {
+            if (contextMenu?.context) {
+              updateTab!(contextMenu?.context);
+            }
+            handleClose();
+          }}
+        >
+          Query Editor
+        </ContextMenuItem>
+        <Divider />
+        <ContextMenuItem
+          icon={<DeleteIcon />}
+          onClick={() => {
+            if (contextMenu?.context?.root) {
+              removeDB(contextMenu?.context?.root);
+            }
+            handleClose();
+          }}
+        >
+          <ListItemText>Remove Data Source...</ListItemText>
+        </ContextMenuItem>
+      </ContextMenu>
+
+      {/* db config */}
+      <DBConfig />
     </>
   );
 }
