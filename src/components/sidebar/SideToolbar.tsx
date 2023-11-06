@@ -13,11 +13,11 @@ import * as dialog from '@tauri-apps/plugin-dialog';
 import { useEffect } from 'react';
 
 import { getFolderTree, showTables } from '@/api';
-import DBConfig, { useDBConfigStore } from '@/components/DBConfig';
+import { useDBConfigStore } from '@/components/DBConfig';
 import { MuiIconButton } from '@/components/MuiIconButton';
 import ToggleColorMode from '@/components/ToggleColorMode';
 import Setting from '@/pages/Setting';
-import { useDBStore } from '@/stores/db';
+import { FileNode, useDBStore } from '@/stores/db';
 import { DTableType } from '@/stores/store';
 import { borderTheme } from '@/utils';
 
@@ -106,14 +106,42 @@ export function SideToolbar({
     if (selectedTable && selectedTable.tableName.endsWith('.duckdb')) {
       const res = await showTables(selectedTable.root);
       console.log(res);
-      updateDB({
-        path: selectedTable.root,
-        children: res.data.map(({ table_name, table_type }) => ({
+
+      const views: FileNode[] = [];
+      const tables: FileNode[] = [];
+
+      res.data.forEach(({ table_name, table_type }) => {
+        const item = {
           name: table_name,
           path: table_name,
           type: table_type == 'VIEW' ? 'view' : 'table',
           is_dir: false,
-        })),
+        };
+        if (table_type == 'VIEW') {
+          views.push(item);
+        } else {
+          tables.push(item);
+        }
+      });
+
+      updateDB({
+        path: selectedTable.root,
+        children: [
+          {
+            name: 'tables',
+            path: 'tables',
+            type: 'path',
+            is_dir: true,
+            children: tables,
+          },
+          {
+            name: 'views',
+            path: 'views',
+            type: 'path',
+            is_dir: true,
+            children: views,
+          },
+        ],
       });
     }
   }
@@ -144,8 +172,6 @@ export function SideToolbar({
           <MuiIconButton onClick={handleAppendDB}>
             <IconDatabasePlus />
           </MuiIconButton>
-          {/* db config */}
-          <DBConfig />
           <MuiIconButton disabled={!isRoot} onClick={handleOpen}>
             <IconDatabaseCog />
           </MuiIconButton>
