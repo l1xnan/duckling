@@ -104,6 +104,9 @@ dependencies:
   dayjs:
     specifier: ^1.11.10
     version: 1.11.10
+  dedent:
+    specifier: ^1.5.1
+    version: 1.5.1
   immer:
     specifier: ^10.0.3
     version: 10.0.3
@@ -2862,6 +2865,15 @@ packages:
     dependencies:
       ms: 2.1.2
     dev: true
+
+  /dedent@1.5.1:
+    resolution: {integrity: sha512-+LxW+KLWxu3HW3M2w2ympwtqPrqYRzU8fqi6Fhd18fBALe15blJPI/I4+UHveMVG6lJqB4JNd4UG0S5cnVHwIg==}
+    peerDependencies:
+      babel-plugin-macros: ^3.1.0
+    peerDependenciesMeta:
+      babel-plugin-macros:
+        optional: true
+    dev: false
 
   /deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}

@@ -44,6 +44,7 @@
     "ahooks": "^3.7.8",
     "clsx": "^2.0.0",
     "dayjs": "^1.11.10",
+    "dedent": "^1.5.1",
     "immer": "^10.0.3",
     "material-react-table": "2.0.0",
     "react": "^18.2.0",
