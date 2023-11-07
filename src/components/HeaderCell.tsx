@@ -72,7 +72,10 @@ export default (props: HeadCellProps) => {
   };
 
   return (
-    <Box onContextMenu={handleContextMenu} style={{ cursor: 'context-menu' }}>
+    <Box
+      onContextMenu={handleContextMenu}
+      sx={{ cursor: 'context-menu', width: '100%' }}
+    >
       <Box
         sx={{
           display: 'flex',
