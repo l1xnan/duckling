@@ -7,6 +7,8 @@ export const Content = styled(Box)<BoxProps>(({}) => ({
   height: '100vh',
   maxHeight: '100vh',
   overflow: 'hidden',
+  display: 'flex',
+  flexDirection: 'column',
 }));
 
 export const Sidebar = styled(Box)<BoxProps>(({ theme }) => ({
