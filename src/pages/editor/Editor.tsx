@@ -2,8 +2,11 @@ import { PostgreSQL, schemaCompletionSource, sql } from '@codemirror/lang-sql';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { Box, IconButton, useTheme } from '@mui/material';
 import { basicLight, vscodeDark } from '@uiw/codemirror-themes-all';
-import CodeMirror, { ViewUpdate } from '@uiw/react-codemirror';
-import { useCallback, useEffect } from 'react';
+import CodeMirror, {
+  ReactCodeMirrorRef,
+  ViewUpdate,
+} from '@uiw/react-codemirror';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { ToolbarContainer } from '@/components/Toolbar';
 import { useResize } from '@/hooks';
@@ -43,7 +46,15 @@ export default function Editor() {
   }, []);
 
   const [targetRefTop, sizeTop, actionTop] = useResize(300, 'bottom');
+  const refs = useRef<ReactCodeMirrorRef>({});
+  useEffect(() => {
+    if (refs.current?.view) console.log('EditorView:', refs.current?.view);
+    if (refs.current?.state) console.log('EditorState:', refs.current?.state);
+    if (refs.current?.editor)
+      console.log('HTMLDivElement:', refs.current?.editor);
+  }, [refs.current]);
 
+  console.log(refs.current.state?.selection);
   const theme = useTheme();
   return (
     <Box
@@ -64,8 +75,18 @@ export default function Editor() {
               color: 'green',
             }}
             onClick={async () => {
-              if (stmt) {
-                await refresh(stmt);
+              if (refs.current?.view) {
+                const view = refs.current.view;
+                const selectedText = view.state.sliceDoc(
+                  view.state.selection.main.from,
+                  view.state.selection.main.to,
+                );
+
+                if (selectedText?.length > 0) {
+                  await refresh(selectedText);
+                } else if (stmt?.length > 0) {
+                  await refresh(stmt);
+                }
               }
             }}
           >
@@ -73,6 +94,7 @@ export default function Editor() {
           </IconButton>
         </ToolbarContainer>
         <CodeMirror
+          ref={refs}
           value={stmt}
           height={`calc(100vh - ${sizeTop + 64}px)`}
           extensions={[sql(), sqlSnippets]}
