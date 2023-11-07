@@ -3,12 +3,13 @@ import { createStore, useStore } from 'zustand';
 
 import { query } from '@/api';
 import { genStmt } from '@/utils';
+
 export type SchemaType = {
   name: string;
   dataType: string;
-  type: any;
+  type: string;
   nullable: boolean;
-  metadata: any;
+  metadata: unknown;
 };
 
 export interface ArrowResponse {
@@ -25,12 +26,14 @@ export type DTableType = {
   cwd?: string;
   id: string;
   type?: string;
+  displayName?: string;
+  extra?: unknown;
 };
 
 export type DatasetState = {
   page: number;
   totalCount: number;
-  data: any[];
+  data: unknown[];
   perPage: number;
   tableName?: string;
   table?: DTableType;
@@ -40,6 +43,7 @@ export type DatasetState = {
   orderBy?: OrderByType;
   sqlWhere?: string;
   beautify?: boolean;
+  dialogColumn?: string;
 };
 
 export type DatasetAction = {
@@ -51,6 +55,7 @@ export type DatasetAction = {
   toLast: () => void;
   decrease: () => void;
   setSQLWhere: (value: string) => void;
+  setDialogColumn: (value: string) => void;
   refresh: (stmt?: string) => Promise<void>;
   setBeautify: () => void;
 };
@@ -100,6 +105,7 @@ export const createPageStore = (table: DTableType) =>
     setBeautify: () => set((state) => ({ beautify: !state.beautify })),
     toFirst: () => set((_) => ({ page: 1 })),
     setSQLWhere: (value: string) => set((_) => ({ sqlWhere: value })),
+    setDialogColumn: (dialogColumn: string) => set((_) => ({ dialogColumn })),
     toLast: () =>
       set((state) => {
         console.log(Math.ceil(state.totalCount / state.perPage));

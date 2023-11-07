@@ -3,7 +3,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { Box, IconButton, useTheme } from '@mui/material';
 import { basicLight, vscodeDark } from '@uiw/codemirror-themes-all';
 import CodeMirror, { ViewUpdate } from '@uiw/react-codemirror';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { ToolbarContainer } from '@/components/Toolbar';
 import { useResize } from '@/hooks';
@@ -22,10 +22,21 @@ const sqlSnippets = PostgreSQL.language.data.of({
 
 export default function Editor() {
   const { table, refresh } = usePageStore();
-  const id = table?.id!;
+  if (table === undefined) {
+    return;
+  }
+  const id = table.id;
+  const extra = table.extra;
+  console.log('extra:', extra);
   const setStmt = useTabsStore((state) => state.setStmt);
   const docs = useTabsStore((state) => state.docs);
-  const stmt = docs[id];
+  const stmt = docs[id] ?? '';
+
+  useEffect(() => {
+    if (extra) {
+      setStmt(id, `${stmt}\n${extra}`);
+    }
+  }, []);
 
   const onChange = useCallback((val: string, _viewUpdate: ViewUpdate) => {
     setStmt(id, val);

@@ -1,15 +1,17 @@
-import { Box } from '@mui/material';
+import { Box, Divider } from '@mui/material';
 import {
   IconCaretDownFilled,
   IconCaretUpDownFilled,
   IconCaretUpFilled,
 } from '@tabler/icons-react';
 import { ColumnApi, ColumnState } from 'ag-grid-community';
+import dedent from 'dedent';
 import { useState } from 'react';
 
 import { usePageStore } from '@/stores/store';
+import { useTabsStore } from '@/stores/tabs';
 
-import { ContextMenu, ContextMenuItem } from './ContextMenu';
+import { ContextMenu, ContextMenuItem } from '../ContextMenu';
 
 // https://ag-grid.com/react-data-grid/component-header/
 interface HeadCellProps {
@@ -22,7 +24,8 @@ interface HeadCellProps {
 }
 
 export default (props: HeadCellProps) => {
-  const { orderBy, setOrderBy } = usePageStore();
+  const { table, orderBy, setOrderBy, setDialogColumn } = usePageStore();
+  const updateTab = useTabsStore((state) => state.update);
 
   const key = props.column.colId;
   const isDesc = orderBy?.name == key ? orderBy?.desc : undefined;
@@ -47,6 +50,7 @@ export default (props: HeadCellProps) => {
           }
         : null,
     );
+    setDialogColumn(props.column.colId);
   };
 
   const handleClose = () => {
@@ -105,6 +109,28 @@ export default (props: HeadCellProps) => {
             : undefined
         }
       >
+        <ContextMenuItem
+          onClick={() => {
+            if (table) {
+              updateTab({
+                ...table,
+                id: `${table.id}-query`,
+                type: 'editor',
+                displayName: `query[${table.tableName}]`,
+                extra: dedent`
+                select ${props.column.colId}, count(*) 
+                from ${table.tableName}
+                group by ${props.column.colId};
+                `,
+              });
+            }
+
+            handleClose();
+          }}
+        >
+          Count(group by)
+        </ContextMenuItem>
+        <Divider />
         <ContextMenuItem
           onClick={() => {
             pinColumn({

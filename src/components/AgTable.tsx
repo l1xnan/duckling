@@ -1,6 +1,3 @@
-import { SchemaType, usePageStore } from '@/stores/store';
-import { getByteLength, isDarkTheme } from '@/utils';
-
 import { Box, BoxProps, styled, useTheme } from '@mui/material';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
@@ -8,9 +5,11 @@ import { AgGridReact } from 'ag-grid-react';
 import dayjs from 'dayjs';
 import { useCallback, useMemo, useRef } from 'react';
 
+import HeaderCell from '@/components/dataframe/HeaderCell';
 import { useSettingStore } from '@/stores/setting';
+import { SchemaType, usePageStore } from '@/stores/store';
+import { getByteLength, isDarkTheme } from '@/utils';
 
-import HeaderCell from './HeaderCell';
 interface TableProps {
   data: any[];
   schema: SchemaType[];
@@ -147,7 +146,6 @@ export const AgTable = ({ data, schema, beautify }: TableProps) => {
 export const TableWrapper = styled((props: BoxProps) => <Box {...props} />)(
   ({ theme }) => ({
     width: '100%',
-    // height: "calc(100vh - 96px)",
     height: '100%',
     '&': {
       '--ag-grid-size': '4px',

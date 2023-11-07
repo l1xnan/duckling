@@ -80,7 +80,9 @@ function Home() {
                     alignItems: 'center',
                   }}
                 >
-                  <Box>{tab?.tableName.split('/').at(-1)}</Box>
+                  <Box>
+                    {tab?.displayName ?? tab?.tableName.split('/').at(-1)}
+                  </Box>
                   <IconButton
                     size="small"
                     component="div"

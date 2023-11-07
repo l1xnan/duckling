@@ -7,7 +7,7 @@ import { ArrowResponse, SchemaType } from './stores/store';
 
 export type ResultType = {
   totalCount: number;
-  data: any[];
+  data: unknown[];
   schema: SchemaType[];
   code: number;
   message: string;
@@ -76,6 +76,7 @@ export type QueryParams = {
 };
 
 export async function query(params: QueryParams): Promise<ResultType> {
+  console.debug('params:', params);
   const res = await invoke<ArrowResponse>('query', params);
   return convert(res);
 }
