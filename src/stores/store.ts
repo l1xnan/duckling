@@ -150,7 +150,7 @@ export const createPageStore = (table: DTableType) =>
       if (table?.root?.endsWith('.duckdb')) {
         path = table.root;
       } else if (tableName.endsWith('.csv')) {
-        tableName = `read_csv('${table.tableName}')`;
+        tableName = `read_csv_auto('${table.tableName}')`;
       } else if (tableName.endsWith('.parquet')) {
         tableName = `read_parquet('${table.tableName}')`;
       }
