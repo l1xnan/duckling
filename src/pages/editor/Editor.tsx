@@ -6,8 +6,9 @@ import CodeMirror, {
   ReactCodeMirrorRef,
   ViewUpdate,
 } from '@uiw/react-codemirror';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { showTables } from '@/api';
 import { ToolbarContainer } from '@/components/Toolbar';
 import { useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
@@ -23,6 +24,21 @@ const sqlSnippets = PostgreSQL.language.data.of({
   autocomplete: [schemaCompletionSource({ schema: mySchema }), sqlCompletions],
 });
 
+async function getTables(root: string) {
+  const res = await showTables(root);
+
+  const schema: ComplationSchemaType = {};
+  res?.data?.forEach(({ table_name }) => {
+    schema[table_name] = [];
+  });
+
+  return schema;
+}
+
+type ComplationSchemaType = {
+  [key: string]: string[];
+};
+
 export default function Editor() {
   const { table, refresh } = usePageStore();
   if (table === undefined) {
@@ -35,10 +51,17 @@ export default function Editor() {
   const docs = useTabsStore((state) => state.docs);
   const stmt = docs[id] ?? '';
 
+  const [schema, setTables] = useState<ComplationSchemaType>({});
+
   useEffect(() => {
     if (extra) {
       setStmt(id, `${stmt}\n${extra}`);
     }
+    (async () => {
+      console.log('get schema==========');
+      const schema = await getTables(table.root);
+      setTables(schema);
+    })();
   }, []);
 
   const onChange = useCallback((val: string, _viewUpdate: ViewUpdate) => {
@@ -54,8 +77,8 @@ export default function Editor() {
       console.log('HTMLDivElement:', refs.current?.editor);
   }, [refs.current]);
 
-  console.log(refs.current.state?.selection);
   const theme = useTheme();
+
   return (
     <Box
       sx={{
@@ -97,7 +120,12 @@ export default function Editor() {
           ref={refs}
           value={stmt}
           height={`calc(100vh - ${sizeTop + 64}px)`}
-          extensions={[sql(), sqlSnippets]}
+          extensions={[
+            sql({
+              schema,
+            }),
+            sqlSnippets,
+          ]}
           theme={isDarkTheme(theme) ? vscodeDark : basicLight}
           onChange={onChange}
         />
