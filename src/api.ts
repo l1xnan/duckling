@@ -5,9 +5,9 @@ import { FileNode } from '@/stores/db';
 
 import { ArrowResponse, SchemaType } from './stores/store';
 
-export type ResultType = {
+export type ResultType<T = unknown> = {
   totalCount: number;
-  data: unknown[];
+  data: T[];
   schema: SchemaType[];
   code: number;
   message: string;
@@ -62,7 +62,12 @@ function convert(res: ArrowResponse): ResultType {
   };
 }
 
-export async function showTables(path?: string) {
+type DBInfoType = ResultType<{
+  table_name: string;
+  table_type: string;
+}>;
+
+export async function showTables(path?: string): Promise<DBInfoType> {
   const res = await invoke<ArrowResponse>('show_tables', { path });
   return convert(res);
 }
@@ -97,4 +102,46 @@ export async function read_parquet(
 export async function getFolderTree(name: string): Promise<FileNode> {
   const fileTree: FileNode = await invoke('get_folder_tree', { name });
   return fileTree;
+}
+
+export async function getDBTree(root: string) {
+  const res = await showTables(root);
+
+  const views: FileNode[] = [];
+  const tables: FileNode[] = [];
+
+  res.data.forEach(({ table_name, table_type }) => {
+    const item = {
+      name: table_name,
+      path: table_name,
+      type: table_type == 'VIEW' ? 'view' : 'table',
+      is_dir: false,
+    };
+    if (table_type == 'VIEW') {
+      views.push(item);
+    } else {
+      tables.push(item);
+    }
+  });
+
+  const data = {
+    path: root,
+    children: [
+      {
+        name: 'tables',
+        path: 'tables',
+        type: 'path',
+        is_dir: true,
+        children: tables,
+      },
+      {
+        name: 'views',
+        path: 'views',
+        type: 'path',
+        is_dir: true,
+        children: views,
+      },
+    ],
+  };
+  return data;
 }

@@ -3,13 +3,13 @@
 
 use std::env;
 
-use tauri::Manager;
 use tauri::menu::{CheckMenuItemBuilder, MenuBuilder, MenuItemBuilder, SubmenuBuilder};
+use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_log::{Target, TargetKind};
 
-use cmd::{get_folder_tree, opened_urls, query, show_tables};
 use cmd::OpenedUrls;
+use cmd::{get_folder_tree, opened_urls, query, show_tables};
 
 mod api;
 mod cmd;
@@ -119,19 +119,22 @@ fn main() {
     ])
     .build(tauri::generate_context!())
     .expect("error while running tauri application")
-    .run(|app, event| {
-      #[cfg(any(target_os = "macos", target_os = "ios"))]
-      if let tauri::RunEvent::Opened { urls } = event {
-        if let Some(w) = app.get_window("main") {
-          let urls = urls
-            .iter()
-            .map(|u| u.as_str())
-            .collect::<Vec<_>>()
-            .join(",");
-          let _ = w.eval(&format!("window.onFileOpen(`{urls}`)"));
-        }
+    .run(
+      #[allow(unused_variables)]
+      |app, event| {
+        #[cfg(any(target_os = "macos", target_os = "ios"))]
+        if let tauri::RunEvent::Opened { urls } = event {
+          if let Some(w) = app.get_window("main") {
+            let urls = urls
+              .iter()
+              .map(|u| u.as_str())
+              .collect::<Vec<_>>()
+              .join(",");
+            let _ = w.eval(&format!("window.onFileOpen(`{urls}`)"));
+          }
 
-        app.state::<OpenedUrls>().0.lock().unwrap().replace(urls);
-      }
-    });
+          app.state::<OpenedUrls>().0.lock().unwrap().replace(urls);
+        }
+      },
+    );
 }

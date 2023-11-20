@@ -58,7 +58,10 @@
   },
   "plugins": {
     "updater": {
-      "endpoints": ["https://github.com/l1xnan/DuckStudio/releases/latest/download/latest.json"]
+      "endpoints": [
+        "https://github.com/l1xnan/DuckStudio/releases/latest/download/latest.json",
+        "https://ghproxy.com/https://github.com/l1xnan/DuckStudio/releases/latest/download/latest.json"
+      ]
     }
   }
 }

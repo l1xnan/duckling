@@ -96,7 +96,7 @@ pub fn query(
 pub fn show_tables(path: String) -> anyhow::Result<ArrowData> {
   let db = Connection::open(path)?;
   let mut stmt = db
-    .prepare("select * from information_schema.tables")
+    .prepare("select * from information_schema.tables order by table_type, table_name")
     .unwrap();
   let frames = stmt.query_arrow(duckdb::params![]).unwrap();
   let schema = frames.get_schema();
