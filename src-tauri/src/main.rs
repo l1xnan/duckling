@@ -13,6 +13,7 @@ use cmd::{get_folder_tree, opened_urls, query, show_tables};
 
 mod api;
 mod cmd;
+mod dialect;
 
 fn handle_menu(app: &mut tauri::App) -> tauri::Result<()> {
   let file_menu = SubmenuBuilder::new(app, "File")

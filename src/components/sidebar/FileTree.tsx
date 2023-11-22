@@ -15,12 +15,12 @@ import {
 import { useMemo, useState } from 'react';
 
 import { DTableType } from '@/stores/dataset';
-import { DBType, FileNode, useDBListStore } from '@/stores/dbList';
+import { DBType, TreeNode, useDBListStore } from '@/stores/dbList';
 import { useTabsStore } from '@/stores/tabs';
 
 import { DBTreeItem, TreeItemLabel } from './DBTreeItem';
 
-export function flattenTree(fileNode: FileNode, map: Map<string, FileNode>) {
+export function flattenTree(fileNode: TreeNode, map: Map<string, TreeNode>) {
   map.set(fileNode.path, fileNode);
 
   fileNode?.children?.forEach((child) => {
@@ -92,7 +92,7 @@ export default function FileTree({
     );
   };
 
-  const renderTree = (node: FileNode) => (
+  const renderTree = (node: TreeNode) => (
     <DBTreeItem
       key={node.path}
       nodeId={node.path}

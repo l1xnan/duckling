@@ -13,7 +13,7 @@ import SidebarTree from '@/components/sidebar';
 import { useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
 import Editor from '@/pages/editor/Editor';
-import { FileNode, useDBListStore } from '@/stores/dbList';
+import { TreeNode, useDBListStore } from '@/stores/dbList';
 import { useTabsStore } from '@/stores/tabs';
 
 export const DatasetEmpty = styled((props) => <Box {...props} />)<BoxProps>(
@@ -35,7 +35,7 @@ function Home() {
   const currentTab = useTabsStore((state) => state.table);
 
   async function openDirectory(name?: string) {
-    const fileTree: FileNode = await invoke('get_folder_tree', { name });
+    const fileTree: TreeNode = await invoke('get_folder_tree', { name });
     if (fileTree) {
       appendDB({
         data: fileTree,

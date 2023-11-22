@@ -5,19 +5,19 @@ import { debounce } from '@/utils';
 
 import { DTableType } from './dataset';
 
-export interface FileNode {
+export interface TreeNode {
   name: string;
   type?: string;
   path: string;
   is_dir: boolean;
-  children?: FileNode[];
+  children?: TreeNode[];
 }
 
 export type DBType = {
   id: string;
 
   // node tree
-  data: FileNode;
+  data: TreeNode;
 
   // config
   cwd?: string;
@@ -37,7 +37,7 @@ type DBListState = {
 
 type DBListAction = {
   append: (db: DBType) => void;
-  update: (db: Partial<FileNode>) => void;
+  update: (db: Partial<TreeNode>) => void;
   remove: (dbName: string) => void;
   setCwd: (cwd: string, path: string) => void;
   setSize: (size: number) => void;

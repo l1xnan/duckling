@@ -1,7 +1,7 @@
 import { Table, tableFromIPC } from '@apache-arrow/ts';
 import { invoke } from '@tauri-apps/api/primitives';
 
-import { FileNode } from '@/stores/dbList';
+import { TreeNode } from '@/stores/dbList';
 
 import { ArrowResponse, SchemaType } from './stores/dataset';
 
@@ -99,16 +99,16 @@ export async function read_parquet(
   return convert(res);
 }
 
-export async function getFolderTree(name: string): Promise<FileNode> {
-  const fileTree: FileNode = await invoke('get_folder_tree', { name });
+export async function getFolderTree(name: string): Promise<TreeNode> {
+  const fileTree: TreeNode = await invoke('get_folder_tree', { name });
   return fileTree;
 }
 
 export async function getDBTree(root: string) {
   const res = await showTables(root);
 
-  const views: FileNode[] = [];
-  const tables: FileNode[] = [];
+  const views: TreeNode[] = [];
+  const tables: TreeNode[] = [];
 
   res.data.forEach(({ table_name, table_type }) => {
     const item = {

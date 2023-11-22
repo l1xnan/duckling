@@ -16,7 +16,7 @@ import {
 import clsx from 'clsx';
 import * as React from 'react';
 
-import { FileNode } from '@/stores/dbList';
+import { TreeNode } from '@/stores/dbList';
 
 import { getTypeIcon } from './FileTree';
 
@@ -160,7 +160,7 @@ export const DBTreeItem = React.forwardRef(function CustomTreeItem(
 });
 
 interface TreeItemLabelProps {
-  node: FileNode;
+  node: TreeNode;
   nodeId: string;
 }
 

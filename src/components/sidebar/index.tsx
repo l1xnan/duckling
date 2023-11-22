@@ -12,7 +12,7 @@ import DBConfig, { useDBConfigStore } from '@/components/DBConfig';
 import FileTreeView from '@/components/sidebar/FileTree';
 import { SideToolbar } from '@/components/sidebar/SideToolbar';
 import { DTableType } from '@/stores/dataset';
-import { FileNode, useDBListStore } from '@/stores/dbList';
+import { TreeNode, useDBListStore } from '@/stores/dbList';
 import { useTabsStore } from '@/stores/tabs';
 
 const TreeViewWrapper = styled(Box)<BoxProps>(() => ({
@@ -35,7 +35,7 @@ function SidebarTree() {
   const onOpen = useDBConfigStore((state) => state.onOpen);
 
   async function openDirectory(name?: string) {
-    const fileTree: FileNode = await invoke('get_folder_tree', { name });
+    const fileTree: TreeNode = await invoke('get_folder_tree', { name });
     if (fileTree) {
       appendDB({
         data: fileTree,
