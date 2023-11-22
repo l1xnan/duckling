@@ -1,7 +1,8 @@
 import { Table, tableFromIPC } from '@apache-arrow/ts';
 import { invoke } from '@tauri-apps/api/primitives';
+import { nanoid } from 'nanoid';
 
-import { TreeNode } from '@/stores/dbList';
+import { DBType, DialectType, TreeNode } from '@/stores/dbList';
 
 import { ArrowResponse, SchemaType } from './stores/dataset';
 
@@ -102,6 +103,20 @@ export async function read_parquet(
 export async function getFolderTree(name: string): Promise<TreeNode> {
   const fileTree: TreeNode = await invoke('get_folder_tree', { name });
   return fileTree;
+}
+
+type GetDBOptionType = {
+  name: string;
+  dialect: DialectType;
+};
+
+export async function getDB(option: GetDBOptionType): Promise<DBType> {
+  const tree: TreeNode = await invoke('get_db', option);
+  return {
+    id: nanoid(),
+    dialect: option.dialect,
+    data: tree,
+  };
 }
 
 export async function getDBTree(root: string) {

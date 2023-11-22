@@ -13,8 +13,11 @@ export interface TreeNode {
   children?: TreeNode[];
 }
 
+export type DialectType = 'file' | 'duckdb';
+
 export type DBType = {
   id: string;
+  dialect: DialectType;
 
   // node tree
   data: TreeNode;
@@ -95,7 +98,7 @@ export const useDBListStore = create<DBListState & DBListAction>()(
           })),
       }),
       {
-        name: 'dbStore',
+        name: 'dbListStore',
         storage: createJSONStorage(() => localStorage),
       },
     ),
