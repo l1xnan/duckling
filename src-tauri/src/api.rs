@@ -1,7 +1,7 @@
 use anyhow::anyhow;
 use arrow::{ipc::writer::StreamWriter, record_batch::RecordBatch};
 use duckdb::Connection;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use tauri::Manager;
 
 use log::info;
@@ -129,14 +129,29 @@ pub struct FileNode {
   file_type: Option<String>,
 }
 
-pub fn directory_tree(path: &str) -> FileNode {
+pub fn directory_tree(path: &str) -> Option<FileNode> {
   let _path = Path::new(path);
   let name = _path.file_name().unwrap().to_string_lossy().to_string();
+
+  if name.starts_with("~$") && name.ends_with(".xlsx") {
+    return None;
+  }
+
+  if name.ends_with(".duckdb") {
+    return None;
+  }
+
+  let support_types = vec!["csv", "xlsx", "parquet"];
+
   let is_dir = _path.is_dir();
   let file_type = if is_dir {
     None
   } else {
-    Some(_path.extension().unwrap().to_string_lossy().to_string())
+    let file_ext = _path.extension().unwrap().to_string_lossy().to_string();
+    if !support_types.contains(&file_ext.as_str()) {
+      return None;
+    }
+    Some(file_ext)
   };
 
   let mut children = None;
@@ -147,19 +162,20 @@ pub fn directory_tree(path: &str) -> FileNode {
       for entry in entries {
         if let Ok(entry) = entry {
           let child_path = entry.path();
-          let child_node = directory_tree(child_path.to_str().unwrap());
-          child_nodes.push(child_node);
+          if let Some(child_node) = directory_tree(child_path.to_str().unwrap()) {
+            child_nodes.push(child_node);
+          }
         }
       }
       children = Some(child_nodes);
     }
   }
 
-  FileNode {
+  Some(FileNode {
     name,
     path: path.to_string().replace("\\", "/"),
     is_dir,
     children,
     file_type,
-  }
+  })
 }

@@ -8,7 +8,7 @@ use tauri::State;
 pub struct OpenedUrls(pub Mutex<Option<Vec<url::Url>>>);
 
 #[tauri::command]
-pub fn get_folder_tree(name: &str) -> FileNode {
+pub fn get_folder_tree(name: &str) -> Option<FileNode> {
   api::directory_tree(name)
 }
 
