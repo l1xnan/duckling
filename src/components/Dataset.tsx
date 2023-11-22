@@ -28,9 +28,9 @@ import Dropdown from '@/components/Dropdown';
 import {
   DTableType,
   PageContext,
-  createPageStore,
+  createDatasetStore,
   usePageStore,
-} from '@/stores/store';
+} from '@/stores/dataset';
 import { borderTheme, convertOrderBy, isDarkTheme } from '@/utils';
 
 import { AgTable } from './AgTable';
@@ -49,7 +49,7 @@ export const PageProvider = ({
   table: DTableType;
   children: ReactNode;
 }) => {
-  const storeRef = useRef(createPageStore(table));
+  const storeRef = useRef(createDatasetStore(table));
   return (
     <PageContext.Provider value={storeRef.current}>
       {children}

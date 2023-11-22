@@ -14,8 +14,8 @@ import {
 } from '@tabler/icons-react';
 import { useMemo, useState } from 'react';
 
-import { DBType, FileNode, useDBStore } from '@/stores/db';
-import { DTableType } from '@/stores/store';
+import { DTableType } from '@/stores/dataset';
+import { DBType, FileNode, useDBListStore } from '@/stores/dbList';
 import { useTabsStore } from '@/stores/tabs';
 
 import { DBTreeItem, TreeItemLabel } from './DBTreeItem';
@@ -77,8 +77,8 @@ export default function FileTree({
     return fileMap;
   }, [rootKey, db]);
   const updateTab = useTabsStore((state) => state.update);
-  const contextMenu = useDBStore((state) => state.contextMenu);
-  const setContextMenu = useDBStore((state) => state.setContextMenu);
+  const contextMenu = useDBListStore((state) => state.contextMenu);
+  const setContextMenu = useDBListStore((state) => state.setContextMenu);
 
   const handleContextMenu = (event: React.MouseEvent, context: DTableType) => {
     setContextMenu(

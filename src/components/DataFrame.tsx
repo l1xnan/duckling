@@ -12,7 +12,7 @@ import {
 } from 'material-react-table';
 import { useMemo } from 'react';
 
-import { SchemaType, usePageStore } from '@/stores/store';
+import { SchemaType, usePageStore } from '@/stores/dataset';
 import { getByteLength, isDarkTheme } from '@/utils';
 
 interface DatasetProps {

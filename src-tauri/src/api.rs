@@ -137,10 +137,6 @@ pub fn directory_tree(path: &str) -> Option<FileNode> {
     return None;
   }
 
-  if name.ends_with(".duckdb") {
-    return None;
-  }
-
   let support_types = vec!["csv", "xlsx", "parquet"];
 
   let is_dir = _path.is_dir();

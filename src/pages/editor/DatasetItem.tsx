@@ -32,9 +32,9 @@ import { ToolbarContainer } from '@/components/Toolbar';
 import {
   DTableType,
   PageContext,
-  createPageStore,
+  createDatasetStore,
   usePageStore,
-} from '@/stores/store';
+} from '@/stores/dataset';
 import { borderTheme, convertOrderBy, isDarkTheme } from '@/utils';
 
 export interface DatasetProps {
@@ -51,7 +51,7 @@ export const PageProvider = ({
   // const storeRef = useRef(
   //   table.type == "editor" ? null : createPageStore(table),
   // );
-  const storeRef = useRef(createPageStore(table));
+  const storeRef = useRef(createDatasetStore(table));
   return (
     <PageContext.Provider value={storeRef.current}>
       {children}

@@ -11,8 +11,8 @@ import { ContextMenu, ContextMenuItem } from '@/components/ContextMenu';
 import DBConfig, { useDBConfigStore } from '@/components/DBConfig';
 import FileTreeView from '@/components/sidebar/FileTree';
 import { SideToolbar } from '@/components/sidebar/SideToolbar';
-import { FileNode, useDBStore } from '@/stores/db';
-import { DTableType } from '@/stores/store';
+import { DTableType } from '@/stores/dataset';
+import { FileNode, useDBListStore } from '@/stores/dbList';
 import { useTabsStore } from '@/stores/tabs';
 
 const TreeViewWrapper = styled(Box)<BoxProps>(() => ({
@@ -26,12 +26,12 @@ const TreeViewWrapper = styled(Box)<BoxProps>(() => ({
 
 function SidebarTree() {
   const [selectedTable, setSelectedTable] = useState<DTableType | null>(null);
-  const dbList = useDBStore((state) => state.dbList);
-  const appendDB = useDBStore((state) => state.append);
-  const contextMenu = useDBStore((state) => state.contextMenu);
-  const setContextMenu = useDBStore((state) => state.setContextMenu);
+  const dbList = useDBListStore((state) => state.dbList);
+  const appendDB = useDBListStore((state) => state.append);
+  const contextMenu = useDBListStore((state) => state.contextMenu);
+  const setContextMenu = useDBListStore((state) => state.setContextMenu);
   const updateTab = useTabsStore((state) => state.update);
-  const removeDB = useDBStore((state) => state.remove);
+  const removeDB = useDBListStore((state) => state.remove);
   const onOpen = useDBConfigStore((state) => state.onOpen);
 
   async function openDirectory(name?: string) {

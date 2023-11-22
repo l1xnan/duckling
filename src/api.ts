@@ -1,9 +1,9 @@
 import { Table, tableFromIPC } from '@apache-arrow/ts';
 import { invoke } from '@tauri-apps/api/primitives';
 
-import { FileNode } from '@/stores/db';
+import { FileNode } from '@/stores/dbList';
 
-import { ArrowResponse, SchemaType } from './stores/store';
+import { ArrowResponse, SchemaType } from './stores/dataset';
 
 export type ResultType<T = unknown> = {
   totalCount: number;

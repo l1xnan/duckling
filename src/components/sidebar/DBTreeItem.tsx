@@ -16,7 +16,7 @@ import {
 import clsx from 'clsx';
 import * as React from 'react';
 
-import { FileNode } from '@/stores/db';
+import { FileNode } from '@/stores/dbList';
 
 import { getTypeIcon } from './FileTree';
 
@@ -222,8 +222,8 @@ export const TreeItemLabel = React.forwardRef(
             !node.is_dir
               ? node?.type ?? node.path.split('.')[1]
               : expanded
-              ? 'folder-open'
-              : 'folder',
+                ? 'folder-open'
+                : 'folder',
           )}
         </Box>
 

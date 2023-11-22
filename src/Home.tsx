@@ -13,7 +13,7 @@ import SidebarTree from '@/components/sidebar';
 import { useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
 import Editor from '@/pages/editor/Editor';
-import { FileNode, useDBStore } from '@/stores/db';
+import { FileNode, useDBListStore } from '@/stores/dbList';
 import { useTabsStore } from '@/stores/tabs';
 
 export const DatasetEmpty = styled((props) => <Box {...props} />)<BoxProps>(
@@ -26,9 +26,9 @@ export const DatasetEmpty = styled((props) => <Box {...props} />)<BoxProps>(
 );
 
 function Home() {
-  const appendDB = useDBStore((state) => state.append);
-  const size = useDBStore((state) => state.size);
-  const setSize = useDBStore((state) => state.setSize);
+  const appendDB = useDBListStore((state) => state.append);
+  const size = useDBListStore((state) => state.size);
+  const setSize = useDBListStore((state) => state.setSize);
   const tabs = useTabsStore((state) => state.tabs);
   const activateTab = useTabsStore((state) => state.active);
   const removeTab = useTabsStore((state) => state.remove);

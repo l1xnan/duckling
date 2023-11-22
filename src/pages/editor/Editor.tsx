@@ -12,7 +12,7 @@ import { showTables } from '@/api';
 import { ToolbarContainer } from '@/components/Toolbar';
 import { useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
-import { usePageStore } from '@/stores/store';
+import { usePageStore } from '@/stores/dataset';
 import { useTabsStore } from '@/stores/tabs';
 import { isDarkTheme } from '@/utils';
 

@@ -4,7 +4,7 @@ import Divider from '@mui/material/Divider';
 import * as React from 'react';
 import { useState } from 'react';
 
-import { usePageStore } from '@/stores/store';
+import { usePageStore } from '@/stores/dataset';
 
 import { ContextMenu, ContextMenuItem } from './ContextMenu';
 

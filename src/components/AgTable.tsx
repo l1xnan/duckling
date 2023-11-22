@@ -6,8 +6,8 @@ import dayjs from 'dayjs';
 import { useCallback, useMemo, useRef } from 'react';
 
 import HeaderCell from '@/components/dataframe/HeaderCell';
+import { SchemaType, usePageStore } from '@/stores/dataset';
 import { useSettingStore } from '@/stores/setting';
-import { SchemaType, usePageStore } from '@/stores/store';
 import { getByteLength, isDarkTheme } from '@/utils';
 
 interface TableProps {
@@ -66,14 +66,14 @@ export const AgTable = ({ data, schema, beautify }: TableProps) => {
                 return dayjs(params.value)?.format('YYYY-MM-DD');
               }
             : beautify && dataType.includes('Float')
-            ? (params: any) => {
-                try {
-                  return params.value?.toFixed(precision);
-                } catch (error) {
-                  return params.value;
+              ? (params: any) => {
+                  try {
+                    return params.value?.toFixed(precision);
+                  } catch (error) {
+                    return params.value;
+                  }
                 }
-              }
-            : undefined,
+              : undefined,
 
           cellStyle: isNumber(dataType)
             ? {

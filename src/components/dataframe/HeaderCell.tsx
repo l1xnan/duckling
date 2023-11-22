@@ -8,7 +8,7 @@ import { ColumnApi, ColumnState } from 'ag-grid-community';
 import dedent from 'dedent';
 import { useState } from 'react';
 
-import { usePageStore } from '@/stores/store';
+import { usePageStore } from '@/stores/dataset';
 import { useTabsStore } from '@/stores/tabs';
 
 import { ContextMenu, ContextMenuItem } from '../ContextMenu';

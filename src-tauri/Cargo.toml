@@ -19,7 +19,7 @@ arrow = { version = "47.0.0", features = ["prettyprint"] }
 
 duckdb = { version = "0.9.1", features = [
     "modern-full",
-    "bundled"
+    # "bundled"
 ] }
 
 

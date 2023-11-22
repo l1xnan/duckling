@@ -2,7 +2,7 @@ import { debounce } from '@mui/material';
 import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
-import { DTableType } from './store';
+import { DTableType } from './dataset';
 export interface FileNode {
   name: string;
   type?: string;

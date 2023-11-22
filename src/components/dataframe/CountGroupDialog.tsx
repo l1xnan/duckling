@@ -7,8 +7,8 @@ import TextField from '@mui/material/TextField';
 import { useEffect, useState } from 'react';
 import { create } from 'zustand';
 
-import { useDBStore } from '@/stores/db';
-import { DTableType } from '@/stores/store';
+import { DTableType } from '@/stores/dataset';
+import { useDBListStore } from '@/stores/dbList';
 
 type FormDialogType = {
   open: boolean;
@@ -32,7 +32,7 @@ export default function CountGroupDialog() {
   const open = useDBConfigStore((state) => state.open);
   const db = useDBConfigStore((state) => state.db);
   const onClose = useDBConfigStore((state) => state.onClose);
-  const updateCwd = useDBStore((state) => state.setCwd);
+  const updateCwd = useDBListStore((state) => state.setCwd);
 
   const [cwd, setCwd] = useState(db?.cwd ?? '');
 

@@ -1,6 +1,6 @@
 import { Theme } from '@mui/material';
 
-import { OrderByType, StmtType } from './stores/store';
+import { OrderByType, StmtType } from './stores/dataset';
 
 export const isDarkTheme = (theme: Theme) => theme.palette.mode === 'dark';
 

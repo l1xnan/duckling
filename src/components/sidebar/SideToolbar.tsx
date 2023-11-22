@@ -17,8 +17,8 @@ import { useDBConfigStore } from '@/components/DBConfig';
 import { MuiIconButton } from '@/components/MuiIconButton';
 import ToggleColorMode from '@/components/ToggleColorMode';
 import Setting from '@/pages/Setting';
-import { useDBStore } from '@/stores/db';
-import { DTableType } from '@/stores/store';
+import { DTableType } from '@/stores/dataset';
+import { useDBListStore } from '@/stores/dbList';
 import { borderTheme } from '@/utils';
 
 const ToolbarBox = styled(Box)<BoxProps>(({ theme }) => ({
@@ -36,10 +36,10 @@ export function SideToolbar({
 }: {
   selectedTable: DTableType | null;
 }) {
-  const dbList = useDBStore((state) => state.dbList);
-  const appendDB = useDBStore((state) => state.append);
-  const removeDB = useDBStore((state) => state.remove);
-  const updateDB = useDBStore((state) => state.update);
+  const dbList = useDBListStore((state) => state.dbList);
+  const appendDB = useDBListStore((state) => state.append);
+  const removeDB = useDBListStore((state) => state.remove);
+  const updateDB = useDBListStore((state) => state.update);
 
   async function openDirectory(name: string) {
     const fileTree = await getFolderTree(name);
