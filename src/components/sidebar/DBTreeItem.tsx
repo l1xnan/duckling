@@ -218,13 +218,7 @@ export const TreeItemLabel = React.forwardRef(
             },
           }}
         >
-          {getTypeIcon(
-            !node.is_dir
-              ? node?.type ?? node.path.split('.')[1]
-              : expanded
-                ? 'folder-open'
-                : 'folder',
-          )}
+          {getTypeIcon(node?.type ?? 'file', expanded)}
         </Box>
 
         <Typography

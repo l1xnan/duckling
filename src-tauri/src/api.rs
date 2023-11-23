@@ -9,6 +9,8 @@ use serde::{Deserialize, Serialize};
 use std::env::{current_dir, set_current_dir};
 use std::fs;
 
+use crate::dialect::TreeNode;
+
 #[derive(Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct ArrowData {
   /// The total number of rows that were selected.
@@ -104,13 +106,6 @@ pub fn show_db_information(path: String, sql: &str) -> anyhow::Result<ArrowData>
     total_count: records.len() as u64,
     preview: serialize_preview(&record_batch).unwrap(),
   })
-}
-
-pub fn show_tables(path: String) -> anyhow::Result<ArrowData> {
-  show_db_information(
-    path,
-    "select * from information_schema.tables order by table_type, table_name",
-  )
 }
 
 pub fn show_columns(path: String) -> anyhow::Result<ArrowData> {

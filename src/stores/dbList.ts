@@ -13,7 +13,7 @@ export interface TreeNode {
   children?: TreeNode[];
 }
 
-export type DialectType = 'file' | 'duckdb';
+export type DialectType = 'folder' | 'file' | 'duckdb';
 
 export type DBType = {
   id: string;

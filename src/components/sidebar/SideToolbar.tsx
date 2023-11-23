@@ -12,7 +12,7 @@ import { invoke } from '@tauri-apps/api/primitives';
 import * as dialog from '@tauri-apps/plugin-dialog';
 import { useEffect } from 'react';
 
-import { getDBTree, getFolderTree } from '@/api';
+import { getDB, getDBTree, getFolderTree } from '@/api';
 import { useDBConfigStore } from '@/components/DBConfig';
 import { MuiIconButton } from '@/components/MuiIconButton';
 import ToggleColorMode from '@/components/ToggleColorMode';
@@ -49,6 +49,11 @@ export function SideToolbar({
       });
     }
   }
+  async function handleGetDB(path: string) {
+    const data = await getDB({ url: path, dialect: 'folder' });
+    appendDB(data);
+  }
+
   async function openUrl() {
     const path: string = await invoke('opened_urls');
     console.log(path);
@@ -97,7 +102,7 @@ export function SideToolbar({
       directory: true,
     });
     if (res) {
-      openDirectory(res);
+      handleGetDB(res);
     }
   }
 

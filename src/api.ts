@@ -106,7 +106,7 @@ export async function getFolderTree(name: string): Promise<TreeNode> {
 }
 
 type GetDBOptionType = {
-  name: string;
+  url: string;
   dialect: DialectType;
 };
 

@@ -1,20 +1,22 @@
 use log::info;
 use std::sync::Mutex;
 
-use crate::api;
 use crate::api::{ArrowResponse, FileNode};
+use crate::dialect::{folder, TreeNode, FolderDialect, Dialect};
+use crate::{api, dialect};
 use tauri::State;
 
 pub struct OpenedUrls(pub Mutex<Option<Vec<url::Url>>>);
 
 #[tauri::command]
-pub fn get_folder_tree(name: &str) -> Option<FileNode> {
-  api::directory_tree(name)
+pub async fn get_folder_tree(name: &str) -> Result<Option<FileNode>, ()> {
+  let tree = api::directory_tree(name);
+  Ok(tree)
 }
 
 #[tauri::command]
 pub async fn show_tables(path: String) -> ArrowResponse {
-  let res = api::show_tables(path);
+  let res = dialect::sql::show_tables(path);
   api::convert(res)
 }
 
@@ -44,3 +46,16 @@ pub async fn opened_urls(state: State<'_, OpenedUrls>) -> Result<String, String>
   };
   Ok(opened_urls)
 }
+
+#[tauri::command]
+pub async fn get_db(url: &str, dialect: &str) -> Result<Option<TreeNode>, String> {
+  if dialect == "folder" {
+    let d = FolderDialect {
+      path: String::from(url),
+    };
+    Ok(d.get_db())
+  } else {
+    Err("not support dialect".to_string())
+  }
+}
+

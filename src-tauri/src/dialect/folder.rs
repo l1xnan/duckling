@@ -1,14 +1,14 @@
+use std::fs;
 use std::path::Path;
-use std::{cmp::Ordering, fs};
 
 use crate::dialect::{Dialect, TreeNode};
 
 #[derive(Debug, Default)]
-pub struct FileDialect {
-  path: String,
+pub struct FolderDialect {
+  pub path: String,
 }
 
-impl Dialect for FileDialect {
+impl Dialect for FolderDialect {
   fn get_db(&self) -> Option<TreeNode> {
     directory_tree(self.path.as_str())
   }
@@ -56,18 +56,11 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
       }
 
       child_nodes.sort_by(|a, b| {
-        let mut cmp = (a.node_type == "path").cmp(&(b.node_type == "path"));
-        if cmp == Ordering::Equal {
-          cmp = a.name.cmp(&b.name)
-        }
-        cmp
+        (a.node_type == "path")
+          .cmp(&(b.node_type == "path"))
+          .then(a.name.cmp(&b.name))
       });
 
-      child_nodes.sort_by_key(|k| {
-        let is_dir = (k.node_type == "path") as u8;
-        let name = k.name.as_str();
-        format!("{is_dir}-{name}")
-      });
       children = Some(child_nodes);
     }
   }

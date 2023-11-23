@@ -9,7 +9,7 @@ use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_log::{Target, TargetKind};
 
 use cmd::OpenedUrls;
-use cmd::{get_folder_tree, opened_urls, query, show_tables};
+use cmd::{get_db, get_folder_tree, opened_urls, query, show_tables};
 
 mod api;
 mod cmd;
@@ -117,6 +117,7 @@ fn main() {
       query,
       show_tables,
       opened_urls,
+      get_db,
     ])
     .build(tauri::generate_context!())
     .expect("error while running tauri application")

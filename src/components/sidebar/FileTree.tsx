@@ -28,11 +28,11 @@ export function flattenTree(fileNode: TreeNode, map: Map<string, TreeNode>) {
   });
 }
 
-export const getTypeIcon = (type: string) => {
-  if (type == 'folder-open') {
+export const getTypeIcon = (type: string, expanded: boolean) => {
+  if (type == 'path' && expanded) {
     return <IconFolderOpen />;
   }
-  if (type == 'folder') {
+  if (type == 'path' && !expanded) {
     return <IconFolder />;
   }
   if (type == 'duckdb') {
