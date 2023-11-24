@@ -42,7 +42,7 @@ function display(dataType: string, name: string) {
       }
     } catch (error) {
       console.error(row, name, error);
-      return `\<${error}\>`;
+      return `<${error}>`;
     }
   };
 }

@@ -1,6 +1,7 @@
 import { PostgreSQL, schemaCompletionSource, sql } from '@codemirror/lang-sql';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import { Box, IconButton, useTheme } from '@mui/material';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import { Box, IconButton, Stack, useTheme } from '@mui/material';
 import { basicLight, vscodeDark } from '@uiw/codemirror-themes-all';
 import CodeMirror, {
   ReactCodeMirrorRef,
@@ -58,7 +59,6 @@ export default function Editor() {
       setStmt(id, `${stmt}\n${extra}`);
     }
     (async () => {
-      console.log('get schema==========');
       const schema = await getTables(table.root);
       setTables(schema);
     })();
@@ -79,6 +79,21 @@ export default function Editor() {
 
   const theme = useTheme();
 
+  const handleClick = async () => {
+    if (refs.current?.view) {
+      const view = refs.current.view;
+      const selectedText = view.state.sliceDoc(
+        view.state.selection.main.from,
+        view.state.selection.main.to,
+      );
+
+      if (selectedText?.length > 0) {
+        await refresh(selectedText);
+      } else if (stmt?.length > 0) {
+        await refresh(stmt);
+      }
+    }
+  };
   return (
     <Box
       sx={{
@@ -91,31 +106,7 @@ export default function Editor() {
       }}
     >
       <Box sx={{ height: '100%' }}>
-        <ToolbarContainer>
-          <IconButton
-            size="small"
-            sx={{
-              color: 'green',
-            }}
-            onClick={async () => {
-              if (refs.current?.view) {
-                const view = refs.current.view;
-                const selectedText = view.state.sliceDoc(
-                  view.state.selection.main.from,
-                  view.state.selection.main.to,
-                );
-
-                if (selectedText?.length > 0) {
-                  await refresh(selectedText);
-                } else if (stmt?.length > 0) {
-                  await refresh(stmt);
-                }
-              }
-            }}
-          >
-            <PlayArrowIcon fontSize="inherit" />
-          </IconButton>
-        </ToolbarContainer>
+        <EditorToolbar onClick={handleClick} />
         <CodeMirror
           ref={refs}
           value={stmt}
@@ -141,5 +132,32 @@ export default function Editor() {
         <DatasetItem />
       </Box>
     </Box>
+  );
+}
+
+function EditorToolbar({ onClick }: { onClick: () => void }) {
+  return (
+    <ToolbarContainer>
+      <Stack direction="row">
+        <IconButton
+          size="small"
+          sx={{
+            color: 'green',
+          }}
+          onClick={onClick}
+        >
+          <PlayArrowIcon fontSize="inherit" />
+        </IconButton>
+        <IconButton
+          size="small"
+          sx={{
+            color: 'green',
+          }}
+          onClick={onClick}
+        >
+          <PlaylistAddIcon fontSize="inherit" />
+        </IconButton>{' '}
+      </Stack>
+    </ToolbarContainer>
   );
 }
