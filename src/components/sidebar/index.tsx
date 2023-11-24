@@ -11,9 +11,8 @@ import { ContextMenu, ContextMenuItem } from '@/components/ContextMenu';
 import DBConfig, { useDBConfigStore } from '@/components/DBConfig';
 import DBTreeView from '@/components/sidebar/DBTreeView';
 import { SideToolbar } from '@/components/sidebar/SideToolbar';
-import { DTableType } from '@/stores/dataset';
 import { useDBListStore } from '@/stores/dbList';
-import { useTabsStore } from '@/stores/tabs';
+import { TabContextType, useTabsStore } from '@/stores/tabs';
 
 const TreeViewWrapper = styled(Box)<BoxProps>(() => ({
   width: '100%',
@@ -25,7 +24,9 @@ const TreeViewWrapper = styled(Box)<BoxProps>(() => ({
 }));
 
 function SidebarTree() {
-  const [selectedTable, setSelectedTable] = useState<DTableType | null>(null);
+  const [selectedTable, setSelectedTable] = useState<TabContextType | null>(
+    null,
+  );
   const dbList = useDBListStore((state) => state.dbList);
   const contextMenu = useDBListStore((state) => state.contextMenu);
   const setContextMenu = useDBListStore((state) => state.setContextMenu);

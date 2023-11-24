@@ -2,30 +2,26 @@ import { debounce } from '@mui/material';
 import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
-import { DTableType } from './dataset';
-export interface FileNode {
-  name: string;
-  type?: string;
-  path: string;
-  is_dir: boolean;
-  children?: FileNode[];
-}
-
-export type DBType = {
-  data: FileNode;
+export type TabContextType = {
+  root: string;
+  tableName: string;
   cwd?: string;
+  id: string;
+  type?: string;
+  displayName?: string;
+  extra?: unknown;
 };
 
 interface TabsState {
-  tabs: DTableType[];
-  table?: DTableType;
+  tabs: TabContextType[];
+  table?: TabContextType;
 
   docs: { [key: string]: string };
 }
 
 type TabsAction = {
-  append: (tab: DTableType) => void;
-  update: (tab: DTableType) => void;
+  append: (tab: TabContextType) => void;
+  update: (tab: TabContextType) => void;
   remove: (key: string) => void;
   active: (idx: string) => void;
 
@@ -41,14 +37,14 @@ export const useTabsStore = create<TabsState & TabsAction>()(
         table: undefined,
 
         docs: {},
-        append: (tab: DTableType) =>
+        append: (tab: TabContextType) =>
           set((state) => ({ tabs: [...state.tabs, tab] })),
         active: (index) =>
           set((state) => {
             const idx = state.tabs.findIndex(({ id }) => id === index);
             return { table: state.tabs[idx] };
           }),
-        update: (item: DTableType) => {
+        update: (item: TabContextType) => {
           set((state) => {
             let tabs = state.tabs;
             if (tabs.findIndex(({ id }) => id === item.id) < 0) {

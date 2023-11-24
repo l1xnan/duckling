@@ -14,8 +14,8 @@ import { useDBConfigStore } from '@/components/DBConfig';
 import { MuiIconButton } from '@/components/MuiIconButton';
 import ToggleColorMode from '@/components/ToggleColorMode';
 import Setting from '@/pages/Setting';
-import { DTableType } from '@/stores/dataset';
 import { DialectType, useDBListStore } from '@/stores/dbList';
+import { TabContextType } from '@/stores/tabs';
 import { borderTheme } from '@/utils';
 
 const ToolbarBox = styled(Box)<BoxProps>(({ theme }) => ({
@@ -31,7 +31,7 @@ const ToolbarBox = styled(Box)<BoxProps>(({ theme }) => ({
 export function SideToolbar({
   selectedTable,
 }: {
-  selectedTable: DTableType | null;
+  selectedTable: TabContextType | null;
 }) {
   const dbList = useDBListStore((state) => state.dbList);
   const appendDB = useDBListStore((state) => state.append);

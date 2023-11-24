@@ -9,7 +9,7 @@ use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_log::{Target, TargetKind};
 
 use cmd::OpenedUrls;
-use cmd::{get_db, get_folder_tree, opened_urls, query, show_tables};
+use cmd::{get_db, opened_urls, query, show_tables};
 
 mod api;
 mod cmd;
@@ -114,7 +114,6 @@ fn main() {
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
-      get_folder_tree,
       query,
       show_tables,
       opened_urls,

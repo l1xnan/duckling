@@ -3,7 +3,7 @@ import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
 import { debounce } from '@/utils';
 
-import { DTableType } from './dataset';
+import { TabContextType } from './tabs';
 
 export interface TreeNode {
   name: string;
@@ -29,7 +29,7 @@ export type DBType = {
 type ContextMenuType = {
   mouseX: number;
   mouseY: number;
-  context: DTableType;
+  context: TabContextType;
 } | null;
 
 type DBListState = {

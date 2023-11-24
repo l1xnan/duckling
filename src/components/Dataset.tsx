@@ -26,11 +26,11 @@ import React, {
 
 import Dropdown from '@/components/Dropdown';
 import {
-  DTableType,
   PageContext,
   createDatasetStore,
   usePageStore,
 } from '@/stores/dataset';
+import { TabContextType } from '@/stores/tabs';
 import { borderTheme, convertOrderBy, isDarkTheme } from '@/utils';
 
 import { AgTable } from './AgTable';
@@ -46,7 +46,7 @@ export const PageProvider = ({
   table,
   children,
 }: {
-  table: DTableType;
+  table: TabContextType;
   children: ReactNode;
 }) => {
   const storeRef = useRef(createDatasetStore(table));
@@ -66,7 +66,7 @@ export const usePageStoreApi = () => {
 };
 
 export const MemoPanel = React.memo(
-  ({ table, idx }: { table: DTableType; idx: number }) => {
+  ({ table, idx }: { table: TabContextType; idx: number }) => {
     return (
       <PageProvider table={table}>
         <FileTabPanel value={`${idx}`}>

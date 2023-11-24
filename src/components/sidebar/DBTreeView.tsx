@@ -14,9 +14,8 @@ import {
 } from '@tabler/icons-react';
 import { useMemo, useState } from 'react';
 
-import { DTableType } from '@/stores/dataset';
 import { DBType, TreeNode, useDBListStore } from '@/stores/dbList';
-import { useTabsStore } from '@/stores/tabs';
+import { TabContextType, useTabsStore } from '@/stores/tabs';
 
 import { DBTreeItem, TreeItemLabel } from './DBTreeItem';
 
@@ -61,7 +60,7 @@ export const getTypeIcon = (type: string, expanded: boolean) => {
 
 export interface DBTreeViewProps extends TreeViewProps<boolean> {
   db: DBType;
-  onSelectTable: (item: DTableType) => void;
+  onSelectTable: (item: TabContextType) => void;
 }
 
 export default function DBTreeView({
@@ -81,7 +80,10 @@ export default function DBTreeView({
   const contextMenu = useDBListStore((state) => state.contextMenu);
   const setContextMenu = useDBListStore((state) => state.setContextMenu);
 
-  const handleContextMenu = (event: React.MouseEvent, context: DTableType) => {
+  const handleContextMenu = (
+    event: React.MouseEvent,
+    context: TabContextType,
+  ) => {
     setContextMenu(
       contextMenu === null
         ? {

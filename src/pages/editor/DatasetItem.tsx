@@ -30,11 +30,11 @@ import { FileTabPanel } from '@/components/FileTabs';
 import { TablerSvgIcon } from '@/components/MuiIconButton';
 import { ToolbarContainer } from '@/components/Toolbar';
 import {
-  DTableType,
   PageContext,
   createDatasetStore,
   usePageStore,
 } from '@/stores/dataset';
+import { TabContextType } from '@/stores/tabs';
 import { borderTheme, convertOrderBy, isDarkTheme } from '@/utils';
 
 export interface DatasetProps {
@@ -45,7 +45,7 @@ export const PageProvider = ({
   table,
   children,
 }: {
-  table: DTableType;
+  table: TabContextType;
   children: ReactNode;
 }) => {
   // const storeRef = useRef(
@@ -68,7 +68,7 @@ export const usePageStoreApi = () => {
 };
 
 export const MemoPanel = React.memo(
-  ({ table, idx }: { table: DTableType; idx: number }) => {
+  ({ table, idx }: { table: TabContextType; idx: number }) => {
     return (
       <PageProvider table={table}>
         <FileTabPanel value={`${idx}`}>

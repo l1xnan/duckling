@@ -100,11 +100,6 @@ export async function read_parquet(
   return convert(res);
 }
 
-export async function getFolderTree(name: string): Promise<TreeNode> {
-  const fileTree: TreeNode = await invoke('get_folder_tree', { name });
-  return fileTree;
-}
-
 type GetDBOptionType = {
   url: string;
   dialect: DialectType;

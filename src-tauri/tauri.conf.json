@@ -22,7 +22,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "resources": ["./duckdb.dll"],
+      "resources": [],
       "windows": {
         "wix": {
           "fragmentPaths": []

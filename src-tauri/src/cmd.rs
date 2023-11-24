@@ -1,7 +1,7 @@
 use log::info;
 use std::sync::Mutex;
 
-use crate::api::{ArrowResponse, FileNode};
+use crate::api::ArrowResponse;
 use crate::dialect::duckdb::DuckDbDialect;
 use crate::dialect::file::FileDialect;
 use crate::dialect::{folder, Dialect, FolderDialect, TreeNode};
@@ -9,12 +9,6 @@ use crate::{api, dialect};
 use tauri::State;
 
 pub struct OpenedUrls(pub Mutex<Option<Vec<url::Url>>>);
-
-#[tauri::command]
-pub async fn get_folder_tree(name: &str) -> Result<Option<FileNode>, ()> {
-  let tree = api::directory_tree(name);
-  Ok(tree)
-}
 
 #[tauri::command]
 pub async fn show_tables(path: String) -> ArrowResponse {

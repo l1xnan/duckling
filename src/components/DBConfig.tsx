@@ -8,14 +8,14 @@ import TextField from '@mui/material/TextField';
 import { useEffect, useState } from 'react';
 import { create } from 'zustand';
 
-import { DTableType } from '@/stores/dataset';
 import { useDBListStore } from '@/stores/dbList';
+import { TabContextType } from '@/stores/tabs';
 
 type FormDialogType = {
   open: boolean;
-  db?: DTableType;
+  db?: TabContextType;
   setOpen: (open: boolean) => void;
-  setDB: (db: DTableType) => void;
+  setDB: (db: TabContextType) => void;
   onOpen: () => void;
   onClose: () => void;
 };
@@ -26,7 +26,7 @@ export const useDBConfigStore = create<FormDialogType>((set) => ({
   setOpen: (open: boolean) => set((_) => ({ open })),
   onOpen: () => set((_) => ({ open: true })),
   onClose: () => set((_) => ({ open: false })),
-  setDB: (db: DTableType) => set((_) => ({ db })),
+  setDB: (db: TabContextType) => set((_) => ({ db })),
 }));
 
 export default function FormDialog() {

@@ -4,6 +4,8 @@ import { createStore, useStore } from 'zustand';
 import { query } from '@/api';
 import { genStmt } from '@/utils';
 
+import { TabContextType } from './tabs';
+
 export type SchemaType = {
   name: string;
   dataType: string;
@@ -19,16 +21,6 @@ export interface ArrowResponse {
   message: string;
 }
 
-export type DTableType = {
-  root: string;
-  tableName: string;
-  cwd?: string;
-  id: string;
-  type?: string;
-  displayName?: string;
-  extra?: unknown;
-};
-
 export type DatasetState = {
   page: number;
   perPage: number;
@@ -37,7 +29,7 @@ export type DatasetState = {
   data: unknown[];
 
   tableName?: string;
-  table?: DTableType;
+  table?: TabContextType;
   code?: number;
   message?: string;
   schema: SchemaType[];
@@ -86,7 +78,7 @@ export const usePageStore = () => {
   return useStore(store);
 };
 
-export const createDatasetStore = (table: DTableType) =>
+export const createDatasetStore = (table: TabContextType) =>
   createStore<DatasetState & DatasetAction>((set, get) => ({
     // state
     page: 1,
