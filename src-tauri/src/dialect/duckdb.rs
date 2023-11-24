@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use duckdb::{params, Connection, Result};
+use duckdb::{params, Connection};
 
 use crate::dialect::sql;
 use crate::dialect::{Dialect, TreeNode};
@@ -14,11 +14,12 @@ pub struct DuckDbDialect {
 struct Table {
   table_name: String,
   table_type: String,
+  table_schema: String,
 }
 
 impl Dialect for DuckDbDialect {
   fn get_db(&self) -> Option<TreeNode> {
-    if let Ok(tree) = get_tables(&self.path) {
+    if let Ok(tree) = get_db(&self.path) {
       Some(tree)
     } else {
       None
@@ -26,26 +27,46 @@ impl Dialect for DuckDbDialect {
   }
 }
 
-pub fn get_tables(path: &str) -> duckdb::Result<TreeNode> {
+impl DuckDbDialect {
+  fn get_schema(&self) -> Vec<Table> {
+    if let Ok(tables) = get_tables(&self.path) {
+      tables
+    } else {
+      vec![]
+    }
+  }
+}
+
+pub fn get_tables(path: &str) -> duckdb::Result<Vec<Table>> {
   let db = Connection::open(path)?;
   let sql = r#"
-  select table_name, table_type
+  select table_name, table_type, table_schema
   from information_schema.tables order by table_type, table_name
   "#;
   let mut stmt = db.prepare(sql)?;
 
-  let table_iter = stmt.query_map([], |row| {
+  let rows = stmt.query_map([], |row| {
     Ok(Table {
       table_name: row.get(0)?,
       table_type: row.get(1)?,
+      table_schema: row.get(2)?,
     })
   })?;
+
+  let mut tables = Vec::new();
+  for row in rows {
+    tables.push(row?);
+  }
+  Ok(tables)
+}
+
+pub fn get_db(path: &str) -> duckdb::Result<TreeNode> {
+  let tables = get_tables(path)?;
 
   let mut views_children = vec![];
   let mut tables_children = vec![];
 
-  for table in table_iter {
-    let t = table.unwrap();
+  for t in tables {
     let node = TreeNode {
       name: t.table_name.clone(),
       path: t.table_name.clone(),
