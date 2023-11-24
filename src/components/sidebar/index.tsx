@@ -12,7 +12,7 @@ import DBConfig, { useDBConfigStore } from '@/components/DBConfig';
 import DBTreeView from '@/components/sidebar/DBTreeView';
 import { SideToolbar } from '@/components/sidebar/SideToolbar';
 import { DTableType } from '@/stores/dataset';
-import { TreeNode, useDBListStore } from '@/stores/dbList';
+import { useDBListStore } from '@/stores/dbList';
 import { useTabsStore } from '@/stores/tabs';
 
 const TreeViewWrapper = styled(Box)<BoxProps>(() => ({
@@ -27,21 +27,12 @@ const TreeViewWrapper = styled(Box)<BoxProps>(() => ({
 function SidebarTree() {
   const [selectedTable, setSelectedTable] = useState<DTableType | null>(null);
   const dbList = useDBListStore((state) => state.dbList);
-  const appendDB = useDBListStore((state) => state.append);
   const contextMenu = useDBListStore((state) => state.contextMenu);
   const setContextMenu = useDBListStore((state) => state.setContextMenu);
   const updateTab = useTabsStore((state) => state.update);
   const removeDB = useDBListStore((state) => state.remove);
   const onOpen = useDBConfigStore((state) => state.onOpen);
 
-  async function openDirectory(name?: string) {
-    const fileTree: TreeNode = await invoke('get_folder_tree', { name });
-    if (fileTree) {
-      appendDB({
-        data: fileTree,
-      });
-    }
-  }
   async function openUrl() {
     const path: string = await invoke('opened_urls');
     console.log(path);
@@ -52,7 +43,7 @@ function SidebarTree() {
     const unlisten = listen('open-directory', (e) => {
       console.log(e.payload);
 
-      openDirectory(e.payload as string);
+      // TODO: open data file
     });
     return () => {
       unlisten.then((f) => f());

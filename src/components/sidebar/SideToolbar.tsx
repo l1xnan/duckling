@@ -7,10 +7,7 @@ import {
   IconFolderPlus,
   IconRefresh,
 } from '@tabler/icons-react';
-import { listen } from '@tauri-apps/api/event';
-import { invoke } from '@tauri-apps/api/primitives';
 import * as dialog from '@tauri-apps/plugin-dialog';
-import { useEffect } from 'react';
 
 import { getDB } from '@/api';
 import { useDBConfigStore } from '@/components/DBConfig';
@@ -45,23 +42,6 @@ export function SideToolbar({
     const data = await getDB({ url, dialect });
     appendDB(data);
   }
-
-  async function openUrl() {
-    const path: string = await invoke('opened_urls');
-    console.log(path);
-  }
-
-  useEffect(() => {
-    openUrl();
-    const unlisten = listen('open-directory', (e) => {
-      console.log(e.payload);
-
-      // TODO: open data file
-    });
-    return () => {
-      unlisten.then((f) => f());
-    };
-  }, []);
 
   const onOpen = useDBConfigStore((state) => state.onOpen);
   const setDB = useDBConfigStore((state) => state.setDB);
