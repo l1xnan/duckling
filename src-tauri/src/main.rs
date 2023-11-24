@@ -14,6 +14,7 @@ use cmd::{get_db, get_folder_tree, opened_urls, query, show_tables};
 mod api;
 mod cmd;
 mod dialect;
+mod utils;
 
 fn handle_menu(app: &mut tauri::App) -> tauri::Result<()> {
   let file_menu = SubmenuBuilder::new(app, "File")
@@ -101,7 +102,7 @@ fn main() {
         .target(Target::new(TargetKind::Webview))
         .target(Target::new(TargetKind::Stdout))
         .target(Target::new(TargetKind::LogDir {
-          file_name: Some("duck".into()),
+          file_name: Some("db".into()),
         }))
         .build(),
     )

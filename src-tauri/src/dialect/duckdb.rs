@@ -1,11 +1,14 @@
+use std::path::{Path, PathBuf};
+
 use duckdb::{params, Connection, Result};
 
 use crate::dialect::sql;
 use crate::dialect::{Dialect, TreeNode};
+use crate::utils::get_file_name;
 
 #[derive(Debug, Default)]
 pub struct DuckDbDialect {
-  path: String,
+  pub path: String,
 }
 
 struct Table {
@@ -15,14 +18,20 @@ struct Table {
 
 impl Dialect for DuckDbDialect {
   fn get_db(&self) -> Option<TreeNode> {
-    let rows = sql::show_tables(self.path.clone());
-    None
+    if let Ok(tree) = get_tables(&self.path) {
+      Some(tree)
+    } else {
+      None
+    }
   }
 }
 
-pub fn get_tables(path: String) -> duckdb::Result<()> {
+pub fn get_tables(path: &str) -> duckdb::Result<TreeNode> {
   let db = Connection::open(path)?;
-  let sql = r#"select table_name, table_type from information_schema.tables order by table_type, table_name"#;
+  let sql = r#"
+  select table_name, table_type
+  from information_schema.tables order by table_type, table_name
+  "#;
   let mut stmt = db.prepare(sql)?;
 
   let table_iter = stmt.query_map([], |row| {
@@ -32,25 +41,14 @@ pub fn get_tables(path: String) -> duckdb::Result<()> {
     })
   })?;
 
-  let mut views = TreeNode {
-    name: "views".to_string(),
-    path: "views".to_string(),
-    node_type: "path".to_string(),
-    children: None,
-  };
-
-  let mut tables = TreeNode {
-    name: "tables".to_string(),
-    path: "tables".to_string(),
-    node_type: "path".to_string(),
-    children: None,
-  };
+  let mut views_children = vec![];
+  let mut tables_children = vec![];
 
   for table in table_iter {
     let t = table.unwrap();
     let node = TreeNode {
-      name: t.table_name,
-      path: "tables".to_string(),
+      name: t.table_name.clone(),
+      path: t.table_name.clone(),
       node_type: String::from(if t.table_type == "VIEW" {
         "view"
       } else {
@@ -58,11 +56,29 @@ pub fn get_tables(path: String) -> duckdb::Result<()> {
       }),
       children: None,
     };
-    // if t.table_type == "VIEW" {
-    //   views.children;
-    // } else {
-    //   tables.children;
-    // }
+    if t.table_type == "VIEW" {
+      views_children.push(node);
+    } else {
+      tables_children.push(node);
+    }
   }
-  Ok(())
+  Ok(TreeNode {
+    name: get_file_name(path),
+    path: path.to_string(),
+    node_type: "database".to_string(),
+    children: Some(vec![
+      TreeNode {
+        name: "tables".to_string(),
+        path: "tables".to_string(),
+        node_type: "path".to_string(),
+        children: Some(tables_children),
+      },
+      TreeNode {
+        name: "views".to_string(),
+        path: "views".to_string(),
+        node_type: "path".to_string(),
+        children: Some(views_children),
+      },
+    ]),
+  })
 }

@@ -38,6 +38,9 @@ export const getTypeIcon = (type: string, expanded: boolean) => {
   if (type == 'duckdb') {
     return <IconDatabase />;
   }
+  if (type == 'database') {
+    return <IconDatabase />;
+  }
   if (type == 'table') {
     return <IconTable />;
   }

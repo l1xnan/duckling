@@ -18,7 +18,7 @@ import { MuiIconButton } from '@/components/MuiIconButton';
 import ToggleColorMode from '@/components/ToggleColorMode';
 import Setting from '@/pages/Setting';
 import { DTableType } from '@/stores/dataset';
-import { useDBListStore } from '@/stores/dbList';
+import { DialectType, useDBListStore } from '@/stores/dbList';
 import { borderTheme } from '@/utils';
 
 const ToolbarBox = styled(Box)<BoxProps>(({ theme }) => ({
@@ -49,8 +49,8 @@ export function SideToolbar({
       });
     }
   }
-  async function handleGetDB(path: string) {
-    const data = await getDB({ url: path, dialect: 'folder' });
+  async function handleGetDB(url: string, dialect: DialectType) {
+    const data = await getDB({ url, dialect });
     appendDB(data);
   }
 
@@ -92,7 +92,12 @@ export function SideToolbar({
         },
       ],
     });
-    if (res) {
+    if (!res) {
+      return;
+    }
+    if (res.path.endsWith('.duckdb')) {
+      handleGetDB(res.path, 'duckdb');
+    } else {
       openDirectory(res.path);
     }
   }
@@ -102,7 +107,7 @@ export function SideToolbar({
       directory: true,
     });
     if (res) {
-      handleGetDB(res);
+      handleGetDB(res, 'folder');
     }
   }
 

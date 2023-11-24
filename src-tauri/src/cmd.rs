@@ -2,7 +2,8 @@ use log::info;
 use std::sync::Mutex;
 
 use crate::api::{ArrowResponse, FileNode};
-use crate::dialect::{folder, TreeNode, FolderDialect, Dialect};
+use crate::dialect::duckdb::DuckDbDialect;
+use crate::dialect::{folder, Dialect, FolderDialect, TreeNode};
 use crate::{api, dialect};
 use tauri::State;
 
@@ -54,8 +55,12 @@ pub async fn get_db(url: &str, dialect: &str) -> Result<Option<TreeNode>, String
       path: String::from(url),
     };
     Ok(d.get_db())
+  } else if dialect == "duckdb" {
+    let d = DuckDbDialect {
+      path: String::from(url),
+    };
+    Ok(d.get_db())
   } else {
     Err("not support dialect".to_string())
   }
 }
-
