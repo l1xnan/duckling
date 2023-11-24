@@ -60,13 +60,13 @@ export const getTypeIcon = (type: string, expanded: boolean) => {
 
 export interface DBTreeViewProps extends TreeViewProps<boolean> {
   db: DBType;
-  onSelectTable: (item: TabContextType) => void;
+  onSelectedTable: (item: TabContextType) => void;
 }
 
 export default function DBTreeView({
   db,
   selected,
-  onSelectTable,
+  onSelectedTable,
   ...rest
 }: DBTreeViewProps) {
   const data = db.data;
@@ -78,6 +78,7 @@ export default function DBTreeView({
   }, [db.id, db]);
   const updateTab = useTabsStore((state) => state.update);
   const contextMenu = useDBListStore((state) => state.contextMenu);
+  const dbMap = useDBListStore((state) => state.dbMap);
   const setContextMenu = useDBListStore((state) => state.setContextMenu);
 
   const handleContextMenu = (
@@ -106,6 +107,7 @@ export default function DBTreeView({
         if (node.path == data.path) {
           const context = {
             root: db.id,
+            dbName: dbMap.get(db.id)?.data.path as string,
             tableName: node.path as string,
             cwd: db.cwd,
             id: `${db.id}:${node.path}`,
@@ -136,12 +138,15 @@ export default function DBTreeView({
         const node = fileMap.get(nodeIds);
         const item = {
           root: db.id,
+          dbName: dbMap.get(db.id)?.data.path as string,
           id: `${db.id}:${nodeIds}`,
           tableName: nodeIds as string,
+          displayName: nodeIds as string,
           cwd: db.cwd,
         };
-        onSelectTable(item);
+        onSelectedTable(item);
         if (node && node.type !== 'path' && !node.path.endsWith('.duckdb')) {
+          console.log('===', node, item);
           updateTab!(item);
         }
       }}

@@ -59,14 +59,15 @@ function SidebarTree() {
     <>
       <SideToolbar selectedTable={selectedTable} />
       <TreeViewWrapper>
-        {dbList.map((db, i) => (
+        {dbList.map((db, _i) => (
           <DBTreeView
             key={db.id}
             db={db}
             selected={
-              selectedTable?.rootKey == i ? selectedTable.tableName : null
+              // mark selected table in current db
+              selectedTable?.root == db.id ? selectedTable.tableName : null
             }
-            onSelectTable={setSelectedTable}
+            onSelectedTable={setSelectedTable}
           />
         ))}
       </TreeViewWrapper>

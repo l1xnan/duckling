@@ -98,7 +98,9 @@ export const MemoDataset = React.memo(function Dataset() {
       (async () => {
         try {
           await refresh();
-        } catch (error) {}
+        } catch (error) {
+          /* empty */
+        }
       })();
     }
   }, [page, perPage, orderBy, sqlWhere]);

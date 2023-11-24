@@ -4,6 +4,7 @@ import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
 export type TabContextType = {
   root: string;
+  dbName: string;
   tableName: string;
   cwd?: string;
   id: string;

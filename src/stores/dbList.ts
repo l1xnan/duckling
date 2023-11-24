@@ -1,8 +1,9 @@
 import { create } from 'zustand';
-import { createJSONStorage, devtools, persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { debounce } from '@/utils';
 
+import { computed } from './computed';
 import { TabContextType } from './tabs';
 
 export interface TreeNode {
@@ -49,17 +50,29 @@ type DBListAction = {
   setContextMenu: (contextMenu: ContextMenuType) => void;
 };
 
-export const useDBListStore = create<DBListState & DBListAction>()(
-  devtools(
-    persist(
-      (set) => ({
+type ComputedStore = {
+  dbMap: Map<string, DBType>;
+};
+
+type DBListStore = DBListState & DBListAction;
+const computeState = (state: DBListStore): ComputedStore => {
+  console.log('computed:', state.dbList);
+  return {
+    dbMap: new Map(state.dbList.map((db) => [db.id, db])),
+  };
+};
+
+export const useDBListStore = create<DBListStore & ComputedStore>()(
+  computed(
+    persist<DBListStore>(
+      (set, _get) => ({
         // state
         size: 300,
         dbList: [],
 
         contextMenu: null,
         setContextMenu: (contextMenu: ContextMenuType) => {
-          set((_) => ({ contextMenu }));
+          set(() => ({ contextMenu }));
         },
 
         // action
@@ -97,5 +110,6 @@ export const useDBListStore = create<DBListState & DBListAction>()(
         storage: createJSONStorage(() => localStorage),
       },
     ),
+    computeState,
   ),
 );

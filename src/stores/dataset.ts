@@ -139,8 +139,8 @@ export const createDatasetStore = (table: TabContextType) =>
       let path = ':memory:';
       let tableName = table.tableName;
 
-      if (table?.root?.endsWith('.duckdb')) {
-        path = table.root;
+      if (table?.dbName?.endsWith('.duckdb')) {
+        path = table.dbName;
       } else if (tableName.endsWith('.csv')) {
         tableName = `read_csv_auto('${table.tableName}')`;
       } else if (tableName.endsWith('.parquet')) {
@@ -164,7 +164,5 @@ export const createDatasetStore = (table: TabContextType) =>
         cwd: table.cwd,
       });
       set({ ...data });
-
-      console.log('refresh:', data);
     },
   }));
