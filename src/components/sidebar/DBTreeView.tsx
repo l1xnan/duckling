@@ -59,26 +59,24 @@ export const getTypeIcon = (type: string, expanded: boolean) => {
   return <IconFile />;
 };
 
-export interface DBTreeProps extends TreeViewProps<boolean> {
-  rootKey: number;
+export interface DBTreeViewProps extends TreeViewProps<boolean> {
   db: DBType;
   onSelectTable: (item: DTableType) => void;
 }
 
-export default function DBTree({
-  rootKey,
+export default function DBTreeView({
   db,
   selected,
   onSelectTable,
   ...rest
-}: DBTreeProps) {
+}: DBTreeViewProps) {
   const data = db.data;
 
   const fileMap = useMemo(() => {
     const fileMap = new Map();
     flattenTree(data, fileMap);
     return fileMap;
-  }, [rootKey, db]);
+  }, [db.id, db]);
   const updateTab = useTabsStore((state) => state.update);
   const contextMenu = useDBListStore((state) => state.contextMenu);
   const setContextMenu = useDBListStore((state) => state.setContextMenu);
@@ -102,18 +100,18 @@ export default function DBTree({
       onContextMenu={(event) => {
         event.preventDefault();
         event.stopPropagation();
-        if (node.path != data.path) {
-          return;
+        // root path context menu
+        if (node.path == data.path) {
+          const context = {
+            root: db.id,
+            tableName: node.path as string,
+            cwd: db.cwd,
+            id: `${db.id}:${node.path}`,
+            type: 'editor',
+          };
+          handleContextMenu(event, context);
         }
-        const context = {
-          rootKey,
-          root: data.path,
-          tableName: node.path as string,
-          cwd: db.cwd,
-          id: `${rootKey}:${node.path}`,
-          type: 'editor',
-        };
-        handleContextMenu(event, context);
+        // TODO: other
       }}
       label={<TreeItemLabel nodeId={node.path} node={node} />}
     >
@@ -135,11 +133,10 @@ export default function DBTree({
       onNodeSelect={(_, nodeIds) => {
         const node = fileMap.get(nodeIds);
         const item = {
-          rootKey,
-          root: data.path,
+          root: db.id,
+          id: `${db.id}:${nodeIds}`,
           tableName: nodeIds as string,
           cwd: db.cwd,
-          id: `${rootKey}:${nodeIds}`,
         };
         onSelectTable(item);
         if (node && node.type !== 'path' && !node.path.endsWith('.duckdb')) {

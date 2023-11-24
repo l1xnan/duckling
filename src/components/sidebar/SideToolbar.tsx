@@ -12,7 +12,7 @@ import { invoke } from '@tauri-apps/api/primitives';
 import * as dialog from '@tauri-apps/plugin-dialog';
 import { useEffect } from 'react';
 
-import { getDB, getDBTree, getFolderTree } from '@/api';
+import { getDB } from '@/api';
 import { useDBConfigStore } from '@/components/DBConfig';
 import { MuiIconButton } from '@/components/MuiIconButton';
 import ToggleColorMode from '@/components/ToggleColorMode';
@@ -41,14 +41,6 @@ export function SideToolbar({
   const removeDB = useDBListStore((state) => state.remove);
   const updateDB = useDBListStore((state) => state.update);
 
-  async function openDirectory(name: string) {
-    const fileTree = await getFolderTree(name);
-    if (fileTree) {
-      appendDB({
-        data: fileTree,
-      });
-    }
-  }
   async function handleGetDB(url: string, dialect: DialectType) {
     const data = await getDB({ url, dialect });
     appendDB(data);
@@ -64,7 +56,7 @@ export function SideToolbar({
     const unlisten = listen('open-directory', (e) => {
       console.log(e.payload);
 
-      openDirectory(e.payload as string);
+      // TODO: open data file
     });
     return () => {
       unlisten.then((f) => f());
@@ -80,7 +72,9 @@ export function SideToolbar({
   };
 
   async function handleRemoveDB() {
-    removeDB(selectedTable?.root!);
+    if (selectedTable) {
+      removeDB(selectedTable.root);
+    }
   }
   async function handleAppendDB() {
     const res = await dialog.open({
@@ -98,7 +92,7 @@ export function SideToolbar({
     if (res.path.endsWith('.duckdb')) {
       handleGetDB(res.path, 'duckdb');
     } else {
-      openDirectory(res.path);
+      handleGetDB(res.path, 'file');
     }
   }
 
@@ -112,19 +106,24 @@ export function SideToolbar({
   }
 
   async function handleRefresh() {
-    const root = selectedTable?.root;
-    if (root) {
-      const data = root.endsWith('.duckdb')
-        ? await getDBTree(root)
-        : await getFolderTree(root);
-      console.table(data);
-      updateDB(data);
+    if (selectedTable) {
+      const root = selectedTable.root;
+
+      dbList.forEach(async (db) => {
+        if (db.id == root) {
+          const { data } = await getDB({
+            url: db.data.path,
+            dialect: db.dialect,
+          });
+          updateDB(root, data);
+        }
+      });
     }
   }
 
-  const isRoot = dbList
-    .map((item) => item.data.path)
-    .includes(selectedTable?.tableName!);
+  const isRoot = selectedTable
+    ? dbList.map((item) => item.data.path).includes(selectedTable?.tableName)
+    : false;
 
   return (
     <>

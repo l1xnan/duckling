@@ -58,6 +58,7 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
       child_nodes.sort_by(|a, b| {
         (a.node_type == "path")
           .cmp(&(b.node_type == "path"))
+          .reverse()
           .then(a.name.cmp(&b.name))
       });
 

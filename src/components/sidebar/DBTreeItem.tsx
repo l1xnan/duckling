@@ -18,7 +18,7 @@ import * as React from 'react';
 
 import { TreeNode } from '@/stores/dbList';
 
-import { getTypeIcon } from './DBTree';
+import { getTypeIcon } from './DBTreeView';
 
 const CustomContentRoot = styled('div')(({ theme }) => ({
   WebkitTapHighlightColor: 'transparent',

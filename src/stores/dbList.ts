@@ -40,8 +40,9 @@ type DBListState = {
 
 type DBListAction = {
   append: (db: DBType) => void;
-  update: (db: Partial<TreeNode>) => void;
-  remove: (dbName: string) => void;
+  update: (id: string, data: TreeNode) => void;
+  // remove db by db id
+  remove: (id: string) => void;
   setCwd: (cwd: string, path: string) => void;
   setSize: (size: number) => void;
 
@@ -64,26 +65,20 @@ export const useDBListStore = create<DBListState & DBListAction>()(
         // action
         append: (db) => set((state) => ({ dbList: [...state.dbList, db] })),
         setSize: debounce((size) => set((_) => ({ size }))),
-        remove: (dbName) =>
+        remove: (id) =>
           set((state) => ({
-            dbList: state.dbList?.filter(
-              (item) => !(item.data.path === dbName),
-            ),
+            dbList: state.dbList?.filter((item) => !(item.id === id)),
           })),
-        update: ({ path, children }) =>
+        update: (id, data) =>
           set((state) => ({
-            dbList: state.dbList.map((item) => {
-              if (item.data.path == path) {
-                return {
-                  ...item,
-                  data: {
-                    ...item.data,
-                    children: children,
+            dbList: state.dbList.map((item) =>
+              item.id !== id
+                ? item
+                : {
+                    ...item,
+                    data,
                   },
-                };
-              }
-              return item;
-            }),
+            ),
           })),
         setCwd: (cwd: string, path: string) =>
           set((state) => ({

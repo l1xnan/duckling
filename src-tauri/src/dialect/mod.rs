@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 pub mod folder;
 pub mod duckdb;
+pub mod file;
 
 pub use self::folder::FolderDialect;
 

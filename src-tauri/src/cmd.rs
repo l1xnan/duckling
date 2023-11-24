@@ -3,6 +3,7 @@ use std::sync::Mutex;
 
 use crate::api::{ArrowResponse, FileNode};
 use crate::dialect::duckdb::DuckDbDialect;
+use crate::dialect::file::FileDialect;
 use crate::dialect::{folder, Dialect, FolderDialect, TreeNode};
 use crate::{api, dialect};
 use tauri::State;
@@ -52,6 +53,11 @@ pub async fn opened_urls(state: State<'_, OpenedUrls>) -> Result<String, String>
 pub async fn get_db(url: &str, dialect: &str) -> Result<Option<TreeNode>, String> {
   if dialect == "folder" {
     let d = FolderDialect {
+      path: String::from(url),
+    };
+    Ok(d.get_db())
+  } else if dialect == "file" {
+    let d = FileDialect {
       path: String::from(url),
     };
     Ok(d.get_db())

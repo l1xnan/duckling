@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 
 import { ContextMenu, ContextMenuItem } from '@/components/ContextMenu';
 import DBConfig, { useDBConfigStore } from '@/components/DBConfig';
-import FileTreeView from '@/components/sidebar/DBTree';
+import DBTreeView from '@/components/sidebar/DBTreeView';
 import { SideToolbar } from '@/components/sidebar/SideToolbar';
 import { DTableType } from '@/stores/dataset';
 import { TreeNode, useDBListStore } from '@/stores/dbList';
@@ -68,9 +68,8 @@ function SidebarTree() {
       <SideToolbar selectedTable={selectedTable} />
       <TreeViewWrapper>
         {dbList.map((db, i) => (
-          <FileTreeView
-            key={i}
-            rootKey={i}
+          <DBTreeView
+            key={db.id}
             db={db}
             selected={
               selectedTable?.rootKey == i ? selectedTable.tableName : null

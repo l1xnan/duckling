@@ -20,7 +20,6 @@ export interface ArrowResponse {
 }
 
 export type DTableType = {
-  rootKey: number;
   root: string;
   tableName: string;
   cwd?: string;
