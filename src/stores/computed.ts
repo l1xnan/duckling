@@ -1,6 +1,7 @@
 // refer to:
 // 1. https://docs.pmnd.rs/zustand/guides/typescript#middleware-that-changes-the-store-type
 // 2. https://github.com/cmlarsen/zustand-middleware-computed-state
+// 3. https://github.com/lxw15337674/zustand-middleware-computed/blob/main/src/index.ts
 import { StateCreator, StoreApi, StoreMutatorIdentifier } from 'zustand';
 
 export declare type ComputedState<T, S> = (state: T) => S;

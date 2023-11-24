@@ -52,13 +52,31 @@ type DBListAction = {
 
 type ComputedStore = {
   dbMap: Map<string, DBType>;
+  dbTableMap: Map<string, Map<string, TreeNode>>;
 };
 
 type DBListStore = DBListState & DBListAction;
+
+export function flattenTree(fileNode: TreeNode, map: Map<string, TreeNode>) {
+  map.set(fileNode.path, fileNode);
+
+  fileNode?.children?.forEach((child) => {
+    flattenTree(child, map);
+  });
+}
+
 const computeState = (state: DBListStore): ComputedStore => {
   console.log('computed:', state.dbList);
+
   return {
     dbMap: new Map(state.dbList.map((db) => [db.id, db])),
+    dbTableMap: new Map(
+      state.dbList.map((db) => {
+        const fileMap = new Map();
+        flattenTree(db.data, fileMap);
+        return [db.id, fileMap];
+      }),
+    ),
   };
 };
 

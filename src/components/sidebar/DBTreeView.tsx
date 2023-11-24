@@ -12,20 +12,12 @@ import {
   IconFolderOpen,
   IconTable,
 } from '@tabler/icons-react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { DBType, TreeNode, useDBListStore } from '@/stores/dbList';
 import { TabContextType, useTabsStore } from '@/stores/tabs';
 
 import { DBTreeItem, TreeItemLabel } from './DBTreeItem';
-
-export function flattenTree(fileNode: TreeNode, map: Map<string, TreeNode>) {
-  map.set(fileNode.path, fileNode);
-
-  fileNode?.children?.forEach((child) => {
-    flattenTree(child, map);
-  });
-}
 
 export const getTypeIcon = (type: string, expanded: boolean) => {
   if (type == 'path' && expanded) {
@@ -69,15 +61,9 @@ export default function DBTreeView({
   onSelectedTable,
   ...rest
 }: DBTreeViewProps) {
-  const data = db.data;
-
-  const fileMap = useMemo(() => {
-    const fileMap = new Map();
-    flattenTree(data, fileMap);
-    return fileMap;
-  }, [db.id, db]);
   const updateTab = useTabsStore((state) => state.update);
   const contextMenu = useDBListStore((state) => state.contextMenu);
+  const dbTableMap = useDBListStore((state) => state.dbTableMap);
   const dbMap = useDBListStore((state) => state.dbMap);
   const setContextMenu = useDBListStore((state) => state.setContextMenu);
 
@@ -104,7 +90,7 @@ export default function DBTreeView({
         event.preventDefault();
         event.stopPropagation();
         // root path context menu
-        if (node.path == data.path) {
+        if (node.path == db.data.path) {
           const context = {
             root: db.id,
             dbName: dbMap.get(db.id)?.data.path as string,
@@ -135,18 +121,18 @@ export default function DBTreeView({
       defaultCollapseIcon={<ExpandMoreIcon />}
       defaultExpandIcon={<ChevronRightIcon />}
       onNodeSelect={(_, nodeIds) => {
-        const node = fileMap.get(nodeIds);
+        const nodes = dbTableMap.get(db.id)!;
+        const node = nodes.get(nodeIds as string);
         const item = {
+          id: `${db.id}:${nodeIds}`,
           root: db.id,
           dbName: dbMap.get(db.id)?.data.path as string,
-          id: `${db.id}:${nodeIds}`,
           tableName: nodeIds as string,
-          displayName: nodeIds as string,
+          displayName: node?.name as string,
           cwd: db.cwd,
         };
         onSelectedTable(item);
         if (node && node.type !== 'path' && !node.path.endsWith('.duckdb')) {
-          console.log('===', node, item);
           updateTab!(item);
         }
       }}
@@ -156,7 +142,7 @@ export default function DBTreeView({
       sx={{ position: 'relative' }}
       {...rest}
     >
-      {renderTree(data)}
+      {renderTree(db.data)}
     </TreeView>
   );
 }
