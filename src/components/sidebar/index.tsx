@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 
 import { ContextMenu, ContextMenuItem } from '@/components/ContextMenu';
 import DBConfig, { useDBConfigStore } from '@/components/DBConfig';
-import FileTreeView from '@/components/sidebar/FileTree';
+import FileTreeView from '@/components/sidebar/DBTree';
 import { SideToolbar } from '@/components/sidebar/SideToolbar';
 import { DTableType } from '@/stores/dataset';
 import { TreeNode, useDBListStore } from '@/stores/dbList';

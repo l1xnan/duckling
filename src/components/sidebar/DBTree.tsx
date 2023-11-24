@@ -59,19 +59,19 @@ export const getTypeIcon = (type: string, expanded: boolean) => {
   return <IconFile />;
 };
 
-export interface FileTreeProps extends TreeViewProps<boolean> {
+export interface DBTreeProps extends TreeViewProps<boolean> {
   rootKey: number;
   db: DBType;
   onSelectTable: (item: DTableType) => void;
 }
 
-export default function FileTree({
+export default function DBTree({
   rootKey,
   db,
   selected,
   onSelectTable,
   ...rest
-}: FileTreeProps) {
+}: DBTreeProps) {
   const data = db.data;
 
   const fileMap = useMemo(() => {
@@ -142,7 +142,7 @@ export default function FileTree({
           id: `${rootKey}:${nodeIds}`,
         };
         onSelectTable(item);
-        if (node && !node?.is_dir && !node.path.endsWith('.duckdb')) {
+        if (node && node.type !== 'path' && !node.path.endsWith('.duckdb')) {
           updateTab!(item);
         }
       }}
