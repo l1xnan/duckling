@@ -57,25 +57,23 @@ type ComputedStore = {
 
 type DBListStore = DBListState & DBListAction;
 
-export function flattenTree(fileNode: TreeNode, map: Map<string, TreeNode>) {
-  map.set(fileNode.path, fileNode);
-
-  fileNode?.children?.forEach((child) => {
-    flattenTree(child, map);
-  });
+export function flattenTree(tree: TreeNode) {
+  const result = new Map();
+  function flatten(node: TreeNode) {
+    result.set(node.path, node);
+    if (node.children && node.children.length > 0) {
+      node.children.forEach(flatten);
+    }
+  }
+  flatten(tree);
+  return result;
 }
 
 const computeState = (state: DBListStore): ComputedStore => {
-  console.log('computed:', state.dbList);
-
   return {
     dbMap: new Map(state.dbList.map((db) => [db.id, db])),
     dbTableMap: new Map(
-      state.dbList.map((db) => {
-        const fileMap = new Map();
-        flattenTree(db.data, fileMap);
-        return [db.id, fileMap];
-      }),
+      state.dbList.map((db) => [db.id, flattenTree(db.data)]),
     ),
   };
 };
