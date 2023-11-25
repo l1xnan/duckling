@@ -34,7 +34,7 @@ import { TabContextType } from '@/stores/tabs';
 import { borderTheme, convertOrderBy, isDarkTheme } from '@/utils';
 
 import { AgTable } from './AgTable';
-import { FileTabPanel } from './FileTabs';
+import { PageTabPanel } from './PageTabs';
 import { TablerSvgIcon } from './MuiIconButton';
 import { ToolbarContainer } from './Toolbar';
 
@@ -69,9 +69,9 @@ export const MemoPanel = React.memo(
   ({ table, idx }: { table: TabContextType; idx: number }) => {
     return (
       <PageProvider table={table}>
-        <FileTabPanel value={`${idx}`}>
+        <PageTabPanel value={`${idx}`}>
           <MemoDataset />
-        </FileTabPanel>
+        </PageTabPanel>
       </PageProvider>
     );
   },

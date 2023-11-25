@@ -5,8 +5,8 @@ import { styled } from '@mui/material/styles';
 import { useMemo } from 'react';
 
 import { MemoDataset, PageProvider } from '@/components/Dataset';
-import { FileTab, FileTabList, FileTabPanel } from '@/components/FileTabs';
 import { Content, Layout, Sidebar } from '@/components/Layout';
+import { PageTab, PageTabList, PageTabPanel } from '@/components/PageTabs';
 import SidebarTree from '@/components/sidebar';
 import { useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
@@ -29,18 +29,18 @@ function Home() {
   const tabs = useTabsStore((state) => state.tabs);
   const activateTab = useTabsStore((state) => state.active);
   const removeTab = useTabsStore((state) => state.remove);
-  const currentTab = useTabsStore((state) => state.table);
+  const currentTab = useTabsStore((state) => state.currentTab);
 
   const tabList = useMemo(() => {
     return (
-      <FileTabList
+      <PageTabList
         variant="scrollable"
         scrollButtons="auto"
         onChange={(_, value) => activateTab(value)}
       >
         {tabs.map((tab) => {
           return (
-            <FileTab
+            <PageTab
               key={tab.id}
               value={tab.id}
               label={
@@ -69,7 +69,7 @@ function Home() {
             />
           );
         })}
-      </FileTabList>
+      </PageTabList>
     );
   }, [tabs]);
 
@@ -77,9 +77,9 @@ function Home() {
     return tabs.map((tab) => {
       return (
         <PageProvider key={tab.id} table={tab}>
-          <FileTabPanel value={tab.id}>
+          <PageTabPanel value={tab.id}>
             {tab.type === 'editor' ? <Editor /> : <MemoDataset />}
-          </FileTabPanel>
+          </PageTabPanel>
         </PageProvider>
       );
     });

@@ -26,7 +26,7 @@ import React, {
 
 import { AgTable } from '@/components/AgTable';
 import Dropdown from '@/components/Dropdown';
-import { FileTabPanel } from '@/components/FileTabs';
+import { PageTabPanel } from '@/components/PageTabs';
 import { TablerSvgIcon } from '@/components/MuiIconButton';
 import { ToolbarContainer } from '@/components/Toolbar';
 import {
@@ -71,9 +71,9 @@ export const MemoPanel = React.memo(
   ({ table, idx }: { table: TabContextType; idx: number }) => {
     return (
       <PageProvider table={table}>
-        <FileTabPanel value={`${idx}`}>
+        <PageTabPanel value={`${idx}`}>
           <DatasetItem />
-        </FileTabPanel>
+        </PageTabPanel>
       </PageProvider>
     );
   },

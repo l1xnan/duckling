@@ -15,7 +15,7 @@ export type TabContextType = {
 
 interface TabsState {
   tabs: TabContextType[];
-  table?: TabContextType;
+  currentTab?: TabContextType;
 
   docs: { [key: string]: string };
 }
@@ -35,7 +35,7 @@ export const useTabsStore = create<TabsState & TabsAction>()(
     persist(
       (set, _get) => ({
         tabs: [],
-        table: undefined,
+        currentTab: undefined,
 
         docs: {},
         append: (tab: TabContextType) =>
@@ -43,7 +43,7 @@ export const useTabsStore = create<TabsState & TabsAction>()(
         active: (index) =>
           set((state) => {
             const idx = state.tabs.findIndex(({ id }) => id === index);
-            return { table: state.tabs[idx] };
+            return { currentTab: state.tabs[idx] };
           }),
         update: (item: TabContextType) => {
           set((state) => {
@@ -51,13 +51,13 @@ export const useTabsStore = create<TabsState & TabsAction>()(
             if (tabs.findIndex(({ id }) => id === item.id) < 0) {
               tabs = [...tabs, item];
             }
-            return { table: item, tabs };
+            return { currentTab: item, tabs };
           });
         },
         remove: (key) => {
           set((state) => {
             const tabs = state.tabs;
-            let table = state.table;
+            let table = state.currentTab;
             const delIndex = tabs.findIndex(({ id }) => id === key);
             const updatedTabs = tabs.filter((_tab, index) => {
               return index !== delIndex;
@@ -69,7 +69,7 @@ export const useTabsStore = create<TabsState & TabsAction>()(
 
             return {
               tabs: updatedTabs,
-              table,
+              currentTab: table,
             };
           });
         },

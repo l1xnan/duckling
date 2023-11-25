@@ -95,6 +95,7 @@ export default function DBTreeView({
             root: db.id,
             dbName: dbMap.get(db.id)?.data.path as string,
             tableName: node.path as string,
+            displayName: node.name,
             cwd: db.cwd,
             id: `${db.id}:${node.path}`,
             type: 'editor',

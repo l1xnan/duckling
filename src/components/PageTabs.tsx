@@ -4,7 +4,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { borderTheme, isDarkTheme } from '@/utils';
 
-export const FileTabList = styled(TabList)(({ theme }) => ({
+export const PageTabList = styled(TabList)(({ theme }) => ({
   borderBottom: borderTheme(theme),
   maxHeight: '32px',
   minHeight: '32px',
@@ -12,7 +12,7 @@ export const FileTabList = styled(TabList)(({ theme }) => ({
   '& .MuiTabs-indicator': {},
 }));
 
-export const FileTab = styled((props: TabProps) => (
+export const PageTab = styled((props: TabProps) => (
   <Tab disableRipple {...props} />
 ))(({ theme }) => ({
   minHeight: '32px',
@@ -39,7 +39,7 @@ export const FileTab = styled((props: TabProps) => (
   },
 }));
 
-export const FileTabPanel: FunctionComponent<
+export const PageTabPanel: FunctionComponent<
   PropsWithChildren<TabPanelProps>
 > = ({ children, value }) => {
   const { value: contextValue } = useTabContext() || {};
