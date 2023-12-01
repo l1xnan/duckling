@@ -17,7 +17,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 arrow = { version = "47.0.0", features = ["prettyprint"] }
 
-duckdb = { version = "0.9.1", features = [
+duckdb = { version = "0.9.2", features = [
     "modern-full",
     "bundled"
 ] }
