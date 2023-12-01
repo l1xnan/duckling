@@ -32,7 +32,7 @@
     "@tauri-apps/plugin-process": "2.0.0-alpha.3",
     "@tauri-apps/plugin-updater": "2.0.0-alpha.3",
     "@uiw/codemirror-themes-all": "^4.21.20",
-    "@uiw/react-codemirror": "^4.21.20",
+    "@uiw/react-codemirror": "^4.21.21",
     "ag-grid-community": "^30.2.1",
     "ag-grid-react": "^30.2.1",
     "ahooks": "^3.7.8",
