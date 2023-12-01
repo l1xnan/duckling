@@ -93,8 +93,8 @@ dependencies:
     specifier: ^10.0.3
     version: 10.0.3
   material-react-table:
-    specifier: 2.0.0
-    version: 2.0.0(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.14.18)(@mui/material@5.14.18)(@mui/x-date-pickers@6.18.2)(react-dom@18.2.0)(react@18.2.0)
+    specifier: 2.0.4
+    version: 2.0.4(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.14.18)(@mui/material@5.14.18)(@mui/x-date-pickers@6.18.2)(react-dom@18.2.0)(react@18.2.0)
   nanoid:
     specifier: ^5.0.3
     version: 5.0.3
@@ -3861,8 +3861,8 @@ packages:
       yallist: 4.0.0
     dev: true
 
-  /material-react-table@2.0.0(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.14.18)(@mui/material@5.14.18)(@mui/x-date-pickers@6.18.2)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-r/e0PZDkCkFs4tOxY65zTJjcXZYfiqacU0dD+A2qGbP+FABvjLacCHoc+PwAe9zzx86/uA9fS5fJeXUqQ8ueTw==}
+  /material-react-table@2.0.4(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.14.18)(@mui/material@5.14.18)(@mui/x-date-pickers@6.18.2)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-Jl3j1VyStr4JO2TG0J3PeFHu/d7+23bQ7b5LhUogWiTM0n2j9Uio4gyQ5C2QOzgMhvELt3RgemNPYGqt0bGBHA==}
     engines: {node: '>=16'}
     peerDependencies:
       '@emotion/react': '>=11.11'
