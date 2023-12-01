@@ -34,7 +34,7 @@
     "@uiw/codemirror-themes-all": "^4.21.20",
     "@uiw/react-codemirror": "^4.21.20",
     "ag-grid-community": "^30.2.1",
-    "ag-grid-react": "^30.2.1",
+    "ag-grid-react": "^31.0.0",
     "ahooks": "^3.7.8",
     "clsx": "^2.0.0",
     "dayjs": "^1.11.10",
