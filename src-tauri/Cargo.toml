@@ -37,7 +37,7 @@ tauri-plugin-process = "2.0.0-alpha"
 tauri-plugin-window-state = "2.0.0-alpha"
 
 anyhow = "1.0.75"
-url = "2.4.1"
+url = "2.5.0"
 log = "^0.4"
 nanoid = "0.4.0"
 
