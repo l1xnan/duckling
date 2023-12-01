@@ -108,8 +108,8 @@ dependencies:
     specifier: ^6.20.0
     version: 6.20.0(react-dom@18.2.0)(react@18.2.0)
   zustand:
-    specifier: ^4.4.6
-    version: 4.4.6(@types/react@18.2.38)(immer@10.0.3)(react@18.2.0)
+    specifier: ^4.4.7
+    version: 4.4.7(@types/react@18.2.38)(immer@10.0.3)(react@18.2.0)
 
 devDependencies:
   '@tauri-apps/cli':
@@ -4778,8 +4778,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /zustand@4.4.6(@types/react@18.2.38)(immer@10.0.3)(react@18.2.0):
-    resolution: {integrity: sha512-Rb16eW55gqL4W2XZpJh0fnrATxYEG3Apl2gfHTyDSE965x/zxslTikpNch0JgNjJA9zK6gEFW8Fl6d1rTZaqgg==}
+  /zustand@4.4.7(@types/react@18.2.38)(immer@10.0.3)(react@18.2.0):
+    resolution: {integrity: sha512-QFJWJMdlETcI69paJwhSMJz7PPWjVP8Sjhclxmxmxv/RYI7ZOvR5BHX+ktH0we9gTWQMxcne8q1OY8xxz604gw==}
     engines: {node: '>=12.7.0'}
     peerDependencies:
       '@types/react': '>=16.8'
