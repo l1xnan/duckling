@@ -5,6 +5,7 @@ import { styled } from '@mui/material/styles';
 import { useMemo } from 'react';
 
 import { MemoDataset, PageProvider } from '@/components/Dataset';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { Content, Layout, Sidebar } from '@/components/Layout';
 import { PageTab, PageTabList, PageTabPanel } from '@/components/PageTabs';
 import SidebarTree from '@/components/sidebar';
@@ -78,7 +79,9 @@ function Home() {
       return (
         <PageProvider key={tab.id} table={tab}>
           <PageTabPanel value={tab.id}>
-            {tab.type === 'editor' ? <Editor /> : <MemoDataset />}
+            <ErrorBoundary fallback={<p>Something went wrong</p>}>
+              {tab.type === 'editor' ? <Editor /> : <MemoDataset />}
+            </ErrorBoundary>
           </PageTabPanel>
         </PageProvider>
       );
