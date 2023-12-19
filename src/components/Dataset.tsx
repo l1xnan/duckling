@@ -34,8 +34,8 @@ import { TabContextType } from '@/stores/tabs';
 import { borderTheme, convertOrderBy, isDarkTheme } from '@/utils';
 
 import { AgTable } from './AgTable';
-import { PageTabPanel } from './PageTabs';
 import { TablerSvgIcon } from './MuiIconButton';
+import { PageTabPanel } from './PageTabs';
 import { ToolbarContainer } from './Toolbar';
 
 export interface DatasetProps {
@@ -82,7 +82,7 @@ export const MemoDataset = React.memo(function Dataset() {
     refresh,
     data,
     schema,
-    table,
+    context: table,
     page,
     perPage,
     orderBy,

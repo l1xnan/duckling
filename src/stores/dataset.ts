@@ -22,6 +22,9 @@ export interface ArrowResponse {
 }
 
 export type DatasetState = {
+  // current tab context(database, table, etc)
+  context?: TabContextType;
+
   page: number;
   perPage: number;
   totalCount: number;
@@ -29,7 +32,6 @@ export type DatasetState = {
   data: unknown[];
 
   tableName?: string;
-  table?: TabContextType;
   code?: number;
   message?: string;
   schema: SchemaType[];
@@ -78,12 +80,12 @@ export const usePageStore = () => {
   return useStore(store);
 };
 
-export const createDatasetStore = (table: TabContextType) =>
+export const createDatasetStore = (context: TabContextType) =>
   createStore<DatasetState & DatasetAction>((set, get) => ({
     // state
     page: 1,
     perPage: 500,
-    table,
+    context,
     totalCount: 0,
     schema: [],
     data: [],
@@ -130,7 +132,7 @@ export const createDatasetStore = (table: TabContextType) =>
     setPerPage: (perPage: number) => set((_) => ({ perPage })),
     decrease: () => set((state) => ({ page: state.page - 1 })),
     refresh: async (stmt?: string) => {
-      const { page, perPage, table, sqlWhere } = get();
+      const { page, perPage, context: table, sqlWhere } = get();
       console.log('inner:', get());
       if (!table || !table.tableName) {
         return;

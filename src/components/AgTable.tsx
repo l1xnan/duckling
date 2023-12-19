@@ -10,8 +10,8 @@ import { SchemaType, usePageStore } from '@/stores/dataset';
 import { useSettingStore } from '@/stores/setting';
 import { getByteLength, isDarkTheme } from '@/utils';
 
-interface TableProps {
-  data: any[];
+interface TableProps<T = unknown> {
+  data: T[];
   schema: SchemaType[];
   beautify?: boolean;
 }

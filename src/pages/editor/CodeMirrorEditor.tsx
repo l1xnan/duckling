@@ -41,7 +41,7 @@ type ComplationSchemaType = {
 };
 
 export default function Editor() {
-  const { table, refresh } = usePageStore();
+  const { context: table, refresh } = usePageStore();
   if (table === undefined) {
     return;
   }

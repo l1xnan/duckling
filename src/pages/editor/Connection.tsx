@@ -1,18 +1,16 @@
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
 import * as React from 'react';
 import { useState } from 'react';
 
-import { usePageStore } from '@/stores/dataset';
-
-import { ContextMenu, ContextMenuItem } from './ContextMenu';
+import { ContextMenu, ContextMenuItem } from '@/components/ContextMenu';
+import { useDBListStore } from '@/stores/dbList';
 
 export interface DropdownProps {
   content: string;
 }
 
-export default function Dropdown({ content }: DropdownProps) {
+export default function Connection({ content }: DropdownProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -22,7 +20,7 @@ export default function Dropdown({ content }: DropdownProps) {
     setAnchorEl(null);
   };
 
-  const { setPerPage } = usePageStore();
+  const dbList = useDBListStore((s) => s.dbList);
 
   return (
     <div>
@@ -36,27 +34,21 @@ export default function Dropdown({ content }: DropdownProps) {
         sx={{ textTransform: 'none' }}
         endIcon={<KeyboardArrowDownIcon />}
       >
-        {content}
+        {content ?? `current schema`}
       </Button>
       <ContextMenu anchorEl={anchorEl} open={open} onClose={handleClose}>
-        <ContextMenuItem sx={{ fontWeight: 600 }} disabled>
-          Page Size
-        </ContextMenuItem>
-        {[10, 100, 500, 1000].map((item) => (
+        {dbList.map((item) => (
           <ContextMenuItem
-            key={item}
+            key={item.id}
             onClick={() => {
-              setPerPage!(item);
+              // TODO: update tab context
               handleClose();
             }}
             disableRipple
           >
-            {item}
+            {item.displayName}
           </ContextMenuItem>
         ))}
-        <ContextMenuItem>Custom...</ContextMenuItem>
-        <Divider />
-        <ContextMenuItem>Change Default: 500</ContextMenuItem>
       </ContextMenu>
     </div>
   );

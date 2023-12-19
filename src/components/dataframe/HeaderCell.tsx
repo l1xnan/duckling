@@ -4,7 +4,7 @@ import {
   IconCaretUpDownFilled,
   IconCaretUpFilled,
 } from '@tabler/icons-react';
-import { ColumnApi, ColumnState } from 'ag-grid-community';
+import { ColumnState, GridApi } from 'ag-grid-community';
 import dedent from 'dedent';
 import { useState } from 'react';
 
@@ -16,7 +16,7 @@ import { ContextMenu, ContextMenuItem } from '../ContextMenu';
 // https://ag-grid.com/react-data-grid/component-header/
 interface HeadCellProps {
   displayName: string;
-  columnApi: ColumnApi;
+  api: GridApi;
   pin: (s: ColumnState) => void;
   column: {
     colId: string;
@@ -24,7 +24,12 @@ interface HeadCellProps {
 }
 
 export default (props: HeadCellProps) => {
-  const { table, orderBy, setOrderBy, setDialogColumn } = usePageStore();
+  const {
+    context: table,
+    orderBy,
+    setOrderBy,
+    setDialogColumn,
+  } = usePageStore();
   const updateTab = useTabsStore((state) => state.update);
 
   const key = props.column.colId;
@@ -58,10 +63,10 @@ export default (props: HeadCellProps) => {
   };
 
   const pinColumn = ({ colId, pinned }: ColumnState) => {
-    const state = props.columnApi.getColumnState();
+    const state = props.api.getColumnState();
     console.log('state:', state);
 
-    props.columnApi.applyColumnState({
+    props.api.applyColumnState({
       state: state.map((col) =>
         col.colId === colId
           ? { colId, pinned }

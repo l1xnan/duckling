@@ -1,4 +1,4 @@
-import { Stack, StackProps, styled } from '@mui/material';
+import { Box, BoxProps, Stack, StackProps, styled } from '@mui/material';
 
 import { borderTheme, isDarkTheme } from '@/utils';
 
@@ -22,4 +22,14 @@ export const ToolbarContainer = styled((props: StackProps) => (
     padding: 0,
     outlineWidth: 0,
   },
+}));
+
+export const ToolbarBox = styled(Box)<BoxProps>(({ theme }) => ({
+  height: 32,
+  width: '100%',
+  paddingLeft: '1rem',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  borderBottom: borderTheme(theme),
 }));

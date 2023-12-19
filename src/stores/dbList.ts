@@ -20,6 +20,7 @@ export type DBType = {
   id: string;
   dialect: DialectType;
 
+  displayName?: string;
   // node tree
   data: TreeNode;
 
@@ -44,6 +45,7 @@ type DBListAction = {
   update: (id: string, data: TreeNode) => void;
   // remove db by db id
   remove: (id: string) => void;
+  rename: (id: string, displayName: string) => void;
   setCwd: (cwd: string, path: string) => void;
   setSize: (size: number) => void;
 
@@ -51,8 +53,8 @@ type DBListAction = {
 };
 
 type ComputedStore = {
-  dbMap: Map<string, DBType>;
-  dbTableMap: Map<string, Map<string, TreeNode>>;
+  databases: Map<string, DBType>;
+  tables: Map<string, Map<string, TreeNode>>;
 };
 
 type DBListStore = DBListState & DBListAction;
@@ -71,10 +73,8 @@ export function flattenTree(tree: TreeNode) {
 
 const computeState = (state: DBListStore): ComputedStore => {
   return {
-    dbMap: new Map(state.dbList.map((db) => [db.id, db])),
-    dbTableMap: new Map(
-      state.dbList.map((db) => [db.id, flattenTree(db.data)]),
-    ),
+    databases: new Map(state.dbList.map((db) => [db.id, db])),
+    tables: new Map(state.dbList.map((db) => [db.id, flattenTree(db.data)])),
   };
 };
 
@@ -120,6 +120,18 @@ export const useDBListStore = create<DBListStore & ComputedStore>()(
                 : item;
             }),
           })),
+        rename: (id: string, displayName: string) => {
+          set((state) => ({
+            dbList: state.dbList.map((item) => {
+              return item.id == id
+                ? {
+                    ...item,
+                    displayName,
+                  }
+                : item;
+            }),
+          }));
+        },
       }),
       {
         name: 'dbListStore',

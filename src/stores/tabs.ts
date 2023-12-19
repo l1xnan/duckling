@@ -1,6 +1,7 @@
 import { debounce } from '@mui/material';
 import { create } from 'zustand';
-import { createJSONStorage, devtools, persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
 
 export type TabContextType = {
   root: string;
@@ -30,8 +31,7 @@ type TabsAction = {
 };
 
 export const useTabsStore = create<TabsState & TabsAction>()(
-  devtools(
-    // immer(
+  immer(
     persist(
       (set, _get) => ({
         tabs: [],
@@ -85,6 +85,5 @@ export const useTabsStore = create<TabsState & TabsAction>()(
         storage: createJSONStorage(() => localStorage),
       },
     ),
-    // )
   ),
 );

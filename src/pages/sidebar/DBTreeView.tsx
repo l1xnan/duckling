@@ -63,8 +63,8 @@ export default function DBTreeView({
 }: DBTreeViewProps) {
   const updateTab = useTabsStore((state) => state.update);
   const contextMenu = useDBListStore((state) => state.contextMenu);
-  const dbTableMap = useDBListStore((state) => state.dbTableMap);
-  const dbMap = useDBListStore((state) => state.dbMap);
+  const dbTableMap = useDBListStore((state) => state.tables);
+  const dbMap = useDBListStore((state) => state.databases);
   const setContextMenu = useDBListStore((state) => state.setContextMenu);
 
   const handleContextMenu = (

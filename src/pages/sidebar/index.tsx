@@ -14,6 +14,8 @@ import { SideToolbar } from '@/pages/sidebar/SideToolbar';
 import { useDBListStore } from '@/stores/dbList';
 import { TabContextType, useTabsStore } from '@/stores/tabs';
 
+import Rename, { useRenameStore } from './Rename';
+
 const TreeViewWrapper = styled(Box)<BoxProps>(() => ({
   width: '100%',
   maxHeight: 'calc(100vh - 64px)',
@@ -33,6 +35,7 @@ function Sidebar() {
   const updateTab = useTabsStore((state) => state.update);
   const removeDB = useDBListStore((state) => state.remove);
   const onOpen = useDBConfigStore((state) => state.onOpen);
+  const onOpenRename = useRenameStore((state) => state.onOpen);
 
   async function openUrl() {
     const path: string = await invoke('opened_urls');
@@ -97,6 +100,15 @@ function Sidebar() {
         <ContextMenuItem
           icon={<CodeIcon />}
           onClick={() => {
+            onOpenRename();
+            handleClose();
+          }}
+        >
+          Rename
+        </ContextMenuItem>
+        <ContextMenuItem
+          icon={<CodeIcon />}
+          onClick={() => {
             if (contextMenu?.context) {
               updateTab!(contextMenu?.context);
             }
@@ -121,6 +133,8 @@ function Sidebar() {
 
       {/* db config */}
       <DBConfig />
+
+      <Rename />
     </>
   );
 }

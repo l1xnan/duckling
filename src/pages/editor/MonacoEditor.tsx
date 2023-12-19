@@ -5,13 +5,14 @@ import { Box, IconButton, Stack, useTheme } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 
 import { showTables } from '@/api';
-import { ToolbarContainer } from '@/components/Toolbar';
+import { ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
 import { useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
 import { usePageStore } from '@/stores/dataset';
 import { useTabsStore } from '@/stores/tabs';
 import { isDarkTheme } from '@/utils';
 
+import Connection from './Connection';
 import DatasetItem from './DatasetItem';
 
 type OnMountParams = Parameters<OnMount>;
@@ -32,7 +33,7 @@ type ComplationSchemaType = {
 };
 
 export default function MonacoEditor() {
-  const { table, refresh } = usePageStore();
+  const { context: table, refresh } = usePageStore();
   if (table === undefined) {
     return;
   }
@@ -129,26 +130,31 @@ export default function MonacoEditor() {
 function EditorToolbar({ onClick }: { onClick: () => void }) {
   return (
     <ToolbarContainer>
-      <Stack direction="row">
-        <IconButton
-          size="small"
-          sx={{
-            color: 'green',
-          }}
-          onClick={onClick}
-        >
-          <PlayArrowIcon fontSize="inherit" />
-        </IconButton>
-        <IconButton
-          size="small"
-          sx={{
-            color: 'green',
-          }}
-          onClick={onClick}
-        >
-          <PlaylistAddIcon fontSize="inherit" />
-        </IconButton>
-      </Stack>
+      <ToolbarBox>
+        <Stack direction="row">
+          <IconButton
+            size="small"
+            sx={{
+              color: 'green',
+            }}
+            onClick={onClick}
+          >
+            <PlayArrowIcon fontSize="inherit" />
+          </IconButton>
+          <IconButton
+            size="small"
+            sx={{
+              color: 'green',
+            }}
+            onClick={onClick}
+          >
+            <PlaylistAddIcon fontSize="inherit" />
+          </IconButton>
+        </Stack>
+        <Stack direction="row">
+          <Connection />
+        </Stack>
+      </ToolbarBox>
     </ToolbarContainer>
   );
 }

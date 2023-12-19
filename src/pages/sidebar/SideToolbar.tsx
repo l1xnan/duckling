@@ -1,6 +1,5 @@
 import RemoveIcon from '@mui/icons-material/Remove';
-import { Box, BoxProps, Stack, Typography } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { Stack, Typography } from '@mui/material';
 import {
   IconDatabaseCog,
   IconDatabasePlus,
@@ -12,21 +11,11 @@ import * as dialog from '@tauri-apps/plugin-dialog';
 import { getDB } from '@/api';
 import { MuiIconButton } from '@/components/MuiIconButton';
 import ToggleColorMode from '@/components/ToggleColorMode';
+import { ToolbarBox } from '@/components/Toolbar';
 import Setting from '@/pages/settings/AppSetting';
 import { useDBConfigStore } from '@/pages/settings/DBSetting';
 import { DialectType, useDBListStore } from '@/stores/dbList';
 import { TabContextType } from '@/stores/tabs';
-import { borderTheme } from '@/utils';
-
-const ToolbarBox = styled(Box)<BoxProps>(({ theme }) => ({
-  height: 32,
-  width: '100%',
-  paddingLeft: '1rem',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  borderBottom: borderTheme(theme),
-}));
 
 export function SideToolbar({
   selectedTable,
