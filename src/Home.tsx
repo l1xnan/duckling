@@ -1,20 +1,15 @@
-import { Box, BoxProps } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { Box } from '@mui/material';
 
-import { Content, Layout, Sidebar } from '@/components/Layout';
+import {
+  Content,
+  Layout,
+  Sidebar as SidebarWrapper,
+} from '@/components/Layout';
 import { useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
-import SidebarTree from '@/pages/sidebar';
+import { Main } from '@/pages/main';
+import Sidebar from '@/pages/sidebar';
 import { useDBListStore } from '@/stores/dbList';
-
-export const DatasetEmpty = styled((props) => <Box {...props} />)<BoxProps>(
-  () => ({
-    display: 'flex',
-    marginTop: '20%',
-    height: '100%',
-    justifyContent: 'center',
-  }),
-);
 
 function Home() {
   const size = useDBListStore((state) => state.size);
@@ -33,15 +28,15 @@ function Home() {
         className={classes.sideBar}
         sx={{ width: sizeLeft + 'px' }}
       >
-        <Sidebar>
-          <SidebarTree />
-        </Sidebar>
+        <SidebarWrapper>
+          <Sidebar />
+        </SidebarWrapper>
         <div className={classes.controls}>
           <div className={classes.resizeVertical} onMouseDown={actionLeft} />
         </div>
       </Box>
       <Content sx={{ ml: `${sizeLeft}px` }}>
-        <Content />
+        <Main />
       </Content>
     </Layout>
   );

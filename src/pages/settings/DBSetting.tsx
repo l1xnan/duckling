@@ -59,7 +59,7 @@ export default function FormDialog() {
       <DialogTitle>{db?.root.split('/').at(-1)}</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Set DuckDB working directory for the read parquet relative path
+          Set working directory for the read parquet relative path
         </DialogContentText>
         <TextField
           autoFocus

@@ -3,20 +3,20 @@ import { TabContext } from '@mui/lab';
 import { Box, IconButton } from '@mui/material';
 import { useMemo } from 'react';
 
-import { DatasetEmpty } from '@/Home';
 import { MemoDataset, PageProvider } from '@/components/Dataset';
+import { DatasetEmpty } from '@/components/DatasetEmpty';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { PageTab, PageTabList, PageTabPanel } from '@/components/PageTabs';
 import { useTabsStore } from '@/stores/tabs';
 
 import MonacoEditor from './editor/MonacoEditor';
 
-export function Content() {
+export function Main() {
   const activateTab = useTabsStore((state) => state.active);
   const removeTab = useTabsStore((state) => state.remove);
   const tabs = useTabsStore((state) => state.tabs);
   const currentTab = useTabsStore((state) => state.currentTab);
-
+  console.log(tabs);
   const tabList = useMemo(() => {
     return (
       <PageTabList

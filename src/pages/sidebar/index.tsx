@@ -23,7 +23,7 @@ const TreeViewWrapper = styled(Box)<BoxProps>(() => ({
   pb: 2,
 }));
 
-function SidebarTree() {
+function Sidebar() {
   const [selectedTable, setSelectedTable] = useState<TabContextType | null>(
     null,
   );
@@ -125,4 +125,4 @@ function SidebarTree() {
   );
 }
 
-export default SidebarTree;
+export default Sidebar;
