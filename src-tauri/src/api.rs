@@ -40,12 +40,15 @@ pub fn convert(res: anyhow::Result<ArrowData>) -> ArrowResponse {
       code: 0,
       message: "".to_string(),
     },
-    Err(err) => ArrowResponse {
-      total: 0,
-      data: vec![],
-      code: 401,
-      message: err.to_string(),
-    },
+    Err(err) => {
+      println!("err:{}", err.to_string());
+      ArrowResponse {
+        total: 0,
+        data: vec![],
+        code: 401,
+        message: err.to_string(),
+      }
+    }
   }
 }
 
