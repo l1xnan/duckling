@@ -109,10 +109,10 @@ export const useDBListStore = create<DBListStore & ComputedStore>()(
                   },
             ),
           })),
-        setCwd: (cwd: string, path: string) =>
+        setCwd: (cwd: string, id: string) =>
           set((state) => ({
             dbList: state.dbList.map((item) => {
-              return item.data.path == path
+              return item.id == id
                 ? {
                     ...item,
                     cwd,

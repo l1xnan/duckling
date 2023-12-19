@@ -26,8 +26,8 @@ import React, {
 
 import { AgTable } from '@/components/AgTable';
 import Dropdown from '@/components/Dropdown';
-import { PageTabPanel } from '@/components/PageTabs';
 import { TablerSvgIcon } from '@/components/MuiIconButton';
+import { PageTabPanel } from '@/components/PageTabs';
 import { ToolbarContainer } from '@/components/Toolbar';
 import {
   PageContext,
@@ -81,7 +81,7 @@ export const MemoPanel = React.memo(
 
 export function DatasetItem() {
   const { data, schema, message, beautify } = usePageStore();
-
+  console.log(data);
   const dataSources = useMemo(() => data, [data]);
 
   const [open, setOpen] = useState(false);

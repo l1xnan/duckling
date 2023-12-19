@@ -42,7 +42,9 @@ export default function FormDialog() {
   }, [db?.cwd]);
 
   const handleSubmit = () => {
-    updateCwd(cwd, db?.root!);
+    if (db?.root) {
+      updateCwd(cwd, db.root);
+    }
     onClose();
   };
   return (

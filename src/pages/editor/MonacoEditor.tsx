@@ -1,13 +1,8 @@
-import { PostgreSQL, schemaCompletionSource, sql } from '@codemirror/lang-sql';
+import Editor, { OnChange, OnMount } from '@monaco-editor/react';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import { Box, IconButton, Stack, useTheme } from '@mui/material';
-import { basicLight, vscodeDark } from '@uiw/codemirror-themes-all';
-import CodeMirror, {
-  ReactCodeMirrorRef,
-  ViewUpdate,
-} from '@uiw/react-codemirror';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { showTables } from '@/api';
 import { ToolbarContainer } from '@/components/Toolbar';
@@ -18,12 +13,8 @@ import { useTabsStore } from '@/stores/tabs';
 import { isDarkTheme } from '@/utils';
 
 import DatasetItem from './DatasetItem';
-import { sqlCompletions } from './complation';
 
-const mySchema = { 'abc.table': ['id', 'name'] };
-const sqlSnippets = PostgreSQL.language.data.of({
-  autocomplete: [schemaCompletionSource({ schema: mySchema }), sqlCompletions],
-});
+type OnMountParams = Parameters<OnMount>;
 
 async function getTables(root: string) {
   const res = await showTables(root);
@@ -40,7 +31,7 @@ type ComplationSchemaType = {
   [key: string]: string[];
 };
 
-export default function Editor() {
+export default function MonacoEditor() {
   const { table, refresh } = usePageStore();
   if (table === undefined) {
     return;
@@ -51,6 +42,7 @@ export default function Editor() {
   const setStmt = useTabsStore((state) => state.setStmt);
   const docs = useTabsStore((state) => state.docs);
   const stmt = docs[id] ?? '';
+  const theme = useTheme();
 
   const [schema, setTables] = useState<ComplationSchemaType>({});
 
@@ -64,36 +56,43 @@ export default function Editor() {
     })();
   }, []);
 
-  const onChange = useCallback((val: string, _viewUpdate: ViewUpdate) => {
-    setStmt(id, val);
-  }, []);
-
   const [targetRefTop, sizeTop, actionTop] = useResize(300, 'bottom');
-  const refs = useRef<ReactCodeMirrorRef>({});
-  useEffect(() => {
-    if (refs.current?.view) console.log('EditorView:', refs.current?.view);
-    if (refs.current?.state) console.log('EditorState:', refs.current?.state);
-    if (refs.current?.editor)
-      console.log('HTMLDivElement:', refs.current?.editor);
-  }, [refs.current]);
+  const editorRef = useRef<OnMountParams[0] | null>(null);
 
-  const theme = useTheme();
+  const handleMount: OnMount = (editor, _monaco) => {
+    editorRef.current = editor;
+    _monaco.editor.defineTheme('dark', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [],
+      colors: {},
+    });
+  };
+  const handleChange: OnChange = (value, _event) => {
+    setStmt(id, value ?? '');
+  };
 
   const handleClick = async () => {
-    if (refs.current?.view) {
-      const view = refs.current.view;
-      const selectedText = view.state.sliceDoc(
-        view.state.selection.main.from,
-        view.state.selection.main.to,
-      );
+    const editor = editorRef.current;
+    if (!editor) {
+      return;
+    }
 
-      if (selectedText?.length > 0) {
-        await refresh(selectedText);
-      } else if (stmt?.length > 0) {
-        await refresh(stmt);
-      }
+    let stmt = '';
+    const selection = editor.getSelection();
+    console.log('value===', editor.getValue(), selection);
+    if (selection) {
+      stmt = editor.getModel()?.getValueInRange(selection) ?? '';
+    }
+    if (stmt.length === 0) {
+      stmt = editor.getValue() ?? '';
+    }
+
+    if (stmt.length > 0) {
+      await refresh(stmt);
     }
   };
+
   return (
     <Box
       sx={{
@@ -107,18 +106,13 @@ export default function Editor() {
     >
       <Box sx={{ height: '100%' }}>
         <EditorToolbar onClick={handleClick} />
-        <CodeMirror
-          ref={refs}
+        <Editor
+          onMount={handleMount}
           value={stmt}
           height={`calc(100vh - ${sizeTop + 64}px)`}
-          extensions={[
-            sql({
-              schema,
-            }),
-            sqlSnippets,
-          ]}
-          theme={isDarkTheme(theme) ? vscodeDark : basicLight}
-          onChange={onChange}
+          defaultLanguage="sql"
+          theme={isDarkTheme(theme) ? 'vs-dark' : 'light'}
+          onChange={handleChange}
         />
       </Box>
       <Box
@@ -156,7 +150,7 @@ function EditorToolbar({ onClick }: { onClick: () => void }) {
           onClick={onClick}
         >
           <PlaylistAddIcon fontSize="inherit" />
-        </IconButton>{' '}
+        </IconButton>
       </Stack>
     </ToolbarContainer>
   );

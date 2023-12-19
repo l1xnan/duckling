@@ -9,8 +9,8 @@ import { useEffect, useState } from 'react';
 
 import { ContextMenu, ContextMenuItem } from '@/components/ContextMenu';
 import DBConfig, { useDBConfigStore } from '@/components/DBConfig';
-import DBTreeView from '@/components/sidebar/DBTreeView';
-import { SideToolbar } from '@/components/sidebar/SideToolbar';
+import DBTreeView from '@/pages/sidebar/DBTreeView';
+import { SideToolbar } from '@/pages/sidebar/SideToolbar';
 import { useDBListStore } from '@/stores/dbList';
 import { TabContextType, useTabsStore } from '@/stores/tabs';
 

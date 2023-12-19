@@ -84,6 +84,8 @@ export type QueryParams = {
 export async function query(params: QueryParams): Promise<ResultType> {
   console.debug('params:', params);
   const res = await invoke<ArrowResponse>('query', params);
+  console.log(res);
+
   return convert(res);
 }
 
