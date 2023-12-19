@@ -1,3 +1,5 @@
+import { atom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -141,3 +143,8 @@ export const useDBListStore = create<DBListStore & ComputedStore>()(
     computeState,
   ),
 );
+
+export const dbListAtom = atomWithStorage('databases', []);
+export const dbMapAtom = atom((get) => {
+  return get(dbListAtom);
+});
