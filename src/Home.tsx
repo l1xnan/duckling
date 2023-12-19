@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+import { useAtom } from 'jotai/react';
 
 import {
   Content,
@@ -9,11 +10,10 @@ import { useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
 import { Main } from '@/pages/main';
 import Sidebar from '@/pages/sidebar';
-import { useDBListStore } from '@/stores/dbList';
+import { sizeAtom } from '@/stores/app';
 
 function Home() {
-  const size = useDBListStore((state) => state.size);
-  const setSize = useDBListStore((state) => state.setSize);
+  const [size, setSize] = useAtom(sizeAtom);
 
   const [targetRefLeft, sizeLeft, actionLeft] = useResize(
     size,

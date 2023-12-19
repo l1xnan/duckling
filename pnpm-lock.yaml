@@ -98,6 +98,15 @@ dependencies:
   immer:
     specifier: ^10.0.3
     version: 10.0.3
+  jotai:
+    specifier: ^2.6.0
+    version: 2.6.0(@types/react@18.2.45)(react@18.2.0)
+  jotai-valtio:
+    specifier: ^0.4.0
+    version: 0.4.0(jotai@2.6.0)(valtio@1.12.1)
+  jotai-zustand:
+    specifier: ^0.3.0
+    version: 0.3.0(jotai@2.6.0)
   material-react-table:
     specifier: 2.0.0
     version: 2.0.0(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.15.0)(@mui/material@5.15.0)(@mui/x-date-pickers@6.18.5)(react-dom@18.2.0)(react@18.2.0)
@@ -113,6 +122,9 @@ dependencies:
   react-router-dom:
     specifier: ^6.21.0
     version: 6.21.0(react-dom@18.2.0)(react@18.2.0)
+  valtio:
+    specifier: ^1.12.1
+    version: 1.12.1(@types/react@18.2.45)(react@18.2.0)
   zustand:
     specifier: ^4.4.7
     version: 4.4.7(@types/react@18.2.45)(immer@10.0.3)(react@18.2.0)
@@ -2969,6 +2981,14 @@ packages:
       object-keys: 1.1.1
     dev: true
 
+  /derive-valtio@0.1.0(valtio@1.12.1):
+    resolution: {integrity: sha512-OCg2UsLbXK7GmmpzMXhYkdO64vhJ1ROUUGaTFyHjVwEdMEcTTRj7W1TxLbSBxdY8QLBPCcp66MTyaSy0RpO17A==}
+    peerDependencies:
+      valtio: '*'
+    dependencies:
+      valtio: 1.12.1(@types/react@18.2.45)(react@18.2.0)
+    dev: false
+
   /dir-glob@3.0.1:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
     engines: {node: '>=8'}
@@ -3870,6 +3890,40 @@ packages:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
     dev: true
 
+  /jotai-valtio@0.4.0(jotai@2.6.0)(valtio@1.12.1):
+    resolution: {integrity: sha512-j19IjUHjlbIzwM3I5dE8Me9nVGa/uJMQrnprg+wnR9xxdB7uXf4b+fldlTyNFgDN6HP8XSdIztKTMHlIp1365Q==}
+    peerDependencies:
+      jotai: '>=1.11.0'
+      valtio: '*'
+    dependencies:
+      jotai: 2.6.0(@types/react@18.2.45)(react@18.2.0)
+      valtio: 1.12.1(@types/react@18.2.45)(react@18.2.0)
+    dev: false
+
+  /jotai-zustand@0.3.0(jotai@2.6.0):
+    resolution: {integrity: sha512-hwu49XzES51tzKe9qqHS7LTlqesWbmzqhL+m7zEEW6hTOOGfnYiMYMmPb8ueMKCmMe122L3thwMeeblsFtlzPg==}
+    peerDependencies:
+      jotai: '>=1.11.0'
+    dependencies:
+      jotai: 2.6.0(@types/react@18.2.45)(react@18.2.0)
+    dev: false
+
+  /jotai@2.6.0(@types/react@18.2.45)(react@18.2.0):
+    resolution: {integrity: sha512-Vt6hsc04Km4j03l+Ax+Sc+FVft5cRJhqgxt6GTz6GM2eM3DyX3CdBdzcG0z2FrlZToL1/0OAkqDghIyARWnSuQ==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=17.0.0'
+      react: '>=17.0.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react:
+        optional: true
+    dependencies:
+      '@types/react': 18.2.45
+      react: 18.2.0
+    dev: false
+
   /js-cookie@2.2.1:
     resolution: {integrity: sha512-HvdH2LzI/EAZcUwA8+0nKNtWHqS+ZmijLA30RwZA0bo7ToCckjK5MkGhjED9KoRcXO6BaGI3I9UIzSA1FKFPOQ==}
     dev: false
@@ -4292,6 +4346,10 @@ packages:
       loose-envify: 1.4.0
       object-assign: 4.1.1
       react-is: 16.13.1
+    dev: false
+
+  /proxy-compare@2.5.1:
+    resolution: {integrity: sha512-oyfc0Tx87Cpwva5ZXezSp5V9vht1c7dZBhvuV/y3ctkgMVUmiAGDVeeB0dKhGSyT0v1ZTEQYpe/RXlBVBNuCLA==}
     dev: false
 
   /punycode@2.3.1:
@@ -4818,6 +4876,25 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
       react: 18.2.0
+    dev: false
+
+  /valtio@1.12.1(@types/react@18.2.45)(react@18.2.0):
+    resolution: {integrity: sha512-R0V4H86Xi2Pp7pmxN/EtV4Q6jr6PMN3t1IwxEvKUp6160r8FimvPh941oWyeK1iec/DTsh9Jb3Q+GputMS8SYg==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=16.8'
+      react: '>=16.8'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react:
+        optional: true
+    dependencies:
+      '@types/react': 18.2.45
+      derive-valtio: 0.1.0(valtio@1.12.1)
+      proxy-compare: 2.5.1
+      react: 18.2.0
+      use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
 
   /vite@5.0.10:
