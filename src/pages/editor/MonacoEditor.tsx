@@ -80,7 +80,6 @@ export default function MonacoEditor() {
 
     let stmt = '';
     const selection = editor.getSelection();
-    console.log('value===', editor.getValue(), selection);
     if (selection) {
       stmt = editor.getModel()?.getValueInRange(selection) ?? '';
     }
@@ -97,8 +96,6 @@ export default function MonacoEditor() {
     <Box
       sx={{
         height: 'calc(100vh - 32px)',
-        '& .cm-editor .cm-content': { fontFamily: 'Consolas' },
-        '& *': { fontFamily: 'Consolas' },
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',

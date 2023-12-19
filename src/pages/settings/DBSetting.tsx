@@ -48,7 +48,14 @@ export default function FormDialog() {
     onClose();
   };
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog
+      open={open}
+      onClose={(_, reason) => {
+        if (reason != 'backdropClick') {
+          onClose();
+        }
+      }}
+    >
       <DialogTitle>{db?.root.split('/').at(-1)}</DialogTitle>
       <DialogContent>
         <DialogContentText>

@@ -8,7 +8,7 @@ import { invoke } from '@tauri-apps/api/primitives';
 import { useEffect, useState } from 'react';
 
 import { ContextMenu, ContextMenuItem } from '@/components/ContextMenu';
-import DBConfig, { useDBConfigStore } from '@/components/DBConfig';
+import DBConfig, { useDBConfigStore } from '@/pages/settings/DBSetting';
 import DBTreeView from '@/pages/sidebar/DBTreeView';
 import { SideToolbar } from '@/pages/sidebar/SideToolbar';
 import { useDBListStore } from '@/stores/dbList';

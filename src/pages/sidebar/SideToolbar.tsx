@@ -10,10 +10,10 @@ import {
 import * as dialog from '@tauri-apps/plugin-dialog';
 
 import { getDB } from '@/api';
-import { useDBConfigStore } from '@/components/DBConfig';
 import { MuiIconButton } from '@/components/MuiIconButton';
 import ToggleColorMode from '@/components/ToggleColorMode';
-import Setting from '@/pages/Setting';
+import Setting from '@/pages/settings/AppSetting';
+import { useDBConfigStore } from '@/pages/settings/DBSetting';
 import { DialectType, useDBListStore } from '@/stores/dbList';
 import { TabContextType } from '@/stores/tabs';
 import { borderTheme } from '@/utils';

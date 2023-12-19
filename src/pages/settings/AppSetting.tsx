@@ -1,5 +1,6 @@
+import CloseIcon from '@mui/icons-material/Close';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { InputBase, ListItem, ListItemText } from '@mui/material';
+import { IconButton, InputBase, ListItem, ListItemText } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -9,9 +10,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import * as React from 'react';
 import { ReactNode } from 'react';
 
+import { MuiIconButton } from '@/components/MuiIconButton';
 import { useSettingStore } from '@/stores/setting';
-
-import { MuiIconButton } from '../components/MuiIconButton';
 
 interface ItemProps {
   label: ReactNode;
@@ -56,17 +56,24 @@ export default function MaxWidthDialog() {
 
   return (
     <React.Fragment>
-      <MuiIconButton
-        onClick={() => {
-          handleClickOpen();
-          console.log('settings');
-        }}
-      >
+      <MuiIconButton onClick={handleClickOpen}>
         <SettingsIcon fontSize="inherit" />
       </MuiIconButton>
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle minWidth={600}>Setting</DialogTitle>
-        <DialogContent>
+      <Dialog
+        open={open}
+        onClose={(_, reason) => {
+          if (reason != 'backdropClick') {
+            handleClose();
+          }
+        }}
+      >
+        <DialogTitle minWidth={600} sx={{}}>
+          Setting
+        </DialogTitle>
+        <IconButton aria-label="close" onClick={handleClose}>
+          <CloseIcon />
+        </IconButton>
+        <DialogContent dividers>
           <Box
             noValidate
             component="form"
@@ -91,7 +98,7 @@ export default function MaxWidthDialog() {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Close</Button>
+          <Button onClick={handleClose}>Cancel</Button>
         </DialogActions>
       </Dialog>
     </React.Fragment>
