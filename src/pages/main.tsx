@@ -2,8 +2,9 @@ import { useAtomValue } from 'jotai';
 
 import { Dataset, PageProvider } from '@/components/Dataset';
 import { PageTabs } from '@/components/PageTabs';
-import MonacoEditor from '@/pages/editor/MonacoEditor';
 import { tabsAtomsAtom, useTabsStore } from '@/stores/tabs';
+
+import MonacoEditor from './editor';
 
 export function Main() {
   const activateTab = useTabsStore((state) => state.active);
@@ -17,9 +18,9 @@ export function Main() {
     const children = (
       <>
         {tab.type === 'editor' ? (
-          <MonacoEditor context={tab} />
+          <MonacoEditor context={tabAtom} />
         ) : (
-          <PageProvider table={tabAtom}>
+          <PageProvider context={tab}>
             <Dataset context={tab} />
           </PageProvider>
         )}

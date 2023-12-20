@@ -2,10 +2,10 @@ import Editor, { OnChange, OnMount } from '@monaco-editor/react';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import { Box, IconButton, Stack, useTheme } from '@mui/material';
-import { useEffect, useRef, useState } from 'react';
+import { PrimitiveAtom, useAtomValue } from 'jotai';
+import { useEffect, useRef } from 'react';
 
 import { showTables } from '@/api';
-import { PageProvider } from '@/components/Dataset';
 import { ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
 import { useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
@@ -13,7 +13,7 @@ import { TabContextType, useTabsStore } from '@/stores/tabs';
 import { isDarkTheme } from '@/utils';
 
 import Connection from './Connection';
-import DatasetItem from './DatasetItem';
+import DatasetItem, { PageProvider } from './DatasetItem';
 
 type OnMountParams = Parameters<OnMount>;
 
@@ -32,28 +32,24 @@ type ComplationSchemaType = {
   [key: string]: string[];
 };
 
-export default function MonacoEditor({ context }: { context: TabContextType }) {
-  if (context === undefined) {
-    return;
-  }
-  const id = context.id;
-  const extra = context.extra;
+export default function MonacoEditor({
+  context,
+}: {
+  context: PrimitiveAtom<TabContextType>;
+}) {
+  const tabContext = useAtomValue(context);
+  const id = tabContext.id;
+  const extra = tabContext.extra;
 
   const setStmt = useTabsStore((state) => state.setStmt);
   const docs = useTabsStore((state) => state.docs);
   const stmt = docs[id] ?? '';
   const theme = useTheme();
 
-  const [schema, setTables] = useState<ComplationSchemaType>({});
-
   useEffect(() => {
     if (extra) {
       setStmt(id, `${stmt}\n${extra}`);
     }
-    (async () => {
-      const schema = await getTables(context.dbId);
-      setTables(schema);
-    })();
   }, []);
 
   const [targetRefTop, sizeTop, actionTop] = useResize(300, 'bottom');
@@ -88,10 +84,33 @@ export default function MonacoEditor({ context }: { context: TabContextType }) {
     }
 
     if (stmt.length > 0) {
-      // TODO:
-      await refresh(stmt);
+      const tabContext = {
+        ...context,
+        stmt,
+      };
+      setTabs((prev) => [...prev, tabContext]);
     }
   };
+
+  const activateTab = useTabsStore((state) => state.active);
+  const removeTab = useTabsStore((state) => state.remove);
+  const currentTab = useTabsStore((state) => state.currentTab);
+
+  const items = tabContext?.children?.map((tab) => {
+    const children = (
+      <>
+        {tab.type === 'editor' ? (
+          <MonacoEditor context={tab} />
+        ) : (
+          <PageProvider context={tab}>
+            <DatasetItem context={tab} />
+          </PageProvider>
+        )}
+      </>
+    );
+
+    return { tab, children };
+  });
 
   return (
     <Box
@@ -121,11 +140,12 @@ export default function MonacoEditor({ context }: { context: TabContextType }) {
         <div className={classes.controlsH}>
           <div className={classes.resizeHorizontal} onMouseDown={actionTop} />
         </div>
-
-        <PageProvider table={{}}>
-          {/* <Dataset context={tab} />     */}
-          <DatasetItem />
-        </PageProvider>
+        {/* <PageTabs
+          items={items}
+          onChange={(value) => activateTab(value)}
+          activeKey={currentTab?.id ?? ''}
+          onRemove={removeTab}
+        /> */}
       </Box>
     </Box>
   );
@@ -161,4 +181,11 @@ function EditorToolbar({ onClick }: { onClick: () => void }) {
       </ToolbarBox>
     </ToolbarContainer>
   );
+}
+function atom<T>(arg0: never[]): any {
+  throw new Error('Function not implemented.');
+}
+
+function useAtom(tabsAtom: any): [any, any] {
+  throw new Error('Function not implemented.');
 }
