@@ -122,6 +122,9 @@ dependencies:
   nanoid:
     specifier: ^5.0.4
     version: 5.0.4
+  optics-ts:
+    specifier: ^2.4.1
+    version: 2.4.1
   react:
     specifier: ^18.2.0
     version: 18.2.0
