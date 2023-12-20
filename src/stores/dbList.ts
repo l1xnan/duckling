@@ -1,4 +1,4 @@
-import { atom } from 'jotai';
+import { atom, createStore } from 'jotai';
 import { splitAtom } from 'jotai/utils';
 // eslint-disable-next-line import/order
 import { atomWithStore } from 'jotai-zustand';
@@ -157,3 +157,5 @@ export const contextMenuAtom = atom<ContextMenuType | null>(null);
 export const renameAtom = atom<NodeContextType | null>(null);
 // db setting
 export const configAtom = atom<NodeContextType | null>(null);
+
+export const atomStore = createStore();

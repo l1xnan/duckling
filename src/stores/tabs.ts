@@ -1,19 +1,21 @@
 import { debounce } from '@mui/material';
+import { atom } from 'jotai';
+import { splitAtom } from 'jotai/utils';
+// eslint-disable-next-line import/order
+import { atomWithStore } from 'jotai-zustand';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
 export type TabContextType = {
-  dbId: string;
   id: string;
+  dbId: string;
+  tableId: string;
   type?: string;
-
-  // displayName?: string;
-  // dbName: string;
-  // tableName: string;
-  // cwd?: string;
-
   extra?: unknown;
+  displayName: string;
+
+  children?: TabContextType[];
 };
 
 interface TabsState {
@@ -38,8 +40,8 @@ export const useTabsStore = create<TabsState & TabsAction>()(
       (set, _get) => ({
         tabs: [],
         currentTab: undefined,
-
         docs: {},
+
         append: (tab: TabContextType) =>
           set((state) => ({ tabs: [...state.tabs, tab] })),
         active: (index) =>
@@ -89,3 +91,7 @@ export const useTabsStore = create<TabsState & TabsAction>()(
     ),
   ),
 );
+
+export const tabsAtom = atomWithStore(useTabsStore);
+export const tabListAtom = atom((get) => get(tabsAtom).tabs);
+export const tabsAtomsAtom = splitAtom(tabListAtom);

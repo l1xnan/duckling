@@ -1,22 +1,24 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { TabContext } from '@mui/lab';
 import { Box, IconButton } from '@mui/material';
+import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 
-import { MemoDataset, PageProvider } from '@/components/Dataset';
+import { Dataset, PageProvider } from '@/components/Dataset';
 import { DatasetEmpty } from '@/components/DatasetEmpty';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { PageTab, PageTabList, PageTabPanel } from '@/components/PageTabs';
-import { useTabsStore } from '@/stores/tabs';
-
-import MonacoEditor from './editor/MonacoEditor';
+import MonacoEditor from '@/pages/editor/MonacoEditor';
+import { tabsAtomsAtom, useTabsStore } from '@/stores/tabs';
 
 export function Main() {
   const activateTab = useTabsStore((state) => state.active);
   const removeTab = useTabsStore((state) => state.remove);
   const tabs = useTabsStore((state) => state.tabs);
   const currentTab = useTabsStore((state) => state.currentTab);
-  console.log(tabs);
+
+  const tabsAtoms = useAtomValue(tabsAtomsAtom);
+
   const tabList = useMemo(() => {
     return (
       <PageTabList
@@ -37,9 +39,7 @@ export function Main() {
                     alignItems: 'center',
                   }}
                 >
-                  <Box>
-                    {tab?.displayName ?? tab?.tableName.split('/').at(-1)}
-                  </Box>
+                  <Box>{tab.displayName}</Box>
                   <IconButton
                     size="small"
                     component="div"
@@ -61,11 +61,12 @@ export function Main() {
 
   const items = useMemo(() => {
     return tabs.map((tab) => {
+      // const tab = useAtomValue(tabAtom);
       return (
         <PageProvider key={tab.id} table={tab}>
           <PageTabPanel value={tab.id}>
             <ErrorBoundary fallback={<p>Something went wrong</p>}>
-              {tab.type === 'editor' ? <MonacoEditor /> : <MemoDataset />}
+              {tab.type === 'editor' ? <MonacoEditor /> : <Dataset />}
             </ErrorBoundary>
           </PageTabPanel>
         </PageProvider>

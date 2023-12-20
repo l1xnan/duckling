@@ -4,6 +4,7 @@ import { createStore, useStore } from 'zustand';
 import { query } from '@/api';
 import { genStmt } from '@/utils';
 
+import { atomStore, dbMapAtom } from './dbList';
 import { TabContextType } from './tabs';
 
 export type SchemaType = {
@@ -83,9 +84,10 @@ export const usePageStore = () => {
 export const createDatasetStore = (context: TabContextType) =>
   createStore<DatasetState & DatasetAction>((set, get) => ({
     // state
+    context,
+
     page: 1,
     perPage: 500,
-    context,
     totalCount: 0,
     schema: [],
     data: [],
@@ -132,38 +134,51 @@ export const createDatasetStore = (context: TabContextType) =>
     setPerPage: (perPage: number) => set((_) => ({ perPage })),
     decrease: () => set((state) => ({ page: state.page - 1 })),
     refresh: async (stmt?: string) => {
-      const { page, perPage, context: table, sqlWhere } = get();
-      console.log('inner:', get());
-      if (!table || !table.tableName) {
+      const { page, perPage, context, sqlWhere } = get();
+
+      const dbId = context?.dbId;
+
+      if (!dbId) {
         return;
       }
 
-      let path = ':memory:';
-      let tableName = table.tableName;
+      const dbMap = atomStore.get(dbMapAtom);
 
-      if (table?.dbName?.endsWith('.duckdb')) {
-        path = table.dbName;
-      } else if (tableName.endsWith('.csv')) {
-        tableName = `read_csv_auto('${table.tableName}')`;
-      } else if (tableName.endsWith('.parquet')) {
-        tableName = `read_parquet('${table.tableName}')`;
+      const db = dbMap.get(dbId);
+      if (!db) {
+        return;
       }
 
-      const sql =
-        stmt ??
-        genStmt({
+      let sql = stmt;
+
+      let path = ':memory:';
+      if (db.dialect == 'duckdb') {
+        path = db.data.path;
+      }
+
+      if (!sql) {
+        const tableId = context?.tableId;
+        const table = {};
+        let tableName = '';
+        if (tableName.endsWith('.csv')) {
+          tableName = `read_csv_auto('${table.tableName}')`;
+        } else if (tableName.endsWith('.parquet')) {
+          tableName = `read_parquet('${table.tableName}')`;
+        }
+
+        sql = genStmt({
           tableName,
           orderBy: get().orderBy,
           where: sqlWhere,
         });
-
+      }
       console.log('query:', path, sql);
       const data = await query({
         path,
         sql,
         limit: perPage,
         offset: (page - 1) * perPage,
-        cwd: table.cwd,
+        cwd: db.cwd,
       });
       set({ ...data });
     },

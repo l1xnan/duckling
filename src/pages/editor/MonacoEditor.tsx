@@ -39,7 +39,7 @@ export default function MonacoEditor() {
   }
   const id = table.id;
   const extra = table.extra;
-  console.log('extra:', extra);
+
   const setStmt = useTabsStore((state) => state.setStmt);
   const docs = useTabsStore((state) => state.docs);
   const stmt = docs[id] ?? '';

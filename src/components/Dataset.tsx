@@ -35,7 +35,6 @@ import { borderTheme, convertOrderBy, isDarkTheme } from '@/utils';
 
 import { AgTable } from './AgTable';
 import { TablerSvgIcon } from './MuiIconButton';
-import { PageTabPanel } from './PageTabs';
 import { ToolbarContainer } from './Toolbar';
 
 export interface DatasetProps {
@@ -65,19 +64,7 @@ export const usePageStoreApi = () => {
   return store;
 };
 
-export const MemoPanel = React.memo(
-  ({ table, idx }: { table: TabContextType; idx: number }) => {
-    return (
-      <PageProvider table={table}>
-        <PageTabPanel value={`${idx}`}>
-          <MemoDataset />
-        </PageTabPanel>
-      </PageProvider>
-    );
-  },
-);
-
-export const MemoDataset = React.memo(function Dataset() {
+export function Dataset() {
   const {
     refresh,
     data,
@@ -160,7 +147,7 @@ export const MemoDataset = React.memo(function Dataset() {
       ) : null}
     </Stack>
   );
-});
+}
 
 function PageSizeToolbar() {
   const {
@@ -301,4 +288,4 @@ export function InputToolbar() {
   );
 }
 
-export default MemoDataset;
+export default Dataset;

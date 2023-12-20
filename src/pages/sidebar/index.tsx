@@ -17,6 +17,7 @@ import {
   configAtom,
   contextMenuAtom,
   dbAtomsAtom,
+  dbMapAtom,
   renameAtom,
   useDBListStore,
 } from '@/stores/dbList';
@@ -39,6 +40,8 @@ function Sidebar() {
   const [contextMenu, setContextMenu] = useAtom(contextMenuAtom);
   const [renameContext, setRenameContext] = useAtom(renameAtom);
   const [configContext, setConfigContext] = useAtom(configAtom);
+
+  const dbMap = useAtomValue(dbMapAtom);
 
   async function openUrl() {
     const path: string = await invoke('opened_urls');
@@ -106,8 +109,17 @@ function Sidebar() {
         <ContextMenuItem
           icon={<CodeIcon />}
           onClick={() => {
-            if (contextMenu?.context) {
-              updateTab!(contextMenu?.context);
+            const context = contextMenu?.context;
+            if (context) {
+              const dbId = context?.dbId ?? '';
+              const db = dbMap.get(dbId);
+              const displayName = db?.displayName ?? '';
+              updateTab!({
+                ...contextMenu.context,
+                displayName,
+                id: dbId,
+                type: 'editor',
+              });
             }
             handleClose();
           }}
