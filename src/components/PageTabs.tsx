@@ -1,8 +1,25 @@
-import { TabList, TabPanelProps, useTabContext } from '@mui/lab';
-import { Box, Tab, TabProps, styled } from '@mui/material';
-import { FunctionComponent, PropsWithChildren } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
+import { TabContext, TabList, TabPanelProps, useTabContext } from '@mui/lab';
+import { Box, IconButton, Tab, TabProps, styled } from '@mui/material';
+import {
+  FunctionComponent,
+  PropsWithChildren,
+  ReactNode,
+  useMemo,
+} from 'react';
 
+import { DatasetEmpty } from '@/components/DatasetEmpty';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import { TabContextType } from '@/stores/tabs';
 import { borderTheme, isDarkTheme } from '@/utils';
+
+export interface PageTabsProps {
+  items: { tab: TabContextType; children: ReactNode }[];
+  activeKey: string;
+  fallback?: ReactNode;
+  onRemove: (key: string) => void;
+  onChange: (key: string) => void;
+}
 
 export const PageTabList = styled(TabList)(({ theme }) => ({
   borderBottom: borderTheme(theme),
@@ -55,3 +72,69 @@ export const PageTabPanel: FunctionComponent<
     </Box>
   );
 };
+
+export function PageTabs({
+  items,
+  activeKey,
+  fallback,
+  onChange,
+  onRemove,
+}: PageTabsProps) {
+  const tabList = useMemo(() => {
+    return (
+      <PageTabList
+        variant="scrollable"
+        scrollButtons="auto"
+        onChange={(_, value) => onChange(value)}
+      >
+        {items.map(({ tab }) => {
+          return (
+            <PageTab
+              key={tab.id}
+              value={tab.id}
+              label={
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Box>{tab.displayName}</Box>
+                  <IconButton
+                    size="small"
+                    component="div"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemove(tab.id);
+                    }}
+                  >
+                    <CloseIcon fontSize="inherit" />
+                  </IconButton>
+                </Box>
+              }
+            />
+          );
+        })}
+      </PageTabList>
+    );
+  }, [items]);
+
+  return (
+    <TabContext value={activeKey}>
+      <Box>{items?.length > 0 ? tabList : <DatasetEmpty />}</Box>
+      <Box sx={{ height: '100%' }}>
+        {items.map((item) => {
+          const tab = item.tab;
+          return (
+            <PageTabPanel key={tab.id} value={tab.id}>
+              <ErrorBoundary fallback={fallback ?? <p>Something went wrong</p>}>
+                {item.children}
+              </ErrorBoundary>
+            </PageTabPanel>
+          );
+        })}
+      </Box>
+    </TabContext>
+  );
+}

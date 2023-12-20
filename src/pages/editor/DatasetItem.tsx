@@ -27,7 +27,6 @@ import React, {
 import { AgTable } from '@/components/AgTable';
 import Dropdown from '@/components/Dropdown';
 import { TablerSvgIcon } from '@/components/MuiIconButton';
-import { PageTabPanel } from '@/components/PageTabs';
 import { ToolbarContainer } from '@/components/Toolbar';
 import {
   PageContext,
@@ -67,21 +66,9 @@ export const usePageStoreApi = () => {
   return store;
 };
 
-export const MemoPanel = React.memo(
-  ({ table, idx }: { table: TabContextType; idx: number }) => {
-    return (
-      <PageProvider table={table}>
-        <PageTabPanel value={`${idx}`}>
-          <DatasetItem />
-        </PageTabPanel>
-      </PageProvider>
-    );
-  },
-);
-
 export function DatasetItem() {
   const { data, schema, message, beautify } = usePageStore();
-  console.log(data);
+
   const dataSources = useMemo(() => data, [data]);
 
   const [open, setOpen] = useState(false);
@@ -97,7 +84,6 @@ export function DatasetItem() {
     setOpen(false);
   };
 
-  console.log('========', schema);
   return (
     <Stack height={'100%'}>
       <PageSizeToolbar />

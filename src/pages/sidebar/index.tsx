@@ -36,7 +36,7 @@ function Sidebar() {
   const updateTab = useTabsStore((state) => state.update);
   const removeDB = useDBListStore((state) => state.remove);
 
-  const [dbAtoms] = useAtom(dbAtomsAtom);
+  const dbAtoms = useAtomValue(dbAtomsAtom);
   const [contextMenu, setContextMenu] = useAtom(contextMenuAtom);
   const [renameContext, setRenameContext] = useAtom(renameAtom);
   const [configContext, setConfigContext] = useAtom(configAtom);

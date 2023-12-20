@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
 import { useDeepCompareEffect } from 'ahooks';
+import { PrimitiveAtom } from 'jotai';
 import React, {
   ReactNode,
   Suspense,
@@ -45,7 +46,7 @@ export const PageProvider = ({
   table,
   children,
 }: {
-  table: TabContextType;
+  table: PrimitiveAtom<TabContextType>;
   children: ReactNode;
 }) => {
   const storeRef = useRef(createDatasetStore(table));
@@ -64,12 +65,11 @@ export const usePageStoreApi = () => {
   return store;
 };
 
-export function Dataset() {
+export function Dataset({ context }: { context: TabContextType }) {
   const {
     refresh,
     data,
     schema,
-    context: table,
     page,
     perPage,
     orderBy,
@@ -81,7 +81,7 @@ export function Dataset() {
 
   const [open, setOpen] = useState(false);
   useDeepCompareEffect(() => {
-    if (table?.type != 'editor') {
+    if (context?.type != 'editor') {
       (async () => {
         try {
           await refresh();
@@ -96,7 +96,7 @@ export function Dataset() {
     if (code != 0) {
       setOpen(true);
     }
-  }, [table, code, message]);
+  }, [context, code, message]);
 
   const handleClose = (
     _event: React.SyntheticEvent | Event,

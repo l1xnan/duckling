@@ -93,5 +93,8 @@ export const useTabsStore = create<TabsState & TabsAction>()(
 );
 
 export const tabsAtom = atomWithStore(useTabsStore);
-export const tabListAtom = atom((get) => get(tabsAtom).tabs);
+export const tabListAtom = atom(
+  (get) => get(tabsAtom).tabs,
+  (_get, _set) => {},
+);
 export const tabsAtomsAtom = splitAtom(tabListAtom);

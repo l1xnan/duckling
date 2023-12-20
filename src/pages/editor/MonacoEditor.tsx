@@ -5,11 +5,11 @@ import { Box, IconButton, Stack, useTheme } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 
 import { showTables } from '@/api';
+import { PageProvider } from '@/components/Dataset';
 import { ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
 import { useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
-import { usePageStore } from '@/stores/dataset';
-import { useTabsStore } from '@/stores/tabs';
+import { TabContextType, useTabsStore } from '@/stores/tabs';
 import { isDarkTheme } from '@/utils';
 
 import Connection from './Connection';
@@ -32,13 +32,12 @@ type ComplationSchemaType = {
   [key: string]: string[];
 };
 
-export default function MonacoEditor() {
-  const { context: table, refresh } = usePageStore();
-  if (table === undefined) {
+export default function MonacoEditor({ context }: { context: TabContextType }) {
+  if (context === undefined) {
     return;
   }
-  const id = table.id;
-  const extra = table.extra;
+  const id = context.id;
+  const extra = context.extra;
 
   const setStmt = useTabsStore((state) => state.setStmt);
   const docs = useTabsStore((state) => state.docs);
@@ -52,7 +51,7 @@ export default function MonacoEditor() {
       setStmt(id, `${stmt}\n${extra}`);
     }
     (async () => {
-      const schema = await getTables(table.dbId);
+      const schema = await getTables(context.dbId);
       setTables(schema);
     })();
   }, []);
@@ -89,6 +88,7 @@ export default function MonacoEditor() {
     }
 
     if (stmt.length > 0) {
+      // TODO:
       await refresh(stmt);
     }
   };
@@ -121,7 +121,11 @@ export default function MonacoEditor() {
         <div className={classes.controlsH}>
           <div className={classes.resizeHorizontal} onMouseDown={actionTop} />
         </div>
-        <DatasetItem />
+
+        <PageProvider table={{}}>
+          {/* <Dataset context={tab} />     */}
+          <DatasetItem />
+        </PageProvider>
       </Box>
     </Box>
   );
