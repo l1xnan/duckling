@@ -147,6 +147,12 @@ export const dbMapAtom = atom((get) => {
   return new Map(get(storeAtom).dbList.map((db) => [db.id, db]));
 });
 
+export const tablesAtom = atom((get) => {
+  return new Map(
+    get(storeAtom).dbList.map((db) => [db.id, flattenTree(db.data)]),
+  );
+});
+
 export const dbAtomsAtom = splitAtom(dbListAtom);
 
 export const selectedNodeAtom = atom<NodeContextType | null>(null);

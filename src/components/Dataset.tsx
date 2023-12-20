@@ -15,7 +15,6 @@ import {
 } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
 import { useDeepCompareEffect } from 'ahooks';
-import { PrimitiveAtom } from 'jotai';
 import React, {
   ReactNode,
   Suspense,
@@ -38,18 +37,14 @@ import { AgTable } from './AgTable';
 import { TablerSvgIcon } from './MuiIconButton';
 import { ToolbarContainer } from './Toolbar';
 
-export interface DatasetProps {
-  tableName: string;
-}
-
 export const PageProvider = ({
-  table,
+  context,
   children,
 }: {
-  table: PrimitiveAtom<TabContextType>;
+  context: TabContextType;
   children: ReactNode;
 }) => {
-  const storeRef = useRef(createDatasetStore(table));
+  const storeRef = useRef(createDatasetStore(context));
   return (
     <PageContext.Provider value={storeRef.current}>
       {children}

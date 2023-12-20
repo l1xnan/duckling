@@ -4,7 +4,7 @@ import { createStore, useStore } from 'zustand';
 import { query } from '@/api';
 import { genStmt } from '@/utils';
 
-import { atomStore, dbMapAtom } from './dbList';
+import { atomStore, dbMapAtom, tablesAtom } from './dbList';
 import { TabContextType } from './tabs';
 
 export type SchemaType = {
@@ -157,15 +157,16 @@ export const createDatasetStore = (context: TabContextType) =>
       }
 
       if (!sql) {
-        const tableId = context?.tableId;
-        const table = {};
-        let tableName = '';
-        if (tableName.endsWith('.csv')) {
-          tableName = `read_csv_auto('${table.tableName}')`;
-        } else if (tableName.endsWith('.parquet')) {
-          tableName = `read_parquet('${table.tableName}')`;
-        }
+        const tableMap = atomStore.get(tablesAtom);
+        const table = tableMap.get(dbId)?.get(context?.tableId ?? '');
 
+        let tableName = '';
+        if (table.path.endsWith('.csv')) {
+          tableName = `read_csv_auto('${table.path}')`;
+        } else if (table.path.endsWith('.parquet')) {
+          tableName = `read_parquet('${table.path}')`;
+        }
+        console.log('tableName', tableName);
         sql = genStmt({
           tableName,
           orderBy: get().orderBy,
