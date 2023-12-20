@@ -1,20 +1,21 @@
 import { atom } from 'jotai';
-import { atomWithStorage } from 'jotai/utils';
+import { splitAtom } from 'jotai/utils';
+// eslint-disable-next-line import/order
+import { atomWithStore } from 'jotai-zustand';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { debounce } from '@/utils';
+import { TreeNode } from '@/types';
 
 import { computed } from './computed';
-import { TabContextType } from './tabs';
 
-export interface TreeNode {
-  name: string;
+export type NodeContextType = {
+  id?: string;
+  dbId: string;
+  tableId: string;
   type?: string;
-  path: string;
-  is_dir: boolean;
-  children?: TreeNode[];
-}
+  extra?: unknown;
+};
 
 export type DialectType = 'folder' | 'file' | 'duckdb';
 
@@ -23,7 +24,7 @@ export type DBType = {
   dialect: DialectType;
 
   displayName?: string;
-  // node tree
+  // tree node
   data: TreeNode;
 
   // config
@@ -33,11 +34,10 @@ export type DBType = {
 type ContextMenuType = {
   mouseX: number;
   mouseY: number;
-  context: TabContextType;
+  context: NodeContextType;
 } | null;
 
 type DBListState = {
-  size: number;
   dbList: DBType[];
   contextMenu: ContextMenuType;
 };
@@ -49,7 +49,6 @@ type DBListAction = {
   remove: (id: string) => void;
   rename: (id: string, displayName: string) => void;
   setCwd: (cwd: string, path: string) => void;
-  setSize: (size: number) => void;
 
   setContextMenu: (contextMenu: ContextMenuType) => void;
 };
@@ -85,7 +84,6 @@ export const useDBListStore = create<DBListStore & ComputedStore>()(
     persist<DBListStore>(
       (set, _get) => ({
         // state
-        size: 300,
         dbList: [],
 
         contextMenu: null,
@@ -95,7 +93,6 @@ export const useDBListStore = create<DBListStore & ComputedStore>()(
 
         // action
         append: (db) => set((state) => ({ dbList: [...state.dbList, db] })),
-        setSize: debounce((size) => set((_) => ({ size }))),
         remove: (id) =>
           set((state) => ({
             dbList: state.dbList?.filter((item) => !(item.id === id)),
@@ -122,10 +119,10 @@ export const useDBListStore = create<DBListStore & ComputedStore>()(
                 : item;
             }),
           })),
-        rename: (id: string, displayName: string) => {
-          set((state) => ({
-            dbList: state.dbList.map((item) => {
-              return item.id == id
+        rename: (dbId: string, displayName: string) => {
+          set(({ dbList }) => ({
+            dbList: dbList.map((item) => {
+              return item.id == dbId
                 ? {
                     ...item,
                     displayName,
@@ -144,7 +141,19 @@ export const useDBListStore = create<DBListStore & ComputedStore>()(
   ),
 );
 
-export const dbListAtom = atomWithStorage('databases', []);
+const storeAtom = atomWithStore(useDBListStore);
+export const dbListAtom = atom((get) => get(storeAtom).dbList);
 export const dbMapAtom = atom((get) => {
-  return get(dbListAtom);
+  return new Map(get(storeAtom).dbList.map((db) => [db.id, db]));
 });
+
+export const dbAtomsAtom = splitAtom(dbListAtom);
+
+export const selectedNodeAtom = atom<NodeContextType | null>(null);
+
+export const contextMenuAtom = atom<ContextMenuType | null>(null);
+
+// db rename
+export const renameAtom = atom<NodeContextType | null>(null);
+// db setting
+export const configAtom = atom<NodeContextType | null>(null);

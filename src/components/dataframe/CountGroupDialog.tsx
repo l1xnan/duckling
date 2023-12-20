@@ -41,12 +41,12 @@ export default function CountGroupDialog() {
   }, [db?.cwd]);
 
   const handleSubmit = () => {
-    updateCwd(cwd, db?.root!);
+    updateCwd(cwd, db?.dbId!);
     onClose();
   };
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{db?.root.split('/').at(-1)}</DialogTitle>
+      <DialogTitle>{db?.dbId.split('/').at(-1)}</DialogTitle>
       <DialogContent>
         <TextField
           autoFocus

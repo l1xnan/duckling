@@ -2,6 +2,7 @@ import { CssBaseline } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useLocalStorageState } from 'ahooks';
+import { DevTools } from 'jotai-devtools';
 import { useMemo } from 'react';
 
 import Home from './Home';
@@ -28,14 +29,17 @@ function App() {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ColorModeContext.Provider value={colorMode}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline enableColorScheme />
-          <Home />
-        </ThemeProvider>
-      </ColorModeContext.Provider>
-    </QueryClientProvider>
+    <>
+      <DevTools />
+      <QueryClientProvider client={queryClient}>
+        <ColorModeContext.Provider value={colorMode}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline enableColorScheme />
+            <Home />
+          </ThemeProvider>
+        </ColorModeContext.Provider>
+      </QueryClientProvider>
+    </>
   );
 }
 

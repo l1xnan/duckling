@@ -1,4 +1,5 @@
-import { atomWithStorage } from 'jotai/utils';
+import { focusAtom } from 'jotai-optics';
+import { atomWithStore } from 'jotai-zustand';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -26,6 +27,6 @@ export const useAppStore = create<AppStore>()(
   ),
 );
 
-export const sizeAtom = atomWithStorage('layout', 300, undefined, {
-  getOnInit: true,
-});
+export const appAtom = atomWithStore(useAppStore);
+
+export const sizeAtom = focusAtom(appAtom, (optic) => optic.prop('size'));

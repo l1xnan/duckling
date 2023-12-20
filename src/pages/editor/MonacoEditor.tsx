@@ -52,7 +52,7 @@ export default function MonacoEditor() {
       setStmt(id, `${stmt}\n${extra}`);
     }
     (async () => {
-      const schema = await getTables(table.root);
+      const schema = await getTables(table.dbId);
       setTables(schema);
     })();
   }, []);

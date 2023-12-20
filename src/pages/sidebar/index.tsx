@@ -5,16 +5,22 @@ import { Box, BoxProps, Divider, ListItemText } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/primitives';
-import { useEffect, useState } from 'react';
+import { useAtom, useAtomValue } from 'jotai';
+import { useEffect } from 'react';
 
 import { ContextMenu, ContextMenuItem } from '@/components/ContextMenu';
-import DBConfig, { useDBConfigStore } from '@/pages/settings/DBSetting';
+import ConfigDialog from '@/pages/sidebar/ConfigDialog';
 import DBTreeView from '@/pages/sidebar/DBTreeView';
+import RenameDialog from '@/pages/sidebar/RenameDialog';
 import { SideToolbar } from '@/pages/sidebar/SideToolbar';
-import { useDBListStore } from '@/stores/dbList';
-import { TabContextType, useTabsStore } from '@/stores/tabs';
-
-import Rename, { useRenameStore } from './Rename';
+import {
+  configAtom,
+  contextMenuAtom,
+  dbAtomsAtom,
+  renameAtom,
+  useDBListStore,
+} from '@/stores/dbList';
+import { useTabsStore } from '@/stores/tabs';
 
 const TreeViewWrapper = styled(Box)<BoxProps>(() => ({
   width: '100%',
@@ -26,16 +32,13 @@ const TreeViewWrapper = styled(Box)<BoxProps>(() => ({
 }));
 
 function Sidebar() {
-  const [selectedTable, setSelectedTable] = useState<TabContextType | null>(
-    null,
-  );
-  const dbList = useDBListStore((state) => state.dbList);
-  const contextMenu = useDBListStore((state) => state.contextMenu);
-  const setContextMenu = useDBListStore((state) => state.setContextMenu);
   const updateTab = useTabsStore((state) => state.update);
   const removeDB = useDBListStore((state) => state.remove);
-  const onOpen = useDBConfigStore((state) => state.onOpen);
-  const onOpenRename = useRenameStore((state) => state.onOpen);
+
+  const [dbAtoms] = useAtom(dbAtomsAtom);
+  const [contextMenu, setContextMenu] = useAtom(contextMenuAtom);
+  const [renameContext, setRenameContext] = useAtom(renameAtom);
+  const [configContext, setConfigContext] = useAtom(configAtom);
 
   async function openUrl() {
     const path: string = await invoke('opened_urls');
@@ -60,19 +63,13 @@ function Sidebar() {
 
   return (
     <>
-      <SideToolbar selectedTable={selectedTable} />
+      <SideToolbar />
       <TreeViewWrapper>
-        {dbList.map((db, _i) => (
-          <DBTreeView
-            key={db.id}
-            db={db}
-            selected={
-              // mark selected table in current db
-              selectedTable?.root == db.id ? selectedTable.tableName : null
-            }
-            onSelectedTable={setSelectedTable}
-          />
-        ))}
+        {dbAtoms.map((dbAtom, _i) => {
+          const db = useAtomValue(dbAtom);
+
+          return <DBTreeView key={db.id} db={db} />;
+        })}
       </TreeViewWrapper>
 
       {/* ---------- modal/dialog ---------- */}
@@ -90,7 +87,7 @@ function Sidebar() {
       >
         <ContextMenuItem
           onClick={() => {
-            onOpen();
+            setConfigContext(contextMenu?.context ?? null);
             handleClose();
           }}
           icon={<SettingsIcon />}
@@ -100,7 +97,7 @@ function Sidebar() {
         <ContextMenuItem
           icon={<CodeIcon />}
           onClick={() => {
-            onOpenRename();
+            setRenameContext(contextMenu?.context ?? null);
             handleClose();
           }}
         >
@@ -121,8 +118,9 @@ function Sidebar() {
         <ContextMenuItem
           icon={<DeleteIcon />}
           onClick={() => {
-            if (contextMenu?.context?.root) {
-              removeDB(contextMenu?.context?.root);
+            const dbId = contextMenu?.context?.dbId;
+            if (dbId) {
+              removeDB(dbId);
             }
             handleClose();
           }}
@@ -131,10 +129,10 @@ function Sidebar() {
         </ContextMenuItem>
       </ContextMenu>
 
+      {/* rename */}
+      {renameContext !== null ? <RenameDialog /> : null}
       {/* db config */}
-      <DBConfig />
-
-      <Rename />
+      {configContext !== null ? <ConfigDialog /> : null}
     </>
   );
 }

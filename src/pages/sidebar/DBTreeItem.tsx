@@ -16,7 +16,7 @@ import {
 import clsx from 'clsx';
 import * as React from 'react';
 
-import { TreeNode } from '@/stores/dbList';
+import { TreeNode } from '@/types';
 
 import { getTypeIcon } from './DBTreeView';
 

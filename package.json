@@ -19,6 +19,7 @@
     "@codemirror/lint": "^6.4.2",
     "@codemirror/state": "^6.3.3",
     "@codemirror/view": "^6.22.3",
+    "@emotion/react": "^11.11.1",
     "@monaco-editor/react": "^4.6.0",
     "@mui/icons-material": "^5.15.0",
     "@mui/lab": "5.0.0-alpha.156",
@@ -43,6 +44,8 @@
     "dedent": "^1.5.1",
     "immer": "^10.0.3",
     "jotai": "^2.6.0",
+    "jotai-devtools": "^0.7.1",
+    "jotai-optics": "^0.3.1",
     "jotai-valtio": "^0.4.0",
     "jotai-zustand": "^0.3.0",
     "material-react-table": "2.0.0",
@@ -54,6 +57,8 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "@swc-jotai/debug-label": "^0.1.0",
+    "@swc-jotai/react-refresh": "^0.1.0",
     "@tauri-apps/cli": "2.0.0-alpha.18",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",

@@ -4,8 +4,8 @@ import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import { Box, IconButton, Stack, useTheme } from '@mui/material';
 import { basicLight, vscodeDark } from '@uiw/codemirror-themes-all';
 import CodeMirror, {
-  ReactCodeMirrorRef,
-  ViewUpdate,
+    ReactCodeMirrorRef,
+    ViewUpdate,
 } from '@uiw/react-codemirror';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -59,7 +59,7 @@ export default function Editor() {
       setStmt(id, `${stmt}\n${extra}`);
     }
     (async () => {
-      const schema = await getTables(table.root);
+      const schema = await getTables(table.dbId);
       setTables(schema);
     })();
   }, []);

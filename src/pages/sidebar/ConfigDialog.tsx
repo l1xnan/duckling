@@ -5,35 +5,19 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
+import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
-import { create } from 'zustand';
 
-import { useDBListStore } from '@/stores/dbList';
-import { TabContextType } from '@/stores/tabs';
+import { configAtom, dbMapAtom, useDBListStore } from '@/stores/dbList';
 
-type FormDialogType = {
-  open: boolean;
-  db?: TabContextType;
-  setOpen: (open: boolean) => void;
-  setDB: (db: TabContextType) => void;
-  onOpen: () => void;
-  onClose: () => void;
-};
-
-export const useDBConfigStore = create<FormDialogType>((set) => ({
-  open: false,
-  db: undefined,
-  setOpen: (open: boolean) => set((_) => ({ open })),
-  onOpen: () => set((_) => ({ open: true })),
-  onClose: () => set((_) => ({ open: false })),
-  setDB: (db: TabContextType) => set((_) => ({ db })),
-}));
-
-export default function FormDialog() {
-  const open = useDBConfigStore((state) => state.open);
-  const db = useDBConfigStore((state) => state.db);
-  const onClose = useDBConfigStore((state) => state.onClose);
+export default function ConfigDialog() {
   const updateCwd = useDBListStore((state) => state.setCwd);
+
+  const dbMap = useAtomValue(dbMapAtom);
+
+  const [context, setContext] = useAtom(configAtom);
+  const dbId = context?.dbId ?? '';
+  const db = dbMap.get(dbId);
 
   const [cwd, setCwd] = useState(db?.cwd ?? '');
 
@@ -42,21 +26,26 @@ export default function FormDialog() {
   }, [db?.cwd]);
 
   const handleSubmit = () => {
-    if (db?.root) {
-      updateCwd(cwd, db.root);
+    if (dbId) {
+      updateCwd(cwd, dbId);
     }
-    onClose();
+    handClose();
   };
+
+  const handClose = () => {
+    setContext(null);
+  };
+
   return (
     <Dialog
-      open={open}
+      open={context !== null}
       onClose={(_, reason) => {
         if (reason != 'backdropClick') {
-          onClose();
+          handClose();
         }
       }}
     >
-      <DialogTitle>{db?.root.split('/').at(-1)}</DialogTitle>
+      <DialogTitle>{db?.displayName}</DialogTitle>
       <DialogContent>
         <DialogContentText>
           Set working directory for the read parquet relative path
@@ -76,8 +65,8 @@ export default function FormDialog() {
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
         <Button onClick={handleSubmit}>Ok</Button>
+        <Button onClick={handClose}>Cancel</Button>
       </DialogActions>
     </Dialog>
   );

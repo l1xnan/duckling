@@ -4,13 +4,15 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
 export type TabContextType = {
-  root: string;
-  dbName: string;
-  tableName: string;
-  cwd?: string;
+  dbId: string;
   id: string;
   type?: string;
-  displayName?: string;
+
+  // displayName?: string;
+  // dbName: string;
+  // tableName: string;
+  // cwd?: string;
+
   extra?: unknown;
 };
 

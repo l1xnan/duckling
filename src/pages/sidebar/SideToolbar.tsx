@@ -7,42 +7,47 @@ import {
   IconRefresh,
 } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { getDB } from '@/api';
 import { MuiIconButton } from '@/components/MuiIconButton';
 import ToggleColorMode from '@/components/ToggleColorMode';
 import { ToolbarBox } from '@/components/Toolbar';
 import Setting from '@/pages/settings/AppSetting';
-import { useDBConfigStore } from '@/pages/settings/DBSetting';
-import { DialectType, useDBListStore } from '@/stores/dbList';
-import { TabContextType } from '@/stores/tabs';
+import {
+  DialectType,
+  configAtom,
+  selectedNodeAtom,
+  useDBListStore,
+} from '@/stores/dbList';
 
-export function SideToolbar({
-  selectedTable,
-}: {
-  selectedTable: TabContextType | null;
-}) {
+export function SideToolbar() {
   const dbList = useDBListStore((state) => state.dbList);
   const appendDB = useDBListStore((state) => state.append);
   const removeDB = useDBListStore((state) => state.remove);
   const updateDB = useDBListStore((state) => state.update);
+
+  const setConfigContext = useSetAtom(configAtom);
 
   async function handleGetDB(url: string, dialect: DialectType) {
     const data = await getDB({ url, dialect });
     appendDB(data);
   }
 
-  const onOpen = useDBConfigStore((state) => state.onOpen);
-  const setDB = useDBConfigStore((state) => state.setDB);
+  const selectedNode = useAtomValue(selectedNodeAtom);
 
   const handleOpen = () => {
-    setDB(selectedTable!);
-    onOpen();
+    if (selectedNode) {
+      setConfigContext({
+        dbId: selectedNode.dbId,
+        tableId: selectedNode.tableId,
+      });
+    }
   };
 
   async function handleRemoveDB() {
-    if (selectedTable) {
-      removeDB(selectedTable.root);
+    if (selectedNode) {
+      removeDB(selectedNode.dbId);
     }
   }
   async function handleAppendDB() {
@@ -75,8 +80,8 @@ export function SideToolbar({
   }
 
   async function handleRefresh() {
-    if (selectedTable) {
-      const root = selectedTable.root;
+    if (selectedNode) {
+      const root = selectedNode.dbId;
 
       dbList.forEach(async (db) => {
         if (db.id == root) {
@@ -90,8 +95,8 @@ export function SideToolbar({
     }
   }
 
-  const isRoot = selectedTable
-    ? dbList.map((item) => item.data.path).includes(selectedTable?.tableName)
+  const isRoot = selectedNode
+    ? dbList.map((item) => item.data.path).includes(selectedNode?.tableId)
     : false;
 
   return (

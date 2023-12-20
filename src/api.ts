@@ -2,9 +2,10 @@ import { Table, tableFromIPC } from '@apache-arrow/ts';
 import { invoke } from '@tauri-apps/api/primitives';
 import { nanoid } from 'nanoid';
 
-import { DBType, DialectType, TreeNode } from '@/stores/dbList';
+import { DBType, DialectType } from '@/stores/dbList';
 
 import { ArrowResponse, SchemaType } from './stores/dataset';
+import { TreeNode } from './types';
 
 export type ResultType<T = unknown> = {
   totalCount: number;
