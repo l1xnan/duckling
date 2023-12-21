@@ -16,7 +16,7 @@ import { SideToolbar } from '@/pages/sidebar/SideToolbar';
 import {
   configAtom,
   contextMenuAtom,
-  dbAtomsAtom,
+  dbListAtom,
   dbMapAtom,
   renameAtom,
   useDBListStore,
@@ -36,7 +36,7 @@ function Sidebar() {
   const updateTab = useTabsStore((state) => state.update);
   const removeDB = useDBListStore((state) => state.remove);
 
-  const dbAtoms = useAtomValue(dbAtomsAtom);
+  const dbList = useAtomValue(dbListAtom);
   const [contextMenu, setContextMenu] = useAtom(contextMenuAtom);
   const [renameContext, setRenameContext] = useAtom(renameAtom);
   const [configContext, setConfigContext] = useAtom(configAtom);
@@ -68,9 +68,7 @@ function Sidebar() {
     <>
       <SideToolbar />
       <TreeViewWrapper>
-        {dbAtoms.map((dbAtom, _i) => {
-          const db = useAtomValue(dbAtom);
-
+        {dbList.map((db, _i) => {
           return <DBTreeView key={db.id} db={db} />;
         })}
       </TreeViewWrapper>
