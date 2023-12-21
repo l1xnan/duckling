@@ -16,7 +16,6 @@ impl Dialect for FolderDialect {
 
 pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
   let path = path.as_ref();
-
   let is_dir = path.is_dir();
   let name = path.file_name().unwrap().to_string_lossy().to_string();
 
@@ -25,20 +24,22 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
   let mut node_type = String::from("path");
 
   if !is_dir {
-    let file_ext = path.extension().unwrap().to_string_lossy().to_string();
-    if !support_types.contains(&file_ext.as_str()) {
-      return None;
-    }
+    if let Some(file_ext) = path.extension() {
+      let file_ext = file_ext.to_string_lossy().to_string();
+      if !support_types.contains(&file_ext.as_str()) {
+        return None;
+      }
 
-    if name.starts_with("~$") && name.ends_with(".xlsx") {
-      return None;
-    }
+      if name.starts_with("~$") && name.ends_with(".xlsx") {
+        return None;
+      }
 
-    if name.starts_with("~$") && file_ext == "xlsx" {
-      return None;
-    }
+      if name.starts_with("~$") && file_ext == "xlsx" {
+        return None;
+      }
 
-    node_type = file_ext;
+      node_type = file_ext;
+    }
   };
 
   let mut children = None;
