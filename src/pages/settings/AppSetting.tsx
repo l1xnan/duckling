@@ -60,6 +60,7 @@ export default function MaxWidthDialog() {
         <SettingsIcon fontSize="inherit" />
       </MuiIconButton>
       <Dialog
+        aria-labelledby="draggable-dialog-title"
         open={open}
         onClose={(_, reason) => {
           if (reason != 'backdropClick') {
@@ -69,10 +70,10 @@ export default function MaxWidthDialog() {
       >
         <DialogTitle minWidth={600} sx={{}}>
           Setting
+          <IconButton aria-label="close" onClick={handleClose}>
+            <CloseIcon />
+          </IconButton>
         </DialogTitle>
-        <IconButton aria-label="close" onClick={handleClose}>
-          <CloseIcon />
-        </IconButton>
         <DialogContent dividers>
           <Box
             noValidate
@@ -98,7 +99,12 @@ export default function MaxWidthDialog() {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
+          <Button variant="outlined" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button variant="contained" onClick={handleClose}>
+            Ok
+          </Button>
         </DialogActions>
       </Dialog>
     </React.Fragment>

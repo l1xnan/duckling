@@ -37,6 +37,7 @@ export default function RenameDialog() {
   };
   return (
     <Dialog
+      aria-labelledby="draggable-dialog-title"
       open={context != null}
       onClose={(_, reason) => {
         if (reason != 'backdropClick') {
@@ -60,8 +61,12 @@ export default function RenameDialog() {
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleSubmit}>Ok</Button>
-        <Button onClick={handClose}>Cancel</Button>
+        <Button variant="outlined" onClick={handClose}>
+          Cancel
+        </Button>
+        <Button variant="contained" onClick={handleSubmit}>
+          Ok
+        </Button>
       </DialogActions>
     </Dialog>
   );

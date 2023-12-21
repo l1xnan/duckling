@@ -38,6 +38,7 @@ export default function ConfigDialog() {
 
   return (
     <Dialog
+      aria-labelledby="draggable-dialog-title"
       open={context !== null}
       onClose={(_, reason) => {
         if (reason != 'backdropClick') {
@@ -65,8 +66,12 @@ export default function ConfigDialog() {
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleSubmit}>Ok</Button>
-        <Button onClick={handClose}>Cancel</Button>
+        <Button variant="outlined" onClick={handClose}>
+          Cancel
+        </Button>
+        <Button variant="contained" onClick={handleSubmit}>
+          Ok
+        </Button>
       </DialogActions>
     </Dialog>
   );
