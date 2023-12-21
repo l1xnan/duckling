@@ -8,8 +8,8 @@ import DatasetItem, { PageProvider } from './DatasetItem';
 
 export interface QueryTabsProps {
   subTabsAtom: PrimitiveAtom<QueryContextType[]>;
-  activeKey: string | null;
-  setActiveKey: (key: string) => void;
+  activeKey?: string;
+  setActiveKey: (key?: string) => void;
 }
 
 export function QueryTabs({
@@ -35,13 +35,21 @@ export function QueryTabs({
   const handleChange = (val: string) => {
     setActiveKey(val);
   };
-  const handleRemove = (val: string) => {
-    setSubTabs((prev) => prev.filter((item) => item.id != val));
+  const handleRemove = (key: string) => {
+    setSubTabs((prev) => prev.filter((item) => item.id != key));
+
+    const delIndex = subTabs.findIndex(({ id }) => id === key);
+
+    if (key == activeKey) {
+      const newActiveKey =
+        subTabs[delIndex - 1]?.id || subTabs[delIndex + 1]?.id || undefined;
+      setActiveKey(newActiveKey);
+    }
   };
   return (
     <PageTabs
       items={items}
-      activeKey={activeKey ?? ''}
+      activeKey={activeKey ?? subTabs[0]?.id ?? ''}
       onChange={handleChange}
       onRemove={handleRemove}
     />

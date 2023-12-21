@@ -6,7 +6,6 @@ import { nanoid } from 'nanoid';
 import { useEffect, useRef } from 'react';
 
 import { showTables } from '@/api';
-import { useResize } from '@/hooks';
 import {
   EditorContextType,
   QueryContextType,
@@ -58,7 +57,6 @@ export default function MonacoEditor({
     }
   }, []);
 
-  const [targetRefTop, sizeTop, actionTop] = useResize(300, 'bottom');
   const editorRef = useRef<OnMountParams[0] | null>(null);
 
   const handleMount: OnMount = (editor, _monaco) => {
@@ -104,13 +102,15 @@ export default function MonacoEditor({
   };
 
   return (
-    <VerticalContainer bottom={300}>
+    <VerticalContainer
+      bottom={tabContext?.children?.length > 0 ? 300 : undefined}
+    >
       <Box sx={{ height: '100%' }}>
         <EditorToolbar onClick={handleClick} />
         <Editor
           onMount={handleMount}
           value={stmt}
-          height={`calc(100vh - ${sizeTop + 64}px)`}
+          height={'100%'}
           defaultLanguage="sql"
           theme={isDarkTheme(theme) ? 'vs-dark' : 'light'}
           onChange={handleChange}

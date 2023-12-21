@@ -25,7 +25,7 @@ export type EditorContextType = {
   extra?: unknown;
   displayName: string;
 
-  activeKey: string | null;
+  activeKey?: string;
 
   children: QueryContextType[];
 };

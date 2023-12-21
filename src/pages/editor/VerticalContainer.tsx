@@ -23,7 +23,13 @@ export default function VerticalContainer(props: {
         position: 'relative',
       }}
     >
-      {childrenArray[0]}
+      <Box
+        sx={{
+          height: `calc(100vh - ${sizeTop + 64}px)`,
+        }}
+      >
+        {childrenArray[0]}
+      </Box>
       {props.bottom ? (
         <Box
           ref={targetRefTop}
