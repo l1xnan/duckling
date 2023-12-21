@@ -160,13 +160,12 @@ export const createDatasetStore = (context: TabContextType) =>
         const tableMap = atomStore.get(tablesAtom);
         const table = tableMap.get(dbId)?.get(context?.tableId ?? '');
 
-        let tableName = '';
+        let tableName = table.path;
         if (table.path.endsWith('.csv')) {
           tableName = `read_csv_auto('${table.path}')`;
         } else if (table.path.endsWith('.parquet')) {
           tableName = `read_parquet('${table.path}')`;
         }
-        console.log('tableName', tableName);
         sql = genStmt({
           tableName,
           orderBy: get().orderBy,
