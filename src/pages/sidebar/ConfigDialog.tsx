@@ -1,13 +1,9 @@
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 
+import { DialogBox } from '@/components/DialogBox';
 import { configAtom, dbMapAtom, useDBListStore } from '@/stores/dbList';
 
 export default function ConfigDialog() {
@@ -37,42 +33,28 @@ export default function ConfigDialog() {
   };
 
   return (
-    <Dialog
-      aria-labelledby="draggable-dialog-title"
-      open={context !== null}
-      onClose={(_, reason) => {
-        if (reason != 'backdropClick') {
-          handClose();
-        }
-      }}
+    <DialogBox
+      title={db?.displayName ?? db?.id ?? ''}
+      open={context != null}
+      onOk={handleSubmit}
+      onCancel={handClose}
     >
-      <DialogTitle>{db?.displayName}</DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          Set working directory for the read parquet relative path
-        </DialogContentText>
-        <TextField
-          autoFocus
-          margin="dense"
-          id="cwd"
-          label="Working Directory"
-          type="text"
-          fullWidth
-          variant="standard"
-          value={cwd}
-          onChange={(e) => {
-            setCwd(e.target.value);
-          }}
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button variant="outlined" onClick={handClose}>
-          Cancel
-        </Button>
-        <Button variant="contained" onClick={handleSubmit}>
-          Ok
-        </Button>
-      </DialogActions>
-    </Dialog>
+      <DialogContentText>
+        Set working directory for the read parquet relative path
+      </DialogContentText>
+      <TextField
+        autoFocus
+        margin="dense"
+        id="cwd"
+        label="Working Directory"
+        type="text"
+        fullWidth
+        variant="standard"
+        value={cwd}
+        onChange={(e) => {
+          setCwd(e.target.value);
+        }}
+      />
+    </DialogBox>
   );
 }

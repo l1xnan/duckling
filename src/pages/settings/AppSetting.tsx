@@ -1,15 +1,16 @@
-import CloseIcon from '@mui/icons-material/Close';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { IconButton, InputBase, ListItem, ListItemText } from '@mui/material';
+import {
+  Input,
+  InputBase,
+  ListItem,
+  ListItemText,
+  OutlinedInput,
+} from '@mui/material';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
 import * as React from 'react';
 import { ReactNode } from 'react';
 
+import { DialogBox } from '@/components/DialogBox';
 import { MuiIconButton } from '@/components/MuiIconButton';
 import { useSettingStore } from '@/stores/setting';
 
@@ -27,7 +28,7 @@ export const SettingItem: React.FC<ItemProps> = (props) => {
     label
   ) : (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <span>{label}</span>
+      <Box sx={{ fontSize: '14px' }}>{label}</Box>
       {extra}
     </Box>
   );
@@ -59,54 +60,35 @@ export default function MaxWidthDialog() {
       <MuiIconButton onClick={handleClickOpen}>
         <SettingsIcon fontSize="inherit" />
       </MuiIconButton>
-      <Dialog
-        aria-labelledby="draggable-dialog-title"
+      <DialogBox
+        title="Setting"
         open={open}
-        onClose={(_, reason) => {
-          if (reason != 'backdropClick') {
-            handleClose();
-          }
-        }}
+        onOk={handleClose}
+        onCancel={handleClose}
       >
-        <DialogTitle minWidth={600} sx={{}}>
-          Setting
-          <IconButton aria-label="close" onClick={handleClose}>
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent dividers>
-          <Box
-            noValidate
-            component="form"
-            sx={{
-              display: 'flex',
-              width: '100%',
-              flexDirection: 'column',
-              m: 'auto',
-            }}
-          >
-            <SettingItem label="Float precision">
-              <InputBase
-                sx={{ ml: 1, flex: 1 }}
-                placeholder={`${precision}`}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                  setStore({
-                    precision: parseInt(event.target.value),
-                  });
-                }}
-              />
-            </SettingItem>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button variant="outlined" onClick={handleClose}>
-            Cancel
-          </Button>
-          <Button variant="contained" onClick={handleClose}>
-            Ok
-          </Button>
-        </DialogActions>
-      </Dialog>
+        <Box
+          noValidate
+          component="form"
+          sx={{
+            display: 'flex',
+            width: '100%',
+            flexDirection: 'column',
+            m: 'auto',
+          }}
+        >
+          <SettingItem label="Float precision">
+            <OutlinedInput
+              sx={{ ml: 1, flex: 1, height: 32 }}
+              placeholder={`${precision}`}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                setStore({
+                  precision: parseInt(event.target.value),
+                });
+              }}
+            />
+          </SettingItem>
+        </Box>
+      </DialogBox>
     </React.Fragment>
   );
 }

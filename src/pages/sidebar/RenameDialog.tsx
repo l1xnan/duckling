@@ -1,12 +1,8 @@
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import { useAtom, useAtomValue } from 'jotai';
 import { useState } from 'react';
 
+import { DialogBox } from '@/components/DialogBox';
 import { dbMapAtom, renameAtom, useDBListStore } from '@/stores/dbList';
 
 // rename db
@@ -36,38 +32,24 @@ export default function RenameDialog() {
     handClose();
   };
   return (
-    <Dialog
-      aria-labelledby="draggable-dialog-title"
+    <DialogBox
+      title="Rename"
       open={context != null}
-      onClose={(_, reason) => {
-        if (reason != 'backdropClick') {
-          handClose();
-        }
-      }}
+      onOk={handleSubmit}
+      onCancel={handClose}
     >
-      <DialogTitle>Rename</DialogTitle>
-      <DialogContent>
-        <TextField
-          autoFocus
-          margin="dense"
-          label="Name"
-          type="text"
-          fullWidth
-          variant="standard"
-          value={displayName}
-          onChange={(e) => {
-            setDisplayName(e.target.value);
-          }}
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button variant="outlined" onClick={handClose}>
-          Cancel
-        </Button>
-        <Button variant="contained" onClick={handleSubmit}>
-          Ok
-        </Button>
-      </DialogActions>
-    </Dialog>
+      <TextField
+        autoFocus
+        margin="dense"
+        label="Name"
+        type="text"
+        fullWidth
+        variant="standard"
+        value={displayName}
+        onChange={(e) => {
+          setDisplayName(e.target.value);
+        }}
+      />
+    </DialogBox>
   );
 }
