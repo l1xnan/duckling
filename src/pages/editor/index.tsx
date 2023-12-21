@@ -72,7 +72,7 @@ export default function MonacoEditor({
     setStmt(id, value ?? '');
   };
 
-  const handleClick = async () => {
+  const handleClick = async (action?: string) => {
     const editor = editorRef.current;
     if (!editor) {
       return;
@@ -87,8 +87,12 @@ export default function MonacoEditor({
       stmt = editor.getValue() ?? '';
     }
 
-    if (stmt.length > 0) {
-      const { children: _, ...rest } = tabContext;
+    if (stmt.length === 0) {
+      return;
+    }
+
+    const { children: _, ...rest } = tabContext;
+    if (action == 'new') {
       const id = `${rest.id}-${nanoid()}`;
       const subContext: QueryContextType = {
         ...rest,
@@ -98,29 +102,42 @@ export default function MonacoEditor({
       };
       setTabs((prev) => [...prev, subContext]);
       setActiveKey(id);
+    } else {
+      setTabs((tabs) =>
+        tabs.map((tab) =>
+          tab.id == tabContext.activeKey
+            ? {
+                ...tab,
+                stmt,
+              }
+            : tab,
+        ),
+      );
     }
   };
 
   return (
-    <VerticalContainer
-      bottom={tabContext?.children?.length > 0 ? 300 : undefined}
-    >
-      <Box sx={{ height: '100%' }}>
-        <EditorToolbar onClick={handleClick} />
-        <Editor
-          onMount={handleMount}
-          value={stmt}
-          height={'100%'}
-          defaultLanguage="sql"
-          theme={isDarkTheme(theme) ? 'vs-dark' : 'light'}
-          onChange={handleChange}
+    <>
+      <EditorToolbar onClick={handleClick} />
+      <VerticalContainer
+        bottom={tabContext?.children?.length > 0 ? 300 : undefined}
+      >
+        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <Editor
+            onMount={handleMount}
+            value={stmt}
+            height={'100%'}
+            defaultLanguage="sql"
+            theme={isDarkTheme(theme) ? 'vs-dark' : 'light'}
+            onChange={handleChange}
+          />
+        </Box>
+        <QueryTabs
+          subTabsAtom={subTabsAtom}
+          activeKey={tabContext.activeKey}
+          setActiveKey={setActiveKey}
         />
-      </Box>
-      <QueryTabs
-        subTabsAtom={subTabsAtom}
-        activeKey={tabContext.activeKey}
-        setActiveKey={setActiveKey}
-      />
-    </VerticalContainer>
+      </VerticalContainer>
+    </>
   );
 }

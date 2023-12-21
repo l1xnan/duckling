@@ -6,7 +6,11 @@ import { ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
 
 import Connection from './Connection';
 
-export function EditorToolbar({ onClick }: { onClick: () => void }) {
+export function EditorToolbar({
+  onClick,
+}: {
+  onClick: (action?: string) => void;
+}) {
   return (
     <ToolbarContainer>
       <ToolbarBox>
@@ -16,7 +20,7 @@ export function EditorToolbar({ onClick }: { onClick: () => void }) {
             sx={{
               color: 'green',
             }}
-            onClick={onClick}
+            onClick={() => onClick()}
           >
             <PlayArrowIcon fontSize="inherit" />
           </IconButton>
@@ -25,7 +29,7 @@ export function EditorToolbar({ onClick }: { onClick: () => void }) {
             sx={{
               color: 'green',
             }}
-            onClick={onClick}
+            onClick={() => onClick('new')}
           >
             <PlaylistAddIcon fontSize="inherit" />
           </IconButton>

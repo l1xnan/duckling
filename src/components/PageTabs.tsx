@@ -121,20 +121,24 @@ export function PageTabs({
   }, [items]);
 
   return (
-    <TabContext value={activeKey}>
-      <Box>{items?.length > 0 ? tabList : <DatasetEmpty />}</Box>
-      <Box sx={{ height: '100%' }}>
-        {items.map((item) => {
-          const tab = item.tab;
-          return (
-            <PageTabPanel key={tab.id} value={tab.id}>
-              <ErrorBoundary fallback={fallback ?? <p>Something went wrong</p>}>
-                {item.children}
-              </ErrorBoundary>
-            </PageTabPanel>
-          );
-        })}
-      </Box>
-    </TabContext>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <TabContext value={activeKey}>
+        <Box>{items?.length > 0 ? tabList : <DatasetEmpty />}</Box>
+        <Box sx={{ flex: 1 }}>
+          {items.map((item) => {
+            const tab = item.tab;
+            return (
+              <PageTabPanel key={tab.id} value={tab.id}>
+                <ErrorBoundary
+                  fallback={fallback ?? <p>Something went wrong</p>}
+                >
+                  {item.children}
+                </ErrorBoundary>
+              </PageTabPanel>
+            );
+          })}
+        </Box>
+      </TabContext>
+    </Box>
   );
 }

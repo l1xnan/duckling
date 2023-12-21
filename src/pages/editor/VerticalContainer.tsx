@@ -17,7 +17,7 @@ export default function VerticalContainer(props: {
   return (
     <Box
       sx={{
-        height: 'calc(100vh - 32px)',
+        height: 'calc(100vh - 64px)',
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
@@ -34,7 +34,7 @@ export default function VerticalContainer(props: {
         <Box
           ref={targetRefTop}
           className={classes.rightBottom}
-          sx={{ height: sizeTop + 'px', width: '100%' }}
+          sx={{ height: `${sizeTop}px`, width: '100%' }}
         >
           <div className={classes.controlsH}>
             <div className={classes.resizeHorizontal} onMouseDown={actionTop} />
