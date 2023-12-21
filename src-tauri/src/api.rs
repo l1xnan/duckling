@@ -1,4 +1,5 @@
 use anyhow::anyhow;
+use arrow::util::pretty::print_batches;
 use arrow::{ipc::writer::StreamWriter, record_batch::RecordBatch};
 use duckdb::Connection;
 use std::path::Path;
@@ -83,13 +84,15 @@ pub fn query(
   let total_count: u64 = db.query_row(count_sql.as_str(), [], |row| row.get(0))?;
 
   // query
-  let sql = format!("{sql} limit {limit} offset {offset}");
   let mut stmt = db.prepare(sql.as_str())?;
   let frames = stmt.query_arrow(duckdb::params![])?;
   println!("sql: {}", sql);
   let schema = frames.get_schema();
-  let records: Vec<RecordBatch> = frames.collect();
-
+  let records: Vec<_> = frames
+    .into_iter()
+    .map(|r| r.slice(offset as usize, limit as usize))
+    .collect();
+  
   let record_batch = arrow::compute::concat_batches(&schema, &records)?;
 
   Ok(ArrowData {
