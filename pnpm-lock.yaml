@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@apache-arrow/ts':
-    specifier: ^14.0.1
-    version: 14.0.1
+    specifier: ^14.0.2
+    version: 14.0.2
   '@codemirror/autocomplete':
     specifier: ^6.11.1
     version: 6.11.1(@codemirror/language@6.9.3)(@codemirror/state@6.3.3)(@codemirror/view@6.22.3)(@lezer/common@1.1.2)
@@ -63,17 +63,17 @@ dependencies:
     specifier: 2.0.0-alpha.12
     version: 2.0.0-alpha.12
   '@tauri-apps/plugin-dialog':
-    specifier: 2.0.0-alpha.4
-    version: 2.0.0-alpha.4
+    specifier: 2.0.0-alpha.5
+    version: 2.0.0-alpha.5
   '@tauri-apps/plugin-log':
-    specifier: 2.0.0-alpha.4
-    version: 2.0.0-alpha.4
+    specifier: 2.0.0-alpha.5
+    version: 2.0.0-alpha.5
   '@tauri-apps/plugin-process':
-    specifier: 2.0.0-alpha.4
-    version: 2.0.0-alpha.4
+    specifier: 2.0.0-alpha.5
+    version: 2.0.0-alpha.5
   '@tauri-apps/plugin-updater':
-    specifier: 2.0.0-alpha.4
-    version: 2.0.0-alpha.4
+    specifier: 2.0.0-alpha.5
+    version: 2.0.0-alpha.5
   '@uiw/codemirror-themes-all':
     specifier: ^4.21.21
     version: 4.21.21(@codemirror/language@6.9.3)(@codemirror/state@6.3.3)(@codemirror/view@6.22.3)
@@ -217,8 +217,8 @@ packages:
       '@jridgewell/trace-mapping': 0.3.20
     dev: true
 
-  /@apache-arrow/ts@14.0.1:
-    resolution: {integrity: sha512-3N+MAT/ghVJSnEsZKh7o2DrWpZA44tAj1sUBjmPWeKyml8WvuG4Xs17SH8wF8O6/0/vE4tbUmltlRYk6JTk5xA==}
+  /@apache-arrow/ts@14.0.2:
+    resolution: {integrity: sha512-CtwAvLkK0CZv7xsYeCo91ml6PvlfzAmAJZkRYuz2GNBwfYufj5SVi0iuSMwIMkcU/szVwvLdzORSLa5PlF/2ug==}
     dependencies:
       '@types/command-line-args': 5.2.0
       '@types/command-line-usage': 5.0.2
@@ -1950,6 +1950,11 @@ packages:
     engines: {node: '>= 18', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
     dev: false
 
+  /@tauri-apps/api@2.0.0-alpha.13:
+    resolution: {integrity: sha512-sGgCkFahF3OZAHoGN5Ozt9WK7wJlbVZSgWpPQKNag4nSOX1+Py6VDRTEWriiJHDiV+gg31CWHnNXRy6TFoZmdA==}
+    engines: {node: '>= 18', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
+    dev: false
+
   /@tauri-apps/cli-darwin-arm64@2.0.0-alpha.18:
     resolution: {integrity: sha512-FBfbfSupOYG9BXmoGi1uRoMspqm5F0BdQbfgEuTkAnTl8cxUQnzOnoEc+qkd5+QqNCPssO89nsvijDLJmyK3AQ==}
     engines: {node: '>= 10'}
@@ -2061,28 +2066,28 @@ packages:
       '@tauri-apps/cli-win32-x64-msvc': 2.0.0-alpha.18
     dev: true
 
-  /@tauri-apps/plugin-dialog@2.0.0-alpha.4:
-    resolution: {integrity: sha512-4NxBgDzxrZ8hPE9OMRYwsXYN2BxQYI/5l1UKEI5V4srFTZK81Vj5GGksCf7gQREZg7CmBRCk95qYx338A6oCag==}
+  /@tauri-apps/plugin-dialog@2.0.0-alpha.5:
+    resolution: {integrity: sha512-OHodi10R5an4nVq/kavU9HOATkc20RYNVdFYWMvPSVyI7rL1n55llPmbGXdWiZO94Tn10XZyZDVs7eJ1uKOkeA==}
     dependencies:
-      '@tauri-apps/api': 2.0.0-alpha.12
+      '@tauri-apps/api': 2.0.0-alpha.13
     dev: false
 
-  /@tauri-apps/plugin-log@2.0.0-alpha.4:
-    resolution: {integrity: sha512-TMJuZiMsxcK5XjVYj14iYi5+D7EloO5hexcD4IUF/VmkBE7emy0JBoxMEh1KW1QeXa64RsTFBAZr2+IxLtlY5A==}
+  /@tauri-apps/plugin-log@2.0.0-alpha.5:
+    resolution: {integrity: sha512-B7HIa5xYaLdZT14fEg/9cUp4hD436453P1LWTP61Gr6jYEBiu+MIQvZ0OjzZZsvaxkjT19CSzPjAxuLY6hcK/Q==}
     dependencies:
-      '@tauri-apps/api': 2.0.0-alpha.12
+      '@tauri-apps/api': 2.0.0-alpha.13
     dev: false
 
-  /@tauri-apps/plugin-process@2.0.0-alpha.4:
-    resolution: {integrity: sha512-Wc5gtENqo/mGBg5esO4gvRKH3WOQ7mOqC/D/yh3ZI53/+dVhZ+TBUHLI+oaEQOez+rSKohWYIjNVVT1YqDcxeA==}
+  /@tauri-apps/plugin-process@2.0.0-alpha.5:
+    resolution: {integrity: sha512-GRCs45MPTVR4XiY2BSlctmSfI2z237vUbVe3qSbJMpPbtBHDHusOi4YOaBVoWTv3w3m0EtV9qqIXRYEp5WevsA==}
     dependencies:
-      '@tauri-apps/api': 2.0.0-alpha.12
+      '@tauri-apps/api': 2.0.0-alpha.13
     dev: false
 
-  /@tauri-apps/plugin-updater@2.0.0-alpha.4:
-    resolution: {integrity: sha512-ht4Hv6gz3jqwLSuPBiUs9FXuXOIvAnusLiwvupAOgKkAkLd2T4rCE4+x1r1FOPQNJ23tHp+Eb24h9ufuiiSCeQ==}
+  /@tauri-apps/plugin-updater@2.0.0-alpha.5:
+    resolution: {integrity: sha512-iowOKQ2QWXlmEtICzjbv9v5n2Idbasc0T2mKyHBQk4B9HcwRRV24sQiHyxAiWbApHkakZiZNUysK9JszcKIixQ==}
     dependencies:
-      '@tauri-apps/api': 2.0.0-alpha.12
+      '@tauri-apps/api': 2.0.0-alpha.13
     dev: false
 
   /@types/babel__core@7.20.5:
