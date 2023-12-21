@@ -1,9 +1,7 @@
 use anyhow::anyhow;
-use arrow::util::pretty::print_batches;
 use arrow::{ipc::writer::StreamWriter, record_batch::RecordBatch};
 use duckdb::Connection;
 use std::path::Path;
-use tauri::Manager;
 
 use log::info;
 use serde::{Deserialize, Serialize};
@@ -12,19 +10,19 @@ use std::fs;
 
 use crate::dialect::TreeNode;
 
-#[derive(Debug, Default, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct ArrowData {
   /// The total number of rows that were selected.
-  pub total_count: u64,
+  pub total_count: usize,
   /// A preview of the first N records, serialized as an Apache Arrow array
   /// using their IPC format.
   pub preview: Vec<u8>,
 }
 
-#[derive(Debug, Default, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct ArrowResponse {
   /// The total number of rows that were selected.
-  pub total: u64,
+  pub total: usize,
   /// A preview of the first N records, serialized as an Apache Arrow array
   /// using their IPC format.
   pub data: Vec<u8>,
@@ -62,8 +60,8 @@ fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::Arro
 pub fn query(
   path: &str,
   sql: String,
-  limit: i32,
-  offset: i32,
+  limit: usize,
+  offset: usize,
   cwd: Option<String>,
 ) -> anyhow::Result<ArrowData> {
   if let Some(current_dir) = cwd {
@@ -79,31 +77,19 @@ pub fn query(
 
   println!("sql: {}", sql);
 
-  // get total row count
-  let count_sql = format!("select count(1) from ({sql})");
-  let total_count: u64 = db.query_row(count_sql.as_str(), [], |row| row.get(0))?;
-
   // query
   let mut stmt = db.prepare(sql.as_str())?;
   let frames = stmt.query_arrow(duckdb::params![])?;
-  println!("sql: {}", sql);
   let schema = frames.get_schema();
-  let records: Vec<_> = frames
-    .into_iter()
-    .map(|r| {
-      if r.num_rows() >= (offset + limit) as usize {
-        r.slice(offset as usize, limit as usize)
-      } else {
-        r
-      }
-    })
-    .collect();
+  let records: Vec<_> = frames.collect();
 
   let record_batch = arrow::compute::concat_batches(&schema, &records)?;
+  let total = record_batch.num_rows();
+  let preview = record_batch.slice(offset, std::cmp::min(limit, total - offset));
 
   Ok(ArrowData {
-    total_count,
-    preview: serialize_preview(&record_batch)?,
+    total_count: total,
+    preview: serialize_preview(&preview)?,
   })
 }
 
@@ -115,7 +101,7 @@ pub fn show_db_information(path: String, sql: &str) -> anyhow::Result<ArrowData>
   let records: Vec<RecordBatch> = frames.collect();
   let record_batch = arrow::compute::concat_batches(&schema, &records).unwrap();
   Ok(ArrowData {
-    total_count: records.len() as u64,
+    total_count: records.len(),
     preview: serialize_preview(&record_batch).unwrap(),
   })
 }

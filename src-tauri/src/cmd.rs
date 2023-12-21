@@ -20,8 +20,8 @@ pub async fn show_tables(path: String) -> ArrowResponse {
 pub async fn query(
   path: String,
   sql: String,
-  limit: i32,
-  offset: i32,
+  limit: usize,
+  offset: usize,
   // current working directory
   cwd: Option<String>,
 ) -> ArrowResponse {
