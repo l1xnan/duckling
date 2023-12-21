@@ -90,9 +90,15 @@ pub fn query(
   let schema = frames.get_schema();
   let records: Vec<_> = frames
     .into_iter()
-    .map(|r| r.slice(offset as usize, limit as usize))
+    .map(|r| {
+      if r.num_rows() >= (offset + limit) as usize {
+        r.slice(offset as usize, limit as usize)
+      } else {
+        r
+      }
+    })
     .collect();
-  
+
   let record_batch = arrow::compute::concat_batches(&schema, &records)?;
 
   Ok(ArrowData {
