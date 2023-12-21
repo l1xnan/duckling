@@ -23,7 +23,7 @@ import {
   selectedNodeAtom,
   useDBListStore,
 } from '@/stores/dbList';
-import { useTabsStore } from '@/stores/tabs';
+import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { TreeNode } from '@/types';
 
 import { DBTreeItem, TreeItemLabel } from './DBTreeItem';
@@ -140,14 +140,11 @@ export default function DBTreeView({ db, ...rest }: DBTreeViewProps) {
 
         const noDataTypes = ['path', 'database'];
         if (node && !noDataTypes.includes(node.type ?? '')) {
-          const item = {
+          const item: TableContextType = {
             ...nodeContext,
             id: `${db.id}:${nodeIds}`,
             dbId: db.id,
-            dbName: dbMap.get(db.id)?.data.path as string,
-            tableName: nodeIds as string,
             displayName: node?.name as string,
-            cwd: db.cwd,
           };
           updateTab!(item);
         }

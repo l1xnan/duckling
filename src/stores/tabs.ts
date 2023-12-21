@@ -1,13 +1,13 @@
 import { debounce } from '@mui/material';
-import { atom } from 'jotai';
 import { splitAtom } from 'jotai/utils';
 // eslint-disable-next-line import/order
+import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
-export type TabContextType = {
+export type QueryContextType = {
   id: string;
   dbId: string;
   tableId: string;
@@ -15,8 +15,34 @@ export type TabContextType = {
   extra?: unknown;
   displayName: string;
 
-  children?: TabContextType[];
+  stmt: string;
 };
+export type EditorContextType = {
+  id: string;
+  dbId: string;
+  tableId: string;
+  type?: string;
+  extra?: unknown;
+  displayName: string;
+
+  activeKey: string | null;
+
+  children: QueryContextType[];
+};
+
+export type TableContextType = {
+  id: string;
+  dbId: string;
+  tableId: string;
+  type?: string;
+  extra?: unknown;
+  displayName: string;
+};
+
+export type TabContextType =
+  | TableContextType
+  | EditorContextType
+  | QueryContextType;
 
 interface TabsState {
   tabs: TabContextType[];
@@ -93,8 +119,6 @@ export const useTabsStore = create<TabsState & TabsAction>()(
 );
 
 export const tabsAtom = atomWithStore(useTabsStore);
-export const tabListAtom = atom(
-  (get) => get(tabsAtom).tabs,
-  (_get, _set) => {},
-);
+export const tabListAtom = focusAtom(tabsAtom, (o) => o.prop('tabs'));
+
 export const tabsAtomsAtom = splitAtom(tabListAtom);

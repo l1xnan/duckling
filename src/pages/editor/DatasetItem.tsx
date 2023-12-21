@@ -14,6 +14,7 @@ import {
   Stack,
 } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
+import { PrimitiveAtom, useAtomValue } from 'jotai';
 import React, {
   ReactNode,
   Suspense,
@@ -33,7 +34,7 @@ import {
   createDatasetStore,
   usePageStore,
 } from '@/stores/dataset';
-import { TabContextType } from '@/stores/tabs';
+import { QueryContextType, TabContextType } from '@/stores/tabs';
 import { borderTheme, convertOrderBy, isDarkTheme } from '@/utils';
 
 export interface DatasetProps {
@@ -66,8 +67,17 @@ export const usePageStoreApi = () => {
   return store;
 };
 
-export function DatasetItem() {
-  const { data, schema, message, beautify } = usePageStore();
+export function DatasetItem({
+  context,
+}: {
+  context: PrimitiveAtom<QueryContextType>;
+}) {
+  const { data, schema, message, beautify, refresh } = usePageStore();
+
+  const queryContext = useAtomValue(context);
+  useEffect(() => {
+    refresh(queryContext?.stmt);
+  }, [queryContext?.stmt]);
 
   const dataSources = useMemo(() => data, [data]);
 

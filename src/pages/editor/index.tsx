@@ -1,19 +1,22 @@
 import Editor, { OnChange, OnMount } from '@monaco-editor/react';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
-import { Box, IconButton, Stack, useTheme } from '@mui/material';
-import { PrimitiveAtom, useAtomValue } from 'jotai';
+import { Box, useTheme } from '@mui/material';
+import { PrimitiveAtom, useAtomValue, useSetAtom } from 'jotai';
+import { focusAtom } from 'jotai-optics';
+import { nanoid } from 'nanoid';
 import { useEffect, useRef } from 'react';
 
 import { showTables } from '@/api';
-import { ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
 import { useResize } from '@/hooks';
-import classes from '@/hooks/resize.module.css';
-import { TabContextType, useTabsStore } from '@/stores/tabs';
+import {
+  EditorContextType,
+  QueryContextType,
+  useTabsStore,
+} from '@/stores/tabs';
 import { isDarkTheme } from '@/utils';
 
-import Connection from './Connection';
-import DatasetItem, { PageProvider } from './DatasetItem';
+import { EditorToolbar } from './EditorToolbar';
+import { QueryTabs } from './QueryTabs';
+import VerticalContainer from './VerticalContainer';
 
 type OnMountParams = Parameters<OnMount>;
 
@@ -35,17 +38,20 @@ type ComplationSchemaType = {
 export default function MonacoEditor({
   context,
 }: {
-  context: PrimitiveAtom<TabContextType>;
+  context: PrimitiveAtom<EditorContextType>;
 }) {
   const tabContext = useAtomValue(context);
   const id = tabContext.id;
   const extra = tabContext.extra;
+  const subTabsAtom = focusAtom(context, (o) => o.prop('children'));
+  const activeKeyAtom = focusAtom(context, (o) => o.prop('activeKey'));
+  const setTabs = useSetAtom(subTabsAtom);
+  const setActiveKey = useSetAtom(activeKeyAtom);
 
   const setStmt = useTabsStore((state) => state.setStmt);
   const docs = useTabsStore((state) => state.docs);
   const stmt = docs[id] ?? '';
   const theme = useTheme();
-
   useEffect(() => {
     if (extra) {
       setStmt(id, `${stmt}\n${extra}`);
@@ -84,43 +90,21 @@ export default function MonacoEditor({
     }
 
     if (stmt.length > 0) {
-      const tabContext = {
-        ...context,
+      const { children: _, ...rest } = tabContext;
+      const id = `${rest.id}-${nanoid()}`;
+      const subContext: QueryContextType = {
+        ...rest,
         stmt,
+        displayName: `Result${tabContext.children.length + 1}`,
+        id,
       };
-      setTabs((prev) => [...prev, tabContext]);
+      setTabs((prev) => [...prev, subContext]);
+      setActiveKey(id);
     }
   };
 
-  const activateTab = useTabsStore((state) => state.active);
-  const removeTab = useTabsStore((state) => state.remove);
-  const currentTab = useTabsStore((state) => state.currentTab);
-
-  const items = tabContext?.children?.map((tab) => {
-    const children = (
-      <>
-        {tab.type === 'editor' ? (
-          <MonacoEditor context={tab} />
-        ) : (
-          <PageProvider context={tab}>
-            <DatasetItem context={tab} />
-          </PageProvider>
-        )}
-      </>
-    );
-
-    return { tab, children };
-  });
-
   return (
-    <Box
-      sx={{
-        height: 'calc(100vh - 32px)',
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'relative',
-      }}
-    >
+    <VerticalContainer bottom={300}>
       <Box sx={{ height: '100%' }}>
         <EditorToolbar onClick={handleClick} />
         <Editor
@@ -132,60 +116,11 @@ export default function MonacoEditor({
           onChange={handleChange}
         />
       </Box>
-      <Box
-        ref={targetRefTop}
-        className={classes.rightBottom}
-        sx={{ height: sizeTop + 'px', width: '100%' }}
-      >
-        <div className={classes.controlsH}>
-          <div className={classes.resizeHorizontal} onMouseDown={actionTop} />
-        </div>
-        {/* <PageTabs
-          items={items}
-          onChange={(value) => activateTab(value)}
-          activeKey={currentTab?.id ?? ''}
-          onRemove={removeTab}
-        /> */}
-      </Box>
-    </Box>
+      <QueryTabs
+        subTabsAtom={subTabsAtom}
+        activeKey={tabContext.activeKey}
+        setActiveKey={setActiveKey}
+      />
+    </VerticalContainer>
   );
-}
-
-function EditorToolbar({ onClick }: { onClick: () => void }) {
-  return (
-    <ToolbarContainer>
-      <ToolbarBox>
-        <Stack direction="row">
-          <IconButton
-            size="small"
-            sx={{
-              color: 'green',
-            }}
-            onClick={onClick}
-          >
-            <PlayArrowIcon fontSize="inherit" />
-          </IconButton>
-          <IconButton
-            size="small"
-            sx={{
-              color: 'green',
-            }}
-            onClick={onClick}
-          >
-            <PlaylistAddIcon fontSize="inherit" />
-          </IconButton>
-        </Stack>
-        <Stack direction="row">
-          <Connection />
-        </Stack>
-      </ToolbarBox>
-    </ToolbarContainer>
-  );
-}
-function atom<T>(arg0: never[]): any {
-  throw new Error('Function not implemented.');
-}
-
-function useAtom(tabsAtom: any): [any, any] {
-  throw new Error('Function not implemented.');
 }
