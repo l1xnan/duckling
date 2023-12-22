@@ -51,10 +51,10 @@ export const DialogBox = styled(
       </DialogActions>
     </Dialog>
   ),
-)(({ theme }) => ({
+)(() => ({
   '& .MuiDialogTitle-root': {
     fontSize: 14,
-    paddingTop: 4,
-    paddingBottom: 4,
+    padding: '4px 8px',
+    paddingLeft: 24,
   },
 }));
