@@ -114,6 +114,7 @@ export async function getDB(option: GetDBOptionType): Promise<DBType> {
     id: nanoid(),
     dialect: option.dialect,
     data: tree,
+    displayName: tree.name,
   };
 }
 
