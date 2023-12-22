@@ -1,5 +1,5 @@
-import Editor, { OnChange, OnMount } from '@monaco-editor/react';
-import { Box, useTheme } from '@mui/material';
+import { OnChange, OnMount } from '@monaco-editor/react';
+import { Box } from '@mui/material';
 import { PrimitiveAtom, useAtomValue, useSetAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { nanoid } from 'nanoid';
@@ -11,9 +11,9 @@ import {
   QueryContextType,
   useTabsStore,
 } from '@/stores/tabs';
-import { isDarkTheme } from '@/utils';
 
 import { EditorToolbar } from './EditorToolbar';
+import MonacoEditor, { EditorRef } from './MonacoEditor';
 import { QueryTabs } from './QueryTabs';
 import VerticalContainer from './VerticalContainer';
 
@@ -34,7 +34,7 @@ type ComplationSchemaType = {
   [key: string]: string[];
 };
 
-export default function MonacoEditor({
+export default function Editor({
   context,
 }: {
   context: PrimitiveAtom<EditorContextType>;
@@ -50,39 +50,26 @@ export default function MonacoEditor({
   const setStmt = useTabsStore((state) => state.setStmt);
   const docs = useTabsStore((state) => state.docs);
   const stmt = docs[id] ?? '';
-  const theme = useTheme();
   useEffect(() => {
     if (extra) {
       setStmt(id, `${stmt}\n${extra}`);
     }
   }, []);
 
-  const editorRef = useRef<OnMountParams[0] | null>(null);
+  const ref = useRef<EditorRef | null>(null);
 
-  const handleMount: OnMount = (editor, _monaco) => {
-    editorRef.current = editor;
-    _monaco.editor.defineTheme('dark', {
-      base: 'vs-dark',
-      inherit: true,
-      rules: [],
-      colors: {},
-    });
-  };
   const handleChange: OnChange = (value, _event) => {
     setStmt(id, value ?? '');
   };
 
   const handleClick = async (action?: string) => {
-    const editor = editorRef.current;
+    const editor = ref.current;
     if (!editor) {
       return;
     }
 
-    let stmt = '';
-    const selection = editor.getSelection();
-    if (selection) {
-      stmt = editor.getModel()?.getValueInRange(selection) ?? '';
-    }
+    let stmt = editor.getSelectionText() ?? '';
+
     if (stmt.length === 0) {
       stmt = editor.getValue() ?? '';
     }
@@ -123,14 +110,7 @@ export default function MonacoEditor({
         bottom={tabContext?.children?.length > 0 ? 300 : undefined}
       >
         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-          <Editor
-            onMount={handleMount}
-            value={stmt}
-            height={'100%'}
-            defaultLanguage="sql"
-            theme={isDarkTheme(theme) ? 'vs-dark' : 'light'}
-            onChange={handleChange}
-          />
+          <MonacoEditor ref={ref} value={stmt} onChange={handleChange} />
         </Box>
         <QueryTabs
           subTabsAtom={subTabsAtom}
