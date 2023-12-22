@@ -24,7 +24,7 @@ export type DBType = {
   id: string;
   dialect: DialectType;
 
-  displayName?: string;
+  displayName: string;
   // tree node
   data: TreeNode;
 
