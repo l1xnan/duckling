@@ -87,8 +87,8 @@ export const AgTable = ({ data, schema, beautify }: TableProps) => {
       {
         headerName: ' ',
         colId: '__index__',
-        valueGetter: 'node.id',
-        width: 50,
+        valueGetter: 'node.rowIndex + 1',
+        width: 60,
         cellStyle: {
           textAlign: 'center',
           ...indexStyle,
@@ -103,7 +103,7 @@ export const AgTable = ({ data, schema, beautify }: TableProps) => {
   }, [schema, beautify]);
 
   const clearPinned = useCallback(() => {
-    gridRef.current?.columnApi.applyColumnState({
+    gridRef.current?.api.applyColumnState({
       state: [{ colId: '__index__', pinned: 'left' }],
       defaultState: { pinned: null },
     });
@@ -153,7 +153,7 @@ export const TableWrapper = styled((props: BoxProps) => <Box {...props} />)(
       '--ag-row-height': '25px',
       '--ag-list-item-height': '30px',
       '--ag-font-size': '10px',
-      '--ag-font-family': `Consolas, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`,
+      '--ag-font-family': `var(--table-font-family)`,
       '--ag-border-color': isDarkTheme(theme) ? '#313438' : '#ebecf0',
       '--ag-cell-horizontal-border': isDarkTheme(theme)
         ? '1px solid #313438'

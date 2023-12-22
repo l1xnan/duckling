@@ -3,8 +3,9 @@ import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
 import { debounce } from '@/utils';
 
-type SettingState = {
+export type SettingState = {
   precision?: number;
+  table_font_family?: string;
 };
 
 type SettingAction = {

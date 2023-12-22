@@ -1,18 +1,19 @@
 import SettingsIcon from '@mui/icons-material/Settings';
 import {
-  Input,
-  InputBase,
+  Box,
   ListItem,
   ListItemText,
   OutlinedInput,
+  OutlinedInputProps,
+  styled,
 } from '@mui/material';
-import Box from '@mui/material/Box';
 import * as React from 'react';
 import { ReactNode } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 
 import { DialogBox } from '@/components/DialogBox';
 import { MuiIconButton } from '@/components/MuiIconButton';
-import { useSettingStore } from '@/stores/setting';
+import { SettingState, useSettingStore } from '@/stores/setting';
 
 interface ItemProps {
   label: ReactNode;
@@ -41,6 +42,12 @@ export const SettingItem: React.FC<ItemProps> = (props) => {
   );
 };
 
+export const FormInput = styled(OutlinedInput)<OutlinedInputProps>(() => ({
+  ml: 1,
+  flex: 1,
+  height: 32,
+}));
+
 export default function MaxWidthDialog() {
   const [open, setOpen] = React.useState(false);
 
@@ -54,6 +61,18 @@ export default function MaxWidthDialog() {
 
   const setStore = useSettingStore((state) => state.setStore);
   const precision = useSettingStore((state) => state.precision);
+  const table_font_family = useSettingStore((state) => state.table_font_family);
+  const { control, handleSubmit } = useForm({
+    defaultValues: {
+      table_font_family,
+      precision,
+    },
+  });
+
+  const onSubmit = (data: SettingState) => {
+    setStore(data);
+    console.log(data);
+  };
 
   return (
     <React.Fragment>
@@ -63,12 +82,16 @@ export default function MaxWidthDialog() {
       <DialogBox
         title="Setting"
         open={open}
-        onOk={handleClose}
+        onOk={() => {
+          handleSubmit(onSubmit)();
+          handleClose();
+        }}
         onCancel={handleClose}
       >
         <Box
           noValidate
           component="form"
+          onSubmit={handleSubmit(onSubmit)}
           sx={{
             display: 'flex',
             width: '100%',
@@ -77,14 +100,17 @@ export default function MaxWidthDialog() {
           }}
         >
           <SettingItem label="Float precision">
-            <OutlinedInput
-              sx={{ ml: 1, flex: 1, height: 32 }}
-              placeholder={`${precision}`}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                setStore({
-                  precision: parseInt(event.target.value),
-                });
-              }}
+            <Controller
+              name="precision"
+              control={control}
+              render={({ field }) => <FormInput {...field} />}
+            />
+          </SettingItem>
+          <SettingItem label="Table Font Family">
+            <Controller
+              name="table_font_family"
+              control={control}
+              render={({ field }) => <FormInput {...field} />}
             />
           </SettingItem>
         </Box>
