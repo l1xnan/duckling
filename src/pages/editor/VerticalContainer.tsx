@@ -25,7 +25,7 @@ export default function VerticalContainer(props: {
     >
       <Box
         sx={{
-          height: `calc(100vh - ${sizeTop + 64}px)`,
+          height: `calc(100vh - ${(props.bottom ? sizeTop : 0) + 64}px)`,
         }}
       >
         {childrenArray[0]}
