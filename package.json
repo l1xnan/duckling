@@ -27,7 +27,7 @@
     "@mui/x-date-pickers": "^6.18.5",
     "@mui/x-tree-view": "6.17.0",
     "@tabler/icons-react": "^2.44.0",
-    "@tanstack/react-query": "^5.14.1",
+    "@tanstack/react-query": "^5.17.0",
     "@tanstack/react-table": "^8.11.0",
     "@tauri-apps/api": "2.0.0-alpha.12",
     "@tauri-apps/plugin-dialog": "2.0.0-alpha.5",
