@@ -34,7 +34,7 @@ tauri-plugin-shell = "2.0.0-alpha"
 tauri-plugin-dialog = "2.0.0-alpha"
 tauri-plugin-log = "2.0.0-alpha"
 tauri-plugin-process = "2.0.0-alpha"
-tauri-plugin-window-state = "2.0.0-alpha"
+tauri-plugin-window-state = "2.0.0-alpha.6"
 
 anyhow = "1.0.75"
 url = "2.4.1"
