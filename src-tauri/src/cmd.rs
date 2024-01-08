@@ -2,9 +2,11 @@ use log::info;
 use std::sync::Mutex;
 
 use crate::api::ArrowResponse;
+use crate::dialect::clickhouse::ClickhouseDialect;
 use crate::dialect::duckdb::DuckDbDialect;
 use crate::dialect::file::FileDialect;
-use crate::dialect::{folder, Dialect, FolderDialect, TreeNode};
+use crate::dialect::folder::FolderDialect;
+use crate::dialect::{Dialect, TreeNode};
 use crate::{api, dialect};
 use tauri::State;
 
@@ -44,7 +46,12 @@ pub async fn opened_urls(state: State<'_, OpenedUrls>) -> Result<String, String>
 }
 
 #[tauri::command]
-pub async fn get_db(url: &str, dialect: &str) -> Result<Option<TreeNode>, String> {
+pub async fn get_db(
+  url: &str,
+  dialect: &str,
+  username: Option<String>,
+  password: Option<String>,
+) -> Result<Option<TreeNode>, String> {
   if dialect == "folder" {
     let d = FolderDialect {
       path: String::from(url),
@@ -58,6 +65,13 @@ pub async fn get_db(url: &str, dialect: &str) -> Result<Option<TreeNode>, String
   } else if dialect == "duckdb" {
     let d = DuckDbDialect {
       path: String::from(url),
+    };
+    Ok(d.get_db())
+  } else if dialect == "clickhouse" {
+    let d = ClickhouseDialect {
+      path: String::from(url),
+      username: username.unwrap_or_default(),
+      password: password.unwrap_or_default(),
     };
     Ok(d.get_db())
   } else {
