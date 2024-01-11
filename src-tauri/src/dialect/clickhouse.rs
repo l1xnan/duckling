@@ -4,8 +4,7 @@ use duckdb::{params, Connection};
 
 use crate::dialect::sql;
 use crate::dialect::{Dialect, TreeNode};
-use crate::utils::get_file_name;
-use clickhouse::{Client, Row};
+use clickhouse_rs::{types::Block, Client, Pool};
 
 #[derive(Debug, Default)]
 pub struct ClickhouseDialect {
