@@ -51,6 +51,8 @@ pub async fn get_db(
   dialect: &str,
   username: Option<String>,
   password: Option<String>,
+  host: Option<String>,
+  port: Option<String>,
 ) -> Result<Option<TreeNode>, String> {
   if dialect == "folder" {
     let d = FolderDialect {
@@ -69,7 +71,8 @@ pub async fn get_db(
     Ok(d.get_db().await)
   } else if dialect == "clickhouse" {
     let d = ClickhouseDialect {
-      path: String::from(url),
+      host: String::from(host.unwrap()),
+      port: String::from(port.unwrap()),
       username: username.unwrap_or_default(),
       password: password.unwrap_or_default(),
     };
