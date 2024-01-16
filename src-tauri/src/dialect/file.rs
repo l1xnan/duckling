@@ -10,7 +10,7 @@ pub struct FileDialect {
 }
 
 impl Dialect for FileDialect {
-  fn get_db(&self) -> Option<TreeNode> {
+  async fn get_db(&self) -> Option<TreeNode> {
     let path = PathBuf::from(self.path.as_str());
 
     Some(TreeNode {

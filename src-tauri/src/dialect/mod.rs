@@ -18,9 +18,9 @@ pub struct TreeNode {
 }
 
 pub trait Dialect {
-  fn get_db(&self) -> Option<TreeNode>;
+  async fn get_db(&self) -> Option<TreeNode>;
 
-  fn query(&self) {}
+  async fn query(&self) {}
 }
 
 pub mod sql {

@@ -56,24 +56,24 @@ pub async fn get_db(
     let d = FolderDialect {
       path: String::from(url),
     };
-    Ok(d.get_db())
+    Ok(d.get_db().await)
   } else if dialect == "file" {
     let d = FileDialect {
       path: String::from(url),
     };
-    Ok(d.get_db())
+    Ok(d.get_db().await)
   } else if dialect == "duckdb" {
     let d = DuckDbDialect {
       path: String::from(url),
     };
-    Ok(d.get_db())
+    Ok(d.get_db().await)
   } else if dialect == "clickhouse" {
     let d = ClickhouseDialect {
       path: String::from(url),
       username: username.unwrap_or_default(),
       password: password.unwrap_or_default(),
     };
-    Ok(d.get_db())
+    Ok(d.get_db().await)
   } else {
     Err("not support dialect".to_string())
   }

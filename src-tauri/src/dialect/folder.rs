@@ -9,7 +9,7 @@ pub struct FolderDialect {
 }
 
 impl Dialect for FolderDialect {
-  fn get_db(&self) -> Option<TreeNode> {
+  async fn get_db(&self) -> Option<TreeNode> {
     directory_tree(self.path.as_str())
   }
 }

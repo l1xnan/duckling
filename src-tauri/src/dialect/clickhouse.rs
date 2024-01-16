@@ -20,7 +20,8 @@ struct Table {
 }
 
 impl Dialect for ClickhouseDialect {
-  fn get_db(&self) -> Option<TreeNode> {
+  async fn get_db(&self) -> Option<TreeNode> {
+    // let pool = Pool::new(database_url);
     None
   }
 }

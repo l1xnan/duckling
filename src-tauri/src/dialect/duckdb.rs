@@ -18,7 +18,7 @@ struct Table {
 }
 
 impl Dialect for DuckDbDialect {
-  fn get_db(&self) -> Option<TreeNode> {
+  async fn get_db(&self) -> Option<TreeNode> {
     if let Ok(tree) = get_db(&self.path) {
       Some(tree)
     } else {
