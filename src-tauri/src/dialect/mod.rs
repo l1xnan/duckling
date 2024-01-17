@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 
-pub mod folder;
-pub mod duckdb;
 pub mod clickhouse;
+pub mod duckdb;
 pub mod file;
+pub mod folder;
 
 pub use self::folder::FolderDialect;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TreeNode {
   pub name: String,
   pub path: String,
