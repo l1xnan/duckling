@@ -18,7 +18,7 @@ pub struct ClickhouseDialect {
 impl ClickhouseDialect {
   fn get_url(&self) -> String {
     format!(
-      "tcp://{}:{}@{}:{}/clicks?compression=lz4&ping_timeout=42ms",
+      "tcp://{}:{}@{}:{}/temp_database_lxn?compression=lz4&ping_timeout=42ms",
       self.username, self.password, self.host, self.port,
     )
   }
@@ -33,8 +33,11 @@ struct Table {
 impl Dialect for ClickhouseDialect {
   async fn get_db(&self) -> Option<TreeNode> {
     let url = self.get_url();
-    query(url).await.ok()?;
-    None
+    if let Ok(tables) = get_tables(url).await {
+      Some(get_db(&self.host, tables))
+    } else {
+      None
+    }
   }
 }
 
@@ -44,22 +47,71 @@ impl ClickhouseDialect {
   }
 }
 
-async fn query(url: String)-> Result<(), Box<dyn std::error::Error>> {
+async fn get_tables(url: String) -> anyhow::Result<Vec<Table>> {
   let pool = Pool::new(url);
   let mut client = pool.get_handle().await?;
-  let block = client
-    .query("select database, name from system.tables")
-    .fetch_all()
-    .await?;
+  let sql = r#"
+  select database as table_schema, name as table_name, engine as table_type
+  from system.tables
+  "#;
+  let block = client.query(sql).fetch_all().await?;
+  let mut tables = Vec::new();
   for row in block.rows() {
-    let database: String = row.get("database")?;
-    let name: String = row.get("name")?;
-    println!("tables: {}.{}", database, name);
+    let table_schema: String = row.get("table_schema")?;
+    let table_name: String = row.get("table_name")?;
+    let table_type: String = row.get("table_type")?;
+    println!("tables: {}.{}", table_schema, table_name);
+
+    tables.push(Table {
+      table_schema,
+      table_name,
+      table_type,
+    })
   }
-  Ok(())
+  Ok(tables)
 }
 
+pub fn get_db(path: &str, tables: Vec<Table>) -> TreeNode {
+  let mut views_children = vec![];
+  let mut tables_children = vec![];
 
+  for t in tables {
+    let node = TreeNode {
+      name: t.table_name.clone(),
+      path: t.table_name.clone(),
+      node_type: String::from(if t.table_type == "VIEW" {
+        "view"
+      } else {
+        "table"
+      }),
+      children: None,
+    };
+    if t.table_type == "VIEW" {
+      views_children.push(node);
+    } else {
+      tables_children.push(node);
+    }
+  }
+  TreeNode {
+    name: path.to_string(),
+    path: path.to_string(),
+    node_type: "database".to_string(),
+    children: Some(vec![
+      TreeNode {
+        name: "tables".to_string(),
+        path: "tables".to_string(),
+        node_type: "path".to_string(),
+        children: Some(tables_children),
+      },
+      TreeNode {
+        name: "views".to_string(),
+        path: "views".to_string(),
+        node_type: "path".to_string(),
+        children: Some(views_children),
+      },
+    ]),
+  }
+}
 
 // async fn execute(database_url: String) -> Result<(), Box<dyn std::error::Error>> {
 

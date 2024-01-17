@@ -4,23 +4,17 @@ use duckdb::{params, Connection};
 
 use crate::dialect::sql;
 use crate::dialect::{Dialect, TreeNode};
-use crate::utils::get_file_name;
+use crate::utils::{get_file_name, Table};
 
 #[derive(Debug, Default)]
 pub struct DuckDbDialect {
   pub path: String,
 }
 
-struct Table {
-  table_name: String,
-  table_type: String,
-  table_schema: String,
-}
-
 impl Dialect for DuckDbDialect {
   async fn get_db(&self) -> Option<TreeNode> {
-    if let Ok(tree) = get_db(&self.path) {
-      Some(tree)
+    if let Ok(tables) = get_tables(&self.path) {
+      Some(get_db(&self.path, tables))
     } else {
       None
     }
@@ -37,7 +31,7 @@ impl DuckDbDialect {
   }
 }
 
-pub fn get_tables(path: &str) -> duckdb::Result<Vec<Table>> {
+pub fn get_tables(path: &str) -> anyhow::Result<Vec<Table>> {
   let db = Connection::open(path)?;
   let sql = r#"
   select table_name, table_type, table_schema
@@ -60,9 +54,7 @@ pub fn get_tables(path: &str) -> duckdb::Result<Vec<Table>> {
   Ok(tables)
 }
 
-pub fn get_db(path: &str) -> duckdb::Result<TreeNode> {
-  let tables = get_tables(path)?;
-
+pub fn get_db(path: &str, tables: Vec<Table>) -> TreeNode {
   let mut views_children = vec![];
   let mut tables_children = vec![];
 
@@ -83,7 +75,7 @@ pub fn get_db(path: &str) -> duckdb::Result<TreeNode> {
       tables_children.push(node);
     }
   }
-  Ok(TreeNode {
+  TreeNode {
     name: get_file_name(path),
     path: path.to_string(),
     node_type: "database".to_string(),
@@ -101,5 +93,5 @@ pub fn get_db(path: &str) -> duckdb::Result<TreeNode> {
         children: Some(views_children),
       },
     ]),
-  })
+  }
 }

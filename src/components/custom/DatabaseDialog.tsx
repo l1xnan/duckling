@@ -1,6 +1,7 @@
 import { IconDatabasePlus } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
 
+import { getDB } from '@/api';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -21,14 +22,27 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useDBListStore } from '@/stores/dbList';
 
 import { MuiIconButton } from '../MuiIconButton';
 
+export type ClickhouseDialectType = {
+  password: string;
+  username: string;
+  host: string;
+  port: string;
+  dialect: 'clickhouse';
+};
+
 export function DatabaseDialog() {
   const form = useForm();
-  function onSubmit(values: unknown) {
-    console.log(values);
+  const appendDB = useDBListStore((state) => state.append);
+
+  async function onSubmit(values: ClickhouseDialectType) {
+    const data = await getDB({ ...values, dialect: 'clickhouse' });
+    appendDB(data);
   }
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -82,13 +96,11 @@ export function DatabaseDialog() {
             </div>
             <FormField
               control={form.control}
-              name="host"
+              name="username"
               render={({ field }) => (
-                <FormItem className="flex items-center">
-                  <FormLabel className="w-[12.5%] mr-2 mt-2">
-                    Username
-                  </FormLabel>
-                  <FormControl className="w-[87.5%]">
+                <FormItem className="flex items-center w-[62.5%]">
+                  <FormLabel className="w-1/5 mr-2 mt-2">Username</FormLabel>
+                  <FormControl className="w-4/5">
                     <Input {...field} />
                   </FormControl>
                 </FormItem>
@@ -98,12 +110,10 @@ export function DatabaseDialog() {
               control={form.control}
               name="password"
               render={({ field }) => (
-                <FormItem className="flex items-center">
-                  <FormLabel className="w-[12.5%] mr-2 mt-2">
-                    Password
-                  </FormLabel>
-                  <FormControl className="w-[87.5%]">
-                    <Input {...field} />
+                <FormItem className="flex items-center w-[62.5%]">
+                  <FormLabel className="w-1/5 mr-2 mt-2">Password</FormLabel>
+                  <FormControl className="w-4/5">
+                    <Input type="password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

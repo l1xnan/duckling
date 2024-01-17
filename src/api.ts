@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid';
 
 import { DBType, DialectType } from '@/stores/dbList';
 
+import { ClickhouseDialectType as ClickhouseDialectOption } from './components/custom/DatabaseDialog';
 import { ArrowResponse, SchemaType } from './stores/dataset';
 import { TreeNode } from './types';
 
@@ -103,12 +104,14 @@ export async function read_parquet(
   return convert(res);
 }
 
-type GetDBOptionType = {
+type DialectOption = {
   url: string;
   dialect: DialectType;
 };
 
-export async function getDB(option: GetDBOptionType): Promise<DBType> {
+export async function getDB(
+  option: DialectOption | ClickhouseDialectOption,
+): Promise<DBType> {
   const tree: TreeNode = await invoke('get_db', option);
   return {
     id: nanoid(),

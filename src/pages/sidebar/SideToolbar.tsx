@@ -125,7 +125,7 @@ export function SideToolbar() {
           <MuiIconButton onClick={handleAppendFolder}>
             <IconFolderPlus />
           </MuiIconButton>
-          <MuiIconButton onClick={handleCreateOpen}>
+          <MuiIconButton onClick={handleAppendDB}>
             <IconDatabasePlus />
           </MuiIconButton>
           <MuiIconButton disabled={!isRoot} onClick={handleOpen}>
