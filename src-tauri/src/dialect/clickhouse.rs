@@ -1,4 +1,6 @@
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+
 
 use duckdb::{params, Connection};
 use nanoid::format;
@@ -52,7 +54,7 @@ async fn get_tables(url: String) -> anyhow::Result<Vec<Table>> {
   let mut client = pool.get_handle().await?;
   let sql = r#"
   select database as table_schema, name as table_name, engine as table_type
-  from system.tables
+  from system.tables order by table_schema
   "#;
   let block = client.query(sql).fetch_all().await?;
   let mut tables = Vec::new();
@@ -75,11 +77,23 @@ pub fn get_db(path: &str, tables: Vec<Table>) -> TreeNode {
   let mut views_children = vec![];
   let mut tables_children = vec![];
 
+  // let databses = HashMap<String>
+  let mut database = None;
+
+  let mut tree: HashMap<&str, TreeNode> = HashMap::new();
+
   for t in tables {
+    let db_map = tree.entry(&t.table_schema).or_insert_with(TreeNode {
+      node_type: "database".to_string(),
+      name: t.table_schema,
+      path: t.table_schema,
+      children: Some(vec![]),
+    });
+
     let node = TreeNode {
       name: t.table_name.clone(),
       path: t.table_name.clone(),
-      node_type: String::from(if t.table_type == "VIEW" {
+      node_type: String::from(if t.table_type == "View" {
         "view"
       } else {
         "table"
@@ -92,6 +106,23 @@ pub fn get_db(path: &str, tables: Vec<Table>) -> TreeNode {
       tables_children.push(node);
     }
   }
+
+  if let Some(ref mut vector) = db_map.get(&t.table_schema) {
+    vector.push(TreeNode {
+      name: "tables".to_string(),
+      path: "tables".to_string(),
+      node_type: "path".to_string(),
+      children: Some(tables_children),
+    });
+
+    vector.push(TreeNode {
+      name: "views".to_string(),
+      path: "views".to_string(),
+      node_type: "path".to_string(),
+      children: Some(views_children),
+    })
+  }
+
   TreeNode {
     name: path.to_string(),
     path: path.to_string(),
