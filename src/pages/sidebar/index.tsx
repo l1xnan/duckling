@@ -1,18 +1,18 @@
-import CodeIcon from '@mui/icons-material/Code';
-import DeleteIcon from '@mui/icons-material/Delete';
-import SettingsIcon from '@mui/icons-material/Settings';
-import { Box, BoxProps, Divider, ListItemText } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { listen } from '@tauri-apps/api/event';
-import { invoke } from '@tauri-apps/api/primitives';
-import { useAtom, useAtomValue } from 'jotai';
-import { useEffect } from 'react';
+import CodeIcon from "@mui/icons-material/Code";
+import DeleteIcon from "@mui/icons-material/Delete";
+import SettingsIcon from "@mui/icons-material/Settings";
+import { Box, BoxProps, Divider, ListItemText } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { listen } from "@tauri-apps/api/event";
+import { invoke } from "@tauri-apps/api/primitives";
+import { useAtom, useAtomValue } from "jotai";
+import { useEffect } from "react";
 
-import { ContextMenu, ContextMenuItem } from '@/components/ContextMenu';
-import ConfigDialog from '@/pages/sidebar/ConfigDialog';
-import DBTreeView from '@/pages/sidebar/DBTreeView';
-import RenameDialog from '@/pages/sidebar/RenameDialog';
-import { SideToolbar } from '@/pages/sidebar/SideToolbar';
+import { ContextMenu, ContextMenuItem } from "@/components/ContextMenu";
+import ConfigDialog from "@/pages/sidebar/ConfigDialog";
+import DBTreeView from "@/pages/sidebar/DBTreeView";
+import RenameDialog from "@/pages/sidebar/RenameDialog";
+import { SideToolbar, openCreateAtom } from "@/pages/sidebar/SideToolbar";
 import {
   configAtom,
   contextMenuAtom,
@@ -20,14 +20,14 @@ import {
   dbMapAtom,
   renameAtom,
   useDBListStore,
-} from '@/stores/dbList';
-import { useTabsStore } from '@/stores/tabs';
+} from "@/stores/dbList";
+import { useTabsStore } from "@/stores/tabs";
 
 const TreeViewWrapper = styled(Box)<BoxProps>(() => ({
-  width: '100%',
-  maxHeight: 'calc(100vh - 64px)',
-  height: 'calc(100vh - 64px)',
-  overflow: 'auto',
+  width: "100%",
+  maxHeight: "calc(100vh - 64px)",
+  height: "calc(100vh - 64px)",
+  overflow: "auto",
   pr: 1,
   pb: 2,
 }));
@@ -44,13 +44,13 @@ function Sidebar() {
   const dbMap = useAtomValue(dbMapAtom);
 
   async function openUrl() {
-    const path: string = await invoke('opened_urls');
+    const path: string = await invoke("opened_urls");
     console.log(path);
   }
 
   useEffect(() => {
     openUrl();
-    const unlisten = listen('open-directory', (e) => {
+    const unlisten = listen("open-directory", (e) => {
       console.log(e.payload);
 
       // TODO: open data file
@@ -64,9 +64,12 @@ function Sidebar() {
     setContextMenu(null);
   };
 
+  const openCreate = useAtomValue(openCreateAtom);
+  console.log(openCreate);
   return (
     <>
       <SideToolbar />
+
       <TreeViewWrapper>
         {dbList.map((db, _i) => {
           return <DBTreeView key={db.id} db={db} />;
@@ -109,14 +112,14 @@ function Sidebar() {
           onClick={() => {
             const context = contextMenu?.context;
             if (context) {
-              const dbId = context?.dbId ?? '';
+              const dbId = context?.dbId ?? "";
               const db = dbMap.get(dbId);
-              const displayName = db?.displayName ?? '';
+              const displayName = db?.displayName ?? "";
               updateTab!({
                 ...contextMenu.context,
                 displayName,
                 id: dbId,
-                type: 'editor',
+                type: "editor",
                 children: [],
               });
             }
@@ -144,6 +147,7 @@ function Sidebar() {
       {renameContext !== null ? <RenameDialog /> : null}
       {/* db config */}
       {configContext !== null ? <ConfigDialog /> : null}
+      {/* {openCreate ? <DatabaseDialog /> : null} */}
     </>
   );
 }

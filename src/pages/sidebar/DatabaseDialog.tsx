@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { DialogBox } from "@/components/DialogBox";
 import { configAtom, dbMapAtom, useDBListStore } from "@/stores/dbList";
 
-export default function ConfigDialog() {
+export default function DatabaseDialog() {
   const updateCwd = useDBListStore((state) => state.setCwd);
 
   const dbMap = useAtomValue(dbMapAtom);

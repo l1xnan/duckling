@@ -1,56 +1,56 @@
-import { ThemeOptions, createTheme } from '@mui/material/styles';
-import { createContext } from 'react';
+import { ThemeOptions, createTheme } from "@mui/material/styles";
+import { createContext } from "react";
 
 export const ColorModeContext = createContext({
   toggleColorMode: () => {},
 });
 
-const initTheme: (mode: 'dark' | 'light') => ThemeOptions = (mode) => ({
+const initTheme: (mode: "dark" | "light") => ThemeOptions = (mode) => ({
   spacing: 4,
   // @ts-ignore
-  shadows: [...Array(25).fill('none')],
+  shadows: [...Array(25).fill("none")],
   palette: {
     mode,
   },
   typography: {
-    fontFamily: 'Consolas',
+    fontFamily: "Consolas",
     fontSize: 12,
     body1: {},
   },
   components: {
     MuiButton: {
       defaultProps: {
-        size: 'small',
+        size: "small",
       },
     },
     MuiFilledInput: {
       defaultProps: {
-        margin: 'dense',
+        margin: "dense",
       },
     },
     MuiFormControl: {
       defaultProps: {
-        margin: 'dense',
+        margin: "dense",
       },
     },
     MuiFormHelperText: {
       defaultProps: {
-        margin: 'dense',
+        margin: "dense",
       },
     },
     MuiIconButton: {
       defaultProps: {
-        size: 'small',
+        size: "small",
       },
     },
     MuiInputBase: {
       defaultProps: {
-        margin: 'dense',
+        margin: "dense",
       },
     },
     MuiInputLabel: {
       defaultProps: {
-        margin: 'dense',
+        margin: "dense",
       },
     },
     MuiListItem: {
@@ -60,12 +60,12 @@ const initTheme: (mode: 'dark' | 'light') => ThemeOptions = (mode) => ({
     },
     MuiOutlinedInput: {
       defaultProps: {
-        margin: 'dense',
+        margin: "dense",
       },
     },
     MuiFab: {
       defaultProps: {
-        size: 'small',
+        size: "small",
       },
     },
     MuiMenuList: {
@@ -80,7 +80,7 @@ const initTheme: (mode: 'dark' | 'light') => ThemeOptions = (mode) => ({
     },
     MuiTable: {
       defaultProps: {
-        size: 'small',
+        size: "small",
       },
     },
     MuiTab: {
@@ -88,38 +88,38 @@ const initTheme: (mode: 'dark' | 'light') => ThemeOptions = (mode) => ({
     },
     MuiTextField: {
       defaultProps: {
-        margin: 'dense',
+        margin: "dense",
       },
     },
     MuiToolbar: {
       defaultProps: {
-        variant: 'dense',
+        variant: "dense",
       },
     },
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          scrollbarColor: '#6b6b6b #2b2b2b',
-          '&::-webkit-scrollbar, & *::-webkit-scrollbar': {
-            width: '9px',
-            height: '12px',
+          scrollbarColor: "#6b6b6b #2b2b2b",
+          "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
+            width: "9px",
+            height: "12px",
           },
-          '&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb': {
+          "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
             borderRadius: 0,
-            backgroundColor: '#bdbdbd',
+            backgroundColor: "#bdbdbd",
             minHeight: 12,
           },
-          '&::-webkit-scrollbar-thumb:focus, & *::-webkit-scrollbar-thumb:focus':
+          "&::-webkit-scrollbar-thumb:focus, & *::-webkit-scrollbar-thumb:focus":
             {
-              backgroundColor: '#959595',
+              backgroundColor: "#959595",
             },
-          '&::-webkit-scrollbar-thumb:active, & *::-webkit-scrollbar-thumb:active':
+          "&::-webkit-scrollbar-thumb:active, & *::-webkit-scrollbar-thumb:active":
             {
-              backgroundColor: '#959595',
+              backgroundColor: "#959595",
             },
-          '&::-webkit-scrollbar-thumb:hover, & *::-webkit-scrollbar-thumb:hover':
+          "&::-webkit-scrollbar-thumb:hover, & *::-webkit-scrollbar-thumb:hover":
             {
-              backgroundColor: '#959595',
+              backgroundColor: "#959595",
             },
         },
       },
@@ -127,37 +127,37 @@ const initTheme: (mode: 'dark' | 'light') => ThemeOptions = (mode) => ({
   },
 });
 
-export const lightTheme = createTheme(initTheme('light'), {
+export const lightTheme = createTheme(initTheme("light"), {
   palette: {
-    mode: 'light',
-    divider: '#ebecf0',
+    mode: "light",
+    divider: "#ebecf0",
     background: {
-      default: '#f7f8fa',
+      default: "#f7f8fa",
     },
     text: {
-      primary: '#1e1e1e',
-      secondary: '#1e1e1e',
+      primary: "#1e1e1e",
+      secondary: "#1e1e1e",
     },
     action: {
-      disabled: '#b2b2b2',
+      disabled: "#b2b2b2",
     },
   },
   components: {
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          scrollbarColor: '#6b6b6b #2b2b2b',
-          '&::-webkit-scrollbar, & *::-webkit-scrollbar': {
-            backgroundColor: '#f7f8fa',
-            width: '0.6em',
+          scrollbarColor: "#6b6b6b #2b2b2b",
+          "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
+            backgroundColor: "#f7f8fa",
+            width: "0.6em",
           },
-          '&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb': {
+          "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
             borderRadius: 0,
             minHeight: 12,
-            backgroundColor: '#d2d3d4',
+            backgroundColor: "#d2d3d4",
           },
-          '&::-webkit-scrollbar-corner, & *::-webkit-scrollbar-corner': {
-            backgroundColor: '#f7f8fa',
+          "&::-webkit-scrollbar-corner, & *::-webkit-scrollbar-corner": {
+            backgroundColor: "#f7f8fa",
           },
         },
       },
@@ -165,33 +165,33 @@ export const lightTheme = createTheme(initTheme('light'), {
   },
 } as ThemeOptions);
 
-export const darkTheme = createTheme(initTheme('dark'), {
+export const darkTheme = createTheme(initTheme("dark"), {
   palette: {
-    mode: 'dark',
+    mode: "dark",
     background: {
-      default: '#2b2d30', // "#181818",
+      default: "#2b2d30", // "#181818",
     },
     text: {
-      primary: '#ced0d6',
-      secondary: '#ced0d6',
+      primary: "#ced0d6",
+      secondary: "#ced0d6",
     },
   },
   components: {
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          scrollbarColor: '#6b6b6b #2b2b2b',
-          '&::-webkit-scrollbar, & *::-webkit-scrollbar': {
-            backgroundColor: '#2b2d30',
-            width: '0.6em',
+          scrollbarColor: "#6b6b6b #2b2b2b",
+          "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
+            backgroundColor: "#2b2d30",
+            width: "0.6em",
           },
-          '&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb': {
+          "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
             borderRadius: 0,
             minHeight: 12,
-            backgroundColor: '#4d4e51',
+            backgroundColor: "#4d4e51",
           },
-          '&::-webkit-scrollbar-corner, & *::-webkit-scrollbar-corner': {
-            backgroundColor: '#2b2b2b',
+          "&::-webkit-scrollbar-corner, & *::-webkit-scrollbar-corner": {
+            backgroundColor: "#2b2b2b",
           },
         },
       },

@@ -7,12 +7,13 @@ import {
   IconRefresh,
 } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { atom, useAtomValue, useSetAtom } from 'jotai';
 
 import { getDB } from '@/api';
 import { MuiIconButton } from '@/components/MuiIconButton';
 import ToggleColorMode from '@/components/ToggleColorMode';
 import { ToolbarBox } from '@/components/Toolbar';
+import { DatabaseDialog } from '@/components/custom/DatabaseDialog';
 import Setting from '@/pages/settings/AppSetting';
 import {
   DialectType,
@@ -20,6 +21,8 @@ import {
   selectedNodeAtom,
   useDBListStore,
 } from '@/stores/dbList';
+
+export const openCreateAtom = atom(false);
 
 export function SideToolbar() {
   const dbList = useDBListStore((state) => state.dbList);
@@ -33,9 +36,13 @@ export function SideToolbar() {
     const data = await getDB({ url, dialect });
     appendDB(data);
   }
+  const setOpen = useSetAtom(openCreateAtom);
 
   const selectedNode = useAtomValue(selectedNodeAtom);
 
+  const handleCreateOpen = () => {
+    setOpen(true);
+  };
   const handleOpen = () => {
     if (selectedNode) {
       setConfigContext({
@@ -118,12 +125,13 @@ export function SideToolbar() {
           <MuiIconButton onClick={handleAppendFolder}>
             <IconFolderPlus />
           </MuiIconButton>
-          <MuiIconButton onClick={handleAppendDB}>
+          <MuiIconButton onClick={handleCreateOpen}>
             <IconDatabasePlus />
           </MuiIconButton>
           <MuiIconButton disabled={!isRoot} onClick={handleOpen}>
             <IconDatabaseCog />
           </MuiIconButton>
+          <DatabaseDialog />
           {/* remove db */}
           <MuiIconButton disabled={!isRoot} onClick={handleRemoveDB}>
             <RemoveIcon />
