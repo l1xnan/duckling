@@ -2,7 +2,6 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { Stack, Typography } from '@mui/material';
 import {
   IconDatabaseCog,
-  IconDatabasePlus,
   IconFolderPlus,
   IconRefresh,
 } from '@tabler/icons-react';
@@ -32,17 +31,13 @@ export function SideToolbar() {
 
   const setConfigContext = useSetAtom(configAtom);
 
-  async function handleGetDB(url: string, dialect: DialectType) {
-    const data = await getDB({ url, dialect });
+  async function handleGetDB(path: string, dialect: DialectType) {
+    const data = await getDB({ path, dialect });
     appendDB(data);
   }
-  const setOpen = useSetAtom(openCreateAtom);
 
   const selectedNode = useAtomValue(selectedNodeAtom);
 
-  const handleCreateOpen = () => {
-    setOpen(true);
-  };
   const handleOpen = () => {
     if (selectedNode) {
       setConfigContext({
@@ -92,10 +87,9 @@ export function SideToolbar() {
 
       dbList.forEach(async (db) => {
         if (db.id == root) {
-          const { data } = await getDB({
-            url: db.data.path,
-            dialect: db.dialect,
-          });
+          const { data } = await getDB(
+            db.config ?? { path: db.data.path, dialect: 'folder' },
+          );
           updateDB(root, data);
         }
       });
@@ -125,13 +119,13 @@ export function SideToolbar() {
           <MuiIconButton onClick={handleAppendFolder}>
             <IconFolderPlus />
           </MuiIconButton>
-          <MuiIconButton onClick={handleAppendDB}>
+          <DatabaseDialog />
+          {/* <MuiIconButton onClick={handleAppendDB}>
             <IconDatabasePlus />
-          </MuiIconButton>
+          </MuiIconButton> */}
           <MuiIconButton disabled={!isRoot} onClick={handleOpen}>
             <IconDatabaseCog />
           </MuiIconButton>
-          <DatabaseDialog />
           {/* remove db */}
           <MuiIconButton disabled={!isRoot} onClick={handleRemoveDB}>
             <RemoveIcon />

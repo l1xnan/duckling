@@ -47,7 +47,7 @@ pub async fn opened_urls(state: State<'_, OpenedUrls>) -> Result<String, String>
 
 #[tauri::command]
 pub async fn get_db(
-  url: Option<&str>,
+  path: Option<&str>,
   dialect: &str,
   username: Option<String>,
   password: Option<String>,
@@ -56,17 +56,17 @@ pub async fn get_db(
 ) -> Result<Option<TreeNode>, String> {
   if dialect == "folder" {
     let d = FolderDialect {
-      path: String::from(url.unwrap()),
+      path: String::from(path.unwrap()),
     };
     Ok(d.get_db().await)
   } else if dialect == "file" {
     let d = FileDialect {
-      path: String::from(url.unwrap()),
+      path: String::from(path.unwrap()),
     };
     Ok(d.get_db().await)
   } else if dialect == "duckdb" {
     let d = DuckDbDialect {
-      path: String::from(url.unwrap()),
+      path: String::from(path.unwrap()),
     };
     Ok(d.get_db().await)
   } else if dialect == "clickhouse" {

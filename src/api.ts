@@ -2,9 +2,8 @@ import { Table, tableFromIPC } from '@apache-arrow/ts';
 import { invoke } from '@tauri-apps/api/primitives';
 import { nanoid } from 'nanoid';
 
-import { DBType, DialectType } from '@/stores/dbList';
+import { DBType, DialectConfig } from '@/stores/dbList';
 
-import { ClickhouseDialectType as ClickhouseDialectOption } from './components/custom/DatabaseDialog';
 import { ArrowResponse, SchemaType } from './stores/dataset';
 import { TreeNode } from './types';
 
@@ -104,19 +103,13 @@ export async function read_parquet(
   return convert(res);
 }
 
-type DialectOption = {
-  url: string;
-  dialect: DialectType;
-};
-
-export async function getDB(
-  option: DialectOption | ClickhouseDialectOption,
-): Promise<DBType> {
+export async function getDB(option: DialectConfig): Promise<DBType> {
   const tree: TreeNode = await invoke('get_db', option);
   return {
     id: nanoid(),
     dialect: option.dialect,
     data: tree,
+    config: option,
     displayName: tree.name,
   };
 }

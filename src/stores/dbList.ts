@@ -20,6 +20,22 @@ export type NodeContextType = {
 
 export type DialectType = 'folder' | 'file' | 'duckdb' | 'clickhouse';
 
+export type DuckdbConfig = {
+  path: string;
+  cwd?: string;
+  dialect: DialectType;
+};
+
+export type ClickhouseDialectType = {
+  host: string;
+  port: string;
+  password: string;
+  username: string;
+  dialect: DialectType;
+};
+
+export type DialectConfig = DuckdbConfig | ClickhouseDialectType;
+
 export type DBType = {
   id: string;
   dialect: DialectType;
@@ -28,6 +44,7 @@ export type DBType = {
   // tree node
   data: TreeNode;
 
+  config?: DialectConfig;
   // config
   cwd?: string;
 };
