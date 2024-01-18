@@ -54,15 +54,5 @@ pub async fn get_tables(path: &str) -> anyhow::Result<Vec<Table>> {
       r#type: r.get::<String, _>("name"),
     })
     .collect();
-  //   for row in rows {
-  //     let table = Table {
-  //       table_name: row::<String, _>("name"),
-  //       table_type:row::<String, _>("name"),
-  //       table_schema: row::<String, _>("name"),
-  //       r#type: row::<String, _>("name"),
-  //     };
-  //     tables.push(table);
-  //   }
-
   Ok(tables)
 }
