@@ -151,7 +151,6 @@ async fn get_tables(url: String) -> anyhow::Result<Vec<Table>> {
   select database as table_schema, name as table_name, engine as table_type
   from system.tables order by table_schema, table_type
   "#;
-  query(&url, sql).await;
   let pool = Pool::new(url);
   let mut client = pool.get_handle().await?;
 
