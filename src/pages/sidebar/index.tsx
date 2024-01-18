@@ -22,8 +22,7 @@ import {
 } from '@/stores/dbList';
 import { useTabsStore } from '@/stores/tabs';
 
-import IndexPage from '../side';
-
+import DBTreeView from './DBTreeView';
 
 const TreeViewWrapper = styled(Box)<BoxProps>(() => ({
   width: '100%',
@@ -72,14 +71,14 @@ function Sidebar() {
     <>
       <SideToolbar />
 
-      {/* <TreeViewWrapper>
+      <TreeViewWrapper>
         {dbList.map((db, _i) => {
           return <DBTreeView key={db.id} db={db} />;
         })}
-      </TreeViewWrapper> */}
-      <TreeViewWrapper>
-        <IndexPage data={dbList.map((db) => db.data)} />
       </TreeViewWrapper>
+      {/* <TreeViewWrapper>
+        <IndexPage data={dbList.map((db) => db.data)} />
+      </TreeViewWrapper> */}
 
       {/* ---------- modal/dialog ---------- */}
 
