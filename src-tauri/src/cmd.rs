@@ -1,5 +1,6 @@
-use log::info;
 use std::sync::Mutex;
+
+use tauri::State;
 
 use crate::api::ArrowResponse;
 use crate::dialect::clickhouse::ClickhouseDialect;
@@ -9,7 +10,6 @@ use crate::dialect::folder::FolderDialect;
 use crate::dialect::sqlite::SqliteDialect;
 use crate::dialect::{Dialect, TreeNode};
 use crate::{api, dialect};
-use tauri::State;
 
 pub struct OpenedUrls(pub Mutex<Option<Vec<url::Url>>>);
 

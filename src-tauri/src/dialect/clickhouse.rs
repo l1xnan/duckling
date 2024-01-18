@@ -1,22 +1,15 @@
-use crate::api::{ArrowData, serialize_preview};
-use crate::dialect::sql;
-use crate::dialect::{Dialect, TreeNode};
-use crate::utils::{build_tree, Table};
-use arrow::util::pretty::print_batches;
-use clickhouse_rs::types::{Complex, SqlType};
-use clickhouse_rs::{Block, Pool};
-use duckdb::{params, Connection};
-use futures_util::StreamExt;
-use nanoid::format;
-use std::collections::HashMap;
-use std::path::{Path, PathBuf};
 use std::sync::Arc;
-extern crate arrow;
-use serde::{Deserialize, Serialize};
 
 use arrow::array::*;
 use arrow::datatypes::*;
-use arrow::error::Result;
+use clickhouse_rs::types::{Complex, SqlType};
+use clickhouse_rs::{Block, Pool};
+use futures_util::StreamExt;
+use serde::{Deserialize, Serialize};
+
+use crate::api::{serialize_preview, ArrowData};
+use crate::dialect::{Dialect, TreeNode};
+use crate::utils::{build_tree, Table};
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct ClickhouseDialect {
@@ -38,7 +31,6 @@ impl ClickhouseDialect {
 impl Dialect for ClickhouseDialect {
   async fn get_db(&self) -> Option<TreeNode> {
     let url = self.get_url();
-    // sellf.query("").await?;
     if let Ok(tables) = get_tables(url).await {
       Some(TreeNode {
         name: self.host.clone(),
@@ -123,18 +115,11 @@ fn block_to_arrow(block: &Block<Complex>) -> anyhow::Result<RecordBatch> {
   Ok(batch)
 }
 
-async fn query(url: &str, sql: &str) -> anyhow::Result<()> {
+async fn query_stream(url: &str, sql: &str) -> anyhow::Result<()> {
   let pool = Pool::new(url);
   let mut client = pool.get_handle().await?;
 
-  let block = client.query(sql).fetch_all().await?;
-
-  if let Ok(batch) = block_to_arrow(&block) {
-    print_batches(&[batch])?;
-  }
-
   let mut stream = client.query(sql).stream_blocks();
-  let mut sum = 0;
   while let Some(block) = stream.next().await {
     let block = block?;
 

@@ -1,14 +1,10 @@
+use std::env::{current_dir, set_current_dir};
+
 use anyhow::anyhow;
 use arrow::{ipc::writer::StreamWriter, record_batch::RecordBatch};
 use duckdb::Connection;
-use std::path::Path;
-
 use log::info;
 use serde::{Deserialize, Serialize};
-use std::env::{current_dir, set_current_dir};
-use std::fs;
-
-use crate::dialect::TreeNode;
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct ArrowData {

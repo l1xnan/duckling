@@ -1,10 +1,10 @@
-use crate::dialect::sql;
+use sqlx::sqlite::SqlitePool;
+use sqlx::Connection;
+use sqlx::Row;
+
 use crate::dialect::{Dialect, TreeNode};
 use crate::utils::{build_tree, get_file_name, Table};
-use sqlx::{FromRow, Row};
-use sqlx::Connection;
-use std::path::{Path, PathBuf};
-use sqlx::sqlite::SqlitePool;
+
 #[derive(Debug, Default)]
 pub struct SqliteDialect {
   pub path: String,

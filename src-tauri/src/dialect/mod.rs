@@ -3,12 +3,8 @@ use serde::{Deserialize, Serialize};
 pub mod clickhouse;
 pub mod duckdb;
 pub mod file;
-pub mod sqlite;
 pub mod folder;
-
-use crate::api::ArrowData;
-
-pub use self::folder::FolderDialect;
+pub mod sqlite;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TreeNode {
@@ -28,10 +24,7 @@ pub trait Dialect {
 
 pub mod sql {
   use crate::api::show_db_information;
-
   use crate::api::ArrowData;
-
-  use anyhow::anyhow;
 
   pub fn show_tables(path: String) -> anyhow::Result<ArrowData> {
     show_db_information(

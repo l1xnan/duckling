@@ -1,10 +1,8 @@
 use std::env::{current_dir, set_current_dir};
-use std::path::{Path, PathBuf};
 
-use duckdb::{params, Connection};
+use duckdb::Connection;
 
 use crate::api::{serialize_preview, ArrowData};
-use crate::dialect::sql;
 use crate::dialect::{Dialect, TreeNode};
 use crate::utils::{build_tree, get_file_name, Table};
 

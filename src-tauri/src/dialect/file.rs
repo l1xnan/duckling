@@ -1,5 +1,4 @@
-use std::path::Path;
-use std::{fs, path::PathBuf};
+use std::path::PathBuf;
 
 use crate::dialect::{Dialect, TreeNode};
 use crate::utils::get_file_name;
