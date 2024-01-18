@@ -2,8 +2,10 @@ use std::sync::Arc;
 
 use arrow::array::*;
 use arrow::datatypes::*;
+
 use clickhouse_rs::types::{Complex, SqlType};
-use clickhouse_rs::{Block, Pool};
+use clickhouse_rs::{types::column::Column, Block, Pool};
+
 use futures_util::StreamExt;
 use serde::{Deserialize, Serialize};
 
@@ -75,38 +77,157 @@ fn convert_type(col_type: &SqlType) -> DataType {
     SqlType::Int16 => DataType::Int16,
     SqlType::Int32 => DataType::Int32,
     SqlType::Int64 => DataType::Int64,
-    SqlType::String => DataType::Utf8,
     SqlType::Float32 => DataType::Float32,
     SqlType::Float64 => DataType::Float64,
     SqlType::Date => DataType::Date32,
     SqlType::DateTime(_) => DataType::Date64,
     SqlType::Nullable(t) => convert_type(<&SqlType>::clone(t)),
     SqlType::Decimal(d1, d2) => DataType::Decimal128(*d1, *d2 as i8),
+    SqlType::String => DataType::Utf8,
     // SqlType::Array(t) => DataType::List(convert_type(t)),
     // SqlType::Map(d1, d2) => DataType::Decimal(d1, d2),
     _ => DataType::Utf8,
   }
 }
 
+fn convert_col(col: &Column<Complex>) -> anyhow::Result<(Field, ArrayRef)> {
+  let col_type = col.sql_type();
+  let field = Field::new(col.name(), convert_type(&col_type), false);
+  let arr: ArrayRef = match col_type {
+    SqlType::UInt8 => {
+      let tmp = col
+        .iter::<u8>()?
+        .collect::<Vec<_>>()
+        .into_iter()
+        .copied()
+        .collect::<Vec<_>>();
+      Arc::new(UInt8Array::from(tmp)) as ArrayRef
+    }
+    SqlType::UInt16 => Arc::new(UInt16Array::from(
+      col
+        .iter::<u16>()?
+        .collect::<Vec<_>>()
+        .into_iter()
+        .copied()
+        .collect::<Vec<_>>(),
+    )) as ArrayRef,
+    SqlType::UInt32 => Arc::new(UInt32Array::from(
+      col
+        .iter::<u32>()?
+        .collect::<Vec<_>>()
+        .into_iter()
+        .copied()
+        .collect::<Vec<_>>(),
+    )) as ArrayRef,
+    SqlType::UInt64 => Arc::new(UInt64Array::from(
+      col
+        .iter::<u64>()?
+        .collect::<Vec<_>>()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>(),
+    )) as ArrayRef,
+    SqlType::Int8 => Arc::new(Int8Array::from(
+      col
+        .iter::<i8>()?
+        .collect::<Vec<_>>()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>(),
+    )) as ArrayRef,
+    SqlType::Int16 => Arc::new(Int16Array::from(
+      col
+        .iter::<i16>()?
+        .collect::<Vec<_>>()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>(),
+    )) as ArrayRef,
+    SqlType::Int32 => Arc::new(Int32Array::from(
+      col
+        .iter::<i32>()?
+        .collect::<Vec<_>>()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>(),
+    )) as ArrayRef,
+    SqlType::Int64 => Arc::new(Int64Array::from(
+      col
+        .iter::<i64>()?
+        .collect::<Vec<_>>()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>(),
+    )) as ArrayRef,
+    SqlType::Float32 => Arc::new(Float32Array::from(
+      col
+        .iter::<f32>()?
+        .collect::<Vec<_>>()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>(),
+    )) as ArrayRef,
+    SqlType::Float64 => Arc::new(Float64Array::from(
+      col
+        .iter::<f64>()?
+        .collect::<Vec<_>>()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>(),
+    )) as ArrayRef,
+    SqlType::Date => Arc::new(Date32Array::from(
+      col
+        .iter::<i32>()?
+        .collect::<Vec<_>>()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>(),
+    )) as ArrayRef,
+    SqlType::DateTime(_) => Arc::new(Date64Array::from(
+      col
+        .iter::<i64>()?
+        .collect::<Vec<_>>()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>(),
+    )) as ArrayRef,
+    SqlType::Nullable(_t) => Arc::new(Float64Array::from(
+      col
+        .iter::<f64>()?
+        .collect::<Vec<_>>()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>(),
+    )) as ArrayRef,
+    SqlType::Decimal(_d1, _d2) => Arc::new(Float64Array::from(
+      col
+        .iter::<f64>()?
+        .collect::<Vec<_>>()
+        .into_iter()
+        .copied()
+        .collect::<Vec<_>>(),
+    )) as ArrayRef,
+    _ => {
+      let str_vec: Vec<_> = col.iter::<&[u8]>()?.collect();
+      let strings: Vec<_> = str_vec
+        .iter()
+        .map(|&bytes| String::from_utf8(bytes.to_vec()).unwrap())
+        .collect();
+      let tmp: ArrayRef = Arc::new(StringArray::from(strings));
+      tmp
+    }
+  };
+  Ok((field, arr))
+}
 fn block_to_arrow(block: &Block<Complex>) -> anyhow::Result<RecordBatch> {
   let mut fields = vec![];
   let mut data = vec![];
   for col in block.columns() {
     println!("name: {:?}, sql_type: {:?}", col.name(), col.sql_type());
 
-    let col_type = col.sql_type();
-    let field = Field::new(col.name(), convert_type(&col_type), false);
-
+    let (field, arr) = convert_col(col)?;
     fields.push(field);
-
-    // TODO: convert type
-    let str_vec: Vec<_> = col.iter::<&[u8]>()?.collect();
-    let strings: Vec<_> = str_vec
-      .iter()
-      .map(|&bytes| String::from_utf8(bytes.to_vec()).unwrap())
-      .collect();
-    let tmp: ArrayRef = Arc::new(StringArray::from(strings));
-    data.push(tmp);
+    data.push(arr);
   }
 
   let schema = Schema::new(fields);
