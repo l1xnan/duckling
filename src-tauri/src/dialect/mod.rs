@@ -6,6 +6,8 @@ pub mod file;
 pub mod sqlite;
 pub mod folder;
 
+use crate::api::ArrowData;
+
 pub use self::folder::FolderDialect;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -21,7 +23,7 @@ pub struct TreeNode {
 pub trait Dialect {
   async fn get_db(&self) -> Option<TreeNode>;
 
-  async fn query(&self) {}
+  // async fn query(&self, sql: &str)->anyhow::Result<ArrowData> {}
 }
 
 pub mod sql {

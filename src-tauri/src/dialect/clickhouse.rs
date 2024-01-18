@@ -1,3 +1,4 @@
+use crate::api::{ArrowData, serialize_preview};
 use crate::dialect::sql;
 use crate::dialect::{Dialect, TreeNode};
 use crate::utils::{build_tree, Table};
@@ -11,12 +12,13 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 extern crate arrow;
+use serde::{Deserialize, Serialize};
 
 use arrow::array::*;
 use arrow::datatypes::*;
 use arrow::error::Result;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct ClickhouseDialect {
   pub host: String,
   pub port: String,
@@ -53,6 +55,20 @@ impl Dialect for ClickhouseDialect {
 impl ClickhouseDialect {
   fn get_schema(&self) -> Vec<Table> {
     vec![]
+  }
+
+  pub async fn query(&self, sql: &str) -> anyhow::Result<ArrowData> {
+    let pool = Pool::new(self.get_url());
+    let mut client = pool.get_handle().await?;
+
+    let block = client.query(sql).fetch_all().await?;
+
+    let batch = block_to_arrow(&block)?;
+
+    Ok(ArrowData {
+      total_count: batch.num_rows(),
+      preview: serialize_preview(&batch)?,
+    })
   }
 }
 

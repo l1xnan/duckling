@@ -27,8 +27,13 @@ pub async fn query(
   offset: usize,
   // current working directory
   cwd: Option<String>,
+  dialect: Option<ClickhouseDialect>,
 ) -> ArrowResponse {
-  let res = api::query(path.as_str(), sql, limit, offset, cwd);
+  let res = if let Some(d) = dialect {
+    d.query(&sql).await
+  } else {
+    api::query(path.as_str(), sql, limit, offset, cwd)
+  };
   api::convert(res)
 }
 
