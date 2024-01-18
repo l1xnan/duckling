@@ -10,6 +10,7 @@ dependencies = [
  "arrow",
  "clickhouse-rs",
  "duckdb",
+ "futures-util",
  "log",
  "nanoid",
  "serde",
