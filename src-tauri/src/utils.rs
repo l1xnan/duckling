@@ -1,5 +1,5 @@
 use crate::dialect::TreeNode;
-use std::collections::HashMap;
+use std::collections::{HashMap, BTreeMap};
 use std::fmt::Debug;
 use std::path::Path;
 pub struct Table {
@@ -22,7 +22,7 @@ pub fn get_file_name<P: AsRef<Path>>(path: P) -> String {
 pub fn build_tree(tables: Vec<Table>) -> Vec<TreeNode> {
   let mut databases = vec![];
 
-  let mut tree: HashMap<String, Vec<TreeNode>> = HashMap::new();
+  let mut tree: BTreeMap<String, Vec<TreeNode>> = BTreeMap::new();
 
   for t in tables {
     let mut db = tree.entry(t.table_schema.clone()).or_insert(Vec::new());
