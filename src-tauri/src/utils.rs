@@ -1,7 +1,8 @@
-use crate::dialect::TreeNode;
-use std::collections::{HashMap, BTreeMap};
-use std::fmt::Debug;
+use std::collections::BTreeMap;
 use std::path::Path;
+
+use crate::dialect::TreeNode;
+
 pub struct Table {
   pub table_name: String,
   pub table_type: String,
@@ -25,23 +26,23 @@ pub fn build_tree(tables: Vec<Table>) -> Vec<TreeNode> {
   let mut tree: BTreeMap<String, Vec<TreeNode>> = BTreeMap::new();
 
   for t in tables {
-    let mut db = tree.entry(t.table_schema.clone()).or_insert(Vec::new());
+    let db = tree.entry(t.table_schema.clone()).or_default();
     db.push(TreeNode {
       name: t.table_name.clone(),
       path: t.table_name.clone(),
       node_type: t.r#type.clone(),
       children: None,
-    })
+    });
   }
-  for (key, values) in tree.iter() {
+  for (key, nodes) in &tree {
     let mut tables_children = vec![];
     let mut views_children = vec![];
 
-    for node in values.iter() {
+    for node in nodes {
       if node.node_type == "view" {
-        views_children.push(node.clone())
+        views_children.push(node.clone());
       } else {
-        tables_children.push(node.clone())
+        tables_children.push(node.clone());
       }
     }
 
@@ -63,7 +64,7 @@ pub fn build_tree(tables: Vec<Table>) -> Vec<TreeNode> {
           children: Some(views_children),
         },
       ]),
-    })
+    });
   }
 
   databases

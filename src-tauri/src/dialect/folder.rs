@@ -27,7 +27,7 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
   let is_dir = path.is_dir();
   let name = path.file_name().unwrap().to_string_lossy().to_string();
 
-  let support_types = vec!["csv", "xlsx", "parquet"];
+  let support_types = ["csv", "xlsx", "parquet"];
 
   let mut node_type = String::from("path");
 
@@ -77,7 +77,7 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
 
   Some(TreeNode {
     name,
-    path: path.display().to_string().replace("\\", "/"),
+    path: path.display().to_string().replace('\\', "/"),
     children,
     node_type,
   })

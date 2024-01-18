@@ -42,7 +42,7 @@ pub async fn opened_urls(state: State<'_, OpenedUrls>) -> Result<String, String>
   let opened_urls = if let Some(urls) = &*state.0.lock().unwrap() {
     urls
       .iter()
-      .map(|u| u.as_str().replace("\\", "\\\\"))
+      .map(|u| u.as_str().replace('\\', "\\\\"))
       .collect::<Vec<_>>()
       .join(", ")
   } else {
@@ -83,8 +83,8 @@ pub async fn get_db(
     Ok(d.get_db().await)
   } else if dialect == "clickhouse" {
     let d = ClickhouseDialect {
-      host: String::from(host.unwrap()),
-      port: String::from(port.unwrap()),
+      host: host.unwrap(),
+      port: port.unwrap(),
       username: username.unwrap_or_default(),
       password: password.unwrap_or_default(),
     };

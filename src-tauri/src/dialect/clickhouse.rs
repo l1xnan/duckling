@@ -80,7 +80,7 @@ fn convert_type(col_type: &SqlType) -> DataType {
     SqlType::Float64 => DataType::Float64,
     SqlType::Date => DataType::Date32,
     SqlType::DateTime(_) => DataType::Date64,
-    SqlType::Nullable(t) => convert_type(t.clone()),
+    SqlType::Nullable(t) => convert_type(<&SqlType>::clone(t)),
     SqlType::Decimal(d1, d2) => DataType::Decimal128(*d1, *d2 as i8),
     // SqlType::Array(t) => DataType::List(convert_type(t)),
     // SqlType::Map(d1, d2) => DataType::Decimal(d1, d2),
@@ -91,7 +91,7 @@ fn convert_type(col_type: &SqlType) -> DataType {
 fn block_to_arrow(block: &Block<Complex>) -> anyhow::Result<RecordBatch> {
   let mut fields = vec![];
   let mut data = vec![];
-  for col in block.columns().iter() {
+  for col in block.columns() {
     println!("name: {:?}, sql_type: {:?}", col.name(), col.sql_type());
 
     let col_type = col.sql_type();
@@ -124,7 +124,7 @@ async fn query_stream(url: &str, sql: &str) -> anyhow::Result<()> {
     let block = block?;
 
     let columns = block.columns();
-    for col in columns.iter() {
+    for col in columns {
       println!("name: {:?}, sql_type: {:?}", col.name(), col.sql_type());
     }
   }
@@ -155,7 +155,7 @@ async fn get_tables(url: String) -> anyhow::Result<Vec<Table>> {
       } else {
         "table"
       }),
-    })
+    });
   }
   Ok(tables)
 }
