@@ -51,7 +51,7 @@ pub fn convert(res: anyhow::Result<ArrowData>) -> ArrowResponse {
   }
 }
 
-fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::ArrowError> {
+pub fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::ArrowError> {
   let mut writer = StreamWriter::try_new(Vec::new(), &record.schema())?;
   writer.write(record)?;
   writer.into_inner()

@@ -1,7 +1,9 @@
+use std::env::{current_dir, set_current_dir};
 use std::path::{Path, PathBuf};
 
 use duckdb::{params, Connection};
 
+use crate::api::{serialize_preview, ArrowData};
 use crate::dialect::sql;
 use crate::dialect::{Dialect, TreeNode};
 use crate::utils::{build_tree, get_file_name, Table};
@@ -9,6 +11,7 @@ use crate::utils::{build_tree, get_file_name, Table};
 #[derive(Debug, Default)]
 pub struct DuckDbDialect {
   pub path: String,
+  pub cwd: Option<String>,
 }
 
 impl Dialect for DuckDbDialect {
@@ -33,6 +36,36 @@ impl DuckDbDialect {
     } else {
       vec![]
     }
+  }
+
+  fn connect(&self) -> anyhow::Result<Connection> {
+    Ok(Connection::open(&self.path)?)
+  }
+
+  pub fn query(&self, sql: String, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
+    if let Some(cwd) = &self.cwd {
+      let _ = set_current_dir(cwd);
+    }
+    log::info!("current_dir: {}", current_dir()?.display());
+    let con = self.connect();
+    let db = con.map_err(|err| anyhow::anyhow!("Failed to open database connection: {}", err))?;
+
+    println!("sql: {}", sql);
+
+    // query
+    let mut stmt = db.prepare(sql.as_str())?;
+    let frames = stmt.query_arrow(duckdb::params![])?;
+    let schema = frames.get_schema();
+    let records: Vec<_> = frames.collect();
+
+    let record_batch = arrow::compute::concat_batches(&schema, &records)?;
+    let total = record_batch.num_rows();
+    let preview = record_batch.slice(offset, std::cmp::min(limit, total - offset));
+
+    Ok(ArrowData {
+      total_count: total,
+      preview: serialize_preview(&preview)?,
+    })
   }
 }
 

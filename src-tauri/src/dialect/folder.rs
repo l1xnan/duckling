@@ -1,6 +1,8 @@
 use std::fs;
 use std::path::Path;
 
+use duckdb::Connection;
+
 use crate::dialect::{Dialect, TreeNode};
 
 #[derive(Debug, Default)]
@@ -11,6 +13,12 @@ pub struct FolderDialect {
 impl Dialect for FolderDialect {
   async fn get_db(&self) -> Option<TreeNode> {
     directory_tree(self.path.as_str())
+  }
+}
+
+impl FolderDialect {
+  fn get_connect() -> Connection {
+    Connection::open_in_memory().unwrap()
   }
 }
 

@@ -68,6 +68,7 @@ pub async fn get_db(
   } else if dialect == "duckdb" {
     let d = DuckDbDialect {
       path: String::from(path.unwrap()),
+      cwd: None,
     };
     Ok(d.get_db().await)
   } else if dialect == "sqlite" {
