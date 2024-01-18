@@ -6,6 +6,7 @@ use crate::dialect::clickhouse::ClickhouseDialect;
 use crate::dialect::duckdb::DuckDbDialect;
 use crate::dialect::file::FileDialect;
 use crate::dialect::folder::FolderDialect;
+use crate::dialect::sqlite::SqliteDialect;
 use crate::dialect::{Dialect, TreeNode};
 use crate::{api, dialect};
 use tauri::State;
@@ -66,6 +67,11 @@ pub async fn get_db(
     Ok(d.get_db().await)
   } else if dialect == "duckdb" {
     let d = DuckDbDialect {
+      path: String::from(path.unwrap()),
+    };
+    Ok(d.get_db().await)
+  } else if dialect == "sqlite" {
+    let d = SqliteDialect {
       path: String::from(path.unwrap()),
     };
     Ok(d.get_db().await)

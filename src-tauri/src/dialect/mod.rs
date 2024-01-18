@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 pub mod clickhouse;
 pub mod duckdb;
 pub mod file;
+pub mod sqlite;
 pub mod folder;
 
 pub use self::folder::FolderDialect;
