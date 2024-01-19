@@ -3,31 +3,6 @@
 version = 3
 
 [[package]]
-name = "DuckStudio"
-version = "0.0.4"
-dependencies = [
- "anyhow",
- "arrow",
- "clickhouse-rs",
- "duckdb",
- "futures-util",
- "log",
- "nanoid",
- "serde",
- "serde_json",
- "sqlx",
- "tauri",
- "tauri-build",
- "tauri-plugin-dialog",
- "tauri-plugin-log",
- "tauri-plugin-process",
- "tauri-plugin-shell",
- "tauri-plugin-updater",
- "tauri-plugin-window-state",
- "url",
-]
-
-[[package]]
 name = "addr2line"
 version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -999,10 +974,10 @@ dependencies = [
 [[package]]
 name = "clickhouse-rs"
 version = "1.1.0-alpha.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "802fe62a5480415bcdbb5217b3ea029d748c9a3ce3b884767cf58888e33e7f65"
+source = "git+https://github.com/mel-mel-king/clickhouse-rs.git?branch=decimal128#8ce22e28bdc48745fecf8b286ec769ab9d58796f"
 dependencies = [
  "byteorder",
+ "cfg-if",
  "chrono",
  "chrono-tz",
  "clickhouse-rs-cityhash-sys",
@@ -1027,8 +1002,7 @@ dependencies = [
 [[package]]
 name = "clickhouse-rs-cityhash-sys"
 version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4baf9d4700a28d6cb600e17ed6ae2b43298a5245f1f76b4eab63027ebfd592b9"
+source = "git+https://github.com/mel-mel-king/clickhouse-rs.git?branch=decimal128#8ce22e28bdc48745fecf8b286ec769ab9d58796f"
 dependencies = [
  "cc",
 ]
@@ -1530,6 +1504,33 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dbaceec3c6e4211c79e7b1800fb9680527106beb2f9c51904a3210c03a448c74"
 dependencies = [
  "dtoa",
+]
+
+[[package]]
+name = "duck_studio"
+version = "0.0.4"
+dependencies = [
+ "anyhow",
+ "arrow",
+ "chrono",
+ "chrono-tz",
+ "clickhouse-rs",
+ "duckdb",
+ "futures-util",
+ "log",
+ "nanoid",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-dialog",
+ "tauri-plugin-log",
+ "tauri-plugin-process",
+ "tauri-plugin-shell",
+ "tauri-plugin-updater",
+ "tauri-plugin-window-state",
+ "url",
 ]
 
 [[package]]

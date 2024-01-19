@@ -19,12 +19,13 @@ arrow = { version = "49.0.0", features = ["prettyprint"] }
 
 duckdb = { version = "0.9.2", features = [
     "modern-full",
-    "bundled"
+     "bundled"
 ] }
 
 
 futures-util = "0.3"
-clickhouse-rs = "1.1.0-alpha.1"
+#clickhouse-rs = "1.1.0-alpha.1"
+clickhouse-rs = { git = "https://github.com/mel-mel-king/clickhouse-rs.git", branch = "decimal128" }
 sqlx = { version = "0.7", features = ["runtime-tokio", "sqlite", "mysql", "postgres"] }
 
 tauri = { version = "^2.0.0-alpha", features = [
@@ -44,6 +45,8 @@ anyhow = "1.0.75"
 url = "2.4.1"
 log = "^0.4"
 nanoid = "0.4.0"
+chrono = "^0.4"
+chrono-tz = "^0.8"
 
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
 tauri-plugin-updater = "2.0.0-alpha"
