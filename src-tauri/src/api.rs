@@ -6,7 +6,7 @@ use duckdb::Connection;
 use log::info;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ArrowData {
   /// The total number of rows that were selected.
   pub total_count: usize,

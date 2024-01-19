@@ -1,4 +1,4 @@
-use std::str::{self};
+use std::str;
 use std::sync::Arc;
 
 use arrow::array::*;
@@ -7,11 +7,13 @@ use chrono::naive::NaiveDate;
 use chrono::prelude::*;
 use chrono::DateTime;
 use chrono_tz::Tz;
-use clickhouse_rs::types::{Complex, Decimal, FromSql, SqlType};
-use clickhouse_rs::{types::column::Column, Block, Pool};
+use clickhouse_rs::types::{Decimal, FromSql, SqlType};
+use clickhouse_rs::{types::column::Column, Block, ClientHandle, Pool, Simple};
 use duckdb::polars::export::chrono;
-use futures_util::StreamExt;
+use futures_core::stream::Stream;
+use futures_util::stream::StreamExt;
 use serde::{Deserialize, Serialize};
+use tauri::{Manager, Window};
 
 use crate::api::{serialize_preview, ArrowData};
 use crate::dialect::{Dialect, TreeNode};
@@ -26,7 +28,7 @@ pub struct ClickhouseDialect {
 }
 
 impl ClickhouseDialect {
-  fn get_url(&self) -> String {
+  pub(crate) fn get_url(&self) -> String {
     format!(
       "tcp://{}:{}@{}:{}/temp_database_lxn?compression=lz4&ping_timeout=42ms",
       self.username, self.password, self.host, self.port,
@@ -55,14 +57,55 @@ impl ClickhouseDialect {
     vec![]
   }
 
+  // pub async fn query(&self, sql: &str) -> anyhow::Result<ArrowData> {
+  //   let pool = Pool::new(self.get_url());
+  //   let mut client = pool.get_handle().await?;
+  //
+  //   let block = client.query(sql).fetch_all().await?;
+  //
+  //   let batch = block_to_arrow(&block)?;
+  //
+  //   Ok(ArrowData {
+  //     total_count: batch.num_rows(),
+  //     preview: serialize_preview(&batch)?,
+  //   })
+  // }
+
+  pub async fn query_stream(&self, window: Window, sql: &str) -> anyhow::Result<()> {
+    let pool = Pool::new(self.get_url());
+    let mut client = pool.get_handle().await?;
+    let mut stream = client.query(sql).stream_blocks();
+
+    while let Some(block) = stream.next().await {
+      let block = block?;
+      let batch = block_to_arrow(&block)?;
+      window
+        .emit(
+          "query-stream",
+          ArrowData {
+            total_count: batch.num_rows(),
+            preview: serialize_preview(&batch)?,
+          },
+        )
+        .unwrap();
+    }
+    Ok(())
+  }
+
   pub async fn query(&self, sql: &str) -> anyhow::Result<ArrowData> {
     let pool = Pool::new(self.get_url());
     let mut client = pool.get_handle().await?;
+    let mut stream = client.query(sql).stream_blocks();
 
-    let block = client.query(sql).fetch_all().await?;
-
-    let batch = block_to_arrow(&block)?;
-
+    let mut batchs = vec![];
+    while let Some(block) = stream.next().await {
+      let block = block?;
+      let batch = block_to_arrow(&block)?;
+      batchs.push(batch);
+    }
+    let b = batchs[0].clone();
+    let schema = b.schema();
+    let batch = arrow::compute::concat_batches(&schema, &batchs)?;
     Ok(ArrowData {
       total_count: batch.num_rows(),
       preview: serialize_preview(&batch)?,
@@ -119,7 +162,7 @@ macro_rules! generate_array {
   };
 }
 
-fn collect_block<'b, T: FromSql<'b>>(block: &'b Block<Complex>, column: &str) -> Vec<T> {
+fn collect_block<'b, T: FromSql<'b>>(block: &'b Block, column: &str) -> Vec<T> {
   (0..block.row_count())
     .map(|i| block.get(i, column).unwrap())
     .collect()
@@ -131,9 +174,9 @@ fn date_to_days(t: &NaiveDate) -> i32 {
 }
 
 fn convert_col(
-  block: &Block<Complex>,
+  block: &Block,
   col_type: &SqlType,
-  col: &Column<Complex>,
+  col: &Column<Simple>,
 ) -> anyhow::Result<(Field, ArrayRef)> {
   let nullable = matches!(col_type, SqlType::Nullable(_));
   let typ = if let SqlType::Nullable(t) = col_type {
@@ -240,22 +283,18 @@ fn convert_col(
   };
   Ok((field, arr))
 }
-fn block_to_arrow(block: &Block<Complex>) -> anyhow::Result<RecordBatch> {
+fn block_to_arrow(block: &Block) -> anyhow::Result<RecordBatch> {
   let mut fields = vec![];
   let mut data = vec![];
   for col in block.columns() {
-    println!("name: {:?}, sql_type: {:?}", col.name(), col.sql_type());
-
     if let Ok((field, arr)) = convert_col(block, &col.sql_type(), col) {
       fields.push(field);
       data.push(arr);
     }
-    println!("=====");
   }
 
   let schema = Schema::new(fields);
   let batch = RecordBatch::try_new(Arc::new(schema), data)?;
-
   Ok(batch)
 }
 

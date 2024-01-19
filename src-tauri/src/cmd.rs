@@ -1,6 +1,7 @@
 use std::sync::Mutex;
 
 use tauri::State;
+use tauri::Window;
 
 use crate::api::ArrowResponse;
 use crate::dialect::clickhouse::ClickhouseDialect;
@@ -35,6 +36,21 @@ pub async fn query(
     api::query(path.as_str(), sql, limit, offset, cwd)
   };
   api::convert(res)
+}
+
+#[derive(Clone, serde::Serialize)]
+struct Payload {
+  message: String,
+}
+#[tauri::command]
+pub async fn query_stream(
+  window: Window,
+  sql: &str,
+  dialect: Option<ClickhouseDialect>,
+) -> anyhow::Result<()> {
+  let d = dialect.unwrap();
+  d.query_stream(window, sql).await;
+  Ok(())
 }
 
 #[tauri::command]
