@@ -1,11 +1,10 @@
+use std::str::{self};
 use std::sync::Arc;
 
 use arrow::array::*;
 use arrow::datatypes::*;
-
 use clickhouse_rs::types::{Complex, SqlType};
 use clickhouse_rs::{types::column::Column, Block, Pool};
-
 use futures_util::StreamExt;
 use serde::{Deserialize, Serialize};
 
@@ -80,28 +79,44 @@ fn convert_type(col_type: &SqlType) -> DataType {
     SqlType::Float32 => DataType::Float32,
     SqlType::Float64 => DataType::Float64,
     SqlType::Date => DataType::Date32,
-    SqlType::DateTime(_) => DataType::Date64,
-    SqlType::Nullable(t) => convert_type(<&SqlType>::clone(t)),
-    SqlType::Decimal(d1, d2) => DataType::Decimal128(*d1, *d2 as i8),
     SqlType::String => DataType::Utf8,
-    // SqlType::Array(t) => DataType::List(convert_type(t)),
-    // SqlType::Map(d1, d2) => DataType::Decimal(d1, d2),
+    SqlType::DateTime(_) => DataType::Date64,
+    SqlType::Nullable(t) => {
+      println!("{}", t);
+      let typ = convert_type(t.clone());
+      println!("{}", typ);
+      DataType::Utf8
+    }
+    SqlType::Decimal(d1, d2) => DataType::Decimal128(*d1, *d2 as i8),
+    SqlType::Array(t) => DataType::List(Arc::new(Field::new("", convert_type(t), false))),
     _ => DataType::Utf8,
   }
 }
 
-fn convert_col(col: &Column<Complex>) -> anyhow::Result<(Field, ArrayRef)> {
-  let col_type = col.sql_type();
-  let field = Field::new(col.name(), convert_type(&col_type), false);
-  let arr: ArrayRef = match col_type {
-    SqlType::UInt8 => {
-      let tmp = col
-        .iter::<u8>()?
+macro_rules! create_array {
+  ($col:expr, $ty:ty, $nav:ty) => {
+    Arc::new(<$ty>::from(
+      $col
+        .iter::<$nav>()?
         .collect::<Vec<_>>()
         .into_iter()
         .copied()
-        .collect::<Vec<_>>();
-      Arc::new(UInt8Array::from(tmp)) as ArrayRef
+        .collect::<Vec<_>>(),
+    )) as ArrayRef
+  };
+}
+
+fn convert_col(col_type: &SqlType, col: &Column<Complex>) -> anyhow::Result<(Field, ArrayRef)> {
+  let nullable = matches!(col_type, SqlType::Nullable(_));
+  let typ = if let SqlType::Nullable(t) = col_type {
+    t.clone()
+  } else {
+    col_type
+  };
+  let field = Field::new(col.name(), convert_type(typ), nullable);
+  let arr: ArrayRef = match typ {
+    SqlType::UInt8 => {
+      create_array!(col, UInt8Array, u8)
     }
     SqlType::UInt16 => Arc::new(UInt16Array::from(
       col
@@ -191,14 +206,6 @@ fn convert_col(col: &Column<Complex>) -> anyhow::Result<(Field, ArrayRef)> {
         .cloned()
         .collect::<Vec<_>>(),
     )) as ArrayRef,
-    SqlType::Nullable(_t) => Arc::new(Float64Array::from(
-      col
-        .iter::<f64>()?
-        .collect::<Vec<_>>()
-        .into_iter()
-        .cloned()
-        .collect::<Vec<_>>(),
-    )) as ArrayRef,
     SqlType::Decimal(_d1, _d2) => Arc::new(Float64Array::from(
       col
         .iter::<f64>()?
@@ -208,13 +215,24 @@ fn convert_col(col: &Column<Complex>) -> anyhow::Result<(Field, ArrayRef)> {
         .collect::<Vec<_>>(),
     )) as ArrayRef,
     _ => {
-      let str_vec: Vec<_> = col.iter::<&[u8]>()?.collect();
-      let strings: Vec<_> = str_vec
-        .iter()
-        .map(|&bytes| String::from_utf8(bytes.to_vec()).unwrap())
-        .collect();
-      let tmp: ArrayRef = Arc::new(StringArray::from(strings));
-      tmp
+      let strings: Vec<_> = if nullable {
+        col
+          .iter::<Option<&[u8]>>()?
+          .filter_map(|s| {
+            if let Some(b) = s {
+              str::from_utf8(b).ok()
+            } else {
+              None
+            }
+          })
+          .collect()
+      } else {
+        col
+          .iter::<&[u8]>()?
+          .filter_map(|s| std::str::from_utf8(s).ok())
+          .collect()
+      };
+      Arc::new(StringArray::from(strings)) as ArrayRef
     }
   };
   Ok((field, arr))
@@ -225,9 +243,11 @@ fn block_to_arrow(block: &Block<Complex>) -> anyhow::Result<RecordBatch> {
   for col in block.columns() {
     println!("name: {:?}, sql_type: {:?}", col.name(), col.sql_type());
 
-    let (field, arr) = convert_col(col)?;
-    fields.push(field);
-    data.push(arr);
+    if let Ok((field, arr)) = convert_col(&col.sql_type(), col) {
+      fields.push(field);
+      data.push(arr);
+    }
+    println!("=====");
   }
 
   let schema = Schema::new(fields);

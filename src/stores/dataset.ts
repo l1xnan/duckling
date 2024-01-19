@@ -179,6 +179,7 @@ export const createDatasetStore = (context: TabContextType) =>
         limit: perPage,
         offset: (page - 1) * perPage,
         cwd: db.cwd,
+        dialect: db?.config,
       });
       set({ ...data });
     },
