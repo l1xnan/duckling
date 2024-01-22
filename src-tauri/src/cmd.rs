@@ -49,7 +49,7 @@ pub async fn query_stream(
   dialect: Option<ClickhouseDialect>,
 ) -> anyhow::Result<()> {
   let d = dialect.unwrap();
-  d.query_stream(window, sql).await;
+  let _ = d.query_stream(window, sql).await;
   Ok(())
 }
 
