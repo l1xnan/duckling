@@ -106,7 +106,6 @@ export default function Editor({
     }
   };
 
-  console.log('sub-tabs:', tab.children.length);
   return (
     <>
       <EditorToolbar onClick={handleClick} />
