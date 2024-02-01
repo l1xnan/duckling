@@ -35,6 +35,15 @@ type ComplationSchemaType = {
   [key: string]: string[];
 };
 
+function createStore(item: Partial<QueryContextType>): QueryContextType {
+  return {
+    page: 1,
+    perPage: 500,
+    totalCount: 0,
+    ...item,
+  } as QueryContextType;
+}
+
 export default function Editor({
   context,
 }: {
@@ -89,12 +98,13 @@ export default function Editor({
 
     const id = `${tab.id}-${nanoid()}`;
     if (action == 'new' || tab.children.length == 0) {
-      const subContext: QueryContextType = {
+      const subContext: QueryContextType = createStore({
         ...tabContext,
         stmt,
         displayName: `Result${(tab?.children?.length ?? 0) + 1}`,
         id,
-      };
+      });
+
       setSubTabs((prev) => [...(prev ?? []), subContext]);
     } else {
       setSubTabs((tabs) =>

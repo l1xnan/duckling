@@ -24,11 +24,14 @@ export type QueryContextType = {
 
   stmt: string;
 
-  page?: number;
-  perPage?: number;
+  page: number;
+  perPage: number;
+  totalCount: number;
 
   data?: unknown[];
   schema?: SchemaType[];
+  message?: string;
+  beautify?: boolean;
 };
 export type EditorContextType = {
   id: string;
