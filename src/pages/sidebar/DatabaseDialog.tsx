@@ -1,10 +1,10 @@
-import DialogContentText from "@mui/material/DialogContentText";
-import TextField from "@mui/material/TextField";
-import { useAtom, useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
+import DialogContentText from '@mui/material/DialogContentText';
+import TextField from '@mui/material/TextField';
+import { useAtom, useAtomValue } from 'jotai';
+import { useEffect, useState } from 'react';
 
-import { DialogBox } from "@/components/DialogBox";
-import { configAtom, dbMapAtom, useDBListStore } from "@/stores/dbList";
+import { DialogBox } from '@/components/DialogBox';
+import { configAtom, dbMapAtom, useDBListStore } from '@/stores/dbList';
 
 export default function DatabaseDialog() {
   const updateCwd = useDBListStore((state) => state.setCwd);
@@ -12,13 +12,13 @@ export default function DatabaseDialog() {
   const dbMap = useAtomValue(dbMapAtom);
 
   const [context, setContext] = useAtom(configAtom);
-  const dbId = context?.dbId ?? "";
+  const dbId = context?.dbId ?? '';
   const db = dbMap.get(dbId);
 
-  const [cwd, setCwd] = useState(db?.cwd ?? "");
+  const [cwd, setCwd] = useState(db?.cwd ?? '');
 
   useEffect(() => {
-    setCwd(db?.cwd ?? "");
+    setCwd(db?.cwd ?? '');
   }, [db?.cwd]);
 
   const handleSubmit = () => {
@@ -34,7 +34,7 @@ export default function DatabaseDialog() {
 
   return (
     <DialogBox
-      title={db?.displayName ?? db?.id ?? ""}
+      title={db?.displayName ?? db?.id ?? ''}
       open={context != null}
       onOk={handleSubmit}
       onCancel={handClose}

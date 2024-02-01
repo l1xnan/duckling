@@ -14,13 +14,12 @@ import {
   Stack,
 } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
-import { PrimitiveAtom, useAtomValue } from 'jotai';
+import { PrimitiveAtom, useAtom } from 'jotai';
 import React, {
   ReactNode,
   Suspense,
   useContext,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -34,7 +33,7 @@ import {
   createDatasetStore,
   usePageStore,
 } from '@/stores/dataset';
-import { QueryContextType, TabContextType } from '@/stores/tabs';
+import { QueryContextType, TabContextType, execute } from '@/stores/tabs';
 import { borderTheme, convertOrderBy, isDarkTheme } from '@/utils';
 
 export interface DatasetProps {
@@ -72,14 +71,17 @@ export function DatasetItem({
 }: {
   context: PrimitiveAtom<QueryContextType>;
 }) {
-  const { data, schema, message, beautify, refresh } = usePageStore();
+  const { message, beautify } = usePageStore();
 
-  const queryContext = useAtomValue(context);
+  const [ctx, setContext] = useAtom(context);
+
   useEffect(() => {
-    refresh(queryContext?.stmt);
-  }, [queryContext?.stmt]);
+    (async () => {
+      const res = (await execute(ctx)) ?? {};
 
-  const dataSources = useMemo(() => data, [data]);
+      setContext((prev) => ({ ...prev, ...res }));
+    })();
+  }, []);
 
   const [open, setOpen] = useState(false);
 
@@ -115,8 +117,8 @@ export function DatasetItem({
           }
         >
           <AgTable
-            data={dataSources ?? []}
-            schema={schema ?? []}
+            data={ctx.data ?? []}
+            schema={ctx.schema ?? []}
             beautify={beautify}
           />
         </Suspense>

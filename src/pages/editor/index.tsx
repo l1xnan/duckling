@@ -87,8 +87,8 @@ export default function Editor({
       return;
     }
 
-    if (action == 'new') {
-      const id = `${tab.id}-${nanoid()}`;
+    const id = `${tab.id}-${nanoid()}`;
+    if (action == 'new' || tab.children.length == 0) {
       const subContext: QueryContextType = {
         ...tabContext,
         stmt,
@@ -96,14 +96,14 @@ export default function Editor({
         id,
       };
       setSubTabs((prev) => [...(prev ?? []), subContext]);
-      setTab((item) => ({ ...item, activeKey: id }));
     } else {
       setSubTabs((tabs) =>
         (tabs ?? []).map((item) =>
-          item.id == tab.activeKey ? { ...item, stmt } : item,
+          item.id == tab.activeKey ? { ...item, stmt, id } : item,
         ),
       );
     }
+    setTab((item) => ({ ...item, activeKey: id }));
   };
 
   return (

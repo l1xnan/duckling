@@ -8,6 +8,12 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
+import { ResultType, query } from '@/api';
+import { genStmt } from '@/utils';
+
+import { SchemaType } from './dataset';
+import { atomStore, dbMapAtom, tablesAtom } from './dbList';
+
 export type QueryContextType = {
   id: string;
   dbId: string;
@@ -17,6 +23,12 @@ export type QueryContextType = {
   displayName: string;
 
   stmt: string;
+
+  page?: number;
+  perPage?: number;
+
+  data?: unknown[];
+  schema?: SchemaType[];
 };
 export type EditorContextType = {
   id: string;
@@ -132,3 +144,59 @@ export const subTabsAtomFamily = atomFamily(
   (item: SubTab) => atom(item),
   (a: Partial<SubTab>, b: Partial<SubTab>) => a.id === b.id,
 );
+
+export async function execute(
+  ctx: QueryContextType,
+): Promise<ResultType | undefined> {
+  const { page = 1, perPage = 500, sqlWhere, orderBy, stmt } = ctx;
+
+  const dbId = ctx?.dbId;
+
+  if (!dbId) {
+    return;
+  }
+
+  const dbMap = atomStore.get(dbMapAtom);
+
+  const db = dbMap.get(dbId);
+  if (!db) {
+    return;
+  }
+
+  let sql = stmt;
+
+  let path = ':memory:';
+  if (db.dialect == 'duckdb') {
+    path = db.data.path;
+  }
+
+  if (!sql) {
+    const tableMap = atomStore.get(tablesAtom);
+    const table = tableMap.get(dbId)?.get(ctx?.tableId ?? '');
+
+    let tableName = table.path;
+    if (table.path.endsWith('.csv')) {
+      tableName = `read_csv_auto('${table.path}')`;
+    } else if (table.path.endsWith('.parquet')) {
+      tableName = `read_parquet('${table.path}')`;
+    }
+    sql = genStmt({
+      tableName,
+      orderBy,
+      where: sqlWhere,
+    });
+  }
+  console.log('query:', path, sql);
+  const data = await query({
+    // dialect: db?.config,
+    ...db?.config,
+    path,
+    sql,
+    limit: perPage,
+    offset: (page - 1) * perPage,
+    cwd: db.cwd ?? path,
+  });
+
+  console.log('data:', data);
+  return data;
+}
