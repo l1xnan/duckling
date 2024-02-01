@@ -124,7 +124,6 @@ function Sidebar() {
                 displayName,
                 id: dbId,
                 type: 'editor',
-                children: [],
               });
             }
             handleClose();
