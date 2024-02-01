@@ -1,6 +1,5 @@
 import { CssBaseline } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { DevTools } from 'jotai-devtools';
 // eslint-disable-next-line import/order
@@ -11,7 +10,6 @@ import Home from './Home';
 import { useSettingStore } from './stores/setting';
 import { ColorModeContext, darkTheme, lightTheme } from './theme';
 
-const queryClient = new QueryClient();
 export const themeAtom = atomWithStorage<ThemeType>('mode', 'light');
 
 type ThemeType = 'light' | 'dark' | 'system';
@@ -63,14 +61,12 @@ function App() {
   return (
     <>
       <DevTools />
-      <QueryClientProvider client={queryClient}>
-        <ColorModeContext.Provider value={colorMode}>
-          <ThemeProvider theme={theme}>
-            <CssBaseline enableColorScheme />
-            <Home />
-          </ThemeProvider>
-        </ColorModeContext.Provider>
-      </QueryClientProvider>
+      <ColorModeContext.Provider value={colorMode}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline enableColorScheme />
+          <Home />
+        </ThemeProvider>
+      </ColorModeContext.Provider>
     </>
   );
 }

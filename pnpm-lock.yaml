@@ -47,9 +47,6 @@ dependencies:
   '@mui/material':
     specifier: ^5.15.1
     version: 5.15.1(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.45)(react-dom@18.2.0)(react@18.2.0)
-  '@mui/x-date-pickers':
-    specifier: ^6.18.5
-    version: 6.18.5(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/material@5.15.1)(@mui/system@5.15.1)(@types/react@18.2.45)(dayjs@1.11.10)(react-dom@18.2.0)(react@18.2.0)
   '@mui/x-tree-view':
     specifier: 6.17.0
     version: 6.17.0(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/material@5.15.1)(@mui/system@5.15.1)(@types/react@18.2.45)(react-dom@18.2.0)(react@18.2.0)
@@ -80,9 +77,6 @@ dependencies:
   '@tabler/icons-react':
     specifier: ^2.44.0
     version: 2.44.0(react@18.2.0)
-  '@tanstack/react-query':
-    specifier: ^5.14.1
-    version: 5.14.1(react@18.2.0)
   '@tanstack/react-table':
     specifier: ^8.11.0
     version: 8.11.0(react-dom@18.2.0)(react@18.2.0)
@@ -1506,14 +1500,14 @@ packages:
       moment-jalaali:
         optional: true
     dependencies:
-      '@babel/runtime': 7.23.4
+      '@babel/runtime': 7.23.6
       '@emotion/react': 11.11.1(@types/react@18.2.45)(react@18.2.0)
       '@emotion/styled': 11.11.0(@emotion/react@11.11.1)(@types/react@18.2.45)(react@18.2.0)
-      '@mui/base': 5.0.0-beta.24(@types/react@18.2.45)(react-dom@18.2.0)(react@18.2.0)
+      '@mui/base': 5.0.0-beta.28(@types/react@18.2.45)(react-dom@18.2.0)(react@18.2.0)
       '@mui/material': 5.15.1(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.45)(react-dom@18.2.0)(react@18.2.0)
       '@mui/system': 5.15.1(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.45)(react@18.2.0)
-      '@mui/utils': 5.14.18(@types/react@18.2.45)(react@18.2.0)
-      '@types/react-transition-group': 4.4.9
+      '@mui/utils': 5.15.1(@types/react@18.2.45)(react@18.2.0)
+      '@types/react-transition-group': 4.4.10
       clsx: 2.0.0
       dayjs: 1.11.10
       prop-types: 15.8.1
@@ -2669,19 +2663,6 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       remove-accents: 0.4.2
-    dev: false
-
-  /@tanstack/query-core@5.14.1:
-    resolution: {integrity: sha512-TlZarySCVEiap4K7BCvrsYZnX7jBbEkR55YMrk8ELcRbuAx6ydL+qoxqUt8Fq8VMvQyGt52icn6T7eJL1Q35KQ==}
-    dev: false
-
-  /@tanstack/react-query@5.14.1(react@18.2.0):
-    resolution: {integrity: sha512-v7jhe/3jhChiR0XJbGHaG5WNPd/cURwzDGBCr4rzpUTeudPzxrtVRKsF1xJRLcJK3qH/0gIwTYHIPZ3gj+01Yw==}
-    peerDependencies:
-      react: ^18.0.0
-    dependencies:
-      '@tanstack/query-core': 5.14.1
-      react: 18.2.0
     dev: false
 
   /@tanstack/react-table@8.10.7(react-dom@18.2.0)(react@18.2.0):

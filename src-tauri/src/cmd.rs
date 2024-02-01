@@ -28,14 +28,24 @@ pub async fn query(
   offset: usize,
   // current working directory
   cwd: Option<String>,
-  dialect: Option<ClickhouseDialect>,
-) -> ArrowResponse {
-  let res = if let Some(d) = dialect {
+  dialect: &str,
+  username: Option<String>,
+  password: Option<String>,
+  host: Option<String>,
+  port: Option<String>,
+) -> Result<ArrowResponse, ()> {
+  let res = if dialect == "clickhouse" {
+    let d = ClickhouseDialect {
+      host: host.unwrap(),
+      port: port.unwrap(),
+      username: username.unwrap_or_default(),
+      password: password.unwrap_or_default(),
+    };
     d.query(&sql).await
   } else {
     api::query(path.as_str(), sql, limit, offset, cwd)
   };
-  api::convert(res)
+  Ok(api::convert(res))
 }
 
 #[derive(Clone, serde::Serialize)]
