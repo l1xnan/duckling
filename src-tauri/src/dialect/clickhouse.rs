@@ -122,6 +122,7 @@ impl ClickhouseDialect {
       preview: serialize_preview(&batch)?,
     })
   }
+  
   pub async fn query(&self, sql: &str) -> anyhow::Result<ArrowData> {
     let pool = Pool::new(self.get_url());
     let mut client = pool.get_handle().await?;
@@ -139,6 +140,50 @@ impl ClickhouseDialect {
     Ok(ArrowData {
       total_count: batch.num_rows(),
       preview: serialize_preview(&batch)?,
+    })
+  }
+
+  pub async fn fetch_many(
+    &self,
+    sql: &str,
+    limit: usize,
+    offset: usize,
+  ) -> anyhow::Result<ArrowData> {
+
+    println!("sql: {}, limit={}, offset={}", sql, limit, offset);
+
+    let pool = Pool::new(self.get_url());
+    let mut client = pool.get_handle().await?;
+    let mut stream = client.query(sql).stream_blocks();
+
+    let mut batchs = vec![];
+
+    let mut offset: usize = offset;
+    let mut row_count = 0;
+    while let Some(block) = stream.next().await {
+      let block = block?;
+      let count = block.row_count();
+      if offset - count >= 0 {
+        offset -= count;
+        continue;
+      }
+      let batch = block_to_arrow(&block)?;
+      batchs.push(batch);
+      row_count += count;
+      if row_count >= limit + offset {
+        break;
+      }
+    }
+    let b = batchs[0].clone();
+    let schema = b.schema();
+    let batch = arrow::compute::concat_batches(&schema, &batchs)?;
+    let total = batch.num_rows();
+
+    let preview = batch.slice(offset, std::cmp::min(limit, total - offset));
+
+    Ok(ArrowData {
+      total_count: preview.num_rows(),
+      preview: serialize_preview(&preview)?,
     })
   }
 }
@@ -313,6 +358,7 @@ fn convert_col(
   };
   Ok((field, arr))
 }
+
 fn block_to_arrow(block: &Block) -> anyhow::Result<RecordBatch> {
   let mut fields = vec![];
   let mut data = vec![];
