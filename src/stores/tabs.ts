@@ -1,5 +1,6 @@
 import { debounce } from '@mui/material';
-import { splitAtom } from 'jotai/utils';
+import { atom } from 'jotai';
+import { atomFamily, splitAtom } from 'jotai/utils';
 // eslint-disable-next-line import/order
 import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
@@ -24,10 +25,6 @@ export type EditorContextType = {
   type?: string;
   extra?: unknown;
   displayName: string;
-
-  activeKey?: string;
-
-  children: QueryContextType[];
 };
 
 export type TableContextType = {
@@ -122,3 +119,16 @@ export const tabsAtom = atomWithStore(useTabsStore);
 export const tabListAtom = focusAtom(tabsAtom, (o) => o.prop('tabs'));
 
 export const tabsAtomsAtom = splitAtom(tabListAtom);
+
+export const queryTabsAtom = atom<Record<string, unknown>>({});
+
+export type SubTab = {
+  id: string;
+  activeKey?: string;
+  children: QueryContextType[];
+};
+
+export const subTabsAtomFamily = atomFamily(
+  (item: SubTab) => atom(item),
+  (a: Partial<SubTab>, b: Partial<SubTab>) => a.id === b.id,
+);

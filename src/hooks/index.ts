@@ -16,9 +16,7 @@ export const useResize = (
 
   const callback = (size: number) => {
     setSize(size);
-    if (cb) {
-      cb(size);
-    }
+    cb?.(size);
   };
 
   const onMouseDownHandler: MouseEventHandler<HTMLElement> = (e) => {
