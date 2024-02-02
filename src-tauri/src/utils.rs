@@ -53,13 +53,13 @@ pub fn build_tree(tables: Vec<Table>) -> Vec<TreeNode> {
       children: Some(vec![
         TreeNode {
           name: "tables".to_string(),
-          path: "tables".to_string(),
+          path: format!("{key}-tables"),
           node_type: "path".to_string(),
           children: Some(tables_children),
         },
         TreeNode {
           name: "views".to_string(),
-          path: "views".to_string(),
+          path: format!("{key}-views"),
           node_type: "path".to_string(),
           children: Some(views_children),
         },
