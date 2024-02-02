@@ -45,7 +45,7 @@
     "@uiw/codemirror-themes-all": "^4.21.21",
     "@uiw/react-codemirror": "^4.21.21",
     "ag-grid-community": "^31.0.1",
-    "ag-grid-react": "^31.0.1",
+    "ag-grid-react": "^31.0.3",
     "ahooks": "^3.7.8",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
