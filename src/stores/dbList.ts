@@ -1,6 +1,5 @@
 import { atom, createStore } from 'jotai';
 import { splitAtom } from 'jotai/utils';
-// eslint-disable-next-line import/order
 import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
 import { create } from 'zustand';
@@ -180,11 +179,9 @@ export const dbAtomsAtom = splitAtom(dbListAtom);
 
 export const selectedNodeAtom = atom<NodeContextType | null>(null);
 
-export const contextMenuAtom = atom<ContextMenuType | null>(null);
-
 // db rename
-export const renameAtom = atom<NodeContextType | null>(null);
+export const renameAtom = atom<DBType | null>(null);
 // db setting
-export const configAtom = atom<NodeContextType | null>(null);
+export const configAtom = atom<DBType | null>(null);
 
 export const atomStore = createStore();

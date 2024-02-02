@@ -1,15 +1,12 @@
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 
 import Dialog from '@/components/custom/Dialog';
 import { Button } from '@/components/ui/button';
 import {
   DialogClose,
-  DialogContent,
   DialogDescription,
   DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog';
 import {
   Form,
@@ -19,12 +16,7 @@ import {
   FormLabel,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  FolderConfig,
-  configAtom,
-  dbMapAtom,
-  useDBListStore,
-} from '@/stores/dbList';
+import { FolderConfig, configAtom, useDBListStore } from '@/stores/dbList';
 
 type ConfigFormType = {
   cwd: string;
@@ -33,16 +25,10 @@ type ConfigFormType = {
 export default function ConfigDialog() {
   const updateCwd = useDBListStore((state) => state.setCwd);
 
-  const dbMap = useAtomValue(dbMapAtom);
-
-  const [context, setContext] = useAtom(configAtom);
-  const dbId = context?.dbId ?? '';
-  const db = dbMap.get(dbId);
+  const [db, setContext] = useAtom(configAtom);
 
   const handleSubmit = ({ cwd }: ConfigFormType) => {
-    if (dbId) {
-      updateCwd(cwd, dbId);
-    }
+    updateCwd(cwd, db!.id);
     handClose();
   };
 
@@ -55,7 +41,7 @@ export default function ConfigDialog() {
 
   return (
     <Dialog
-      open={context != null}
+      open={db != null}
       onOpenChange={handClose}
       title={db?.displayName ?? db?.id ?? ''}
     >

@@ -1,4 +1,4 @@
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 
 import Dialog from '@/components/custom/Dialog';
@@ -12,25 +12,20 @@ import {
   FormLabel,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { dbMapAtom, renameAtom, useDBListStore } from '@/stores/dbList';
+import { renameAtom, useDBListStore } from '@/stores/dbList';
 
 // rename db
 export default function RenameDialog() {
   const rename = useDBListStore((s) => s.rename);
-  const dbMap = useAtomValue(dbMapAtom);
 
-  const [context, setContext] = useAtom(renameAtom);
-  const dbId = context?.dbId ?? '';
-  const db = dbMap.get(dbId);
+  const [db, setContext] = useAtom(renameAtom);
 
   const handClose = () => {
     setContext(null);
   };
 
   const handleSubmit = ({ name }: { name: string }) => {
-    if (dbId && name) {
-      rename(dbId, name);
-    }
+    rename(db!.id, name);
     handClose();
   };
 
@@ -38,7 +33,7 @@ export default function RenameDialog() {
     defaultValues: { name: db?.displayName },
   });
   return (
-    <Dialog open={context != null} onOpenChange={handClose} title="Rename">
+    <Dialog open={db != null} onOpenChange={handClose} title="Rename">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
           <FormField

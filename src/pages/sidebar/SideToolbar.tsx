@@ -12,11 +12,12 @@ import { getDB } from '@/api';
 import { MuiIconButton } from '@/components/MuiIconButton';
 import ToggleColorMode from '@/components/ToggleColorMode';
 import { ToolbarBox } from '@/components/Toolbar';
-import { DatabaseDialog } from '@/pages/sidebar/DatabaseDialog';
 import Setting from '@/pages/settings/AppSetting';
+import { DatabaseDialog } from '@/pages/sidebar/DatabaseDialog';
 import {
   DialectType,
   configAtom,
+  dbMapAtom,
   selectedNodeAtom,
   useDBListStore,
 } from '@/stores/dbList';
@@ -37,13 +38,14 @@ export function SideToolbar() {
   }
 
   const selectedNode = useAtomValue(selectedNodeAtom);
+  const dbMap = useAtomValue(dbMapAtom);
 
   const handleOpen = () => {
     if (selectedNode) {
-      setConfigContext({
-        dbId: selectedNode.dbId,
-        tableId: selectedNode.tableId,
-      });
+      const db = dbMap.get(selectedNode.dbId);
+      if (db) {
+        setConfigContext(db);
+      }
     }
   };
 

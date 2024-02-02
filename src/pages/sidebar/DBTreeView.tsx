@@ -17,16 +17,11 @@ import { useAtom } from 'jotai';
 import { useState } from 'react';
 
 import { ClickhouseIcon, DuckdbIcon } from '@/components/custom/Icons';
-import {
-  DBType,
-  NodeContextType,
-  contextMenuAtom,
-  selectedNodeAtom,
-  useDBListStore,
-} from '@/stores/dbList';
+import { DBType, selectedNodeAtom, useDBListStore } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { TreeNode } from '@/types';
 
+import { DBContextMenu } from './DBContextMenu';
 import { DBTreeItem, TreeItemLabel } from './DBTreeItem';
 
 export const getTypeIcon = (type: string, expanded: boolean) => {
@@ -74,58 +69,30 @@ export default function DBTreeView({ db, ...rest }: DBTreeViewProps) {
   const updateTab = useTabsStore((state) => state.update);
   const dbTableMap = useDBListStore((state) => state.tables);
 
-  const [contextMenu, setContextMenu] = useAtom(contextMenuAtom);
-
-  const handleContextMenu = (
-    event: React.MouseEvent,
-    context: NodeContextType,
-  ) => {
-    setContextMenu(
-      contextMenu === null
-        ? {
-            mouseX: event.clientX + 2,
-            mouseY: event.clientY - 6,
-            context,
-          }
-        : null,
+  const renderTree = (node: TreeNode, isRoot = false) => {
+    const label = (
+      <TreeItemLabel
+        nodeId={node.path}
+        node={isRoot ? { ...node, name: db.displayName ?? node.name } : node}
+        icon={
+          isRoot && ['clickhouse', 'duckdb'].indexOf(db.dialect) > -1
+            ? db.dialect
+            : node.type ?? 'file'
+        }
+      />
+    );
+    return (
+      <DBTreeItem
+        key={node.path}
+        nodeId={node.path}
+        label={isRoot ? <DBContextMenu db={db}>{label}</DBContextMenu> : label}
+      >
+        {Array.isArray(node.children) && node.children.length > 0
+          ? node.children.map((node) => renderTree(node))
+          : null}
+      </DBTreeItem>
     );
   };
-
-  const renderTree = (node: TreeNode, isRoot = false) => (
-    <DBTreeItem
-      key={node.path}
-      nodeId={node.path}
-      onContextMenu={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        const context = {
-          dbId: db.id,
-          tableId: node.path,
-          id: `${db.id}:${node.path}`,
-        };
-        // root path context menu
-        if (node.path == db.data.path) {
-          handleContextMenu(event, context);
-        }
-        // TODO: other
-      }}
-      label={
-        <TreeItemLabel
-          nodeId={node.path}
-          node={isRoot ? { ...node, name: db.displayName ?? node.name } : node}
-          icon={
-            isRoot && ['clickhouse', 'duckdb'].indexOf(db.dialect) > -1
-              ? db.dialect
-              : node.type ?? 'file'
-          }
-        />
-      }
-    >
-      {Array.isArray(node.children) && node.children.length > 0
-        ? node.children.map((node) => renderTree(node))
-        : null}
-    </DBTreeItem>
-  );
 
   const [expanded, setExpanded] = useState<string[]>([]);
   const handleToggle = (_: React.SyntheticEvent, nodeIds: string[]) => {

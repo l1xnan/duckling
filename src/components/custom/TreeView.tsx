@@ -278,4 +278,3 @@ const AccordionContent = React.forwardRef<
 AccordionContent.displayName = AccordionPrimitive.Content.displayName;
 
 export { Tree, type TreeDataItem };
-
