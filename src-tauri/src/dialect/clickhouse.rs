@@ -158,11 +158,11 @@ impl ClickhouseDialect {
 
     let mut offset = offset;
     let mut row_count = 0;
-    let mut total = 0;
+    let mut total_count = 0;
     while let Some(block) = stream.next().await {
       let block = block?;
       let count = block.row_count();
-      total += count;
+      total_count += count;
       if (offset as i64 - count as i64) >= 0 {
         offset -= count;
         continue;
@@ -182,7 +182,7 @@ impl ClickhouseDialect {
     let preview = batch.slice(offset, std::cmp::min(limit, total - offset));
 
     Ok(ArrowData {
-      total_count: total,
+      total_count,
       preview: serialize_preview(&preview)?,
     })
   }
