@@ -7,25 +7,26 @@ import { QueryContextType } from '@/stores/tabs';
 import DatasetItem, { PageProvider } from './DatasetItem';
 
 export interface QueryTabsProps {
-  subTabsAtom: PrimitiveAtom<QueryContextType[]>;
+  tabsAtom: PrimitiveAtom<QueryContextType[]>;
   activeKey?: string;
   setActiveKey: (key?: string) => void;
 }
 
 export function QueryTabs({
-  subTabsAtom,
+  tabsAtom,
   activeKey,
   setActiveKey,
 }: QueryTabsProps) {
-  const subTabsAtomsAtom = splitAtom(subTabsAtom);
-  const subTabsAtoms = useAtomValue(subTabsAtomsAtom);
-  const [subTabs, setSubTabs] = useAtom(subTabsAtom);
+  const tabsAtomsAtom = splitAtom(tabsAtom);
+  const tabsAtoms = useAtomValue(tabsAtomsAtom);
+  const [tabs, setTabs] = useAtom(tabsAtom);
+
   const items =
-    subTabsAtoms?.map((subTabAtom, i) => {
-      const tab = subTabs[i];
+    tabsAtoms?.map((tabAtom, i) => {
+      const tab = tabs[i];
       const children = (
         <PageProvider table={tab}>
-          <DatasetItem context={subTabAtom} />
+          <DatasetItem context={tabAtom} />
         </PageProvider>
       );
 
@@ -35,21 +36,22 @@ export function QueryTabs({
   const handleChange = (val: string) => {
     setActiveKey(val);
   };
-  const handleRemove = (key: string) => {
-    setSubTabs((prev) => prev.filter((item) => item.id != key));
 
-    const delIndex = subTabs.findIndex(({ id }) => id === key);
+  const handleRemove = (key: string) => {
+    setTabs((prev) => prev.filter((item) => item.id != key));
+
+    const delIndex = tabs.findIndex(({ id }) => id === key);
 
     if (key == activeKey) {
       const newActiveKey =
-        subTabs[delIndex - 1]?.id || subTabs[delIndex + 1]?.id || undefined;
+        tabs[delIndex - 1]?.id || tabs[delIndex + 1]?.id || undefined;
       setActiveKey(newActiveKey);
     }
   };
   return (
     <PageTabs
       items={items}
-      activeKey={activeKey ?? subTabs[0]?.id ?? ''}
+      activeKey={activeKey ?? tabs[0]?.id ?? ''}
       onChange={handleChange}
       onRemove={handleRemove}
     />

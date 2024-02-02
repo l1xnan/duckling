@@ -1,20 +1,21 @@
 import { CssBaseline } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useLocalStorageState } from 'ahooks';
+import { useAtom } from 'jotai';
 import { DevTools } from 'jotai-devtools';
+// eslint-disable-next-line import/order
+import { atomWithStorage } from 'jotai/utils';
 import { useEffect, useMemo } from 'react';
 
 import Home from './Home';
 import { useSettingStore } from './stores/setting';
 import { ColorModeContext, darkTheme, lightTheme } from './theme';
 
-const queryClient = new QueryClient();
+export const themeAtom = atomWithStorage<ThemeType>('mode', 'light');
+
+type ThemeType = 'light' | 'dark' | 'system';
 
 function App() {
-  const [mode, setMode] = useLocalStorageState<'light' | 'dark'>('mode', {
-    defaultValue: 'light',
-  });
+  const [themeMode, setMode] = useAtom(themeAtom);
   const colorMode = useMemo(
     () => ({
       toggleColorMode: () => {
@@ -25,12 +26,28 @@ function App() {
   );
 
   const theme = useMemo(
-    () => (mode == 'dark' ? darkTheme : lightTheme),
-    [mode],
+    () => (themeMode == 'dark' ? darkTheme : lightTheme),
+    [themeMode],
   );
 
   const table_font_family = useSettingStore((state) => state.table_font_family);
+  useEffect(() => {
+    const root = window.document.documentElement;
 
+    root.classList.remove('light', 'dark');
+
+    if (themeMode === 'system') {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
+        .matches
+        ? 'dark'
+        : 'light';
+
+      root.classList.add(systemTheme);
+      return;
+    }
+
+    root.classList.add(themeMode);
+  }, [themeMode]);
   useEffect(() => {
     const rootElement = document.documentElement;
 
@@ -44,14 +61,12 @@ function App() {
   return (
     <>
       <DevTools />
-      <QueryClientProvider client={queryClient}>
-        <ColorModeContext.Provider value={colorMode}>
-          <ThemeProvider theme={theme}>
-            <CssBaseline enableColorScheme />
-            <Home />
-          </ThemeProvider>
-        </ColorModeContext.Provider>
-      </QueryClientProvider>
+      <ColorModeContext.Provider value={colorMode}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline enableColorScheme />
+          <Home />
+        </ThemeProvider>
+      </ColorModeContext.Provider>
     </>
   );
 }

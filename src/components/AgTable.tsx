@@ -16,7 +16,9 @@ interface TableProps<T = unknown> {
   beautify?: boolean;
 }
 
-function columnWiths(name: string, row: any) {
+type RowType = Record<string, unknown>;
+
+function columnWiths(name: string, row: RowType) {
   return Math.min(
     Math.max(
       getByteLength(name),
@@ -53,9 +55,9 @@ export const AgTable = ({ data, schema, beautify }: TableProps) => {
       agColumnHeader: HeaderCell,
     };
   }, []);
-  const row0 = data?.[0] ?? {};
-  const columnDefs = useMemo<any[]>(() => {
-    const main: any[] =
+  const row0 = (data?.[0] ?? {}) as RowType;
+  const columnDefs = useMemo<RowType[]>(() => {
+    const main: RowType[] =
       schema?.map(({ name, dataType }) => {
         return {
           headerName: name,

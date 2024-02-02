@@ -1,11 +1,11 @@
-import { Theme } from '@mui/material';
+import { Theme } from "@mui/material";
 
-import { OrderByType, StmtType } from './stores/dataset';
+import { OrderByType, StmtType } from "./stores/dataset";
 
-export const isDarkTheme = (theme: Theme) => theme.palette.mode === 'dark';
+export const isDarkTheme = (theme: Theme) => theme.palette.mode === "dark";
 
 export const borderTheme = (theme: Theme) =>
-  isDarkTheme(theme) ? '1px solid #393b40' : '1px solid #ebecf0';
+  isDarkTheme(theme) ? "1px solid #393b40" : "1px solid #ebecf0";
 
 export function getByteLength(str: string) {
   let length = 0;
@@ -18,7 +18,7 @@ export function convertOrderBy({ name, desc }: OrderByType) {
   if (!name) {
     return undefined;
   }
-  return `${name} ${desc ? 'DESC' : ''}`;
+  return `${name} ${desc ? "DESC" : ""}`;
 }
 export function genStmt({ tableName, orderBy, where }: StmtType) {
   let stmt = `select * from ${tableName}`;

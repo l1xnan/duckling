@@ -1,3 +1,4 @@
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { TreeView, TreeViewProps } from '@mui/x-tree-view/TreeView';
@@ -35,11 +36,11 @@ export const getTypeIcon = (type: string, expanded: boolean) => {
   if (type == 'path' && !expanded) {
     return <IconFolder />;
   }
-  if (type == 'duckdb') {
+  if (type == 'root') {
     return <IconDatabase />;
   }
   if (type == 'database') {
-    return <IconDatabase />;
+    return <AccountTreeIcon />;
   }
   if (type == 'table') {
     return <IconTable />;
@@ -138,7 +139,7 @@ export default function DBTreeView({ db, ...rest }: DBTreeViewProps) {
 
         setSelectedNode(nodeContext);
 
-        const noDataTypes = ['path', 'database'];
+        const noDataTypes = ['path', 'database', 'root'];
         if (node && !noDataTypes.includes(node.type ?? '')) {
           const item: TableContextType = {
             ...nodeContext,

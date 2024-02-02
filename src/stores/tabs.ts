@@ -1,11 +1,18 @@
 import { debounce } from '@mui/material';
-import { splitAtom } from 'jotai/utils';
+import { atom } from 'jotai';
+import { atomFamily, splitAtom } from 'jotai/utils';
 // eslint-disable-next-line import/order
 import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
+
+import { ResultType, query } from '@/api';
+import { genStmt } from '@/utils';
+
+import { SchemaType } from './dataset';
+import { atomStore, dbMapAtom, tablesAtom } from './dbList';
 
 export type QueryContextType = {
   id: string;
@@ -16,6 +23,15 @@ export type QueryContextType = {
   displayName: string;
 
   stmt: string;
+
+  page: number;
+  perPage: number;
+  totalCount: number;
+
+  data?: unknown[];
+  schema?: SchemaType[];
+  message?: string;
+  beautify?: boolean;
 };
 export type EditorContextType = {
   id: string;
@@ -24,10 +40,6 @@ export type EditorContextType = {
   type?: string;
   extra?: unknown;
   displayName: string;
-
-  activeKey?: string;
-
-  children: QueryContextType[];
 };
 
 export type TableContextType = {
@@ -122,3 +134,64 @@ export const tabsAtom = atomWithStore(useTabsStore);
 export const tabListAtom = focusAtom(tabsAtom, (o) => o.prop('tabs'));
 
 export const tabsAtomsAtom = splitAtom(tabListAtom);
+
+export const queryTabsAtom = atom<Record<string, unknown>>({});
+
+export type SubTab = {
+  id: string;
+  activeKey?: string;
+  children: QueryContextType[];
+};
+
+export const subTabsAtomFamily = atomFamily(
+  (item: SubTab) => atom(item),
+  (a: Partial<SubTab>, b: Partial<SubTab>) => a.id === b.id,
+);
+
+export async function execute(
+  ctx: QueryContextType,
+): Promise<ResultType | undefined> {
+  const { page = 1, perPage = 500, sqlWhere, orderBy, stmt } = ctx;
+
+  const dbId = ctx?.dbId;
+
+  if (!dbId) {
+    return;
+  }
+
+  const dbMap = atomStore.get(dbMapAtom);
+
+  const db = dbMap.get(dbId);
+  if (!db) {
+    return;
+  }
+
+  let sql = stmt;
+
+  if (!sql) {
+    const tableMap = atomStore.get(tablesAtom);
+    const table = tableMap.get(dbId)?.get(ctx?.tableId ?? '');
+
+    let tableName = table.path;
+    if (table.path.endsWith('.csv')) {
+      tableName = `read_csv_auto('${table.path}')`;
+    } else if (table.path.endsWith('.parquet')) {
+      tableName = `read_parquet('${table.path}')`;
+    }
+    sql = genStmt({
+      tableName,
+      orderBy,
+      where: sqlWhere,
+    });
+  }
+  console.log('query:', sql);
+  const data = await query({
+    dialect: db?.config,
+    sql,
+    limit: perPage,
+    offset: (page - 1) * perPage,
+  });
+
+  console.log('data:', data);
+  return data;
+}

@@ -1,29 +1,36 @@
-use std::path::{Path, PathBuf};
+use std::env::{current_dir, set_current_dir};
 
-use duckdb::{params, Connection};
+use async_trait::async_trait;
+use duckdb::Connection;
 
-use crate::dialect::sql;
+use crate::api;
+use crate::api::{serialize_preview, ArrowData};
 use crate::dialect::{Dialect, TreeNode};
-use crate::utils::get_file_name;
+use crate::utils::{build_tree, get_file_name, Table};
 
 #[derive(Debug, Default)]
 pub struct DuckDbDialect {
   pub path: String,
+  pub cwd: Option<String>,
 }
 
-struct Table {
-  table_name: String,
-  table_type: String,
-  table_schema: String,
-}
-
+#[async_trait]
 impl Dialect for DuckDbDialect {
-  fn get_db(&self) -> Option<TreeNode> {
-    if let Ok(tree) = get_db(&self.path) {
-      Some(tree)
+  async fn get_db(&self) -> Option<TreeNode> {
+    if let Ok(tables) = get_tables(&self.path) {
+      Some(TreeNode {
+        name: get_file_name(&self.path),
+        path: self.path.clone(),
+        node_type: "root".to_string(),
+        children: Some(build_tree(tables)),
+      })
     } else {
       None
     }
+  }
+
+  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
+    api::query(&self.path, sql, limit, offset, self.cwd.clone())
   }
 }
 
@@ -35,12 +42,16 @@ impl DuckDbDialect {
       vec![]
     }
   }
+
+  fn connect(&self) -> anyhow::Result<Connection> {
+    Ok(Connection::open(&self.path)?)
+  }
 }
 
-pub fn get_tables(path: &str) -> duckdb::Result<Vec<Table>> {
+pub fn get_tables(path: &str) -> anyhow::Result<Vec<Table>> {
   let db = Connection::open(path)?;
   let sql = r#"
-  select table_name, table_type, table_schema
+  select table_name, table_type, table_schema, if(table_type='VIEW', 'view', 'table') as type
   from information_schema.tables order by table_type, table_name
   "#;
   let mut stmt = db.prepare(sql)?;
@@ -50,6 +61,7 @@ pub fn get_tables(path: &str) -> duckdb::Result<Vec<Table>> {
       table_name: row.get(0)?,
       table_type: row.get(1)?,
       table_schema: row.get(2)?,
+      r#type: row.get(3)?,
     })
   })?;
 
@@ -58,48 +70,4 @@ pub fn get_tables(path: &str) -> duckdb::Result<Vec<Table>> {
     tables.push(row?);
   }
   Ok(tables)
-}
-
-pub fn get_db(path: &str) -> duckdb::Result<TreeNode> {
-  let tables = get_tables(path)?;
-
-  let mut views_children = vec![];
-  let mut tables_children = vec![];
-
-  for t in tables {
-    let node = TreeNode {
-      name: t.table_name.clone(),
-      path: t.table_name.clone(),
-      node_type: String::from(if t.table_type == "VIEW" {
-        "view"
-      } else {
-        "table"
-      }),
-      children: None,
-    };
-    if t.table_type == "VIEW" {
-      views_children.push(node);
-    } else {
-      tables_children.push(node);
-    }
-  }
-  Ok(TreeNode {
-    name: get_file_name(path),
-    path: path.to_string(),
-    node_type: "database".to_string(),
-    children: Some(vec![
-      TreeNode {
-        name: "tables".to_string(),
-        path: "tables".to_string(),
-        node_type: "path".to_string(),
-        children: Some(tables_children),
-      },
-      TreeNode {
-        name: "views".to_string(),
-        path: "views".to_string(),
-        node_type: "path".to_string(),
-        children: Some(views_children),
-      },
-    ]),
-  })
 }

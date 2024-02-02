@@ -1,5 +1,5 @@
-use std::path::Path;
-use std::{fs, path::PathBuf};
+use async_trait::async_trait;
+use std::path::PathBuf;
 
 use crate::dialect::{Dialect, TreeNode};
 use crate::utils::get_file_name;
@@ -9,8 +9,9 @@ pub struct FileDialect {
   pub path: String,
 }
 
+#[async_trait]
 impl Dialect for FileDialect {
-  fn get_db(&self) -> Option<TreeNode> {
+  async fn get_db(&self) -> Option<TreeNode> {
     let path = PathBuf::from(self.path.as_str());
 
     Some(TreeNode {

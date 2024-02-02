@@ -1,10 +1,34 @@
-import DialogContentText from '@mui/material/DialogContentText';
-import TextField from '@mui/material/TextField';
 import { useAtom, useAtomValue } from 'jotai';
-import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
-import { DialogBox } from '@/components/DialogBox';
-import { configAtom, dbMapAtom, useDBListStore } from '@/stores/dbList';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import {
+  FolderConfig,
+  configAtom,
+  dbMapAtom,
+  useDBListStore,
+} from '@/stores/dbList';
+
+type ConfigFormType = {
+  cwd: string;
+};
 
 export default function ConfigDialog() {
   const updateCwd = useDBListStore((state) => state.setCwd);
@@ -15,13 +39,7 @@ export default function ConfigDialog() {
   const dbId = context?.dbId ?? '';
   const db = dbMap.get(dbId);
 
-  const [cwd, setCwd] = useState(db?.cwd ?? '');
-
-  useEffect(() => {
-    setCwd(db?.cwd ?? '');
-  }, [db?.cwd]);
-
-  const handleSubmit = () => {
+  const handleSubmit = ({ cwd }: ConfigFormType) => {
     if (dbId) {
       updateCwd(cwd, dbId);
     }
@@ -31,30 +49,53 @@ export default function ConfigDialog() {
   const handClose = () => {
     setContext(null);
   };
+  const form = useForm<{ cwd: string }>({
+    defaultValues: { cwd: (db?.config as FolderConfig)?.cwd ?? '' },
+  });
 
   return (
-    <DialogBox
-      title={db?.displayName ?? db?.id ?? ''}
-      open={context != null}
-      onOk={handleSubmit}
-      onCancel={handClose}
-    >
-      <DialogContentText>
-        Set working directory for the read parquet relative path
-      </DialogContentText>
-      <TextField
-        autoFocus
-        margin="dense"
-        id="cwd"
-        label="Working Directory"
-        type="text"
-        fullWidth
-        variant="standard"
-        value={cwd}
-        onChange={(e) => {
-          setCwd(e.target.value);
+    <Dialog open={context != null} onOpenChange={handClose}>
+      <DialogContent
+        className="min-w-[600px]"
+        onInteractOutside={(e) => {
+          e.preventDefault();
         }}
-      />
-    </DialogBox>
+      >
+        <DialogHeader>
+          <DialogTitle>{db?.displayName ?? db?.id ?? ''}</DialogTitle>
+        </DialogHeader>
+
+        <DialogDescription>
+          Set working directory for the read parquet relative path
+        </DialogDescription>
+
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-8"
+          >
+            <FormField
+              control={form.control}
+              name="cwd"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Working Directory</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="secondary">Cancel</Button>
+              </DialogClose>
+              <Button type="submit">Ok</Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }

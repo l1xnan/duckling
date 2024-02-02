@@ -10,9 +10,8 @@ import { useEffect } from 'react';
 
 import { ContextMenu, ContextMenuItem } from '@/components/ContextMenu';
 import ConfigDialog from '@/pages/sidebar/ConfigDialog';
-import DBTreeView from '@/pages/sidebar/DBTreeView';
 import RenameDialog from '@/pages/sidebar/RenameDialog';
-import { SideToolbar } from '@/pages/sidebar/SideToolbar';
+import { SideToolbar, openCreateAtom } from '@/pages/sidebar/SideToolbar';
 import {
   configAtom,
   contextMenuAtom,
@@ -22,6 +21,8 @@ import {
   useDBListStore,
 } from '@/stores/dbList';
 import { useTabsStore } from '@/stores/tabs';
+
+import DBTreeView from './DBTreeView';
 
 const TreeViewWrapper = styled(Box)<BoxProps>(() => ({
   width: '100%',
@@ -64,14 +65,20 @@ function Sidebar() {
     setContextMenu(null);
   };
 
+  const openCreate = useAtomValue(openCreateAtom);
+  console.log(openCreate);
   return (
     <>
       <SideToolbar />
+
       <TreeViewWrapper>
         {dbList.map((db, _i) => {
           return <DBTreeView key={db.id} db={db} />;
         })}
       </TreeViewWrapper>
+      {/* <TreeViewWrapper>
+        <IndexPage data={dbList.map((db) => db.data)} />
+      </TreeViewWrapper> */}
 
       {/* ---------- modal/dialog ---------- */}
 
@@ -117,7 +124,6 @@ function Sidebar() {
                 displayName,
                 id: dbId,
                 type: 'editor',
-                children: [],
               });
             }
             handleClose();
@@ -144,6 +150,7 @@ function Sidebar() {
       {renameContext !== null ? <RenameDialog /> : null}
       {/* db config */}
       {configContext !== null ? <ConfigDialog /> : null}
+      {/* {openCreate ? <DatabaseDialog /> : null} */}
     </>
   );
 }

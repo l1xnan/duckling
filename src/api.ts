@@ -2,7 +2,7 @@ import { Table, tableFromIPC } from '@apache-arrow/ts';
 import { invoke } from '@tauri-apps/api/primitives';
 import { nanoid } from 'nanoid';
 
-import { DBType, DialectType } from '@/stores/dbList';
+import { DBType, DialectConfig } from '@/stores/dbList';
 
 import { ArrowResponse, SchemaType } from './stores/dataset';
 import { TreeNode } from './types';
@@ -75,11 +75,10 @@ export async function showTables(path?: string): Promise<DBInfoType> {
 }
 
 export type QueryParams = {
-  path: string;
   sql: string;
   limit: number;
   offset: number;
-  cwd?: string;
+  dialect?: DialectConfig;
 };
 
 export async function query(params: QueryParams): Promise<ResultType> {
@@ -103,17 +102,14 @@ export async function read_parquet(
   return convert(res);
 }
 
-type GetDBOptionType = {
-  url: string;
-  dialect: DialectType;
-};
-
-export async function getDB(option: GetDBOptionType): Promise<DBType> {
+export async function getDB(option: DialectConfig): Promise<DBType> {
   const tree: TreeNode = await invoke('get_db', option);
+  console.log('tree:', tree);
   return {
     id: nanoid(),
     dialect: option.dialect,
     data: tree,
+    config: option,
     displayName: tree.name,
   };
 }

@@ -1,6 +1,6 @@
 import { OnChange, OnMount } from '@monaco-editor/react';
 import { Box } from '@mui/material';
-import { PrimitiveAtom, useAtomValue, useSetAtom } from 'jotai';
+import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { nanoid } from 'nanoid';
 import { useEffect, useRef } from 'react';
@@ -9,6 +9,7 @@ import { showTables } from '@/api';
 import {
   EditorContextType,
   QueryContextType,
+  subTabsAtomFamily,
   useTabsStore,
 } from '@/stores/tabs';
 
@@ -34,23 +35,37 @@ type ComplationSchemaType = {
   [key: string]: string[];
 };
 
+function createStore(item: Partial<QueryContextType>): QueryContextType {
+  return {
+    page: 1,
+    perPage: 500,
+    totalCount: 0,
+    ...item,
+  } as QueryContextType;
+}
+
 export default function Editor({
   context,
 }: {
   context: PrimitiveAtom<EditorContextType>;
 }) {
   const tabContext = useAtomValue(context);
-  const id = tabContext.id;
-  const extra = tabContext.extra;
-  const subTabsAtom = focusAtom(context, (o) => o.prop('children'));
-  const activeKeyAtom = focusAtom(context, (o) => o.prop('activeKey'));
-  const setTabs = useSetAtom(subTabsAtom);
-  const setActiveKey = useSetAtom(activeKeyAtom);
-
   const setStmt = useTabsStore((state) => state.setStmt);
   const docs = useTabsStore((state) => state.docs);
+
+  const id = tabContext.id;
+
+  const tabAtom = subTabsAtomFamily({ id, children: [] });
+
+  const [tab, setTab] = useAtom(tabAtom);
+
+  const subTabsAtom = focusAtom(tabAtom, (o) => o.prop('children'));
+
+  const setSubTabs = useSetAtom(subTabsAtom);
+
   const stmt = docs[id] ?? '';
   useEffect(() => {
+    const extra = tabContext.extra;
     if (extra) {
       setStmt(id, `${stmt}\n${extra}`);
     }
@@ -62,6 +77,9 @@ export default function Editor({
     setStmt(id, value ?? '');
   };
 
+  const setActiveKey = (key?: string) => {
+    setTab((item) => ({ ...item, activeKey: key }));
+  };
   const handleClick = async (action?: string) => {
     const editor = ref.current;
     if (!editor) {
@@ -78,43 +96,36 @@ export default function Editor({
       return;
     }
 
-    const { children: _, ...rest } = tabContext;
-    if (action == 'new') {
-      const id = `${rest.id}-${nanoid()}`;
-      const subContext: QueryContextType = {
-        ...rest,
+    const id = `${tab.id}-${nanoid()}`;
+    if (action == 'new' || tab.children.length == 0) {
+      const subContext: QueryContextType = createStore({
+        ...tabContext,
         stmt,
-        displayName: `Result${tabContext.children.length + 1}`,
+        displayName: `Result${(tab?.children?.length ?? 0) + 1}`,
         id,
-      };
-      setTabs((prev) => [...prev, subContext]);
-      setActiveKey(id);
+      });
+
+      setSubTabs((prev) => [...(prev ?? []), subContext]);
     } else {
-      setTabs((tabs) =>
-        tabs.map((tab) =>
-          tab.id == tabContext.activeKey
-            ? {
-                ...tab,
-                stmt,
-              }
-            : tab,
+      setSubTabs((tabs) =>
+        (tabs ?? []).map((item) =>
+          item.id == tab.activeKey ? { ...item, stmt, id } : item,
         ),
       );
     }
+    setTab((item) => ({ ...item, activeKey: id }));
   };
 
   return (
     <>
       <EditorToolbar onClick={handleClick} />
-      <VerticalContainer
-        bottom={tabContext?.children?.length > 0 ? 300 : undefined}
-      >
+      <VerticalContainer bottom={tab.children.length > 0 ? 300 : undefined}>
         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <MonacoEditor ref={ref} value={stmt} onChange={handleChange} />
         </Box>
         <QueryTabs
-          subTabsAtom={subTabsAtom}
-          activeKey={tabContext.activeKey}
+          tabsAtom={subTabsAtom}
+          activeKey={tab.activeKey}
           setActiveKey={setActiveKey}
         />
       </VerticalContainer>

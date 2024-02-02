@@ -3,13 +3,13 @@
 
 use std::env;
 
+use cmd::OpenedUrls;
+use cmd::{get_db, opened_urls, query, show_tables};
+use std::sync::Mutex;
 use tauri::menu::{CheckMenuItemBuilder, MenuBuilder, MenuItemBuilder, SubmenuBuilder};
 use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_log::{Target, TargetKind};
-
-use cmd::OpenedUrls;
-use cmd::{get_db, opened_urls, query, show_tables};
 
 mod api;
 mod cmd;
@@ -28,7 +28,7 @@ fn handle_menu(app: &mut tauri::App) -> tauri::Result<()> {
 
   let help = CheckMenuItemBuilder::new("Help").build(app);
 
-  let menu = MenuBuilder::new(app)
+  let _menu = MenuBuilder::new(app)
     .items(&[&file_menu, &toggle, &help])
     .build()?;
   // app.set_menu(menu)?;
@@ -72,11 +72,11 @@ fn handle_open_url(app: &mut tauri::App) {
     let opened_urls = if let Some(urls) = &*app.state::<OpenedUrls>().0.lock().unwrap() {
       urls
         .iter()
-        .map(|u| u.as_str().replace("\\", "\\\\"))
+        .map(|u| u.as_str().replace('\\', "\\\\"))
         .collect::<Vec<_>>()
         .join(", ")
     } else {
-      "".into()
+      String::new()
     };
 
     log::info!("opened_urls: {}", opened_urls);
@@ -92,7 +92,7 @@ fn handle_updater(app: &mut tauri::App) -> tauri::Result<()> {
 
 fn main() {
   tauri::Builder::default()
-    .manage(OpenedUrls(Default::default()))
+    .manage(OpenedUrls(Mutex::default()))
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_shell::init())
     .plugin(tauri_plugin_process::init())

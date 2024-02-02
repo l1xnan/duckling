@@ -8,19 +8,17 @@ import {
   CircularProgress,
   Divider,
   IconButton,
-  InputBase,
-  InputLabel,
   Snackbar,
   Stack,
 } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
-import { PrimitiveAtom, useAtomValue } from 'jotai';
+import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { focusAtom } from 'jotai-optics';
 import React, {
   ReactNode,
   Suspense,
   useContext,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -29,13 +27,9 @@ import { AgTable } from '@/components/AgTable';
 import Dropdown from '@/components/Dropdown';
 import { TablerSvgIcon } from '@/components/MuiIconButton';
 import { ToolbarContainer } from '@/components/Toolbar';
-import {
-  PageContext,
-  createDatasetStore,
-  usePageStore,
-} from '@/stores/dataset';
-import { QueryContextType, TabContextType } from '@/stores/tabs';
-import { borderTheme, convertOrderBy, isDarkTheme } from '@/utils';
+import { PageContext, createDatasetStore } from '@/stores/dataset';
+import { QueryContextType, TabContextType, execute } from '@/stores/tabs';
+import { isDarkTheme } from '@/utils';
 
 export interface DatasetProps {
   tableName: string;
@@ -48,9 +42,6 @@ export const PageProvider = ({
   table: TabContextType;
   children: ReactNode;
 }) => {
-  // const storeRef = useRef(
-  //   table.type == "editor" ? null : createPageStore(table),
-  // );
   const storeRef = useRef(createDatasetStore(table));
   return (
     <PageContext.Provider value={storeRef.current}>
@@ -72,14 +63,18 @@ export function DatasetItem({
 }: {
   context: PrimitiveAtom<QueryContextType>;
 }) {
-  const { data, schema, message, beautify, refresh } = usePageStore();
+  const [ctx, setContext] = useAtom(context);
 
-  const queryContext = useAtomValue(context);
+  const handleQuery = async () => {
+    const res = (await execute(ctx)) ?? {};
+    setContext((prev) => ({ ...prev, ...res }));
+  };
+
   useEffect(() => {
-    refresh(queryContext?.stmt);
-  }, [queryContext?.stmt]);
-
-  const dataSources = useMemo(() => data, [data]);
+    (async () => {
+      await handleQuery();
+    })();
+  }, []);
 
   const [open, setOpen] = useState(false);
 
@@ -96,8 +91,7 @@ export function DatasetItem({
 
   return (
     <Stack height={'100%'}>
-      <PageSizeToolbar />
-      <InputToolbar />
+      <PageSizeToolbar query={handleQuery} ctx={context} />
       <Box sx={{ height: '100%' }}>
         <Suspense
           fallback={
@@ -115,40 +109,67 @@ export function DatasetItem({
           }
         >
           <AgTable
-            data={dataSources ?? []}
-            schema={schema ?? []}
-            beautify={beautify}
+            data={ctx.data ?? []}
+            schema={ctx.schema ?? []}
+            beautify={ctx?.beautify}
           />
         </Suspense>
       </Box>
 
-      {message?.length ?? 0 > 0 ? (
+      {ctx?.message?.length ?? 0 > 0 ? (
         <Snackbar
           open={open}
           autoHideDuration={3000}
           onClose={handleClose}
-          message={message ?? ''}
+          message={ctx?.message ?? ''}
         />
       ) : null}
     </Stack>
   );
 }
 
-function PageSizeToolbar() {
-  const {
-    refresh,
-    data,
-    page,
-    totalCount,
-    setBeautify,
-    increase,
-    decrease,
-    toFirst,
-    toLast,
-    perPage,
-  } = usePageStore();
+interface PageSizeToolbarProps {
+  query: () => Promise<void>;
+  ctx: PrimitiveAtom<QueryContextType>;
+}
 
-  const count = data.length;
+function PageSizeToolbar({ query, ctx }: PageSizeToolbarProps) {
+  const context = useAtomValue(ctx);
+
+  const { page, perPage, totalCount, data } = context;
+
+  const pageAtom = focusAtom(ctx, (o) => o.prop('page'));
+  const beautifyAtom = focusAtom(ctx, (o) => o.prop('beautify'));
+  const setPage = useSetAtom(pageAtom);
+  const setBeautify = useSetAtom(beautifyAtom);
+
+  const handleBeautify = () => {
+    setBeautify((prev) => !prev);
+  };
+  const handleRefresh = async () => {
+    await query();
+  };
+
+  const toFirst = async () => {
+    setPage(1);
+    await query();
+  };
+  const toLast = async () => {
+    setPage(Math.ceil(context.totalCount / context.perPage));
+    await query();
+  };
+
+  const increase = async () => {
+    setPage((prev) => prev + 1);
+    await query();
+  };
+
+  const decrease = async () => {
+    setPage((prev) => prev - 1);
+    await query();
+  };
+
+  const count = data?.length ?? 0;
   const start = perPage * (page - 1) + 1;
   const end = start + count - 1;
   const content = count >= totalCount ? `${count} rows` : `${start}-${end}`;
@@ -189,87 +210,15 @@ function PageSizeToolbar() {
         >
           <KeyboardDoubleArrowRightIcon />
         </IconButton>
-        <IconButton color="inherit" onClick={setBeautify}>
+        <IconButton color="inherit" onClick={handleBeautify}>
           <TablerSvgIcon icon={<IconDecimal />} />
         </IconButton>
         <Divider orientation="vertical" flexItem />
-        <IconButton
-          color="inherit"
-          onClick={async () => {
-            await refresh();
-          }}
-        >
+        <IconButton color="inherit" onClick={handleRefresh}>
           <SyncIcon fontSize="small" />
         </IconButton>
       </Stack>
     </ToolbarContainer>
-  );
-}
-
-export function InputToolbar() {
-  const { orderBy, setSQLWhere } = usePageStore();
-
-  const [stmtWhere, setStmtWhere] = useState('');
-  const [stmtOrder, setStmtOrder] = useState(
-    orderBy ? convertOrderBy(orderBy) : '',
-  );
-
-  useEffect(() => {
-    setStmtOrder(orderBy ? convertOrderBy(orderBy) : '');
-  }, [orderBy]);
-  return (
-    <Box
-      sx={(theme) => ({
-        backgroundColor: isDarkTheme(theme) ? '#1e1f22' : '#ffffff',
-        height: 32,
-        display: 'flex',
-        alignItems: 'center',
-        borderBottom: borderTheme(theme),
-        '& input, & input:focus-visible, & .MuiInputBase-root': {
-          border: 'none',
-          height: '100%',
-          padding: 0,
-          outlineWidth: 0,
-          backgroundColor: isDarkTheme(theme) ? '#1e1f22' : '#ffffff',
-        },
-      })}
-    >
-      <Stack direction="row">
-        <Box sx={{ flexGrow: 0, mr: 1, ml: 1 }}>
-          <InputLabel sx={{ width: 'auto' }}>WHERE</InputLabel>
-        </Box>
-        <InputBase
-          color="primary"
-          onKeyDown={async (e) => {
-            if (e.key === 'Enter') {
-              setSQLWhere(stmtWhere);
-            }
-          }}
-          onChange={(e) => {
-            setStmtWhere(e.target.value);
-          }}
-        />
-      </Stack>
-      <Divider orientation="vertical" flexItem />
-      <Stack direction="row">
-        <Box sx={{ flexGrow: 0, mr: 1, ml: 1 }}>
-          <InputLabel>ORDER BY</InputLabel>
-        </Box>
-        <InputBase
-          value={stmtOrder}
-          fullWidth
-          color="primary"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              setSQLWhere(stmtWhere);
-            }
-          }}
-          onChange={(e) => {
-            setStmtOrder(e.target.value);
-          }}
-        />
-      </Stack>
-    </Box>
   );
 }
 

@@ -1,16 +1,44 @@
-use std::fs;
+use anyhow::anyhow;
+use async_trait::async_trait;
+use std::env::current_dir;
 use std::path::Path;
+use std::{env::set_current_dir, fs};
 
-use crate::dialect::{Dialect, TreeNode};
+use duckdb::Connection;
+
+use crate::api;
+use crate::{
+  api::{serialize_preview, ArrowData},
+  dialect::{Dialect, TreeNode},
+};
 
 #[derive(Debug, Default)]
 pub struct FolderDialect {
   pub path: String,
+  pub cwd: Option<String>,
 }
 
+#[async_trait]
 impl Dialect for FolderDialect {
-  fn get_db(&self) -> Option<TreeNode> {
+  async fn get_db(&self) -> Option<TreeNode> {
     directory_tree(self.path.as_str())
+  }
+
+  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
+    api::query(":memory:", sql, limit, offset, self.cwd.clone())
+  }
+}
+
+impl FolderDialect {
+  fn new(path: &str) -> Self {
+    Self {
+      path: String::from(path),
+      cwd: None,
+    }
+  }
+
+  fn get_connect() -> Connection {
+    Connection::open_in_memory().unwrap()
   }
 }
 
@@ -19,7 +47,7 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
   let is_dir = path.is_dir();
   let name = path.file_name().unwrap().to_string_lossy().to_string();
 
-  let support_types = vec!["csv", "xlsx", "parquet"];
+  let support_types = ["csv", "xlsx", "parquet"];
 
   let mut node_type = String::from("path");
 
@@ -69,7 +97,7 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
 
   Some(TreeNode {
     name,
-    path: path.display().to_string().replace("\\", "/"),
+    path: path.display().to_string().replace('\\', "/"),
     children,
     node_type,
   })

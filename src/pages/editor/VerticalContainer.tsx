@@ -4,15 +4,19 @@ import React, { ReactNode } from 'react';
 import { useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
 
-export default function VerticalContainer(props: {
+interface VerticalContainerProps {
   children: ReactNode;
   bottom?: number;
-}) {
-  const [targetRefTop, sizeTop, actionTop] = useResize(
-    props.bottom ?? 0,
-    'bottom',
-  );
-  const childrenArray = React.Children.toArray(props.children);
+}
+
+export default function VerticalContainer({
+  children,
+  bottom,
+}: VerticalContainerProps) {
+  const [targetRefTop, _sizeTop, actionTop] = useResize(bottom ?? 0, 'bottom');
+
+  const sizeTop = _sizeTop == 0 ? bottom ?? 0 : _sizeTop;
+  const childrenArray = React.Children.toArray(children);
 
   return (
     <Box
@@ -25,16 +29,16 @@ export default function VerticalContainer(props: {
     >
       <Box
         sx={{
-          height: `calc(100vh - ${(props.bottom ? sizeTop : 0) + 64}px)`,
+          height: `calc(100vh - ${sizeTop + 64}px)`,
         }}
       >
         {childrenArray[0]}
       </Box>
-      {props.bottom ? (
+      {bottom ? (
         <Box
           ref={targetRefTop}
           className={classes.rightBottom}
-          sx={{ height: `${sizeTop}px`, width: '100%' }}
+          sx={{ height: `${sizeTop}px`, width: '100%', minHeight: 32 }}
         >
           <div className={classes.controlsH}>
             <div className={classes.resizeHorizontal} onMouseDown={actionTop} />

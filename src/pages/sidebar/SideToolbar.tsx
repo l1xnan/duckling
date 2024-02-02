@@ -2,17 +2,17 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { Stack, Typography } from '@mui/material';
 import {
   IconDatabaseCog,
-  IconDatabasePlus,
   IconFolderPlus,
   IconRefresh,
 } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { atom, useAtomValue, useSetAtom } from 'jotai';
 
 import { getDB } from '@/api';
 import { MuiIconButton } from '@/components/MuiIconButton';
 import ToggleColorMode from '@/components/ToggleColorMode';
 import { ToolbarBox } from '@/components/Toolbar';
+import { DatabaseDialog } from '@/components/custom/DatabaseDialog';
 import Setting from '@/pages/settings/AppSetting';
 import {
   DialectType,
@@ -20,6 +20,8 @@ import {
   selectedNodeAtom,
   useDBListStore,
 } from '@/stores/dbList';
+
+export const openCreateAtom = atom(false);
 
 export function SideToolbar() {
   const dbList = useDBListStore((state) => state.dbList);
@@ -29,8 +31,8 @@ export function SideToolbar() {
 
   const setConfigContext = useSetAtom(configAtom);
 
-  async function handleGetDB(url: string, dialect: DialectType) {
-    const data = await getDB({ url, dialect });
+  async function handleGetDB(path: string, dialect: DialectType) {
+    const data = await getDB({ path, dialect });
     appendDB(data);
   }
 
@@ -85,10 +87,9 @@ export function SideToolbar() {
 
       dbList.forEach(async (db) => {
         if (db.id == root) {
-          const { data } = await getDB({
-            url: db.data.path,
-            dialect: db.dialect,
-          });
+          const { data } = await getDB(
+            db.config ?? { path: db.data.path, dialect: 'folder' },
+          );
           updateDB(root, data);
         }
       });
@@ -118,9 +119,10 @@ export function SideToolbar() {
           <MuiIconButton onClick={handleAppendFolder}>
             <IconFolderPlus />
           </MuiIconButton>
-          <MuiIconButton onClick={handleAppendDB}>
+          <DatabaseDialog />
+          {/* <MuiIconButton onClick={handleAppendDB}>
             <IconDatabasePlus />
-          </MuiIconButton>
+          </MuiIconButton> */}
           <MuiIconButton disabled={!isRoot} onClick={handleOpen}>
             <IconDatabaseCog />
           </MuiIconButton>

@@ -18,7 +18,30 @@ export type NodeContextType = {
   extra?: unknown;
 };
 
-export type DialectType = 'folder' | 'file' | 'duckdb';
+export type DialectType = 'folder' | 'file' | 'duckdb' | 'clickhouse';
+
+export type DuckdbConfig = {
+  path: string;
+  cwd?: string;
+  dialect: DialectType;
+};
+
+export type FolderConfig = {
+  path: string;
+  cwd?: string;
+  dialect: DialectType;
+};
+
+export type ClickhouseDialectType = {
+  host: string;
+  port: string;
+  password: string;
+  username: string;
+  database: string;
+  dialect: DialectType;
+};
+
+export type DialectConfig = DuckdbConfig | ClickhouseDialectType | FolderConfig;
 
 export type DBType = {
   id: string;
@@ -28,8 +51,7 @@ export type DBType = {
   // tree node
   data: TreeNode;
 
-  // config
-  cwd?: string;
+  config?: DialectConfig;
 };
 
 type ContextMenuType = {
@@ -49,7 +71,7 @@ type DBListAction = {
   // remove db by db id
   remove: (id: string) => void;
   rename: (id: string, displayName: string) => void;
-  setCwd: (cwd: string, path: string) => void;
+  setCwd: (cwd: string, id: string) => void;
 
   setContextMenu: (contextMenu: ContextMenuType) => void;
 };
@@ -115,7 +137,7 @@ export const useDBListStore = create<DBListStore & ComputedStore>()(
               return item.id == id
                 ? {
                     ...item,
-                    cwd,
+                    config: { ...(item.config ?? {}), cwd } as DialectConfig,
                   }
                 : item;
             }),

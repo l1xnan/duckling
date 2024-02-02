@@ -1,12 +1,15 @@
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
-pub mod folder;
+use crate::api::ArrowData;
+
+pub mod clickhouse;
 pub mod duckdb;
 pub mod file;
+pub mod folder;
+pub mod sqlite;
 
-pub use self::folder::FolderDialect;
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TreeNode {
   pub name: String,
   pub path: String,
@@ -16,18 +19,17 @@ pub struct TreeNode {
   pub node_type: String,
 }
 
-pub trait Dialect {
-  fn get_db(&self) -> Option<TreeNode>;
-
-  fn query(&self) {}
+#[async_trait]
+pub trait Dialect: Sync + Send {
+  async fn get_db(&self) -> Option<TreeNode>;
+  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
+    unimplemented!()
+  }
 }
 
 pub mod sql {
   use crate::api::show_db_information;
-
   use crate::api::ArrowData;
-
-  use anyhow::anyhow;
 
   pub fn show_tables(path: String) -> anyhow::Result<ArrowData> {
     show_db_information(

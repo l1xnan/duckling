@@ -1,16 +1,11 @@
+use std::env::{current_dir, set_current_dir};
+
 use anyhow::anyhow;
 use arrow::{ipc::writer::StreamWriter, record_batch::RecordBatch};
 use duckdb::Connection;
-use std::path::Path;
-
-use log::info;
 use serde::{Deserialize, Serialize};
-use std::env::{current_dir, set_current_dir};
-use std::fs;
 
-use crate::dialect::TreeNode;
-
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ArrowData {
   /// The total number of rows that were selected.
   pub total_count: usize,
@@ -40,7 +35,7 @@ pub fn convert(res: anyhow::Result<ArrowData>) -> ArrowResponse {
       message: "".to_string(),
     },
     Err(err) => {
-      println!("err:{}", err.to_string());
+      println!("err:{}", err);
       ArrowResponse {
         total: 0,
         data: vec![],
@@ -51,7 +46,7 @@ pub fn convert(res: anyhow::Result<ArrowData>) -> ArrowResponse {
   }
 }
 
-fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::ArrowError> {
+pub fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::ArrowError> {
   let mut writer = StreamWriter::try_new(Vec::new(), &record.schema())?;
   writer.write(record)?;
   writer.into_inner()
@@ -59,15 +54,15 @@ fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::Arro
 
 pub fn query(
   path: &str,
-  sql: String,
+  sql: &str,
   limit: usize,
   offset: usize,
   cwd: Option<String>,
 ) -> anyhow::Result<ArrowData> {
-  if let Some(current_dir) = cwd {
-    let _ = set_current_dir(current_dir);
+  if let Some(cwd) = &cwd {
+    let _ = set_current_dir(cwd);
   }
-  info!("current_dir: {}", current_dir()?.display());
+  log::info!("current_dir: {}", current_dir()?.display());
   let con = if path == ":memory:" {
     Connection::open_in_memory()
   } else {
@@ -78,7 +73,7 @@ pub fn query(
   println!("sql: {}", sql);
 
   // query
-  let mut stmt = db.prepare(sql.as_str())?;
+  let mut stmt = db.prepare(sql)?;
   let frames = stmt.query_arrow(duckdb::params![])?;
   let schema = frames.get_schema();
   let records: Vec<_> = frames.collect();

@@ -1,14 +1,71 @@
-use log::info;
 use std::sync::Mutex;
 
+use serde::Deserialize;
+use serde::Serialize;
+use tauri::State;
+use tauri::Window;
+
 use crate::api::ArrowResponse;
+use crate::dialect::clickhouse::ClickhouseDialect;
 use crate::dialect::duckdb::DuckDbDialect;
 use crate::dialect::file::FileDialect;
-use crate::dialect::{folder, Dialect, FolderDialect, TreeNode};
+use crate::dialect::folder::FolderDialect;
+use crate::dialect::sqlite::SqliteDialect;
+use crate::dialect::{Dialect, TreeNode};
 use crate::{api, dialect};
-use tauri::State;
 
 pub struct OpenedUrls(pub Mutex<Option<Vec<url::Url>>>);
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct DialectPayload {
+  pub dialect: String,
+  pub path: Option<String>,
+  pub username: Option<String>,
+  pub password: Option<String>,
+  pub host: Option<String>,
+  pub port: Option<String>,
+  pub database: Option<String>,
+  pub cwd: Option<String>,
+}
+
+pub async fn get_dialect(
+  DialectPayload {
+    dialect,
+    path,
+    username,
+    password,
+    database,
+    host,
+    port,
+    cwd,
+  }: DialectPayload,
+) -> Option<Box<dyn Dialect>> {
+  match dialect.as_str() {
+    "folder" => Some(Box::new(FolderDialect {
+      path: path.unwrap(),
+      cwd,
+    })),
+    "file" => Some(Box::new(FileDialect {
+      path: path.unwrap(),
+    })),
+    "duckdb" => Some(Box::new(DuckDbDialect {
+      path: path.unwrap(),
+      cwd,
+    })),
+    "sqlite" => Some(Box::new(SqliteDialect {
+      path: path.unwrap(),
+    })),
+    "clickhouse" => Some(Box::new(ClickhouseDialect {
+      host: host.unwrap(),
+      port: port.unwrap(),
+      username: username.unwrap_or_default(),
+      password: password.unwrap_or_default(),
+      database,
+    })),
+    // _ => Err("not support dialect".to_string()),
+    _ => None,
+  }
+}
 
 #[tauri::command]
 pub async fn show_tables(path: String) -> ArrowResponse {
@@ -18,15 +75,28 @@ pub async fn show_tables(path: String) -> ArrowResponse {
 
 #[tauri::command]
 pub async fn query(
-  path: String,
   sql: String,
   limit: usize,
   offset: usize,
-  // current working directory
-  cwd: Option<String>,
-) -> ArrowResponse {
-  let res = api::query(path.as_str(), sql, limit, offset, cwd);
-  api::convert(res)
+  dialect: DialectPayload,
+) -> Result<ArrowResponse, String> {
+  if let Some(d) = get_dialect(dialect).await {
+    let res = d.query(&sql, limit, offset).await;
+    Ok(api::convert(res))
+  } else {
+    Err("not support dialect".to_string())
+  }
+}
+
+#[tauri::command]
+pub async fn query_stream(
+  window: Window,
+  sql: &str,
+  dialect: Option<ClickhouseDialect>,
+) -> anyhow::Result<()> {
+  let d = dialect.unwrap();
+  let _ = d.query_stream(window, sql).await;
+  Ok(())
 }
 
 #[tauri::command]
@@ -34,7 +104,7 @@ pub async fn opened_urls(state: State<'_, OpenedUrls>) -> Result<String, String>
   let opened_urls = if let Some(urls) = &*state.0.lock().unwrap() {
     urls
       .iter()
-      .map(|u| u.as_str().replace("\\", "\\\\"))
+      .map(|u| u.as_str().replace('\\', "\\\\"))
       .collect::<Vec<_>>()
       .join(", ")
   } else {
@@ -44,22 +114,29 @@ pub async fn opened_urls(state: State<'_, OpenedUrls>) -> Result<String, String>
 }
 
 #[tauri::command]
-pub async fn get_db(url: &str, dialect: &str) -> Result<Option<TreeNode>, String> {
-  if dialect == "folder" {
-    let d = FolderDialect {
-      path: String::from(url),
-    };
-    Ok(d.get_db())
-  } else if dialect == "file" {
-    let d = FileDialect {
-      path: String::from(url),
-    };
-    Ok(d.get_db())
-  } else if dialect == "duckdb" {
-    let d = DuckDbDialect {
-      path: String::from(url),
-    };
-    Ok(d.get_db())
+pub async fn get_db(
+  dialect: &str,
+  path: Option<String>,
+  username: Option<String>,
+  password: Option<String>,
+  host: Option<String>,
+  port: Option<String>,
+  cwd: Option<String>,
+  database: Option<String>,
+) -> Result<Option<TreeNode>, String> {
+  let payload = DialectPayload {
+    dialect: dialect.to_string(),
+    path,
+    username,
+    password,
+    host,
+    port,
+    cwd,
+    database,
+  };
+
+  if let Some(d) = get_dialect(payload).await {
+    Ok(d.get_db().await)
   } else {
     Err("not support dialect".to_string())
   }
