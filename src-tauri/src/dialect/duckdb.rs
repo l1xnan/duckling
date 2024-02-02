@@ -46,32 +46,6 @@ impl DuckDbDialect {
   fn connect(&self) -> anyhow::Result<Connection> {
     Ok(Connection::open(&self.path)?)
   }
-
-  pub fn query(&self, sql: String, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
-    if let Some(cwd) = &self.cwd {
-      let _ = set_current_dir(cwd);
-    }
-    log::info!("current_dir: {}", current_dir()?.display());
-    let con = self.connect();
-    let db = con.map_err(|err| anyhow::anyhow!("Failed to open database connection: {}", err))?;
-
-    println!("sql: {}", sql);
-
-    // query
-    let mut stmt = db.prepare(sql.as_str())?;
-    let frames = stmt.query_arrow(duckdb::params![])?;
-    let schema = frames.get_schema();
-    let records: Vec<_> = frames.collect();
-
-    let record_batch = arrow::compute::concat_batches(&schema, &records)?;
-    let total = record_batch.num_rows();
-    let preview = record_batch.slice(offset, std::cmp::min(limit, total - offset));
-
-    Ok(ArrowData {
-      total_count: total,
-      preview: serialize_preview(&preview)?,
-    })
-  }
 }
 
 pub fn get_tables(path: &str) -> anyhow::Result<Vec<Table>> {
