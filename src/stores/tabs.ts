@@ -168,11 +168,6 @@ export async function execute(
 
   let sql = stmt;
 
-  let path = ':memory:';
-  if (db.dialect == 'duckdb') {
-    path = db.data.path;
-  }
-
   if (!sql) {
     const tableMap = atomStore.get(tablesAtom);
     const table = tableMap.get(dbId)?.get(ctx?.tableId ?? '');
@@ -189,10 +184,9 @@ export async function execute(
       where: sqlWhere,
     });
   }
-  console.log('query:', path, sql);
+  console.log('query:', sql);
   const data = await query({
     dialect: db?.config,
-    path,
     sql,
     limit: perPage,
     offset: (page - 1) * perPage,

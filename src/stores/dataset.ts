@@ -98,17 +98,27 @@ export const createDatasetStore = (context: TabContextType) =>
 
     // action
     setStore: (res: object) => set((_) => res),
-    increase: () => set((state) => ({ page: state.page + 1 })),
+    increase: () => {
+      set((state) => ({ page: state.page + 1 }));
+      get().refresh();
+    },
     setBeautify: () => set((state) => ({ beautify: !state.beautify })),
-    toFirst: () => set((_) => ({ page: 1 })),
-    setSQLWhere: (value: string) => set((_) => ({ sqlWhere: value })),
+    toFirst: () => {
+      set((_) => ({ page: 1 }));
+      get().refresh();
+    },
+    setSQLWhere: (value: string) => {
+      set((_) => ({ sqlWhere: value }));
+      get().refresh();
+    },
     setDialogColumn: (dialogColumn: string) => set((_) => ({ dialogColumn })),
-    toLast: () =>
+    toLast: () => {
       set((state) => {
-        console.log(Math.ceil(state.totalCount / state.perPage));
         return { page: Math.ceil(state.totalCount / state.perPage) };
-      }),
-    setOrderBy: (name: string) =>
+      });
+      get().refresh();
+    },
+    setOrderBy: (name: string) => {
       set((state) => {
         const { name: prevName, desc } = state?.orderBy ?? {};
         if (name == prevName) {
@@ -130,9 +140,14 @@ export const createDatasetStore = (context: TabContextType) =>
             desc: false,
           },
         };
-      }),
+      });
+      get().refresh();
+    },
     setPerPage: (perPage: number) => set((_) => ({ perPage })),
-    decrease: () => set((state) => ({ page: state.page - 1 })),
+    decrease: () => {
+      set((state) => ({ page: state.page - 1 }));
+      get().refresh();
+    },
     refresh: async (stmt?: string) => {
       const { page, perPage, context, sqlWhere } = get();
 
