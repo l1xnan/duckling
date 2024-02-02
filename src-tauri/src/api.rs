@@ -55,7 +55,7 @@ pub fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::
 
 pub fn query(
   path: &str,
-  sql: String,
+  sql: &str,
   limit: usize,
   offset: usize,
   cwd: Option<String>,
@@ -74,7 +74,7 @@ pub fn query(
   println!("sql: {}", sql);
 
   // query
-  let mut stmt = db.prepare(sql.as_str())?;
+  let mut stmt = db.prepare(sql)?;
   let frames = stmt.query_arrow(duckdb::params![])?;
   let schema = frames.get_schema();
   let records: Vec<_> = frames.collect();

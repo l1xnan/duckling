@@ -71,34 +71,6 @@ pub async fn show_tables(path: String) -> ArrowResponse {
 }
 
 #[tauri::command]
-pub async fn execute(
-  path: String,
-  sql: String,
-  limit: usize,
-  offset: usize,
-  // current working directory
-  cwd: Option<String>,
-  dialect: &str,
-  username: Option<String>,
-  password: Option<String>,
-  host: Option<String>,
-  port: Option<String>,
-) -> Result<ArrowResponse, ()> {
-  let res = if dialect == "clickhouse" {
-    let d = ClickhouseDialect {
-      host: host.unwrap(),
-      port: port.unwrap(),
-      username: username.unwrap_or_default(),
-      password: password.unwrap_or_default(),
-    };
-    d.query(&sql, limit, offset).await
-  } else {
-    api::query(path.as_str(), sql, limit, offset, cwd)
-  };
-  Ok(api::convert(res))
-}
-
-#[tauri::command]
 pub async fn query(
   sql: String,
   limit: usize,

@@ -6,6 +6,7 @@ use std::{env::set_current_dir, fs};
 
 use duckdb::Connection;
 
+use crate::api;
 use crate::{
   api::{serialize_preview, ArrowData},
   dialect::{Dialect, TreeNode},
@@ -24,30 +25,7 @@ impl Dialect for FolderDialect {
   }
 
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
-    if let Some(current_dir) = &self.cwd {
-      let _ = set_current_dir(current_dir);
-    }
-    log::info!("current_dir: {}", current_dir()?.display());
-    let con = Connection::open_in_memory();
-
-    let db = con.map_err(|err| anyhow!("Failed to open database connection: {}", err))?;
-
-    println!("sql: {}", sql);
-
-    // query
-    let mut stmt = db.prepare(sql)?;
-    let frames = stmt.query_arrow(duckdb::params![])?;
-    let schema = frames.get_schema();
-    let records: Vec<_> = frames.collect();
-
-    let record_batch = arrow::compute::concat_batches(&schema, &records)?;
-    let total = record_batch.num_rows();
-    let preview = record_batch.slice(offset, std::cmp::min(limit, total - offset));
-
-    Ok(ArrowData {
-      total_count: total,
-      preview: serialize_preview(&preview)?,
-    })
+    api::query(":memory:", sql, limit, offset, self.cwd.clone())
   }
 }
 

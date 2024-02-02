@@ -3,6 +3,7 @@ use std::env::{current_dir, set_current_dir};
 use async_trait::async_trait;
 use duckdb::Connection;
 
+use crate::api;
 use crate::api::{serialize_preview, ArrowData};
 use crate::dialect::{Dialect, TreeNode};
 use crate::utils::{build_tree, get_file_name, Table};
@@ -26,6 +27,10 @@ impl Dialect for DuckDbDialect {
     } else {
       None
     }
+  }
+
+  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
+    api::query(&self.path, sql, limit, offset, self.cwd.clone())
   }
 }
 
