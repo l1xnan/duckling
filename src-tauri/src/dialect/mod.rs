@@ -22,7 +22,7 @@ pub struct TreeNode {
 #[async_trait]
 pub trait Dialect: Sync + Send {
   async fn get_db(&self) -> Option<TreeNode>;
-  async fn query(&self, sql: &str) -> anyhow::Result<ArrowData> {
+  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
     unimplemented!()
   }
 }

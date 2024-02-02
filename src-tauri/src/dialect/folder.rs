@@ -1,14 +1,20 @@
+use anyhow::anyhow;
 use async_trait::async_trait;
-use std::fs;
+use std::env::current_dir;
 use std::path::Path;
+use std::{env::set_current_dir, fs};
 
 use duckdb::Connection;
 
-use crate::dialect::{Dialect, TreeNode};
+use crate::{
+  api::{serialize_preview, ArrowData},
+  dialect::{Dialect, TreeNode},
+};
 
 #[derive(Debug, Default)]
 pub struct FolderDialect {
   pub path: String,
+  pub cwd: Option<String>,
 }
 
 #[async_trait]
@@ -16,9 +22,43 @@ impl Dialect for FolderDialect {
   async fn get_db(&self) -> Option<TreeNode> {
     directory_tree(self.path.as_str())
   }
+
+  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
+    if let Some(current_dir) = &self.cwd {
+      let _ = set_current_dir(current_dir);
+    }
+    log::info!("current_dir: {}", current_dir()?.display());
+    let con = Connection::open_in_memory();
+
+    let db = con.map_err(|err| anyhow!("Failed to open database connection: {}", err))?;
+
+    println!("sql: {}", sql);
+
+    // query
+    let mut stmt = db.prepare(sql)?;
+    let frames = stmt.query_arrow(duckdb::params![])?;
+    let schema = frames.get_schema();
+    let records: Vec<_> = frames.collect();
+
+    let record_batch = arrow::compute::concat_batches(&schema, &records)?;
+    let total = record_batch.num_rows();
+    let preview = record_batch.slice(offset, std::cmp::min(limit, total - offset));
+
+    Ok(ArrowData {
+      total_count: total,
+      preview: serialize_preview(&preview)?,
+    })
+  }
 }
 
 impl FolderDialect {
+  fn new(path: &str) -> Self {
+    Self {
+      path: String::from(path),
+      cwd: None,
+    }
+  }
+
   fn get_connect() -> Connection {
     Connection::open_in_memory().unwrap()
   }

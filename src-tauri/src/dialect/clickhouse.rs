@@ -52,7 +52,7 @@ impl Dialect for ClickhouseDialect {
     }
   }
 
-  async fn query(&self, sql: &str) -> anyhow::Result<ArrowData> {
+  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
     let pool = Pool::new(self.get_url());
     let mut client = pool.get_handle().await?;
     let mut stream = client.query(sql).stream_blocks();

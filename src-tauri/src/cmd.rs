@@ -24,6 +24,7 @@ pub struct DialectPayload {
   pub password: Option<String>,
   pub host: Option<String>,
   pub port: Option<String>,
+  pub cwd: Option<String>,
 }
 
 pub async fn get_dialect(
@@ -34,11 +35,13 @@ pub async fn get_dialect(
     password,
     host,
     port,
+    cwd,
   }: DialectPayload,
 ) -> Option<Box<dyn Dialect>> {
   match dialect.as_str() {
     "folder" => Some(Box::new(FolderDialect {
       path: path.unwrap(),
+      cwd,
     })),
     "file" => Some(Box::new(FileDialect {
       path: path.unwrap(),
@@ -88,7 +91,7 @@ pub async fn execute(
       username: username.unwrap_or_default(),
       password: password.unwrap_or_default(),
     };
-    d.query(&sql).await
+    d.query(&sql, limit, offset).await
   } else {
     api::query(path.as_str(), sql, limit, offset, cwd)
   };
@@ -97,15 +100,13 @@ pub async fn execute(
 
 #[tauri::command]
 pub async fn query(
-  path: String,
   sql: String,
   limit: usize,
   offset: usize,
-
   dialect: DialectPayload,
 ) -> Result<ArrowResponse, String> {
   if let Some(d) = get_dialect(dialect).await {
-    let res = d.query(&sql).await;
+    let res = d.query(&sql, limit, offset).await;
     Ok(api::convert(res))
   } else {
     Err("not support dialect".to_string())
@@ -145,6 +146,7 @@ pub async fn get_db(
   password: Option<String>,
   host: Option<String>,
   port: Option<String>,
+  cwd: Option<String>,
 ) -> Result<Option<TreeNode>, String> {
   let payload = DialectPayload {
     dialect: dialect.to_string(),
@@ -153,6 +155,7 @@ pub async fn get_db(
     password,
     host,
     port,
+    cwd,
   };
 
   if let Some(d) = get_dialect(payload).await {

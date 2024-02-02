@@ -81,7 +81,7 @@ export type QueryParams = {
   offset: number;
   cwd?: string;
 
-  dialect: DialectConfig;
+  dialect?: DialectConfig;
 };
 
 export async function query(params: QueryParams): Promise<ResultType> {
