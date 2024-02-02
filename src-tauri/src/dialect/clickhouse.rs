@@ -25,13 +25,18 @@ pub struct ClickhouseDialect {
   pub port: String,
   pub username: String,
   pub password: String,
+  pub database: Option<String>,
 }
 
 impl ClickhouseDialect {
   pub(crate) fn get_url(&self) -> String {
     format!(
-      "tcp://{}:{}@{}:{}/temp_database_lxn?compression=lz4&ping_timeout=42ms",
-      self.username, self.password, self.host, self.port,
+      "tcp://{}:{}@{}:{}/{}?compression=lz4&ping_timeout=42ms",
+      self.username,
+      self.password,
+      self.host,
+      self.port,
+      self.database.clone().unwrap_or_default(),
     )
   }
 }

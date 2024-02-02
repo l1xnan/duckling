@@ -75,12 +75,9 @@ export async function showTables(path?: string): Promise<DBInfoType> {
 }
 
 export type QueryParams = {
-  path: string;
   sql: string;
   limit: number;
   offset: number;
-  cwd?: string;
-
   dialect?: DialectConfig;
 };
 
@@ -107,6 +104,7 @@ export async function read_parquet(
 
 export async function getDB(option: DialectConfig): Promise<DBType> {
   const tree: TreeNode = await invoke('get_db', option);
+  console.log('tree:', tree);
   return {
     id: nanoid(),
     dialect: option.dialect,

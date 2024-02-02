@@ -24,6 +24,7 @@ pub struct DialectPayload {
   pub password: Option<String>,
   pub host: Option<String>,
   pub port: Option<String>,
+  pub database: Option<String>,
   pub cwd: Option<String>,
 }
 
@@ -33,6 +34,7 @@ pub async fn get_dialect(
     path,
     username,
     password,
+    database,
     host,
     port,
     cwd,
@@ -48,7 +50,7 @@ pub async fn get_dialect(
     })),
     "duckdb" => Some(Box::new(DuckDbDialect {
       path: path.unwrap(),
-      cwd: None,
+      cwd,
     })),
     "sqlite" => Some(Box::new(SqliteDialect {
       path: path.unwrap(),
@@ -58,6 +60,7 @@ pub async fn get_dialect(
       port: port.unwrap(),
       username: username.unwrap_or_default(),
       password: password.unwrap_or_default(),
+      database,
     })),
     // _ => Err("not support dialect".to_string()),
     _ => None,
@@ -119,6 +122,7 @@ pub async fn get_db(
   host: Option<String>,
   port: Option<String>,
   cwd: Option<String>,
+  database: Option<String>,
 ) -> Result<Option<TreeNode>, String> {
   let payload = DialectPayload {
     dialect: dialect.to_string(),
@@ -128,6 +132,7 @@ pub async fn get_db(
     host,
     port,
     cwd,
+    database,
   };
 
   if let Some(d) = get_dialect(payload).await {

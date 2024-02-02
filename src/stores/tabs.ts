@@ -196,7 +196,6 @@ export async function execute(
     sql,
     limit: perPage,
     offset: (page - 1) * perPage,
-    cwd: db.cwd ?? path,
   });
 
   console.log('data:', data);

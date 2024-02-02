@@ -123,6 +123,20 @@ export function DatabaseDialog() {
                 </div>
                 <FormField
                   control={form.control}
+                  name="database"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center w-[62.5%]">
+                      <FormLabel className="w-1/5 mr-2 mt-2">
+                        Database
+                      </FormLabel>
+                      <FormControl className="w-4/5">
+                        <Input {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="username"
                   render={({ field }) => (
                     <FormItem className="flex items-center w-[62.5%]">

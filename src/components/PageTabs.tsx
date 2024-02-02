@@ -100,7 +100,9 @@ export function PageTabs({
                     alignItems: 'center',
                   }}
                 >
-                  <Box>{tab.displayName}</Box>
+                  <Box sx={{ maxWidth: 200, textOverflow: 'clip' }}>
+                    {tab.displayName}
+                  </Box>
                   <IconButton
                     size="small"
                     component="div"

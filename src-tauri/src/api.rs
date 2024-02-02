@@ -3,7 +3,6 @@ use std::env::{current_dir, set_current_dir};
 use anyhow::anyhow;
 use arrow::{ipc::writer::StreamWriter, record_batch::RecordBatch};
 use duckdb::Connection;
-use log::info;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -60,10 +59,10 @@ pub fn query(
   offset: usize,
   cwd: Option<String>,
 ) -> anyhow::Result<ArrowData> {
-  if let Some(current_dir) = cwd {
-    let _ = set_current_dir(current_dir);
+  if let Some(cwd) = &cwd {
+    let _ = set_current_dir(cwd);
   }
-  info!("current_dir: {}", current_dir()?.display());
+  log::info!("current_dir: {}", current_dir()?.display());
   let con = if path == ":memory:" {
     Connection::open_in_memory()
   } else {

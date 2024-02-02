@@ -37,6 +37,7 @@ export type ClickhouseDialectType = {
   port: string;
   password: string;
   username: string;
+  database: string;
   dialect: DialectType;
 };
 
@@ -51,8 +52,6 @@ export type DBType = {
   data: TreeNode;
 
   config?: DialectConfig;
-  // config
-  cwd?: string;
 };
 
 type ContextMenuType = {
