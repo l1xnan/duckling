@@ -2,6 +2,7 @@ import { useSetAtom } from 'jotai';
 import { Code, RefreshCcw, Settings } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 
+import { getDB } from '@/api';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -27,6 +28,7 @@ export function DBContextMenu({
 
   const updateTab = useTabsStore((state) => state.update);
   const removeDB = useDBListStore((state) => state.remove);
+  const updateDB = useDBListStore((state) => state.update);
 
   const handleEditor = () => {
     if (db) {
@@ -47,7 +49,12 @@ export function DBContextMenu({
     setConfigContext(db);
   };
 
-  const handleRefresh = () => {};
+  const handleRefresh = async () => {
+    if (db.config) {
+      const { data } = await getDB(db.config);
+      updateDB(db.id, data);
+    }
+  };
   return (
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
