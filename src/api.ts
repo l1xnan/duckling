@@ -80,6 +80,8 @@ export type QueryParams = {
   limit: number;
   offset: number;
   cwd?: string;
+
+  dialect: DialectConfig;
 };
 
 export async function query(params: QueryParams): Promise<ResultType> {

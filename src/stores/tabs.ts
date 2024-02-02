@@ -191,8 +191,7 @@ export async function execute(
   }
   console.log('query:', path, sql);
   const data = await query({
-    // dialect: db?.config,
-    ...db?.config,
+    dialect: db?.config,
     path,
     sql,
     limit: perPage,
