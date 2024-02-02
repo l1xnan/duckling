@@ -33,7 +33,6 @@ export function DBContextMenu({
       const displayName = db?.displayName ?? '';
       updateTab!({
         dbId: db.id,
-        tableId: '',
         displayName,
         id: db.id,
         type: 'editor',

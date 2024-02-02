@@ -36,7 +36,7 @@ export type QueryContextType = {
 export type EditorContextType = {
   id: string;
   dbId: string;
-  tableId: string;
+  tableId?: string;
   type?: string;
   extra?: unknown;
   displayName: string;
