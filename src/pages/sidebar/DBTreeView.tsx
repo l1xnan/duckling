@@ -1,4 +1,4 @@
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import { default as AccountTreeIcon } from '@mui/icons-material/AccountTree';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { TreeView, TreeViewProps } from '@mui/x-tree-view/TreeView';
@@ -13,14 +13,14 @@ import {
   IconFolderOpen,
   IconTable,
 } from '@tabler/icons-react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { useState } from 'react';
 
+import { ClickhouseIcon, DuckdbIcon } from '@/components/custom/Icons';
 import {
   DBType,
   NodeContextType,
   contextMenuAtom,
-  dbMapAtom,
   selectedNodeAtom,
   useDBListStore,
 } from '@/stores/dbList';
@@ -38,6 +38,12 @@ export const getTypeIcon = (type: string, expanded: boolean) => {
   }
   if (type == 'root') {
     return <IconDatabase />;
+  }
+  if (type == 'clickhouse') {
+    return <ClickhouseIcon />;
+  }
+  if (type == 'duckdb') {
+    return <DuckdbIcon />;
   }
   if (type == 'database') {
     return <AccountTreeIcon />;
@@ -68,7 +74,6 @@ export default function DBTreeView({ db, ...rest }: DBTreeViewProps) {
   const updateTab = useTabsStore((state) => state.update);
   const dbTableMap = useDBListStore((state) => state.tables);
 
-  const dbMap = useAtomValue(dbMapAtom);
   const [contextMenu, setContextMenu] = useAtom(contextMenuAtom);
 
   const handleContextMenu = (
@@ -108,6 +113,11 @@ export default function DBTreeView({ db, ...rest }: DBTreeViewProps) {
         <TreeItemLabel
           nodeId={node.path}
           node={isRoot ? { ...node, name: db.displayName ?? node.name } : node}
+          icon={
+            isRoot && ['clickhouse', 'duckdb'].indexOf(db.dialect) > -1
+              ? db.dialect
+              : node.type ?? 'file'
+          }
         />
       }
     >

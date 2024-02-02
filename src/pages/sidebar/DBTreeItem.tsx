@@ -162,6 +162,7 @@ export const DBTreeItem = React.forwardRef(function CustomTreeItem(
 interface TreeItemLabelProps {
   node: TreeNode;
   nodeId: string;
+  icon: string;
 }
 
 export const NoMaxWidthTooltip = styled(
@@ -189,7 +190,7 @@ export const NoMaxWidthTooltip = styled(
 
 export const TreeItemLabel = React.forwardRef(
   (props: TreeItemLabelProps, ref) => {
-    const { node, nodeId } = props;
+    const { node, nodeId, icon } = props;
     const { expanded } = useTreeItem(nodeId);
     return (
       <Box
@@ -218,7 +219,7 @@ export const TreeItemLabel = React.forwardRef(
             },
           }}
         >
-          {getTypeIcon(node?.type ?? 'file', expanded)}
+          {getTypeIcon(icon, expanded)}
         </Box>
 
         <Typography
