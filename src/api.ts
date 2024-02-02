@@ -1,5 +1,5 @@
 import { Table, tableFromIPC } from '@apache-arrow/ts';
-import { invoke } from '@tauri-apps/api/primitives';
+import { invoke } from '@tauri-apps/api/core';
 import { nanoid } from 'nanoid';
 
 import { DBType, DialectConfig } from '@/stores/dbList';

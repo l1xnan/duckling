@@ -3,8 +3,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { Box, BoxProps, Divider, ListItemText } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
-import { invoke } from '@tauri-apps/api/primitives';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 
