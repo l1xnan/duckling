@@ -1,7 +1,4 @@
-import DialogContentText from '@mui/material/DialogContentText';
-import TextField from '@mui/material/TextField';
 import { useAtom, useAtomValue } from 'jotai';
-import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
@@ -22,7 +19,16 @@ import {
   FormLabel,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { configAtom, dbMapAtom, useDBListStore } from '@/stores/dbList';
+import {
+  FolderConfig,
+  configAtom,
+  dbMapAtom,
+  useDBListStore,
+} from '@/stores/dbList';
+
+type ConfigFormType = {
+  cwd: string;
+};
 
 export default function ConfigDialog() {
   const updateCwd = useDBListStore((state) => state.setCwd);
@@ -33,7 +39,7 @@ export default function ConfigDialog() {
   const dbId = context?.dbId ?? '';
   const db = dbMap.get(dbId);
 
-  const handleSubmit = ({ cwd }) => {
+  const handleSubmit = ({ cwd }: ConfigFormType) => {
     if (dbId) {
       updateCwd(cwd, dbId);
     }
@@ -44,7 +50,7 @@ export default function ConfigDialog() {
     setContext(null);
   };
   const form = useForm<{ cwd: string }>({
-    defaultValues: { cwd: db?.cwd ?? '' },
+    defaultValues: { cwd: (db?.config as FolderConfig)?.cwd ?? '' },
   });
 
   return (

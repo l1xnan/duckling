@@ -26,6 +26,12 @@ export type DuckdbConfig = {
   dialect: DialectType;
 };
 
+export type FolderConfig = {
+  path: string;
+  cwd?: string;
+  dialect: DialectType;
+};
+
 export type ClickhouseDialectType = {
   host: string;
   port: string;
@@ -34,7 +40,7 @@ export type ClickhouseDialectType = {
   dialect: DialectType;
 };
 
-export type DialectConfig = DuckdbConfig | ClickhouseDialectType;
+export type DialectConfig = DuckdbConfig | ClickhouseDialectType | FolderConfig;
 
 export type DBType = {
   id: string;
@@ -66,7 +72,7 @@ type DBListAction = {
   // remove db by db id
   remove: (id: string) => void;
   rename: (id: string, displayName: string) => void;
-  setCwd: (cwd: string, path: string) => void;
+  setCwd: (cwd: string, id: string) => void;
 
   setContextMenu: (contextMenu: ContextMenuType) => void;
 };
@@ -132,7 +138,7 @@ export const useDBListStore = create<DBListStore & ComputedStore>()(
               return item.id == id
                 ? {
                     ...item,
-                    cwd,
+                    config: { ...(item.config ?? {}), cwd } as DialectConfig,
                   }
                 : item;
             }),
