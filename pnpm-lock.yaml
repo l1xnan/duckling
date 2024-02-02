@@ -84,8 +84,8 @@ dependencies:
     specifier: ^3.0.1
     version: 3.0.1(react-dom@18.2.0)(react@18.2.0)
   '@tauri-apps/api':
-    specifier: 2.0.0-alpha.12
-    version: 2.0.0-alpha.12
+    specifier: 2.0.0-alpha.14
+    version: 2.0.0-alpha.14
   '@tauri-apps/plugin-dialog':
     specifier: 2.0.0-alpha.5
     version: 2.0.0-alpha.5
@@ -2729,13 +2729,13 @@ packages:
     resolution: {integrity: sha512-CnvsEJWK7cugigckt13AeY80FMzH+OMdEP0j0bS3/zjs44NiRe49x8FZC6R9suRXGMVMXtUHet0zbTp/Ec9Wfg==}
     dev: false
 
-  /@tauri-apps/api@2.0.0-alpha.12:
-    resolution: {integrity: sha512-acpNZQxFgHMHC5qV/IUg4IL/xmypzfxHB4ECkwb58fT48H4zBmklNd5TC0k7BvLUBoSmmgHc4InbYwQai392Yw==}
+  /@tauri-apps/api@2.0.0-alpha.13:
+    resolution: {integrity: sha512-sGgCkFahF3OZAHoGN5Ozt9WK7wJlbVZSgWpPQKNag4nSOX1+Py6VDRTEWriiJHDiV+gg31CWHnNXRy6TFoZmdA==}
     engines: {node: '>= 18', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
     dev: false
 
-  /@tauri-apps/api@2.0.0-alpha.13:
-    resolution: {integrity: sha512-sGgCkFahF3OZAHoGN5Ozt9WK7wJlbVZSgWpPQKNag4nSOX1+Py6VDRTEWriiJHDiV+gg31CWHnNXRy6TFoZmdA==}
+  /@tauri-apps/api@2.0.0-alpha.14:
+    resolution: {integrity: sha512-j9WxOIsNqt+0CypY8wu0dSsTJJQw3H37yIdyYsgrjvHgJ/yQB0AAbOFBo6+v3C/fZ35ydswgeFCBEoeK9NC7QA==}
     engines: {node: '>= 18', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
     dev: false
 
