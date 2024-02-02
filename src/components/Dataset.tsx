@@ -75,22 +75,15 @@ export function Dataset({ context }: { context: TabContextType }) {
   } = usePageStore();
 
   const [open, setOpen] = useState(false);
-  useDeepCompareEffect(
-    () => {
-      if (context?.type != 'editor') {
-        (async () => {
-          try {
-            await refresh();
-          } catch (error) {
-            /* empty */
-          }
-        })();
+  useDeepCompareEffect(() => {
+    (async () => {
+      try {
+        await refresh();
+      } catch (error) {
+        /* empty */
       }
-    },
-    [
-      /* page, perPage, orderBy, sqlWhere */
-    ],
-  );
+    })();
+  }, []);
 
   useEffect(() => {
     if (code != 0) {

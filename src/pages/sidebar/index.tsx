@@ -3,12 +3,14 @@ import { styled } from '@mui/material/styles';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { useAtomValue } from 'jotai';
+import { nanoid } from 'nanoid';
 import { useEffect } from 'react';
 
 import ConfigDialog from '@/pages/sidebar/ConfigDialog';
 import RenameDialog from '@/pages/sidebar/RenameDialog';
 import { SideToolbar, openCreateAtom } from '@/pages/sidebar/SideToolbar';
 import { configAtom, dbListAtom, renameAtom } from '@/stores/dbList';
+import { TableContextType, useTabsStore } from '@/stores/tabs';
 
 import DBTreeView from './DBTreeView';
 
@@ -25,10 +27,20 @@ function Sidebar() {
   const dbList = useAtomValue(dbListAtom);
   const renameContext = useAtomValue(renameAtom);
   const configContext = useAtomValue(configAtom);
+  const updateTab = useTabsStore((state) => state.update);
 
   async function openUrl() {
     const path: string = await invoke('opened_urls');
     console.log(path);
+
+    const item: TableContextType = {
+      id: nanoid(),
+      dbId: path,
+      tableId: path,
+      displayName: path.split('/').at(-1) ?? path,
+      type: 'file',
+    };
+    updateTab!(item);
   }
 
   useEffect(() => {
