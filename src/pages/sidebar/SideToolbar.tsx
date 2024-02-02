@@ -12,7 +12,7 @@ import { getDB } from '@/api';
 import { MuiIconButton } from '@/components/MuiIconButton';
 import ToggleColorMode from '@/components/ToggleColorMode';
 import { ToolbarBox } from '@/components/Toolbar';
-import { DatabaseDialog } from '@/components/custom/DatabaseDialog';
+import { DatabaseDialog } from '@/pages/sidebar/DatabaseDialog';
 import Setting from '@/pages/settings/AppSetting';
 import {
   DialectType,
