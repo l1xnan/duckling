@@ -76,7 +76,7 @@
   "devDependencies": {
     "@swc-jotai/debug-label": "^0.1.0",
     "@swc-jotai/react-refresh": "^0.1.0",
-    "@tauri-apps/cli": "2.0.0-alpha.18",
+    "@tauri-apps/cli": "2.0.0-alpha.20",
     "@types/node": "^20.11.5",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
