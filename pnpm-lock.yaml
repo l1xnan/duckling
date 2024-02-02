@@ -108,8 +108,8 @@ dependencies:
     specifier: ^31.0.1
     version: 31.0.1
   ag-grid-react:
-    specifier: ^31.0.1
-    version: 31.0.1(react-dom@18.2.0)(react@18.2.0)
+    specifier: ^31.0.3
+    version: 31.0.3(react-dom@18.2.0)(react@18.2.0)
   ahooks:
     specifier: ^3.7.8
     version: 3.7.8(react@18.2.0)
@@ -3602,13 +3602,17 @@ packages:
     resolution: {integrity: sha512-RZQlW1DTOJHsUR/tnbnTJQKgAnDlHi05YYyTe5AgNor/1TlX1hoYdcqrGsJjvcHQgTjeEgzWOL0yf+KcqXZzxg==}
     dev: false
 
-  /ag-grid-react@31.0.1(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-9nmYPsgH1YUDUDOTiyaFsysoNAx/y72ovFJKuOffZC1V7OrQMadyP6DbqGFWCqzzoLJOY7azOr51dDQzAIXLpw==}
+  /ag-grid-community@31.0.3:
+    resolution: {integrity: sha512-k81YmLaOQOab9BavYD+Pw2smZSl6TXOJqj9hRuf70XQl3EknOHCGcra7joJxZRJLMKE/HdR+u33TNyX4TCuWfg==}
+    dev: false
+
+  /ag-grid-react@31.0.3(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-CE4Z5Rdb0H3MFBhmge9854AyDvI4DoG7ZoUJRFB1p2pu5ANVe6tv7cwEI/ugHemEXRRP6s5uvW+ndv0Q6x1/+Q==}
     peerDependencies:
       react: ^16.3.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.3.0 || ^17.0.0 || ^18.0.0
     dependencies:
-      ag-grid-community: 31.0.1
+      ag-grid-community: 31.0.3
       prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
