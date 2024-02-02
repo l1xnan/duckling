@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use arrow::array::*;
 use arrow::datatypes::*;
+use async_trait::async_trait;
 use chrono::naive::NaiveDate;
 use chrono::prelude::*;
 use chrono::DateTime;
@@ -35,6 +36,7 @@ impl ClickhouseDialect {
   }
 }
 
+#[async_trait]
 impl Dialect for ClickhouseDialect {
   async fn get_db(&self) -> Option<TreeNode> {
     let url = self.get_url();
@@ -48,6 +50,26 @@ impl Dialect for ClickhouseDialect {
     } else {
       None
     }
+  }
+
+  async fn query(&self, sql: &str) -> anyhow::Result<ArrowData> {
+    let pool = Pool::new(self.get_url());
+    let mut client = pool.get_handle().await?;
+    let mut stream = client.query(sql).stream_blocks();
+
+    let mut batchs = vec![];
+    while let Some(block) = stream.next().await {
+      let block = block?;
+      let batch = block_to_arrow(&block)?;
+      batchs.push(batch);
+    }
+    let b = batchs[0].clone();
+    let schema = b.schema();
+    let batch = arrow::compute::concat_batches(&schema, &batchs)?;
+    Ok(ArrowData {
+      total_count: batch.num_rows(),
+      preview: serialize_preview(&batch)?,
+    })
   }
 }
 
@@ -121,26 +143,6 @@ impl ClickhouseDialect {
       preview: serialize_preview(&batch)?,
     })
   }
-  
-  pub async fn query(&self, sql: &str) -> anyhow::Result<ArrowData> {
-    let pool = Pool::new(self.get_url());
-    let mut client = pool.get_handle().await?;
-    let mut stream = client.query(sql).stream_blocks();
-
-    let mut batchs = vec![];
-    while let Some(block) = stream.next().await {
-      let block = block?;
-      let batch = block_to_arrow(&block)?;
-      batchs.push(batch);
-    }
-    let b = batchs[0].clone();
-    let schema = b.schema();
-    let batch = arrow::compute::concat_batches(&schema, &batchs)?;
-    Ok(ArrowData {
-      total_count: batch.num_rows(),
-      preview: serialize_preview(&batch)?,
-    })
-  }
 
   pub async fn fetch_many(
     &self,
@@ -148,7 +150,6 @@ impl ClickhouseDialect {
     limit: usize,
     offset: usize,
   ) -> anyhow::Result<ArrowData> {
-
     println!("sql: {}, limit={}, offset={}", sql, limit, offset);
 
     let pool = Pool::new(self.get_url());

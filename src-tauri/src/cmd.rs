@@ -1,5 +1,7 @@
 use std::sync::Mutex;
 
+use serde::Deserialize;
+use serde::Serialize;
 use tauri::State;
 use tauri::Window;
 
@@ -14,6 +16,51 @@ use crate::{api, dialect};
 
 pub struct OpenedUrls(pub Mutex<Option<Vec<url::Url>>>);
 
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct DialectPayload {
+  pub dialect: String,
+  pub path: Option<String>,
+  pub username: Option<String>,
+  pub password: Option<String>,
+  pub host: Option<String>,
+  pub port: Option<String>,
+}
+
+pub async fn get_dialect(
+  DialectPayload {
+    dialect,
+    path,
+    username,
+    password,
+    host,
+    port,
+  }: DialectPayload,
+) -> Option<Box<dyn Dialect>> {
+  match dialect.as_str() {
+    "folder" => Some(Box::new(FolderDialect {
+      path: path.unwrap(),
+    })),
+    "file" => Some(Box::new(FileDialect {
+      path: path.unwrap(),
+    })),
+    "duckdb" => Some(Box::new(DuckDbDialect {
+      path: path.unwrap(),
+      cwd: None,
+    })),
+    "sqlite" => Some(Box::new(SqliteDialect {
+      path: path.unwrap(),
+    })),
+    "clickhouse" => Some(Box::new(ClickhouseDialect {
+      host: host.unwrap(),
+      port: port.unwrap(),
+      username: username.unwrap_or_default(),
+      password: password.unwrap_or_default(),
+    })),
+    // _ => Err("not support dialect".to_string()),
+    _ => None,
+  }
+}
+
 #[tauri::command]
 pub async fn show_tables(path: String) -> ArrowResponse {
   let res = dialect::sql::show_tables(path);
@@ -21,7 +68,7 @@ pub async fn show_tables(path: String) -> ArrowResponse {
 }
 
 #[tauri::command]
-pub async fn query(
+pub async fn execute(
   path: String,
   sql: String,
   limit: usize,
@@ -48,10 +95,23 @@ pub async fn query(
   Ok(api::convert(res))
 }
 
-#[derive(Clone, serde::Serialize)]
-struct Payload {
-  message: String,
+#[tauri::command]
+pub async fn query(
+  path: String,
+  sql: String,
+  limit: usize,
+  offset: usize,
+
+  dialect: DialectPayload,
+) -> Result<ArrowResponse, String> {
+  if let Some(d) = get_dialect(dialect).await {
+    let res = d.query(&sql).await;
+    Ok(api::convert(res))
+  } else {
+    Err("not support dialect".to_string())
+  }
 }
+
 #[tauri::command]
 pub async fn query_stream(
   window: Window,
@@ -79,41 +139,23 @@ pub async fn opened_urls(state: State<'_, OpenedUrls>) -> Result<String, String>
 
 #[tauri::command]
 pub async fn get_db(
-  path: Option<&str>,
   dialect: &str,
+  path: Option<String>,
   username: Option<String>,
   password: Option<String>,
   host: Option<String>,
   port: Option<String>,
 ) -> Result<Option<TreeNode>, String> {
-  if dialect == "folder" {
-    let d = FolderDialect {
-      path: String::from(path.unwrap()),
-    };
-    Ok(d.get_db().await)
-  } else if dialect == "file" {
-    let d = FileDialect {
-      path: String::from(path.unwrap()),
-    };
-    Ok(d.get_db().await)
-  } else if dialect == "duckdb" {
-    let d = DuckDbDialect {
-      path: String::from(path.unwrap()),
-      cwd: None,
-    };
-    Ok(d.get_db().await)
-  } else if dialect == "sqlite" {
-    let d = SqliteDialect {
-      path: String::from(path.unwrap()),
-    };
-    Ok(d.get_db().await)
-  } else if dialect == "clickhouse" {
-    let d = ClickhouseDialect {
-      host: host.unwrap(),
-      port: port.unwrap(),
-      username: username.unwrap_or_default(),
-      password: password.unwrap_or_default(),
-    };
+  let payload = DialectPayload {
+    dialect: dialect.to_string(),
+    path,
+    username,
+    password,
+    host,
+    port,
+  };
+
+  if let Some(d) = get_dialect(payload).await {
     Ok(d.get_db().await)
   } else {
     Err("not support dialect".to_string())

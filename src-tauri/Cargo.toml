@@ -19,7 +19,7 @@ arrow = { version = "49.0.0", features = ["prettyprint"] }
 
 duckdb = { version = "0.9.2", features = [
     "modern-full",
-     "bundled"
+    "bundled"
 ] }
 
 
@@ -47,6 +47,7 @@ log = "^0.4"
 nanoid = "0.4.0"
 chrono = "^0.4"
 chrono-tz = "^0.8"
+async-trait = "^0.1"
 
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
 tauri-plugin-updater = "2.0.0-alpha"

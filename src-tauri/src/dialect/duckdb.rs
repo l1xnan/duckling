@@ -1,5 +1,6 @@
 use std::env::{current_dir, set_current_dir};
 
+use async_trait::async_trait;
 use duckdb::Connection;
 
 use crate::api::{serialize_preview, ArrowData};
@@ -12,6 +13,7 @@ pub struct DuckDbDialect {
   pub cwd: Option<String>,
 }
 
+#[async_trait]
 impl Dialect for DuckDbDialect {
   async fn get_db(&self) -> Option<TreeNode> {
     if let Ok(tables) = get_tables(&self.path) {

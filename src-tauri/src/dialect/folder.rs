@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use std::fs;
 use std::path::Path;
 
@@ -10,6 +11,7 @@ pub struct FolderDialect {
   pub path: String,
 }
 
+#[async_trait]
 impl Dialect for FolderDialect {
   async fn get_db(&self) -> Option<TreeNode> {
     directory_tree(self.path.as_str())

@@ -1,4 +1,7 @@
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
+
+use crate::api::ArrowData;
 
 pub mod clickhouse;
 pub mod duckdb;
@@ -16,10 +19,12 @@ pub struct TreeNode {
   pub node_type: String,
 }
 
-pub trait Dialect {
+#[async_trait]
+pub trait Dialect: Sync + Send {
   async fn get_db(&self) -> Option<TreeNode>;
-
-  // async fn query(&self, sql: &str)->anyhow::Result<ArrowData> {}
+  async fn query(&self, sql: &str) -> anyhow::Result<ArrowData> {
+    unimplemented!()
+  }
 }
 
 pub mod sql {

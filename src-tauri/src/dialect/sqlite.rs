@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use sqlx::sqlite::SqlitePool;
 use sqlx::Connection;
 use sqlx::Row;
@@ -10,6 +11,7 @@ pub struct SqliteDialect {
   pub path: String,
 }
 
+#[async_trait]
 impl Dialect for SqliteDialect {
   async fn get_db(&self) -> Option<TreeNode> {
     let url = self.get_url();
