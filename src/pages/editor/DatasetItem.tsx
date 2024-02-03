@@ -27,6 +27,8 @@ import { AgTable } from '@/components/AgTable';
 import Dropdown from '@/components/Dropdown';
 import { TablerSvgIcon } from '@/components/MuiIconButton';
 import { ToolbarContainer } from '@/components/Toolbar';
+import { Toaster } from '@/components/ui/toaster';
+import { useToast } from '@/components/ui/use-toast';
 import { PageContext, createDatasetStore } from '@/stores/dataset';
 import { QueryContextType, TabContextType, execute } from '@/stores/tabs';
 import { isDarkTheme } from '@/utils';
@@ -64,10 +66,21 @@ export function DatasetItem({
   context: PrimitiveAtom<QueryContextType>;
 }) {
   const [ctx, setContext] = useAtom(context);
+  const { toast } = useToast();
 
   const handleQuery = async () => {
-    const res = (await execute(ctx)) ?? {};
-    setContext((prev) => ({ ...prev, ...res }));
+    try {
+      const res = (await execute(ctx)) ?? {};
+      setContext((prev) => ({ ...prev, ...res }));
+    } catch (error) {
+      console.log(error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: (error as Error).message,
+        duration: 3000,
+      });
+    }
   };
 
   useEffect(() => {
@@ -91,6 +104,7 @@ export function DatasetItem({
 
   return (
     <Stack height={'100%'}>
+      <Toaster />
       <PageSizeToolbar query={handleQuery} ctx={context} />
       <Box sx={{ height: '100%' }}>
         <Suspense

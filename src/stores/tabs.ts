@@ -9,23 +9,29 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
 import { ResultType, query } from '@/api';
-import { genStmt } from '@/utils';
+import { genStmt, isEmpty } from '@/utils';
 
-import { SchemaType } from './dataset';
+import { OrderByType, SchemaType } from './dataset';
 import { atomStore, dbMapAtom, tablesAtom } from './dbList';
 
-export type QueryContextType = {
-  id: string;
+export type QueryParamType = {
   dbId: string;
   tableId: string;
   type?: string;
-  extra?: unknown;
-  displayName: string;
-
-  stmt: string;
+  stmt?: string;
 
   page: number;
   perPage: number;
+
+  sqlWhere?: string;
+  orderBy?: OrderByType;
+};
+export type QueryContextType = QueryParamType & {
+  id: string;
+
+  extra?: unknown;
+  displayName: string;
+
   totalCount: number;
 
   data?: unknown[];
@@ -148,35 +154,52 @@ export const subTabsAtomFamily = atomFamily(
   (a: Partial<SubTab>, b: Partial<SubTab>) => a.id === b.id,
 );
 
+function getTable(dbId: string, tableId: string) {
+  const tableMap = atomStore.get(tablesAtom);
+  return tableMap.get(dbId)?.get(tableId);
+}
+function getDatabase(dbId?: string) {
+  if (!isEmpty(dbId)) {
+    const dbMap = atomStore.get(dbMapAtom);
+    return dbMap.get(dbId!);
+  }
+}
+
 export async function execute(
-  ctx: QueryContextType,
+  ctx: QueryParamType,
 ): Promise<ResultType | undefined> {
-  const { page = 1, perPage = 500, sqlWhere, orderBy, stmt } = ctx;
+  const {
+    page = 1,
+    perPage = 500,
+    sqlWhere,
+    orderBy,
+    stmt,
+    dbId,
+    tableId,
+  } = ctx;
 
-  const dbId = ctx?.dbId;
-
-  if (!dbId) {
-    return;
+  const db = getDatabase(ctx?.dbId);
+  if (!db && ctx.type != 'file') {
+    throw new Error('No connection found');
   }
-
-  const dbMap = atomStore.get(dbMapAtom);
-
-  const db = dbMap.get(dbId);
-  if (!db) {
-    return;
+  let dialect = db?.config;
+  if (ctx.type == 'file') {
+    dialect = {
+      dialect: 'file',
+    };
   }
-
   let sql = stmt;
 
   if (!sql) {
-    const tableMap = atomStore.get(tablesAtom);
-    const table = tableMap.get(dbId)?.get(ctx?.tableId ?? '');
-
-    let tableName = table.path;
-    if (table.path.endsWith('.csv')) {
-      tableName = `read_csv_auto('${table.path}')`;
-    } else if (table.path.endsWith('.parquet')) {
-      tableName = `read_parquet('${table.path}')`;
+    let tableName = tableId;
+    if (ctx.type !== 'file') {
+      const table = getTable(dbId, tableId);
+      tableName = table.path;
+    }
+    if (tableName.endsWith('.csv')) {
+      tableName = `read_csv_auto('${tableName}')`;
+    } else if (tableName.endsWith('.parquet')) {
+      tableName = `read_parquet('${tableName}')`;
     }
     sql = genStmt({
       tableName,
@@ -186,7 +209,7 @@ export async function execute(
   }
   console.log('query:', sql);
   const data = await query({
-    dialect: db?.config,
+    dialect,
     sql,
     limit: perPage,
     offset: (page - 1) * perPage,

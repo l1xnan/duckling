@@ -56,11 +56,11 @@ export default function Editor({
   const id = tabContext.id;
 
   const tabAtom = subTabsAtomFamily({ id, children: [] });
+  tabAtom.debugLabel = `tabAtom-${id}`;
 
   const [tab, setTab] = useAtom(tabAtom);
 
   const subTabsAtom = focusAtom(tabAtom, (o) => o.prop('children'));
-
   const setSubTabs = useSetAtom(subTabsAtom);
 
   const stmt = docs[id] ?? '';

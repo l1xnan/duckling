@@ -30,6 +30,9 @@ export type FolderConfig = {
   cwd?: string;
   dialect: DialectType;
 };
+export type FileConfig = {
+  dialect: 'file';
+};
 
 export type ClickhouseDialectType = {
   host: string;
@@ -40,7 +43,11 @@ export type ClickhouseDialectType = {
   dialect: DialectType;
 };
 
-export type DialectConfig = DuckdbConfig | ClickhouseDialectType | FolderConfig;
+export type DialectConfig =
+  | DuckdbConfig
+  | ClickhouseDialectType
+  | FolderConfig
+  | FileConfig;
 
 export type DBType = {
   id: string;

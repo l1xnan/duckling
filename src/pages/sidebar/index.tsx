@@ -31,16 +31,17 @@ function Sidebar() {
 
   async function openUrl() {
     const path: string = await invoke('opened_urls');
-    console.log(path);
-
-    const item: TableContextType = {
-      id: nanoid(),
-      dbId: path,
-      tableId: path,
-      displayName: path.split('/').at(-1) ?? path,
-      type: 'file',
-    };
-    updateTab!(item);
+    console.log('opened_urls', path);
+    if (path?.length > 0) {
+      const item: TableContextType = {
+        id: nanoid(),
+        dbId: ':memory:',
+        tableId: path,
+        displayName: path.split('/').at(-1) ?? path,
+        type: 'file',
+      };
+      updateTab!(item);
+    }
   }
 
   useEffect(() => {

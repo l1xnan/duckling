@@ -5,7 +5,12 @@ import { query } from '@/api';
 import { genStmt } from '@/utils';
 
 import { atomStore, dbMapAtom, tablesAtom } from './dbList';
-import { TabContextType } from './tabs';
+import {
+  QueryContextType,
+  QueryParamType,
+  TabContextType,
+  execute,
+} from './tabs';
 
 export type SchemaType = {
   name: string;
@@ -148,47 +153,20 @@ export const createDatasetStore = (context: TabContextType) =>
       set((state) => ({ page: state.page - 1 }));
       get().refresh();
     },
-    refresh: async (stmt?: string) => {
-      const { page, perPage, context, sqlWhere } = get();
+    refresh: async () => {
+      const { page, perPage, context, sqlWhere, orderBy } = get();
 
-      const dbId = context?.dbId;
+      const ctx: QueryParamType = {
+        page,
+        perPage,
+        sqlWhere,
+        orderBy,
+        dbId: context?.dbId ?? '',
+        tableId: context?.tableId ?? '',
+      };
+      console.log(ctx);
+      const data = await execute(ctx);
 
-      if (!dbId) {
-        return;
-      }
-
-      const dbMap = atomStore.get(dbMapAtom);
-
-      const db = dbMap.get(dbId);
-      if (!db) {
-        return;
-      }
-
-      let sql = stmt;
-
-      if (!sql) {
-        const tableMap = atomStore.get(tablesAtom);
-        const table = tableMap.get(dbId)?.get(context?.tableId ?? '');
-
-        let tableName = table.path;
-        if (table.path.endsWith('.csv')) {
-          tableName = `read_csv_auto('${table.path}')`;
-        } else if (table.path.endsWith('.parquet')) {
-          tableName = `read_parquet('${table.path}')`;
-        }
-        sql = genStmt({
-          tableName,
-          orderBy: get().orderBy,
-          where: sqlWhere,
-        });
-      }
-      console.log('query:', sql);
-      const data = await query({
-        sql,
-        limit: perPage,
-        offset: (page - 1) * perPage,
-        dialect: db?.config,
-      });
       set({ ...data });
     },
   }));
