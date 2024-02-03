@@ -154,11 +154,11 @@ export const subTabsAtomFamily = atomFamily(
   (a: Partial<SubTab>, b: Partial<SubTab>) => a.id === b.id,
 );
 
-function getTable(dbId: string, tableId: string) {
+export function getTable(dbId: string, tableId: string) {
   const tableMap = atomStore.get(tablesAtom);
   return tableMap.get(dbId)?.get(tableId);
 }
-function getDatabase(dbId?: string) {
+export function getDatabase(dbId?: string) {
   if (!isEmpty(dbId)) {
     const dbMap = atomStore.get(dbMapAtom);
     return dbMap.get(dbId!);

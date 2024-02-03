@@ -9,6 +9,7 @@ import { showTables } from '@/api';
 import {
   EditorContextType,
   QueryContextType,
+  getDatabase,
   subTabsAtomFamily,
   useTabsStore,
 } from '@/stores/tabs';
@@ -54,6 +55,8 @@ export default function Editor({
   const docs = useTabsStore((state) => state.docs);
 
   const id = tabContext.id;
+
+  const db = getDatabase(tabContext.dbId);
 
   const tabAtom = subTabsAtomFamily({ id, children: [] });
   tabAtom.debugLabel = `tabAtom-${id}`;
@@ -118,7 +121,7 @@ export default function Editor({
 
   return (
     <>
-      <EditorToolbar onClick={handleClick} />
+      <EditorToolbar onClick={handleClick} session={db?.displayName} />
       <VerticalContainer bottom={tab.children.length > 0 ? 300 : undefined}>
         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <MonacoEditor ref={ref} value={stmt} onChange={handleChange} />
