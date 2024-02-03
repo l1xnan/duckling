@@ -59,28 +59,32 @@ export function DBContextMenu({
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-64">
-        <ContextMenuItem onSelect={handleProperties}>
-          <Settings size={16} className="mr-2" />
+        <ContextMenuItem className="py-1 text-xs" onSelect={handleProperties}>
+          <Settings size={14} className="mr-2.5" />
           Properties
           <ContextMenuShortcut>F3</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuSeparator />
-        <ContextMenuItem onSelect={handleEditor}>
-          <Code size={16} className="mr-2" />
+        <ContextMenuItem className="py-1 text-xs" onSelect={handleEditor}>
+          <Code size={14} className="mr-2.5" />
           SQL Editor
           <ContextMenuShortcut>F4</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuSeparator />
-        <ContextMenuItem inset onSelect={() => setRenameContext(db)}>
+        <ContextMenuItem
+          className="py-1 text-xs"
+          inset
+          onSelect={() => setRenameContext(db)}
+        >
           Rename
           <ContextMenuShortcut>F2</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem onSelect={handleRefresh}>
-          <RefreshCcw size={16} className="mr-2" />
+        <ContextMenuItem className="py-1 text-xs" onSelect={handleRefresh}>
+          <RefreshCcw size={14} className="mr-2.5" />
           Refresh
           <ContextMenuShortcut>F5</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem inset onSelect={handleRemove}>
+        <ContextMenuItem className="py-1 text-xs" inset onSelect={handleRemove}>
           Delete
           <ContextMenuShortcut>Del</ContextMenuShortcut>
         </ContextMenuItem>

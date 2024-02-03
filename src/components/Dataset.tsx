@@ -24,7 +24,7 @@ import React, {
   useState,
 } from 'react';
 
-import Dropdown from '@/components/Dropdown';
+import { PaginationDropdown } from '@/components/PaginationDropdown';
 import {
   PageContext,
   createDatasetStore,
@@ -181,7 +181,7 @@ function PageSizeToolbar() {
         <IconButton color="inherit" onClick={decrease} disabled={page <= 1}>
           <KeyboardArrowLeftIcon />
         </IconButton>
-        <Dropdown content={content} />
+        <PaginationDropdown content={content} />
         {count < totalCount ? `of ${totalCount}` : null}
         <IconButton
           color="inherit"

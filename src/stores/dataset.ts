@@ -148,7 +148,10 @@ export const createDatasetStore = (context: TabContextType) =>
       });
       get().refresh();
     },
-    setPerPage: (perPage: number) => set((_) => ({ perPage })),
+    setPerPage: (perPage: number) => {
+      set((_) => ({ perPage }));
+      get().refresh();
+    },
     decrease: () => {
       set((state) => ({ page: state.page - 1 }));
       get().refresh();

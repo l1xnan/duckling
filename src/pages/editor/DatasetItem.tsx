@@ -24,8 +24,8 @@ import React, {
 } from 'react';
 
 import { AgTable } from '@/components/AgTable';
-import Dropdown from '@/components/Dropdown';
 import { TablerSvgIcon } from '@/components/MuiIconButton';
+import { PaginationDropdown } from '@/components/PaginationDropdown';
 import { ToolbarContainer } from '@/components/Toolbar';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/components/ui/use-toast';
@@ -208,7 +208,7 @@ function PageSizeToolbar({ query, ctx }: PageSizeToolbarProps) {
         <IconButton color="inherit" onClick={decrease} disabled={page <= 1}>
           <KeyboardArrowLeftIcon />
         </IconButton>
-        <Dropdown content={content} />
+        <PaginationDropdown content={content} />
         {count < totalCount ? `of ${totalCount}` : null}
         <IconButton
           color="inherit"
