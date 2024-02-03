@@ -1,4 +1,4 @@
-import { Box, Divider } from '@mui/material';
+import { Box } from '@mui/material';
 import {
   IconCaretDownFilled,
   IconCaretUpDownFilled,
@@ -6,12 +6,18 @@ import {
 } from '@tabler/icons-react';
 import { ColumnState, GridApi } from 'ag-grid-community';
 import dedent from 'dedent';
-import { useState } from 'react';
+import { PinIcon } from 'lucide-react';
 
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu';
 import { usePageStore } from '@/stores/dataset';
 import { useTabsStore } from '@/stores/tabs';
 
-import { ContextMenu, ContextMenuItem } from '../ContextMenu';
+import { ContextMenuItem } from '../custom/context-menu';
 
 // https://ag-grid.com/react-data-grid/component-header/
 interface HeadCellProps {
@@ -39,29 +45,6 @@ export default (props: HeadCellProps) => {
     return;
   }
 
-  const [contextMenu, setContextMenu] = useState<{
-    mouseX: number;
-    mouseY: number;
-  } | null>(null);
-
-  const handleContextMenu = (event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setContextMenu(
-      contextMenu === null
-        ? {
-            mouseX: event.clientX + 2,
-            mouseY: event.clientY - 6,
-          }
-        : null,
-    );
-    setDialogColumn(props.column.colId);
-  };
-
-  const handleClose = () => {
-    setContextMenu(null);
-  };
-
   const pinColumn = ({ colId, pinned }: ColumnState) => {
     const state = props.api.getColumnState();
     console.log('state:', state);
@@ -77,43 +60,39 @@ export default (props: HeadCellProps) => {
       ),
       defaultState: { pinned: null },
     });
-    handleClose();
   };
 
   return (
-    <Box
-      onContextMenu={handleContextMenu}
-      sx={{ cursor: 'context-menu', width: '100%' }}
-    >
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          width: '100%',
-          height: 20,
-          lineHeight: 1,
-          pl: '6px',
-          pr: '6px',
-          fontSize: '14px',
-        }}
-        onClick={() => {
-          setOrderBy!(key);
-        }}
-      >
-        <Box>{props.displayName}</Box>
-        <AscOrDescIcon isDesc={isDesc} />
-      </Box>
-      <ContextMenu
-        open={contextMenu !== null}
-        onClose={handleClose}
-        anchorReference="anchorPosition"
-        anchorPosition={
-          contextMenu !== null
-            ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-            : undefined
+    <ContextMenu
+      onOpenChange={(open) => {
+        if (open) {
+          setDialogColumn(props.column.colId);
         }
-      >
+      }}
+    >
+      <ContextMenuTrigger>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+            height: 20,
+            lineHeight: 1,
+            pl: '6px',
+            pr: '6px',
+            fontSize: '14px',
+          }}
+          onClick={() => {
+            setOrderBy!(key);
+          }}
+        >
+          <Box>{props.displayName}</Box>
+          <AscOrDescIcon isDesc={isDesc} />
+        </Box>
+      </ContextMenuTrigger>
+
+      <ContextMenuContent className="w-64">
         <ContextMenuItem
           onClick={() => {
             if (table) {
@@ -129,14 +108,13 @@ export default (props: HeadCellProps) => {
                 `,
               });
             }
-
-            handleClose();
           }}
         >
           Count(group by)
         </ContextMenuItem>
-        <Divider />
+        <ContextMenuSeparator />
         <ContextMenuItem
+          icon={PinIcon}
           onClick={() => {
             pinColumn({
               colId: key,
@@ -162,13 +140,12 @@ export default (props: HeadCellProps) => {
               colId: key,
               pinned: null,
             });
-            handleClose();
           }}
         >
           Clear Pinned
         </ContextMenuItem>
-      </ContextMenu>
-    </Box>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 };
 
