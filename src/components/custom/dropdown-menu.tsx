@@ -4,6 +4,7 @@ import { ComponentProps, PropsWithChildren } from 'react';
 import {
   DropdownMenuTrigger,
   DropdownMenu as UIDropdownMenu,
+  DropdownMenuItem as UIDropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
 import {
   PaginationContent,
@@ -22,7 +23,7 @@ export function DropdownMenu({ content, children }: DropdownProps) {
       <DropdownMenuTrigger asChild>
         <PaginationContent>
           <PaginationItem>
-            <PaginationLink className="w-full">
+            <PaginationLink className="w-full px-2" size={'sm'}>
               {content}
               <KeyboardArrowDownIcon />
             </PaginationLink>
@@ -32,4 +33,10 @@ export function DropdownMenu({ content, children }: DropdownProps) {
       {children}
     </UIDropdownMenu>
   );
+}
+
+export function DropdownMenuItem(
+  props: ComponentProps<typeof UIDropdownMenuItem>,
+) {
+  return <UIDropdownMenuItem className="py-1 text-xs" {...props} />;
 }

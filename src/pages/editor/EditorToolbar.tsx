@@ -1,18 +1,17 @@
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import { IconButton, Stack } from '@mui/material';
 
 import { ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
-import { DropdownMenu } from '@/components/custom/dropdown-menu';
-import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+} from '@/components/custom/dropdown-menu';
 import {
   DropdownMenuContent,
   DropdownMenuGroup,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useDBListStore } from '@/stores/dbList';
 
