@@ -185,6 +185,7 @@ export async function execute(
   let dialect = db?.config;
   if (ctx.type == 'file') {
     dialect = {
+      path: tableId,
       dialect: 'file',
     };
   }

@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use std::path::PathBuf;
 
+use crate::api::{self, ArrowData};
 use crate::dialect::{Dialect, TreeNode};
 use crate::utils::get_file_name;
 
@@ -20,5 +21,9 @@ impl Dialect for FileDialect {
       node_type: path.extension().unwrap().to_string_lossy().to_string(),
       children: None,
     })
+  }
+
+  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
+    api::query(":memory:", sql, limit, offset, None)
   }
 }

@@ -37,7 +37,7 @@ function Sidebar() {
         id: nanoid(),
         dbId: ':memory:',
         tableId: path,
-        displayName: path.split('/').at(-1) ?? path,
+        displayName: path.replaceAll('\\', '/').split('/').at(-1) ?? path,
         type: 'file',
       };
       updateTab!(item);

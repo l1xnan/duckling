@@ -32,6 +32,7 @@ export type FolderConfig = {
 };
 export type FileConfig = {
   dialect: 'file';
+  path: string;
 };
 
 export type ClickhouseDialectType = {

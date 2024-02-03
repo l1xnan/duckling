@@ -157,6 +157,7 @@ export const createDatasetStore = (context: TabContextType) =>
       const { page, perPage, context, sqlWhere, orderBy } = get();
 
       const ctx: QueryParamType = {
+        type: context?.type,
         page,
         perPage,
         sqlWhere,
