@@ -1,68 +1,27 @@
 import SettingsIcon from '@mui/icons-material/Settings';
-import {
-  Box,
-  ListItem,
-  ListItemText,
-  OutlinedInput,
-  OutlinedInputProps,
-  styled,
-} from '@mui/material';
+import { DialogClose } from '@radix-ui/react-dialog';
 import * as React from 'react';
-import { ReactNode } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
-import { DialogBox } from '@/components/DialogBox';
 import { MuiIconButton } from '@/components/MuiIconButton';
+import Dialog from '@/components/custom/Dialog';
+import { Button } from '@/components/ui/button';
+import { DialogFooter } from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import { SettingState, useSettingStore } from '@/stores/setting';
 
-interface ItemProps {
-  label: ReactNode;
-  extra?: ReactNode;
-  children?: ReactNode;
-  secondary?: ReactNode;
-}
-
-export const SettingItem: React.FC<ItemProps> = (props) => {
-  const { label, extra, children, secondary } = props;
-
-  const primary = !extra ? (
-    label
-  ) : (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Box sx={{ fontSize: '14px' }}>{label}</Box>
-      {extra}
-    </Box>
-  );
-
-  return (
-    <ListItem sx={{ pt: '5px', pb: '5px' }}>
-      <ListItemText primary={primary} secondary={secondary} />
-      {children}
-    </ListItem>
-  );
-};
-
-export const FormInput = styled(OutlinedInput)<OutlinedInputProps>(() => ({
-  ml: 1,
-  flex: 1,
-  height: 32,
-}));
-
-export default function MaxWidthDialog() {
-  const [open, setOpen] = React.useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
+export default function AppSettingDialog() {
   const setStore = useSettingStore((state) => state.setStore);
   const precision = useSettingStore((state) => state.precision);
   const table_font_family = useSettingStore((state) => state.table_font_family);
-  const { control, handleSubmit } = useForm({
+  const form = useForm({
     defaultValues: {
       table_font_family,
       precision,
@@ -76,45 +35,50 @@ export default function MaxWidthDialog() {
 
   return (
     <React.Fragment>
-      <MuiIconButton onClick={handleClickOpen}>
-        <SettingsIcon fontSize="inherit" />
-      </MuiIconButton>
-      <DialogBox
+      <Dialog
         title="Setting"
-        open={open}
-        onOk={() => {
-          handleSubmit(onSubmit)();
-          handleClose();
-        }}
-        onCancel={handleClose}
+        trigger={
+          <MuiIconButton>
+            <SettingsIcon fontSize="inherit" />
+          </MuiIconButton>
+        }
       >
-        <Box
-          noValidate
-          component="form"
-          onSubmit={handleSubmit(onSubmit)}
-          sx={{
-            display: 'flex',
-            width: '100%',
-            flexDirection: 'column',
-            m: 'auto',
-          }}
-        >
-          <SettingItem label="Float precision">
-            <Controller
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
               name="precision"
-              control={control}
-              render={({ field }) => <FormInput {...field} />}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Float precision</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
             />
-          </SettingItem>
-          <SettingItem label="Table Font Family">
-            <Controller
+            <FormField
+              control={form.control}
               name="table_font_family"
-              control={control}
-              render={({ field }) => <FormInput {...field} />}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Table Font Family</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
             />
-          </SettingItem>
-        </Box>
-      </DialogBox>
+
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="secondary">Cancel</Button>
+              </DialogClose>
+              <Button type="submit">Ok</Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </Dialog>
     </React.Fragment>
   );
 }
