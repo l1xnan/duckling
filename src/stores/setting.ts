@@ -1,7 +1,8 @@
+import { atomWithStore } from 'jotai-zustand';
+// eslint-disable-next-line import/order
+import { selectAtom } from 'jotai/utils';
 import { create } from 'zustand';
-import { createJSONStorage, devtools, persist } from 'zustand/middleware';
-
-import { debounce } from '@/utils';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 export type SettingState = {
   precision?: number;
@@ -10,22 +11,23 @@ export type SettingState = {
   proxy?: string;
 };
 
-type SettingAction = {
-  setStore: (state: SettingState) => void;
-};
-
-export const useSettingStore = create<SettingState & SettingAction>()(
-  devtools(
-    persist(
-      (set) => ({
-        precision: 4,
-        auto_update: true,
-        setStore: debounce((state: object) => set((_) => ({ ...state }))),
-      }),
-      {
-        name: 'settingStore',
-        storage: createJSONStorage(() => localStorage),
-      },
-    ),
+export const useSettingStore = create<SettingState>()(
+  persist(
+    (_) => ({
+      precision: 4,
+      auto_update: true,
+    }),
+    {
+      name: 'settingStore',
+      storage: createJSONStorage(() => localStorage),
+    },
   ),
+);
+
+export const settingAtom = atomWithStore(useSettingStore);
+
+export const precisionAtom = selectAtom(settingAtom, (s) => s.precision);
+export const tableFontFamilyAtom = selectAtom(
+  settingAtom,
+  (s) => s.table_font_family,
 );

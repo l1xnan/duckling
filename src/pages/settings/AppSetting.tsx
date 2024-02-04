@@ -4,6 +4,7 @@ import { ReloadIcon } from '@radix-ui/react-icons';
 import { getTauriVersion, getVersion } from '@tauri-apps/api/app';
 import { relaunch } from '@tauri-apps/plugin-process';
 import { check } from '@tauri-apps/plugin-updater';
+import { useAtom } from 'jotai';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -24,29 +25,21 @@ import {
 import { Input } from '@/components/ui/input';
 import { Toaster } from '@/components/ui/sonner';
 import { Switch } from '@/components/ui/switch';
-import { SettingState, useSettingStore } from '@/stores/setting';
+import { SettingState, settingAtom, useSettingStore } from '@/stores/setting';
 
 export default function AppSettingDialog() {
-  const setStore = useSettingStore((state) => state.setStore);
-  const precision = useSettingStore((state) => state.precision);
-  const table_font_family = useSettingStore((state) => state.table_font_family);
-  const auto_update = useSettingStore((state) => state.auto_update);
   const proxy = useSettingStore((state) => state.proxy);
+
+  const [settings, setSettings] = useAtom(settingAtom);
   const form = useForm({
-    defaultValues: {
-      table_font_family,
-      precision,
-      auto_update,
-      proxy,
-    },
+    defaultValues: settings,
   });
 
   const [loading, setLoading] = useState<boolean>(false);
   const [version, setVersion] = useState<string>();
   const [tauriVersion, seTtauriVersion] = useState<string>();
   const onSubmit = (data: SettingState) => {
-    setStore(data);
-    console.log('form:', data);
+    setSettings(data);
   };
   useEffect(() => {
     (async () => {
