@@ -179,6 +179,7 @@ export async function execute(
     dbId,
     tableId,
   } = ctx;
+  console.log(ctx);
 
   const db = getDatabase(ctx?.dbId);
   if (!db && ctx.type != 'file') {

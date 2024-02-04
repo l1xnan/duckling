@@ -10,6 +10,7 @@ import {
 
 import { DatasetEmpty } from '@/components/DatasetEmpty';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TabContextType } from '@/stores/tabs';
 import { borderTheme, isDarkTheme } from '@/utils';
 
@@ -142,5 +143,61 @@ export function PageTabs({
         </Box>
       </TabContext>
     </Box>
+  );
+}
+
+export function PageTabs1({
+  items,
+  activeKey,
+  onChange,
+  onRemove,
+}: PageTabsProps) {
+  return (
+    <Tabs
+      className="w-full h-full flex flex-col justify-start items-start"
+      value={activeKey}
+      onValueChange={onChange}
+    >
+      <TabsList className="p-0 h-8">
+        {items.map(({ tab }) => {
+          return (
+            <TabsTrigger
+              key={tab.id}
+              value={tab.id}
+              className={
+                'wm-200 data-[state=active]:border-b-2 data-[state=active]:shadow-none data-[state=active]:rounded-none data-[state=active]:border-gray-900'
+              }
+            >
+              {tab.displayName}
+              <IconButton
+                size="small"
+                component="div"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove(tab.id);
+                }}
+              >
+                <CloseIcon fontSize="inherit" />
+              </IconButton>
+            </TabsTrigger>
+          );
+        })}
+      </TabsList>
+      {items.map(({ tab, children }) => {
+        return (
+          <TabsContent
+            key={tab.id}
+            value={tab.id}
+            forceMount
+            hidden={tab.id != activeKey}
+            className="h-full w-full mt-0"
+          >
+            <ErrorBoundary fallback={<p>Something went wrong</p>}>
+              {children}
+            </ErrorBoundary>
+          </TabsContent>
+        );
+      })}
+    </Tabs>
   );
 }

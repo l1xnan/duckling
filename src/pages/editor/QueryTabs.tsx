@@ -1,10 +1,11 @@
 import { PrimitiveAtom, useAtom, useAtomValue } from 'jotai';
 import { splitAtom } from 'jotai/utils';
 
+import { PageProvider } from '@/components/Dataset';
 import { PageTabs } from '@/components/PageTabs';
 import { QueryContextType } from '@/stores/tabs';
 
-import DatasetItem, { PageProvider } from './DatasetItem';
+import DatasetItem from './DatasetItem';
 
 export interface QueryTabsProps {
   tabsAtom: PrimitiveAtom<QueryContextType[]>;
@@ -25,7 +26,7 @@ export function QueryTabs({
     tabsAtoms?.map((tabAtom, i) => {
       const tab = tabs[i];
       const children = (
-        <PageProvider table={tab}>
+        <PageProvider context={tab}>
           <DatasetItem context={tabAtom} />
         </PageProvider>
       );

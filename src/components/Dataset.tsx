@@ -124,13 +124,16 @@ function PageSizeToolbar() {
     toFirst,
     toLast,
     perPage,
+    setPerPage,
   } = usePageStore();
 
   const count = data.length;
   const start = perPage * (page - 1) + 1;
   const end = start + count - 1;
   const content = count >= totalCount ? `${count} rows` : `${start}-${end}`;
-
+  const handlePerPage = (page: number) => {
+    setPerPage?.(page);
+  };
   return (
     <ToolbarContainer>
       <Stack
@@ -151,7 +154,7 @@ function PageSizeToolbar() {
         <IconButton color="inherit" onClick={decrease} disabled={page <= 1}>
           <KeyboardArrowLeftIcon />
         </IconButton>
-        <PaginationDropdown content={content} />
+        <PaginationDropdown content={content} setPerPage={handlePerPage} />
         {count < totalCount ? `of ${totalCount}` : null}
         <IconButton
           color="inherit"

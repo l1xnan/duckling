@@ -7,14 +7,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { usePageStore } from '@/stores/dataset';
 
 export interface DropdownProps {
   content: string;
+  setPerPage: (page: number) => void;
 }
 
-export function PaginationDropdown({ content }: DropdownProps) {
-  const { setPerPage } = usePageStore();
+export function PaginationDropdown({ content, setPerPage }: DropdownProps) {
   return (
     <DropdownMenu content={content}>
       <DropdownMenuContent className="w-32">
@@ -22,7 +21,7 @@ export function PaginationDropdown({ content }: DropdownProps) {
           <DropdownMenuItem
             key={item}
             onSelect={() => {
-              setPerPage!(item);
+              setPerPage(item);
             }}
           >
             {item}

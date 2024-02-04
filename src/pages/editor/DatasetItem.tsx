@@ -79,8 +79,10 @@ function PageSizeToolbar({ query, ctx }: PageSizeToolbarProps) {
   const { page, perPage, totalCount, data } = context;
 
   const pageAtom = focusAtom(ctx, (o) => o.prop('page'));
+  const perPageAtom = focusAtom(ctx, (o) => o.prop('perPage'));
   const beautifyAtom = focusAtom(ctx, (o) => o.prop('beautify'));
   const setPage = useSetAtom(pageAtom);
+  const setPerPage = useSetAtom(perPageAtom);
   const setBeautify = useSetAtom(beautifyAtom);
 
   const handleBeautify = () => {
@@ -109,6 +111,11 @@ function PageSizeToolbar({ query, ctx }: PageSizeToolbarProps) {
     await query();
   };
 
+  const handlePerPage = async (page: number) => {
+    setPerPage(() => page);
+    await query();
+  };
+
   const count = data?.length ?? 0;
   const start = perPage * (page - 1) + 1;
   const end = start + count - 1;
@@ -134,7 +141,7 @@ function PageSizeToolbar({ query, ctx }: PageSizeToolbarProps) {
         <IconButton color="inherit" onClick={decrease} disabled={page <= 1}>
           <KeyboardArrowLeftIcon />
         </IconButton>
-        <PaginationDropdown content={content} />
+        <PaginationDropdown content={content} setPerPage={handlePerPage} />
         {count < totalCount ? `of ${totalCount}` : null}
         <IconButton
           color="inherit"
