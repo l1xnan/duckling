@@ -7,7 +7,7 @@ import { useAtomValue } from 'jotai';
 import { CSSProperties, useCallback, useMemo, useRef } from 'react';
 
 import HeaderCell from '@/components/dataframe/HeaderCell';
-import { SchemaType, usePageStore } from '@/stores/dataset';
+import { OrderByType, SchemaType } from '@/stores/dataset';
 import { precisionAtom } from '@/stores/setting';
 import { getByteLength, isDarkTheme } from '@/utils';
 
@@ -16,6 +16,7 @@ interface TableProps<T = unknown> {
   schema: SchemaType[];
   beautify?: boolean;
   style?: CSSProperties;
+  orderBy?: OrderByType;
 }
 
 type RowType = Record<string, unknown>;
@@ -40,7 +41,13 @@ function isNumber(dataType: string) {
   );
 }
 
-export const AgTable = ({ data, schema, beautify, ...rest }: TableProps) => {
+export const AgTable = ({
+  data,
+  schema,
+  beautify,
+  orderBy,
+  ...rest
+}: TableProps) => {
   const gridRef = useRef<AgGridReact | null>(null);
   const theme = useTheme();
   const precision = useAtomValue(precisionAtom);
@@ -112,8 +119,6 @@ export const AgTable = ({ data, schema, beautify, ...rest }: TableProps) => {
       defaultState: { pinned: null },
     });
   }, []);
-
-  const { orderBy } = usePageStore();
 
   const defaultColDef = useMemo(() => {
     return {

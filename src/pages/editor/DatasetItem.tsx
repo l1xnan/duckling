@@ -7,14 +7,7 @@ import { Box, Divider, IconButton, Stack } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
 import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
-import {
-  ReactNode,
-  Suspense,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { AgTable } from '@/components/AgTable';
@@ -22,36 +15,12 @@ import { Loading } from '@/components/Dataset';
 import { TablerSvgIcon } from '@/components/MuiIconButton';
 import { PaginationDropdown } from '@/components/PaginationDropdown';
 import { ToolbarContainer } from '@/components/Toolbar';
-import { PageContext, createDatasetStore } from '@/stores/dataset';
-import { QueryContextType, TabContextType, execute } from '@/stores/tabs';
+import { QueryContextType, execute } from '@/stores/tabs';
 import { isDarkTheme } from '@/utils';
 
 export interface DatasetProps {
   tableName: string;
 }
-
-export const PageProvider = ({
-  table,
-  children,
-}: {
-  table: TabContextType;
-  children: ReactNode;
-}) => {
-  const storeRef = useRef(createDatasetStore(table));
-  return (
-    <PageContext.Provider value={storeRef.current}>
-      {children}
-    </PageContext.Provider>
-  );
-};
-
-export const usePageStoreApi = () => {
-  const store = useContext(PageContext);
-  if (store === null) {
-    throw new Error('no provider');
-  }
-  return store;
-};
 
 export function DatasetItem({
   context,
@@ -91,6 +60,7 @@ export function DatasetItem({
             data={ctx.data ?? []}
             schema={ctx.schema ?? []}
             beautify={ctx.beautify}
+            orderBy={ctx.orderBy}
           />
         </Suspense>
       </Box>

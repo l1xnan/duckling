@@ -73,7 +73,7 @@ export const usePageStoreApi = () => {
 };
 
 export function Dataset({ context }: { context: TabContextType }) {
-  const { refresh, data, schema, beautify } = usePageStore();
+  const { refresh, data, schema, beautify, orderBy } = usePageStore();
   const currentTab = useAtomValue(activeTabAtom);
   const [loading, setLoading] = useState(false);
 
@@ -104,6 +104,7 @@ export function Dataset({ context }: { context: TabContextType }) {
             data={data ?? []}
             schema={schema ?? []}
             beautify={beautify}
+            orderBy={orderBy}
           />
         </Suspense>
       </Box>
