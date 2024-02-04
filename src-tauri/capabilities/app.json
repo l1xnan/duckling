@@ -11,6 +11,14 @@
     "resources:default",
     "menu:default",
     "tray:default",
-    "updater:default"
+    "updater:default",
+    "log:default",
+    "dialog:allow-ask",
+    "dialog:allow-confirm",
+    "dialog:allow-message",
+    "dialog:allow-open",
+    "dialog:allow-save",
+    "window-state:allow-restore-window-state",
+    "window-state:allow-save-window-state"
   ]
 }
