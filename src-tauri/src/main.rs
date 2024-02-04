@@ -6,7 +6,7 @@ use std::env;
 use cmd::OpenedUrls;
 use cmd::{get_db, opened_urls, query, show_tables};
 use std::sync::Mutex;
-use tauri::menu::{CheckMenuItemBuilder, MenuBuilder, MenuItemBuilder, SubmenuBuilder};
+use tauri::menu::{CheckMenuItem, CheckMenuItemBuilder, MenuBuilder, MenuItem, MenuItemBuilder, SubmenuBuilder};
 use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_log::{Target, TargetKind};
@@ -17,16 +17,16 @@ mod dialect;
 mod utils;
 
 fn handle_menu(app: &mut tauri::App) -> tauri::Result<()> {
-  let file_menu = SubmenuBuilder::new(app, "File")
+  let handle = app.handle();
+  let file_menu = SubmenuBuilder::new(handle, "File")
     .text("open-file", "Open File")
     .text("open-directory", "Open Directory")
     .separator()
     .text("exit", "Exit")
     .build()?;
 
-  let toggle = MenuItemBuilder::with_id("toggle", "Toggle").build(app);
-
-  let help = CheckMenuItemBuilder::new("Help").build(app);
+  let toggle = MenuItem::new(handle, "Toggle", true, None::<&str>)?;
+  let help = CheckMenuItem::new(handle, "Help", true, true, None::<&str>)?;
 
   let _menu = MenuBuilder::new(app)
     .items(&[&file_menu, &toggle, &help])

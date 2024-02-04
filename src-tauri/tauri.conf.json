@@ -1,48 +1,15 @@
 {
+  "productName": "DuckStudio",
+  "version": "../package.json",
+  "identifier": "com.duckstudio.dev",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "beforeBuildCommand": "pnpm build",
-    "devPath": "http://localhost:5432",
-    "distDir": "../dist",
-    "withGlobalTauri": false
+    "devUrl": "http://localhost:5432",
+    "frontendDist": "../dist"
   },
-  "package": {
-    "productName": "DuckStudio",
-    "version": "../package.json"
-  },
-  "tauri": {
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "com.duckstudio.dev",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "resources": [],
-      "windows": {
-        "wix": {
-          "fragmentPaths": []
-        }
-      },
-      "fileAssociations": [
-        {
-          "ext": ["duckdb"],
-          "mimeType": "application/octet-stream"
-        },
-        {
-          "ext": ["parquet"],
-          "mimeType": "application/octet-stream"
-        }
-      ],
-      "updater": {
-        "active": true,
-        "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEUxQTMyRkJEQzg5RUNCMUYKUldRZnk1N0l2UytqNFZTS1dMbFlsbnJuYWNaMGpVUEQwWDlBblBJUEM5cGZobFNHQ0Nicjd2TFQK"
-      }
-    },
+  "app": {
+    "withGlobalTauri": false,
     "security": {
       "csp": null
     },
@@ -57,8 +24,37 @@
       }
     ]
   },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": [],
+    "windows": {
+      "wix": {
+        "fragmentPaths": []
+      }
+    },
+    "fileAssociations": [
+      {
+        "ext": ["duckdb"],
+        "mimeType": "application/octet-stream"
+      },
+      {
+        "ext": ["parquet"],
+        "mimeType": "application/octet-stream"
+      }
+    ]
+  },
   "plugins": {
     "updater": {
+      "active": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEUxQTMyRkJEQzg5RUNCMUYKUldRZnk1N0l2UytqNFZTS1dMbFlsbnJuYWNaMGpVUEQwWDlBblBJUEM5cGZobFNHQ0Nicjd2TFQK",
       "endpoints": [
         "https://github.com/l1xnan/DuckStudio/releases/latest/download/latest.json",
         "https://mirror.ghproxy.com/https://github.com/l1xnan/DuckStudio/releases/latest/download/latest.json"

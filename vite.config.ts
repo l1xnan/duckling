@@ -1,20 +1,24 @@
 import path from 'path';
 
 import prodReact from '@vitejs/plugin-react';
-import react from '@vitejs/plugin-react-swc';
 import { defineConfig } from 'vite';
 
 // https://vitejs.dev/config/
 export default defineConfig(async ({ mode }) => ({
   plugins: [
-    mode == 'production'
-      ? prodReact()
-      : react({
-          plugins: [
-            ['@swc-jotai/debug-label', {}],
-            ['@swc-jotai/react-refresh', {}],
-          ],
-        }),
+    prodReact({
+      babel: {
+        presets: ['jotai/babel/preset'],
+      },
+    }),
+    // mode == 'production'
+    //   ? prodReact()
+    //   : react({
+    //       plugins: [
+    //         ['@swc-jotai/debug-label', {}],
+    //         ['@swc-jotai/react-refresh', {}],
+    //       ],
+    //     }),
   ],
   resolve: {
     alias: {

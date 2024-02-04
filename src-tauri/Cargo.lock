@@ -1536,7 +1536,7 @@ version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "330c60081dcc4c72131f8eb70510f1ac07223e5d4163db481a04a0befcffa412"
 dependencies = [
- "libloading 0.7.4",
+ "libloading 0.8.1",
 ]
 
 [[package]]
@@ -6095,9 +6095,9 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-updater"
-version = "2.0.0-alpha.6"
+version = "2.0.0-beta.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0473197ceb5b436f8b5be139875c54b59fee756f8c15415ef374495de13747c1"
+checksum = "ca006f95bd7ff80eb2749172c0faf9dc1e27eea20f289a759235753b8a0aabf8"
 dependencies = [
  "base64",
  "dirs-next",
@@ -6112,6 +6112,7 @@ dependencies = [
  "serde_json",
  "tar",
  "tauri",
+ "tauri-plugin",
  "tempfile",
  "thiserror",
  "time",
