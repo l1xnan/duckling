@@ -1,16 +1,10 @@
 import { createContext, useContext } from 'react';
+import { toast } from 'sonner';
 import { createStore, useStore } from 'zustand';
 
-import { query } from '@/api';
-import { genStmt } from '@/utils';
+import { ResultType } from '@/api';
 
-import { atomStore, dbMapAtom, tablesAtom } from './dbList';
-import {
-  QueryContextType,
-  QueryParamType,
-  TabContextType,
-  execute,
-} from './tabs';
+import { QueryParamType, TabContextType, execute } from './tabs';
 
 export type SchemaType = {
   name: string;
@@ -57,7 +51,7 @@ export type DatasetAction = {
   decrease: () => void;
   setSQLWhere: (value: string) => void;
   setDialogColumn: (value: string) => void;
-  refresh: (stmt?: string) => Promise<void>;
+  refresh: (stmt?: string) => Promise<ResultType | undefined>;
   setBeautify: () => void;
 };
 
@@ -168,9 +162,12 @@ export const createDatasetStore = (context: TabContextType) =>
         dbId: context?.dbId ?? '',
         tableId: context?.tableId ?? '',
       };
-      console.log(ctx);
       const data = await execute(ctx);
-
+      if (data?.code == 401 && data?.message) {
+        toast.warning(data?.message);
+      }
       set({ ...data });
+
+      return data;
     },
   }));

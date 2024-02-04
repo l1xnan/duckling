@@ -10,12 +10,11 @@ import {
   IconButton,
   InputBase,
   InputLabel,
-  Snackbar,
   Stack,
 } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
-import { useDeepCompareEffect } from 'ahooks';
-import React, {
+import { useAtomValue } from 'jotai';
+import {
   ReactNode,
   Suspense,
   useContext,
@@ -23,6 +22,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { toast } from 'sonner';
 
 import { PaginationDropdown } from '@/components/PaginationDropdown';
 import {
@@ -30,7 +30,7 @@ import {
   createDatasetStore,
   usePageStore,
 } from '@/stores/dataset';
-import { TabContextType } from '@/stores/tabs';
+import { TabContextType, activeTabAtom } from '@/stores/tabs';
 import { borderTheme, convertOrderBy, isDarkTheme } from '@/utils';
 
 import { AgTable } from './AgTable';
@@ -61,35 +61,20 @@ export const usePageStoreApi = () => {
 };
 
 export function Dataset({ context }: { context: TabContextType }) {
-  const { refresh, data, schema, code, message, beautify } = usePageStore();
-
-  const [open, setOpen] = useState(false);
-  useDeepCompareEffect(() => {
-    (async () => {
-      try {
-        await refresh();
-      } catch (error) {
-        /* empty */
-      }
-    })();
-  }, []);
+  const { refresh, data, schema, beautify } = usePageStore();
+  const currentTab = useAtomValue(activeTabAtom);
 
   useEffect(() => {
-    if (code != 0) {
-      setOpen(true);
+    if (currentTab?.id == context.id) {
+      (async () => {
+        try {
+          await refresh();
+        } catch (error) {
+          toast.error((error as Error).message);
+        }
+      })();
     }
-  }, [context, code, message]);
-
-  const handleClose = (
-    _event: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setOpen(false);
-  };
+  }, []);
 
   return (
     <Stack sx={{ height: '100%' }}>
@@ -118,15 +103,6 @@ export function Dataset({ context }: { context: TabContextType }) {
           />
         </Suspense>
       </Box>
-
-      {message?.length ?? 0 > 0 ? (
-        <Snackbar
-          open={open}
-          autoHideDuration={6000}
-          onClose={handleClose}
-          message={message ?? ''}
-        />
-      ) : null}
     </Stack>
   );
 }

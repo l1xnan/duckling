@@ -5,6 +5,7 @@ import { PageTabs } from '@/components/PageTabs';
 import {
   EditorContextType,
   TabContextType,
+  activeTabAtom,
   tabListAtom,
   tabsAtomsAtom,
   useTabsStore,
@@ -26,8 +27,9 @@ function TabContent({ tabAtom }: { tabAtom: PrimitiveAtom<TabContextType> }) {
 export function Main() {
   const activateTab = useTabsStore((state) => state.active);
   const removeTab = useTabsStore((state) => state.remove);
-  const currentTab = useTabsStore((state) => state.currentTab);
+
   const tabs = useAtomValue(tabListAtom);
+  const currentTab = useAtomValue(activeTabAtom);
 
   const tabsAtoms = useAtomValue(tabsAtomsAtom);
 

@@ -137,6 +137,7 @@ export const useTabsStore = create<TabsState & TabsAction>()(
 );
 
 export const tabsAtom = atomWithStore(useTabsStore);
+export const activeTabAtom = focusAtom(tabsAtom, (o) => o.prop('currentTab'));
 export const tabListAtom = focusAtom(tabsAtom, (o) => o.prop('tabs'));
 
 export const tabsAtomsAtom = splitAtom(tabListAtom);
