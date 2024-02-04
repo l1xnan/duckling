@@ -10,7 +10,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "^2.0.0-alpha", features = [] }
+tauri-build = { version = "^2.0.0-beta", features = [] }
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
@@ -28,18 +28,18 @@ futures-util = "0.3"
 clickhouse-rs = { git = "https://github.com/mel-mel-king/clickhouse-rs.git", branch = "decimal128" }
 sqlx = { version = "0.7", features = ["runtime-tokio", "sqlite", "mysql", "postgres"] }
 
-tauri = { version = "^2.0.0-alpha", features = [
+tauri = { version = "^2.0.0-beta", features = [
     "devtools",
     "icon-ico",
     "icon-png",
     "tray-icon",
 ] }
 # tauri plugin
-tauri-plugin-shell = "2.0.0-alpha"
-tauri-plugin-dialog = "2.0.0-alpha"
-tauri-plugin-log = "2.0.0-alpha"
-tauri-plugin-process = "2.0.0-alpha"
-tauri-plugin-window-state = "2.0.0-alpha"
+tauri-plugin-shell = "2.0.0-beta"
+tauri-plugin-dialog = "2.0.0-beta"
+tauri-plugin-log = "2.0.0-beta"
+tauri-plugin-process = "2.0.0-beta"
+tauri-plugin-window-state = "2.0.0-beta"
 
 anyhow = "1.0.75"
 url = "2.4.1"
