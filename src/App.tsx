@@ -6,7 +6,7 @@ import { DevTools } from 'jotai-devtools';
 import { atomWithStorage } from 'jotai/utils';
 import { useEffect, useMemo } from 'react';
 
-import { tableFontFamilyAtom } from '@/stores/setting';
+import { mainFontFamilyAtom, tableFontFamilyAtom } from '@/stores/setting';
 
 import Home from './Home';
 import { ColorModeContext, darkTheme, lightTheme } from './theme';
@@ -32,6 +32,7 @@ function App() {
   );
 
   const tableFontFamily = useAtomValue(tableFontFamilyAtom);
+  const mainFontFamily = useAtomValue(mainFontFamilyAtom);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -53,11 +54,8 @@ function App() {
   useEffect(() => {
     const rootElement = document.documentElement;
 
-    rootElement.style.setProperty(
-      '--table-font-family',
-      (tableFontFamily ?? 'Consolas') +
-        `, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`,
-    );
+    rootElement.style.setProperty('--table-font-family', tableFontFamily);
+    rootElement.style.setProperty('--main-font-family', mainFontFamily);
   }, [tableFontFamily]);
 
   return (

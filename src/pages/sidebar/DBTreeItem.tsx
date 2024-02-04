@@ -227,6 +227,7 @@ export const TreeItemLabel = React.forwardRef(
             fontWeight: 'inherit',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
+            fontFamily: 'Consolas',
           }}
         >
           {node.name}

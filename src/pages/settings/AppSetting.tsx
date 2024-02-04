@@ -23,6 +23,7 @@ import {
   FormLabel,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
 import { Toaster } from '@/components/ui/sonner';
 import { Switch } from '@/components/ui/switch';
 import { SettingState, settingAtom, useSettingStore } from '@/stores/setting';
@@ -82,10 +83,10 @@ export default function AppSettingDialog() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="precision"
+              name="main_font_family"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Float precision</FormLabel>
+                  <FormLabel>Main Font Family</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -104,6 +105,19 @@ export default function AppSettingDialog() {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="precision"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Float precision</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <Separator className="my-4" />
             <FormField
               control={form.control}
               name="proxy"

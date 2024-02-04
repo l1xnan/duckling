@@ -13,7 +13,7 @@ const initTheme: (mode: 'dark' | 'light') => ThemeOptions = (mode) => ({
     mode,
   },
   typography: {
-    fontFamily: 'Consolas',
+    fontFamily: 'var(--main-font-family)',
     fontSize: 12,
     body1: {},
   },

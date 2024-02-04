@@ -41,7 +41,7 @@ export default function RenameDialog() {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Working Directory</FormLabel>
+                <FormLabel>Name</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
