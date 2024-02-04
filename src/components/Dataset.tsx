@@ -5,7 +5,6 @@ import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArro
 import SyncIcon from '@mui/icons-material/Sync';
 import {
   Box,
-  CircularProgress,
   Divider,
   IconButton,
   InputBase,
@@ -14,6 +13,7 @@ import {
 } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
+import { Loader2Icon } from 'lucide-react';
 import {
   ReactNode,
   Suspense,
@@ -25,6 +25,7 @@ import {
 import { toast } from 'sonner';
 
 import { PaginationDropdown } from '@/components/PaginationDropdown';
+import { cn } from '@/lib/utils';
 import {
   PageContext,
   createDatasetStore,
@@ -36,6 +37,17 @@ import { borderTheme, convertOrderBy, isDarkTheme } from '@/utils';
 import { AgTable } from './AgTable';
 import { TablerSvgIcon } from './MuiIconButton';
 import { ToolbarContainer } from './Toolbar';
+
+export const Loading = ({ className }: { className?: string }) => {
+  return (
+    <Loader2Icon
+      className={cn(
+        'my-28 h-16 w-full text-primary/60 animate-spin',
+        className,
+      )}
+    />
+  );
+};
 
 export const PageProvider = ({
   context,
@@ -63,14 +75,18 @@ export const usePageStoreApi = () => {
 export function Dataset({ context }: { context: TabContextType }) {
   const { refresh, data, schema, beautify } = usePageStore();
   const currentTab = useAtomValue(activeTabAtom);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (currentTab?.id == context.id) {
       (async () => {
         try {
+          setLoading(true);
           await refresh();
         } catch (error) {
           toast.error((error as Error).message);
+        } finally {
+          setLoading(false);
         }
       })();
     }
@@ -81,22 +97,10 @@ export function Dataset({ context }: { context: TabContextType }) {
       <PageSizeToolbar />
       <InputToolbar />
       <Box sx={{ height: '100%' }}>
-        <Suspense
-          fallback={
-            <Box
-              sx={{
-                display: 'flex',
-                height: 'calc(100vh - 64px)',
-                width: '100%',
-                marginTop: '30%',
-                justifyContent: 'center',
-              }}
-            >
-              <CircularProgress />
-            </Box>
-          }
-        >
+        <Suspense fallback={<Loading />}>
+          {loading ? <Loading /> : null}
           <AgTable
+            style={loading ? { display: 'none' } : undefined}
             data={data ?? []}
             schema={schema ?? []}
             beautify={beautify}

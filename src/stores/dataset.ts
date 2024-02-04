@@ -1,5 +1,4 @@
 import { createContext, useContext } from 'react';
-import { toast } from 'sonner';
 import { createStore, useStore } from 'zustand';
 
 import { ResultType } from '@/api';
@@ -163,9 +162,7 @@ export const createDatasetStore = (context: TabContextType) =>
         tableId: context?.tableId ?? '',
       };
       const data = await execute(ctx);
-      if (data?.code == 401 && data?.message) {
-        toast.warning(data?.message);
-      }
+
       set({ ...data });
 
       return data;

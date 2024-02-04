@@ -4,7 +4,7 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { AgGridReact } from 'ag-grid-react';
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai';
-import { useCallback, useMemo, useRef } from 'react';
+import { CSSProperties, useCallback, useMemo, useRef } from 'react';
 
 import HeaderCell from '@/components/dataframe/HeaderCell';
 import { SchemaType, usePageStore } from '@/stores/dataset';
@@ -15,6 +15,7 @@ interface TableProps<T = unknown> {
   data: T[];
   schema: SchemaType[];
   beautify?: boolean;
+  style?: CSSProperties;
 }
 
 type RowType = Record<string, unknown>;
@@ -39,7 +40,7 @@ function isNumber(dataType: string) {
   );
 }
 
-export const AgTable = ({ data, schema, beautify }: TableProps) => {
+export const AgTable = ({ data, schema, beautify, ...rest }: TableProps) => {
   const gridRef = useRef<AgGridReact | null>(null);
   const theme = useTheme();
   const precision = useAtomValue(precisionAtom);
@@ -120,7 +121,6 @@ export const AgTable = ({ data, schema, beautify }: TableProps) => {
       sortable: true,
       resizable: true,
       cellDataType: false,
-      enableRowGroup: true,
       enablePivot: true,
       enableValue: true,
       headerComponentParams: {
@@ -134,7 +134,7 @@ export const AgTable = ({ data, schema, beautify }: TableProps) => {
     : 'ag-theme-alpine';
 
   return (
-    <TableWrapper className={className}>
+    <TableWrapper className={className} style={rest.style}>
       <AgGridReact
         ref={gridRef}
         rowData={data}

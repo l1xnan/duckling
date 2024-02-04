@@ -4,6 +4,7 @@ import { atomFamily, splitAtom } from 'jotai/utils';
 // eslint-disable-next-line import/order
 import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
+import { toast } from 'sonner';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
@@ -218,5 +219,8 @@ export async function execute(
   });
 
   console.log('data:', data);
+  if (data?.code == 401 && data?.message) {
+    toast.warning(data?.message);
+  }
   return data;
 }

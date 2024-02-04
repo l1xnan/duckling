@@ -3,18 +3,11 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import SyncIcon from '@mui/icons-material/Sync';
-import {
-  Box,
-  CircularProgress,
-  Divider,
-  IconButton,
-  Snackbar,
-  Stack,
-} from '@mui/material';
+import { Box, Divider, IconButton, Stack } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
 import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
-import React, {
+import {
   ReactNode,
   Suspense,
   useContext,
@@ -22,13 +15,13 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { toast } from 'sonner';
 
 import { AgTable } from '@/components/AgTable';
+import { Loading } from '@/components/Dataset';
 import { TablerSvgIcon } from '@/components/MuiIconButton';
 import { PaginationDropdown } from '@/components/PaginationDropdown';
 import { ToolbarContainer } from '@/components/Toolbar';
-import { Toaster } from '@/components/ui/toaster';
-import { useToast } from '@/components/ui/use-toast';
 import { PageContext, createDatasetStore } from '@/stores/dataset';
 import { QueryContextType, TabContextType, execute } from '@/stores/tabs';
 import { isDarkTheme } from '@/utils';
@@ -66,20 +59,18 @@ export function DatasetItem({
   context: PrimitiveAtom<QueryContextType>;
 }) {
   const [ctx, setContext] = useAtom(context);
-  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
 
   const handleQuery = async () => {
     try {
+      setLoading(true);
       const res = (await execute(ctx)) ?? {};
       setContext((prev) => ({ ...prev, ...res }));
     } catch (error) {
-      console.log(error);
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: (error as Error).message,
-        duration: 3000,
-      });
+      console.error(error);
+      toast.warning((error as Error).message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -89,55 +80,20 @@ export function DatasetItem({
     })();
   }, []);
 
-  const [open, setOpen] = useState(false);
-
-  const handleClose = (
-    _event: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setOpen(false);
-  };
-
   return (
     <Stack height={'100%'}>
-      <Toaster />
       <PageSizeToolbar query={handleQuery} ctx={context} />
       <Box sx={{ height: '100%' }}>
-        <Suspense
-          fallback={
-            <Box
-              sx={{
-                display: 'flex',
-                height: 'calc(100vh - 64px)',
-                width: '100%',
-                marginTop: '30%',
-                justifyContent: 'center',
-              }}
-            >
-              <CircularProgress />
-            </Box>
-          }
-        >
+        <Suspense fallback={<Loading />}>
+          {loading ? <Loading /> : null}
           <AgTable
+            style={loading ? { display: 'none' } : undefined}
             data={ctx.data ?? []}
             schema={ctx.schema ?? []}
-            beautify={ctx?.beautify}
+            beautify={ctx.beautify}
           />
         </Suspense>
       </Box>
-
-      {ctx?.message?.length ?? 0 > 0 ? (
-        <Snackbar
-          open={open}
-          autoHideDuration={3000}
-          onClose={handleClose}
-          message={ctx?.message ?? ''}
-        />
-      ) : null}
     </Stack>
   );
 }

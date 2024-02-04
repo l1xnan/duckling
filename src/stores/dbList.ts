@@ -1,7 +1,8 @@
 import { atom, createStore } from 'jotai';
-import { splitAtom } from 'jotai/utils';
 import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
+// eslint-disable-next-line import/order
+import { splitAtom } from 'jotai/utils';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -173,15 +174,12 @@ export const useDBListStore = create<DBListStore & ComputedStore>()(
 
 const storeAtom = atomWithStore(useDBListStore);
 export const dbListAtom = focusAtom(storeAtom, (o) => o.prop('dbList'));
-export const dbMapAtom = atom((get) => {
-  return new Map(get(storeAtom).dbList.map((db) => [db.id, db]));
-});
-
-export const tablesAtom = atom((get) => {
-  return new Map(
-    get(storeAtom).dbList.map((db) => [db.id, flattenTree(db.data)]),
-  );
-});
+export const dbMapAtom = atom(
+  (get) => new Map(get(dbListAtom).map((db) => [db.id, db])),
+);
+export const tablesAtom = atom(
+  (get) => new Map(get(dbListAtom).map((db) => [db.id, flattenTree(db.data)])),
+);
 
 export const dbAtomsAtom = splitAtom(dbListAtom);
 
@@ -193,3 +191,5 @@ export const renameAtom = atom<DBType | null>(null);
 export const configAtom = atom<DBType | null>(null);
 
 export const atomStore = createStore();
+
+atomStore.sub(dbListAtom, () => {});

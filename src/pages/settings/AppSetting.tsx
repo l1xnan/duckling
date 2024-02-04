@@ -24,7 +24,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Toaster } from '@/components/ui/sonner';
 import { Switch } from '@/components/ui/switch';
 import { SettingState, settingAtom, useSettingStore } from '@/stores/setting';
 
@@ -70,7 +69,6 @@ export default function AppSettingDialog() {
   };
   return (
     <React.Fragment>
-      <Toaster richColors position="top-center" />
       <Dialog
         title="Setting"
         trigger={

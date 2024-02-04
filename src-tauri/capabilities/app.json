@@ -13,6 +13,7 @@
     "tray:default",
     "updater:default",
     "log:default",
+    "webview:default",
     "dialog:allow-ask",
     "dialog:allow-confirm",
     "dialog:allow-message",

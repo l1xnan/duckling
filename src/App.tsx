@@ -9,6 +9,7 @@ import { useEffect, useMemo } from 'react';
 import { mainFontFamilyAtom, tableFontFamilyAtom } from '@/stores/setting';
 
 import Home from './Home';
+import { Toaster } from './components/ui/sonner';
 import { ColorModeContext, darkTheme, lightTheme } from './theme';
 
 export const themeAtom = atomWithStorage<ThemeType>('mode', 'light');
@@ -65,6 +66,7 @@ function App() {
         <ThemeProvider theme={theme}>
           <CssBaseline enableColorScheme />
           <Home />
+          <Toaster richColors />
         </ThemeProvider>
       </ColorModeContext.Provider>
     </>

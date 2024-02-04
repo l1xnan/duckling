@@ -23,7 +23,7 @@ export const DuckdbIcon = createSvgIcon(
         <path d="M0 0h300v300H0z" />
       </clipPath>
     </defs>
-    <g clip-path="url(#a)">
+    <g>
       <path
         d="M0 148c-81.853 0-148-66.146-148-148S-81.853-148 0-148c81.854 0 148 66.146 148 148S81.854 148 0 148z"
         transform="translate(150 150)"
