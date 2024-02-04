@@ -1,0 +1,15 @@
+{
+  "$schema": "./schemas/desktop-schema.json",
+  "identifier": "run-app",
+  "description": "permissions to run the app",
+  "windows": ["main", "main-*"],
+  "permissions": [
+    "path:default",
+    "event:default",
+    "window:default",
+    "app:default",
+    "resources:default",
+    "menu:default",
+    "tray:default"
+  ]
+}
