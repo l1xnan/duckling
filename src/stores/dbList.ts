@@ -1,4 +1,4 @@
-import { atom, createStore } from 'jotai';
+import { atom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
 // eslint-disable-next-line import/order
@@ -9,6 +9,8 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { TreeNode } from '@/types';
 
 import { computed } from './computed';
+
+import { atomStore } from '.';
 
 export type NodeContextType = {
   id?: string;
@@ -189,7 +191,5 @@ export const selectedNodeAtom = atom<NodeContextType | null>(null);
 export const renameAtom = atom<DBType | null>(null);
 // db setting
 export const configAtom = atom<DBType | null>(null);
-
-export const atomStore = createStore();
 
 atomStore.sub(dbListAtom, () => {});

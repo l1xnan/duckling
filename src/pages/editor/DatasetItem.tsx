@@ -15,6 +15,7 @@ import { Loading } from '@/components/Dataset';
 import { TablerSvgIcon } from '@/components/MuiIconButton';
 import { PaginationDropdown } from '@/components/PaginationDropdown';
 import { ToolbarContainer } from '@/components/Toolbar';
+import { atomStore } from '@/stores';
 import { QueryContextType, execute } from '@/stores/tabs';
 import { isDarkTheme } from '@/utils';
 
@@ -30,9 +31,12 @@ export function DatasetItem({
   const [ctx, setContext] = useAtom(context);
   const [loading, setLoading] = useState(false);
 
-  const handleQuery = async () => {
+  const handleQuery = async (ctx?: QueryContextType) => {
     try {
       setLoading(true);
+      if (!ctx) {
+        ctx = atomStore.get(context);
+      }
       const res = (await execute(ctx)) ?? {};
       setContext((prev) => ({ ...prev, ...res }));
     } catch (error) {
@@ -45,7 +49,7 @@ export function DatasetItem({
 
   useEffect(() => {
     (async () => {
-      await handleQuery();
+      await handleQuery(ctx);
     })();
   }, []);
 
@@ -69,7 +73,7 @@ export function DatasetItem({
 }
 
 interface PageSizeToolbarProps {
-  query: () => Promise<void>;
+  query: (ctx?: QueryContextType) => Promise<void>;
   ctx: PrimitiveAtom<QueryContextType>;
 }
 
@@ -89,7 +93,7 @@ function PageSizeToolbar({ query, ctx }: PageSizeToolbarProps) {
     setBeautify((prev) => !prev);
   };
   const handleRefresh = async () => {
-    await query();
+    await query(context);
   };
 
   const toFirst = async () => {
@@ -111,8 +115,8 @@ function PageSizeToolbar({ query, ctx }: PageSizeToolbarProps) {
     await query();
   };
 
-  const handlePerPage = async (page: number) => {
-    setPerPage(() => page);
+  const handlePerPage = async (perPage: number) => {
+    setPerPage(perPage);
     await query();
   };
 

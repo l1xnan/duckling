@@ -1,6 +1,6 @@
 import { CssBaseline } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
-import { useAtom, useAtomValue } from 'jotai';
+import { Provider, useAtom, useAtomValue } from 'jotai';
 import { DevTools } from 'jotai-devtools';
 // eslint-disable-next-line import/order
 import { atomWithStorage } from 'jotai/utils';
@@ -10,6 +10,7 @@ import { mainFontFamilyAtom, tableFontFamilyAtom } from '@/stores/setting';
 
 import Home from './Home';
 import { Toaster } from './components/ui/sonner';
+import { atomStore } from './stores';
 import { ColorModeContext, darkTheme, lightTheme } from './theme';
 
 export const themeAtom = atomWithStorage<ThemeType>('mode', 'light');
@@ -60,7 +61,7 @@ function App() {
   }, [tableFontFamily]);
 
   return (
-    <>
+    <Provider store={atomStore}>
       <DevTools />
       <ColorModeContext.Provider value={colorMode}>
         <ThemeProvider theme={theme}>
@@ -69,7 +70,7 @@ function App() {
           <Toaster richColors />
         </ThemeProvider>
       </ColorModeContext.Provider>
-    </>
+    </Provider>
   );
 }
 

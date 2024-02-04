@@ -155,6 +155,9 @@ dependencies:
   jotai-optics:
     specifier: ^0.3.1
     version: 0.3.1(jotai@2.6.0)(optics-ts@2.4.1)
+  jotai-scope:
+    specifier: ^0.5.1
+    version: 0.5.1(jotai@2.6.0)(react@18.2.0)
   jotai-valtio:
     specifier: ^0.4.0
     version: 0.4.0(jotai@2.6.0)(valtio@1.12.1)
@@ -5870,6 +5873,16 @@ packages:
     dependencies:
       jotai: 2.6.0(@types/react@18.2.45)(react@18.2.0)
       optics-ts: 2.4.1
+    dev: false
+
+  /jotai-scope@0.5.1(jotai@2.6.0)(react@18.2.0):
+    resolution: {integrity: sha512-GKaqtCj1Hv36nyl63PVm+s5jo+hQqz+wAb81iqA8VuUXp5ot4eXGOZt4Hc66lFZMP0N/yEOISMlazprmDI6kFA==}
+    peerDependencies:
+      jotai: '>=2.5.0'
+      react: '>=17.0.0'
+    dependencies:
+      jotai: 2.6.0(@types/react@18.2.45)(react@18.2.0)
+      react: 18.2.0
     dev: false
 
   /jotai-valtio@0.4.0(jotai@2.6.0)(valtio@1.12.1):

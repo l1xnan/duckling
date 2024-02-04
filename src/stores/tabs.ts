@@ -10,10 +10,11 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
 import { ResultType, query } from '@/api';
+import { atomStore } from '@/stores';
 import { genStmt, isEmpty } from '@/utils';
 
 import { OrderByType, SchemaType } from './dataset';
-import { atomStore, dbMapAtom, tablesAtom } from './dbList';
+import { dbMapAtom, tablesAtom } from './dbList';
 
 export type QueryParamType = {
   dbId: string;
