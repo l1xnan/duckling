@@ -105,7 +105,7 @@ export function SideToolbar() {
   return (
     <>
       <ToolbarBox>
-        <Typography fontWeight={800}>Database Explorer</Typography>
+        <Typography fontWeight={600}>Database Explorer</Typography>
         <Stack direction="row">
           <ToggleColorMode />
           <Setting />
