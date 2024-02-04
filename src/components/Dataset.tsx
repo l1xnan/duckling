@@ -61,18 +61,7 @@ export const usePageStoreApi = () => {
 };
 
 export function Dataset({ context }: { context: TabContextType }) {
-  const {
-    refresh,
-    data,
-    schema,
-    page,
-    perPage,
-    orderBy,
-    sqlWhere,
-    code,
-    message,
-    beautify,
-  } = usePageStore();
+  const { refresh, data, schema, code, message, beautify } = usePageStore();
 
   const [open, setOpen] = useState(false);
   useDeepCompareEffect(() => {
