@@ -1,5 +1,5 @@
 [package]
-name = "duck_studio"
+name = "DuckStudio"
 version = "0.0.12"
 description = "DuckStudio"
 authors = ["you"]

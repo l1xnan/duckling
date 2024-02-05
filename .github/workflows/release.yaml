@@ -17,7 +17,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 18.x
+          node-version: 20
 
       - name: Generate changelog
         id: create_release
@@ -54,7 +54,7 @@ jobs:
       - name: setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - uses: pnpm/action-setup@v2
         name: Install pnpm
