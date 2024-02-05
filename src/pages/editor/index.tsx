@@ -113,7 +113,9 @@ export default function Editor({
     } else {
       setSubTabs((tabs) =>
         (tabs ?? []).map((item) =>
-          item.id == tab.activeKey ? { ...item, stmt, id } : item,
+          item.id == tab.activeKey
+            ? { ...item, stmt, id, page: 1, perPage: 500 }
+            : item,
         ),
       );
     }
