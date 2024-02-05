@@ -102,6 +102,7 @@
     "eslint-plugin-prettier": "^5.0.1",
     "postcss": "^8.4.33",
     "prettier": "^3.1.1",
+    "tailwind-scrollbar": "^3.0.5",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3",
     "vite": "^5.0.10"
