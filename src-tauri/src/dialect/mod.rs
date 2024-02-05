@@ -25,6 +25,9 @@ pub trait Dialect: Sync + Send {
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
     unimplemented!()
   }
+  async fn export(&self, sql: &str, file: &str) {
+    unimplemented!()
+  }
 }
 
 pub mod sql {

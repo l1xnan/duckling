@@ -1,5 +1,9 @@
 use std::collections::BTreeMap;
+use std::fs::File;
 use std::path::Path;
+
+use arrow::csv::WriterBuilder;
+use arrow::record_batch::RecordBatch;
 
 use crate::dialect::TreeNode;
 
@@ -18,7 +22,6 @@ pub fn get_file_name<P: AsRef<Path>>(path: P) -> String {
     .to_string_lossy()
     .to_string()
 }
-
 
 pub fn build_tree(tables: Vec<Table>) -> Vec<TreeNode> {
   let mut databases = vec![];
@@ -68,4 +71,14 @@ pub fn build_tree(tables: Vec<Table>) -> Vec<TreeNode> {
   }
 
   databases
+}
+
+pub fn write_csv(file: &str, batch: &RecordBatch) {
+  let file = File::create(file).unwrap();
+
+  // create a builder that doesn't write headers
+  let builder = WriterBuilder::new().with_header(true);
+  let mut writer = builder.build(file);
+
+  writer.write(batch).unwrap();
 }

@@ -87,6 +87,15 @@ pub async fn query(
     Err("not support dialect".to_string())
   }
 }
+#[tauri::command]
+pub async fn export(sql: String, file: String, dialect: DialectPayload) -> Result<(), String> {
+  if let Some(d) = get_dialect(dialect).await {
+    d.export(&sql, &file).await;
+    Ok(())
+  } else {
+    Err("not support dialect".to_string())
+  }
+}
 
 #[tauri::command]
 pub async fn query_stream(

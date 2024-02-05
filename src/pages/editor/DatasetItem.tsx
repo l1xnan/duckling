@@ -1,12 +1,16 @@
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
-import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
-import SyncIcon from '@mui/icons-material/Sync';
 import { Box, Divider, IconButton, Stack } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
+import * as dialog from '@tauri-apps/plugin-dialog';
 import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
+import {
+  ArrowDownToLineIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronsLeftIcon,
+  ChevronsRightIcon,
+  RefreshCwIcon,
+} from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -16,7 +20,7 @@ import { TablerSvgIcon } from '@/components/MuiIconButton';
 import { PaginationDropdown } from '@/components/PaginationDropdown';
 import { ToolbarContainer } from '@/components/Toolbar';
 import { atomStore } from '@/stores';
-import { QueryContextType, execute } from '@/stores/tabs';
+import { QueryContextType, execute, exportData } from '@/stores/tabs';
 import { isDarkTheme } from '@/utils';
 
 export interface DatasetProps {
@@ -46,6 +50,14 @@ export function DatasetItem({
       setLoading(false);
     }
   };
+  const handleExport = async (file: string) => {
+    try {
+      const ctx = atomStore.get(context);
+      await exportData({ file }, ctx);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -55,7 +67,11 @@ export function DatasetItem({
 
   return (
     <Stack height={'100%'}>
-      <PageSizeToolbar query={handleQuery} ctx={context} />
+      <PageSizeToolbar
+        query={handleQuery}
+        exportData={handleExport}
+        ctx={context}
+      />
       <Box sx={{ height: '100%' }}>
         <Suspense fallback={<Loading />}>
           {loading ? <Loading /> : null}
@@ -74,10 +90,11 @@ export function DatasetItem({
 
 interface PageSizeToolbarProps {
   query: (ctx?: QueryContextType) => Promise<void>;
+  exportData: (file: string) => Promise<void>;
   ctx: PrimitiveAtom<QueryContextType>;
 }
 
-function PageSizeToolbar({ query, ctx }: PageSizeToolbarProps) {
+function PageSizeToolbar({ query, ctx, exportData }: PageSizeToolbarProps) {
   const context = useAtomValue(ctx);
 
   const { page, perPage, totalCount, data } = context;
@@ -124,7 +141,16 @@ function PageSizeToolbar({ query, ctx }: PageSizeToolbarProps) {
   const start = perPage * (page - 1) + 1;
   const end = start + count - 1;
   const content = count >= totalCount ? `${count} rows` : `${start}-${end}`;
-
+  const handleExport = async () => {
+    const file = await dialog.save({
+      title: 'Export',
+      defaultPath: `xxx-${new Date().getTime()}.csv`,
+      filters: [{ name: 'CSV', extensions: ['csv'] }],
+    });
+    if (file) {
+      exportData(file);
+    }
+  };
   return (
     <ToolbarContainer>
       <Stack
@@ -140,10 +166,10 @@ function PageSizeToolbar({ query, ctx }: PageSizeToolbarProps) {
         })}
       >
         <IconButton color="inherit" onClick={toFirst} disabled={page <= 1}>
-          <KeyboardDoubleArrowLeftIcon />
+          <ChevronsLeftIcon size={16} />
         </IconButton>
         <IconButton color="inherit" onClick={decrease} disabled={page <= 1}>
-          <KeyboardArrowLeftIcon />
+          <ChevronLeftIcon size={16} />
         </IconButton>
         <PaginationDropdown content={content} setPerPage={handlePerPage} />
         {count < totalCount ? `of ${totalCount}` : null}
@@ -152,23 +178,26 @@ function PageSizeToolbar({ query, ctx }: PageSizeToolbarProps) {
           onClick={increase}
           disabled={page >= Math.ceil(totalCount / perPage)}
         >
-          <KeyboardArrowRightIcon />
+          <ChevronRightIcon size={16} />
         </IconButton>
         <IconButton
           color="inherit"
           onClick={toLast}
           disabled={page >= Math.ceil(totalCount / perPage)}
         >
-          <KeyboardDoubleArrowRightIcon />
+          <ChevronsRightIcon size={16} />
         </IconButton>
         <IconButton color="inherit" onClick={handleBeautify}>
           <TablerSvgIcon icon={<IconDecimal />} />
         </IconButton>
         <Divider orientation="vertical" flexItem />
         <IconButton color="inherit" onClick={handleRefresh}>
-          <SyncIcon fontSize="small" />
+          <RefreshCwIcon size={16} />
         </IconButton>
       </Stack>
+      <IconButton color="inherit" onClick={handleExport}>
+        <ArrowDownToLineIcon size={16} />
+      </IconButton>
     </ToolbarContainer>
   );
 }

@@ -1,10 +1,10 @@
 import {
   DropdownMenu,
   DropdownMenuItem,
+  DropdownMenuLabel,
 } from '@/components/custom/dropdown-menu';
 import {
   DropdownMenuContent,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 

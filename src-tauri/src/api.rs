@@ -52,6 +52,28 @@ pub fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::
   writer.into_inner()
 }
 
+pub fn fetch_all(
+  path: &str,
+  sql: &str,
+  cwd: Option<String>,
+) -> anyhow::Result<RecordBatch> {
+  if let Some(cwd) = &cwd {
+    let _ = set_current_dir(cwd);
+  }
+  log::info!("current_dir: {}", current_dir()?.display());
+  let con = if path == ":memory:" {
+    Connection::open_in_memory()
+  } else {
+    Connection::open(path)
+  };
+  let db = con.map_err(|err| anyhow!("Failed to open database connection: {}", err))?;
+  let mut stmt = db.prepare(sql)?;
+  let frames = stmt.query_arrow(duckdb::params![])?;
+  let schema = frames.get_schema();
+  let records: Vec<_> = frames.collect();
+  Ok(arrow::compute::concat_batches(&schema, &records)?)
+}
+
 pub fn query(
   path: &str,
   sql: &str,

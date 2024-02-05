@@ -6,11 +6,11 @@ import { ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
 import {
   DropdownMenu,
   DropdownMenuItem,
+  DropdownMenuLabel,
 } from '@/components/custom/dropdown-menu';
 import {
   DropdownMenuContent,
   DropdownMenuGroup,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { useDBListStore } from '@/stores/dbList';
@@ -20,7 +20,7 @@ export function EditorToolbar({
   session,
 }: {
   onClick: (action?: string) => void;
-  session: string;
+  session?: string;
 }) {
   return (
     <ToolbarContainer>
@@ -54,7 +54,7 @@ export function EditorToolbar({
 }
 
 export interface DropdownProps {
-  content: string;
+  content?: string;
 }
 
 export default function Connection({ content }: DropdownProps) {

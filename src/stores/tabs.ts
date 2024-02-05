@@ -9,7 +9,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
-import { ResultType, query } from '@/api';
+import { QueryParams, ResultType, exportCsv, query } from '@/api';
 import { atomStore } from '@/stores';
 import { genStmt, isEmpty } from '@/utils';
 
@@ -40,6 +40,8 @@ export type QueryContextType = QueryParamType & {
   schema?: SchemaType[];
   message?: string;
   beautify?: boolean;
+
+  target?: 'export';
 };
 export type EditorContextType = {
   id: string;
@@ -168,9 +170,7 @@ export function getDatabase(dbId?: string) {
   }
 }
 
-export async function execute(
-  ctx: QueryParamType,
-): Promise<ResultType | undefined> {
+export function getParams(ctx: QueryParamType): QueryParams | undefined {
   const {
     page = 1,
     perPage = 500,
@@ -212,17 +212,50 @@ export async function execute(
       where: sqlWhere,
     });
   }
-  console.log('query:', sql);
-  const data = await query({
+
+  return {
     dialect,
     sql,
     limit: perPage,
     offset: (page - 1) * perPage,
-  });
+  };
+}
 
-  console.log('data:', data);
-  if (data?.code == 401 && data?.message) {
-    toast.warning(data?.message);
+export async function execute(
+  ctx: QueryParamType,
+): Promise<ResultType | undefined> {
+  const param = getParams(ctx);
+  if (param) {
+    const data = await query(param);
+
+    console.log('data:', data);
+    if (data?.code == 401 && data?.message) {
+      toast.warning(data?.message);
+    }
+    return data;
   }
-  return data;
+}
+
+type ExportTarget = {
+  type?: 'csv';
+  file: string;
+};
+
+export async function exportData(
+  { file }: ExportTarget,
+  ctx: QueryParamType,
+): Promise<ResultType | undefined> {
+  const param = getParams(ctx);
+  if (param) {
+    const data = await exportCsv({
+      file,
+      ...param,
+    });
+
+    console.log('data:', data);
+    if (data?.code == 401 && data?.message) {
+      toast.warning(data?.message);
+    }
+    return data;
+  }
 }

@@ -1,13 +1,14 @@
 use std::env::{current_dir, set_current_dir};
-
-use async_trait::async_trait;
-use duckdb::Connection;
+use std::fs::File;
 
 use crate::api;
 use crate::api::{serialize_preview, ArrowData};
 use crate::dialect::{Dialect, TreeNode};
-use crate::utils::{build_tree, get_file_name, Table};
-
+use crate::utils::{build_tree, get_file_name, write_csv, Table};
+use arrow::csv::{Writer, WriterBuilder};
+use arrow::ipc::RecordBatch;
+use async_trait::async_trait;
+use duckdb::Connection;
 #[derive(Debug, Default)]
 pub struct DuckDbDialect {
   pub path: String,
@@ -31,6 +32,13 @@ impl Dialect for DuckDbDialect {
 
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
     api::query(&self.path, sql, limit, offset, self.cwd.clone())
+  }
+
+  async fn export(&self, sql: &str, file: &str) {
+    let data = api::fetch_all(&self.path, sql, self.cwd.clone());
+    if let Ok(batch) = data {
+      write_csv(file, &batch);
+    }
   }
 }
 

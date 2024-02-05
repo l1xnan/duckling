@@ -5,6 +5,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenu as UIDropdownMenu,
   DropdownMenuItem as UIDropdownMenuItem,
+  DropdownMenuLabel as UIDropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import {
   PaginationContent,
@@ -39,4 +40,9 @@ export function DropdownMenuItem(
   props: ComponentProps<typeof UIDropdownMenuItem>,
 ) {
   return <UIDropdownMenuItem className="py-1 text-xs" {...props} />;
+}
+export function DropdownMenuLabel(
+  props: ComponentProps<typeof UIDropdownMenuLabel>,
+) {
+  return <UIDropdownMenuLabel className="py-1 text-xs" {...props} />;
 }

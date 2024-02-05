@@ -4,9 +4,11 @@
 use std::env;
 
 use cmd::OpenedUrls;
-use cmd::{get_db, opened_urls, query, show_tables};
+use cmd::{export, get_db, opened_urls, query, show_tables};
 use std::sync::Mutex;
-use tauri::menu::{CheckMenuItem, CheckMenuItemBuilder, MenuBuilder, MenuItem, MenuItemBuilder, SubmenuBuilder};
+use tauri::menu::{
+  CheckMenuItem, CheckMenuItemBuilder, MenuBuilder, MenuItem, MenuItemBuilder, SubmenuBuilder,
+};
 use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_log::{Target, TargetKind};
@@ -118,6 +120,7 @@ fn main() {
       show_tables,
       opened_urls,
       get_db,
+      export,
     ])
     .build(tauri::generate_context!())
     .expect("error while running tauri application")

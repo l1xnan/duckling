@@ -88,6 +88,15 @@ export async function query(params: QueryParams): Promise<ResultType> {
 
   return convert(res);
 }
+export async function exportCsv(
+  params: QueryParams & { file: string },
+): Promise<ResultType> {
+  console.debug('params:', params);
+  const res = await invoke<ArrowResponse>('export', params);
+  console.log(res);
+
+  return convert(res);
+}
 
 export async function read_parquet(
   path: string,
