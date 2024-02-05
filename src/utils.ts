@@ -55,3 +55,10 @@ export function isEmpty(v: string | unknown[] | number | null | undefined) {
 
   return !v;
 }
+
+export function compareAny(a: unknown, b: unknown) {
+  if (typeof a != typeof b || typeof a === 'string' || typeof b === 'string') {
+    return {}.toString.call(a).localeCompare({}.toString.call(b));
+  }
+  return (a as number) - (b as number);
+}

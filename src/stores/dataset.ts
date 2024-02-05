@@ -83,7 +83,6 @@ export const createDatasetStore = (context: TabContextType) =>
   createStore<DatasetState & DatasetAction>((set, get) => ({
     // state
     context,
-
     page: 1,
     perPage: 500,
     totalCount: 0,
@@ -139,7 +138,11 @@ export const createDatasetStore = (context: TabContextType) =>
           },
         };
       });
-      get().refresh();
+      if (context.type != 'query') {
+        get().refresh();
+      } else {
+        // TODO: sort
+      }
     },
     setPerPage: (perPage: number) => {
       set((_) => ({ perPage }));

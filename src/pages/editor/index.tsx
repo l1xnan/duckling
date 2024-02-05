@@ -103,6 +103,7 @@ export default function Editor({
     if (action == 'new' || tab.children.length == 0) {
       const subContext: QueryContextType = createStore({
         ...tabContext,
+        type: 'query',
         stmt,
         displayName: `Result${(tab?.children?.length ?? 0) + 1}`,
         id,

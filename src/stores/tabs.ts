@@ -30,7 +30,7 @@ export type QueryParamType = {
 };
 export type QueryContextType = QueryParamType & {
   id: string;
-
+  type: 'query';
   extra?: unknown;
   displayName: string;
 

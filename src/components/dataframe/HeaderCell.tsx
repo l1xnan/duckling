@@ -47,7 +47,6 @@ export default (props: HeadCellProps) => {
 
   const pinColumn = ({ colId, pinned }: ColumnState) => {
     const state = props.api.getColumnState();
-    console.log('state:', state);
 
     props.api.applyColumnState({
       state: state.map((col) =>

@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 
 import ConfigDialog from '@/pages/sidebar/ConfigDialog';
 import RenameDialog from '@/pages/sidebar/RenameDialog';
-import { SideToolbar, openCreateAtom } from '@/pages/sidebar/SideToolbar';
+import { SideToolbar } from '@/pages/sidebar/SideToolbar';
 import { configAtom, dbListAtom, renameAtom } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 
@@ -56,8 +56,6 @@ function Sidebar() {
     };
   }, []);
 
-  const openCreate = useAtomValue(openCreateAtom);
-  console.log(openCreate);
   return (
     <>
       <SideToolbar />

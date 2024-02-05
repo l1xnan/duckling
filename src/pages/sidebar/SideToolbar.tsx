@@ -6,7 +6,7 @@ import {
   IconRefresh,
 } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
-import { atom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { getDB } from '@/api';
 import { MuiIconButton } from '@/components/MuiIconButton';
@@ -21,8 +21,6 @@ import {
   selectedNodeAtom,
   useDBListStore,
 } from '@/stores/dbList';
-
-export const openCreateAtom = atom(false);
 
 export function SideToolbar() {
   const dbList = useDBListStore((state) => state.dbList);
