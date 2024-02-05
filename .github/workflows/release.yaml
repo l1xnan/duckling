@@ -21,7 +21,7 @@ jobs:
 
       - name: Generate changelog
         id: create_release
-        run: npx changelogithub --draft --name DuckStudio-${{ steps.vars.outputs.tag }}
+        run: npx changelogithub --draft --name Duckling-${{ steps.vars.outputs.tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
@@ -98,7 +98,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
           tagName: v__VERSION__
-          releaseName: "DuckStudio v__VERSION__"
+          releaseName: "Duckling v__VERSION__"
           releaseBody: "See the assets to download this version and install."
           releaseDraft: true
           prerelease: false

@@ -1,12 +1,12 @@
-# DuckStudio
+# Duckling
 
 English | [中文](./README.zh.md)
 
-DuckStudio is a lightweight desktop applications, the use of Tauri build for fast browsing `parquet` / `CSV` file data and database data for [DuckDB](https://github.com/duckdb/duckdb).
+Duckling is a lightweight desktop applications, the use of Tauri build for fast browsing `parquet` / `CSV` file data and database data for [DuckDB](https://github.com/duckdb/duckdb).
 
 ## Installation
 
-From [releases](https://github.com/l1xnan/DuckStudio/releases) page to download the latest installation package, for installation.
+From [releases](https://github.com/l1xnan/Duckling/releases) page to download the latest installation package, for installation.
 
 For Windows platform, you can download and [install Webview2 offline]((https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section)) if you cannot install Webview2 due to network problems.
 

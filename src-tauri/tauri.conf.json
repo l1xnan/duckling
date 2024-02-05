@@ -1,7 +1,7 @@
 {
-  "productName": "DuckStudio",
+  "productName": "Duckling",
   "version": "../package.json",
-  "identifier": "com.duckstudio.dev",
+  "identifier": "com.duckling.dev",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "beforeBuildCommand": "pnpm build",
@@ -17,7 +17,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "DuckStudio",
+        "title": "Duckling",
         "label": "main",
         "width": 1000,
         "height": 800
@@ -56,8 +56,8 @@
       "active": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEUxQTMyRkJEQzg5RUNCMUYKUldRZnk1N0l2UytqNFZTS1dMbFlsbnJuYWNaMGpVUEQwWDlBblBJUEM5cGZobFNHQ0Nicjd2TFQK",
       "endpoints": [
-        "https://github.com/l1xnan/DuckStudio/releases/latest/download/latest.json",
-        "https://mirror.ghproxy.com/https://github.com/l1xnan/DuckStudio/releases/latest/download/latest.json"
+        "https://github.com/l1xnan/duckling/releases/latest/download/latest.json",
+        "https://mirror.ghproxy.com/https://github.com/l1xnan/duckling/releases/latest/download/latest.json"
       ]
     }
   }

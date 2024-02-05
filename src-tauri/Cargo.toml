@@ -1,7 +1,7 @@
 [package]
-name = "DuckStudio"
+name = "duckling"
 version = "0.0.12"
-description = "DuckStudio"
+description = "a lightweight desktop application built with Tauri, designed for quickly browsing Parquet/CSV file data and DuckDB database data."
 authors = ["you"]
 license = ""
 repository = ""
