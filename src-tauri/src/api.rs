@@ -52,11 +52,7 @@ pub fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::
   writer.into_inner()
 }
 
-pub fn fetch_all(
-  path: &str,
-  sql: &str,
-  cwd: Option<String>,
-) -> anyhow::Result<RecordBatch> {
+pub fn fetch_all(path: &str, sql: &str, cwd: Option<String>) -> anyhow::Result<RecordBatch> {
   if let Some(cwd) = &cwd {
     let _ = set_current_dir(cwd);
   }

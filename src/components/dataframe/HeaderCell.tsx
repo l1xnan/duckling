@@ -4,10 +4,12 @@ import {
   IconCaretUpDownFilled,
   IconCaretUpFilled,
 } from '@tabler/icons-react';
+import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { ColumnState, GridApi } from 'ag-grid-community';
 import dedent from 'dedent';
-import { PinIcon } from 'lucide-react';
+import { PinIcon, PinOffIcon } from 'lucide-react';
 
+import { ContextMenuItem } from '@/components/custom/context-menu';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -16,8 +18,6 @@ import {
 } from '@/components/ui/context-menu';
 import { usePageStore } from '@/stores/dataset';
 import { useTabsStore } from '@/stores/tabs';
-
-import { ContextMenuItem } from '../custom/context-menu';
 
 // https://ag-grid.com/react-data-grid/component-header/
 interface HeadCellProps {
@@ -94,6 +94,14 @@ export default (props: HeadCellProps) => {
 
       <ContextMenuContent className="w-64">
         <ContextMenuItem
+          onClick={async () => {
+            await writeText(props.displayName);
+          }}
+        >
+          Copy field name
+        </ContextMenuItem>
+        <ContextMenuItem
+          disabled
           onClick={() => {
             if (table) {
               updateTab({
@@ -135,6 +143,7 @@ export default (props: HeadCellProps) => {
           Pin to right
         </ContextMenuItem>
         <ContextMenuItem
+          icon={PinOffIcon}
           onClick={() => {
             pinColumn({
               colId: key,

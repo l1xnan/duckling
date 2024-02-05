@@ -95,6 +95,7 @@ fn handle_updater(app: &mut tauri::App) -> tauri::Result<()> {
 fn main() {
   tauri::Builder::default()
     .manage(OpenedUrls(Mutex::default()))
+    .plugin(tauri_plugin_clipboard_manager::init())
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_shell::init())
     .plugin(tauri_plugin_process::init())

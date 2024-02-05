@@ -14,6 +14,8 @@
     "updater:default",
     "log:default",
     "webview:default",
+    "clipboard-manager:allow-read",
+    "clipboard-manager:allow-write",
     "dialog:allow-ask",
     "dialog:allow-confirm",
     "dialog:allow-message",
