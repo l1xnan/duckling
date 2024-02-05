@@ -129,7 +129,7 @@ fn main() {
       |app, event| {
         #[cfg(any(target_os = "macos", target_os = "ios"))]
         if let tauri::RunEvent::Opened { urls } = event {
-          if let Some(w) = app.get_window("main") {
+          if let Some(w) = app.get_webview_window("main") {
             let urls = urls
               .iter()
               .map(|u| u.as_str())
