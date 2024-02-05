@@ -38,19 +38,32 @@ export const PageTab = styled((props: TabProps) => (
   textTransform: 'none',
   minWidth: 0,
   margin: 0,
+  marginRight: 0,
   padding: 0,
   paddingLeft: 9,
+  cursor: 'pointer',
   [theme.breakpoints.up('sm')]: {
     minWidth: 0,
   },
   fontWeight: theme.typography.fontWeightRegular,
-  marginRight: theme.spacing(1),
+  paddingRight: theme.spacing(1),
   opacity: 0.8,
   '&:hover': {
     opacity: 1,
   },
+  '& .tab-close-icon': {
+    visibility: 'hidden',
+  },
+  '&.Mui-selected .tab-close-icon': {
+    visibility: 'visible',
+  },
+  '&:hover .tab-close-icon': {
+    visibility: 'visible',
+  },
   '&.Mui-selected': {
     fontWeight: theme.typography.fontWeightMedium,
+    opacity: 1,
+    backgroundColor: isDarkTheme(theme) ? '#1f1f1f' : '#f6f8fa',
   },
   '&.Mui-focusVisible': {
     backgroundColor: '#d1eaff',
@@ -94,18 +107,11 @@ export function PageTabs({
               key={tab.id}
               value={tab.id}
               label={
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Box sx={{ maxWidth: 200, textOverflow: 'clip' }}>
-                    {tab.displayName}
-                  </Box>
+                <div className="flex items-center justify-between">
+                  <div className="max-w-52">{tab.displayName}</div>
                   <IconButton
                     size="small"
+                    className="tab-close-icon"
                     component="div"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -114,7 +120,7 @@ export function PageTabs({
                   >
                     <CloseIcon fontSize="inherit" />
                   </IconButton>
-                </Box>
+                </div>
               }
             />
           );
@@ -124,7 +130,7 @@ export function PageTabs({
   }, [items]);
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div className="flex h-full flex-col">
       <TabContext value={activeKey}>
         <Box>{items?.length > 0 ? tabList : <DatasetEmpty />}</Box>
         <Box sx={{ flex: 1 }}>
@@ -142,7 +148,7 @@ export function PageTabs({
           })}
         </Box>
       </TabContext>
-    </Box>
+    </div>
   );
 }
 
@@ -165,7 +171,7 @@ export function PageTabs1({
               key={tab.id}
               value={tab.id}
               className={
-                'wm-200 data-[state=active]:border-b-2 data-[state=active]:shadow-none data-[state=active]:rounded-none data-[state=active]:border-gray-900'
+                'wm-200 pl-3 pr-1.5 data-[state=active]:border-b-2 data-[state=active]:shadow-none data-[state=active]:rounded-none data-[state=active]:border-gray-900'
               }
             >
               {tab.displayName}

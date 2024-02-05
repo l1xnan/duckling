@@ -126,9 +126,9 @@ export default function Editor({
     <>
       <EditorToolbar onClick={handleClick} session={db?.displayName} />
       <VerticalContainer bottom={tab.children.length > 0 ? 300 : undefined}>
-        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div className="h-full flex flex-col border-b-[1px]">
           <MonacoEditor ref={ref} value={stmt} onChange={handleChange} />
-        </Box>
+        </div>
         <QueryTabs
           tabsAtom={subTabsAtom}
           activeKey={tab.activeKey}

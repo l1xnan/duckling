@@ -72,7 +72,7 @@ export function DatasetItem({
         exportData={handleExport}
         ctx={context}
       />
-      <Box sx={{ height: '100%' }}>
+      <div className="h-full">
         <Suspense fallback={<Loading />}>
           {loading ? <Loading /> : null}
           <AgTable
@@ -83,7 +83,7 @@ export function DatasetItem({
             orderBy={ctx.orderBy}
           />
         </Suspense>
-      </Box>
+      </div>
     </Stack>
   );
 }
