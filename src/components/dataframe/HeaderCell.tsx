@@ -62,6 +62,9 @@ export default (props: HeadCellProps) => {
     });
   };
 
+  const handleOrder = () => {
+    setOrderBy?.(key);
+  };
   return (
     <ContextMenu
       onOpenChange={(open) => {
@@ -70,26 +73,14 @@ export default (props: HeadCellProps) => {
         }
       }}
     >
-      <ContextMenuTrigger>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            width: '100%',
-            height: 20,
-            lineHeight: 1,
-            pl: '6px',
-            pr: '6px',
-            fontSize: '14px',
-          }}
-          onClick={() => {
-            setOrderBy!(key);
-          }}
+      <ContextMenuTrigger className="w-full">
+        <div
+          className="flex items-center justify-between w-full h-20 px-1 text-sm"
+          onClick={handleOrder}
         >
-          <Box>{props.displayName}</Box>
+          <div>{props.displayName}</div>
           <AscOrDescIcon isDesc={isDesc} />
-        </Box>
+        </div>
       </ContextMenuTrigger>
 
       <ContextMenuContent className="w-64">
