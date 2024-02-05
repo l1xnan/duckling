@@ -1,11 +1,7 @@
 import { Box } from '@mui/material';
 import { useAtom } from 'jotai/react';
 
-import {
-  Content,
-  Layout,
-  Sidebar as SidebarWrapper,
-} from '@/components/Layout';
+import { Content, Sidebar as SidebarWrapper } from '@/components/Layout';
 import { useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
 import { Main } from '@/pages/main';
@@ -22,7 +18,7 @@ function Home() {
   );
 
   return (
-    <Layout>
+    <div className="h-full max-h-screen p-0 m-0">
       <Box
         ref={targetRefLeft}
         className={classes.sideBar}
@@ -38,7 +34,7 @@ function Home() {
       <Content sx={{ ml: `${sizeLeft}px` }}>
         <Main />
       </Content>
-    </Layout>
+    </div>
   );
 }
 

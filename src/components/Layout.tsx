@@ -19,10 +19,3 @@ export const Sidebar = styled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
   borderRight: borderTheme(theme),
 }));
-
-export const Layout = styled(Box)<BoxProps>(({ theme }) => ({
-  maxHeight: '100vh',
-  height: '100%',
-  p: 0,
-  m: 0,
-}));
