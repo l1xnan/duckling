@@ -1,11 +1,11 @@
 import { OnChange, OnMount } from '@monaco-editor/react';
-import { Box } from '@mui/material';
 import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { nanoid } from 'nanoid';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { showTables } from '@/api';
+import { schemaMapAtom } from '@/stores/dbList';
 import {
   EditorContextType,
   QueryContextType,
@@ -74,6 +74,12 @@ export default function Editor({
     }
   }, []);
 
+  const schemaMap = useAtomValue(schemaMapAtom);
+
+  const tableSchema = useMemo(
+    () => schemaMap.get(tabContext.dbId) ?? [],
+    [tabContext.dbId],
+  );
   const ref = useRef<EditorRef | null>(null);
 
   const handleChange: OnChange = (value, _event) => {
@@ -127,7 +133,12 @@ export default function Editor({
       <EditorToolbar onClick={handleClick} session={db?.displayName} />
       <VerticalContainer bottom={tab.children.length > 0 ? 300 : undefined}>
         <div className="h-full flex flex-col border-b-[1px]">
-          <MonacoEditor ref={ref} value={stmt} onChange={handleChange} />
+          <MonacoEditor
+            ref={ref}
+            value={stmt}
+            onChange={handleChange}
+            tableSchema={tableSchema}
+          />
         </div>
         <QueryTabs
           tabsAtom={subTabsAtom}

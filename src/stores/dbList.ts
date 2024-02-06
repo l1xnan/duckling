@@ -8,8 +8,6 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { TreeNode } from '@/types';
 
-import { computed } from './computed';
-
 import { atomStore } from '.';
 
 export type NodeContextType = {
@@ -86,15 +84,10 @@ type DBListAction = {
   setContextMenu: (contextMenu: ContextMenuType) => void;
 };
 
-type ComputedStore = {
-  databases: Map<string, DBType>;
-  tables: Map<string, Map<string, TreeNode>>;
-};
-
 type DBListStore = DBListState & DBListAction;
 
-export function flattenTree(tree: TreeNode) {
-  const result = new Map();
+export function flattenTree(tree: TreeNode): Map<string, TreeNode> {
+  const result: Map<string, TreeNode> = new Map();
   function flatten(node: TreeNode) {
     result.set(node.path, node);
     if (node.children && node.children.length > 0) {
@@ -105,72 +98,62 @@ export function flattenTree(tree: TreeNode) {
   return result;
 }
 
-const computeState = (state: DBListStore): ComputedStore => {
-  return {
-    databases: new Map(state.dbList.map((db) => [db.id, db])),
-    tables: new Map(state.dbList.map((db) => [db.id, flattenTree(db.data)])),
-  };
-};
+export const useDBListStore = create<DBListStore>()(
+  persist<DBListStore>(
+    (set, _get) => ({
+      // state
+      dbList: [],
 
-export const useDBListStore = create<DBListStore & ComputedStore>()(
-  computed(
-    persist<DBListStore>(
-      (set, _get) => ({
-        // state
-        dbList: [],
-
-        contextMenu: null,
-        setContextMenu: (contextMenu: ContextMenuType) => {
-          set(() => ({ contextMenu }));
-        },
-
-        // action
-        append: (db) => set((state) => ({ dbList: [...state.dbList, db] })),
-        remove: (id) =>
-          set((state) => ({
-            dbList: state.dbList?.filter((item) => !(item.id === id)),
-          })),
-        update: (id, data) =>
-          set((state) => ({
-            dbList: state.dbList.map((item) =>
-              item.id !== id
-                ? item
-                : {
-                    ...item,
-                    data,
-                  },
-            ),
-          })),
-        setCwd: (cwd: string, id: string) =>
-          set((state) => ({
-            dbList: state.dbList.map((item) => {
-              return item.id == id
-                ? {
-                    ...item,
-                    config: { ...(item.config ?? {}), cwd } as DialectConfig,
-                  }
-                : item;
-            }),
-          })),
-        rename: (dbId: string, displayName: string) => {
-          set(({ dbList }) => ({
-            dbList: dbList.map((item) => {
-              return item.id == dbId
-                ? {
-                    ...item,
-                    displayName,
-                  }
-                : item;
-            }),
-          }));
-        },
-      }),
-      {
-        name: 'dbListStore',
-        storage: createJSONStorage(() => localStorage),
+      contextMenu: null,
+      setContextMenu: (contextMenu: ContextMenuType) => {
+        set(() => ({ contextMenu }));
       },
-    ),
-    computeState,
+
+      // action
+      append: (db) => set((state) => ({ dbList: [...state.dbList, db] })),
+      remove: (id) =>
+        set((state) => ({
+          dbList: state.dbList?.filter((item) => !(item.id === id)),
+        })),
+      update: (id, data) =>
+        set((state) => ({
+          dbList: state.dbList.map((item) =>
+            item.id !== id
+              ? item
+              : {
+                  ...item,
+                  data,
+                },
+          ),
+        })),
+      setCwd: (cwd: string, id: string) =>
+        set((state) => ({
+          dbList: state.dbList.map((item) => {
+            return item.id == id
+              ? {
+                  ...item,
+                  config: { ...(item.config ?? {}), cwd } as DialectConfig,
+                }
+              : item;
+          }),
+        })),
+      rename: (dbId: string, displayName: string) => {
+        set(({ dbList }) => ({
+          dbList: dbList.map((item) => {
+            return item.id == dbId
+              ? {
+                  ...item,
+                  displayName,
+                }
+              : item;
+          }),
+        }));
+      },
+    }),
+    {
+      name: 'dbListStore',
+      storage: createJSONStorage(() => localStorage),
+    },
   ),
 );
 
@@ -179,6 +162,20 @@ export const dbListAtom = focusAtom(storeAtom, (o) => o.prop('dbList'));
 export const dbMapAtom = atom(
   (get) => new Map(get(dbListAtom).map((db) => [db.id, db])),
 );
+
+export const schemaMapAtom = atom(
+  (get) =>
+    new Map(
+      get(dbListAtom).map((db) => [
+        db.id,
+        Array.from(flattenTree(db.data).keys()).map((key) => ({
+          table_name: key,
+          column_name: key, // TODO
+        })),
+      ]),
+    ),
+);
+
 export const tablesAtom = atom(
   (get) => new Map(get(dbListAtom).map((db) => [db.id, flattenTree(db.data)])),
 );

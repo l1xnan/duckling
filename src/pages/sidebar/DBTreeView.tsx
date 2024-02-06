@@ -13,12 +13,12 @@ import {
   IconFolderOpen,
   IconTable,
 } from '@tabler/icons-react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useState } from 'react';
 
 import { ClickhouseIcon, DuckdbIcon } from '@/components/custom/Icons';
 import { HtmlTooltip } from '@/components/custom/Tooltip';
-import { DBType, selectedNodeAtom, useDBListStore } from '@/stores/dbList';
+import { DBType, selectedNodeAtom, tablesAtom } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { TreeNode } from '@/types';
 
@@ -69,8 +69,7 @@ export interface DBTreeViewProps extends TreeViewProps<boolean> {
 
 export default function DBTreeView({ db, ...rest }: DBTreeViewProps) {
   const updateTab = useTabsStore((state) => state.update);
-  const dbTableMap = useDBListStore((state) => state.tables);
-
+  const dbTableMap = useAtomValue(tablesAtom);
   const renderTree = (node: TreeNode, isRoot = false) => {
     const label = (
       <TreeItemLabel

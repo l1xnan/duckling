@@ -21,6 +21,7 @@
     "@codemirror/view": "^6.22.3",
     "@emotion/react": "^11.11.1",
     "@hookform/resolvers": "^3.3.4",
+    "@mobily/ts-belt": "^3.13.1",
     "@monaco-editor/react": "^4.6.0",
     "@mui/icons-material": "^5.15.1",
     "@mui/lab": "5.0.0-alpha.157",
