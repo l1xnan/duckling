@@ -75,7 +75,6 @@ function Sidebar() {
       {renameContext !== null ? <RenameDialog /> : null}
       {/* db config */}
       {configContext !== null ? <ConfigDialog /> : null}
-      {/* {openCreate ? <DatabaseDialog /> : null} */}
     </>
   );
 }

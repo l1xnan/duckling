@@ -17,12 +17,14 @@ import { useAtom } from 'jotai';
 import { useState } from 'react';
 
 import { ClickhouseIcon, DuckdbIcon } from '@/components/custom/Icons';
+import { HtmlTooltip } from '@/components/custom/Tooltip';
 import { DBType, selectedNodeAtom, useDBListStore } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { TreeNode } from '@/types';
 
-import { DBContextMenu } from './DBContextMenu';
 import { DBTreeItem, TreeItemLabel } from './DBTreeItem';
+import { DBContextMenu } from './context-menu/DBContextMenu';
+import { TableContextMenu } from './context-menu/TableContextMenu';
 
 export const getTypeIcon = (type: string, expanded: boolean) => {
   if (type == 'path' && expanded) {
@@ -85,7 +87,21 @@ export default function DBTreeView({ db, ...rest }: DBTreeViewProps) {
       <DBTreeItem
         key={node.path}
         nodeId={node.path}
-        label={isRoot ? <DBContextMenu db={db}>{label}</DBContextMenu> : label}
+        label={
+          isRoot ? (
+            <DBContextMenu db={db}>
+              <HtmlTooltip title={node.path}>
+                <div className="truncate">{label}</div>
+              </HtmlTooltip>
+            </DBContextMenu>
+          ) : (
+            <TableContextMenu node={node}>
+              <HtmlTooltip title={node.path}>
+                <div className="truncate">{label}</div>
+              </HtmlTooltip>
+            </TableContextMenu>
+          )
+        }
       >
         {Array.isArray(node.children) && node.children.length > 0
           ? node.children.map((node) => renderTree(node))

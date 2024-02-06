@@ -1,6 +1,7 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { TabContext, TabList, TabPanelProps, useTabContext } from '@mui/lab';
 import { Box, IconButton, Tab, TabProps, styled } from '@mui/material';
+import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import {
   FunctionComponent,
   PropsWithChildren,
@@ -13,6 +14,15 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TabContextType } from '@/stores/tabs';
 import { borderTheme, isDarkTheme } from '@/utils';
+
+import { HtmlTooltip } from './custom/Tooltip';
+import { ContextMenuItem } from './custom/context-menu';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from './ui/context-menu';
 
 export interface PageTabsProps {
   items: { tab: TabContextType; children: ReactNode }[];
@@ -41,7 +51,6 @@ export const PageTab = styled((props: TabProps) => (
   marginRight: 0,
   padding: 0,
   paddingLeft: 9,
-  cursor: 'pointer',
   [theme.breakpoints.up('sm')]: {
     minWidth: 0,
   },
@@ -107,20 +116,48 @@ export function PageTabs({
               key={tab.id}
               value={tab.id}
               label={
-                <div className="flex items-center justify-between">
-                  <div className="max-w-52">{tab.displayName}</div>
-                  <IconButton
-                    size="small"
-                    className="tab-close-icon"
-                    component="div"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onRemove(tab.id);
-                    }}
-                  >
-                    <CloseIcon fontSize="inherit" />
-                  </IconButton>
-                </div>
+                <ContextMenu>
+                  <ContextMenuTrigger className="w-full">
+                    <div className="flex items-center justify-between">
+                      <HtmlTooltip title={tab.displayName}>
+                        <div className="max-w-52 truncate">
+                          {tab.displayName}
+                        </div>
+                      </HtmlTooltip>
+                      <IconButton
+                        size="small"
+                        className="tab-close-icon"
+                        component="div"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRemove(tab.id);
+                        }}
+                      >
+                        <CloseIcon fontSize="inherit" />
+                      </IconButton>
+                    </div>
+                  </ContextMenuTrigger>
+
+                  <ContextMenuContent className="w-64">
+                    <ContextMenuItem
+                      onClick={async () => {
+                        onRemove(tab.id);
+                      }}
+                    >
+                      Close
+                    </ContextMenuItem>
+
+                    <ContextMenuSeparator />
+
+                    <ContextMenuItem
+                      onClick={async () => {
+                        await writeText(tab.displayName);
+                      }}
+                    >
+                      Copy
+                    </ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
               }
             />
           );
