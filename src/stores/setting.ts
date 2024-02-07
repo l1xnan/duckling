@@ -4,12 +4,18 @@ import { selectAtom } from 'jotai/utils';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+export type CsvParam = {
+  delim?: string;
+  escape?: string;
+};
+
 export type SettingState = {
   precision: number;
   table_font_family: string;
   main_font_family: string;
   auto_update?: boolean;
   proxy?: string;
+  csv?: CsvParam;
 };
 
 export const defaultSettings = {
@@ -22,6 +28,8 @@ export const defaultSettings = {
     'system-ui,Ubuntu, Droid Sans,Source Han Sans SC, Source Han Sans CN, Source Han Sans',
     'sans-serif',
   ].join(','),
+
+  csv: {},
 };
 export const useSettingStore = create<SettingState>()(
   persist((_) => defaultSettings, {

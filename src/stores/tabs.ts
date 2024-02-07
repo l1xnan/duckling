@@ -15,6 +15,7 @@ import { genStmt, isEmpty } from '@/utils';
 
 import { OrderByType, SchemaType } from './dataset';
 import { dbMapAtom, tablesAtom } from './dbList';
+import { settingAtom } from './setting';
 
 export type QueryParamType = {
   dbId: string;
@@ -202,7 +203,14 @@ export function getParams(ctx: QueryParamType): QueryParams | undefined {
       tableName = table.path;
     }
     if (tableName.endsWith('.csv')) {
-      tableName = `read_csv_auto('${tableName}')`;
+      const csv = atomStore.get(settingAtom).csv;
+      const params = [`'${tableName}'`];
+      for (const [key, val] of Object.entries(csv ?? {})) {
+        if (!isEmpty(val)) {
+          params.push(`${key}='${val}'`);
+        }
+      }
+      tableName = `read_csv_auto(${params.join(', ')})`;
     } else if (tableName.endsWith('.parquet')) {
       tableName = `read_parquet('${tableName}')`;
     }

@@ -26,15 +26,14 @@ export default ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
       <DialogContent
-        className="min-w-[600px]"
+        className="min-w-[800px] min-h-[600px] grid-rows-[auto_1fr]"
         onInteractOutside={(e) => {
           e.preventDefault();
         }}
       >
-        <DialogHeader>
+        <DialogHeader className="h-5">
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-
         {children}
       </DialogContent>
     </Dialog>

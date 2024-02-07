@@ -13,6 +13,7 @@
     "updater:default",
     "log:default",
     "webview:default",
+    "shell:allow-open",
     "clipboard-manager:allow-read",
     "clipboard-manager:allow-write",
     "dialog:allow-ask",
