@@ -84,6 +84,7 @@ jobs:
         uses: swatinem/rust-cache@v2
         with:
           workspaces: './src-tauri -> target'
+          key: ${{ runner.os }}
 
       - name: install webkit2gtk (ubuntu only)
         if: matrix.os == 'ubuntu-latest'
