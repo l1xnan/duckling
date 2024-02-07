@@ -7,6 +7,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 export type CsvParam = {
   delim?: string;
   escape?: string;
+  new_line?: string;
 };
 
 export type SettingState = {

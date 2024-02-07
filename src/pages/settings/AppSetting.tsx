@@ -277,6 +277,22 @@ const CSVForm = () => {
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="new_line"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>New line</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormDescription>
+                  Set the new line character(s) in the file. Options are
+                  '\r','\n', or '\r\n'.
+                </FormDescription>
+              </FormItem>
+            )}
+          />
 
           <DialogFooter>
             <DialogClose asChild>
