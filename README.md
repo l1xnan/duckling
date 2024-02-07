@@ -4,7 +4,7 @@
 
 English | [中文](./README.zh.md)
 
-Duckling is a lightweight desktop applications, the use of Tauri build for fast browsing `parquet` / `CSV` file data and database data for [DuckDB](https://github.com/duckdb/duckdb).
+Duckling is a lightweight desktop applications, the use of Tauri build for fast browsing `parquet` / `CSV` file data and [DuckDB](https://github.com/duckdb/duckdb) databases, with experimental support for Clickhouse (please note that only the [Native Protocol port](https://clickhouse.com/docs/en/guides/sre/network-ports) is supported, typically port `9000`).
 
 ## Installation
 

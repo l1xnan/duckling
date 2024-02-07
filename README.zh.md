@@ -2,7 +2,7 @@
 
 [English](./README.md) | 中文
 
-Duckling 是使用 Tauri 构建的轻量级桌面应用，用于快速浏览 `parquet`/`csv` 文件数据和 [DuckDB](https://github.com/duckdb/duckdb) 数据库数据。
+Duckling 是使用 Tauri 构建的轻量级桌面应用，用于快速浏览 `parquet`/`csv` 文件数据和 [DuckDB](https://github.com/duckdb/duckdb) 数据库数据，对于 Clickhouse 提供实验性的支持（注意仅支持 [Native Protocol port](https://clickhouse.com/docs/en/guides/sre/network-ports)，一般是 `9000`）。
 
 ## 安装
 
