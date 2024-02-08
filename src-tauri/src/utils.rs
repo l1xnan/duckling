@@ -32,7 +32,11 @@ pub fn build_tree(tables: Vec<Table>) -> Vec<TreeNode> {
     let db = tree.entry(t.table_schema.clone()).or_default();
     db.push(TreeNode {
       name: t.table_name.clone(),
-      path: format!("{}.{}", t.table_schema.clone(), t.table_name.clone()),
+      path: if t.table_schema.is_empty() {
+        t.table_name.clone()
+      } else {
+        format!("{}.{}", t.table_schema.clone(), t.table_name.clone())
+      },
       node_type: t.r#type.clone(),
       children: None,
     });

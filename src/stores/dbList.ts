@@ -18,7 +18,12 @@ export type NodeContextType = {
   extra?: unknown;
 };
 
-export type DialectType = 'folder' | 'file' | 'duckdb' | 'clickhouse';
+export type DialectType =
+  | 'folder'
+  | 'file'
+  | 'duckdb'
+  | 'clickhouse'
+  | 'sqlite';
 
 export type DuckdbConfig = {
   path: string;

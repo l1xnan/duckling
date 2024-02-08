@@ -69,6 +69,7 @@ export function DatabaseDialog() {
                   <SelectContent>
                     <SelectItem value="duckdb">DuckDB</SelectItem>
                     <SelectItem value="clickhouse">Clickhouse</SelectItem>
+                    <SelectItem value="sqlite">SQLite</SelectItem>
                   </SelectContent>
                 </Select>
               </FormItem>
@@ -146,7 +147,7 @@ export function DatabaseDialog() {
               />
             </>
           ) : null}
-          {watchDialect == 'duckdb' ? (
+          {watchDialect == 'duckdb' || watchDialect == 'sqlite' ? (
             <>
               <FormField
                 control={form.control}
