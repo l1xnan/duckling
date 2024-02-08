@@ -6,10 +6,11 @@ import { useAtomValue } from 'jotai';
 import { nanoid } from 'nanoid';
 import { useEffect } from 'react';
 
+import { getDB } from '@/api';
 import ConfigDialog from '@/pages/sidebar/ConfigDialog';
 import RenameDialog from '@/pages/sidebar/RenameDialog';
 import { SideToolbar } from '@/pages/sidebar/SideToolbar';
-import { configAtom, dbListAtom, renameAtom } from '@/stores/dbList';
+import { DBType, configAtom, dbListAtom, renameAtom } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 
 import DBTreeView from './DBTreeView';
@@ -32,7 +33,7 @@ function Sidebar() {
   async function openUrl() {
     const path: string = await invoke('opened_urls');
     console.log('opened_urls', path);
-    if (path?.length > 0) {
+    if (path?.endsWith('.parquet')) {
       const item: TableContextType = {
         id: nanoid(),
         dbId: ':memory:',
@@ -41,6 +42,9 @@ function Sidebar() {
         type: 'file',
       };
       updateTab!(item);
+    } else if (path?.endsWith('.duckdb')) {
+      const data = await getDB({ path, dialect: 'duckdb' });
+      appendDB(data);
     }
   }
 
@@ -80,3 +84,6 @@ function Sidebar() {
 }
 
 export default Sidebar;
+function appendDB(data: DBType) {
+  throw new Error('Function not implemented.');
+}
