@@ -1,7 +1,6 @@
 import { Box, BoxProps } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { invoke } from '@tauri-apps/api/core';
-import { listen } from '@tauri-apps/api/event';
 import { useAtomValue } from 'jotai';
 import { nanoid } from 'nanoid';
 import { useEffect } from 'react';
@@ -10,7 +9,12 @@ import { getDB } from '@/api';
 import ConfigDialog from '@/pages/sidebar/ConfigDialog';
 import RenameDialog from '@/pages/sidebar/RenameDialog';
 import { SideToolbar } from '@/pages/sidebar/SideToolbar';
-import { DBType, configAtom, dbListAtom, renameAtom } from '@/stores/dbList';
+import {
+  configAtom,
+  dbListAtom,
+  renameAtom,
+  useDBListStore,
+} from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 
 import DBTreeView from './DBTreeView';
@@ -29,6 +33,7 @@ function Sidebar() {
   const renameContext = useAtomValue(renameAtom);
   const configContext = useAtomValue(configAtom);
   const updateTab = useTabsStore((state) => state.update);
+  const appendDB = useDBListStore((state) => state.append);
 
   async function openUrl() {
     const path: string = await invoke('opened_urls');
@@ -49,15 +54,9 @@ function Sidebar() {
   }
 
   useEffect(() => {
-    openUrl();
-    const unlisten = listen('open-directory', (e) => {
-      console.log(e.payload);
-
-      // TODO: open data file
-    });
-    return () => {
-      unlisten.then((f) => f());
-    };
+    (async () => {
+      await openUrl();
+    })();
   }, []);
 
   return (
@@ -84,6 +83,3 @@ function Sidebar() {
 }
 
 export default Sidebar;
-function appendDB(data: DBType) {
-  throw new Error('Function not implemented.');
-}
