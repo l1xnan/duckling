@@ -4,7 +4,6 @@ use async_trait::async_trait;
 use sqlx::any;
 use sqlx::sqlite::SqlitePool;
 use sqlx::Row;
-use sqlx::Sqlite;
 use sqlx::SqliteConnection;
 
 use crate::api::ArrowData;
@@ -63,7 +62,10 @@ impl Dialect for SqliteDialect {
     let columns = info.columns();
     println!("{:?}", columns);
 
-    anyhow::Error(())
+    Ok(ArrowData {
+      total_count: 0,
+      preview: vec![],
+    })
   }
 }
 
