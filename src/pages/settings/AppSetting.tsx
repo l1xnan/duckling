@@ -236,7 +236,7 @@ const CSVForm = () => {
           className="prose prose-a:text-link text-link border-b-[1px] cursor-pointer"
           onClick={() =>
             shell.open(
-              'https://duckdb.org/docs/archive/0.9.2/data/csv/overview#parameters',
+              'https://duckdb.org/docs/data/csv/overview.html#parameters',
             )
           }
         >

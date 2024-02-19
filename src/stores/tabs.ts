@@ -204,13 +204,13 @@ export function getParams(ctx: QueryParamType): QueryParams | undefined {
     }
     if (tableName.endsWith('.csv')) {
       const csv = atomStore.get(settingAtom).csv;
-      const params = [`'${tableName}'`];
+      const params = [`'${tableName}'`, 'auto_detect=true'];
       for (const [key, val] of Object.entries(csv ?? {})) {
         if (!isEmpty(val)) {
           params.push(`${key}='${val}'`);
         }
       }
-      tableName = `read_csv_auto(${params.join(', ')})`;
+      tableName = `read_csv(${params.join(', ')})`;
     } else if (tableName.endsWith('.parquet')) {
       tableName = `read_parquet('${tableName}')`;
     }
