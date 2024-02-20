@@ -1,12 +1,18 @@
 import { CssBaseline } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
+import { relaunch } from '@tauri-apps/plugin-process';
+import { check } from '@tauri-apps/plugin-updater';
 import { Provider, useAtom, useAtomValue } from 'jotai';
 import { DevTools } from 'jotai-devtools';
 // eslint-disable-next-line import/order
 import { atomWithStorage } from 'jotai/utils';
 import { useEffect, useMemo } from 'react';
 
-import { mainFontFamilyAtom, tableFontFamilyAtom } from '@/stores/setting';
+import {
+  mainFontFamilyAtom,
+  tableFontFamilyAtom,
+  useSettingStore,
+} from '@/stores/setting';
 
 import Home from './Home';
 import { Toaster } from './components/ui/sonner';
@@ -17,7 +23,11 @@ export const themeAtom = atomWithStorage<ThemeType>('mode', 'light');
 
 type ThemeType = 'light' | 'dark' | 'system';
 
+const isDev = import.meta.env.MODE === 'development';
+
 function App() {
+  const proxy = useSettingStore((state) => state.proxy);
+
   const [themeMode, setMode] = useAtom(themeAtom);
   const colorMode = useMemo(
     () => ({
@@ -53,12 +63,26 @@ function App() {
 
     root.classList.add(themeMode);
   }, [themeMode]);
+
   useEffect(() => {
     const rootElement = document.documentElement;
 
     rootElement.style.setProperty('--table-font-family', tableFontFamily);
     rootElement.style.setProperty('--main-font-family', mainFontFamily);
   }, [tableFontFamily]);
+
+  useEffect(() => {
+    if (!isDev) {
+      (async () => {
+        const update = await check({ proxy });
+        console.log(update);
+        if (update?.version != update?.currentVersion) {
+          await update?.downloadAndInstall();
+          await relaunch();
+        }
+      })();
+    }
+  }, []);
 
   return (
     <Provider store={atomStore}>
