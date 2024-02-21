@@ -6,7 +6,7 @@ import { relaunch } from '@tauri-apps/plugin-process';
 import * as shell from '@tauri-apps/plugin-shell';
 import { check } from '@tauri-apps/plugin-updater';
 import { atom, useAtom } from 'jotai';
-import { useEffect, useState } from 'react';
+import { PropsWithChildren, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -24,7 +24,6 @@ import {
   FormLabel,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import {
   CsvParam,
@@ -50,11 +49,19 @@ const items = [
 
 export const navKeyAtom = atom('profile');
 
+export const Display = ({
+  hidden,
+  children,
+}: PropsWithChildren<{ hidden: boolean }>) => (
+  <div className={hidden ? 'flex flex-col h-full' : 'hidden'}>{children}</div>
+);
+
 export default function AppSettingDialog() {
   const [navKey, setNavkey] = useAtom(navKeyAtom);
   return (
     <Dialog
       title="Setting"
+      className="min-w-[800px] min-h-[600px]"
       trigger={
         <MuiIconButton>
           <SettingsIcon fontSize="inherit" />
@@ -65,16 +72,16 @@ export default function AppSettingDialog() {
         <aside className="-mx-4 lg:w-1/5">
           <SidebarNav items={items} activeKey={navKey} setKey={setNavkey} />
         </aside>
-        <div className="flex-1 lg:max-w-2xl">
-          <div className={navKey == 'profile' ? 'block' : 'hidden'}>
+        <div className="flex-1 lg:max-w-2xl h-full">
+          <Display hidden={navKey == 'profile'}>
             <Profile />
-          </div>
-          <div className={navKey == 'csv' ? 'block' : 'hidden'}>
+          </Display>
+          <Display hidden={navKey == 'csv'}>
             <CSVForm />
-          </div>
-          <div className={navKey == 'update' ? 'block' : 'hidden'}>
+          </Display>
+          <Display hidden={navKey == 'update'}>
             <UpdateForm />
-          </div>
+          </Display>
         </div>
       </div>
     </Dialog>
@@ -93,45 +100,48 @@ function Profile() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="main_font_family"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Main Font Family</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="table_font_family"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Table Font Family</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="precision"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Float precision</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <Separator className="my-4" />
-
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className=" h-full flex flex-col"
+      >
+        <div className="flex-1 space-y-4">
+          <FormField
+            control={form.control}
+            name="main_font_family"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Main Font Family</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="table_font_family"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Table Font Family</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="precision"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Float precision</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="secondary">Cancel</Button>
@@ -186,63 +196,68 @@ const UpdateForm = () => {
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="proxy"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Proxy</FormLabel>
-                <FormDescription>
-                  use a proxy server for updater
-                </FormDescription>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="auto_update"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                <div className="space-y-0.5">
-                  <FormLabel>Automatic updates</FormLabel>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className=" h-full flex flex-col"
+        >
+          <div className="flex-1 space-y-4">
+            <FormField
+              control={form.control}
+              name="proxy"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Proxy</FormLabel>
                   <FormDescription>
-                    Turn this off to prevent the app from checking for updates.
+                    use a proxy server for updater
                   </FormDescription>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-            <div className="space-y-0.5">
-              <FormLabel>Current version: {version}</FormLabel>
-              <FormDescription>Tauri: {tauriVersion}</FormDescription>
-            </div>
-            <div>
-              <Button
-                disabled={loading}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleUpdater();
-                }}
-              >
-                {loading ? (
-                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                ) : null}
-                Check for updates
-              </Button>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="auto_update"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Automatic updates</FormLabel>
+                    <FormDescription>
+                      Turn this off to prevent the app from checking for
+                      updates.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+              <div className="space-y-0.5">
+                <FormLabel>Current version: {version}</FormLabel>
+                <FormDescription>Tauri: {tauriVersion}</FormDescription>
+              </div>
+              <div>
+                <Button
+                  disabled={loading}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleUpdater();
+                  }}
+                >
+                  {loading ? (
+                    <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                  ) : null}
+                  Check for updates
+                </Button>
+              </div>
             </div>
           </div>
-
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="secondary">Cancel</Button>
@@ -281,77 +296,84 @@ const CSVForm = () => {
         </a>
       </DialogDescription>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="delim"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Delim</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormDescription>
-                  Specifies the string that separates columns within each row
-                  (line) of the file.
-                </FormDescription>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="quote"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Quote</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormDescription>
-                  Specifies the quoting string to be used when a data value is
-                  quoted.
-                </FormDescription>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="escape"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Escape</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormDescription>
-                  Specifies the string that should appear before a data
-                  character sequence that matches the quote value.
-                </FormDescription>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="new_line"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>New line</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormDescription>
-                  Set the new line character(s) in the file. Options are
-                  '\r','\n', or '\r\n'.
-                </FormDescription>
-              </FormItem>
-            )}
-          />
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col h-full"
+        >
+          <div className="flex-1 space-y-4">
+            <FormField
+              control={form.control}
+              name="delim"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Delim</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Specifies the string that separates columns within each row
+                    (line) of the file.
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="quote"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Quote</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Specifies the quoting string to be used when a data value is
+                    quoted.
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="escape"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Escape</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Specifies the string that should appear before a data
+                    character sequence that matches the quote value.
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="new_line"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>New line</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Set the new line character(s) in the file. Options are
+                    '\r','\n', or '\r\n'.
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+          </div>
 
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="secondary">Cancel</Button>
             </DialogClose>
-            <Button type="submit">Update</Button>
+            <Button className="mx-0" type="submit">
+              Update
+            </Button>
           </DialogFooter>
         </form>
       </Form>

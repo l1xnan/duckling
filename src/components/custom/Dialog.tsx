@@ -8,9 +8,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 
 interface DialogProps extends DialogPrimitive.DialogProps {
   title: string;
+  className?: string;
   children: ReactNode;
   trigger?: ReactNode;
 }
@@ -21,12 +23,13 @@ export default ({
   title,
   trigger,
   children,
+  className,
 }: DialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
       <DialogContent
-        className="min-w-[800px] min-h-[600px] grid-rows-[auto_1fr]"
+        className={cn('grid-rows-[auto_1fr]', className)}
         onInteractOutside={(e) => {
           e.preventDefault();
         }}
