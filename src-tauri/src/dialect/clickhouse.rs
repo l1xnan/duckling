@@ -13,7 +13,6 @@ use chrono::DateTime;
 use chrono_tz::Tz;
 use clickhouse_rs::types::{Decimal, FromSql, SqlType};
 use clickhouse_rs::{types::column::Column, Block, ClientHandle, Pool, Simple};
-use duckdb::polars::export::chrono;
 use futures_util::stream::StreamExt;
 use serde::{Deserialize, Serialize};
 use tauri::{Manager, Window};

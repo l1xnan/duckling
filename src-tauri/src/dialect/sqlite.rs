@@ -172,6 +172,7 @@ fn convert_row(row: &SqliteRow, k: usize) -> ArrayRef {
     "REAL" => Arc::new(Float64Array::from(vec![row.get::<f64, _>(k)])) as ArrayRef,
     "BOOLEAN" => Arc::new(BooleanArray::from(vec![row.get::<bool, _>(k)])) as ArrayRef,
     "DATE" => Arc::new(Date32Array::from(vec![row.get::<i32, _>(k)])) as ArrayRef,
-    _ => Arc::new(StringArray::from(vec![row.get::<String, _>(k)])) as ArrayRef,
+    "TEXT" => Arc::new(StringArray::from(vec![row.get::<&str, _>(k)])) as ArrayRef,
+    _ => Arc::new(StringArray::from(vec![row.get::<&str, _>(k)])) as ArrayRef,
   }
 }
