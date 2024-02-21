@@ -1,7 +1,12 @@
 import { Tooltip, TooltipProps, styled, tooltipClasses } from '@mui/material';
 
 export const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
-  <Tooltip enterDelay={1500} {...props} classes={{ popper: className }} />
+  <Tooltip
+    enterDelay={1500}
+    enterNextDelay={1500}
+    {...props}
+    classes={{ popper: className }}
+  />
 ))(({ theme }) => ({
   [`& .${tooltipClasses.tooltip}`]: {
     backgroundColor: '#f5f5f9',
