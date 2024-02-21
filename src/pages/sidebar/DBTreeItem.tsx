@@ -194,7 +194,7 @@ export const TreeItemLabel = React.forwardRef(
     const { expanded } = useTreeItem(nodeId);
     return (
       <div
-        className="flex items-center p-0 pt-0.5 pb-0.5 text-xs h-6"
+        className="flex items-center p-0 pt-0.5 pb-0.5 text-sm h-6"
         ref={ref as React.Ref<HTMLDivElement>}
       >
         <Box

@@ -95,7 +95,7 @@ function Profile() {
   });
 
   const onSubmit = (data: SettingState) => {
-    setSettings((s) => ({ ...s, data }));
+    setSettings((s) => ({ ...s, ...data }));
   };
 
   return (
@@ -165,7 +165,7 @@ const UpdateForm = () => {
   const [version, setVersion] = useState<string>();
   const [tauriVersion, seTtauriVersion] = useState<string>();
   const onSubmit = (data: SettingState) => {
-    setSettings((s) => ({ ...s, data }));
+    setSettings((s) => ({ ...s, ...data }));
   };
   useEffect(() => {
     (async () => {
