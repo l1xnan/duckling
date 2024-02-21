@@ -1,26 +1,23 @@
-use std::fs::File;
 use std::str;
 use std::sync::Arc;
 
 use arrow::array::*;
-use arrow::csv::WriterBuilder;
 use arrow::datatypes::*;
 use async_trait::async_trait;
 use chrono::naive::NaiveDate;
-use chrono::offset;
 use chrono::prelude::*;
 use chrono::DateTime;
 use chrono_tz::Tz;
 use clickhouse_rs::types::{Decimal, FromSql, SqlType};
-use clickhouse_rs::{types::column::Column, Block, ClientHandle, Pool, Simple};
+use clickhouse_rs::{types::column::Column, Block, Pool, Simple};
 use futures_util::stream::StreamExt;
 use serde::{Deserialize, Serialize};
 use tauri::{Manager, Window};
 
 use crate::api::{serialize_preview, ArrowData};
 use crate::dialect::{Dialect, TreeNode};
-use crate::utils::write_csv;
 use crate::utils::{build_tree, Table};
+use crate::utils::{date_to_days, write_csv};
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct ClickhouseDialect {
@@ -261,11 +258,6 @@ fn collect_block<'b, T: FromSql<'b>>(block: &'b Block, column: &str) -> Vec<T> {
   (0..block.row_count())
     .map(|i| block.get(i, column).unwrap())
     .collect()
-}
-
-fn date_to_days(t: &NaiveDate) -> i32 {
-  t.signed_duration_since(NaiveDate::from_ymd_opt(1970, 1, 1).unwrap())
-    .num_days() as i32
 }
 
 fn convert_col(

@@ -4,6 +4,7 @@ use std::path::Path;
 
 use arrow::csv::WriterBuilder;
 use arrow::record_batch::RecordBatch;
+use chrono::NaiveDate;
 
 use crate::dialect::TreeNode;
 
@@ -85,4 +86,9 @@ pub fn write_csv(file: &str, batch: &RecordBatch) {
   let mut writer = builder.build(file);
 
   writer.write(batch).unwrap();
+}
+
+pub fn date_to_days(t: &NaiveDate) -> i32 {
+  t.signed_duration_since(NaiveDate::from_ymd_opt(1970, 1, 1).unwrap())
+    .num_days() as i32
 }
