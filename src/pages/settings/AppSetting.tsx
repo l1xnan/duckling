@@ -36,11 +36,15 @@ import {
 const items = [
   {
     key: 'profile',
-    title: 'Profile',
+    title: 'Appearance',
   },
   {
     key: 'csv',
     title: 'CSV',
+  },
+  {
+    key: 'update',
+    title: 'Update',
   },
 ];
 
@@ -68,6 +72,9 @@ export default function AppSettingDialog() {
           <div className={navKey == 'csv' ? 'block' : 'hidden'}>
             <CSVForm />
           </div>
+          <div className={navKey == 'update' ? 'block' : 'hidden'}>
+            <UpdateForm />
+          </div>
         </div>
       </div>
     </Dialog>
@@ -75,45 +82,15 @@ export default function AppSettingDialog() {
 }
 
 function Profile() {
-  const proxy = useSettingStore((state) => state.proxy);
-
   const [settings, setSettings] = useAtom(settingAtom);
   const form = useForm({
     defaultValues: settings,
   });
 
-  const [loading, setLoading] = useState<boolean>(false);
-  const [version, setVersion] = useState<string>();
-  const [tauriVersion, seTtauriVersion] = useState<string>();
   const onSubmit = (data: SettingState) => {
-    setSettings(data);
+    setSettings((s) => ({ ...s, data }));
   };
-  useEffect(() => {
-    (async () => {
-      setVersion(await getVersion());
-      seTtauriVersion(await getTauriVersion());
-    })();
-  });
 
-  const handleUpdater = async () => {
-    setLoading(true);
-    const update = await check({ proxy });
-    console.log(update);
-    if (update?.version != update?.currentVersion) {
-      toast('Discover new version', {
-        action: {
-          label: 'Update',
-          onClick: async () => {
-            await update?.downloadAndInstall();
-            await relaunch();
-          },
-        },
-      });
-    } else {
-      toast.success("It's the latest version");
-    }
-    setLoading(false);
-  };
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -154,59 +131,7 @@ function Profile() {
           )}
         />
         <Separator className="my-4" />
-        <FormField
-          control={form.control}
-          name="proxy"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Proxy</FormLabel>
-              <FormDescription>use a proxy server for updater</FormDescription>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="auto_update"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-              <div className="space-y-0.5">
-                <FormLabel>Automatic updates</FormLabel>
-                <FormDescription>
-                  Turn this off to prevent the app from checking for updates.
-                </FormDescription>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-          <div className="space-y-0.5">
-            <FormLabel>Current version: {version}</FormLabel>
-            <FormDescription>Tauri: {tauriVersion}</FormDescription>
-          </div>
-          <div>
-            <Button
-              disabled={loading}
-              onClick={(e) => {
-                e.preventDefault();
-                handleUpdater();
-              }}
-            >
-              {loading ? (
-                <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-              ) : null}
-              Check for updates
-            </Button>
-          </div>
-        </div>
+
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="secondary">Cancel</Button>
@@ -217,6 +142,118 @@ function Profile() {
     </Form>
   );
 }
+
+const UpdateForm = () => {
+  const proxy = useSettingStore((state) => state.proxy);
+
+  const [settings, setSettings] = useAtom(settingAtom);
+  const form = useForm({
+    defaultValues: settings,
+  });
+
+  const [loading, setLoading] = useState<boolean>(false);
+  const [version, setVersion] = useState<string>();
+  const [tauriVersion, seTtauriVersion] = useState<string>();
+  const onSubmit = (data: SettingState) => {
+    setSettings((s) => ({ ...s, data }));
+  };
+  useEffect(() => {
+    (async () => {
+      setVersion(await getVersion());
+      seTtauriVersion(await getTauriVersion());
+    })();
+  });
+
+  const handleUpdater = async () => {
+    setLoading(true);
+    const update = await check({ proxy });
+    console.log(update);
+    if (update?.version != update?.currentVersion) {
+      toast('Discover new version', {
+        action: {
+          label: 'Update',
+          onClick: async () => {
+            await update?.downloadAndInstall();
+            await relaunch();
+          },
+        },
+      });
+    } else {
+      toast.success("It's the latest version");
+    }
+    setLoading(false);
+  };
+  return (
+    <>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="proxy"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Proxy</FormLabel>
+                <FormDescription>
+                  use a proxy server for updater
+                </FormDescription>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="auto_update"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <FormLabel>Automatic updates</FormLabel>
+                  <FormDescription>
+                    Turn this off to prevent the app from checking for updates.
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+            <div className="space-y-0.5">
+              <FormLabel>Current version: {version}</FormLabel>
+              <FormDescription>Tauri: {tauriVersion}</FormDescription>
+            </div>
+            <div>
+              <Button
+                disabled={loading}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleUpdater();
+                }}
+              >
+                {loading ? (
+                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                ) : null}
+                Check for updates
+              </Button>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="secondary">Cancel</Button>
+            </DialogClose>
+            <Button type="submit">Update</Button>
+          </DialogFooter>
+        </form>
+      </Form>
+    </>
+  );
+};
 
 const CSVForm = () => {
   const [settings, setSettings] = useAtom(settingAtom);
@@ -257,6 +294,22 @@ const CSVForm = () => {
                 <FormDescription>
                   Specifies the string that separates columns within each row
                   (line) of the file.
+                </FormDescription>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="quote"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Quote</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormDescription>
+                  Specifies the quoting string to be used when a data value is
+                  quoted.
                 </FormDescription>
               </FormItem>
             )}

@@ -8,6 +8,7 @@ export type CsvParam = {
   delim?: string;
   escape?: string;
   new_line?: string;
+  quote?: string;
 };
 
 export type SettingState = {
