@@ -69,7 +69,7 @@ impl Dialect for SqliteDialect {
     for (k, col) in columns.iter().enumerate() {
       let typ = col.type_info();
       let (typ, arr) = convert_type(typ);
-      let field = Field::new(col.name(), typ, false);
+      let field = Field::new(col.name(), typ, true);
       fields.push(field);
       data.push(arr);
     }
@@ -168,11 +168,12 @@ fn convert_type(col_type: &SqliteTypeInfo) -> (DataType, ArrayRef) {
 
 fn convert_row(row: &SqliteRow, k: usize) -> ArrayRef {
   match row.column(k).type_info().name() {
-    "INTEGER" => Arc::new(Int64Array::from(vec![row.get::<i64, _>(k)])) as ArrayRef,
-    "REAL" => Arc::new(Float64Array::from(vec![row.get::<f64, _>(k)])) as ArrayRef,
-    "BOOLEAN" => Arc::new(BooleanArray::from(vec![row.get::<bool, _>(k)])) as ArrayRef,
-    "DATE" => Arc::new(Date32Array::from(vec![row.get::<i32, _>(k)])) as ArrayRef,
-    "TEXT" => Arc::new(StringArray::from(vec![row.get::<&str, _>(k)])) as ArrayRef,
-    _ => Arc::new(StringArray::from(vec![row.get::<&str, _>(k)])) as ArrayRef,
+    "INTEGER" => Arc::new(Int64Array::from(vec![row.try_get::<i64, _>(k).ok()])) as ArrayRef,
+    "REAL" => Arc::new(Float64Array::from(vec![row.try_get::<f64, _>(k).ok()])) as ArrayRef,
+    "BOOLEAN" => Arc::new(BooleanArray::from(vec![row.try_get::<bool, _>(k).ok()])) as ArrayRef,
+    "DATE" => Arc::new(Date32Array::from(vec![row.try_get::<i32, _>(k).ok()])) as ArrayRef,
+    "DATETIME" => Arc::new(Date64Array::from(vec![row.try_get::<i64, _>(k).ok()])) as ArrayRef,
+    "TEXT" => Arc::new(StringArray::from(vec![row.try_get::<&str, _>(k).ok()])) as ArrayRef,
+    _ => Arc::new(StringArray::from(vec![row.try_get::<&str, _>(k).ok()])) as ArrayRef,
   }
 }
