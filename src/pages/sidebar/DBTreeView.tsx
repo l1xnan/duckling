@@ -16,7 +16,11 @@ import {
 import { useAtom, useAtomValue } from 'jotai';
 import { useState } from 'react';
 
-import { ClickhouseIcon, DuckdbIcon } from '@/components/custom/Icons';
+import {
+  ClickhouseIcon,
+  DuckdbIcon,
+  SqliteIcon,
+} from '@/components/custom/Icons';
 import { HtmlTooltip } from '@/components/custom/Tooltip';
 import { DBType, selectedNodeAtom, tablesAtom } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
@@ -41,6 +45,9 @@ export const getTypeIcon = (type: string, expanded: boolean) => {
   }
   if (type == 'duckdb') {
     return <DuckdbIcon />;
+  }
+  if (type == 'sqlite') {
+    return <SqliteIcon />;
   }
   if (type == 'database') {
     return <AccountTreeIcon />;
@@ -76,7 +83,7 @@ export default function DBTreeView({ db, ...rest }: DBTreeViewProps) {
         nodeId={node.path}
         node={isRoot ? { ...node, name: db.displayName ?? node.name } : node}
         icon={
-          isRoot && ['clickhouse', 'duckdb'].indexOf(db.dialect) > -1
+          isRoot && ['clickhouse', 'duckdb', 'sqlite'].indexOf(db.dialect) > -1
             ? db.dialect
             : node.type ?? 'file'
         }
