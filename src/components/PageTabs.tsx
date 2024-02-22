@@ -50,6 +50,7 @@ export const PageTab = styled((props: TabProps) => (
   margin: 0,
   marginRight: 0,
   padding: 0,
+  borderRight: isDarkTheme(theme) ? '1px solid #1e1e1e' : '1px solid #e5e5e5',
   paddingLeft: 9,
   [theme.breakpoints.up('sm')]: {
     minWidth: 0,
