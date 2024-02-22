@@ -125,7 +125,11 @@ fn convert_type(col_type: &SqliteTypeInfo) -> DataType {
 
 fn convert_row(row: &SqliteRow, k: usize, type_name: &str) -> ArrayRef {
   match type_name {
-    "INTEGER" => Arc::new(Int64Array::from(vec![row.try_get::<i64, _>(k).ok()])) as ArrayRef,
+    "INTEGER" => {
+      Arc::new(Int64Array::from(vec![row
+        .try_get::<Option<i64>, _>(k)
+        .unwrap_or(None)])) as ArrayRef
+    }
     "REAL" | "NUMERIC" => {
       Arc::new(Float64Array::from(vec![row.try_get::<f64, _>(k).ok()])) as ArrayRef
     }

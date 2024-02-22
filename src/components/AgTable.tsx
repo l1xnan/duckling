@@ -4,7 +4,14 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { AgGridReact } from 'ag-grid-react';
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai';
-import { CSSProperties, useCallback, useMemo, useRef } from 'react';
+import {
+  CSSProperties,
+  ComponentProps,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
+import { NonUndefined } from 'react-hook-form';
 
 import HeaderCell from '@/components/dataframe/HeaderCell';
 import { OrderByType, SchemaType } from '@/stores/dataset';
@@ -41,17 +48,19 @@ function isNumber(dataType: string) {
   );
 }
 
-const formatter =
-  ({
-    dataType,
-    precision,
-    beautify,
-  }: {
-    dataType: string;
-    precision: number;
-    beautify?: boolean;
-  }) =>
-  ({ value }: { value: unknown }) => {
+const formatter = ({
+  dataType,
+  precision,
+  beautify,
+}: {
+  dataType: string;
+  precision: number;
+  beautify?: boolean;
+}) =>
+  (({ value }) => {
+    if (value === null) {
+      return '[NULL]';
+    }
     if (dataType.includes('Date32')) {
       return dayjs(value as string)?.format('YYYY-MM-DD');
     }
@@ -66,7 +75,11 @@ const formatter =
       }
     }
     return value;
-  };
+  }) as ColDefType['valueFormatter'];
+
+type ColDefType = NonUndefined<
+  ComponentProps<typeof AgGridReact>['defaultColDef']
+>;
 
 export const AgTable = ({
   data,
@@ -105,11 +118,19 @@ export const AgTable = ({
             beautify,
           }),
 
-          cellStyle: isNumber(dataType)
-            ? {
+          cellStyle: (({ value }) => {
+            if (value === null) {
+              return {
+                color: 'gray',
                 textAlign: 'right',
-              }
-            : undefined,
+              };
+            }
+            if (isNumber(dataType)) {
+              return {
+                textAlign: 'right',
+              };
+            }
+          }) as ColDefType['cellStyle'],
         };
       }) ?? [];
 
