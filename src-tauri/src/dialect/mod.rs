@@ -7,6 +7,7 @@ pub mod clickhouse;
 pub mod duckdb;
 pub mod file;
 pub mod folder;
+pub mod mysql;
 pub mod sqlite;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

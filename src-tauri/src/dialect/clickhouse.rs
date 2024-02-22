@@ -45,7 +45,7 @@ impl ClickhouseDialect {
 impl Dialect for ClickhouseDialect {
   async fn get_db(&self) -> Option<TreeNode> {
     let url = self.get_url();
-    if let Ok(tables) = get_tables(url).await {
+    if let Ok(tables) = get_tables(&url).await {
       Some(TreeNode {
         name: self.host.clone(),
         path: self.host.clone(),
@@ -402,7 +402,7 @@ async fn query_stream(url: &str, sql: &str) -> anyhow::Result<()> {
   Ok(())
 }
 
-async fn get_tables(url: String) -> anyhow::Result<Vec<Table>> {
+async fn get_tables(url: &str) -> anyhow::Result<Vec<Table>> {
   let sql = r#"
   select database as table_schema, name as table_name, engine as table_type
   from system.tables order by table_schema, table_type
