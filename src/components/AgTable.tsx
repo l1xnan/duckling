@@ -41,6 +41,33 @@ function isNumber(dataType: string) {
   );
 }
 
+const formatter =
+  ({
+    dataType,
+    precision,
+    beautify,
+  }: {
+    dataType: string;
+    precision: number;
+    beautify?: boolean;
+  }) =>
+  ({ value }: { value: unknown }) => {
+    if (dataType.includes('Date32')) {
+      return dayjs(value as string)?.format('YYYY-MM-DD');
+    }
+    if (dataType.includes('Date64')) {
+      return dayjs(value as string)?.format('YYYY-MM-DD HH:mm:ss');
+    }
+    if (beautify && dataType.includes('Float')) {
+      try {
+        return (value as number)?.toFixed(precision);
+      } catch (error) {
+        return value;
+      }
+    }
+    return value;
+  };
+
 export const AgTable = ({
   data,
   schema,
@@ -72,19 +99,11 @@ export const AgTable = ({
           headerName: name,
           field: name,
           width: columnWiths(name, row0),
-          valueFormatter: dataType.includes('Date32')
-            ? (params: any) => {
-                return dayjs(params.value)?.format('YYYY-MM-DD');
-              }
-            : beautify && dataType.includes('Float')
-              ? (params: any) => {
-                  try {
-                    return params.value?.toFixed(precision);
-                  } catch (error) {
-                    return params.value;
-                  }
-                }
-              : undefined,
+          valueFormatter: formatter({
+            dataType,
+            precision,
+            beautify,
+          }),
 
           cellStyle: isNumber(dataType)
             ? {

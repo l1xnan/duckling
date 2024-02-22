@@ -49,12 +49,19 @@ export function QueryTabs({
       setActiveKey(newActiveKey);
     }
   };
+
+  const handleRemoveOther = (key: string) => {
+    setTabs((prev) => prev.filter((item) => item.id == key));
+    setActiveKey(key);
+  };
+
   return (
     <PageTabs
       items={items}
       activeKey={activeKey ?? tabs[0]?.id ?? ''}
       onChange={handleChange}
       onRemove={handleRemove}
+      onRemoveOther={handleRemoveOther}
     />
   );
 }

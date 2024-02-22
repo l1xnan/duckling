@@ -27,6 +27,7 @@ function TabContent({ tabAtom }: { tabAtom: PrimitiveAtom<TabContextType> }) {
 export function Main() {
   const activateTab = useTabsStore((state) => state.active);
   const removeTab = useTabsStore((state) => state.remove);
+  const removeOtherTab = useTabsStore((state) => state.removeOther);
 
   const tabs = useAtomValue(tabListAtom);
   const currentTab = useAtomValue(activeTabAtom);
@@ -44,6 +45,7 @@ export function Main() {
       onChange={(value) => activateTab(value)}
       activeKey={currentTab?.id ?? ''}
       onRemove={removeTab}
+      onRemoveOther={removeOtherTab}
     />
   );
 }

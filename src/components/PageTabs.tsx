@@ -29,6 +29,7 @@ export interface PageTabsProps {
   activeKey: string;
   fallback?: ReactNode;
   onRemove: (key: string) => void;
+  onRemoveOther: (key: string) => void;
   onChange: (key: string) => void;
 }
 
@@ -103,6 +104,7 @@ export function PageTabs({
   fallback,
   onChange,
   onRemove,
+  onRemoveOther,
 }: PageTabsProps) {
   const tabList = useMemo(() => {
     return (
@@ -146,6 +148,13 @@ export function PageTabs({
                       }}
                     >
                       Close
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      onClick={async () => {
+                        onRemoveOther(tab.id);
+                      }}
+                    >
+                      Close Other
                     </ContextMenuItem>
 
                     <ContextMenuSeparator />

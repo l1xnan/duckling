@@ -78,6 +78,7 @@ type TabsAction = {
   append: (tab: TabContextType) => void;
   update: (tab: TabContextType) => void;
   remove: (key: string) => void;
+  removeOther: (key: string) => void;
   active: (idx: string) => void;
 
   setStmt: (key: string, value: string) => void;
@@ -126,7 +127,14 @@ export const useTabsStore = create<TabsState & TabsAction>()(
             };
           });
         },
-
+        removeOther: (key) => {
+          set((state) => {
+            return {
+              tabs: state.tabs.filter((item) => item.id == key),
+              currentTab: state.tabs.filter((item) => item.id == key)[0],
+            };
+          });
+        },
         setStmt: debounce((key, stmt) =>
           set((state) => ({
             docs: { ...state.docs, [key]: stmt },
