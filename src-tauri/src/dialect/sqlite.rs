@@ -112,7 +112,8 @@ pub async fn get_tables(path: &str) -> anyhow::Result<Vec<Table>> {
 fn convert_type(col_type: &SqliteTypeInfo) -> DataType {
   match col_type.name() {
     "INTEGER" => DataType::Int64,
-    "REAL" | "NUMERIC" => DataType::Float64,
+    "REAL" => DataType::Float64,
+    "NUMERIC" => DataType::Utf8,
     "BOOLEAN" => DataType::Boolean,
     "DATE" => DataType::Date32,
     "DATETIME" => DataType::Utf8,
@@ -125,14 +126,11 @@ fn convert_type(col_type: &SqliteTypeInfo) -> DataType {
 
 fn convert_row(row: &SqliteRow, k: usize, type_name: &str) -> ArrayRef {
   match type_name {
-    "INTEGER" => {
-      Arc::new(Int64Array::from(vec![row
-        .try_get::<Option<i64>, _>(k)
-        .unwrap_or(None)])) as ArrayRef
-    }
-    "REAL" | "NUMERIC" => {
-      Arc::new(Float64Array::from(vec![row.try_get::<f64, _>(k).ok()])) as ArrayRef
-    }
+    "INTEGER" => Arc::new(Int64Array::from(vec![row
+      .try_get::<Option<i64>, _>(k)
+      .unwrap_or(None)])) as ArrayRef,
+    "REAL" => Arc::new(Float64Array::from(vec![row.try_get::<f64, _>(k).ok()])) as ArrayRef,
+    "NUMERIC" => Arc::new(StringArray::from(vec![row.try_get::<&str, _>(k).ok()])) as ArrayRef,
     "BOOLEAN" => Arc::new(BooleanArray::from(vec![row.try_get::<bool, _>(k).ok()])) as ArrayRef,
     "DATE" => {
       let val = row
