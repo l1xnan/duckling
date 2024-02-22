@@ -18,7 +18,7 @@ serde_json = "1.0"
 arrow = { version = "49.0.0", features = ["prettyprint", "csv"] }
 
 duckdb = { version = "0.10.0", features = [
-    "modern-full",
+    # "modern-full",
     "bundled"
 ] }
 
@@ -35,8 +35,8 @@ tauri = { version = "^2.0.0-beta", features = [
     "tray-icon",
 ] }
 # tauri plugin
-tauri-plugin-shell = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "chore/tauri-beta-3" }
-tauri-plugin-dialog = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "chore/tauri-beta-3" }
+tauri-plugin-shell = "2.0.0-beta"
+tauri-plugin-dialog = "2.0.0-beta"
 tauri-plugin-log = "2.0.0-beta"
 tauri-plugin-process = "2.0.0-beta"
 tauri-plugin-window-state = "2.0.0-beta"

@@ -102,26 +102,26 @@ dependencies:
     specifier: ^3.0.1
     version: 3.0.1(react-dom@18.2.0)(react@18.2.0)
   '@tauri-apps/api':
-    specifier: 2.0.0-beta.0
-    version: 2.0.0-beta.0
+    specifier: 2.0.0-beta.2
+    version: 2.0.0-beta.2
   '@tauri-apps/plugin-clipboard-manager':
-    specifier: 2.0.0-beta.0
-    version: 2.0.0-beta.0
+    specifier: 2.0.0-beta.1
+    version: 2.0.0-beta.1
   '@tauri-apps/plugin-dialog':
-    specifier: 2.0.0-beta.0
-    version: 2.0.0-beta.0
+    specifier: 2.0.0-beta.1
+    version: 2.0.0-beta.1
   '@tauri-apps/plugin-log':
-    specifier: 2.0.0-beta.0
-    version: 2.0.0-beta.0
+    specifier: 2.0.0-beta.1
+    version: 2.0.0-beta.1
   '@tauri-apps/plugin-process':
-    specifier: 2.0.0-beta.0
-    version: 2.0.0-beta.0
+    specifier: 2.0.0-beta.1
+    version: 2.0.0-beta.1
   '@tauri-apps/plugin-shell':
-    specifier: 2.0.0-beta.0
-    version: 2.0.0-beta.0
+    specifier: 2.0.0-beta.1
+    version: 2.0.0-beta.1
   '@tauri-apps/plugin-updater':
-    specifier: 2.0.0-beta.0
-    version: 2.0.0-beta.0
+    specifier: 2.0.0-beta.1
+    version: 2.0.0-beta.1
   '@uiw/codemirror-themes-all':
     specifier: ^4.21.21
     version: 4.21.21(@codemirror/language@6.9.3)(@codemirror/state@6.3.3)(@codemirror/view@6.22.3)
@@ -132,11 +132,11 @@ dependencies:
     specifier: ^0.19.0
     version: 0.19.0
   ag-grid-community:
-    specifier: ^31.0.1
-    version: 31.0.1
+    specifier: ^31.1.0
+    version: 31.1.0
   ag-grid-react:
-    specifier: ^31.0.3
-    version: 31.0.3(react-dom@18.2.0)(react@18.2.0)
+    specifier: ^31.1.0
+    version: 31.1.0(react-dom@18.2.0)(react@18.2.0)
   class-variance-authority:
     specifier: ^0.7.0
     version: 0.7.0
@@ -156,8 +156,8 @@ dependencies:
     specifier: ^2.6.4
     version: 2.6.4(@types/react@18.2.45)(react@18.2.0)
   jotai-devtools:
-    specifier: ^0.7.1
-    version: 0.7.1(@emotion/react@11.11.1)(@types/react@18.2.45)(react-dom@18.2.0)(react@18.2.0)(redux@5.0.1)
+    specifier: ^0.8.0
+    version: 0.8.0(@emotion/react@11.11.1)(@types/react@18.2.45)(react-dom@18.2.0)(react@18.2.0)(redux@5.0.1)
   jotai-optics:
     specifier: ^0.3.2
     version: 0.3.2(jotai@2.6.4)(optics-ts@2.4.1)
@@ -171,8 +171,8 @@ dependencies:
     specifier: ^0.3.0
     version: 0.3.0(jotai@2.6.4)
   lucide-react:
-    specifier: ^0.334.0
-    version: 0.334.0(react@18.2.0)
+    specifier: ^0.336.0
+    version: 0.336.0(react@18.2.0)
   material-react-table:
     specifier: 2.10.0
     version: 2.10.0(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.15.1)(@mui/material@5.15.1)(@mui/x-date-pickers@6.19.4)(react-dom@18.2.0)(react@18.2.0)
@@ -230,8 +230,8 @@ devDependencies:
     specifier: ^0.1.0
     version: 0.1.0
   '@tauri-apps/cli':
-    specifier: 2.0.0-beta.0
-    version: 2.0.0-beta.0
+    specifier: 2.0.0-beta.3
+    version: 2.0.0-beta.3
   '@types/node':
     specifier: ^20.11.5
     version: 20.11.5
@@ -249,10 +249,10 @@ devDependencies:
     version: 7.0.1(eslint@8.56.0)(typescript@5.3.3)
   '@vitejs/plugin-react':
     specifier: ^4.2.1
-    version: 4.2.1(vite@5.0.10)
+    version: 4.2.1(vite@5.1.4)
   '@vitejs/plugin-react-swc':
     specifier: ^3.6.0
-    version: 3.6.0(vite@5.0.10)
+    version: 3.6.0(vite@5.1.4)
   autoprefixer:
     specifier: ^10.4.16
     version: 10.4.16(postcss@8.4.33)
@@ -287,8 +287,8 @@ devDependencies:
     specifier: ^5.3.3
     version: 5.3.3
   vite:
-    specifier: ^5.0.10
-    version: 5.0.10(@types/node@20.11.5)
+    specifier: ^5.1.4
+    version: 5.1.4(@types/node@20.11.5)
 
 packages:
 
@@ -1062,23 +1062,10 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
-  /@floating-ui/core@1.5.2:
-    resolution: {integrity: sha512-Ii3MrfY/GAIN3OhXNzpCKaLxHQfJF9qvwq/kEJYdqDxeIHa01K8sldugal6TmeeXl+WMvhv9cnVzUTaFFJF09A==}
-    dependencies:
-      '@floating-ui/utils': 0.1.6
-    dev: false
-
   /@floating-ui/core@1.6.0:
     resolution: {integrity: sha512-PcF++MykgmTj3CIyOQbKA/hDzOAiqI3mhuoN44WRCopIs1sgoDoU4oty4Jtqaj/y3oDU6fnVSm4QG0a3t5i0+g==}
     dependencies:
       '@floating-ui/utils': 0.2.1
-    dev: false
-
-  /@floating-ui/dom@1.5.3:
-    resolution: {integrity: sha512-ClAbQnEqJAKCJOEbbLo5IUlZHkNszqhuxS4fHAVxRPXPya6Ysf2G8KypnYcOTpx6I8xcgF9bbHb6g/2KpbV8qA==}
-    dependencies:
-      '@floating-ui/core': 1.5.2
-      '@floating-ui/utils': 0.1.6
     dev: false
 
   /@floating-ui/dom@1.6.3:
@@ -1094,7 +1081,7 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
     dependencies:
-      '@floating-ui/dom': 1.5.3
+      '@floating-ui/dom': 1.6.3
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false
@@ -1105,7 +1092,7 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
     dependencies:
-      '@floating-ui/dom': 1.5.3
+      '@floating-ui/dom': 1.6.3
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false
@@ -1132,10 +1119,6 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       tabbable: 6.2.0
-    dev: false
-
-  /@floating-ui/utils@0.1.6:
-    resolution: {integrity: sha512-OfX7E2oUDYxtBvsuS4e/jSn4Q9Qb6DzgeYtsAdkPZ47znpoNsMgZw0+tVijiv3uGNR6dgNlty6r9rzIzHjtd/A==}
     dev: false
 
   /@floating-ui/utils@0.2.1:
@@ -1499,7 +1482,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       '@mui/utils': 5.15.1(@types/react@18.2.45)(react@18.2.0)
       '@types/react': 18.2.45
       prop-types: 15.8.1
@@ -1536,7 +1519,7 @@ packages:
       '@emotion/styled':
         optional: true
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       '@emotion/cache': 11.11.0
       '@emotion/react': 11.11.1(@types/react@18.2.45)(react@18.2.0)
       '@emotion/styled': 11.11.0(@emotion/react@11.11.1)(@types/react@18.2.45)(react@18.2.0)
@@ -1918,7 +1901,7 @@ packages:
   /@radix-ui/number@1.0.0:
     resolution: {integrity: sha512-Ofwh/1HX69ZfJRiRBMTy7rgjAzHmwe4kW9C9Y99HTRUcYLUuVT0KESFj15rPjRgKJs20GPq8Bm5aEDJ8DuA3vA==}
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
     dev: false
 
   /@radix-ui/number@1.0.1:
@@ -1930,7 +1913,7 @@ packages:
   /@radix-ui/primitive@1.0.0:
     resolution: {integrity: sha512-3e7rn8FDMin4CgeL7Z/49smCA3rFYY3Ha2rUQ7HRWFadS5iCRw08ZgVT1LaNTCNqgvrUiyczLflrVrF0SRQtNA==}
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
     dev: false
 
   /@radix-ui/primitive@1.0.1:
@@ -1981,7 +1964,7 @@ packages:
       '@types/react-dom':
         optional: true
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       '@radix-ui/react-primitive': 1.0.3(@types/react-dom@18.2.18)(@types/react@18.2.45)(react-dom@18.2.0)(react@18.2.0)
       '@types/react': 18.2.45
       '@types/react-dom': 18.2.18
@@ -2046,7 +2029,7 @@ packages:
     peerDependencies:
       react: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       react: 18.2.0
     dev: false
 
@@ -2095,7 +2078,7 @@ packages:
     peerDependencies:
       react: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       react: 18.2.0
     dev: false
 
@@ -2152,7 +2135,7 @@ packages:
     peerDependencies:
       react: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       react: 18.2.0
     dev: false
 
@@ -2398,7 +2381,7 @@ packages:
       react: ^16.8 || ^17.0 || ^18.0
       react-dom: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       '@radix-ui/react-compose-refs': 1.0.0(react@18.2.0)
       '@radix-ui/react-use-layout-effect': 1.0.0(react@18.2.0)
       react: 18.2.0
@@ -2433,7 +2416,7 @@ packages:
       react: ^16.8 || ^17.0 || ^18.0
       react-dom: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       '@radix-ui/react-slot': 1.0.1(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -2495,7 +2478,7 @@ packages:
       react: ^16.8 || ^17.0 || ^18.0
       react-dom: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       '@radix-ui/number': 1.0.0
       '@radix-ui/primitive': 1.0.0
       '@radix-ui/react-compose-refs': 1.0.0(react@18.2.0)
@@ -2605,7 +2588,7 @@ packages:
     peerDependencies:
       react: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       '@radix-ui/react-compose-refs': 1.0.0(react@18.2.0)
       react: 18.2.0
     dev: false
@@ -2717,7 +2700,7 @@ packages:
     peerDependencies:
       react: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       react: 18.2.0
     dev: false
 
@@ -2759,7 +2742,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       '@radix-ui/react-use-callback-ref': 1.0.1(@types/react@18.2.45)(react@18.2.0)
       '@types/react': 18.2.45
       react: 18.2.0
@@ -2770,7 +2753,7 @@ packages:
     peerDependencies:
       react: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       react: 18.2.0
     dev: false
 
@@ -2811,7 +2794,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       '@radix-ui/rect': 1.0.1
       '@types/react': 18.2.45
       react: 18.2.0
@@ -2856,7 +2839,7 @@ packages:
   /@radix-ui/rect@1.0.1:
     resolution: {integrity: sha512-fyrgCaedtvMg9NK3en0pnOYJdtfwxUcNolezkNPUsoX57X8oQk+NkqcvzHXD2uKNij6GXmWU9NDru2IWjrO4BQ==}
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
     dev: false
 
   /@redux-devtools/extension@3.3.0(redux@5.0.1):
@@ -2864,7 +2847,7 @@ packages:
     peerDependencies:
       redux: ^3.1.0 || ^4.0.0 || ^5.0.0
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       immutable: 4.3.4
       redux: 5.0.1
     dev: false
@@ -3335,13 +3318,13 @@ packages:
     resolution: {integrity: sha512-SYXOBTjJb05rXa2vl55TTwO40A6wKu0R5i1qQwhJYNDIqaIGF7D0HsLw+pJAyi2OvntlEIVusx3xtbbgSUi6zg==}
     dev: false
 
-  /@tauri-apps/api@2.0.0-beta.0:
-    resolution: {integrity: sha512-WLoh/Vk8cgY7XrJV7Vpb6PssReBZWQCATfYBb1aCRDk+sp0NyPwumx6fZ2ECAKzAcs3OeanluwZcajruIW4CPQ==}
+  /@tauri-apps/api@2.0.0-beta.2:
+    resolution: {integrity: sha512-4r1r6kgttzIWxJ3HxkZQH+b7EiUtKhdUCPbi0KSalD+2T3j6klw+v8VyxhKwEdjM/eo60NE+J33v1E/Urq8puw==}
     engines: {node: '>= 18', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
     dev: false
 
-  /@tauri-apps/cli-darwin-arm64@2.0.0-beta.0:
-    resolution: {integrity: sha512-ncLUmkILngH/tG2lRpksT1N6GYbhmck0EaYdd6PTQQycMedP4ZwNXV+JnT3w/YD8JTQUmkcQnPDQtSUxdcPMWQ==}
+  /@tauri-apps/cli-darwin-arm64@2.0.0-beta.3:
+    resolution: {integrity: sha512-gHcn3jI/4MDXDIlK/4Zz0ftTosgN3OimWlKxEz777QrA1hldrQweYIhdZXkqE9KgoE+u6w80vWIcr0InHAf7Iw==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [darwin]
@@ -3349,8 +3332,8 @@ packages:
     dev: true
     optional: true
 
-  /@tauri-apps/cli-darwin-x64@2.0.0-beta.0:
-    resolution: {integrity: sha512-O9PATRKiyLoYBfk5/D9uwWk7ceHyH9/M7nuq5rDtWsofe9Q1QrPGjEe+cTuFXlabhFeoXrsWHhunp09D3G2NrQ==}
+  /@tauri-apps/cli-darwin-x64@2.0.0-beta.3:
+    resolution: {integrity: sha512-kRCaukT2IAGMmNuAOUBhdZRlKujTy2lSsdNKmgGEMnzQLKJwWO9Gpq1NmPY7ZVqyXK/X8QnGHuasDEQsSO6B4w==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [darwin]
@@ -3358,8 +3341,8 @@ packages:
     dev: true
     optional: true
 
-  /@tauri-apps/cli-linux-arm-gnueabihf@2.0.0-beta.0:
-    resolution: {integrity: sha512-KEkCXaGopy7JWVwFySeacIBHoiKeBpmRcXg8MLSHfnjFttByZ38yY8A+1b1bzJqfK3C9jSRMdUvmIG/gFIgxIw==}
+  /@tauri-apps/cli-linux-arm-gnueabihf@2.0.0-beta.3:
+    resolution: {integrity: sha512-cpNZOQDotNSdjoZT16s1JtZvnkM0wgLwU39AhKhRCco4KEH3/8G1ngKF9JKalWUN8zDTcuCigEAr37gEv4mLAA==}
     engines: {node: '>= 10'}
     cpu: [arm]
     os: [linux]
@@ -3367,8 +3350,8 @@ packages:
     dev: true
     optional: true
 
-  /@tauri-apps/cli-linux-arm64-gnu@2.0.0-beta.0:
-    resolution: {integrity: sha512-UV9LJIQXTAdvusRCYL+6UyDwS1wGTuBQviKBJ/37+5LX8q7nbsjOYcrR8JTs78UwzHinFWFXsOpBbKgYEuh3ew==}
+  /@tauri-apps/cli-linux-arm64-gnu@2.0.0-beta.3:
+    resolution: {integrity: sha512-8q86V6P9bkeoFcnvSsnvOwmKY6ijIN4ueRVXCj5cVpsw392VF9vud1Nq7/l+QDgn9OWbZNNVDl30iyoSuaykBA==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
@@ -3377,8 +3360,8 @@ packages:
     dev: true
     optional: true
 
-  /@tauri-apps/cli-linux-arm64-musl@2.0.0-beta.0:
-    resolution: {integrity: sha512-qosHNs/HDIV0pIX9ywNH0B9ARQazfcIiPpWbDH5kFDQufXTeSDLcEGlIW3HoqpkoWUzfDr6xDhG5vnCGT9gRsw==}
+  /@tauri-apps/cli-linux-arm64-musl@2.0.0-beta.3:
+    resolution: {integrity: sha512-L7fokh4aqyV6yDPoeKwFN3Yt0pCAuZMWeP5tOeSBiom1pU7ppKH+4KHeTekNEIecZG+Ah250DkVCdmWS+aRFTA==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
@@ -3387,8 +3370,8 @@ packages:
     dev: true
     optional: true
 
-  /@tauri-apps/cli-linux-x64-gnu@2.0.0-beta.0:
-    resolution: {integrity: sha512-i4rK0sUmTuFoz5d5ItQUpyy98F0I6A0shVAx6Y5NNSNiMbUNuY8XuZ9zQ2Bbs/qX2tsxJa3n8l4E1e05EwrRxQ==}
+  /@tauri-apps/cli-linux-x64-gnu@2.0.0-beta.3:
+    resolution: {integrity: sha512-/crp3K6PathqicVWPj8Kh1120NNVV7nagJ7oZW9OFch7nBS1tmDnSB5k5LgA4yYu+lDKNUREnATMWHL6i0gNeg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
@@ -3397,8 +3380,8 @@ packages:
     dev: true
     optional: true
 
-  /@tauri-apps/cli-linux-x64-musl@2.0.0-beta.0:
-    resolution: {integrity: sha512-j9nKnT8/F76yc0zudGzuGAnFMArJU3NSkGWJOp/LcxqA+jJKDUnC/t7jEQdDUoUV1Te5gv3FVUso4L8I6arh4A==}
+  /@tauri-apps/cli-linux-x64-musl@2.0.0-beta.3:
+    resolution: {integrity: sha512-jX1ZT0UQwdBGbpCwlpv2bsLDO7KFMeDJQ/ZZVMfWyjuYrGBG5zhJ2NXwTMkHVnxfvE6BVmnybWcykeSqTATeOw==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
@@ -3407,8 +3390,8 @@ packages:
     dev: true
     optional: true
 
-  /@tauri-apps/cli-win32-arm64-msvc@2.0.0-beta.0:
-    resolution: {integrity: sha512-nMjFg5Q+yGS0wk//7QvJUVBw6mGpT/HirtCt2J6XGTKOHBxr/M/oYFqYa4m351IW4sjz4PcQVvIpOOvljihDvQ==}
+  /@tauri-apps/cli-win32-arm64-msvc@2.0.0-beta.3:
+    resolution: {integrity: sha512-UCEZNKocENLX3HYKid4FEbrCMjCX9e58klBIvJKxT8HTjvpgFYDoKccswDNfszLhmineKMlkUvm7j7U0sMh8MQ==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [win32]
@@ -3416,8 +3399,8 @@ packages:
     dev: true
     optional: true
 
-  /@tauri-apps/cli-win32-ia32-msvc@2.0.0-beta.0:
-    resolution: {integrity: sha512-uthUiat0dXHvHLY6zQQzo552ToUaIVd9XPs0xfUktfHA7gUmF1trLgAF1be+N4A3wh6r5POqPzvy2L8NOt/Tyg==}
+  /@tauri-apps/cli-win32-ia32-msvc@2.0.0-beta.3:
+    resolution: {integrity: sha512-O8syGXDHyKN/cv1ktD76dTcbkQ1nNEPhnT1Z+r0GKxNsw4/MyIVglzEcou3aPq0/1MQ0PEGVyG1x0JMaPw7oHQ==}
     engines: {node: '>= 10'}
     cpu: [ia32]
     os: [win32]
@@ -3425,8 +3408,8 @@ packages:
     dev: true
     optional: true
 
-  /@tauri-apps/cli-win32-x64-msvc@2.0.0-beta.0:
-    resolution: {integrity: sha512-4EK3q5MA/bXniIeDbormaudOaoeJc3fggFZ0+RQ2zD9iobNCjaqmaZd6A31nxgooz7HBzrub7Fn7dlF7H/E4Xw==}
+  /@tauri-apps/cli-win32-x64-msvc@2.0.0-beta.3:
+    resolution: {integrity: sha512-YDdF3XWaptjKtKz33sZhC+uNAZwp6QtAmZSRCQQlC1W7uJwLD00/3QF4vO/c6Qm+BGFsazVh1+YmBF1p0kV0rg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
@@ -3434,57 +3417,57 @@ packages:
     dev: true
     optional: true
 
-  /@tauri-apps/cli@2.0.0-beta.0:
-    resolution: {integrity: sha512-Mx/dyo0ZV6zhgxylH7DrObct1qtQFVQrYpAvtYe5Z/y3iLt49Y2loHCGy0r2ksAn+TQzqgtcIhXbgOCir8Vx+A==}
+  /@tauri-apps/cli@2.0.0-beta.3:
+    resolution: {integrity: sha512-xLAL2DNNUJWqHBKvanc3V9bG9kkwtFwc40X/DrfgEKnkajEm79wqnkaT8LUnmbe0WZ8bzBRO1fLIgKlOH6GiCA==}
     engines: {node: '>= 10'}
     hasBin: true
     optionalDependencies:
-      '@tauri-apps/cli-darwin-arm64': 2.0.0-beta.0
-      '@tauri-apps/cli-darwin-x64': 2.0.0-beta.0
-      '@tauri-apps/cli-linux-arm-gnueabihf': 2.0.0-beta.0
-      '@tauri-apps/cli-linux-arm64-gnu': 2.0.0-beta.0
-      '@tauri-apps/cli-linux-arm64-musl': 2.0.0-beta.0
-      '@tauri-apps/cli-linux-x64-gnu': 2.0.0-beta.0
-      '@tauri-apps/cli-linux-x64-musl': 2.0.0-beta.0
-      '@tauri-apps/cli-win32-arm64-msvc': 2.0.0-beta.0
-      '@tauri-apps/cli-win32-ia32-msvc': 2.0.0-beta.0
-      '@tauri-apps/cli-win32-x64-msvc': 2.0.0-beta.0
+      '@tauri-apps/cli-darwin-arm64': 2.0.0-beta.3
+      '@tauri-apps/cli-darwin-x64': 2.0.0-beta.3
+      '@tauri-apps/cli-linux-arm-gnueabihf': 2.0.0-beta.3
+      '@tauri-apps/cli-linux-arm64-gnu': 2.0.0-beta.3
+      '@tauri-apps/cli-linux-arm64-musl': 2.0.0-beta.3
+      '@tauri-apps/cli-linux-x64-gnu': 2.0.0-beta.3
+      '@tauri-apps/cli-linux-x64-musl': 2.0.0-beta.3
+      '@tauri-apps/cli-win32-arm64-msvc': 2.0.0-beta.3
+      '@tauri-apps/cli-win32-ia32-msvc': 2.0.0-beta.3
+      '@tauri-apps/cli-win32-x64-msvc': 2.0.0-beta.3
     dev: true
 
-  /@tauri-apps/plugin-clipboard-manager@2.0.0-beta.0:
-    resolution: {integrity: sha512-r/qxqpVGKl2G09+EBD83qi/GMNiCXHYYDfATU+tEykMHLEmC0zX7knJX6RMp6TPKwyJH0CG9zuo/waD6UBUt9A==}
+  /@tauri-apps/plugin-clipboard-manager@2.0.0-beta.1:
+    resolution: {integrity: sha512-nuC3aODbKrDadj2191ceSyobbh7vaU6EtNPnscSXv5nksRr5ZoarxtITk827UpOW14NmRQft7RDHKXY5Xr9Eew==}
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.0
+      '@tauri-apps/api': 2.0.0-beta.2
     dev: false
 
-  /@tauri-apps/plugin-dialog@2.0.0-beta.0:
-    resolution: {integrity: sha512-cNxiBwGB6Xgnwy5GyAabwPyvm1iaC7MmrgzcUwB1JaydLjp/Yu3Z0TmkmmEClFrrvIQA+sMcq0C8wwv6i4aedw==}
+  /@tauri-apps/plugin-dialog@2.0.0-beta.1:
+    resolution: {integrity: sha512-nVZv2m67NaEU05SRbe59heFaZ5wlew9pgd/oi2yL8yUM+46abo9prky/eyXb1HzF8n66yRSaSkNcX1GZou5pNQ==}
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.0
+      '@tauri-apps/api': 2.0.0-beta.2
     dev: false
 
-  /@tauri-apps/plugin-log@2.0.0-beta.0:
-    resolution: {integrity: sha512-kJ3vNwATuUkWLMxTUllsgm1NjTMSTyMvZytcVOK7Vm7MMUb0wxJ20l5mT4TkYxXGVudATW4atD0rshz9VdbgXQ==}
+  /@tauri-apps/plugin-log@2.0.0-beta.1:
+    resolution: {integrity: sha512-y/pJdnI8pDTa1G7GOk4LqggnaKwoNwfWl0juCw5BOzdRQwKmuZJY/yilvJiql0FEfmrspAu4T3QWeyTwkJjYDQ==}
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.0
+      '@tauri-apps/api': 2.0.0-beta.2
     dev: false
 
-  /@tauri-apps/plugin-process@2.0.0-beta.0:
-    resolution: {integrity: sha512-tKWua399alYVYSLhAGArrEOpGEC1v2FJlUku0oWROzDnEYNdAekP4SMzVPVUUdVH7r6zoaTorWUgXBfspyCGxw==}
+  /@tauri-apps/plugin-process@2.0.0-beta.1:
+    resolution: {integrity: sha512-rrKHWQ6zWeC7uTXXcSIcTvWCPcX/oPC2KzR4s6PAbzOkPFusRDWVgWvpfp5byN1KQ3znYkS7x0BOhWsPNbfeMw==}
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.0
+      '@tauri-apps/api': 2.0.0-beta.2
     dev: false
 
-  /@tauri-apps/plugin-shell@2.0.0-beta.0:
-    resolution: {integrity: sha512-AADGPuGP+YM5Ar48XfA8o9k9jtlSBpEVcsbOEwWdifi0oAiVOBXgiy9C1Icsub/tlD3YjK7oT8vDcOXLGYBhUg==}
+  /@tauri-apps/plugin-shell@2.0.0-beta.1:
+    resolution: {integrity: sha512-yMf9CMHCRkGnx0pv420MptEeUdk+bVrXyM5zwFisy75GBhXgvEEtSjAkubTsC0jkzLfn4EInizaW2GER9ub7cQ==}
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.0
+      '@tauri-apps/api': 2.0.0-beta.2
     dev: false
 
-  /@tauri-apps/plugin-updater@2.0.0-beta.0:
-    resolution: {integrity: sha512-TkKzngrgg8dQOr869OcObLdN10yXNiT/ERQp7sRYvV0vMpRJhYSIwTkpF+UkZGuEXtSqqE0FJEnb+4WuCelMdw==}
+  /@tauri-apps/plugin-updater@2.0.0-beta.1:
+    resolution: {integrity: sha512-Pfb0mtzG72EPH5xR4WZGVRXyFz521uDb0a451inSKnb0ELcRlfKukRzLZEfuCtxgUAUw8cVX6sn16OduE4AkDg==}
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.0
+      '@tauri-apps/api': 2.0.0-beta.2
     dev: false
 
   /@turf/boolean-clockwise@6.5.0:
@@ -4333,18 +4316,18 @@ packages:
       eventemitter3: 4.0.7
     dev: false
 
-  /@vitejs/plugin-react-swc@3.6.0(vite@5.0.10):
+  /@vitejs/plugin-react-swc@3.6.0(vite@5.1.4):
     resolution: {integrity: sha512-XFRbsGgpGxGzEV5i5+vRiro1bwcIaZDIdBRP16qwm+jP68ue/S8FJTBEgOeojtVDYrbSua3XFp71kC8VJE6v+g==}
     peerDependencies:
       vite: ^4 || ^5
     dependencies:
       '@swc/core': 1.3.107
-      vite: 5.0.10(@types/node@20.11.5)
+      vite: 5.1.4(@types/node@20.11.5)
     transitivePeerDependencies:
       - '@swc/helpers'
     dev: true
 
-  /@vitejs/plugin-react@4.2.1(vite@5.0.10):
+  /@vitejs/plugin-react@4.2.1(vite@5.1.4):
     resolution: {integrity: sha512-oojO9IDc4nCUUi8qIR11KoQm0XFFLIwsRBwHRR4d/88IWghn1y6ckz/bJ8GHDCsYEJee8mDzqtJxh15/cisJNQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -4355,7 +4338,7 @@ packages:
       '@babel/plugin-transform-react-jsx-source': 7.23.3(@babel/core@7.23.6)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.0
-      vite: 5.0.10(@types/node@20.11.5)
+      vite: 5.1.4(@types/node@20.11.5)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -4378,21 +4361,17 @@ packages:
     hasBin: true
     dev: true
 
-  /ag-grid-community@31.0.1:
-    resolution: {integrity: sha512-RZQlW1DTOJHsUR/tnbnTJQKgAnDlHi05YYyTe5AgNor/1TlX1hoYdcqrGsJjvcHQgTjeEgzWOL0yf+KcqXZzxg==}
+  /ag-grid-community@31.1.0:
+    resolution: {integrity: sha512-MTGBWwtJiKm2XHkyrmjxsybDODiOHAcPZm8QfxozwVfWy5yPUED08GFJd2sIdSs8n2OxAnIqmr6lJloX4j3zaw==}
     dev: false
 
-  /ag-grid-community@31.0.3:
-    resolution: {integrity: sha512-k81YmLaOQOab9BavYD+Pw2smZSl6TXOJqj9hRuf70XQl3EknOHCGcra7joJxZRJLMKE/HdR+u33TNyX4TCuWfg==}
-    dev: false
-
-  /ag-grid-react@31.0.3(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-CE4Z5Rdb0H3MFBhmge9854AyDvI4DoG7ZoUJRFB1p2pu5ANVe6tv7cwEI/ugHemEXRRP6s5uvW+ndv0Q6x1/+Q==}
+  /ag-grid-react@31.1.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-C5hbGHD0FJHCesmthQxkHPf+QKi4BBv9JHGYti9qtxLgzv/3i10+O8qg5Fer4juvWdKxCrPJ0dZWW+7fQ6kApQ==}
     peerDependencies:
       react: ^16.3.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.3.0 || ^17.0.0 || ^18.0.0
     dependencies:
-      ag-grid-community: 31.0.3
+      ag-grid-community: 31.1.0
       prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -4561,7 +4540,7 @@ packages:
     resolution: {integrity: sha512-Cg7TFGpIr01vOQNODXOOaGz2NpCU5gl8x1qJFbb6hbZxR7XrcE2vtbAsTAbJ7/xwJtUuJEw8K8Zr/AE0LHlesg==}
     engines: {node: '>=10', npm: '>=6'}
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       cosmiconfig: 7.1.0
       resolve: 1.22.8
     dev: false
@@ -5031,7 +5010,7 @@ packages:
   /dom-helpers@5.2.1:
     resolution: {integrity: sha512-nRCa7CK3VTrM2NmGkIy4cbK7IZlgBE/PYMn55rrXefr5xXDP0LdtfPnblFDoVdcAfslJ7or6iqAUnx0CCGIWQA==}
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       csstype: 3.1.3
     dev: false
 
@@ -6030,8 +6009,8 @@ packages:
     resolution: {integrity: sha512-gFqAIbuKyyso/3G2qhiO2OM6shY6EPP/R0+mkDbyspxKazh8BXDC5FiFsUjlczgdNz/vfra0da2y+aHrusLG/Q==}
     hasBin: true
 
-  /jotai-devtools@0.7.1(@emotion/react@11.11.1)(@types/react@18.2.45)(react-dom@18.2.0)(react@18.2.0)(redux@5.0.1):
-    resolution: {integrity: sha512-Uqz5LOXSNkVBYG7HEauYtguTJyndX5kMVtFSYsqcNrCr2H53okxMwZnRg5n7WOy9uHyi1+a5xa1omjpIH6lGbA==}
+  /jotai-devtools@0.8.0(@emotion/react@11.11.1)(@types/react@18.2.45)(react-dom@18.2.0)(react@18.2.0)(redux@5.0.1):
+    resolution: {integrity: sha512-dSxiDuEz/fvgxC5hCWJfRHTSaDz8RBaQ2DUO3SJqvskIP44BUxx5EJSQHN9WdbPqp9VQ2Db8yIR9jLGbpnuLtA==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@emotion/react': '>=11.0.0'
@@ -6237,8 +6216,8 @@ packages:
       yallist: 4.0.0
     dev: true
 
-  /lucide-react@0.334.0(react@18.2.0):
-    resolution: {integrity: sha512-y0Rv/Xx6qAq4FutZ3L/efl3O9vl6NC/1p0YOg6mBfRbQ4k1JCE2rz0rnV7WC8Moxq1RY99vLATvjcqUegGJTvA==}
+  /lucide-react@0.336.0(react@18.2.0):
+    resolution: {integrity: sha512-e06J4Qrdrk3BP/hf3MnkW3LnymdthfyEtVbdEg0xPQ/olTEKfOfTv03DYmdRm1+XpaNQdCpiHT7Vi6regbxDCQ==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0
     dependencies:
@@ -6736,6 +6715,15 @@ packages:
       picocolors: 1.0.0
       source-map-js: 1.0.2
 
+  /postcss@8.4.35:
+    resolution: {integrity: sha512-u5U8qYpBCpN13BsiEB0CbR1Hhh4Gc0zLFuedrHJKMctHCHAGrMdG0PRM/KErzAL3CU6/eckEtmHNB3x6e3c0vA==}
+    engines: {node: ^10 || ^12 || >=14}
+    dependencies:
+      nanoid: 3.3.7
+      picocolors: 1.0.0
+      source-map-js: 1.0.2
+    dev: true
+
   /prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
@@ -6789,7 +6777,7 @@ packages:
   /react-base16-styling@0.9.1:
     resolution: {integrity: sha512-1s0CY1zRBOQ5M3T61wetEpvQmsYSNtWEcdYzyZNxKa8t7oDvaOn9d21xrGezGAHFWLM7SHcktPuPTrvoqxSfKw==}
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       '@types/base16': 1.0.5
       '@types/lodash': 4.14.202
       base16: 1.0.0
@@ -6813,7 +6801,7 @@ packages:
     peerDependencies:
       react: '>=16.13.1'
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       react: 18.2.0
     dev: false
 
@@ -6840,7 +6828,7 @@ packages:
       '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       '@types/lodash': 4.14.202
       '@types/react': 18.2.45
       react: 18.2.0
@@ -6962,7 +6950,7 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.9
       react: 18.2.0
       use-composed-ref: 1.3.0(react@18.2.0)
       use-latest: 1.2.1(@types/react@18.2.45)(react@18.2.0)
@@ -7804,8 +7792,8 @@ packages:
       use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
 
-  /vite@5.0.10(@types/node@20.11.5):
-    resolution: {integrity: sha512-2P8J7WWgmc355HUMlFrwofacvr98DAjoE52BfdbwQtyLH06XKwaL/FMnmKM2crF0iX4MpmMKoDlNCB1ok7zHCw==}
+  /vite@5.1.4(@types/node@20.11.5):
+    resolution: {integrity: sha512-n+MPqzq+d9nMVTKyewqw6kSt+R3CkvF9QAKY8obiQn8g1fwTscKxyfaYnC632HtBXAQGc1Yjomphwn1dtwGAHg==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -7834,7 +7822,7 @@ packages:
     dependencies:
       '@types/node': 20.11.5
       esbuild: 0.19.10
-      postcss: 8.4.33
+      postcss: 8.4.35
       rollup: 4.9.1
     optionalDependencies:
       fsevents: 2.3.3

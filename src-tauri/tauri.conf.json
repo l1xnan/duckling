@@ -3,7 +3,7 @@
   "version": "../package.json",
   "identifier": "com.duckling.dev",
   "build": {
-    "beforeDevCommand": "pnpm dev",
+    "beforeDevCommand": "",
     "beforeBuildCommand": "pnpm build",
     "devUrl": "http://localhost:5432",
     "frontendDist": "../dist"
