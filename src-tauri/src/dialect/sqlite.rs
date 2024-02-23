@@ -152,9 +152,9 @@ pub fn convert_arrow(value: &Value, typ: &str) -> ArrayRef {
     Value::Text(s) => Arc::new(StringArray::from(vec![s.clone()])) as ArrayRef,
     Value::Blob(b) => Arc::new(BinaryArray::from_vec(vec![b])) as ArrayRef,
     Value::Null => match typ {
-      "TEXT" | "NUMERIC" => Arc::new(StringArray::from(vec![Option::<String>::None])) as ArrayRef,
-      "INTEGER" => Arc::new(Int64Array::from(vec![Option::<i64>::None])) as ArrayRef,
-      _ => Arc::new(StringArray::from(vec![Option::<String>::None])) as ArrayRef,
+      "TEXT" | "NUMERIC" => Arc::new(StringArray::from(vec![None::<String>])) as ArrayRef,
+      "INTEGER" => Arc::new(Int64Array::from(vec![None::<i64>])) as ArrayRef,
+      _ => Arc::new(StringArray::from(vec![None::<String>])) as ArrayRef,
     },
   }
 }
