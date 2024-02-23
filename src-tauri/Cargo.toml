@@ -27,6 +27,8 @@ futures-util = "0.3"
 #clickhouse-rs = "1.1.0-alpha.1"
 clickhouse-rs = { git = "https://github.com/mel-mel-king/clickhouse-rs.git", branch = "decimal128" }
 rusqlite = { version = "0.31.0", features = ["bundled", "column_decltype"] }
+mysql = { version = "24.0.0" }
+postgres = { version = "0.19.7" }
 
 tauri = { version = "^2.0.0-beta", features = [
     "devtools",
