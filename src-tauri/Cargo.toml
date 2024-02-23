@@ -26,7 +26,7 @@ duckdb = { version = "0.10.0", features = [
 futures-util = "0.3"
 #clickhouse-rs = "1.1.0-alpha.1"
 clickhouse-rs = { git = "https://github.com/mel-mel-king/clickhouse-rs.git", branch = "decimal128" }
-sqlx = { version = "0.7", features = ["runtime-tokio", "sqlite", "mysql", "postgres", "chrono"] }
+rusqlite = { version = "0.31.0", features = ["bundled", "column_decltype"] }
 
 tauri = { version = "^2.0.0-beta", features = [
     "devtools",

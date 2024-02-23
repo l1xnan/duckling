@@ -2,19 +2,23 @@ use std::sync::Arc;
 
 use arrow::array::*;
 use arrow::datatypes::*;
+use arrow::datatypes::{DataType, Field, Schema};
 use async_trait::async_trait;
-use futures_util::TryStreamExt;
-use sqlx::sqlite::{Sqlite, SqlitePool, SqliteRow, SqliteTypeInfo};
-use sqlx::types::chrono::{NaiveDate, NaiveDateTime};
-use sqlx::{Column, ConnectOptions, Connection, Database, Executor, Row, TypeInfo};
+use rusqlite::types::Value;
+use rusqlite::Connection;
 
 use crate::api::{serialize_preview, ArrowData};
 use crate::dialect::{Dialect, TreeNode};
-use crate::utils::{build_tree, date_to_days, get_file_name, new_conn, Table};
+use crate::utils::{build_tree, get_file_name, Table};
 
 #[derive(Debug, Default)]
 pub struct SqliteDialect {
   pub path: String,
+}
+
+pub struct Title {
+  pub name: String,
+  pub r#type: String,
 }
 
 #[async_trait]
@@ -40,32 +44,52 @@ impl Dialect for SqliteDialect {
   }
 
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
-    // let pool = SqlitePool::connect(&self.path).await?;
-    let mut conn = new_conn::<Sqlite>(&self.path).await?;
+    let conn = Connection::open(&self.path)?;
+    let mut stmt = conn.prepare(sql)?;
 
-    let info = conn.describe(sql).await?;
-    let columns = info.columns();
-    println!("{:?}", columns);
     let mut fields = vec![];
-    for (k, col) in columns.iter().enumerate() {
-      let typ = convert_type(col.type_info());
+    let k = stmt.column_count();
+    let mut titles = vec![];
+    for col in stmt.columns() {
+      titles.push(Title {
+        name: col.name().to_string(),
+        r#type: col.decl_type().unwrap_or_default().to_string(),
+      });
+      let typ = if let Some(decl_type) = col.decl_type() {
+        match decl_type {
+          "INTEGER" => DataType::Int64,
+          "REAL" => DataType::Float64,
+          "NUMERIC" => DataType::Utf8,
+          "BOOLEAN" => DataType::Boolean,
+          "DATE" => DataType::Utf8,
+          "DATETIME" => DataType::Utf8,
+          "TIME" => DataType::Utf8,
+          "BLOB" => DataType::Binary,
+          "NULL" => DataType::Null,
+          _ => DataType::Utf8,
+        }
+      } else {
+        DataType::Null
+      };
       let field = Field::new(col.name(), typ, true);
       fields.push(field);
+      println!("{:?} {:?}", col.name(), col.decl_type())
     }
-    let mut cursor = conn.fetch(sql);
-    let schema = Schema::new(fields);
 
-    let mut i = 0;
+    let schema = Schema::new(fields);
     let mut batchs = vec![];
-    while let Some(row) = cursor.try_next().await? {
+
+    let mut rows = stmt.query([])?;
+
+    while let Some(row) = rows.next()? {
       let mut arrs = vec![];
-      for (k, col) in columns.iter().enumerate() {
-        let r = convert_row(&row, k, col.type_info().name());
+      for i in 0..k {
+        let val = row.get::<_, Value>(i).unwrap();
+        let r = convert_arrow(&val, &titles.get(i).unwrap().r#type);
         arrs.push(r);
       }
       let batch = RecordBatch::try_new(Arc::new(schema.clone()), arrs)?;
       batchs.push(batch);
-      i += 1;
     }
 
     let batch = arrow::compute::concat_batches(&Arc::new(schema), &batchs)?;
@@ -88,62 +112,49 @@ impl SqliteDialect {
 }
 
 pub async fn get_tables(path: &str) -> anyhow::Result<Vec<Table>> {
-  let pool = SqlitePool::connect(path).await?;
-
+  let conn = Connection::open(path)?;
   let sql = r#"
   SELECT tbl_name, name, type
   FROM sqlite_master
   WHERE type IN ('table', 'view') and name NOT IN ('sqlite_sequence', 'sqlite_stat1')
   "#;
-  let rows = sqlx::query(sql).fetch_all(&pool).await?;
-
-  let tables: Vec<Table> = rows
-    .iter()
-    .map(|r| Table {
-      table_name: r.get::<String, _>("name"),
-      table_type: r.get::<String, _>("type"),
+  let mut stmt = conn.prepare(sql)?;
+  let mut rows = stmt.query([])?;
+  let mut tables: Vec<Table> = Vec::new();
+  while let Some(row) = rows.next()? {
+    tables.push(Table {
+      table_name: row.get(1)?,
+      table_type: row.get(2)?,
       table_schema: String::new(),
-      r#type: r.get::<String, _>("type"),
-    })
-    .collect();
+      r#type: row.get(2)?,
+    });
+  }
   Ok(tables)
 }
 
-fn convert_type(col_type: &SqliteTypeInfo) -> DataType {
-  match col_type.name() {
-    "INTEGER" => DataType::Int64,
-    "REAL" => DataType::Float64,
-    "NUMERIC" => DataType::Utf8,
-    "BOOLEAN" => DataType::Boolean,
-    "DATE" => DataType::Date32,
-    "DATETIME" => DataType::Utf8,
-    "TIME" => DataType::Utf8,
-    "BLOB" => DataType::Binary,
-    "NULL" => DataType::Null,
-    _ => DataType::Utf8,
-  }
-}
-
-fn convert_row(row: &SqliteRow, k: usize, type_name: &str) -> ArrayRef {
-  match type_name {
-    "INTEGER" => Arc::new(Int64Array::from(vec![row
-      .try_get::<Option<i64>, _>(k)
-      .unwrap_or(None)])) as ArrayRef,
-    "REAL" => Arc::new(Float64Array::from(vec![row.try_get::<f64, _>(k).ok()])) as ArrayRef,
-    "NUMERIC" => Arc::new(StringArray::from(vec![row.try_get::<&str, _>(k).ok()])) as ArrayRef,
-    "BOOLEAN" => Arc::new(BooleanArray::from(vec![row.try_get::<bool, _>(k).ok()])) as ArrayRef,
-    "DATE" => {
-      let val = row
-        .try_get::<NaiveDate, _>(k)
-        .ok()
-        .map(|d| date_to_days(&d));
-      Arc::new(Date32Array::from(vec![val])) as ArrayRef
+pub fn convert_arrow(value: &Value, typ: &str) -> ArrayRef {
+  // println!("{:?}", value);
+  match value {
+    Value::Integer(i) => {
+      if typ == "NUMERIC" {
+        Arc::new(StringArray::from(vec![i.to_string()])) as ArrayRef
+      } else {
+        Arc::new(Int64Array::from(vec![(*i)])) as ArrayRef
+      }
     }
-    "DATETIME" => Arc::new(StringArray::from(vec![row.try_get::<&str, _>(k).ok()])) as ArrayRef,
-    "TEXT" => Arc::new(StringArray::from(vec![row.try_get::<&str, _>(k).ok()])) as ArrayRef,
-    "BLOB" => Arc::new(BinaryArray::from_opt_vec(vec![row
-      .try_get::<&[u8], _>(k)
-      .ok()])) as ArrayRef,
-    _ => Arc::new(StringArray::from(vec![row.try_get::<&str, _>(k).ok()])) as ArrayRef,
+    Value::Real(f) => {
+      if typ == "NUMERIC" {
+        Arc::new(StringArray::from(vec![f.to_string()])) as ArrayRef
+      } else {
+        Arc::new(Float64Array::from(vec![(*f)])) as ArrayRef
+      }
+    }
+    Value::Text(s) => Arc::new(StringArray::from(vec![s.clone()])) as ArrayRef,
+    Value::Blob(b) => Arc::new(BinaryArray::from_vec(vec![b])) as ArrayRef,
+    Value::Null => match typ {
+      "TEXT" | "NUMERIC" => Arc::new(StringArray::from(vec![Option::<String>::None])) as ArrayRef,
+      "INTEGER" => Arc::new(Int64Array::from(vec![Option::<i64>::None])) as ArrayRef,
+      _ => Arc::new(StringArray::from(vec![Option::<String>::None])) as ArrayRef,
+    },
   }
 }

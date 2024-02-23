@@ -5,7 +5,7 @@ use std::path::Path;
 use arrow::csv::WriterBuilder;
 use arrow::record_batch::RecordBatch;
 use chrono::NaiveDate;
-use sqlx::{Connection, Database};
+// use sqlx::{Connection, Database};
 
 use crate::dialect::TreeNode;
 
@@ -94,11 +94,11 @@ pub fn date_to_days(t: &NaiveDate) -> i32 {
     .num_days() as i32
 }
 
-// Make a new connection
-// Ensure [dotenvy] and [env_logger] have been setup
-pub async fn new_conn<DB>(path: &str) -> anyhow::Result<DB::Connection>
-where
-  DB: Database,
-{
-  Ok(DB::Connection::connect(path).await?)
-}
+// // Make a new connection
+// // Ensure [dotenvy] and [env_logger] have been setup
+// pub async fn new_conn<DB>(path: &str) -> anyhow::Result<DB::Connection>
+// where
+//   DB: Database,
+// {
+//   Ok(DB::Connection::connect(path).await?)
+// }
