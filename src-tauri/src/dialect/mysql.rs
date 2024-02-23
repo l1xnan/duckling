@@ -33,7 +33,27 @@ impl Dialect for MySqlDialect {
   }
 
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
-    unimplemented!()
+    let binding = self.get_url();
+    let url = binding.as_str();
+    let pool = Pool::new(url)?;
+
+    let mut conn = pool.get_conn()?;
+    let mut result = conn.query_iter(sql)?;
+    while let Some(result_set) = result.iter() {
+      for row in result_set {
+        if let Ok(r) = row {
+          for col in r.columns_ref() {
+            println!("{:?}", col);
+            // col.name_str();
+            // col.column_type();
+          }
+        }
+      }
+    }
+    Ok(ArrowData {
+      total_count: 0,
+      preview: vec![],
+    })
   }
 }
 
