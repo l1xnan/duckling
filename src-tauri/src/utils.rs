@@ -5,10 +5,12 @@ use std::path::Path;
 use arrow::csv::WriterBuilder;
 use arrow::record_batch::RecordBatch;
 use chrono::NaiveDate;
+use serde::{Deserialize, Serialize};
 // use sqlx::{Connection, Database};
 
 use crate::dialect::TreeNode;
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Table {
   pub table_name: String,
   pub table_type: String,

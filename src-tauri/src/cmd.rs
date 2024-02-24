@@ -11,6 +11,7 @@ use crate::dialect::duckdb::DuckDbDialect;
 use crate::dialect::file::FileDialect;
 use crate::dialect::folder::FolderDialect;
 use crate::dialect::mysql::MySqlDialect;
+use crate::dialect::postgres::PostgresDialect;
 use crate::dialect::sqlite::SqliteDialect;
 use crate::dialect::{Dialect, TreeNode};
 use crate::{api, dialect};
@@ -64,6 +65,13 @@ pub async fn get_dialect(
       database,
     })),
     "mysql" => Some(Box::new(MySqlDialect {
+      host: host.unwrap(),
+      port: port.unwrap(),
+      username: username.unwrap_or_default(),
+      password: password.unwrap_or_default(),
+      database,
+    })),
+    "postgres" => Some(Box::new(PostgresDialect {
       host: host.unwrap(),
       port: port.unwrap(),
       username: username.unwrap_or_default(),

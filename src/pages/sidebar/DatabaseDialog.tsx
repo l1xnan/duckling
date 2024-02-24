@@ -73,13 +73,16 @@ export function DatabaseDialog() {
                       <SelectItem value="duckdb">DuckDB</SelectItem>
                       <SelectItem value="sqlite">SQLite</SelectItem>
                       <SelectItem value="mysql">MySQL</SelectItem>
+                      <SelectItem value="postgres">Postgres</SelectItem>
                       <SelectItem value="clickhouse">Clickhouse</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormItem>
               )}
             />
-            {watchDialect == 'clickhouse' || watchDialect == 'mysql' ? (
+            {watchDialect == 'clickhouse' ||
+            watchDialect == 'mysql' ||
+            watchDialect == 'postgres' ? (
               <>
                 <div className="flex">
                   <FormField

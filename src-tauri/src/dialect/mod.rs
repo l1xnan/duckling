@@ -8,6 +8,7 @@ pub mod duckdb;
 pub mod file;
 pub mod folder;
 pub mod mysql;
+pub mod postgres;
 pub mod sqlite;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

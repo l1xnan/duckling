@@ -5,7 +5,7 @@
   "build": {
     "beforeDevCommand": "",
     "beforeBuildCommand": "pnpm build",
-    "devUrl": "http://localhost:5432",
+    "devUrl": "http://localhost:5173",
     "frontendDist": "../dist"
   },
   "app": {
@@ -42,11 +42,15 @@
     },
     "fileAssociations": [
       {
-        "ext": ["duckdb"],
+        "ext": [
+          "duckdb"
+        ],
         "mimeType": "application/octet-stream"
       },
       {
-        "ext": ["parquet"],
+        "ext": [
+          "parquet"
+        ],
         "mimeType": "application/octet-stream"
       }
     ]

@@ -1627,8 +1627,8 @@ dependencies = [
  "log",
  "mysql",
  "nanoid",
- "postgres",
  "rusqlite",
+ "rust_decimal",
  "serde",
  "serde_json",
  "tauri",
@@ -1641,7 +1641,10 @@ dependencies = [
  "tauri-plugin-updater",
  "tauri-plugin-window-state",
  "time",
+ "tokio",
+ "tokio-postgres",
  "url",
+ "uuid",
 ]
 
 [[package]]
@@ -4154,20 +4157,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "postgres"
-version = "0.19.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7915b33ed60abc46040cbcaa25ffa1c7ec240668e0477c4f3070786f5916d451"
-dependencies = [
- "bytes",
- "fallible-iterator 0.2.0",
- "futures-util",
- "log",
- "tokio",
- "tokio-postgres",
-]
-
-[[package]]
 name = "postgres-protocol"
 version = "0.6.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5862,8 +5851,20 @@ dependencies = [
  "pin-project-lite",
  "signal-hook-registry",
  "socket2",
+ "tokio-macros",
  "tracing",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "tokio-macros"
+version = "2.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5b8a1e28f2deaa14e508979454cb3a223b10b938b45af148bc0986de36f1923b"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.50",
 ]
 
 [[package]]

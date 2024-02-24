@@ -20,6 +20,7 @@ import {
   ClickhouseIcon,
   DuckdbIcon,
   MySqlIcon,
+  PostgresIcon,
   SqliteIcon,
 } from '@/components/custom/Icons';
 import { HtmlTooltip } from '@/components/custom/Tooltip';
@@ -52,6 +53,9 @@ export const getTypeIcon = (type: string, expanded: boolean) => {
   }
   if (type == 'mysql') {
     return <MySqlIcon />;
+  }
+  if (type == 'postgres') {
+    return <PostgresIcon />;
   }
   if (type == 'database') {
     return <AccountTreeIcon />;
@@ -88,7 +92,9 @@ export default function DBTreeView({ db, ...rest }: DBTreeViewProps) {
         node={isRoot ? { ...node, name: db.displayName ?? node.name } : node}
         icon={
           isRoot &&
-          ['clickhouse', 'duckdb', 'sqlite', 'mysql'].indexOf(db.dialect) > -1
+          ['clickhouse', 'duckdb', 'sqlite', 'mysql', 'postgres'].indexOf(
+            db.dialect,
+          ) > -1
             ? db.dialect
             : node.type ?? 'file'
         }
