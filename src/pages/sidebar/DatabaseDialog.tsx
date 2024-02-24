@@ -35,6 +35,7 @@ export function DatabaseDialog() {
     appendDB(data);
     setOpen(false);
   }
+
   const watchDialect = form.watch('dialect');
 
   return (
@@ -70,14 +71,15 @@ export function DatabaseDialog() {
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="duckdb">DuckDB</SelectItem>
-                      <SelectItem value="clickhouse">Clickhouse</SelectItem>
                       <SelectItem value="sqlite">SQLite</SelectItem>
+                      <SelectItem value="mysql">MySQL</SelectItem>
+                      <SelectItem value="clickhouse">Clickhouse</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormItem>
               )}
             />
-            {watchDialect == 'clickhouse' ? (
+            {watchDialect == 'clickhouse' || watchDialect == 'mysql' ? (
               <>
                 <div className="flex">
                   <FormField

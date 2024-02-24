@@ -23,7 +23,9 @@ export type DialectType =
   | 'file'
   | 'duckdb'
   | 'clickhouse'
-  | 'sqlite';
+  | 'sqlite'
+  | 'postgres'
+  | 'mysql';
 
 export type DuckdbConfig = {
   path: string;
@@ -93,12 +95,14 @@ type DBListStore = DBListState & DBListAction;
 
 export function flattenTree(tree: TreeNode): Map<string, TreeNode> {
   const result: Map<string, TreeNode> = new Map();
+
   function flatten(node: TreeNode) {
     result.set(node.path, node);
     if (node.children && node.children.length > 0) {
       node.children.forEach(flatten);
     }
   }
+
   flatten(tree);
   return result;
 }

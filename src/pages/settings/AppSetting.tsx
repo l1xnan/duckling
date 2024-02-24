@@ -39,11 +39,11 @@ const items = [
   },
   {
     key: 'csv',
-    title: 'CSV',
+    title: 'Export',
   },
   {
     key: 'update',
-    title: 'Update',
+    title: 'Software Update',
   },
 ];
 
@@ -57,7 +57,7 @@ export const Display = ({
 );
 
 export default function AppSettingDialog() {
-  const [navKey, setNavkey] = useAtom(navKeyAtom);
+  const [navKey, setNavKey] = useAtom(navKeyAtom);
   return (
     <Dialog
       title="Setting"
@@ -70,7 +70,7 @@ export default function AppSettingDialog() {
     >
       <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
         <aside className="-mx-4 lg:w-1/5">
-          <SidebarNav items={items} activeKey={navKey} setKey={setNavkey} />
+          <SidebarNav items={items} activeKey={navKey} setKey={setNavKey} />
         </aside>
         <div className="flex-1 lg:max-w-2xl h-full">
           <Display hidden={navKey == 'profile'}>
@@ -163,14 +163,14 @@ const UpdateForm = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [version, setVersion] = useState<string>();
-  const [tauriVersion, seTtauriVersion] = useState<string>();
+  const [tauriVersion, setTauriVersion] = useState<string>();
   const onSubmit = (data: SettingState) => {
     setSettings((s) => ({ ...s, ...data }));
   };
   useEffect(() => {
     (async () => {
       setVersion(await getVersion());
-      seTtauriVersion(await getTauriVersion());
+      setTauriVersion(await getTauriVersion());
     })();
   });
 
@@ -245,9 +245,9 @@ const UpdateForm = () => {
               <div>
                 <Button
                   disabled={loading}
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.preventDefault();
-                    handleUpdater();
+                    await handleUpdater();
                   }}
                 >
                   {loading ? (

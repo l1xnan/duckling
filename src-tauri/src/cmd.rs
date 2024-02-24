@@ -10,6 +10,7 @@ use crate::dialect::clickhouse::ClickhouseDialect;
 use crate::dialect::duckdb::DuckDbDialect;
 use crate::dialect::file::FileDialect;
 use crate::dialect::folder::FolderDialect;
+use crate::dialect::mysql::MySqlDialect;
 use crate::dialect::sqlite::SqliteDialect;
 use crate::dialect::{Dialect, TreeNode};
 use crate::{api, dialect};
@@ -62,6 +63,13 @@ pub async fn get_dialect(
       password: password.unwrap_or_default(),
       database,
     })),
+    "mysql" => Some(Box::new(MySqlDialect {
+      host: host.unwrap(),
+      port: port.unwrap(),
+      username: username.unwrap_or_default(),
+      password: password.unwrap_or_default(),
+      database,
+    })),
     // _ => Err("not support dialect".to_string()),
     _ => None,
   }
@@ -87,6 +95,7 @@ pub async fn query(
     Err("not support dialect".to_string())
   }
 }
+
 #[tauri::command]
 pub async fn export(sql: String, file: String, dialect: DialectPayload) -> Result<(), String> {
   if let Some(d) = get_dialect(dialect).await {

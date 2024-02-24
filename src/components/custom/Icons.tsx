@@ -73,7 +73,7 @@ export const SqliteIcon = createSvgIcon(
   </svg>,
   'Sqlite',
 );
-export const MysqlIcon = createSvgIcon(
+export const MySqlIcon = createSvgIcon(
   <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
     <g fill-rule="evenodd">
       <path
@@ -86,7 +86,7 @@ export const MysqlIcon = createSvgIcon(
       />
     </g>
   </svg>,
-  'Mysql',
+  'MySql',
 );
 export const PostgresIcon = createSvgIcon(
   <svg

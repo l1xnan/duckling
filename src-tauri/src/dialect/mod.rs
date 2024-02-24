@@ -20,6 +20,12 @@ pub struct TreeNode {
   pub node_type: String,
 }
 
+#[derive(Debug, Default, Serialize, Deserialize)]
+pub struct Title {
+  pub name: String,
+  pub r#type: String,
+}
+
 #[async_trait]
 pub trait Dialect: Sync + Send {
   async fn get_db(&self) -> Option<TreeNode>;

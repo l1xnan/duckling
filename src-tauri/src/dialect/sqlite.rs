@@ -10,17 +10,12 @@ use rusqlite::types::Value;
 use rusqlite::Connection;
 
 use crate::api::{serialize_preview, ArrowData};
-use crate::dialect::{Dialect, TreeNode};
+use crate::dialect::{Dialect, Title, TreeNode};
 use crate::utils::{build_tree, get_file_name, Table};
 
 #[derive(Debug, Default)]
 pub struct SqliteDialect {
   pub path: String,
-}
-
-pub struct Title {
-  pub name: String,
-  pub r#type: String,
 }
 
 #[async_trait]
