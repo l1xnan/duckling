@@ -1,18 +1,16 @@
 use std::fmt::Debug;
 use std::sync::Arc;
 
+use arrow::array::*;
+use arrow::datatypes::{DataType, Field, Schema};
+use async_trait::async_trait;
+use futures_util::FutureExt;
+use tokio_postgres::{Client, NoTls};
+
 use crate::api::{serialize_preview, ArrowData};
 use crate::dialect::Title;
 use crate::dialect::{Dialect, TreeNode};
 use crate::utils::{build_tree, Table};
-use arrow::array::*;
-use arrow::datatypes::{DataType, Field, Schema};
-use async_trait::async_trait;
-use futures_util::{join, FutureExt};
-use std::time::Duration;
-use tokio::time;
-use tokio_postgres::error::SqlState;
-use tokio_postgres::{Client, NoTls};
 
 #[derive(Debug, Default)]
 pub struct PostgresDialect {
@@ -39,7 +37,9 @@ impl Dialect for PostgresDialect {
   }
 
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
-    let mut conn = self.get_conn("").await?;
+    let mut conn = self
+      .get_conn(&self.database.clone().unwrap_or("postgres".to_string()))
+      .await?;
 
     let mut stmt = conn.prepare(sql).await?;
     let mut fields = vec![];
@@ -87,7 +87,7 @@ impl PostgresDialect {
       format!(" dbname={}", db)
     };
     let config = self.get_url() + &db;
-    Ok(connect(&config).await)
+    connect(&config).await
   }
 
   async fn get_schema(&self) -> Vec<Table> {
@@ -111,6 +111,7 @@ impl PostgresDialect {
     let sql = r#"
     select
       table_catalog as db_name,
+      table_schema as table_schema,
       table_name as table_name,
       table_type as table_type,
       CASE WHEN table_type='BASE TABLE' THEN 'table' ELSE 'view' END as type
@@ -119,13 +120,13 @@ impl PostgresDialect {
     let mut tables = vec![];
     for row in client.query(sql, &[]).await? {
       tables.push(Table {
-        table_schema: row.get::<_, String>(0),
-        table_name: row.get::<_, String>(1),
-        table_type: row.get::<_, String>(2),
-        r#type: row.get::<_, String>(3),
+        db_name: row.get::<_, String>(0),
+        schema: Some(row.get::<_, String>(1)),
+        table_name: row.get::<_, String>(2),
+        table_type: row.get::<_, String>(3),
+        r#type: row.get::<_, String>(4),
       });
     }
-    println!("{}: {:?}", db, tables);
     Ok(tables)
   }
 
@@ -140,12 +141,11 @@ impl PostgresDialect {
   }
 }
 
-async fn connect(s: &str) -> Client {
-  let (client, connection) = tokio_postgres::connect(s, NoTls).await.unwrap();
+async fn connect(s: &str) -> anyhow::Result<Client> {
+  let (client, connection) = tokio_postgres::connect(s, NoTls).await?;
   let connection = connection.map(|e| e.unwrap());
   tokio::spawn(connection);
-
-  client
+  Ok(client)
 }
 
 #[tokio::test]

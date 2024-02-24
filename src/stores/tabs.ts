@@ -9,7 +9,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
-import { QueryParams, ResultType, exportCsv, query } from '@/api';
+import { exportCsv, query, QueryParams, ResultType } from '@/api';
 import { atomStore } from '@/stores';
 import { genStmt, isEmpty } from '@/utils';
 
@@ -172,6 +172,7 @@ export function getTable(dbId: string, tableId: string) {
   const tableMap = atomStore.get(tablesAtom);
   return tableMap.get(dbId)?.get(tableId);
 }
+
 export function getDatabase(dbId?: string) {
   if (!isEmpty(dbId)) {
     const dbMap = atomStore.get(dbMapAtom);
@@ -202,14 +203,20 @@ export function getParams(ctx: QueryParamType): QueryParams | undefined {
       dialect: 'file',
     };
   }
+
   let sql = stmt;
 
   if (!sql) {
     let tableName = tableId;
+    const table = getTable(dbId, tableId);
     if (ctx.type !== 'file') {
-      const table = getTable(dbId, tableId);
       tableName = table.path;
     }
+
+    if (dialect && dialect?.dialect == 'postgres') {
+      dialect['database'] = table?.path.split('.')[0];
+    }
+
     if (tableName.endsWith('.csv')) {
       const csv = atomStore.get(settingAtom).csv;
       const params = [`'${tableName}'`, 'auto_detect=true'];

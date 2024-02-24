@@ -145,10 +145,11 @@ impl MySqlDialect {
     "#;
     let tables = conn.query_map(sql, |(table_schema, table_name, table_type, r#type)| {
       Table {
-        table_schema,
+        db_name: table_schema,
         table_name,
         table_type,
         r#type,
+        schema: None,
       }
     })?;
     Ok(tables)

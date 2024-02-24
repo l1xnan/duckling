@@ -68,8 +68,9 @@ pub fn get_tables(path: &str) -> anyhow::Result<Vec<Table>> {
     Ok(Table {
       table_name: row.get(0)?,
       table_type: row.get(1)?,
-      table_schema: row.get(2)?,
+      db_name: row.get(2)?,
       r#type: row.get(3)?,
+      schema: None,
     })
   })?;
 

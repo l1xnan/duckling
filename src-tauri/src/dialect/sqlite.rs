@@ -187,8 +187,9 @@ pub async fn get_tables(path: &str) -> anyhow::Result<Vec<Table>> {
     tables.push(Table {
       table_name: row.get(1)?,
       table_type: row.get(2)?,
-      table_schema: String::new(),
+      db_name: String::new(),
       r#type: row.get(2)?,
+      schema: None,
     });
   }
   Ok(tables)

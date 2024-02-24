@@ -404,7 +404,7 @@ async fn query_stream(url: &str, sql: &str) -> anyhow::Result<()> {
 
 async fn get_tables(url: &str) -> anyhow::Result<Vec<Table>> {
   let sql = r#"
-  select database as table_schema, name as table_name, engine as table_type
+  select database as db_name, name as table_name, engine as table_type
   from system.tables order by table_schema, table_type
   "#;
   let pool = Pool::new(url);
@@ -413,12 +413,12 @@ async fn get_tables(url: &str) -> anyhow::Result<Vec<Table>> {
   let block = client.query(sql).fetch_all().await?;
   let mut tables = Vec::new();
   for row in block.rows() {
-    let table_schema: String = row.get("table_schema")?;
+    let db_name: String = row.get("db_name")?;
     let table_name: String = row.get("table_name")?;
     let table_type: String = row.get("table_type")?;
 
     tables.push(Table {
-      table_schema: table_schema.clone(),
+      db_name: db_name.clone(),
       table_name,
       table_type: table_type.clone(),
       r#type: String::from(if table_type == "View" {
@@ -426,6 +426,7 @@ async fn get_tables(url: &str) -> anyhow::Result<Vec<Table>> {
       } else {
         "table"
       }),
+      schema: None,
     });
   }
   Ok(tables)

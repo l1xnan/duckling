@@ -14,7 +14,8 @@ use crate::dialect::TreeNode;
 pub struct Table {
   pub table_name: String,
   pub table_type: String,
-  pub table_schema: String,
+  pub db_name: String,
+  pub schema: Option<String>,
   pub r#type: String,
 }
 
@@ -33,14 +34,18 @@ pub fn build_tree(tables: Vec<Table>) -> Vec<TreeNode> {
   let mut tree: BTreeMap<String, Vec<TreeNode>> = BTreeMap::new();
 
   for t in tables {
-    let db = tree.entry(t.table_schema.clone()).or_default();
+    let db = tree.entry(t.db_name.clone()).or_default();
+    let mut keys = vec![];
+    if !t.db_name.is_empty() {
+      keys.push(t.db_name.clone())
+    }
+    if let Some(schema) = t.schema {
+      keys.push(schema)
+    }
+    keys.push(t.table_name.clone());
     db.push(TreeNode {
-      name: t.table_name.clone(),
-      path: if t.table_schema.is_empty() {
-        t.table_name.clone()
-      } else {
-        format!("{}.{}", t.table_schema.clone(), t.table_name.clone())
-      },
+      name: t.table_name,
+      path: keys.join("."),
       node_type: t.r#type.clone(),
       children: None,
     });
