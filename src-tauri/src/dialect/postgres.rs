@@ -1,11 +1,16 @@
 use std::fmt::Debug;
 use std::sync::Arc;
 
+use anyhow::{anyhow, Context};
 use arrow::array::*;
 use arrow::datatypes::{DataType, Field, Schema};
+use arrow::json::ReaderBuilder;
+use arrow::util::pretty::print_batches;
 use async_trait::async_trait;
 use futures_util::FutureExt;
-use tokio_postgres::{Client, NoTls};
+use serde_json::Map;
+use tokio_postgres::types::{FromSql, Type};
+use tokio_postgres::{Client, Column, NoTls, Row};
 
 use crate::api::{serialize_preview, ArrowData};
 use crate::dialect::Title;
@@ -50,21 +55,26 @@ impl Dialect for PostgresDialect {
         name: col.name().to_string(),
         r#type: col.type_().name().to_string(),
       });
-      let typ = match col.type_().name() {
-        "bool" => DataType::Boolean,
-
-        _ => DataType::Binary,
-      };
+      let typ = col_to_arrow_type(&col);
       let field = Field::new(col.name(), typ, true);
       fields.push(field);
     }
     println!("titles: {:?}", titles);
-    let mut result = conn.query(&stmt, &[]).await?;
-
-    let mut arrs: Vec<ArrayRef> = vec![];
-
     let schema = Schema::new(fields);
-    let batch = RecordBatch::try_new(Arc::new(schema), arrs)?;
+
+    let mut rows: Vec<RowData> = vec![];
+    for row in conn.query(&stmt, &[]).await? {
+      let r = postgres_row_to_row_data(row)?;
+      rows.push(r);
+    }
+
+    let mut decoder = ReaderBuilder::new(Arc::new(schema))
+      .build_decoder()
+      .unwrap();
+    let _ = decoder.serialize(&rows).unwrap();
+    let batch = decoder.flush().unwrap().unwrap();
+    let _ = print_batches(&[batch.clone()]);
+
     Ok(ArrowData {
       total_count: batch.num_rows(),
       preview: serialize_preview(&batch)?,
@@ -100,7 +110,6 @@ impl PostgresDialect {
     let mut names = vec![];
     for row in client.query(sql, &[]).await? {
       let name: String = row.get(0);
-      println!("{}", name);
       names.push(row.get(0));
     }
     Ok(names)
@@ -146,6 +155,210 @@ async fn connect(s: &str) -> anyhow::Result<Client> {
   let connection = connection.map(|e| e.unwrap());
   tokio::spawn(connection);
   Ok(client)
+}
+
+pub fn postgres_row_to_json_value(row: Row) -> Result<JSONValue, Error> {
+  let row_data = postgres_row_to_row_data(row)?;
+  Ok(JSONValue::Object(row_data))
+}
+
+// some type-aliases I use in my project
+pub type JSONValue = serde_json::Value;
+pub type RowData = Map<String, JSONValue>;
+pub type Error = anyhow::Error; // from: https://github.com/dtolnay/anyhow
+
+pub fn postgres_row_to_row_data(row: Row) -> Result<RowData, Error> {
+  let mut result: RowData = Map::new();
+  for (i, column) in row.columns().iter().enumerate() {
+    let name = column.name();
+    let json_value = pg_cell_to_json_value(&row, column, i).unwrap();
+    result.insert(name.to_string(), json_value);
+  }
+  Ok(result)
+}
+
+pub fn pg_cell_to_json_value(
+  row: &Row,
+  column: &Column,
+  column_i: usize,
+) -> Result<JSONValue, Error> {
+  let f64_to_json_number = |raw_val: f64| -> Result<JSONValue, Error> {
+    let temp = serde_json::Number::from_f64(raw_val.into()).ok_or(anyhow!("invalid json-float"))?;
+    Ok(JSONValue::Number(temp))
+  };
+  Ok(match *column.type_() {
+    // for rust-postgres <> postgres type-mappings: https://docs.rs/postgres/latest/postgres/types/trait.FromSql.html#types
+    // for postgres types: https://www.postgresql.org/docs/7.4/datatype.html#DATATYPE-TABLE
+
+    // single types
+    Type::BOOL => get_basic(row, column, column_i, |a: bool| Ok(JSONValue::Bool(a)))?,
+    Type::INT2 => get_basic(row, column, column_i, |a: i16| {
+      Ok(JSONValue::Number(serde_json::Number::from(a)))
+    })?,
+    Type::INT4 => get_basic(row, column, column_i, |a: i32| {
+      Ok(JSONValue::Number(serde_json::Number::from(a)))
+    })?,
+    Type::INT8 => get_basic(row, column, column_i, |a: i64| {
+      Ok(JSONValue::Number(serde_json::Number::from(a)))
+    })?,
+    Type::TEXT | Type::VARCHAR => {
+      get_basic(row, column, column_i, |a: String| Ok(JSONValue::String(a)))?
+    }
+    Type::JSON | Type::JSONB => get_basic(row, column, column_i, |a: JSONValue| Ok(a))?,
+    Type::FLOAT4 => get_basic(row, column, column_i, |a: f32| {
+      Ok(f64_to_json_number(a.into())?)
+    })?,
+    Type::FLOAT8 => get_basic(row, column, column_i, |a: f64| Ok(f64_to_json_number(a)?))?,
+    // these types require a custom StringCollector struct as an intermediary (see struct at bottom)
+    Type::TS_VECTOR => get_basic(row, column, column_i, |a: StringCollector| {
+      Ok(JSONValue::String(a.0))
+    })?,
+    Type::DATE => {
+      let date: chrono::NaiveDate = row.get(column_i);
+      JSONValue::String(date.to_string())
+    }
+    Type::TIME => get_basic(row, column, column_i, |a: StringCollector| {
+      Ok(JSONValue::String(a.0))
+    })?,
+    Type::TIMESTAMP => {
+      let t: chrono::NaiveDateTime = row.get(column_i);
+      JSONValue::String(t.to_string())
+    }
+    // array types
+    Type::BOOL_ARRAY => get_array(row, column, column_i, |a: bool| Ok(JSONValue::Bool(a)))?,
+    Type::INT2_ARRAY => get_array(row, column, column_i, |a: i16| {
+      Ok(JSONValue::Number(serde_json::Number::from(a)))
+    })?,
+    Type::INT4_ARRAY => get_array(row, column, column_i, |a: i32| {
+      Ok(JSONValue::Number(serde_json::Number::from(a)))
+    })?,
+    Type::INT8_ARRAY => get_array(row, column, column_i, |a: i64| {
+      Ok(JSONValue::Number(serde_json::Number::from(a)))
+    })?,
+    Type::TEXT_ARRAY | Type::VARCHAR_ARRAY => {
+      get_array(row, column, column_i, |a: String| Ok(JSONValue::String(a)))?
+    }
+    Type::JSON_ARRAY | Type::JSONB_ARRAY => get_array(row, column, column_i, |a: JSONValue| Ok(a))?,
+    Type::FLOAT4_ARRAY => get_array(row, column, column_i, |a: f32| {
+      Ok(f64_to_json_number(a.into())?)
+    })?,
+    Type::FLOAT8_ARRAY => get_array(row, column, column_i, |a: f64| Ok(f64_to_json_number(a)?))?,
+    // these types require a custom StringCollector struct as an intermediary (see struct at bottom)
+    Type::TS_VECTOR_ARRAY => get_array(row, column, column_i, |a: StringCollector| {
+      Ok(JSONValue::String(a.0))
+    })?,
+
+    Type::ANYENUM => {
+      let val: GenericEnum = row.get(column_i);
+      JSONValue::String(val.0)
+    }
+    _ => anyhow::bail!(
+      "Cannot convert pg-cell \"{}\" of type \"{}\" to a JSONValue.",
+      column.name(),
+      column.type_().name()
+    ),
+  })
+}
+
+pub fn col_to_arrow_type(column: &Column) -> DataType {
+  match *column.type_() {
+    // for rust-postgres <> postgres type-mappings: https://docs.rs/postgres/latest/postgres/types/trait.FromSql.html#types
+    // for postgres types: https://www.postgresql.org/docs/7.4/datatype.html#DATATYPE-TABLE
+
+    // single types
+    Type::BOOL => DataType::Boolean,
+    Type::INT2 => DataType::Int64,
+    Type::INT4 => DataType::Int64,
+    Type::INT8 => DataType::Int64,
+    Type::TEXT | Type::VARCHAR => DataType::Utf8,
+    Type::JSON | Type::JSONB => DataType::Utf8,
+    Type::FLOAT4 => DataType::Float64,
+    Type::FLOAT8 => DataType::Float64,
+    // these types require a custom StringCollector struct as an intermediary (see struct at bottom)
+    Type::TS_VECTOR => DataType::Utf8,
+
+    Type::DATE => DataType::Utf8,
+    Type::TIMESTAMP => DataType::Utf8,
+
+    // array types
+    Type::BOOL_ARRAY => DataType::Utf8,
+    Type::INT2_ARRAY => DataType::Utf8,
+    Type::INT4_ARRAY => DataType::Utf8,
+    Type::INT8_ARRAY => DataType::Utf8,
+    Type::TEXT_ARRAY | Type::VARCHAR_ARRAY => DataType::Utf8,
+    Type::JSON_ARRAY | Type::JSONB_ARRAY => DataType::Utf8,
+    Type::FLOAT4_ARRAY => DataType::Utf8,
+    Type::FLOAT8_ARRAY => DataType::Utf8,
+    // these types require a custom StringCollector struct as an intermediary (see struct at bottom)
+    Type::TS_VECTOR_ARRAY => DataType::Utf8,
+
+    Type::ANYENUM => DataType::Utf8,
+    _ => DataType::Utf8,
+  }
+}
+
+fn get_basic<'a, T: FromSql<'a>>(
+  row: &'a Row,
+  column: &Column,
+  column_i: usize,
+  val_to_json_val: impl Fn(T) -> Result<JSONValue, Error>,
+) -> Result<JSONValue, Error> {
+  let raw_val = row
+    .try_get::<_, Option<T>>(column_i)
+    .with_context(|| format!("column_name:{}", column.name()))?;
+  raw_val.map_or(Ok(JSONValue::Null), val_to_json_val)
+}
+fn get_array<'a, T: FromSql<'a>>(
+  row: &'a Row,
+  column: &Column,
+  column_i: usize,
+  val_to_json_val: impl Fn(T) -> Result<JSONValue, Error>,
+) -> Result<JSONValue, Error> {
+  let raw_val_array = row
+    .try_get::<_, Option<Vec<T>>>(column_i)
+    .with_context(|| format!("column_name:{}", column.name()))?;
+  Ok(match raw_val_array {
+    Some(val_array) => {
+      let mut result = vec![];
+      for val in val_array {
+        result.push(val_to_json_val(val)?);
+      }
+      JSONValue::Array(result)
+    }
+    None => JSONValue::Null,
+  })
+}
+
+// you can remove this section if not using TS_VECTOR (or other types requiring an intermediary `FromSQL` struct)
+struct StringCollector(String);
+impl FromSql<'_> for StringCollector {
+  fn from_sql(
+    _: &Type,
+    raw: &[u8],
+  ) -> Result<StringCollector, Box<dyn std::error::Error + Sync + Send>> {
+    let result = std::str::from_utf8(raw)?;
+    Ok(StringCollector(result.to_owned()))
+  }
+  fn accepts(_ty: &Type) -> bool {
+    true
+  }
+}
+
+#[derive(Debug)]
+struct GenericEnum(String);
+
+impl FromSql<'_> for GenericEnum {
+  fn from_sql(
+    _: &Type,
+    raw: &[u8],
+  ) -> Result<GenericEnum, Box<dyn std::error::Error + Sync + Send>> {
+    let result = std::str::from_utf8(raw).unwrap();
+    let val = GenericEnum(result.to_owned());
+    Ok(val)
+  }
+  fn accepts(_ty: &Type) -> bool {
+    true
+  }
 }
 
 #[tokio::test]

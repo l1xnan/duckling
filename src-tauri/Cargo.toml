@@ -29,7 +29,7 @@ rust_decimal = "1"
 clickhouse-rs = { git = "https://github.com/mel-mel-king/clickhouse-rs.git", branch = "decimal128" }
 rusqlite = { version = "0.31.0", features = ["bundled", "column_decltype"] }
 mysql = { version = "24.0.0" }
-tokio-postgres = "0.7.10"
+tokio-postgres = { version = "0.7.10", features = ["with-serde_json-1", "array-impls", "with-chrono-0_4"] }
 tauri = { version = "^2.0.0-beta", features = [
     "devtools",
     "icon-ico",
@@ -42,6 +42,7 @@ tauri-plugin-dialog = "2.0.0-beta"
 tauri-plugin-log = "2.0.0-beta"
 tauri-plugin-process = "2.0.0-beta"
 tauri-plugin-window-state = "2.0.0-beta"
+tauri-plugin-clipboard-manager = "2.0.0-beta"
 
 anyhow = "1.0.75"
 url = "2.4.1"
@@ -50,7 +51,6 @@ nanoid = "0.4.0"
 chrono = "^0.4"
 chrono-tz = "^0.8"
 async-trait = "^0.1"
-tauri-plugin-clipboard-manager = "2.0.0-beta"
 time = "0.3.34"
 uuid = { version = "1.7.0", features = ["v4"] }
 tokio = { version = "1.36.0", features = ["macros", "test-util"] }
