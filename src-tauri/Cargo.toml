@@ -1,6 +1,6 @@
 [package]
 name = "duckling"
-version = "0.0.14"
+version = "0.0.16"
 description = "Duckling"
 authors = ["you"]
 license = ""
