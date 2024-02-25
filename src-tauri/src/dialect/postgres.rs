@@ -8,6 +8,7 @@ use arrow::json::ReaderBuilder;
 use arrow::util::pretty::print_batches;
 use async_trait::async_trait;
 use futures_util::FutureExt;
+use rust_decimal::prelude::*;
 use serde_json::Map;
 use tokio_postgres::types::{FromSql, Type};
 use tokio_postgres::{Client, Column, NoTls, Row};
@@ -58,6 +59,14 @@ impl Dialect for PostgresDialect {
       let typ = col_to_arrow_type(&col);
       let field = Field::new(col.name(), typ, true);
       fields.push(field);
+
+      println!(
+        "{}={}, {}, {:?}",
+        col.name(),
+        col.type_().name(),
+        col.type_().oid(),
+        col.type_().kind()
+      );
     }
     println!("titles: {:?}", titles);
     let schema = Schema::new(fields);
@@ -209,6 +218,10 @@ pub fn pg_cell_to_json_value(
       Ok(f64_to_json_number(a.into())?)
     })?,
     Type::FLOAT8 => get_basic(row, column, column_i, |a: f64| Ok(f64_to_json_number(a)?))?,
+    Type::NUMERIC => {
+      let v: Decimal = row.get(column_i);
+      JSONValue::String(v.to_string())
+    }
     // these types require a custom StringCollector struct as an intermediary (see struct at bottom)
     Type::TS_VECTOR => get_basic(row, column, column_i, |a: StringCollector| {
       Ok(JSONValue::String(a.0))
@@ -220,6 +233,18 @@ pub fn pg_cell_to_json_value(
     Type::TIME => get_basic(row, column, column_i, |a: StringCollector| {
       Ok(JSONValue::String(a.0))
     })?,
+    Type::BYTEA => {
+      let mut arr = vec![];
+      let v: &[u8] = row.get(column_i);
+      if v.is_empty() {
+        JSONValue::Null
+      } else {
+        for u in v {
+          arr.push(JSONValue::Number(serde_json::Number::from(*u)));
+        }
+        JSONValue::Array(arr)
+      }
+    }
     Type::TIMESTAMP => {
       let t: chrono::NaiveDateTime = row.get(column_i);
       JSONValue::String(t.to_string())
@@ -252,11 +277,24 @@ pub fn pg_cell_to_json_value(
       let val: GenericEnum = row.get(column_i);
       JSONValue::String(val.0)
     }
-    _ => anyhow::bail!(
-      "Cannot convert pg-cell \"{}\" of type \"{}\" to a JSONValue.",
-      column.name(),
-      column.type_().name()
-    ),
+    _ => {
+      // anyhow::bail!(
+      println!(
+        "Cannot convert pg-cell \"{}\" of type \"{}\" to a JSONValue.",
+        column.name(),
+        column.type_().name()
+      );
+      println!(
+        "{}={}, {:?}",
+        column.type_().name(),
+        column.type_().oid(),
+        column.type_().kind()
+      );
+      let val: GenericEnum = row.get(column_i);
+      JSONValue::String(val.0)
+      // let s: String = row.get(column_i);
+      // JSONValue::String(s)
+    }
   })
 }
 
@@ -274,6 +312,7 @@ pub fn col_to_arrow_type(column: &Column) -> DataType {
     Type::JSON | Type::JSONB => DataType::Utf8,
     Type::FLOAT4 => DataType::Float64,
     Type::FLOAT8 => DataType::Float64,
+    Type::NUMERIC => DataType::Utf8,
     // these types require a custom StringCollector struct as an intermediary (see struct at bottom)
     Type::TS_VECTOR => DataType::Utf8,
 
@@ -285,7 +324,10 @@ pub fn col_to_arrow_type(column: &Column) -> DataType {
     Type::INT2_ARRAY => DataType::Utf8,
     Type::INT4_ARRAY => DataType::Utf8,
     Type::INT8_ARRAY => DataType::Utf8,
-    Type::TEXT_ARRAY | Type::VARCHAR_ARRAY => DataType::Utf8,
+    Type::BYTEA => DataType::Binary,
+    Type::TEXT_ARRAY | Type::VARCHAR_ARRAY => {
+      DataType::List(Arc::new(Field::new("", DataType::Utf8, true)))
+    }
     Type::JSON_ARRAY | Type::JSONB_ARRAY => DataType::Utf8,
     Type::FLOAT4_ARRAY => DataType::Utf8,
     Type::FLOAT8_ARRAY => DataType::Utf8,
@@ -362,4 +404,14 @@ impl FromSql<'_> for GenericEnum {
 }
 
 #[tokio::test]
-async fn test_database() {}
+async fn test_database() {
+  let d = PostgresDialect {
+    password: "iMnjXRWsUMS1OWl8".to_string(),
+    username: "postgres".to_string(),
+    host: "localhost".to_string(),
+    port: "5432".to_string(),
+    database: Some("dvdrental".to_string()),
+  };
+  let _ = d.query("SELECT * from staff limit 10", 0, 0).await;
+  // let _ = d.query("SELECT 1 from customer", 0, 0).await;
+}
