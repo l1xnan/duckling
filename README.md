@@ -1,5 +1,4 @@
 ⚠️ Actively in Development and currently unstable ⚠️
-⚠️正在开发中，目前不稳定⚠️
 
 # Duckling
 
