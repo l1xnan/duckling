@@ -7,10 +7,16 @@ import { DBType, DialectConfig } from '@/stores/dbList';
 import { ArrowResponse, SchemaType } from './stores/dataset';
 import { TreeNode } from './types';
 
+export type TitleType = {
+  name: string;
+  type: string;
+};
+
 export type ResultType<T = unknown> = {
   totalCount: number;
   data: T[];
   schema: SchemaType[];
+  titles?: TitleType[];
   code: number;
   message: string;
 };
@@ -46,11 +52,13 @@ export function convertArrow(arrowData: Array<number>, totalCount: number) {
     schema,
   };
 }
+
 function convert(res: ArrowResponse): ResultType {
-  const { data, total, code, message } = res;
+  const { data, titles, total, code, message } = res;
   if (code === 0) {
     return {
       ...convertArrow(data, total),
+      titles,
       code,
       message,
     };
@@ -71,7 +79,7 @@ type DBInfoType = ResultType<{
 
 export async function showTables(path?: string): Promise<DBInfoType> {
   const res = await invoke<ArrowResponse>('show_tables', { path });
-  return convert(res);
+  return convert(res) as DBInfoType;
 }
 
 export type QueryParams = {
@@ -88,6 +96,7 @@ export async function query(params: QueryParams): Promise<ResultType> {
 
   return convert(res);
 }
+
 export async function exportCsv(
   params: QueryParams & { file: string },
 ): Promise<ResultType> {

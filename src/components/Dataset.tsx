@@ -73,7 +73,7 @@ export const usePageStoreApi = () => {
 };
 
 export function Dataset({ context }: { context: TabContextType }) {
-  const { refresh, data, schema, beautify, orderBy } = usePageStore();
+  const { refresh, data, titles, schema, beautify, orderBy } = usePageStore();
   const currentTab = useAtomValue(activeTabAtom);
   const [loading, setLoading] = useState(false);
 
@@ -102,6 +102,7 @@ export function Dataset({ context }: { context: TabContextType }) {
           <AgTable
             style={loading ? { display: 'none' } : undefined}
             data={data ?? []}
+            titles={titles ?? []}
             schema={schema ?? []}
             beautify={beautify}
             orderBy={orderBy}

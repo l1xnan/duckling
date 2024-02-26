@@ -30,6 +30,7 @@ pub struct ArrowResponse {
   /// A preview of the first N records, serialized as an Apache Arrow array
   /// using their IPC format.
   pub data: Vec<u8>,
+  pub titles: Option<Vec<Title>>,
 
   pub code: i32,
   pub message: String,
@@ -40,14 +41,16 @@ pub fn convert(res: anyhow::Result<ArrowData>) -> ArrowResponse {
     Ok(data) => ArrowResponse {
       total: data.total_count,
       data: data.preview,
+      titles: data.titles,
       code: 0,
-      message: "".to_string(),
+      message: String::new(),
     },
     Err(err) => {
-      println!("err:{}", err);
+      log::error!("error:{}", err);
       ArrowResponse {
         total: 0,
         data: vec![],
+        titles: None,
         code: 401,
         message: err.to_string(),
       }
@@ -101,7 +104,7 @@ pub fn query(
 
   // query
   let mut stmt = db.prepare(sql)?;
-  
+
   let titles: Vec<_> = stmt
     .column_names()
     .iter()

@@ -1,6 +1,7 @@
 import { Box, BoxProps, styled, useTheme } from '@mui/material';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import { CellStyle } from 'ag-grid-community/dist/lib/entities/colDef';
 import { AgGridReact } from 'ag-grid-react';
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai';
@@ -13,6 +14,7 @@ import {
 } from 'react';
 import { NonUndefined } from 'react-hook-form';
 
+import { TitleType } from '@/api.ts';
 import HeaderCell from '@/components/dataframe/HeaderCell';
 import { OrderByType, SchemaType } from '@/stores/dataset';
 import { precisionAtom } from '@/stores/setting';
@@ -20,6 +22,7 @@ import { getByteLength, isDarkTheme } from '@/utils';
 
 interface TableProps<T = unknown> {
   data: T[];
+  titles: TitleType[];
   schema: SchemaType[];
   beautify?: boolean;
   style?: CSSProperties;
@@ -83,6 +86,7 @@ type ColDefType = NonUndefined<
 
 export const AgTable = ({
   data,
+  titles,
   schema,
   beautify,
   orderBy,
@@ -107,10 +111,11 @@ export const AgTable = ({
   const row0 = (data?.[0] ?? {}) as RowType;
   const columnDefs = useMemo<RowType[]>(() => {
     const main: RowType[] =
-      schema?.map(({ name, dataType }) => {
+      schema?.map(({ name, dataType }, i) => {
         return {
           headerName: name,
           field: name,
+          sqlType: titles[i]?.type,
           width: columnWiths(name, row0),
           valueFormatter: formatter({
             dataType,
@@ -119,17 +124,14 @@ export const AgTable = ({
           }),
 
           cellStyle: (({ value }) => {
+            const style: CellStyle = {};
             if (value === null) {
-              return {
-                color: 'gray',
-                textAlign: 'right',
-              };
+              style['color'] = 'gray';
             }
             if (isNumber(dataType)) {
-              return {
-                textAlign: 'right',
-              };
+              style['textAlign'] = 'right';
             }
+            return style;
           }) as ColDefType['cellStyle'],
         };
       }) ?? [];

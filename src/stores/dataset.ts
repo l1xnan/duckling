@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 import { createStore, useStore } from 'zustand';
 
-import { ResultType } from '@/api';
+import { ResultType, TitleType } from '@/api';
 
 import { QueryParamType, TabContextType, execute } from './tabs';
 
@@ -16,6 +16,7 @@ export type SchemaType = {
 export interface ArrowResponse {
   total: number;
   data: Array<number>;
+  titles?: TitleType[];
   code: number;
   message: string;
 }
@@ -34,6 +35,7 @@ export type DatasetState = {
   code?: number;
   message?: string;
   schema: SchemaType[];
+  titles?: TitleType[];
   orderBy?: OrderByType;
   sqlWhere?: string;
   beautify?: boolean;
@@ -88,6 +90,7 @@ export const createDatasetStore = (context: TabContextType) =>
     totalCount: 0,
     schema: [],
     data: [],
+    titles: [],
     sqlWhere: undefined,
     code: 0,
     message: undefined,

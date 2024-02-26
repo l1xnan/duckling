@@ -9,6 +9,7 @@ import { ColumnState, GridApi } from 'ag-grid-community';
 import dedent from 'dedent';
 import { PinIcon, PinOffIcon } from 'lucide-react';
 
+import { HtmlTooltip } from '@/components/custom/Tooltip.tsx';
 import { ContextMenuItem } from '@/components/custom/context-menu';
 import {
   ContextMenu,
@@ -26,6 +27,7 @@ interface HeadCellProps {
   pin: (s: ColumnState) => void;
   column: {
     colId: string;
+    colDef: Record<string, string>;
   };
 }
 
@@ -37,9 +39,10 @@ export default (props: HeadCellProps) => {
     setDialogColumn,
   } = usePageStore();
   const updateTab = useTabsStore((state) => state.update);
-
-  const key = props.column.colId;
-  const isDesc = orderBy?.name == key ? orderBy?.desc : undefined;
+  console.log(props);
+  const colId = props.column.colId;
+  const sqlType = props.column?.colDef?.sqlType;
+  const isDesc = orderBy?.name == colId ? orderBy?.desc : undefined;
 
   if (props.column.colId == '__index__') {
     return;
@@ -62,13 +65,15 @@ export default (props: HeadCellProps) => {
   };
 
   const handleOrder = () => {
-    setOrderBy?.(key);
+    setOrderBy?.(colId);
   };
+
+  const { displayName } = props;
   return (
     <ContextMenu
       onOpenChange={(open) => {
         if (open) {
-          setDialogColumn(props.column.colId);
+          setDialogColumn(colId);
         }
       }}
     >
@@ -77,7 +82,9 @@ export default (props: HeadCellProps) => {
           className="flex items-center justify-between w-full h-20 px-1 text-sm"
           onClick={handleOrder}
         >
-          <div>{props.displayName}</div>
+          <HtmlTooltip title={`${displayName}: ${sqlType}`}>
+            <div>{displayName}</div>
+          </HtmlTooltip>
           <AscOrDescIcon isDesc={isDesc} />
         </div>
       </ContextMenuTrigger>
@@ -85,7 +92,7 @@ export default (props: HeadCellProps) => {
       <ContextMenuContent className="w-64">
         <ContextMenuItem
           onClick={async () => {
-            await writeText(props.displayName);
+            await writeText(displayName);
           }}
         >
           Copy field name
@@ -100,9 +107,9 @@ export default (props: HeadCellProps) => {
                 type: 'editor',
                 displayName: `query[${table.tableName}]`,
                 extra: dedent`
-                select ${props.column.colId}, count(*) 
-                from ${table.tableName}
-                group by ${props.column.colId};
+                    select ${props.column.colId}, count(*)
+                    from ${table.tableName}
+                    group by ${props.column.colId};
                 `,
               });
             }
@@ -115,7 +122,7 @@ export default (props: HeadCellProps) => {
           icon={PinIcon}
           onClick={() => {
             pinColumn({
-              colId: key,
+              colId,
               pinned: 'left',
             });
           }}
@@ -125,7 +132,7 @@ export default (props: HeadCellProps) => {
         <ContextMenuItem
           onClick={() => {
             pinColumn({
-              colId: key,
+              colId,
               pinned: 'right',
             });
           }}
@@ -136,7 +143,7 @@ export default (props: HeadCellProps) => {
           icon={PinOffIcon}
           onClick={() => {
             pinColumn({
-              colId: key,
+              colId,
               pinned: null,
             });
           }}
