@@ -6,10 +6,10 @@ use arrow::datatypes::*;
 use arrow::datatypes::{DataType, Field, Schema};
 use async_trait::async_trait;
 use futures_util::StreamExt;
-use rusqlite::Connection;
 use rusqlite::types::Value;
+use rusqlite::Connection;
 
-use crate::api::{ArrowData, serialize_preview};
+use crate::api::{serialize_preview, ArrowData};
 use crate::dialect::{Dialect, Title, TreeNode};
 use crate::utils::{build_tree, get_file_name, Table};
 
@@ -23,7 +23,6 @@ impl Dialect for SqliteDialect {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
     let url = self.get_url();
     let tables = get_tables(&url).await?;
-    println!("tables={:?}", tables);
     let tree = build_tree(tables);
     let children = if tree.len() > 0 {
       &tree[0].children
@@ -54,11 +53,12 @@ impl Dialect for SqliteDialect {
         match decl_type {
           "INTEGER" => DataType::Int64,
           "REAL" => DataType::Float64,
-          "NUMERIC" => DataType::Utf8,
           "BOOLEAN" => DataType::Boolean,
           "DATE" => DataType::Utf8,
           "DATETIME" => DataType::Utf8,
           "TIME" => DataType::Utf8,
+          decl_type if decl_type.starts_with("NUMERIC") => DataType::Utf8,
+          decl_type if decl_type.starts_with("NVARCHAR") => DataType::Utf8,
           "BLOB" => DataType::Binary,
           "NULL" => DataType::Null,
           _ => DataType::Utf8,
@@ -75,9 +75,11 @@ impl Dialect for SqliteDialect {
     let mut batchs = vec![];
 
     let mut rows = stmt.query([])?;
+    println!("title={:?}", titles);
 
     while let Some(row) = rows.next()? {
       let mut arrs = vec![];
+
       for i in 0..k {
         let val = row.get::<_, Value>(i).unwrap();
         let r = convert_arrow(&val, &titles.get(i).unwrap().r#type);
@@ -92,6 +94,7 @@ impl Dialect for SqliteDialect {
     Ok(ArrowData {
       total_count: batch.num_rows(),
       preview: serialize_preview(&batch)?,
+      titles: Some(titles),
     })
   }
 }
@@ -135,9 +138,7 @@ impl SqliteDialect {
       };
       let field = Field::new(col.name(), typ, true);
       fields.push(field);
-      println!("{:?} {:?}", col.name(), col.decl_type())
     }
-
     let schema = Schema::new(fields);
 
     let mut rows = stmt.query([])?;
@@ -167,6 +168,7 @@ impl SqliteDialect {
     Ok(ArrowData {
       total_count: batch.num_rows(),
       preview: serialize_preview(&batch)?,
+      titles: None,
     })
   }
 }
@@ -194,17 +196,16 @@ pub async fn get_tables(path: &str) -> anyhow::Result<Vec<Table>> {
 }
 
 pub fn convert_arrow(value: &Value, typ: &str) -> ArrayRef {
-  // println!("{:?}", value);
   match value {
     Value::Integer(i) => {
-      if typ == "NUMERIC" {
+      if typ.starts_with("NUMERIC") {
         Arc::new(StringArray::from(vec![i.to_string()])) as ArrayRef
       } else {
         Arc::new(Int64Array::from(vec![(*i)])) as ArrayRef
       }
     }
     Value::Real(f) => {
-      if typ == "NUMERIC" {
+      if typ.starts_with("NUMERIC") {
         Arc::new(StringArray::from(vec![f.to_string()])) as ArrayRef
       } else {
         Arc::new(Float64Array::from(vec![(*f)])) as ArrayRef
@@ -266,4 +267,8 @@ pub fn convert_to_f64s(values: &[Value]) -> Vec<Option<f64>> {
 }
 
 #[tokio::test]
-async fn test_tables() {}
+async fn test_tables() {
+  let _ = SqliteDialect {
+    path: String::from(r""),
+  };
+}

@@ -1,5 +1,6 @@
 use std::env::{current_dir, set_current_dir};
 
+use crate::dialect::Title;
 use anyhow::anyhow;
 use arrow::{ipc::writer::StreamWriter, record_batch::RecordBatch};
 use duckdb::Connection;
@@ -12,6 +13,7 @@ pub struct ArrowData {
   /// A preview of the first N records, serialized as an Apache Arrow array
   /// using their IPC format.
   pub preview: Vec<u8>,
+  pub titles: Option<Vec<Title>>,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
@@ -103,6 +105,7 @@ pub fn query(
   Ok(ArrowData {
     total_count: total,
     preview: serialize_preview(&preview)?,
+    titles: None,
   })
 }
 
@@ -116,6 +119,7 @@ pub fn show_db_information(path: String, sql: &str) -> anyhow::Result<ArrowData>
   Ok(ArrowData {
     total_count: records.len(),
     preview: serialize_preview(&record_batch).unwrap(),
+    titles: None,
   })
 }
 
