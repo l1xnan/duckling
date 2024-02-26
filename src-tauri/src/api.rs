@@ -101,6 +101,17 @@ pub fn query(
 
   // query
   let mut stmt = db.prepare(sql)?;
+  
+  let titles: Vec<_> = stmt
+    .column_names()
+    .iter()
+    .enumerate()
+    .map(|(i, name)| Title {
+      name: name.clone(),
+      r#type: stmt.column_type(i).to_string(),
+    })
+    .collect();
+
   let frames = stmt.query_arrow(duckdb::params![])?;
   let schema = frames.get_schema();
   let records: Vec<_> = frames.collect();
@@ -112,7 +123,7 @@ pub fn query(
   Ok(ArrowData {
     total_count: total,
     preview: serialize_preview(&preview)?,
-    titles: None,
+    titles: Some(titles),
   })
 }
 
