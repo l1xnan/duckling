@@ -5,7 +5,11 @@
 [English](./README.md) | 中文
 
 Duckling 是使用 Tauri 构建的轻量级桌面应用，用于快速浏览 `parquet`/`csv`文件数据和各种数据库数据，
-支持 [DuckDB](https://github.com/duckdb/duckdb)/SQLite 对于 PostgreSQL、MySQL、Clickhouse（注意仅支持 [Native Protocol port](https://clickhouse.com/docs/en/guides/sre/network-ports)，一般是 `9000`）提供实验性的支持。
+支持 [DuckDB](https://github.com/duckdb/duckdb)/SQLite，同时对于如下数据库提供实验性支持：
+
+- PostgreSQL
+- MySQL
+- Clickhouse（注意仅支持 [Native Protocol port](https://clickhouse.com/docs/en/guides/sre/network-ports)，一般是 `9000`）
 
 注意：本项目当前的目标不是构建一个全功能的数据库管理工具，只是为了方便的快速浏览各种类型的数据。
 
@@ -26,4 +30,4 @@ Duckling 是使用 Tauri 构建的轻量级桌面应用，用于快速浏览 `pa
 ## 开发
 
 如果 `bundled` 构建失败，可以在 [duckdb releases](https://github.com/duckdb/duckdb/releases) 页面下载对应平台和版本的 libduckdb
-文件，例如：`libduckdb-windows-amd64.zip` 到 `./src-tauri` 文件夹。
+文件(例如：`libduckdb-windows-amd64.zip`)，解压到到 `./src-tauri` 文件夹。
