@@ -1,14 +1,15 @@
 ⚠️ Actively in Development and currently unstable ⚠️
+⚠️正在开发中，目前不稳定⚠️
 
 # Duckling
 
 English | [中文](./README.zh.md)
 
-Duckling is a lightweight desktop applications, the use of Tauri build for fast browsing `parquet` / `CSV` file data
-and [DuckDB](https://github.com/duckdb/duckdb)/SQLite databases, with experimental support for
-PostgreSQL/MySQL/Clickhouse (please note that only
-the [Native Protocol port](https://clickhouse.com/docs/en/guides/sre/network-ports) is supported, typically
-port `9000`).
+Duckling is a lightweight desktop application built using Tauri, designed for quickly browsing `parquet`/`csv` file data and various databases.
+It supports [DuckDB](https://github.com/duckdb/duckdb)/SQLite, and provides experimental support for PostgreSQL, MySQL,
+and Clickhouse (please note that only [Native Protocol port](https://clickhouse.com/docs/en/guides/sre/network-ports) is supported, usually `9000`).
+
+Note: The current objective of this project is not to develop a fully functional database management tool, but rather to facilitate quick browsing of various types of data.
 
 ## Installation
 
