@@ -6,10 +6,10 @@ use arrow::datatypes::*;
 use arrow::datatypes::{DataType, Field, Schema};
 use async_trait::async_trait;
 use futures_util::StreamExt;
-use rusqlite::types::Value;
 use rusqlite::Connection;
+use rusqlite::types::Value;
 
-use crate::api::{serialize_preview, ArrowData};
+use crate::api::{ArrowData, serialize_preview};
 use crate::dialect::{Dialect, Title, TreeNode};
 use crate::utils::{build_tree, get_file_name, Table};
 
@@ -98,7 +98,7 @@ impl Dialect for SqliteDialect {
 
 impl SqliteDialect {
   fn get_url(&self) -> String {
-    format!("sqlite:{}", self.path)
+    format!("{}", self.path)
   }
 
   async fn get_schema(&self) -> Vec<Table> {
@@ -264,3 +264,6 @@ pub fn convert_to_i64s(values: &[Value]) -> Vec<Option<i64>> {
 pub fn convert_to_f64s(values: &[Value]) -> Vec<Option<f64>> {
   values.iter().map(|v| convert_to_f64(v)).collect()
 }
+
+#[tokio::test]
+async fn test_tables() {}
