@@ -8,7 +8,7 @@ use mysql::consts::ColumnType::*;
 use mysql::prelude::*;
 use mysql::*;
 
-use crate::api::{serialize_preview, ArrowData};
+use crate::api::{serialize_preview, ArrowData, RawArrowData};
 use crate::dialect::Title;
 use crate::dialect::{Dialect, TreeNode};
 use crate::utils::{build_tree, Table};
@@ -34,81 +34,27 @@ impl Dialect for MySqlDialect {
     })
   }
 
-  async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<ArrowData> {
-    let mut conn = self.get_conn()?;
-
-    let stmt = conn.prep(sql)?;
-    let mut fields = vec![];
-    let k = stmt.num_columns();
-    let mut titles = vec![];
-    for col in stmt.columns() {
-      println!("{:?}, {:?}", col.name_str(), col.column_type());
-      titles.push(Title {
-        name: col.name_str().to_string(),
-        r#type: format!("{:?}", col.column_type()),
-      });
-      let typ = match col.column_type() {
-        MYSQL_TYPE_INT24 => DataType::Int64,
-        MYSQL_TYPE_TINY | MYSQL_TYPE_SHORT | MYSQL_TYPE_LONG | MYSQL_TYPE_LONGLONG => {
-          DataType::UInt64
-        }
-        MYSQL_TYPE_DECIMAL | MYSQL_TYPE_NEWDECIMAL | MYSQL_TYPE_FLOAT | MYSQL_TYPE_YEAR => {
-          DataType::Float64
-        }
-        MYSQL_TYPE_DOUBLE => DataType::Float64,
-        MYSQL_TYPE_DATE => DataType::Utf8,
-        MYSQL_TYPE_BLOB => DataType::Utf8,
-        MYSQL_TYPE_STRING | MYSQL_TYPE_VAR_STRING | MYSQL_TYPE_VARCHAR => DataType::Utf8,
-        _ => DataType::Binary,
-      };
-      let field = Field::new(col.name_str(), typ, true);
-      fields.push(field);
-    }
-    let mut tables: Vec<Vec<Value>> = (0..k).map(|_| vec![]).collect();
-    println!("titles: {:?}", titles);
-    let mut result = conn.query_iter(sql)?;
-    while let Some(result_set) = result.iter() {
-      for row in result_set {
-        if let Ok(r) = row {
-          for (i, _col) in r.columns_ref().iter().enumerate() {
-            let val = r.get::<Value, _>(i).unwrap();
-            tables[i].push(val);
-          }
-        }
-      }
-    }
-
-    let mut arrs = vec![];
-    for (col, title) in tables.iter().zip(titles.clone()) {
-      let arr: ArrayRef = match title.r#type.as_str() {
-        "MYSQL_TYPE_VARCHAR" | " MYSQL_TYPE_VAR_STRING" => {
-          Arc::new(StringArray::from(convert_to_str_arr(col)))
-        }
-        "MYSQL_TYPE_INT24" => Arc::new(Int64Array::from(convert_to_i64_arr(col))),
-        "MYSQL_TYPE_DATE" => Arc::new(StringArray::from(convert_to_str_arr(col))),
-        "MYSQL_TYPE_BLOB" => Arc::new(StringArray::from(convert_to_str_arr(col))),
-        "MYSQL_TYPE_LONG" | "MYSQL_TYPE_SHORT" => {
-          Arc::new(UInt64Array::from(convert_to_u64_arr(col)))
-        }
-        "MYSQL_TYPE_DOUBLE" => Arc::new(Float64Array::from(convert_to_f64_arr(col))),
-        "MYSQL_TYPE_NEWDECIMAL" => Arc::new(Float64Array::from(convert_to_f64_arr(col))),
-        _ => Arc::new(StringArray::from(convert_to_str_arr(col))),
-      };
-
-      arrs.push(arr);
-    }
-
-    let schema = Schema::new(fields);
-    let batch = RecordBatch::try_new(Arc::new(schema), arrs)?;
+  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
+    let data = self._query(sql, limit, offset).await?;
     Ok(ArrowData {
-      total_count: batch.num_rows(),
-      preview: serialize_preview(&batch)?,
-      titles: Some(titles.clone()),
+      total_count: data.total_count,
+      preview: serialize_preview(&data.batch)?,
+      titles: data.titles,
     })
   }
 }
 
 impl MySqlDialect {
+  fn new(host: &str, port: &str, username: &str, password: &str) -> Self {
+    Self {
+      host: host.to_string(),
+      port: port.to_string(),
+      username: username.to_string(),
+      password: password.to_string(),
+      database: None,
+    }
+  }
+
   fn get_url(&self) -> String {
     format!(
       "mysql://{}:{}@{}:{}/{}",
@@ -151,6 +97,89 @@ impl MySqlDialect {
       }
     })?;
     Ok(tables)
+  }
+
+  async fn _query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
+    let mut conn = self.get_conn()?;
+
+    let mut result = conn.query_iter(sql)?;
+    let columns = result.columns();
+    let columns = columns.as_ref();
+    let k = columns.len();
+
+    // let stmt = conn.prep(sql)?;
+    // let k = stmt.num_columns();
+    // let columns = stmt.columns();
+
+    let mut fields = vec![];
+    let mut titles = vec![];
+    let mut types = vec![];
+    for (i, col) in columns.iter().enumerate() {
+      println!("{i}: {:?}, {:?}", col.name_str(), col.column_type());
+      titles.push(Title {
+        name: col.name_str().to_string(),
+        r#type: format!("{:?}", col.column_type()),
+      });
+      types.push(col.column_type());
+      let typ = match col.column_type() {
+        MYSQL_TYPE_TINY | MYSQL_TYPE_INT24 | MYSQL_TYPE_SHORT | MYSQL_TYPE_LONG
+        | MYSQL_TYPE_LONGLONG => DataType::Int64,
+        MYSQL_TYPE_DECIMAL
+        | MYSQL_TYPE_NEWDECIMAL
+        | MYSQL_TYPE_FLOAT
+        | MYSQL_TYPE_YEAR
+        | MYSQL_TYPE_DOUBLE => DataType::Float64,
+        MYSQL_TYPE_DATETIME => DataType::Utf8,
+        MYSQL_TYPE_DATE => DataType::Utf8,
+        MYSQL_TYPE_BLOB => DataType::Utf8,
+        MYSQL_TYPE_STRING | MYSQL_TYPE_VAR_STRING | MYSQL_TYPE_VARCHAR => DataType::Utf8,
+        _ => DataType::Binary,
+      };
+      let field = Field::new(col.name_str(), typ, true);
+      fields.push(field);
+    }
+    let mut tables: Vec<Vec<Value>> = (0..k).map(|_| vec![]).collect();
+    while let Some(result_set) = result.iter() {
+      for row in result_set {
+        if let Ok(r) = row {
+          for (i, _col) in r.columns_ref().iter().enumerate() {
+            let val = r.get::<Value, _>(i).unwrap();
+            tables[i].push(val);
+          }
+        }
+      }
+    }
+
+    let mut arrs = vec![];
+    for (type_, col) in types.iter().zip(tables) {
+      println!("{:?}", col);
+      let arr: ArrayRef = match type_ {
+        MYSQL_TYPE_TINY | MYSQL_TYPE_INT24 | MYSQL_TYPE_SHORT | MYSQL_TYPE_LONG
+        | MYSQL_TYPE_LONGLONG => Arc::new(Int64Array::from(convert_to_i64_arr(&col))),
+        MYSQL_TYPE_DECIMAL
+        | MYSQL_TYPE_NEWDECIMAL
+        | MYSQL_TYPE_FLOAT
+        | MYSQL_TYPE_YEAR
+        | MYSQL_TYPE_DOUBLE => Arc::new(Float64Array::from(convert_to_f64_arr(&col))),
+        MYSQL_TYPE_STRING | MYSQL_TYPE_VAR_STRING | MYSQL_TYPE_VARCHAR => {
+          Arc::new(StringArray::from(convert_to_str_arr(&col)))
+        }
+        MYSQL_TYPE_DATETIME => Arc::new(StringArray::from(convert_to_str_arr(&col))),
+        MYSQL_TYPE_DATE => Arc::new(StringArray::from(convert_to_str_arr(&col))),
+        MYSQL_TYPE_BLOB => Arc::new(StringArray::from(convert_to_str_arr(&col))),
+        _ => Arc::new(StringArray::from(convert_to_str_arr(&col))),
+      };
+
+      arrs.push(arr);
+    }
+
+    let schema = Schema::new(fields);
+    let batch = RecordBatch::try_new(Arc::new(schema), arrs)?;
+    Ok(RawArrowData {
+      total_count: batch.num_rows(),
+      batch,
+      titles: Some(titles.clone()),
+    })
   }
 }
 
@@ -201,6 +230,14 @@ fn convert_to_str_arr(values: &[Value]) -> Vec<Option<String>> {
 fn convert_to_i64(unknown_val: &Value) -> Option<i64> {
   match unknown_val {
     val @ Value::Int(..) => {
+      let val = from_value::<i64>(val.clone());
+      Some(val)
+    }
+    val @ Value::UInt(..) => {
+      let val = from_value::<i64>(val.clone());
+      Some(val)
+    }
+    val @ Value::Bytes(..) => {
       let val = from_value::<i64>(val.clone());
       Some(val)
     }
@@ -269,3 +306,6 @@ fn convert_to_f64(unknown_val: &Value) -> Option<f64> {
 fn convert_to_f64_arr(values: &[Value]) -> Vec<Option<f64>> {
   values.iter().map(|v| convert_to_f64(v)).collect()
 }
+
+#[tokio::test]
+async fn test_query() {}

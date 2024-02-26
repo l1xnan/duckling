@@ -16,6 +16,13 @@ pub struct ArrowData {
   pub titles: Option<Vec<Title>>,
 }
 
+pub struct RawArrowData {
+  /// The total number of rows that were selected.
+  pub total_count: usize,
+  pub batch: RecordBatch,
+  pub titles: Option<Vec<Title>>,
+}
+
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct ArrowResponse {
   /// The total number of rows that were selected.
