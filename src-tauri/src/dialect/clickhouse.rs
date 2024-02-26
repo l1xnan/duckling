@@ -43,18 +43,15 @@ impl ClickhouseDialect {
 
 #[async_trait]
 impl Dialect for ClickhouseDialect {
-  async fn get_db(&self) -> Option<TreeNode> {
+  async fn get_db(&self) -> anyhow::Result<TreeNode> {
     let url = self.get_url();
-    if let Ok(tables) = get_tables(&url).await {
-      Some(TreeNode {
-        name: self.host.clone(),
-        path: self.host.clone(),
-        node_type: "root".to_string(),
-        children: Some(build_tree(tables)),
-      })
-    } else {
-      None
-    }
+    let tables = get_tables(&url).await?;
+    Ok(TreeNode {
+      name: self.host.clone(),
+      path: self.host.clone(),
+      node_type: "root".to_string(),
+      children: Some(build_tree(tables)),
+    })
   }
 
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
@@ -221,7 +218,7 @@ fn convert_type(col_type: &SqlType) -> DataType {
     SqlType::Date => DataType::Date32,
     SqlType::String => DataType::Utf8,
     SqlType::DateTime(_) => DataType::Date64,
-    SqlType::Nullable(t) => convert_type(t.clone()),
+    SqlType::Nullable(t) => convert_type(*t),
     SqlType::Decimal(d1, d2) => DataType::Utf8,
     SqlType::Array(t) => DataType::List(Arc::new(Field::new("", convert_type(t), false))),
     _ => DataType::Utf8,
@@ -267,7 +264,7 @@ fn convert_col(
 ) -> anyhow::Result<(Field, ArrayRef)> {
   let nullable = matches!(col_type, SqlType::Nullable(_));
   let typ = if let SqlType::Nullable(t) = col_type {
-    t.clone()
+    *t
   } else {
     col_type
   };

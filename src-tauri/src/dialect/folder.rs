@@ -1,17 +1,13 @@
-use anyhow::anyhow;
-use arrow::csv::WriterBuilder;
-use async_trait::async_trait;
-use std::env::current_dir;
-use std::fs::File;
+use std::fs;
 use std::path::Path;
-use std::{env::set_current_dir, fs};
 
+use async_trait::async_trait;
 use duckdb::Connection;
 
 use crate::api;
 use crate::utils::write_csv;
 use crate::{
-  api::{serialize_preview, ArrowData},
+  api::ArrowData,
   dialect::{Dialect, TreeNode},
 };
 
@@ -23,8 +19,8 @@ pub struct FolderDialect {
 
 #[async_trait]
 impl Dialect for FolderDialect {
-  async fn get_db(&self) -> Option<TreeNode> {
-    directory_tree(self.path.as_str())
+  async fn get_db(&self) -> anyhow::Result<TreeNode> {
+    directory_tree(self.path.as_str()).ok_or(anyhow::bail!("null"))
   }
 
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {

@@ -149,7 +149,7 @@ pub async fn get_db(
   port: Option<String>,
   cwd: Option<String>,
   database: Option<String>,
-) -> Result<Option<TreeNode>, String> {
+) -> Result<TreeNode, String> {
   let payload = DialectPayload {
     dialect: dialect.to_string(),
     path,
@@ -162,7 +162,7 @@ pub async fn get_db(
   };
 
   if let Some(d) = get_dialect(payload).await {
-    Ok(d.get_db().await)
+    d.get_db().await.map_err(|e| e.to_string())
   } else {
     Err("not support dialect".to_string())
   }

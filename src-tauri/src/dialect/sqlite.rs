@@ -20,27 +20,25 @@ pub struct SqliteDialect {
 
 #[async_trait]
 impl Dialect for SqliteDialect {
-  async fn get_db(&self) -> Option<TreeNode> {
+  async fn get_db(&self) -> anyhow::Result<TreeNode> {
     let url = self.get_url();
-    if let Ok(tables) = get_tables(&url).await {
-      let mut tree = build_tree(tables);
-      let children = if tree.len() > 0 {
-        &tree[0].children
-      } else {
-        &None
-      };
-      Some(TreeNode {
-        name: get_file_name(&self.path),
-        path: self.path.clone(),
-        node_type: "root".to_string(),
-        children: children.clone(),
-      })
+    let tables = get_tables(&url).await?;
+    println!("tables={:?}", tables);
+    let tree = build_tree(tables);
+    let children = if tree.len() > 0 {
+      &tree[0].children
     } else {
-      None
-    }
+      &None
+    };
+    Ok(TreeNode {
+      name: get_file_name(&self.path),
+      path: self.path.clone(),
+      node_type: "root".to_string(),
+      children: children.clone(),
+    })
   }
 
-  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
+  async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<ArrowData> {
     let conn = Connection::open(&self.path)?;
     let mut stmt = conn.prepare(sql)?;
 
@@ -104,7 +102,7 @@ impl SqliteDialect {
   }
 
   async fn get_schema(&self) -> Vec<Table> {
-    vec![]
+    unimplemented!()
   }
 
   fn fetch_all(&self, sql: &str) -> anyhow::Result<ArrowData> {
@@ -222,6 +220,7 @@ pub fn convert_arrow(value: &Value, typ: &str) -> ArrayRef {
   }
 }
 
+#[allow(dead_code)]
 pub fn convert_to_string(value: &Value) -> Option<String> {
   match value {
     Value::Integer(i) => Some(i.to_string()),
@@ -232,6 +231,7 @@ pub fn convert_to_string(value: &Value) -> Option<String> {
   }
 }
 
+#[allow(dead_code)]
 pub fn convert_to_i64(value: &Value) -> Option<i64> {
   match value {
     Value::Integer(i) => Some(*i),
@@ -250,14 +250,17 @@ pub fn convert_to_f64(value: &Value) -> Option<f64> {
   }
 }
 
+#[allow(dead_code)]
 pub fn convert_to_strings(values: &[Value]) -> Vec<Option<String>> {
   values.iter().map(|v| convert_to_string(v)).collect()
 }
 
+#[allow(dead_code)]
 pub fn convert_to_i64s(values: &[Value]) -> Vec<Option<i64>> {
   values.iter().map(|v| convert_to_i64(v)).collect()
 }
 
+#[allow(dead_code)]
 pub fn convert_to_f64s(values: &[Value]) -> Vec<Option<f64>> {
   values.iter().map(|v| convert_to_f64(v)).collect()
 }

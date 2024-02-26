@@ -24,23 +24,20 @@ pub struct MySqlDialect {
 
 #[async_trait]
 impl Dialect for MySqlDialect {
-  async fn get_db(&self) -> Option<TreeNode> {
-    if let Ok(tables) = self.get_tables() {
-      Some(TreeNode {
-        name: self.host.clone(),
-        path: self.host.clone(),
-        node_type: "root".to_string(),
-        children: Some(build_tree(tables)),
-      })
-    } else {
-      None
-    }
+  async fn get_db(&self) -> anyhow::Result<TreeNode> {
+    let tables = self.get_tables()?;
+    Ok(TreeNode {
+      name: self.host.clone(),
+      path: self.host.clone(),
+      node_type: "root".to_string(),
+      children: Some(build_tree(tables)),
+    })
   }
 
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
     let mut conn = self.get_conn()?;
 
-    let mut stmt = conn.prep(sql)?;
+    let stmt = conn.prep(sql)?;
     let mut fields = vec![];
     let k = stmt.num_columns();
     let mut titles = vec![];

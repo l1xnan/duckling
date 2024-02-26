@@ -1,14 +1,11 @@
-use std::env::{current_dir, set_current_dir};
-use std::fs::File;
-
-use crate::api;
-use crate::api::{serialize_preview, ArrowData};
-use crate::dialect::{Dialect, TreeNode};
-use crate::utils::{build_tree, get_file_name, write_csv, Table};
-use arrow::csv::{Writer, WriterBuilder};
-use arrow::ipc::RecordBatch;
 use async_trait::async_trait;
 use duckdb::Connection;
+
+use crate::api;
+use crate::api::ArrowData;
+use crate::dialect::{Dialect, TreeNode};
+use crate::utils::{build_tree, get_file_name, write_csv, Table};
+
 #[derive(Debug, Default)]
 pub struct DuckDbDialect {
   pub path: String,
@@ -17,17 +14,14 @@ pub struct DuckDbDialect {
 
 #[async_trait]
 impl Dialect for DuckDbDialect {
-  async fn get_db(&self) -> Option<TreeNode> {
-    if let Ok(tables) = get_tables(&self.path) {
-      Some(TreeNode {
-        name: get_file_name(&self.path),
-        path: self.path.clone(),
-        node_type: "root".to_string(),
-        children: Some(build_tree(tables)),
-      })
-    } else {
-      None
-    }
+  async fn get_db(&self) -> anyhow::Result<TreeNode> {
+    let tables = get_tables(&self.path)?;
+    Ok(TreeNode {
+      name: get_file_name(&self.path),
+      path: self.path.clone(),
+      node_type: "root".to_string(),
+      children: Some(build_tree(tables)),
+    })
   }
 
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {

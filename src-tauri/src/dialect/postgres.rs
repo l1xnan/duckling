@@ -29,27 +29,24 @@ pub struct PostgresDialect {
 
 #[async_trait]
 impl Dialect for PostgresDialect {
-  async fn get_db(&self) -> Option<TreeNode> {
-    if let Ok(tables) = self.get_all_tables().await {
-      Some(TreeNode {
-        name: self.host.clone(),
-        path: self.host.clone(),
-        node_type: "root".to_string(),
-        children: Some(build_tree(tables)),
-      })
-    } else {
-      None
-    }
+  async fn get_db(&self) -> anyhow::Result<TreeNode> {
+    let tables = self.get_all_tables().await?;
+    Ok(TreeNode {
+      name: self.host.clone(),
+      path: self.host.clone(),
+      node_type: "root".to_string(),
+      children: Some(build_tree(tables)),
+    })
   }
 
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
-    let mut conn = self
+    let conn = self
       .get_conn(&self.database.clone().unwrap_or("postgres".to_string()))
       .await?;
 
-    let mut stmt = conn.prepare(sql).await?;
+    let stmt = conn.prepare(sql).await?;
     let mut fields = vec![];
-    let k = stmt.columns().len();
+    let _k = stmt.columns().len();
     let mut titles = vec![];
     for col in stmt.columns() {
       titles.push(Title {
@@ -110,7 +107,7 @@ impl PostgresDialect {
   }
 
   async fn get_schema(&self) -> Vec<Table> {
-    vec![]
+    unimplemented!()
   }
   pub async fn databases(&self) -> anyhow::Result<Vec<String>> {
     let mut client = self.get_conn("postgres").await?;

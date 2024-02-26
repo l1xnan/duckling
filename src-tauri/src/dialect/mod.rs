@@ -29,11 +29,11 @@ pub struct Title {
 
 #[async_trait]
 pub trait Dialect: Sync + Send {
-  async fn get_db(&self) -> Option<TreeNode>;
-  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
+  async fn get_db(&self) -> anyhow::Result<TreeNode>;
+  async fn query(&self, _sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<ArrowData> {
     unimplemented!()
   }
-  async fn export(&self, sql: &str, file: &str) {
+  async fn export(&self, _sql: &str, _file: &str) {
     unimplemented!()
   }
 }

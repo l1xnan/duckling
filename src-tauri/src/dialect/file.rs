@@ -12,10 +12,10 @@ pub struct FileDialect {
 
 #[async_trait]
 impl Dialect for FileDialect {
-  async fn get_db(&self) -> Option<TreeNode> {
+  async fn get_db(&self) -> anyhow::Result<TreeNode> {
     let path = PathBuf::from(self.path.as_str());
 
-    Some(TreeNode {
+    Ok(TreeNode {
       path: self.path.clone(),
       name: get_file_name(&self.path),
       node_type: path.extension().unwrap().to_string_lossy().to_string(),
