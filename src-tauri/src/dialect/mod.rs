@@ -21,7 +21,7 @@ pub struct TreeNode {
   pub node_type: String,
 }
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Title {
   pub name: String,
   pub r#type: String,

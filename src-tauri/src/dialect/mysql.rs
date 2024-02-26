@@ -34,7 +34,7 @@ impl Dialect for MySqlDialect {
     })
   }
 
-  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
+  async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<ArrowData> {
     let mut conn = self.get_conn()?;
 
     let stmt = conn.prep(sql)?;
@@ -70,7 +70,7 @@ impl Dialect for MySqlDialect {
     while let Some(result_set) = result.iter() {
       for row in result_set {
         if let Ok(r) = row {
-          for (i, col) in r.columns_ref().iter().enumerate() {
+          for (i, _col) in r.columns_ref().iter().enumerate() {
             let val = r.get::<Value, _>(i).unwrap();
             tables[i].push(val);
           }
@@ -79,7 +79,7 @@ impl Dialect for MySqlDialect {
     }
 
     let mut arrs = vec![];
-    for (col, title) in tables.iter().zip(titles) {
+    for (col, title) in tables.iter().zip(titles.clone()) {
       let arr: ArrayRef = match title.r#type.as_str() {
         "MYSQL_TYPE_VARCHAR" | " MYSQL_TYPE_VAR_STRING" => {
           Arc::new(StringArray::from(convert_to_str_arr(col)))
@@ -103,6 +103,7 @@ impl Dialect for MySqlDialect {
     Ok(ArrowData {
       total_count: batch.num_rows(),
       preview: serialize_preview(&batch)?,
+      titles: Some(titles.clone()),
     })
   }
 }

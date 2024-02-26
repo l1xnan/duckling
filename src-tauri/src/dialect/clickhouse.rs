@@ -103,6 +103,7 @@ impl ClickhouseDialect {
     Ok(ArrowData {
       total_count: batch.num_rows(),
       preview: serialize_preview(&batch)?,
+      titles: None,
     })
   }
 
@@ -120,6 +121,7 @@ impl ClickhouseDialect {
           ArrowData {
             total_count: batch.num_rows(),
             preview: serialize_preview(&batch)?,
+            titles: None,
           },
         )
         .unwrap();
@@ -155,6 +157,7 @@ impl ClickhouseDialect {
     Ok(ArrowData {
       total_count: batch.num_rows(),
       preview: serialize_preview(&batch)?,
+      titles: None,
     })
   }
 
@@ -198,6 +201,7 @@ impl ClickhouseDialect {
     Ok(ArrowData {
       total_count,
       preview: serialize_preview(&preview)?,
+      titles: None,
     })
   }
 }
@@ -219,7 +223,7 @@ fn convert_type(col_type: &SqlType) -> DataType {
     SqlType::String => DataType::Utf8,
     SqlType::DateTime(_) => DataType::Date64,
     SqlType::Nullable(t) => convert_type(*t),
-    SqlType::Decimal(d1, d2) => DataType::Utf8,
+    SqlType::Decimal(_d1, _d2) => DataType::Utf8,
     SqlType::Array(t) => DataType::List(Arc::new(Field::new("", convert_type(t), false))),
     _ => DataType::Utf8,
   }

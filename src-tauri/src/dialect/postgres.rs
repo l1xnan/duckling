@@ -84,6 +84,7 @@ impl Dialect for PostgresDialect {
     Ok(ArrowData {
       total_count: batch.num_rows(),
       preview: serialize_preview(&batch)?,
+      titles: Some(titles),
     })
   }
 }
@@ -110,18 +111,18 @@ impl PostgresDialect {
     unimplemented!()
   }
   pub async fn databases(&self) -> anyhow::Result<Vec<String>> {
-    let mut client = self.get_conn("postgres").await?;
+    let client = self.get_conn("postgres").await?;
     let sql = "SELECT datname FROM pg_database WHERE datistemplate = false";
 
     let mut names = vec![];
     for row in client.query(sql, &[]).await? {
-      let name: String = row.get(0);
+      let _name: String = row.get(0);
       names.push(row.get(0));
     }
     Ok(names)
   }
   pub async fn get_tables(&self, db: &str) -> anyhow::Result<Vec<Table>> {
-    let mut client = self.get_conn(db).await?;
+    let client = self.get_conn(db).await?;
 
     let sql = r#"
     select
