@@ -118,10 +118,14 @@ impl MySqlDialect {
     let mut titles = vec![];
     let mut types = vec![];
     for (i, col) in columns.iter().enumerate() {
-      println!("{i}: {:?}, {:?}", col.name_str(), col.column_type());
+      let type_ = col.column_type().to_string();
+      println!("{i}: {:?}, {:?}", col.name_str(), type_);
       titles.push(Title {
         name: col.name_str().to_string(),
-        r#type: format!("{:?}", col.column_type()),
+        r#type: format!(
+          "{:?}",
+          type_.strip_suffix("MYSQL_TYPE_").unwrap_or(type_.as_str())
+        ),
       });
       types.push(col.column_type());
       let typ = match col.column_type() {
