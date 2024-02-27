@@ -5,11 +5,9 @@ use async_trait::async_trait;
 use duckdb::Connection;
 
 use crate::api;
+use crate::api::RawArrowData;
+use crate::dialect::{Dialect, TreeNode};
 use crate::utils::write_csv;
-use crate::{
-  api::ArrowData,
-  dialect::{Dialect, TreeNode},
-};
 
 #[derive(Debug, Default)]
 pub struct FolderDialect {
@@ -23,7 +21,7 @@ impl Dialect for FolderDialect {
     directory_tree(self.path.as_str()).ok_or_else(|| anyhow::anyhow!("null"))
   }
 
-  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
+  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
     api::query(":memory:", sql, limit, offset, self.cwd.clone())
   }
 

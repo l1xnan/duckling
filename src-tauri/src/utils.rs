@@ -16,6 +16,7 @@ pub struct Table {
   pub db_name: String,
   pub schema: Option<String>,
   pub r#type: String,
+  pub size: Option<u64>,
 }
 
 pub fn get_file_name<P: AsRef<Path>>(path: P) -> String {

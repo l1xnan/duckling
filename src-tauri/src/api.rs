@@ -1,10 +1,11 @@
 use std::env::{current_dir, set_current_dir};
 
-use crate::dialect::Title;
 use anyhow::anyhow;
 use arrow::{ipc::writer::StreamWriter, record_batch::RecordBatch};
 use duckdb::Connection;
 use serde::{Deserialize, Serialize};
+
+use crate::dialect::Title;
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ArrowData {
@@ -36,14 +37,23 @@ pub struct ArrowResponse {
   pub message: String,
 }
 
-pub fn convert(res: anyhow::Result<ArrowData>) -> ArrowResponse {
+pub fn convert(res: anyhow::Result<RawArrowData>) -> ArrowResponse {
   match res {
-    Ok(data) => ArrowResponse {
-      total: data.total_count,
-      data: data.preview,
-      titles: data.titles,
-      code: 0,
-      message: String::new(),
+    Ok(raw) => match serialize_preview(&raw.batch) {
+      Ok(data) => ArrowResponse {
+        total: raw.total_count,
+        data,
+        titles: raw.titles,
+        code: 0,
+        message: String::new(),
+      },
+      Err(err) => ArrowResponse {
+        total: 0,
+        data: vec![],
+        titles: None,
+        code: 401,
+        message: err.to_string(),
+      },
     },
     Err(err) => {
       log::error!("error:{}", err);
@@ -88,7 +98,7 @@ pub fn query(
   limit: usize,
   offset: usize,
   cwd: Option<String>,
-) -> anyhow::Result<ArrowData> {
+) -> anyhow::Result<RawArrowData> {
   if let Some(cwd) = &cwd {
     let _ = set_current_dir(cwd);
   }
@@ -121,11 +131,11 @@ pub fn query(
 
   let record_batch = arrow::compute::concat_batches(&schema, &records)?;
   let total = record_batch.num_rows();
-  let preview = record_batch.slice(offset, std::cmp::min(limit, total - offset));
+  let batch = record_batch.slice(offset, std::cmp::min(limit, total - offset));
 
-  Ok(ArrowData {
+  Ok(RawArrowData {
     total_count: total,
-    preview: serialize_preview(&preview)?,
+    batch,
     titles: Some(titles),
   })
 }

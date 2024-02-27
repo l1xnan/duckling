@@ -12,9 +12,9 @@ use clickhouse_rs::ClientHandle;
 use clickhouse_rs::{types::column::Column, Block, Pool, Simple};
 use futures_util::stream::StreamExt;
 use serde::{Deserialize, Serialize};
-use tauri::{Manager, Window};
+use tauri::Window;
 
-use crate::api::{serialize_preview, ArrowData};
+use crate::api::RawArrowData;
 use crate::dialect::{Dialect, TreeNode};
 use crate::utils::{build_tree, Table};
 use crate::utils::{date_to_days, write_csv};
@@ -56,7 +56,7 @@ impl Dialect for ClickhouseDialect {
     })
   }
 
-  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
+  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
     if limit == 0 && offset == 0 {
       self.fetch_all(sql).await
     } else {
@@ -93,7 +93,7 @@ impl ClickhouseDialect {
     Ok(())
   }
 
-  async fn fetch_all(&self, sql: &str) -> anyhow::Result<ArrowData> {
+  async fn fetch_all(&self, sql: &str) -> anyhow::Result<RawArrowData> {
     let pool = Pool::new(self.get_url());
     let mut client = pool.get_handle().await?;
     let mut stream = client.query(sql).stream_blocks();
@@ -107,9 +107,9 @@ impl ClickhouseDialect {
     let b = batchs[0].clone();
     let schema = b.schema();
     let batch = arrow::compute::concat_batches(&schema, &batchs)?;
-    Ok(ArrowData {
+    Ok(RawArrowData {
       total_count: batch.num_rows(),
-      preview: serialize_preview(&batch)?,
+      batch,
       titles: None,
     })
   }
@@ -122,16 +122,16 @@ impl ClickhouseDialect {
     while let Some(block) = stream.next().await {
       let block = block?;
       let batch = block_to_arrow(&block)?;
-      window
-        .emit(
-          "query-stream",
-          ArrowData {
-            total_count: batch.num_rows(),
-            preview: serialize_preview(&batch)?,
-            titles: None,
-          },
-        )
-        .unwrap();
+      // window
+      //   .emit(
+      //     "query-stream",
+      //     RawArrowData {
+      //       total_count: batch.num_rows(),
+      //       batch,
+      //       titles: None,
+      //     },
+      //   )
+      //   .unwrap();
     }
     Ok(())
   }
@@ -141,7 +141,7 @@ impl ClickhouseDialect {
     sql: &str,
     limit: usize,
     offset: usize,
-  ) -> anyhow::Result<ArrowData> {
+  ) -> anyhow::Result<RawArrowData> {
     let pool = Pool::new(self.get_url());
     let mut client = pool.get_handle().await?;
     let mut stream = client.query(sql).stream_blocks();
@@ -161,9 +161,9 @@ impl ClickhouseDialect {
     let b = batchs[0].clone();
     let schema = b.schema();
     let batch = arrow::compute::concat_batches(&schema, &batchs)?;
-    Ok(ArrowData {
+    Ok(RawArrowData {
       total_count: batch.num_rows(),
-      preview: serialize_preview(&batch)?,
+      batch,
       titles: None,
     })
   }
@@ -173,7 +173,7 @@ impl ClickhouseDialect {
     sql: &str,
     limit: usize,
     offset: usize,
-  ) -> anyhow::Result<ArrowData> {
+  ) -> anyhow::Result<RawArrowData> {
     let pool = Pool::new(self.get_url());
     let mut client = pool.get_handle().await?;
 
@@ -220,9 +220,9 @@ impl ClickhouseDialect {
 
     let preview = batch.slice(offset, std::cmp::min(limit, total - offset));
 
-    Ok(ArrowData {
+    Ok(RawArrowData {
       total_count,
-      preview: serialize_preview(&preview)?,
+      batch,
       titles: Some(titles),
     })
   }
@@ -450,6 +450,7 @@ async fn get_tables(url: &str) -> anyhow::Result<Vec<Table>> {
         "table"
       }),
       schema: None,
+      size: None,
     });
   }
   Ok(tables)

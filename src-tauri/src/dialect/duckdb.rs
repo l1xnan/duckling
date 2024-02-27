@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use duckdb::Connection;
 
 use crate::api;
-use crate::api::ArrowData;
+use crate::api::RawArrowData;
 use crate::dialect::{Dialect, TreeNode};
 use crate::utils::{build_tree, get_file_name, write_csv, Table};
 
@@ -24,7 +24,7 @@ impl Dialect for DuckDbDialect {
     })
   }
 
-  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
+  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
     api::query(&self.path, sql, limit, offset, self.cwd.clone())
   }
 
@@ -64,6 +64,7 @@ pub fn get_tables(path: &str) -> anyhow::Result<Vec<Table>> {
       table_type: row.get(1)?,
       db_name: row.get(2)?,
       r#type: row.get(3)?,
+      size: None,
       schema: None,
     })
   })?;

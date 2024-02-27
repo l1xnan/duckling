@@ -5,6 +5,7 @@ use serde::Serialize;
 use tauri::State;
 use tauri::Window;
 
+use crate::api;
 use crate::api::ArrowResponse;
 use crate::dialect::clickhouse::ClickhouseDialect;
 use crate::dialect::duckdb::DuckDbDialect;
@@ -14,7 +15,6 @@ use crate::dialect::mysql::MySqlDialect;
 use crate::dialect::postgres::PostgresDialect;
 use crate::dialect::sqlite::SqliteDialect;
 use crate::dialect::{Dialect, TreeNode};
-use crate::{api, dialect};
 
 pub struct OpenedUrls(pub Mutex<Option<Vec<url::Url>>>);
 
@@ -101,6 +101,21 @@ pub async fn query(
   } else {
     Err("not support dialect".to_string())
   }
+}
+
+#[tauri::command]
+pub async fn query_table(
+  table: &str,
+  limit: usize,
+  offset: usize,
+  cond: &str,
+  dialect: DialectPayload,
+) -> Result<ArrowResponse, String> {
+  let d = get_dialect(dialect.clone())
+    .await
+    .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
+  let res = d.query_table(table, limit, offset, cond).await;
+  Ok(api::convert(res))
 }
 
 #[tauri::command]

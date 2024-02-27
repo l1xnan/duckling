@@ -13,7 +13,7 @@ use serde_json::Map;
 use tokio_postgres::types::{FromSql, Type};
 use tokio_postgres::{Client, Column, NoTls, Row};
 
-use crate::api::{serialize_preview, ArrowData, RawArrowData};
+use crate::api::RawArrowData;
 use crate::dialect::Title;
 use crate::dialect::{Dialect, TreeNode};
 use crate::utils::{build_tree, Table};
@@ -38,13 +38,8 @@ impl Dialect for PostgresDialect {
       children: Some(build_tree(tables)),
     })
   }
-  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
-    let res = self._query(sql, limit, offset).await?;
-    Ok(ArrowData {
-      total_count: res.total_count,
-      preview: serialize_preview(&res.batch)?,
-      titles: res.titles,
-    })
+  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
+    self._query(sql, limit, offset).await
   }
 }
 
@@ -100,6 +95,7 @@ impl PostgresDialect {
         table_name: row.get::<_, String>(2),
         table_type: row.get::<_, String>(3),
         r#type: row.get::<_, String>(4),
+        size: None,
       });
     }
     Ok(tables)

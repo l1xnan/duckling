@@ -4,7 +4,7 @@
 use std::env;
 
 use cmd::OpenedUrls;
-use cmd::{export, get_db, opened_urls, query, show_tables, table_row_count};
+use cmd::{export, get_db, opened_urls, query, query_table, table_row_count};
 use std::sync::Mutex;
 use tauri::menu::{
   CheckMenuItem, CheckMenuItemBuilder, MenuBuilder, MenuItem, MenuItemBuilder, SubmenuBuilder,
@@ -119,7 +119,7 @@ fn main() {
     })
     .invoke_handler(tauri::generate_handler![
       query,
-      show_tables,
+      query_table,
       opened_urls,
       get_db,
       export,

@@ -9,7 +9,7 @@ use mysql::consts::ColumnType::*;
 use mysql::prelude::*;
 use mysql::*;
 
-use crate::api::{serialize_preview, ArrowData, RawArrowData};
+use crate::api::RawArrowData;
 use crate::dialect::Title;
 use crate::dialect::{Dialect, TreeNode};
 use crate::utils::{build_tree, Table};
@@ -35,13 +35,8 @@ impl Dialect for MySqlDialect {
     })
   }
 
-  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
-    let data = self._query(sql, limit, offset).await?;
-    Ok(ArrowData {
-      total_count: data.total_count,
-      preview: serialize_preview(&data.batch)?,
-      titles: data.titles,
-    })
+  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
+    self._query(sql, limit, offset).await
   }
 
   async fn table_row_count(&self, table: &str) -> anyhow::Result<u64> {
@@ -89,18 +84,21 @@ impl MySqlDialect {
       TABLE_SCHEMA as table_schema,
       TABLE_NAME as table_name,
       TABLE_TYPE as table_type,
-      if(TABLE_TYPE='BASE TABLE', 'table', 'view') as type
+      if(TABLE_TYPE='BASE TABLE', 'table', 'view') as type,
+      round(((data_length + IFNULL(index_length, 0)) / 1024 / 1024), 2) AS size
     from information_schema.tables
     "#;
-    let tables = conn.query_map(sql, |(table_schema, table_name, table_type, r#type)| {
-      Table {
+    let tables = conn.query_map(
+      sql,
+      |(table_schema, table_name, table_type, r#type, size)| Table {
         db_name: table_schema,
         table_name,
         table_type,
         r#type,
+        size: Some(size),
         schema: None,
-      }
-    })?;
+      },
+    )?;
     Ok(tables)
   }
 
@@ -185,21 +183,6 @@ impl MySqlDialect {
       batch,
       titles: Some(titles.clone()),
     })
-  }
-
-  async fn table_data(
-    &self,
-    table: &str,
-    limit: usize,
-    offset: usize,
-  ) -> anyhow::Result<ArrowData> {
-    let sql = format!(
-      "select * from {} limit {} offset {}",
-      table,
-      limit + 1,
-      offset
-    );
-    self.query(&sql, 0, 0).await
   }
 
   async fn _table_row_count(&self, table: &str) -> anyhow::Result<u64> {

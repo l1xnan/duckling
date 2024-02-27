@@ -38,13 +38,8 @@ impl Dialect for SqliteDialect {
     })
   }
 
-  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
-    let res = self._query(sql, limit, offset).await?;
-    Ok(ArrowData {
-      total_count: res.total_count,
-      preview: serialize_preview(&res.batch)?,
-      titles: res.titles,
-    })
+  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
+    self._query(sql, limit, offset).await
   }
 }
 
@@ -200,6 +195,7 @@ pub async fn get_tables(path: &str) -> anyhow::Result<Vec<Table>> {
       db_name: String::new(),
       r#type: row.get(2)?,
       schema: None,
+      size: None,
     });
   }
   Ok(tables)
