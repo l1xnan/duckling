@@ -31,6 +31,7 @@ import {
   createDatasetStore,
   usePageStore,
 } from '@/stores/dataset';
+import { precisionAtom } from '@/stores/setting';
 import { TabContextType, activeTabAtom } from '@/stores/tabs';
 import { borderTheme, convertOrderBy, isDarkTheme } from '@/utils';
 
@@ -91,6 +92,7 @@ export function Dataset({ context }: { context: TabContextType }) {
       })();
     }
   }, []);
+  const precision = useAtomValue(precisionAtom);
 
   return (
     <Stack sx={{ height: '100%' }}>
@@ -135,6 +137,7 @@ function PageSizeToolbar() {
   const handlePerPage = (page: number) => {
     setPerPage?.(page);
   };
+
   return (
     <ToolbarContainer>
       <Stack
@@ -156,7 +159,7 @@ function PageSizeToolbar() {
           <KeyboardArrowLeftIcon />
         </IconButton>
         <PaginationDropdown content={content} setPerPage={handlePerPage} />
-        {count < totalCount ? `of ${totalCount}` : null}
+        {count < totalCount ? `/ ${totalCount}` : null}
         <IconButton
           color="inherit"
           onClick={increase}

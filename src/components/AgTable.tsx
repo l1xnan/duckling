@@ -1,10 +1,9 @@
 import { Box, BoxProps, styled, useTheme } from '@mui/material';
+import { CellStyle } from 'ag-grid-community/dist/lib/entities/colDef';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
-import { CellStyle } from 'ag-grid-community/dist/lib/entities/colDef';
 import { AgGridReact } from 'ag-grid-react';
 import dayjs from 'dayjs';
-import { useAtomValue } from 'jotai';
 import {
   CSSProperties,
   ComponentProps,
@@ -17,7 +16,6 @@ import { NonUndefined } from 'react-hook-form';
 import { TitleType } from '@/api.ts';
 import HeaderCell from '@/components/dataframe/HeaderCell';
 import { OrderByType, SchemaType } from '@/stores/dataset';
-import { precisionAtom } from '@/stores/setting';
 import { getByteLength, isDarkTheme } from '@/utils';
 
 interface TableProps<T = unknown> {
@@ -25,6 +23,7 @@ interface TableProps<T = unknown> {
   titles: TitleType[];
   schema: SchemaType[];
   beautify?: boolean;
+  precision?: number;
   style?: CSSProperties;
   orderBy?: OrderByType;
 }
@@ -90,11 +89,11 @@ export const AgTable = ({
   schema,
   beautify,
   orderBy,
+  precision,
   ...rest
 }: TableProps) => {
   const gridRef = useRef<AgGridReact | null>(null);
   const theme = useTheme();
-  const precision = useAtomValue(precisionAtom);
 
   const indexStyle = useMemo(
     () => ({

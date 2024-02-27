@@ -9,7 +9,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
-import { exportCsv, query, QueryParams, ResultType } from '@/api';
+import { QueryParams, ResultType, TitleType, exportCsv, query } from '@/api';
 import { atomStore } from '@/stores';
 import { genStmt, isEmpty } from '@/utils';
 
@@ -38,6 +38,7 @@ export type QueryContextType = QueryParamType & {
   totalCount: number;
 
   data?: unknown[];
+  titles?: TitleType[];
   schema?: SchemaType[];
   message?: string;
   beautify?: boolean;

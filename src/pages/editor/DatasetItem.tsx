@@ -1,4 +1,4 @@
-import { Box, Divider, IconButton, Stack } from '@mui/material';
+import { Divider, IconButton, Stack } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
 import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
@@ -20,6 +20,7 @@ import { TablerSvgIcon } from '@/components/MuiIconButton';
 import { PaginationDropdown } from '@/components/PaginationDropdown';
 import { ToolbarContainer } from '@/components/Toolbar';
 import { atomStore } from '@/stores';
+import { precisionAtom } from '@/stores/setting';
 import { QueryContextType, execute, exportData } from '@/stores/tabs';
 import { isDarkTheme } from '@/utils';
 
@@ -64,6 +65,7 @@ export function DatasetItem({
       await handleQuery(ctx);
     })();
   }, []);
+  const precision = useAtomValue(precisionAtom);
 
   return (
     <Stack height={'100%'}>
@@ -76,6 +78,8 @@ export function DatasetItem({
         <Suspense fallback={<Loading />}>
           {loading ? <Loading /> : null}
           <AgTable
+            titles={ctx.titles ?? []}
+            precision={precision}
             style={loading ? { display: 'none' } : undefined}
             data={ctx.data ?? []}
             schema={ctx.schema ?? []}
