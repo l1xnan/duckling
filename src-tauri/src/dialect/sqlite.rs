@@ -9,6 +9,7 @@ use futures_util::StreamExt;
 use rusqlite::types::Value;
 use rusqlite::Connection;
 
+use crate::api::RawArrowData;
 use crate::api::{serialize_preview, ArrowData};
 use crate::dialect::{Dialect, Title, TreeNode};
 use crate::utils::{build_tree, get_file_name, Table};
@@ -37,7 +38,26 @@ impl Dialect for SqliteDialect {
     })
   }
 
-  async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<ArrowData> {
+  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
+    let res = self._query(sql, limit, offset).await?;
+    Ok(ArrowData {
+      total_count: res.total_count,
+      preview: serialize_preview(&res.batch)?,
+      titles: res.titles,
+    })
+  }
+}
+
+impl SqliteDialect {
+  fn get_url(&self) -> String {
+    format!("{}", self.path)
+  }
+
+  async fn get_schema(&self) -> Vec<Table> {
+    unimplemented!()
+  }
+
+  async fn _query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     let conn = Connection::open(&self.path)?;
     let mut stmt = conn.prepare(sql)?;
 
@@ -91,21 +111,11 @@ impl Dialect for SqliteDialect {
 
     let batch = arrow::compute::concat_batches(&Arc::new(schema), &batchs)?;
 
-    Ok(ArrowData {
+    Ok(RawArrowData {
       total_count: batch.num_rows(),
-      preview: serialize_preview(&batch)?,
+      batch,
       titles: Some(titles),
     })
-  }
-}
-
-impl SqliteDialect {
-  fn get_url(&self) -> String {
-    format!("{}", self.path)
-  }
-
-  async fn get_schema(&self) -> Vec<Table> {
-    unimplemented!()
   }
 
   fn fetch_all(&self, sql: &str) -> anyhow::Result<ArrowData> {

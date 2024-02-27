@@ -38,53 +38,12 @@ impl Dialect for PostgresDialect {
       children: Some(build_tree(tables)),
     })
   }
-
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {
-    let conn = self
-      .get_conn(&self.database.clone().unwrap_or("postgres".to_string()))
-      .await?;
-
-    let stmt = conn.prepare(sql).await?;
-    let mut fields = vec![];
-    let _k = stmt.columns().len();
-    let mut titles = vec![];
-    for col in stmt.columns() {
-      titles.push(Title {
-        name: col.name().to_string(),
-        r#type: col.type_().name().to_string(),
-      });
-      let typ = col_to_arrow_type(&col);
-      let field = Field::new(col.name(), typ, true);
-      fields.push(field);
-
-      println!(
-        "{}={}, {}, {:?}",
-        col.name(),
-        col.type_().name(),
-        col.type_().oid(),
-        col.type_().kind()
-      );
-    }
-    println!("titles: {:?}", titles);
-    let schema = Schema::new(fields);
-
-    let mut rows: Vec<RowData> = vec![];
-    for row in conn.query(&stmt, &[]).await? {
-      let r = postgres_row_to_row_data(row)?;
-      rows.push(r);
-    }
-
-    let mut decoder = ReaderBuilder::new(Arc::new(schema))
-      .build_decoder()
-      .unwrap();
-    let _ = decoder.serialize(&rows).unwrap();
-    let batch = decoder.flush().unwrap().unwrap();
-    let _ = print_batches(&[batch.clone()]);
-
+    let res = self._query(sql, limit, offset).await?;
     Ok(ArrowData {
-      total_count: batch.num_rows(),
-      preview: serialize_preview(&batch)?,
-      titles: Some(titles),
+      total_count: res.total_count,
+      preview: serialize_preview(&res.batch)?,
+      titles: res.titles,
     })
   }
 }
@@ -154,6 +113,55 @@ impl PostgresDialect {
       tables.extend(self.get_tables(&db).await?);
     }
     Ok(tables)
+  }
+
+  async fn _query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
+    let conn = self
+      .get_conn(&self.database.clone().unwrap_or("postgres".to_string()))
+      .await?;
+
+    let stmt = conn.prepare(sql).await?;
+    let mut fields = vec![];
+    let _k = stmt.columns().len();
+    let mut titles = vec![];
+    for col in stmt.columns() {
+      titles.push(Title {
+        name: col.name().to_string(),
+        r#type: col.type_().name().to_string(),
+      });
+      let typ = col_to_arrow_type(&col);
+      let field = Field::new(col.name(), typ, true);
+      fields.push(field);
+
+      println!(
+        "{}={}, {}, {:?}",
+        col.name(),
+        col.type_().name(),
+        col.type_().oid(),
+        col.type_().kind()
+      );
+    }
+    println!("titles: {:?}", titles);
+    let schema = Schema::new(fields);
+
+    let mut rows: Vec<RowData> = vec![];
+    for row in conn.query(&stmt, &[]).await? {
+      let r = postgres_row_to_row_data(row)?;
+      rows.push(r);
+    }
+
+    let mut decoder = ReaderBuilder::new(Arc::new(schema))
+      .build_decoder()
+      .unwrap();
+    let _ = decoder.serialize(&rows).unwrap();
+    let batch = decoder.flush().unwrap().unwrap();
+    let _ = print_batches(&[batch.clone()]);
+
+    Ok(RawArrowData {
+      total_count: batch.num_rows(),
+      batch,
+      titles: Some(titles),
+    })
   }
 }
 
