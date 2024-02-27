@@ -41,6 +41,10 @@ impl Dialect for SqliteDialect {
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
     self._query(sql, limit, offset).await
   }
+
+  async fn table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
+    self._table_row_count(table, cond).await
+  }
 }
 
 impl SqliteDialect {
@@ -52,8 +56,12 @@ impl SqliteDialect {
     unimplemented!()
   }
 
+  fn connect(&self) -> anyhow::Result<Connection> {
+    Ok(Connection::open(&self.path)?)
+  }
+
   async fn _query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
-    let conn = Connection::open(&self.path)?;
+    let conn = self.connect()?;
     let mut stmt = conn.prepare(sql)?;
 
     let mut fields = vec![];
@@ -112,7 +120,12 @@ impl SqliteDialect {
       titles: Some(titles),
     })
   }
-
+  pub(crate) async fn _table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
+    let conn = self.connect()?;
+    let sql = self._table_count_sql(table, cond);
+    let total = conn.query_row(&sql, [], |row| row.get::<_, usize>(0))?;
+    Ok(total)
+  }
   fn fetch_all(&self, sql: &str) -> anyhow::Result<ArrowData> {
     let conn = Connection::open(&self.path)?;
     let mut stmt = conn.prepare(sql)?;

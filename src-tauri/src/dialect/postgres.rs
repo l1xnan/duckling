@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use anyhow::{anyhow, Context};
 use arrow::array::*;
-use arrow::datatypes::{DataType, Field, Schema};
+use arrow::datatypes::{ArrowNativeType, DataType, Field, Schema};
 use arrow::json::ReaderBuilder;
 use arrow::util::pretty::print_batches;
 use async_trait::async_trait;
@@ -40,6 +40,10 @@ impl Dialect for PostgresDialect {
   }
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
     self._query(sql, limit, offset).await
+  }
+
+  async fn table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
+    self._table_row_count(table, cond).await
   }
 }
 
@@ -112,9 +116,7 @@ impl PostgresDialect {
   }
 
   async fn _query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
-    let conn = self
-      .get_conn(&self.database.clone().unwrap_or("postgres".to_string()))
-      .await?;
+    let conn = self.get_conn(&self.database()).await?;
 
     let stmt = conn.prepare(sql).await?;
     let mut fields = vec![];
@@ -149,15 +151,26 @@ impl PostgresDialect {
     let mut decoder = ReaderBuilder::new(Arc::new(schema))
       .build_decoder()
       .unwrap();
-    let _ = decoder.serialize(&rows).unwrap();
-    let batch = decoder.flush().unwrap().unwrap();
-    let _ = print_batches(&[batch.clone()]);
+    decoder.serialize(&rows)?;
+    let batch = decoder.flush()?.unwrap();
 
     Ok(RawArrowData {
       total_count: batch.num_rows(),
       batch,
       titles: Some(titles),
     })
+  }
+
+  fn database(&self) -> String {
+    self.database.clone().unwrap_or("postgres".to_string())
+  }
+
+  async fn _table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
+    let conn = self.get_conn(&self.database()).await?;
+    let sql = self._table_count_sql(table, cond);
+    let row = conn.query_one(&sql, &[]).await?;
+    let total: u32 = row.get::<_, u32>(0);
+    Ok(total.as_usize())
   }
 }
 
@@ -280,8 +293,7 @@ pub fn pg_cell_to_json_value(
       JSONValue::String(val.0)
     }
     _ => {
-      // anyhow::bail!(
-      println!(
+      log::warn!(
         "Cannot convert pg-cell \"{}\" of type \"{}\" to a JSONValue.",
         column.name(),
         column.type_().name()
@@ -294,8 +306,6 @@ pub fn pg_cell_to_json_value(
       );
       let val: GenericEnum = row.get(column_i);
       JSONValue::String(val.0)
-      // let s: String = row.get(column_i);
-      // JSONValue::String(s)
     }
   })
 }
@@ -406,14 +416,4 @@ impl FromSql<'_> for GenericEnum {
 }
 
 #[tokio::test]
-async fn test_database() {
-  let d = PostgresDialect {
-    password: "iMnjXRWsUMS1OWl8".to_string(),
-    username: "postgres".to_string(),
-    host: "localhost".to_string(),
-    port: "5432".to_string(),
-    database: Some("dvdrental".to_string()),
-  };
-  let _ = d.query("SELECT * from staff limit 10", 0, 0).await;
-  // let _ = d.query("SELECT 1 from customer", 0, 0).await;
-}
+async fn test_database() {}

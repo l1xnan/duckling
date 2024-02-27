@@ -1,4 +1,3 @@
-use sqlparser::ast::Query;
 use sqlparser::ast::Statement;
 use sqlparser::dialect::Dialect;
 use sqlparser::dialect::GenericDialect;
@@ -40,6 +39,7 @@ pub fn limit_stmt(stmt: &Statement, dialect: &dyn Dialect) -> Option<String> {
 #[cfg(test)]
 mod tests {
   use super::*;
+
   #[test]
   fn test_sql() {
     let select_sql = "

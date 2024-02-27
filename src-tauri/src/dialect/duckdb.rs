@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use async_trait::async_trait;
 use duckdb::Connection;
 
@@ -33,6 +34,13 @@ impl Dialect for DuckDbDialect {
     if let Ok(batch) = data {
       write_csv(file, &batch);
     }
+  }
+
+  async fn table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
+    let conn = self.connect()?;
+    let sql = self._table_count_sql(table, cond);
+    let total = conn.query_row(&sql, [], |row| row.get::<_, usize>(0))?;
+    Ok(total)
   }
 }
 

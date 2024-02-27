@@ -63,6 +63,14 @@ pub trait Dialect: Sync + Send {
     unimplemented!()
   }
 
+  fn _table_count_sql(&self, table: &str, condition: &str) -> String {
+    let mut sql = format!("select count(*) from {table}");
+    if !condition.is_empty() {
+      sql = format!("{sql} where {condition}");
+    }
+    sql
+  }
+
   async fn export(&self, _sql: &str, _file: &str) {
     unimplemented!()
   }

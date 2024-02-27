@@ -4,6 +4,7 @@ use anyhow::anyhow;
 use arrow::{ipc::writer::StreamWriter, record_batch::RecordBatch};
 use duckdb::Connection;
 use serde::{Deserialize, Serialize};
+use tokio_postgres::types::IsNull::No;
 
 use crate::dialect::Title;
 
@@ -115,15 +116,15 @@ pub fn query(
   // query
   let mut stmt = db.prepare(sql)?;
 
-  let titles: Vec<_> = stmt
-    .column_names()
-    .iter()
-    .enumerate()
-    .map(|(i, name)| Title {
-      name: name.clone(),
-      r#type: stmt.column_type(i).to_string(),
-    })
-    .collect();
+  // let titles: Vec<_> = stmt
+  //   .column_names()
+  //   .iter()
+  //   .enumerate()
+  //   .map(|(i, name)| Title {
+  //     name: name.clone(),
+  //     r#type: stmt.column_type(i).to_string(),
+  //   })
+  //   .collect();
 
   let frames = stmt.query_arrow(duckdb::params![])?;
   let schema = frames.get_schema();
@@ -136,7 +137,7 @@ pub fn query(
   Ok(RawArrowData {
     total_count: total,
     batch,
-    titles: Some(titles),
+    titles: None,
   })
 }
 

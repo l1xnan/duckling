@@ -5,7 +5,7 @@ use async_trait::async_trait;
 use duckdb::Connection;
 
 use crate::api;
-use crate::api::RawArrowData;
+use crate::dialect::RawArrowData;
 use crate::dialect::{Dialect, TreeNode};
 use crate::utils::write_csv;
 
@@ -25,6 +25,14 @@ impl Dialect for FolderDialect {
     api::query(":memory:", sql, limit, offset, self.cwd.clone())
   }
 
+  async fn table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
+    let conn = self.connect()?;
+    let sql = self._table_count_sql(table, cond);
+    let total = conn.query_row(&sql, [], |row| row.get::<_, u32>(0))?;
+    let total = total.to_string().parse()?;
+    Ok(total)
+  }
+
   async fn export(&self, sql: &str, file: &str) {
     let data = api::fetch_all(":memory:", sql, self.cwd.clone());
     if let Ok(batch) = data {
@@ -41,8 +49,8 @@ impl FolderDialect {
     }
   }
 
-  fn get_connect() -> Connection {
-    Connection::open_in_memory().unwrap()
+  fn connect(&self) -> anyhow::Result<Connection> {
+    Ok(Connection::open_in_memory()?)
   }
 }
 
@@ -105,4 +113,20 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
     children,
     node_type,
   })
+}
+
+#[tokio::test]
+async fn test_table() {
+  use arrow::util::pretty::print_batches;
+  let d = FolderDialect::new("D:/Code/duckdb/data/parquet-testing");
+  let res = d
+    .query_table(
+      "read_parquet('D:/Code/duckdb/data/parquet-testing/date_stats.parquet')",
+      0,
+      0,
+      "",
+    )
+    .await
+    .unwrap();
+  let _ = print_batches(&[res.batch]);
 }

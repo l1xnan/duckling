@@ -63,6 +63,9 @@ impl Dialect for ClickhouseDialect {
       self.fetch_many(sql, limit, offset).await
     }
   }
+  async fn table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
+    self._table_row_count(table, cond).await
+  }
 }
 
 impl ClickhouseDialect {
@@ -76,6 +79,17 @@ impl ClickhouseDialect {
     vec![]
   }
 
+  async fn _table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
+    let mut conn = self.client().await?;
+    let sql = self._table_count_sql(table, cond);
+    let block = conn.query(&sql).fetch_all().await?;
+
+    for row in block.rows() {
+      let total: u32 = row.get(0)?;
+      return Ok(total.as_usize());
+    }
+    Err(anyhow::anyhow!("null"))
+  }
   async fn export(&self, sql: &str, file: &str) -> anyhow::Result<()> {
     let mut client = self.client().await?;
     let mut stream = client.query(sql).stream_blocks();

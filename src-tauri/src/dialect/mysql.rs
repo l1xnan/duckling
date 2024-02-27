@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::fmt::{format, Debug};
 use std::sync::Arc;
 
 use anyhow::anyhow;
@@ -118,14 +118,13 @@ impl MySqlDialect {
     let mut titles = vec![];
     let mut types = vec![];
     for (i, col) in columns.iter().enumerate() {
-      let type_ = col.column_type().to_string();
+      let type_ = format!("{:?}", col.column_type());
+      let type_ = type_.strip_suffix("MYSQL_TYPE_").unwrap_or(type_.as_str());
+
       println!("{i}: {:?}, {:?}", col.name_str(), type_);
       titles.push(Title {
         name: col.name_str().to_string(),
-        r#type: format!(
-          "{:?}",
-          type_.strip_suffix("MYSQL_TYPE_").unwrap_or(type_.as_str())
-        ),
+        r#type: type_.to_lowercase(),
       });
       types.push(col.column_type());
       let typ = match col.column_type() {
