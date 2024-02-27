@@ -9,6 +9,7 @@ use chrono::prelude::*;
 use chrono::DateTime;
 use chrono_tz::Tz;
 use clickhouse_rs::types::{Decimal, FromSql, SqlType};
+use clickhouse_rs::ClientHandle;
 use clickhouse_rs::{types::column::Column, Block, Pool, Simple};
 use futures_util::stream::StreamExt;
 use serde::{Deserialize, Serialize};
@@ -18,6 +19,8 @@ use crate::api::{serialize_preview, ArrowData};
 use crate::dialect::{Dialect, TreeNode};
 use crate::utils::{build_tree, Table};
 use crate::utils::{date_to_days, write_csv};
+
+use super::Title;
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct ClickhouseDialect {
@@ -64,13 +67,18 @@ impl Dialect for ClickhouseDialect {
 }
 
 impl ClickhouseDialect {
+  async fn client(&self) -> anyhow::Result<ClientHandle> {
+    let pool = Pool::new(self.get_url());
+    let client = pool.get_handle().await?;
+    Ok(client)
+  }
+
   fn get_schema(&self) -> Vec<Table> {
     vec![]
   }
 
   async fn export(&self, sql: &str, file: &str) -> anyhow::Result<()> {
-    let pool = Pool::new(self.get_url());
-    let mut client = pool.get_handle().await?;
+    let mut client = self.client().await?;
     let mut stream = client.query(sql).stream_blocks();
 
     let mut batchs = vec![];
@@ -169,6 +177,7 @@ impl ClickhouseDialect {
   ) -> anyhow::Result<ArrowData> {
     let pool = Pool::new(self.get_url());
     let mut client = pool.get_handle().await?;
+
     let mut stream = client.query(sql).stream_blocks();
 
     let mut batchs = vec![];
@@ -176,8 +185,22 @@ impl ClickhouseDialect {
     let mut offset = offset;
     let mut row_count = 0;
     let mut total_count = 0;
+
+    let mut titles = vec![];
     while let Some(block) = stream.next().await {
       let block = block?;
+
+      if total_count == 0 {
+        titles = block
+          .columns()
+          .iter()
+          .map(|c| Title {
+            name: c.name().to_string(),
+            r#type: c.sql_type().to_string().into(),
+          })
+          .collect();
+      }
+
       let count = block.row_count();
       total_count += count;
       if (offset as i64 - count as i64) >= 0 {
@@ -201,7 +224,7 @@ impl ClickhouseDialect {
     Ok(ArrowData {
       total_count,
       preview: serialize_preview(&preview)?,
-      titles: None,
+      titles: Some(titles),
     })
   }
 }
