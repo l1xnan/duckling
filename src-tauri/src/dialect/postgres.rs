@@ -13,7 +13,7 @@ use serde_json::Map;
 use tokio_postgres::types::{FromSql, Type};
 use tokio_postgres::{Client, Column, NoTls, Row};
 
-use crate::api::{serialize_preview, ArrowData};
+use crate::api::{serialize_preview, ArrowData, RawArrowData};
 use crate::dialect::Title;
 use crate::dialect::{Dialect, TreeNode};
 use crate::utils::{build_tree, Table};

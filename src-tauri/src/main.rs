@@ -4,7 +4,7 @@
 use std::env;
 
 use cmd::OpenedUrls;
-use cmd::{export, get_db, opened_urls, query, show_tables};
+use cmd::{export, get_db, opened_urls, query, show_tables, table_row_count};
 use std::sync::Mutex;
 use tauri::menu::{
   CheckMenuItem, CheckMenuItemBuilder, MenuBuilder, MenuItem, MenuItemBuilder, SubmenuBuilder,
@@ -16,6 +16,7 @@ use tauri_plugin_log::{Target, TargetKind};
 mod api;
 mod cmd;
 mod dialect;
+mod sql;
 mod utils;
 
 fn handle_menu(app: &mut tauri::App) -> tauri::Result<()> {
@@ -122,6 +123,7 @@ fn main() {
       opened_urls,
       get_db,
       export,
+      table_row_count,
     ])
     .build(tauri::generate_context!())
     .expect("error while running tauri application")

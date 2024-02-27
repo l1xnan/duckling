@@ -1,6 +1,7 @@
 use std::fmt::Debug;
 use std::sync::Arc;
 
+use anyhow::anyhow;
 use arrow::array::*;
 use arrow::datatypes::{DataType, Field, Schema};
 use async_trait::async_trait;
@@ -41,6 +42,10 @@ impl Dialect for MySqlDialect {
       preview: serialize_preview(&data.batch)?,
       titles: data.titles,
     })
+  }
+
+  async fn table_row_count(&self, table: &str) -> anyhow::Result<u64> {
+    self._table_row_count(table).await
   }
 }
 
@@ -180,6 +185,29 @@ impl MySqlDialect {
       batch,
       titles: Some(titles.clone()),
     })
+  }
+
+  async fn table_data(
+    &self,
+    table: &str,
+    limit: usize,
+    offset: usize,
+  ) -> anyhow::Result<ArrowData> {
+    let sql = format!(
+      "select * from {} limit {} offset {}",
+      table,
+      limit + 1,
+      offset
+    );
+    self.query(&sql, 0, 0).await
+  }
+
+  async fn _table_row_count(&self, table: &str) -> anyhow::Result<u64> {
+    let mut conn = self.get_conn()?;
+    let sql = format!("select count(*) from {table}");
+    conn
+      .query_first::<u64, _>(&sql)?
+      .ok_or_else(|| anyhow!("No value found"))
   }
 }
 

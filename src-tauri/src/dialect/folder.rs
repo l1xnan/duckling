@@ -20,7 +20,7 @@ pub struct FolderDialect {
 #[async_trait]
 impl Dialect for FolderDialect {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
-    directory_tree(self.path.as_str()).ok_or(anyhow::bail!("null"))
+    directory_tree(self.path.as_str()).ok_or_else(|| anyhow::anyhow!("null"))
   }
 
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<ArrowData> {

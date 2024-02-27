@@ -36,16 +36,8 @@ pub trait Dialect: Sync + Send {
   async fn export(&self, _sql: &str, _file: &str) {
     unimplemented!()
   }
-}
 
-pub mod sql {
-  use crate::api::show_db_information;
-  use crate::api::ArrowData;
-
-  pub fn show_tables(path: String) -> anyhow::Result<ArrowData> {
-    show_db_information(
-      path,
-      "select * from information_schema.tables order by table_type, table_name",
-    )
+  async fn table_row_count(&self, table: &str) -> anyhow::Result<u64> {
+    unimplemented!()
   }
 }

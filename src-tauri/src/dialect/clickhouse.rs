@@ -5,7 +5,6 @@ use arrow::array::*;
 use arrow::datatypes::*;
 use async_trait::async_trait;
 use chrono::naive::NaiveDate;
-use chrono::prelude::*;
 use chrono::DateTime;
 use chrono_tz::Tz;
 use clickhouse_rs::types::{Decimal, FromSql, SqlType};

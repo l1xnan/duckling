@@ -85,8 +85,7 @@ pub async fn get_dialect(
 
 #[tauri::command]
 pub async fn show_tables(path: String) -> ArrowResponse {
-  let res = dialect::sql::show_tables(path);
-  api::convert(res)
+  unimplemented!()
 }
 
 #[tauri::command]
@@ -99,6 +98,20 @@ pub async fn query(
   if let Some(d) = get_dialect(dialect).await {
     let res = d.query(&sql, limit, offset).await;
     Ok(api::convert(res))
+  } else {
+    Err("not support dialect".to_string())
+  }
+}
+
+#[tauri::command]
+pub async fn table_row_count(
+  table: &str,
+  limit: usize,
+  offset: usize,
+  dialect: DialectPayload,
+) -> Result<u64, String> {
+  if let Some(d) = get_dialect(dialect).await {
+    d.table_row_count(table).await.map_err(|e| e.to_string())
   } else {
     Err("not support dialect".to_string())
   }
