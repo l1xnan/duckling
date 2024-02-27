@@ -72,16 +72,6 @@ function convert(res: ArrowResponse): ResultType {
   };
 }
 
-type DBInfoType = ResultType<{
-  table_name: string;
-  table_type: string;
-}>;
-
-export async function showTables(path?: string): Promise<DBInfoType> {
-  const res = await invoke<ArrowResponse>('show_tables', { path });
-  return convert(res) as DBInfoType;
-}
-
 export type QueryParams = {
   sql: string;
   limit: number;
@@ -130,46 +120,4 @@ export async function getDB(option: DialectConfig): Promise<DBType> {
     config: option,
     displayName: tree.name,
   };
-}
-
-export async function getDBTree(root: string) {
-  const res = await showTables(root);
-
-  const views: TreeNode[] = [];
-  const tables: TreeNode[] = [];
-
-  res.data.forEach(({ table_name, table_type }) => {
-    const item = {
-      name: table_name,
-      path: table_name,
-      type: table_type == 'VIEW' ? 'view' : 'table',
-      is_dir: false,
-    };
-    if (table_type == 'VIEW') {
-      views.push(item);
-    } else {
-      tables.push(item);
-    }
-  });
-
-  const data = {
-    path: root,
-    children: [
-      {
-        name: 'tables',
-        path: 'tables',
-        type: 'path',
-        is_dir: true,
-        children: tables,
-      },
-      {
-        name: 'views',
-        path: 'views',
-        type: 'path',
-        is_dir: true,
-        children: views,
-      },
-    ],
-  };
-  return data;
 }
