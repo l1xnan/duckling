@@ -108,25 +108,26 @@ pub async fn query_table(
   table: &str,
   limit: usize,
   offset: usize,
-  cond: &str,
+  condition: &str,
   dialect: DialectPayload,
 ) -> Result<ArrowResponse, String> {
   let d = get_dialect(dialect.clone())
     .await
     .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
-  let res = d.query_table(table, limit, offset, cond).await;
+  let res = d.query_table(table, limit, offset, condition).await;
   Ok(api::convert(res))
 }
 
 #[tauri::command]
 pub async fn table_row_count(
   table: &str,
-  limit: usize,
-  offset: usize,
+  condition: &str,
   dialect: DialectPayload,
-) -> Result<u64, String> {
+) -> Result<usize, String> {
   if let Some(d) = get_dialect(dialect).await {
-    d.table_row_count(table).await.map_err(|e| e.to_string())
+    d.table_row_count(table, condition)
+      .await
+      .map_err(|e| e.to_string())
   } else {
     Err("not support dialect".to_string())
   }

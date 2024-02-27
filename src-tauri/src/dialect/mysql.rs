@@ -39,8 +39,8 @@ impl Dialect for MySqlDialect {
     self._query(sql, limit, offset).await
   }
 
-  async fn table_row_count(&self, table: &str) -> anyhow::Result<u64> {
-    self._table_row_count(table).await
+  async fn table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
+    self._table_row_count(table, cond).await
   }
 }
 
@@ -155,7 +155,6 @@ impl MySqlDialect {
 
     let mut arrs = vec![];
     for (type_, col) in types.iter().zip(tables) {
-      println!("{:?}", col);
       let arr: ArrayRef = match type_ {
         MYSQL_TYPE_TINY | MYSQL_TYPE_INT24 | MYSQL_TYPE_SHORT | MYSQL_TYPE_LONG
         | MYSQL_TYPE_LONGLONG => Arc::new(Int64Array::from(convert_to_i64_arr(&col))),
@@ -185,11 +184,14 @@ impl MySqlDialect {
     })
   }
 
-  async fn _table_row_count(&self, table: &str) -> anyhow::Result<u64> {
+  async fn _table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
     let mut conn = self.get_conn()?;
-    let sql = format!("select count(*) from {table}");
+    let mut sql = format!("select count(*) from {table}");
+    if !cond.is_empty() {
+      sql = format!("{sql} where {cond}");
+    }
     conn
-      .query_first::<u64, _>(&sql)?
+      .query_first::<usize, _>(&sql)?
       .ok_or_else(|| anyhow!("No value found"))
   }
 }

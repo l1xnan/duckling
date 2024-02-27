@@ -79,9 +79,27 @@ export type QueryParams = {
   dialect?: DialectConfig;
 };
 
+export type QueryTableParams = {
+  table: string;
+  limit: number;
+  offset: number;
+  condition: string;
+  dialect?: DialectConfig;
+};
+
 export async function query(params: QueryParams): Promise<ResultType> {
   console.debug('params:', params);
   const res = await invoke<ArrowResponse>('query', params);
+  console.log(res);
+
+  return convert(res);
+}
+
+export async function queryTable(
+  params: QueryTableParams,
+): Promise<ResultType> {
+  console.debug('params:', params);
+  const res = await invoke<ArrowResponse>('query_table', params);
   console.log(res);
 
   return convert(res);

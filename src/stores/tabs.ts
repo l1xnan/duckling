@@ -1,20 +1,28 @@
 import { debounce } from '@mui/material';
 import { atom } from 'jotai';
-import { atomFamily, splitAtom } from 'jotai/utils';
-// eslint-disable-next-line import/order
 import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
+// eslint-disable-next-line import/order
+import { atomFamily, splitAtom } from 'jotai/utils';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
-import { QueryParams, ResultType, TitleType, exportCsv, query } from '@/api';
+import {
+  QueryParams,
+  QueryTableParams,
+  ResultType,
+  TitleType,
+  exportCsv,
+  query,
+  queryTable,
+} from '@/api';
 import { atomStore } from '@/stores';
-import { genStmt, isEmpty } from '@/utils';
+import { genCondition, isEmpty } from '@/utils';
 
 import { OrderByType, SchemaType } from './dataset';
-import { dbMapAtom, tablesAtom } from './dbList';
+import { PostgresDialectType, dbMapAtom, tablesAtom } from './dbList';
 import { settingAtom } from './setting';
 
 export type QueryParamType = {
@@ -181,7 +189,9 @@ export function getDatabase(dbId?: string) {
   }
 }
 
-export function getParams(ctx: QueryParamType): QueryParams | undefined {
+export function getParams(
+  ctx: QueryParamType,
+): QueryParams | QueryTableParams | undefined {
   const {
     page = 1,
     perPage = 500,
@@ -204,44 +214,47 @@ export function getParams(ctx: QueryParamType): QueryParams | undefined {
       dialect: 'file',
     };
   }
+  const param = {
+    limit: perPage,
+    offset: (page - 1) * perPage,
+  };
 
-  let sql = stmt;
+  if (stmt) {
+    return {
+      dialect,
+      sql: stmt,
+      ...param,
+    };
+  }
 
-  if (!sql) {
-    let tableName = tableId;
-    const table = getTable(dbId, tableId);
-    if (ctx.type !== 'file') {
-      tableName = table.path;
-    }
+  let tableName = tableId;
+  const table = getTable(dbId, tableId);
+  if (ctx.type !== 'file') {
+    tableName = table!.path;
+  }
 
-    if (dialect && dialect?.dialect == 'postgres') {
-      dialect['database'] = table?.path.split('.')[0];
-    }
+  if (dialect?.dialect == 'postgres') {
+    dialect['database'] = table?.path.split('.')[0];
+  }
 
-    if (tableName.endsWith('.csv')) {
-      const csv = atomStore.get(settingAtom).csv;
-      const params = [`'${tableName}'`, 'auto_detect=true'];
-      for (const [key, val] of Object.entries(csv ?? {})) {
-        if (!isEmpty(val)) {
-          params.push(`${key}='${val}'`);
-        }
+  if (tableName.endsWith('.csv')) {
+    const csv = atomStore.get(settingAtom).csv;
+    const params = [`'${tableName}'`, 'auto_detect=true'];
+    for (const [key, val] of Object.entries(csv ?? {})) {
+      if (!isEmpty(val)) {
+        params.push(`${key}='${val}'`);
       }
-      tableName = `read_csv(${params.join(', ')})`;
-    } else if (tableName.endsWith('.parquet')) {
-      tableName = `read_parquet('${tableName}')`;
     }
-    sql = genStmt({
-      tableName,
-      orderBy,
-      where: sqlWhere,
-    });
+    tableName = `read_csv(${params.join(', ')})`;
+  } else if (tableName.endsWith('.parquet')) {
+    tableName = `read_parquet('${tableName}')`;
   }
 
   return {
     dialect,
-    sql,
-    limit: perPage,
-    offset: (page - 1) * perPage,
+    table: tableName,
+    condition: genCondition({ orderBy, where: sqlWhere }),
+    ...param,
   };
 }
 
@@ -249,15 +262,21 @@ export async function execute(
   ctx: QueryParamType,
 ): Promise<ResultType | undefined> {
   const param = getParams(ctx);
-  if (param) {
-    const data = await query(param);
-
-    console.log('data:', data);
-    if (data?.code == 401 && data?.message) {
-      toast.warning(data?.message);
-    }
-    return data;
+  if (!param) {
+    return;
   }
+  let data;
+  if (!ctx.stmt) {
+    data = await queryTable(param as QueryTableParams);
+  } else {
+    data = await query(param as QueryParams);
+  }
+
+  console.log('data:', data);
+  if (data?.code == 401 && data?.message) {
+    toast.warning(data?.message);
+  }
+  return data;
 }
 
 type ExportTarget = {
@@ -269,7 +288,8 @@ export async function exportData(
   { file }: ExportTarget,
   ctx: QueryParamType,
 ): Promise<ResultType | undefined> {
-  const param = getParams(ctx);
+  // TODO: export table
+  const param = getParams(ctx) as QueryParams;
   if (param) {
     const data = await exportCsv({
       file,

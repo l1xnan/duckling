@@ -4,7 +4,6 @@ import { focusAtom } from 'jotai-optics';
 import { nanoid } from 'nanoid';
 import { useEffect, useMemo, useRef } from 'react';
 
-import { showTables } from '@/api';
 import { schemaMapAtom } from '@/stores/dbList';
 import {
   EditorContextType,
@@ -20,21 +19,6 @@ import { QueryTabs } from './QueryTabs';
 import VerticalContainer from './VerticalContainer';
 
 type OnMountParams = Parameters<OnMount>;
-
-async function getTables(root: string) {
-  const res = await showTables(root);
-
-  const schema: ComplationSchemaType = {};
-  res?.data?.forEach(({ table_name }) => {
-    schema[table_name] = [];
-  });
-
-  return schema;
-}
-
-type ComplationSchemaType = {
-  [key: string]: string[];
-};
 
 function createStore(item: Partial<QueryContextType>): QueryContextType {
   return {

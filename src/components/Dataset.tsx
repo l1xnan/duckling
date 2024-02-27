@@ -108,6 +108,7 @@ export function Dataset({ context }: { context: TabContextType }) {
             schema={schema ?? []}
             beautify={beautify}
             orderBy={orderBy}
+            precision={precision}
           />
         </Suspense>
       </Box>

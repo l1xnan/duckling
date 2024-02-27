@@ -52,11 +52,21 @@ export type ClickhouseDialectType = {
   dialect: DialectType;
 };
 
+export type PostgresDialectType = {
+  host: string;
+  port: string;
+  password: string;
+  username: string;
+  database: string;
+  dialect: DialectType;
+};
+
 export type DialectConfig =
   | DuckdbConfig
   | ClickhouseDialectType
   | FolderConfig
-  | FileConfig;
+  | FileConfig
+  | PostgresDialectType;
 
 export type DBType = {
   id: string;

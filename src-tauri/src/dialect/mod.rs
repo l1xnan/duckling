@@ -45,19 +45,25 @@ pub trait Dialect: Sync + Send {
       sql = format!("{sql} where {cond}")
     }
     if limit != 0 {
-      sql = format!("{sql} limit {limit}")
+      sql = format!("{sql} limit {}", limit + 1)
     }
     if offset != 0 {
       sql = format!("{sql} offset {offset}")
     }
     println!("query table {}: {}", table, sql);
-    self.query(&sql, 0, 0).await
+    let res = self.query(&sql, 0, 0).await;
+    let total = self.table_row_count(table, cond).await.unwrap_or_default();
+    res.map(|r| RawArrowData {
+      total_count: total,
+      ..r
+    })
   }
-  async fn export(&self, _sql: &str, _file: &str) {
+
+  async fn table_row_count(&self, table: &str, condition: &str) -> anyhow::Result<usize> {
     unimplemented!()
   }
 
-  async fn table_row_count(&self, table: &str) -> anyhow::Result<u64> {
+  async fn export(&self, _sql: &str, _file: &str) {
     unimplemented!()
   }
 }

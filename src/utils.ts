@@ -14,17 +14,28 @@ export function getByteLength(str: string) {
   });
   return length;
 }
+
 export function convertOrderBy({ name, desc }: OrderByType) {
   if (!name) {
     return undefined;
   }
   return `${name} ${desc ? 'DESC' : ''}`;
 }
+
 export function genStmt({ tableName, orderBy, where }: StmtType) {
-  let stmt = `select * from ${tableName}`;
+  let stmt = `select *
+              from ${tableName}`;
   if (!!where && where.length > 0) {
     stmt = `${stmt} where ${where}`;
   }
+  if (!!orderBy && orderBy.name) {
+    stmt = `${stmt} order by ${convertOrderBy(orderBy)}`;
+  }
+  return stmt;
+}
+
+export function genCondition({ orderBy, where }: StmtType) {
+  let stmt = where ?? '';
   if (!!orderBy && orderBy.name) {
     stmt = `${stmt} order by ${convertOrderBy(orderBy)}`;
   }

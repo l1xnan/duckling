@@ -62,7 +62,7 @@ export type OrderByType = {
 };
 
 export type StmtType = {
-  tableName: string;
+  tableName?: string;
   page?: number;
   perPage?: number;
   orderBy?: OrderByType;
