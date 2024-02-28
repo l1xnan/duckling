@@ -108,7 +108,7 @@ pub async fn query_table(
   table: &str,
   limit: usize,
   offset: usize,
-  orderBy: Option<String>,
+  #[allow(non_snake_case)] orderBy: Option<String>,
   r#where: Option<String>,
   dialect: DialectPayload,
 ) -> Result<ArrowResponse, String> {
