@@ -83,7 +83,8 @@ export type QueryTableParams = {
   table: string;
   limit: number;
   offset: number;
-  condition: string;
+  where?: string;
+  order_by?: string;
   dialect?: DialectConfig;
 };
 

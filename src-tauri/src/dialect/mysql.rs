@@ -1,4 +1,4 @@
-use std::fmt::{format, Debug};
+use std::fmt::Debug;
 use std::sync::Arc;
 
 use anyhow::anyhow;
@@ -39,8 +39,8 @@ impl Dialect for MySqlDialect {
     self._query(sql, limit, offset).await
   }
 
-  async fn table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
-    self._table_row_count(table, cond).await
+  async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
+    self._table_row_count(table, r#where).await
   }
 }
 
@@ -120,11 +120,10 @@ impl MySqlDialect {
     for (i, col) in columns.iter().enumerate() {
       let type_ = format!("{:?}", col.column_type());
       let type_ = type_.strip_suffix("MYSQL_TYPE_").unwrap_or(type_.as_str());
-
       println!("{i}: {:?}, {:?}", col.name_str(), type_);
       titles.push(Title {
         name: col.name_str().to_string(),
-        r#type: type_.to_lowercase(),
+        r#type: type_.to_string(),
       });
       types.push(col.column_type());
       let typ = match col.column_type() {

@@ -34,14 +34,6 @@ export function genStmt({ tableName, orderBy, where }: StmtType) {
   return stmt;
 }
 
-export function genCondition({ orderBy, where }: StmtType) {
-  let stmt = where ?? '';
-  if (!!orderBy && orderBy.name) {
-    stmt = `${stmt} order by ${convertOrderBy(orderBy)}`;
-  }
-  return stmt;
-}
-
 export const debounce = <F extends (...args: any[]) => any>(
   func: F,
   delay: number = 300,

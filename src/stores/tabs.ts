@@ -19,10 +19,10 @@ import {
   queryTable,
 } from '@/api';
 import { atomStore } from '@/stores';
-import { genCondition, isEmpty } from '@/utils';
+import { convertOrderBy, isEmpty } from '@/utils';
 
 import { OrderByType, SchemaType } from './dataset';
-import { PostgresDialectType, dbMapAtom, tablesAtom } from './dbList';
+import { dbMapAtom, tablesAtom } from './dbList';
 import { settingAtom } from './setting';
 
 export type QueryParamType = {
@@ -253,7 +253,8 @@ export function getParams(
   return {
     dialect,
     table: tableName,
-    condition: genCondition({ orderBy, where: sqlWhere }),
+    where: sqlWhere,
+    order_by: orderBy ? convertOrderBy(orderBy) : undefined,
     ...param,
   };
 }

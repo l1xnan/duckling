@@ -38,12 +38,15 @@ pub trait Dialect: Sync + Send {
     table: &str,
     limit: usize,
     offset: usize,
-    cond: &str,
+    where_: Option<&str>,
+    order_by: Option<&str>,
   ) -> anyhow::Result<RawArrowData> {
-    let mut sql = format!("select * from {}", table);
-    if !cond.is_empty() {
-      sql = format!("{sql} where {cond}")
-    }
+    let mut sql = self._table_query_sql(
+      table,
+      where_.unwrap_or_default(),
+      order_by.unwrap_or_default(),
+    );
+
     if limit != 0 {
       sql = format!("{sql} limit {}", limit + 1)
     }
@@ -52,21 +55,36 @@ pub trait Dialect: Sync + Send {
     }
     println!("query table {}: {}", table, sql);
     let res = self.query(&sql, 0, 0).await;
-    let total = self.table_row_count(table, cond).await.unwrap_or_default();
+
+    let total = self
+      .table_row_count(table, where_.unwrap_or_default())
+      .await
+      .unwrap_or_default();
+
     res.map(|r| RawArrowData {
       total_count: total,
       ..r
     })
   }
 
-  async fn table_row_count(&self, table: &str, condition: &str) -> anyhow::Result<usize> {
+  async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     unimplemented!()
   }
 
-  fn _table_count_sql(&self, table: &str, condition: &str) -> String {
+  fn _table_count_sql(&self, table: &str, where_: &str) -> String {
     let mut sql = format!("select count(*) from {table}");
-    if !condition.is_empty() {
-      sql = format!("{sql} where {condition}");
+    if !where_.trim().is_empty() {
+      sql = format!("{sql} where {where_}");
+    }
+    sql
+  }
+  fn _table_query_sql(&self, table: &str, where_: &str, order_by: &str) -> String {
+    let mut sql = format!("select * from {table}");
+    if !where_.trim().is_empty() {
+      sql = format!("{sql} where {where_}");
+    }
+    if !order_by.trim().is_empty() {
+      sql = format!("{sql} order by {order_by}");
     }
     sql
   }

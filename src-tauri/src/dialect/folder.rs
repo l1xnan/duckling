@@ -25,9 +25,26 @@ impl Dialect for FolderDialect {
     api::query(":memory:", sql, limit, offset, self.cwd.clone())
   }
 
-  async fn table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
+  async fn query_table(
+    &self,
+    table: &str,
+    limit: usize,
+    offset: usize,
+    where_: Option<&str>,
+    order_by: Option<&str>,
+  ) -> anyhow::Result<RawArrowData> {
+    let sql = self._table_query_sql(
+      table,
+      where_.unwrap_or_default(),
+      order_by.unwrap_or_default(),
+    );
+    println!("query table {}: {}", table, sql);
+    self.query(&sql, limit, offset).await
+  }
+
+  async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     let conn = self.connect()?;
-    let sql = self._table_count_sql(table, cond);
+    let sql = self._table_count_sql(table, r#where);
     let total = conn.query_row(&sql, [], |row| row.get::<_, u32>(0))?;
     let total = total.to_string().parse()?;
     Ok(total)

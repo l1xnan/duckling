@@ -42,8 +42,8 @@ impl Dialect for PostgresDialect {
     self._query(sql, limit, offset).await
   }
 
-  async fn table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
-    self._table_row_count(table, cond).await
+  async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
+    self._table_row_count(table, r#where).await
   }
 }
 

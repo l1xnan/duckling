@@ -1,4 +1,3 @@
-use anyhow::anyhow;
 use async_trait::async_trait;
 use duckdb::Connection;
 
@@ -29,6 +28,23 @@ impl Dialect for DuckDbDialect {
     api::query(&self.path, sql, limit, offset, self.cwd.clone())
   }
 
+  async fn query_table(
+    &self,
+    table: &str,
+    limit: usize,
+    offset: usize,
+    where_: Option<&str>,
+    order_by: Option<&str>,
+  ) -> anyhow::Result<RawArrowData> {
+    let sql = self._table_query_sql(
+      table,
+      where_.unwrap_or_default(),
+      order_by.unwrap_or_default(),
+    );
+    println!("query table {}: {}", table, sql);
+    self.query(&sql, limit, offset).await
+  }
+
   async fn export(&self, sql: &str, file: &str) {
     let data = api::fetch_all(&self.path, sql, self.cwd.clone());
     if let Ok(batch) = data {
@@ -36,9 +52,9 @@ impl Dialect for DuckDbDialect {
     }
   }
 
-  async fn table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
+  async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     let conn = self.connect()?;
-    let sql = self._table_count_sql(table, cond);
+    let sql = self._table_count_sql(table, r#where);
     let total = conn.query_row(&sql, [], |row| row.get::<_, usize>(0))?;
     Ok(total)
   }
