@@ -12,7 +12,6 @@ use clickhouse_rs::ClientHandle;
 use clickhouse_rs::{types::column::Column, Block, Pool, Simple};
 use futures_util::stream::StreamExt;
 use serde::{Deserialize, Serialize};
-use tauri::Window;
 
 use crate::api::RawArrowData;
 use crate::dialect::{Connection, TreeNode};
@@ -46,13 +45,14 @@ impl ClickhouseDialect {
 #[async_trait]
 impl Connection for ClickhouseDialect {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
-    let url = self.get_url();
-    let tables = get_tables(&url).await?;
+    let tables = self.get_tables().await?;
     Ok(TreeNode {
       name: self.host.clone(),
       path: self.host.clone(),
       node_type: "root".to_string(),
       children: Some(build_tree(tables)),
+      size: None,
+      comment: None,
     })
   }
 
@@ -77,6 +77,33 @@ impl ClickhouseDialect {
 
   fn get_schema(&self) -> Vec<Table> {
     vec![]
+  }
+  async fn get_tables(&self) -> anyhow::Result<Vec<Table>> {
+    let sql = r#"
+    select database as db_name, name as table_name, engine as table_type,
+      if(engine='View', 'view', 'table') as type, total_bytes, comment
+    from system.tables order by database, table_type
+    "#;
+    let mut client = self.client().await?;
+    let block = client.query(sql).fetch_all().await?;
+    let mut tables = Vec::new();
+    for row in block.rows() {
+      let db_name: String = row.get("db_name")?;
+      let table_name: String = row.get("table_name")?;
+      let table_type: String = row.get("table_type")?;
+      let r#type: String = row.get("type")?;
+      let size = row.get::<u64, _>("table_type").ok();
+
+      tables.push(Table {
+        db_name,
+        table_name,
+        table_type,
+        r#type,
+        schema: None,
+        size,
+      });
+    }
+    Ok(tables)
   }
 
   async fn _table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
@@ -126,28 +153,6 @@ impl ClickhouseDialect {
       batch,
       titles: None,
     })
-  }
-
-  pub async fn query_stream(&self, window: Window, sql: &str) -> anyhow::Result<()> {
-    let pool = Pool::new(self.get_url());
-    let mut client = pool.get_handle().await?;
-    let mut stream = client.query(sql).stream_blocks();
-
-    while let Some(block) = stream.next().await {
-      let block = block?;
-      let batch = block_to_arrow(&block)?;
-      // window
-      //   .emit(
-      //     "query-stream",
-      //     RawArrowData {
-      //       total_count: batch.num_rows(),
-      //       batch,
-      //       titles: None,
-      //     },
-      //   )
-      //   .unwrap();
-    }
-    Ok(())
   }
 
   pub async fn fetch_many(
@@ -405,35 +410,4 @@ async fn query_stream(url: &str, sql: &str) -> anyhow::Result<()> {
     }
   }
   Ok(())
-}
-
-async fn get_tables(url: &str) -> anyhow::Result<Vec<Table>> {
-  let sql = r#"
-  select database as db_name, name as table_name, engine as table_type
-  from system.tables order by table_schema, table_type
-  "#;
-  let pool = Pool::new(url);
-  let mut client = pool.get_handle().await?;
-
-  let block = client.query(sql).fetch_all().await?;
-  let mut tables = Vec::new();
-  for row in block.rows() {
-    let db_name: String = row.get("db_name")?;
-    let table_name: String = row.get("table_name")?;
-    let table_type: String = row.get("table_type")?;
-
-    tables.push(Table {
-      db_name: db_name.clone(),
-      table_name,
-      table_type: table_type.clone(),
-      r#type: String::from(if table_type == "View" {
-        "view"
-      } else {
-        "table"
-      }),
-      schema: None,
-      size: None,
-    });
-  }
-  Ok(tables)
 }

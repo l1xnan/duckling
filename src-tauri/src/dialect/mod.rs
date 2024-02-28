@@ -21,6 +21,8 @@ pub struct TreeNode {
   pub children: Option<Vec<TreeNode>>,
   #[serde(rename(serialize = "type"))]
   pub node_type: String,
+  pub size: Option<u64>,
+  pub comment: Option<String>,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]

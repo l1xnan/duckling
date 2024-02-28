@@ -32,6 +32,8 @@ impl Connection for MySqlDialect {
       path: self.host.clone(),
       node_type: "root".to_string(),
       children: Some(build_tree(tables)),
+      size: None,
+      comment: None,
     })
   }
 

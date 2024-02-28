@@ -48,6 +48,8 @@ pub fn build_tree(tables: Vec<Table>) -> Vec<TreeNode> {
       path: keys.join("."),
       node_type: t.r#type.clone(),
       children: None,
+      size: t.size,
+      comment: None,
     });
   }
   for (key, nodes) in &tree {
@@ -72,14 +74,20 @@ pub fn build_tree(tables: Vec<Table>) -> Vec<TreeNode> {
           path: format!("{key}-tables"),
           node_type: "path".to_string(),
           children: Some(tables_children),
+          size: None,
+          comment: None,
         },
         TreeNode {
           name: "views".to_string(),
           path: format!("{key}-views"),
           node_type: "path".to_string(),
           children: Some(views_children),
+          size: None,
+          comment: None,
         },
       ]),
+      size: None,
+      comment: None,
     });
   }
 

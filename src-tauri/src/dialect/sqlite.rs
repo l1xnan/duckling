@@ -34,6 +34,8 @@ impl Connection for SqliteDialect {
       path: self.path.clone(),
       node_type: "root".to_string(),
       children: children.clone(),
+      size: None,
+      comment: None,
     })
   }
 

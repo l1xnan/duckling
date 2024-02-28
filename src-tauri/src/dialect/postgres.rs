@@ -36,6 +36,8 @@ impl Connection for PostgresDialect {
       path: self.host.clone(),
       node_type: "root".to_string(),
       children: Some(build_tree(tables)),
+      size: None,
+      comment: None,
     })
   }
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {

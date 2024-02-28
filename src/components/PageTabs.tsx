@@ -177,10 +177,10 @@ export function PageTabs({
   }, [items]);
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="h-full">
       <TabContext value={activeKey}>
         <Box>{items?.length > 0 ? tabList : <DatasetEmpty />}</Box>
-        <Box sx={{ flex: 1 }}>
+        <Box className={'h-full'}>
           {items.map((item) => {
             const tab = item.tab;
             return (

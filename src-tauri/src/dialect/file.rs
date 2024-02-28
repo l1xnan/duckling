@@ -27,6 +27,8 @@ impl Connection for FileDialect {
       name: get_file_name(&self.path),
       node_type: path.extension().unwrap().to_string_lossy().to_string(),
       children: None,
+      size: None,
+      comment: None,
     })
   }
 

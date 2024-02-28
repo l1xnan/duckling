@@ -18,7 +18,7 @@ import HeaderCell from '@/components/dataframe/HeaderCell';
 import { OrderByType, SchemaType } from '@/stores/dataset';
 import { getByteLength, isDarkTheme } from '@/utils';
 
-interface TableProps<T = unknown> {
+export interface TableProps<T = unknown> {
   data: T[];
   titles: TitleType[];
   schema: SchemaType[];
