@@ -108,14 +108,23 @@ pub async fn query_table(
   table: &str,
   limit: usize,
   offset: usize,
-  r#where: Option<&str>,
-  order_by: Option<&str>,
+  orderBy: Option<String>,
+  r#where: Option<String>,
   dialect: DialectPayload,
 ) -> Result<ArrowResponse, String> {
   let d = get_dialect(dialect.clone())
     .await
     .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
-  let res = d.query_table(table, limit, offset, r#where, order_by).await;
+
+  let res = d
+    .query_table(
+      table,
+      limit,
+      offset,
+      &r#where.clone().unwrap_or_default(),
+      &orderBy.clone().unwrap_or_default(),
+    )
+    .await;
   Ok(api::convert(res))
 }
 

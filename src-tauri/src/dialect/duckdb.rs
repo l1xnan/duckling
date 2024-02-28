@@ -33,14 +33,10 @@ impl Dialect for DuckDbDialect {
     table: &str,
     limit: usize,
     offset: usize,
-    where_: Option<&str>,
-    order_by: Option<&str>,
+    where_: &str,
+    order_by: &str,
   ) -> anyhow::Result<RawArrowData> {
-    let sql = self._table_query_sql(
-      table,
-      where_.unwrap_or_default(),
-      order_by.unwrap_or_default(),
-    );
+    let sql = self._table_query_sql(table, where_, order_by);
     println!("query table {}: {}", table, sql);
     self.query(&sql, limit, offset).await
   }

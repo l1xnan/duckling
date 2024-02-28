@@ -84,7 +84,7 @@ export type QueryTableParams = {
   limit: number;
   offset: number;
   where?: string;
-  order_by?: string;
+  orderBy?: string;
   dialect?: DialectConfig;
 };
 
@@ -99,7 +99,7 @@ export async function query(params: QueryParams): Promise<ResultType> {
 export async function queryTable(
   params: QueryTableParams,
 ): Promise<ResultType> {
-  console.debug('params:', params);
+  console.debug('query table params:', params);
   const res = await invoke<ArrowResponse>('query_table', params);
   console.log(res);
 

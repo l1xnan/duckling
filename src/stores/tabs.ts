@@ -254,7 +254,7 @@ export function getParams(
     dialect,
     table: tableName,
     where: sqlWhere,
-    order_by: orderBy ? convertOrderBy(orderBy) : undefined,
+    orderBy: orderBy ? convertOrderBy(orderBy) : undefined,
     ...param,
   };
 }
