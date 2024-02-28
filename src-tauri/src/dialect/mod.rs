@@ -1,8 +1,8 @@
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
+use sqlparser::parser::Parser;
 
 use crate::api::RawArrowData;
-use crate::sql;
 
 pub mod clickhouse;
 pub mod duckdb;
@@ -10,6 +10,7 @@ pub mod file;
 pub mod folder;
 pub mod mysql;
 pub mod postgres;
+pub mod ast;
 pub mod sqlite;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -34,14 +35,53 @@ pub trait Dialect: Sync + Send {
   async fn query(&self, _sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     unimplemented!()
   }
-  async fn paging_query(
-    &self,
-    _sql: &str,
-    _limit: Option<usize>,
-    _offset: Option<usize>,
-  ) -> anyhow::Result<RawArrowData> {
+  async fn query_all(&self, _sql: &str) -> anyhow::Result<RawArrowData> {
     unimplemented!()
   }
+
+  // fn dialect() -> sqlparser::dialect::GenericDialect {
+  //   sqlparser::dialect::GenericDialect {}
+  // }
+
+  async fn paging_query(
+    &self,
+    sql: &str,
+    limit: Option<usize>,
+    offset: Option<usize>,
+  ) -> anyhow::Result<RawArrowData> {
+    let mut sql = sql.to_string();
+    let dialect = sqlparser::dialect::GenericDialect {};
+    let stmt = Parser::parse_sql(&dialect, &sql)
+      .ok()
+      .map(|t| {
+        if t.len() == 1 {
+          Some(t[0].clone())
+        } else {
+          None
+        }
+      })
+      .flatten();
+
+    if let Some(ref _stmt) = stmt {
+      sql = ast::limit_stmt(&dialect, _stmt, limit, offset).unwrap_or(sql);
+    }
+    let mut res = self.query_all(&sql).await?;
+
+    // get total row count
+    if let Some(ref _stmt) = stmt {
+      if let Some(count_sql) = ast::count_stmt(&dialect, _stmt) {
+        if let Ok(count) = self._sql_row_count(&count_sql).await {
+          res.total_count = count
+        };
+      }
+    }
+    Ok(res)
+  }
+
+  async fn _sql_row_count(&self, _sql: &str) -> anyhow::Result<usize> {
+    unimplemented!()
+  }
+
   async fn query_table(
     &self,
     table: &str,
@@ -53,7 +93,7 @@ pub trait Dialect: Sync + Send {
     let mut sql = self._table_query_sql(table, where_, order_by);
 
     if limit != 0 {
-      sql = format!("{sql} limit {}", limit + 1)
+      sql = format!("{sql} limit {}", limit)
     }
     if offset != 0 {
       sql = format!("{sql} offset {offset}")
@@ -97,4 +137,39 @@ pub trait Dialect: Sync + Send {
   async fn export(&self, _sql: &str, _file: &str) {
     unimplemented!()
   }
+}
+
+pub async fn _paging_query(
+  d: &dyn Dialect,
+  dialect: &dyn sqlparser::dialect::Dialect,
+  sql: &str,
+  limit: Option<usize>,
+  offset: Option<usize>,
+) -> anyhow::Result<RawArrowData> {
+  let mut sql = sql.to_string();
+  let stmt = Parser::parse_sql(dialect, &sql)
+    .ok()
+    .map(|t| {
+      if t.len() == 1 {
+        Some(t[0].clone())
+      } else {
+        None
+      }
+    })
+    .flatten();
+
+  if let Some(ref _stmt) = stmt {
+    sql = ast::limit_stmt(dialect, _stmt, limit, offset).unwrap_or(sql);
+  }
+  let mut res = d.query_all(&sql).await?;
+
+  // get total row count
+  if let Some(ref _stmt) = stmt {
+    if let Some(count_sql) = ast::count_stmt(dialect, _stmt) {
+      if let Ok(count) = d._sql_row_count(&count_sql).await {
+        res.total_count = count
+      };
+    }
+  }
+  Ok(res)
 }

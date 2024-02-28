@@ -3,7 +3,6 @@ use std::sync::Mutex;
 use serde::Deserialize;
 use serde::Serialize;
 use tauri::State;
-use tauri::Window;
 
 use crate::api;
 use crate::api::ArrowResponse;
@@ -151,17 +150,6 @@ pub async fn export(sql: String, file: String, dialect: DialectPayload) -> Resul
   } else {
     Err("not support dialect".to_string())
   }
-}
-
-#[tauri::command]
-pub async fn query_stream(
-  window: Window,
-  sql: &str,
-  dialect: Option<ClickhouseDialect>,
-) -> anyhow::Result<()> {
-  let d = dialect.unwrap();
-  let _ = d.query_stream(window, sql).await;
-  Ok(())
 }
 
 #[tauri::command]

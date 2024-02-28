@@ -1,6 +1,5 @@
 use sqlparser::ast::Statement;
 use sqlparser::dialect::Dialect;
-use sqlparser::dialect::GenericDialect;
 use sqlparser::parser::Parser;
 
 pub fn count_sql(sql: &str) -> String {
@@ -75,6 +74,8 @@ pub fn limit_stmt(
 
 #[cfg(test)]
 mod tests {
+  use sqlparser::dialect::GenericDialect;
+
   use super::*;
 
   #[test]

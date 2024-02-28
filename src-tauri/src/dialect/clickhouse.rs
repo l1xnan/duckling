@@ -4,12 +4,12 @@ use std::sync::Arc;
 use arrow::array::*;
 use arrow::datatypes::*;
 use async_trait::async_trait;
-use chrono::naive::NaiveDate;
 use chrono::DateTime;
+use chrono::naive::NaiveDate;
 use chrono_tz::Tz;
-use clickhouse_rs::types::{Decimal, FromSql, SqlType};
+use clickhouse_rs::{Block, Pool, Simple, types::column::Column};
 use clickhouse_rs::ClientHandle;
-use clickhouse_rs::{types::column::Column, Block, Pool, Simple};
+use clickhouse_rs::types::{Decimal, FromSql, SqlType};
 use futures_util::stream::StreamExt;
 use serde::{Deserialize, Serialize};
 use tauri::Window;
@@ -150,38 +150,6 @@ impl ClickhouseDialect {
     Ok(())
   }
 
-  pub async fn query_block(
-    &self,
-    sql: &str,
-    limit: usize,
-    offset: usize,
-  ) -> anyhow::Result<RawArrowData> {
-    let pool = Pool::new(self.get_url());
-    let mut client = pool.get_handle().await?;
-    let mut stream = client.query(sql).stream_blocks();
-
-    let mut batchs = vec![];
-
-    let total = 0;
-    while let Some(block) = stream.next().await {
-      let block = block?;
-      let current_count = block.row_count();
-      if total + current_count < limit * offset {
-        continue;
-      }
-      let batch = block_to_arrow(&block)?;
-      batchs.push(batch);
-    }
-    let b = batchs[0].clone();
-    let schema = b.schema();
-    let batch = arrow::compute::concat_batches(&schema, &batchs)?;
-    Ok(RawArrowData {
-      total_count: batch.num_rows(),
-      batch,
-      titles: None,
-    })
-  }
-
   pub async fn fetch_many(
     &self,
     sql: &str,
@@ -232,7 +200,7 @@ impl ClickhouseDialect {
     let batch = arrow::compute::concat_batches(&schema, &batchs)?;
     let total = batch.num_rows();
 
-    let preview = batch.slice(offset, std::cmp::min(limit, total - offset));
+    let batch = batch.slice(offset, std::cmp::min(limit, total - offset));
 
     Ok(RawArrowData {
       total_count,

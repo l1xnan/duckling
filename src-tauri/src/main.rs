@@ -16,7 +16,6 @@ use tauri_plugin_log::{Target, TargetKind};
 mod api;
 mod cmd;
 mod dialect;
-mod sql;
 mod utils;
 
 fn handle_menu(app: &mut tauri::App) -> tauri::Result<()> {
