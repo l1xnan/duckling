@@ -39,7 +39,6 @@ export default (props: HeadCellProps) => {
     setDialogColumn,
   } = usePageStore();
   const updateTab = useTabsStore((state) => state.update);
-  console.log(props);
   const colId = props.column.colId;
   const sqlType = props.column?.colDef?.sqlType;
   const isDesc = orderBy?.name == colId ? orderBy?.desc : undefined;
