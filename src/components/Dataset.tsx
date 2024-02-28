@@ -35,7 +35,7 @@ import { precisionAtom } from '@/stores/setting';
 import { TabContextType, activeTabAtom } from '@/stores/tabs';
 import { borderTheme, convertOrderBy, isDarkTheme } from '@/utils';
 
-import { AgTable } from './AgTable';
+import { CanvasTable } from './CanvasTable';
 import { TablerSvgIcon } from './MuiIconButton';
 import { ToolbarContainer } from './Toolbar';
 
@@ -101,7 +101,7 @@ export function Dataset({ context }: { context: TabContextType }) {
       <Box sx={{ height: '100%' }}>
         <Suspense fallback={<Loading />}>
           {loading ? <Loading /> : null}
-          <AgTable
+          <CanvasTable
             style={loading ? { display: 'none' } : undefined}
             data={data ?? []}
             titles={titles ?? []}

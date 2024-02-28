@@ -13,13 +13,67 @@ export function CanvasTable({
   ...rest
 }: TableProps) {
   const { ref, height = 100 } = useResizeObserver<HTMLDivElement>();
-  const columns: any[] = [];
+  if (titles.length == 0) {
+    return null;
+  }
+
+  // const first = {
+  //   field: '',
+  //   title: '',
+  //   width: 50,
+  //   cellType: 'checkbox',
+  //   headerType: 'checkbox',
+  // };
+
+  const columns =
+    titles?.map((col, i) => {
+      return <ListColumn field={col.name} caption={col.name} />;
+    }) ?? [];
+  console.log(data);
   return (
     <div ref={ref} className="h-full">
-      <ListTable height={height - 32} heightMode={'autoHeight'} records={data}>
-        {titles?.map((col, i) => {
-          return <ListColumn field={i} caption={col.name} />;
-        })}
+      <ListTable
+        height={height - 32}
+        records={data}
+        heightMode="autoHeight"
+        widthMode="autoWidth"
+        showFrozenIcon={true}
+        frozenColCount={2}
+        dragHeaderMode="column"
+        menu={{
+          contextMenuItems: ['Copy Cell', 'Copy Column'],
+        }}
+        hover={{
+          highlightMode: 'cross',
+          // enableSingleHighlight: false,
+        }}
+        keyboardOptions={{
+          moveEditCellOnArrowKeys: true,
+          copySelected: true,
+          pasteValueToCell: true,
+        }}
+        theme={{
+          defaultStyle: {
+            fontSize: 12,
+            fontFamily: 'Consolas',
+            borderLineWidth: 1,
+            borderColor: '#f2f2f2',
+            hover: {
+              cellBgColor: '#9cbef4',
+              inlineRowBgColor: '#9cbef4',
+              inlineColumnBgColor: '#9cbef4',
+            },
+          },
+          bodyStyle: {
+            hover: {
+              cellBgColor: '#c3dafd',
+              inlineRowBgColor: '#c3dafd',
+              inlineColumnBgColor: '#c3dafd',
+            },
+          },
+        }}
+      >
+        {columns}
       </ListTable>
     </div>
   );

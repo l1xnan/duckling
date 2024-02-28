@@ -86,13 +86,7 @@ export const PageTabPanel: FunctionComponent<
 > = ({ children, value }) => {
   const { value: contextValue } = useTabContext() || {};
   return (
-    <Box
-      sx={{
-        display: value === contextValue ? 'block' : 'none',
-        height: '100%',
-      }}
-      key={value}
-    >
+    <Box hidden={value !== contextValue} className="h-full" key={value}>
       {children}
     </Box>
   );
