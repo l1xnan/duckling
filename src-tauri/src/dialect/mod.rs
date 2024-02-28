@@ -4,13 +4,13 @@ use sqlparser::parser::Parser;
 
 use crate::api::RawArrowData;
 
+pub mod ast;
 pub mod clickhouse;
 pub mod duckdb;
 pub mod file;
 pub mod folder;
 pub mod mysql;
 pub mod postgres;
-pub mod ast;
 pub mod sqlite;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
