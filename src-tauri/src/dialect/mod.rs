@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
 use crate::api::RawArrowData;
+use crate::sql;
 
 pub mod clickhouse;
 pub mod duckdb;
@@ -31,6 +32,14 @@ pub struct Title {
 pub trait Dialect: Sync + Send {
   async fn get_db(&self) -> anyhow::Result<TreeNode>;
   async fn query(&self, _sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
+    unimplemented!()
+  }
+  async fn paging_query(
+    &self,
+    _sql: &str,
+    _limit: Option<usize>,
+    _offset: Option<usize>,
+  ) -> anyhow::Result<RawArrowData> {
     unimplemented!()
   }
   async fn query_table(

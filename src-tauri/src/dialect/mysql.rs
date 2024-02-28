@@ -8,10 +8,12 @@ use async_trait::async_trait;
 use mysql::consts::ColumnType::*;
 use mysql::prelude::*;
 use mysql::*;
+use sqlparser::parser::Parser;
 
 use crate::api::RawArrowData;
 use crate::dialect::Title;
 use crate::dialect::{Dialect, TreeNode};
+use crate::sql;
 use crate::utils::{build_tree, Table};
 
 #[derive(Debug, Default)]
@@ -36,7 +38,21 @@ impl Dialect for MySqlDialect {
   }
 
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
-    self._query(sql, limit, offset).await
+    self._query(sql).await
+  }
+
+  async fn paging_query(
+    &self,
+    sql: &str,
+    limit: Option<usize>,
+    offset: Option<usize>,
+  ) -> anyhow::Result<RawArrowData> {
+    let mut sql = sql.to_string();
+    let dialect = sqlparser::dialect::MySqlDialect {};
+    if let Some(stmt) = Parser::parse_sql(&dialect, &sql).unwrap().last() {
+      sql = sql::limit_stmt(&dialect, stmt, limit, offset).unwrap_or(sql);
+    }
+    self._query(&sql).await
   }
 
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
@@ -102,7 +118,7 @@ impl MySqlDialect {
     Ok(tables)
   }
 
-  async fn _query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
+  async fn _query(&self, sql: &str) -> anyhow::Result<RawArrowData> {
     let mut conn = self.get_conn()?;
 
     let mut result = conn.query_iter(sql)?;
