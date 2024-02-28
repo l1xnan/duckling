@@ -7,11 +7,10 @@ use arrow::datatypes::{DataType, Field, Schema};
 use async_trait::async_trait;
 use futures_util::StreamExt;
 use rusqlite::types::Value;
-use rusqlite::Connection;
 
 use crate::api::RawArrowData;
 use crate::api::{serialize_preview, ArrowData};
-use crate::dialect::{Dialect, Title, TreeNode};
+use crate::dialect::{Connection, Title, TreeNode};
 use crate::utils::{build_tree, get_file_name, Table};
 
 #[derive(Debug, Default)]
@@ -20,10 +19,10 @@ pub struct SqliteDialect {
 }
 
 #[async_trait]
-impl Dialect for SqliteDialect {
+impl Connection for SqliteDialect {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
     let url = self.get_url();
-    let tables = get_tables(&url).await?;
+    let tables = self.get_tables().await?;
     let tree = build_tree(tables);
     let children = if tree.len() > 0 {
       &tree[0].children
@@ -56,8 +55,8 @@ impl SqliteDialect {
     unimplemented!()
   }
 
-  fn connect(&self) -> anyhow::Result<Connection> {
-    Ok(Connection::open(&self.path)?)
+  fn connect(&self) -> anyhow::Result<rusqlite::Connection> {
+    Ok(rusqlite::Connection::open(&self.path)?)
   }
 
   async fn _query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
@@ -127,7 +126,7 @@ impl SqliteDialect {
     Ok(total)
   }
   fn fetch_all(&self, sql: &str) -> anyhow::Result<ArrowData> {
-    let conn = Connection::open(&self.path)?;
+    let conn = self.connect()?;
     let mut stmt = conn.prepare(sql)?;
 
     let mut fields = vec![];
@@ -189,29 +188,28 @@ impl SqliteDialect {
       titles: None,
     })
   }
-}
-
-pub async fn get_tables(path: &str) -> anyhow::Result<Vec<Table>> {
-  let conn = Connection::open(path)?;
-  let sql = r#"
-  SELECT tbl_name, name, type
-  FROM sqlite_master
-  WHERE type IN ('table', 'view') and name NOT IN ('sqlite_sequence', 'sqlite_stat1')
-  "#;
-  let mut stmt = conn.prepare(sql)?;
-  let mut rows = stmt.query([])?;
-  let mut tables: Vec<Table> = Vec::new();
-  while let Some(row) = rows.next()? {
-    tables.push(Table {
-      table_name: row.get(1)?,
-      table_type: row.get(2)?,
-      db_name: String::new(),
-      r#type: row.get(2)?,
-      schema: None,
-      size: None,
-    });
+  async fn get_tables(&self) -> anyhow::Result<Vec<Table>> {
+    let conn = self.connect()?;
+    let sql = r#"
+    SELECT tbl_name, name, type
+    FROM sqlite_master
+    WHERE type IN ('table', 'view') and name NOT IN ('sqlite_sequence', 'sqlite_stat1')
+    "#;
+    let mut stmt = conn.prepare(sql)?;
+    let mut rows = stmt.query([])?;
+    let mut tables: Vec<Table> = Vec::new();
+    while let Some(row) = rows.next()? {
+      tables.push(Table {
+        table_name: row.get(1)?,
+        table_type: row.get(2)?,
+        db_name: String::new(),
+        r#type: row.get(2)?,
+        schema: None,
+        size: None,
+      });
+    }
+    Ok(tables)
   }
-  Ok(tables)
 }
 
 pub fn convert_arrow(value: &Value, typ: &str) -> ArrayRef {

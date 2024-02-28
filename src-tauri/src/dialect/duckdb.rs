@@ -1,9 +1,8 @@
 use async_trait::async_trait;
-use duckdb::Connection;
 
 use crate::api;
 use crate::api::RawArrowData;
-use crate::dialect::{Dialect, TreeNode};
+use crate::dialect::{Connection, TreeNode};
 use crate::utils::{build_tree, get_file_name, write_csv, Table};
 
 #[derive(Debug, Default)]
@@ -13,9 +12,10 @@ pub struct DuckDbDialect {
 }
 
 #[async_trait]
-impl Dialect for DuckDbDialect {
+impl Connection for DuckDbDialect {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
-    let tables = get_tables(&self.path)?;
+    let conn = self.connect()?;
+    let tables = get_tables(&conn)?;
     Ok(TreeNode {
       name: get_file_name(&self.path),
       path: self.path.clone(),
@@ -57,26 +57,17 @@ impl Dialect for DuckDbDialect {
 }
 
 impl DuckDbDialect {
-  fn get_schema(&self) -> Vec<Table> {
-    if let Ok(tables) = get_tables(&self.path) {
-      tables
-    } else {
-      vec![]
-    }
-  }
-
-  fn connect(&self) -> anyhow::Result<Connection> {
-    Ok(Connection::open(&self.path)?)
+  fn connect(&self) -> anyhow::Result<duckdb::Connection> {
+    Ok(duckdb::Connection::open(&self.path)?)
   }
 }
 
-pub fn get_tables(path: &str) -> anyhow::Result<Vec<Table>> {
-  let db = Connection::open(path)?;
+pub fn get_tables(conn: &duckdb::Connection) -> anyhow::Result<Vec<Table>> {
   let sql = r#"
   select table_name, table_type, table_schema, if(table_type='VIEW', 'view', 'table') as type
   from information_schema.tables order by table_type, table_name
   "#;
-  let mut stmt = db.prepare(sql)?;
+  let mut stmt = conn.prepare(sql)?;
 
   let rows = stmt.query_map([], |row| {
     Ok(Table {

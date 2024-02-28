@@ -11,7 +11,7 @@ use mysql::*;
 
 use crate::api::RawArrowData;
 use crate::dialect::Title;
-use crate::dialect::{Dialect, TreeNode};
+use crate::dialect::{Connection, TreeNode};
 use crate::utils::{build_tree, Table};
 
 #[derive(Debug, Default)]
@@ -24,7 +24,7 @@ pub struct MySqlDialect {
 }
 
 #[async_trait]
-impl Dialect for MySqlDialect {
+impl Connection for MySqlDialect {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
     let tables = self.get_tables()?;
     Ok(TreeNode {

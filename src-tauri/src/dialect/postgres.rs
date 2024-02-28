@@ -15,7 +15,7 @@ use tokio_postgres::{Client, Column, NoTls, Row};
 
 use crate::api::RawArrowData;
 use crate::dialect::Title;
-use crate::dialect::{Dialect, TreeNode};
+use crate::dialect::{Connection, TreeNode};
 use crate::utils::{build_tree, Table};
 
 #[derive(Debug, Default)]
@@ -28,7 +28,7 @@ pub struct PostgresDialect {
 }
 
 #[async_trait]
-impl Dialect for PostgresDialect {
+impl Connection for PostgresDialect {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
     let tables = self.get_all_tables().await?;
     Ok(TreeNode {

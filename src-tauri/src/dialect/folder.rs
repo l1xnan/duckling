@@ -2,11 +2,10 @@ use std::fs;
 use std::path::Path;
 
 use async_trait::async_trait;
-use duckdb::Connection;
 
 use crate::api;
 use crate::dialect::RawArrowData;
-use crate::dialect::{Dialect, TreeNode};
+use crate::dialect::{Connection, TreeNode};
 use crate::utils::write_csv;
 
 #[derive(Debug, Default)]
@@ -16,7 +15,7 @@ pub struct FolderDialect {
 }
 
 #[async_trait]
-impl Dialect for FolderDialect {
+impl Connection for FolderDialect {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
     directory_tree(self.path.as_str()).ok_or_else(|| anyhow::anyhow!("null"))
   }
@@ -62,8 +61,8 @@ impl FolderDialect {
     }
   }
 
-  fn connect(&self) -> anyhow::Result<Connection> {
-    Ok(Connection::open_in_memory()?)
+  fn connect(&self) -> anyhow::Result<duckdb::Connection> {
+    Ok(duckdb::Connection::open_in_memory()?)
   }
 }
 
@@ -131,15 +130,7 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
 #[tokio::test]
 async fn test_table() {
   use arrow::util::pretty::print_batches;
-  let d = FolderDialect::new("D:/Code/duckdb/data/parquet-testing");
-  let res = d
-    .query_table(
-      "read_parquet('D:/Code/duckdb/data/parquet-testing/date_stats.parquet')",
-      0,
-      0,
-      "",
-    )
-    .await
-    .unwrap();
+  let d = FolderDialect::new("");
+  let res = d.query_table("", 0, 0, "").await.unwrap();
   let _ = print_batches(&[res.batch]);
 }

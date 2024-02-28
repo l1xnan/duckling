@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 use tauri::Window;
 
 use crate::api::RawArrowData;
-use crate::dialect::{Dialect, TreeNode};
+use crate::dialect::{Connection, TreeNode};
 use crate::utils::{build_tree, Table};
 use crate::utils::{date_to_days, write_csv};
 
@@ -44,7 +44,7 @@ impl ClickhouseDialect {
 }
 
 #[async_trait]
-impl Dialect for ClickhouseDialect {
+impl Connection for ClickhouseDialect {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
     let url = self.get_url();
     let tables = get_tables(&url).await?;

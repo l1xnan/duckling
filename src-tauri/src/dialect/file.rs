@@ -1,10 +1,9 @@
 use std::path::PathBuf;
 
 use async_trait::async_trait;
-use duckdb::Connection;
 
 use crate::api::{self, RawArrowData};
-use crate::dialect::{Dialect, TreeNode};
+use crate::dialect::{Connection, TreeNode};
 use crate::utils::get_file_name;
 
 #[derive(Debug, Default)]
@@ -13,13 +12,13 @@ pub struct FileDialect {
 }
 
 impl FileDialect {
-  fn connect(&self) -> anyhow::Result<Connection> {
-    Ok(Connection::open_in_memory()?)
+  fn connect(&self) -> anyhow::Result<duckdb::Connection> {
+    Ok(duckdb::Connection::open_in_memory()?)
   }
 }
 
 #[async_trait]
-impl Dialect for FileDialect {
+impl Connection for FileDialect {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
     let path = PathBuf::from(self.path.as_str());
 

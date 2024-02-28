@@ -13,7 +13,7 @@ use crate::dialect::folder::FolderDialect;
 use crate::dialect::mysql::MySqlDialect;
 use crate::dialect::postgres::PostgresDialect;
 use crate::dialect::sqlite::SqliteDialect;
-use crate::dialect::{Dialect, TreeNode};
+use crate::dialect::{Connection, TreeNode};
 
 pub struct OpenedUrls(pub Mutex<Option<Vec<url::Url>>>);
 
@@ -40,7 +40,7 @@ pub async fn get_dialect(
     port,
     cwd,
   }: DialectPayload,
-) -> Option<Box<dyn Dialect>> {
+) -> Option<Box<dyn Connection>> {
   match dialect.as_str() {
     "folder" => Some(Box::new(FolderDialect {
       path: path.unwrap(),
