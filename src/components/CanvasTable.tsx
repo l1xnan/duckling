@@ -1,8 +1,13 @@
 import { useTheme } from '@mui/material';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
-import { ListColumn, ListTable } from '@visactor/react-vtable';
+import {
+  ListColumn,
+  ListTable,
+  VTable,
+  type IVTable,
+} from '@visactor/react-vtable';
 import { themes } from '@visactor/vtable';
-import { useState, type ComponentProps } from 'react';
+import { useRef, useState, type ComponentProps } from 'react';
 import useResizeObserver from 'use-resize-observer';
 
 import { TableProps } from '@/components/AgTable.tsx';
@@ -97,9 +102,14 @@ export function CanvasTable({
   if (titles.length == 0) {
     return null;
   }
+
+  const _titles = titles ?? schema;
+
+  const types = new Map(_titles.map(({ name, type }) => [name, type]));
   const [leftPinnedCols, setLeftPinnedCols] = useState<string[]>([]);
   const [rightPinnedCols, setRightPinnedCols] = useState<string[]>([]);
   const { ref, height = 100 } = useResizeObserver<HTMLDivElement>();
+  const tableRef = useRef<IVTable>();
 
   console.log(leftPinnedCols);
 
@@ -111,7 +121,7 @@ export function CanvasTable({
   });
 
   const columns =
-    titles
+    _titles
       ?.filter(
         (col) =>
           !leftPinnedCols.includes(col.name) &&
@@ -127,9 +137,11 @@ export function CanvasTable({
 
   const theme = isDarkTheme(appTheme) ? darkTheme : lightTheme;
 
+  console.log('tableRef', tableRef);
   return (
     <div ref={ref} className="h-full">
       <ListTable
+        ref={tableRef}
         height={height - 32}
         records={data}
         heightMode="autoHeight"
@@ -140,8 +152,8 @@ export function CanvasTable({
         dragHeaderMode="column"
         transpose={transpose}
         menu={{
-          contextMenuItems: (_, row) => {
-            if (row == 0) {
+          contextMenuItems: (_field, row) => {
+            if (!transpose && row == 0) {
               return [
                 {
                   menuKey: 'copy-field',
@@ -193,6 +205,36 @@ export function CanvasTable({
           }
 
           console.log('onDropdownMenuClick', e, args);
+        }}
+        onMouseEnterCell={(args) => {
+          const tableInstance = tableRef.current;
+          if (tableInstance === null) {
+            return;
+          }
+          const { col, row } = args;
+          if (row === 0) {
+            const rect = tableInstance.getVisibleCellRangeRelativeRect({
+              col,
+              row,
+            });
+
+            const name = tableInstance.getCellValue(col, row);
+            const type = types.get(name);
+            tableInstance.showTooltip(col, row, {
+              content: `${name}: ${type}`,
+              referencePosition: {
+                rect,
+                placement: VTable.TYPES.Placement.bottom,
+              },
+              className: 'defineTooltip',
+              style: {
+                bgColor: 'black',
+                color: 'white',
+                font: 'normal bold normal 12px/1',
+                arrowMark: true,
+              },
+            });
+          }
         }}
       >
         <ListColumn
