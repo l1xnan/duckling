@@ -7,10 +7,12 @@ import {
   type IVTable,
 } from '@visactor/react-vtable';
 import { themes } from '@visactor/vtable';
+import { useAtomValue } from 'jotai';
 import { useRef, useState, type ComponentProps } from 'react';
 import useResizeObserver from 'use-resize-observer';
 
 import { TableProps } from '@/components/AgTable.tsx';
+import { tableFontFamilyAtom } from '@/stores/setting';
 import { isDarkTheme, isEmpty } from '@/utils.ts';
 
 type ITableThemeDefine = ComponentProps<typeof ListTable>['theme'];
@@ -32,6 +34,7 @@ const LIGHT_THEME: ITableThemeDefine = {
   },
   bodyStyle: {
     fontSize: 12,
+    fontFamily: 'Consolas',
     lineHeight: 12,
     padding: [8, 12, 8, 12],
     hover: {
@@ -67,6 +70,13 @@ const DARK_THEME: ITableThemeDefine = {
     lineHeight: 12,
     borderColor: '#444A54',
   },
+  bodyStyle: {
+    fontSize: 12,
+    fontFamily: 'Consolas',
+    lineHeight: 12,
+    padding: [8, 12, 8, 12],
+  },
+  rowHeaderStyle: { fontSize: 12 },
   frameStyle: {
     borderColor: '#d1d5da',
     borderLineWidth: 0,
@@ -171,6 +181,9 @@ export function CanvasTable({
       });
     }
   };
+
+  const tableFontFamily = useAtomValue(tableFontFamilyAtom);
+
   return (
     <div ref={ref} className="h-full" style={style}>
       <ListTable
@@ -184,6 +197,14 @@ export function CanvasTable({
         rightFrozenColCount={rightPinnedCols.length}
         dragHeaderMode="column"
         transpose={transpose}
+        theme={theme.extends({
+          bodyStyle: {
+            fontFamily: tableFontFamily,
+          },
+          headerStyle: {
+            fontFamily: tableFontFamily,
+          },
+        })}
         menu={{
           contextMenuItems: (field, row, col) => {
             if ((!transpose && row == 0) || (transpose && col == 0)) {
@@ -214,12 +235,11 @@ export function CanvasTable({
           copySelected: true,
           pasteValueToCell: true,
         }}
-        theme={theme}
-        onContextMenuCell={(...args) => {
-          console.log('context', args);
+        onContextMenuCell={(arg) => {
+          console.log('context', arg);
         }}
-        onSelectedCell={(...args) => {
-          console.log('selected', args);
+        onSelectedCell={(arg) => {
+          console.log('selected', arg);
         }}
         onDropdownMenuClick={async (e) => {
           if (e.row == 0) {
