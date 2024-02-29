@@ -11,7 +11,7 @@ import { useRef, useState, type ComponentProps } from 'react';
 import useResizeObserver from 'use-resize-observer';
 
 import { TableProps } from '@/components/AgTable.tsx';
-import { isDarkTheme } from '@/utils.ts';
+import { isDarkTheme, isEmpty } from '@/utils.ts';
 
 type ITableThemeDefine = ComponentProps<typeof ListTable>['theme'];
 
@@ -96,22 +96,26 @@ export function CanvasTable({
   beautify,
   orderBy,
   precision,
-  transpose = false,
+  transpose,
+  style,
   ...rest
 }: TableProps) {
-  if (titles.length == 0) {
+  const _titles = isEmpty(titles)
+    ? schema.map(({ name, dataType }) => ({ name, type: dataType }))
+    : titles;
+
+  if (_titles && _titles.length == 0) {
     return null;
   }
-
-  const _titles = titles ?? schema;
 
   const types = new Map(_titles.map(({ name, type }) => [name, type]));
   const [leftPinnedCols, setLeftPinnedCols] = useState<string[]>([]);
   const [rightPinnedCols, setRightPinnedCols] = useState<string[]>([]);
   const { ref, height = 100 } = useResizeObserver<HTMLDivElement>();
-  const tableRef = useRef<IVTable>();
 
-  console.log(leftPinnedCols);
+  const tableRef = useRef<IVTable>();
+  const appTheme = useTheme();
+  const theme = isDarkTheme(appTheme) ? darkTheme : lightTheme;
 
   const leftPinned = leftPinnedCols.map((name) => {
     return <ListColumn field={name} title={name} dragHeader={true} />;
@@ -127,19 +131,48 @@ export function CanvasTable({
           !leftPinnedCols.includes(col.name) &&
           !rightPinnedCols.includes(col.name),
       )
-      ?.map((col, i) => {
+      ?.map((col, _) => {
         return (
           <ListColumn field={col.name} title={col.name} dragHeader={true} />
         );
       }) ?? [];
 
-  const appTheme = useTheme();
+  const handleMouseEnterCell: ComponentProps<
+    typeof ListTable
+  >['onMouseEnterCell'] = async (args) => {
+    const tableInstance = tableRef.current;
+    if (tableInstance === null) {
+      return;
+    }
 
-  const theme = isDarkTheme(appTheme) ? darkTheme : lightTheme;
+    const { col, row } = args;
 
-  console.log('tableRef', tableRef);
+    if (!tableInstance.transpose && row === 0) {
+      const rect = tableInstance.getVisibleCellRangeRelativeRect({
+        col,
+        row,
+      });
+
+      const name = tableInstance.getCellValue(col, row);
+      const type = types.get(name);
+      tableInstance.showTooltip(col, row, {
+        content: `${name}: ${type}`,
+        referencePosition: {
+          rect,
+          placement: VTable.TYPES.Placement.bottom,
+        },
+        className: 'defineTooltip',
+        style: {
+          bgColor: 'black',
+          color: 'white',
+          font: 'normal bold normal 12px/1',
+          arrowMark: true,
+        },
+      });
+    }
+  };
   return (
-    <div ref={ref} className="h-full">
+    <div ref={ref} className="h-full" style={style}>
       <ListTable
         ref={tableRef}
         height={height - 32}
@@ -152,8 +185,8 @@ export function CanvasTable({
         dragHeaderMode="column"
         transpose={transpose}
         menu={{
-          contextMenuItems: (_field, row) => {
-            if (!transpose && row == 0) {
+          contextMenuItems: (field, row, col) => {
+            if ((!transpose && row == 0) || (transpose && col == 0)) {
               return [
                 {
                   menuKey: 'copy-field',
@@ -188,7 +221,7 @@ export function CanvasTable({
         onSelectedCell={(...args) => {
           console.log('selected', args);
         }}
-        onDropdownMenuClick={async (e, ...args) => {
+        onDropdownMenuClick={async (e) => {
           if (e.row == 0) {
             if (e.menuKey == 'copy-field') {
               console.log('clip', e?.field);
@@ -203,39 +236,8 @@ export function CanvasTable({
               await writeText((e?.field as string) ?? '');
             }
           }
-
-          console.log('onDropdownMenuClick', e, args);
         }}
-        onMouseEnterCell={(args) => {
-          const tableInstance = tableRef.current;
-          if (tableInstance === null) {
-            return;
-          }
-          const { col, row } = args;
-          if (row === 0) {
-            const rect = tableInstance.getVisibleCellRangeRelativeRect({
-              col,
-              row,
-            });
-
-            const name = tableInstance.getCellValue(col, row);
-            const type = types.get(name);
-            tableInstance.showTooltip(col, row, {
-              content: `${name}: ${type}`,
-              referencePosition: {
-                rect,
-                placement: VTable.TYPES.Placement.bottom,
-              },
-              className: 'defineTooltip',
-              style: {
-                bgColor: 'black',
-                color: 'white',
-                font: 'normal bold normal 12px/1',
-                arrowMark: true,
-              },
-            });
-          }
-        }}
+        onMouseEnterCell={handleMouseEnterCell}
       >
         <ListColumn
           field="__index__"
