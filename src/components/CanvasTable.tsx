@@ -29,14 +29,12 @@ const LIGHT_THEME: ITableThemeDefine = {
       inlineColumnBgColor: '#9cbef4',
     },
   },
-  headerStyle: {
-    fontSize: 12,
-  },
+  headerStyle: { fontSize: 12, padding: [8, 12, 6, 12] },
   bodyStyle: {
     fontSize: 12,
     fontFamily: 'Consolas',
     lineHeight: 12,
-    padding: [8, 12, 8, 12],
+    padding: [8, 12, 6, 12],
     hover: {
       cellBgColor: '#CCE0FF',
       inlineRowBgColor: '#F3F8FF',
@@ -70,13 +68,13 @@ const DARK_THEME: ITableThemeDefine = {
     lineHeight: 12,
     borderColor: '#444A54',
   },
+  headerStyle: { fontSize: 12, padding: [8, 12, 6, 12], bgColor: '#2e2f32' },
   bodyStyle: {
     fontSize: 12,
     fontFamily: 'Consolas',
     lineHeight: 12,
-    padding: [8, 12, 8, 12],
+    padding: [8, 12, 6, 12],
   },
-  rowHeaderStyle: { fontSize: 12 },
   frameStyle: {
     borderColor: '#d1d5da',
     borderLineWidth: 0,
@@ -86,9 +84,7 @@ const DARK_THEME: ITableThemeDefine = {
     shadowOffsetX: 0,
     shadowOffsetY: 0,
   },
-  headerStyle: {
-    bgColor: '#2e2f32',
-  },
+
   selectionStyle: {
     cellBorderLineWidth: 1,
   },
@@ -164,7 +160,7 @@ export function CanvasTable({
   ];
   console.log(__titles);
 
-  const columns = __titles.map(({ key, style, name }, _) => {
+  const columns = __titles.map(({ key, style, name, dataType }, _) => {
     return (
       <ListColumn
         field={name}
@@ -178,10 +174,18 @@ export function CanvasTable({
           return style;
         }}
         fieldFormat={(record) => {
-          if (record[key] === null) {
+          const value = record[key];
+          if (value === null) {
             return '[null]';
           }
-          return record[key];
+          if (beautify && isNumber(dataType) && precision) {
+            try {
+              return (value as number)?.toFixed(precision);
+            } catch (error) {
+              return value;
+            }
+          }
+          return value;
         }}
       />
     );
@@ -228,6 +232,7 @@ export function CanvasTable({
         ref={tableRef}
         height={height - 32}
         records={data}
+        limitMaxAutoWidth={200}
         heightMode="autoHeight"
         widthMode="autoWidth"
         showFrozenIcon={true}
