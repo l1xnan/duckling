@@ -26,6 +26,7 @@ export interface TableProps<T = unknown> {
   precision?: number;
   style?: CSSProperties;
   orderBy?: OrderByType;
+  transpose?: boolean;
 }
 
 type RowType = Record<string, unknown>;

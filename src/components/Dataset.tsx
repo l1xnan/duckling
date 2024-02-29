@@ -2,6 +2,7 @@ import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import PivotTableChartIcon from '@mui/icons-material/PivotTableChart';
 import SyncIcon from '@mui/icons-material/Sync';
 import {
   Box,
@@ -74,7 +75,8 @@ export const usePageStoreApi = () => {
 };
 
 export function Dataset({ context }: { context: TabContextType }) {
-  const { refresh, data, titles, schema, beautify, orderBy } = usePageStore();
+  const { refresh, data, titles, schema, beautify, orderBy, transpose } =
+    usePageStore();
   const currentTab = useAtomValue(activeTabAtom);
   const [loading, setLoading] = useState(false);
 
@@ -93,7 +95,6 @@ export function Dataset({ context }: { context: TabContextType }) {
     }
   }, []);
   const precision = useAtomValue(precisionAtom);
-
   return (
     <Stack sx={{ height: '100%' }}>
       <PageSizeToolbar />
@@ -109,6 +110,7 @@ export function Dataset({ context }: { context: TabContextType }) {
             beautify={beautify}
             orderBy={orderBy}
             precision={precision}
+            transpose={transpose}
           />
         </Suspense>
       </Box>
@@ -129,6 +131,7 @@ function PageSizeToolbar() {
     toLast,
     perPage,
     setPerPage,
+    setTranspose,
   } = usePageStore();
 
   const count = data.length;
@@ -188,10 +191,14 @@ function PageSizeToolbar() {
           <SyncIcon fontSize="small" />
         </IconButton>
       </Stack>
+      <Stack>
+        <IconButton color="inherit" onClick={setTranspose}>
+          <PivotTableChartIcon fontSize="small" />
+        </IconButton>
+      </Stack>
     </ToolbarContainer>
   );
 }
-
 export function InputToolbar() {
   const { orderBy, setSQLWhere } = usePageStore();
 

@@ -39,6 +39,7 @@ export type DatasetState = {
   orderBy?: OrderByType;
   sqlWhere?: string;
   beautify?: boolean;
+  transpose?: boolean;
   dialogColumn?: string;
 };
 
@@ -46,6 +47,7 @@ export type DatasetAction = {
   setStore?: (res: Partial<DatasetState>) => void;
   setOrderBy?: (name: string) => void;
   setPerPage?: (perPage: number) => void;
+  setTranspose?: () => void;
   increase: () => void;
   toFirst: () => void;
   toLast: () => void;
@@ -95,6 +97,7 @@ export const createDatasetStore = (context: TabContextType) =>
     code: 0,
     message: undefined,
     beautify: true,
+    transpose: false,
 
     // action
     setStore: (res: object) => set((_) => res),
@@ -154,6 +157,9 @@ export const createDatasetStore = (context: TabContextType) =>
     decrease: () => {
       set((state) => ({ page: state.page - 1 }));
       get().refresh();
+    },
+    setTranspose: () => {
+      set((state) => ({ transpose: !state.transpose }));
     },
     refresh: async () => {
       const { page, perPage, context, sqlWhere, orderBy } = get();
