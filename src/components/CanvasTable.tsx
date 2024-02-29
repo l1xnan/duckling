@@ -13,7 +13,7 @@ import useResizeObserver from 'use-resize-observer';
 
 import { TableProps } from '@/components/AgTable.tsx';
 import { tableFontFamilyAtom } from '@/stores/setting';
-import { isDarkTheme, isNumber } from '@/utils.ts';
+import { isDarkTheme, isFloat, isNumber } from '@/utils.ts';
 
 type ITableThemeDefine = ComponentProps<typeof ListTable>['theme'];
 
@@ -178,7 +178,7 @@ export function CanvasTable({
           if (value === null) {
             return '[null]';
           }
-          if (beautify && isNumber(dataType) && precision) {
+          if (beautify && isFloat(dataType) && precision) {
             try {
               return (value as number)?.toFixed(precision);
             } catch (error) {

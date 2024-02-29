@@ -73,3 +73,6 @@ export function isNumber(dataType: string) {
     dataType.includes('Decimal')
   );
 }
+export function isFloat(dataType: string) {
+  return dataType.includes('Float') || dataType.includes('Decimal');
+}
