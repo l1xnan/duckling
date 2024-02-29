@@ -13,7 +13,7 @@ import useResizeObserver from 'use-resize-observer';
 
 import { TableProps } from '@/components/AgTable.tsx';
 import { tableFontFamilyAtom } from '@/stores/setting';
-import { isDarkTheme, isFloat, isNumber } from '@/utils.ts';
+import { debounce, isDarkTheme, isFloat, isNumber } from '@/utils.ts';
 
 type ITableThemeDefine = ComponentProps<typeof ListTable>['theme'];
 
@@ -293,7 +293,7 @@ export function CanvasTable({
             }
           }
         }}
-        onMouseEnterCell={handleMouseEnterCell}
+        onMouseEnterCell={debounce(handleMouseEnterCell)}
       >
         <ListColumn
           field="__index__"
