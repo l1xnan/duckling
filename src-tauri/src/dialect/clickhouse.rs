@@ -29,19 +29,6 @@ pub struct ClickhouseDialect {
   pub database: Option<String>,
 }
 
-impl ClickhouseDialect {
-  pub(crate) fn get_url(&self) -> String {
-    format!(
-      "tcp://{}:{}@{}:{}/{}?compression=lz4&ping_timeout=42ms",
-      self.username,
-      self.password,
-      self.host,
-      self.port,
-      self.database.clone().unwrap_or_default(),
-    )
-  }
-}
-
 #[async_trait]
 impl Connection for ClickhouseDialect {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
@@ -57,11 +44,7 @@ impl Connection for ClickhouseDialect {
   }
 
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
-    if limit == 0 && offset == 0 {
-      self.fetch_all(sql).await
-    } else {
-      self.fetch_many(sql, limit, offset).await
-    }
+    self.fetch_all(sql).await
   }
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     self._table_row_count(table, r#where).await
@@ -69,6 +52,17 @@ impl Connection for ClickhouseDialect {
 }
 
 impl ClickhouseDialect {
+  pub(crate) fn get_url(&self) -> String {
+    format!(
+      "tcp://{}:{}@{}:{}/{}?compression=lz4&ping_timeout=42ms",
+      self.username,
+      self.password,
+      self.host,
+      self.port,
+      self.database.clone().unwrap_or_default(),
+    )
+  }
+
   async fn client(&self) -> anyhow::Result<ClientHandle> {
     let pool = Pool::new(self.get_url());
     let client = pool.get_handle().await?;
@@ -106,13 +100,13 @@ impl ClickhouseDialect {
     Ok(tables)
   }
 
-  async fn _table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
+  async fn _table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     let mut conn = self.client().await?;
-    let sql = self._table_count_sql(table, cond);
+    let sql = self._table_count_sql(table, r#where);
     let block = conn.query(&sql).fetch_all().await?;
 
     for row in block.rows() {
-      let total: u32 = row.get(0)?;
+      let total= row.get::<u64, _>(0)?;
       return Ok(total.as_usize());
     }
     Err(anyhow::anyhow!("null"))
@@ -138,10 +132,25 @@ impl ClickhouseDialect {
     let pool = Pool::new(self.get_url());
     let mut client = pool.get_handle().await?;
     let mut stream = client.query(sql).stream_blocks();
+    let mut titles = vec![];
 
     let mut batchs = vec![];
+    let mut block_count = 0;
     while let Some(block) = stream.next().await {
       let block = block?;
+
+      if block_count == 0 {
+        titles = block
+          .columns()
+          .iter()
+          .map(|c| Title {
+            name: c.name().to_string(),
+            r#type: c.sql_type().to_string().into(),
+          })
+          .collect();
+      }
+
+      block_count += 1;
       let batch = block_to_arrow(&block)?;
       batchs.push(batch);
     }
@@ -151,7 +160,7 @@ impl ClickhouseDialect {
     Ok(RawArrowData {
       total_count: batch.num_rows(),
       batch,
-      titles: None,
+      titles: Some(titles),
     })
   }
 
