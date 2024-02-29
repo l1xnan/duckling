@@ -65,3 +65,11 @@ export function compareAny(a: unknown, b: unknown) {
   }
   return (a as number) - (b as number);
 }
+
+export function isNumber(dataType: string) {
+  return (
+    dataType.includes('Int') ||
+    dataType.includes('Float') ||
+    dataType.includes('Decimal')
+  );
+}

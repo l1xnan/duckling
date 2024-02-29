@@ -13,7 +13,7 @@ import useResizeObserver from 'use-resize-observer';
 
 import { TableProps } from '@/components/AgTable.tsx';
 import { tableFontFamilyAtom } from '@/stores/setting';
-import { isDarkTheme, isEmpty } from '@/utils.ts';
+import { isDarkTheme, isNumber } from '@/utils.ts';
 
 type ITableThemeDefine = ComponentProps<typeof ListTable>['theme'];
 
@@ -110,42 +110,82 @@ export function CanvasTable({
   style,
   ...rest
 }: TableProps) {
-  const _titles = isEmpty(titles)
-    ? schema.map(({ name, dataType }) => ({ name, type: dataType }))
-    : titles;
+  const titleMap = new Map();
+
+  const _titles =
+    schema?.map(({ name, dataType }, i) => {
+      const title = titles?.[i];
+      const style: Record<string, string> = {};
+      if (isNumber(dataType)) {
+        style['textAlign'] = 'right';
+      }
+
+      const item = {
+        key: name,
+        name,
+        type: title?.type ?? dataType,
+        dataType,
+        style,
+      };
+      titleMap.set(name, item);
+      return item;
+    }) ?? [];
 
   if (_titles && _titles.length == 0) {
     return null;
   }
 
-  const types = new Map(_titles.map(({ name, type }) => [name, type]));
+  const types = new Map(_titles.map(({ key, type }) => [key, type]));
+
   const [leftPinnedCols, setLeftPinnedCols] = useState<string[]>([]);
   const [rightPinnedCols, setRightPinnedCols] = useState<string[]>([]);
   const { ref, height = 100 } = useResizeObserver<HTMLDivElement>();
 
   const tableRef = useRef<IVTable>();
   const appTheme = useTheme();
-  const theme = isDarkTheme(appTheme) ? darkTheme : lightTheme;
+  const tableFontFamily = useAtomValue(tableFontFamilyAtom);
 
-  const leftPinned = leftPinnedCols.map((name) => {
-    return <ListColumn field={name} title={name} dragHeader={true} />;
-  });
-  const rightPinned = rightPinnedCols.map((name) => {
-    return <ListColumn field={name} title={name} dragHeader={true} />;
+  const theme = (isDarkTheme(appTheme) ? darkTheme : lightTheme).extends({
+    bodyStyle: {
+      fontFamily: tableFontFamily,
+    },
+    headerStyle: {
+      fontFamily: tableFontFamily,
+    },
   });
 
-  const columns =
-    _titles
-      ?.filter(
-        (col) =>
-          !leftPinnedCols.includes(col.name) &&
-          !rightPinnedCols.includes(col.name),
-      )
-      ?.map((col, _) => {
-        return (
-          <ListColumn field={col.name} title={col.name} dragHeader={true} />
-        );
-      }) ?? [];
+  const __titles = [
+    ...leftPinnedCols.map((key) => titleMap.get(key)),
+    ..._titles.filter(
+      ({ key }) =>
+        !leftPinnedCols.includes(key) && !rightPinnedCols.includes(key),
+    ),
+    ...rightPinnedCols.map((key) => titleMap.get(key)),
+  ];
+  console.log(__titles);
+
+  const columns = __titles.map(({ key, style, name }, _) => {
+    return (
+      <ListColumn
+        field={name}
+        fieldKey={key}
+        title={name}
+        dragHeader={true}
+        style={(arg) => {
+          if (arg.value === null) {
+            return { ...style, color: 'gray' };
+          }
+          return style;
+        }}
+        fieldFormat={(record) => {
+          if (record[key] === null) {
+            return '[null]';
+          }
+          return record[key];
+        }}
+      />
+    );
+  });
 
   const handleMouseEnterCell: ComponentProps<
     typeof ListTable
@@ -182,8 +222,6 @@ export function CanvasTable({
     }
   };
 
-  const tableFontFamily = useAtomValue(tableFontFamilyAtom);
-
   return (
     <div ref={ref} className="h-full" style={style}>
       <ListTable
@@ -197,14 +235,7 @@ export function CanvasTable({
         rightFrozenColCount={rightPinnedCols.length}
         dragHeaderMode="column"
         transpose={transpose}
-        theme={theme.extends({
-          bodyStyle: {
-            fontFamily: tableFontFamily,
-          },
-          headerStyle: {
-            fontFamily: tableFontFamily,
-          },
-        })}
+        theme={theme}
         menu={{
           contextMenuItems: (field, row, col) => {
             if ((!transpose && row == 0) || (transpose && col == 0)) {
@@ -270,9 +301,7 @@ export function CanvasTable({
           disableColumnResize={true}
           style={{ color: '#96938f', fontSize: 10, textAlign: 'center' }}
         />
-        {leftPinned}
         {columns}
-        {rightPinned}
       </ListTable>
     </div>
   );

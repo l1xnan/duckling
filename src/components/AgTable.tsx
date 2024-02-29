@@ -16,7 +16,7 @@ import { NonUndefined } from 'react-hook-form';
 import { TitleType } from '@/api.ts';
 import HeaderCell from '@/components/dataframe/HeaderCell';
 import { OrderByType, SchemaType } from '@/stores/dataset';
-import { getByteLength, isDarkTheme } from '@/utils';
+import { getByteLength, isDarkTheme, isNumber } from '@/utils';
 
 export interface TableProps<T = unknown> {
   data: T[];
@@ -40,14 +40,6 @@ function columnWiths(name: string, row: RowType) {
       12 +
       30,
     200,
-  );
-}
-
-function isNumber(dataType: string) {
-  return (
-    dataType.includes('Int') ||
-    dataType.includes('Float') ||
-    dataType.includes('Decimal')
   );
 }
 
