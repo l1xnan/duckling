@@ -2,3 +2,28 @@
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 15px;
 }
+
+body .vtable__menu-element {
+  background-color: hsl(var(--popover));
+  border-width: 1px;
+  border-color: hsl(var(--border));
+  --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color),
+    0 2px 4px -2px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+body .vtable__menu-element--normal {
+  color: hsl(var(--popover-foreground));
+}
+
+body .vtable__menu-element__item:hover {
+  background-color: hsl(var(--accent));
+}
+
+body .vtable__menu-element__item {
+  height: 22px;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
