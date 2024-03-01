@@ -7,8 +7,9 @@ import {
   type IVTable,
 } from '@visactor/react-vtable';
 import { themes } from '@visactor/vtable';
+import { ListTable as ListTableAPI } from '@visactor/vtable/ListTable';
 import { useAtomValue } from 'jotai';
-import { useRef, useState, type ComponentProps } from 'react';
+import { useEffect, useRef, useState, type ComponentProps } from 'react';
 import useResizeObserver from 'use-resize-observer';
 
 import { TableProps } from '@/components/AgTable.tsx';
@@ -137,7 +138,7 @@ export function CanvasTable({
   const [rightPinnedCols, setRightPinnedCols] = useState<string[]>([]);
   const { ref, height = 100 } = useResizeObserver<HTMLDivElement>();
 
-  const tableRef = useRef<IVTable>();
+  const tableRef = useRef<IVTable & ListTableAPI>();
   const appTheme = useTheme();
   const tableFontFamily = useAtomValue(tableFontFamilyAtom);
 
@@ -226,8 +227,35 @@ export function CanvasTable({
     }
   };
 
+  useEffect(() => {
+    const handleBodyClick = (_e: Event) => {
+      const tableInstance: ListTableAPI = tableRef.current;
+      if (tableInstance === null) {
+        return;
+      }
+      tableInstance.stateManager.hideMenu();
+    };
+
+    document.body.addEventListener('click', handleBodyClick);
+    document.body.addEventListener('dblclick', handleBodyClick);
+    document.body.addEventListener('contextmenu', handleBodyClick);
+
+    return () => {
+      document.body.removeEventListener('click', handleBodyClick);
+      document.body.removeEventListener('dblclick', handleBodyClick);
+      document.body.removeEventListener('contextmenu', handleBodyClick);
+    };
+  }, []);
   return (
-    <div ref={ref} className="h-full" style={style}>
+    <div
+      ref={ref}
+      className="h-full"
+      style={style}
+      onContextMenu={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+      }}
+    >
       <ListTable
         ref={tableRef}
         height={height - 32}
@@ -263,6 +291,7 @@ export function CanvasTable({
           },
         }}
         hover={{
+          disableHover: true,
           highlightMode: 'cell',
           disableHeaderHover: true,
         }}
