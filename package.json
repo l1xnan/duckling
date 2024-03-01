@@ -46,7 +46,7 @@
     "@visactor/react-vtable": "^0.20.1",
     "@visactor/vtable": "^0.20.1",
     "ag-grid-community": "^31.1.0",
-    "ag-grid-react": "^31.1.0",
+    "ag-grid-react": "^31.1.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "dayjs": "^1.11.10",
