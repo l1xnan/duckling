@@ -68,7 +68,7 @@ export function DatasetItem({
   const precision = useAtomValue(precisionAtom);
 
   return (
-    <Stack height={'100%'}>
+    <Stack height={'calc(100% - 32px)'}>
       <PageSizeToolbar
         query={handleQuery}
         exportData={handleExport}
