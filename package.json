@@ -44,7 +44,7 @@
     "@tauri-apps/plugin-shell": "2.0.0-beta.1",
     "@tauri-apps/plugin-updater": "2.0.0-beta.1",
     "@visactor/react-vtable": "^0.20.1",
-    "@visactor/vtable": "^0.20.1",
+    "@visactor/vtable": "^0.20.2",
     "ag-grid-community": "^31.1.0",
     "ag-grid-react": "^31.1.0",
     "class-variance-authority": "^0.7.0",

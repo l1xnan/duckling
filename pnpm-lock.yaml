@@ -105,8 +105,8 @@ dependencies:
     specifier: ^0.20.1
     version: 0.20.1
   '@visactor/vtable':
-    specifier: ^0.20.1
-    version: 0.20.1
+    specifier: ^0.20.2
+    version: 0.20.2
   ag-grid-community:
     specifier: ^31.1.0
     version: 31.1.0
@@ -1618,7 +1618,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -1628,7 +1627,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -1638,7 +1636,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -1648,7 +1645,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -2729,7 +2725,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -2739,7 +2734,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -2749,7 +2743,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -2759,7 +2752,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -3669,6 +3661,10 @@ packages:
     resolution: {integrity: sha512-BNOawr3op1HYNua5hvqezSu1NAznkOJN6HcQbVmljEL3B/qiPwZ4uTwLyeLXVHqdREzwx+/0TI242gVh3hnO3A==}
     dev: false
 
+  /@visactor/vtable-editors@0.20.2:
+    resolution: {integrity: sha512-xvu3a9LdStHB8KJPSSVX0JfU0YvqusLxk14SXhZ5TOgvJWai5gFKEEnse0SDYgcnkXWxMsmHGWKUyEw7W1hfbQ==}
+    dev: false
+
   /@visactor/vtable@0.20.1:
     resolution: {integrity: sha512-nspJ4ub60s5ECuAnofeS4iWRc7WSYslQhuJXn+yW8UqAbx465NmONUj7wIm8OYl30jWh3xZg6Atu8eTmTxbVeQ==}
     dependencies:
@@ -3678,6 +3674,20 @@ packages:
       '@visactor/vrender-kits': 0.17.20-alpha.3
       '@visactor/vscale': 0.17.5
       '@visactor/vtable-editors': 0.20.1
+      '@visactor/vutils': 0.17.5
+      '@visactor/vutils-extension': 1.8.11
+      cssfontparser: 1.2.1
+    dev: false
+
+  /@visactor/vtable@0.20.2:
+    resolution: {integrity: sha512-uW1Y+xVVUeKEwtJodmdJ7u9jJ7E8HNCRL2aRw1ckUoB0KOzk8uUk7gbNAJKNf3ff8FcpG93oDfkPvpLoHG9YOw==}
+    dependencies:
+      '@visactor/vdataset': 0.17.5
+      '@visactor/vrender-components': 0.17.20-alpha.3
+      '@visactor/vrender-core': 0.17.20-alpha.3
+      '@visactor/vrender-kits': 0.17.20-alpha.3
+      '@visactor/vscale': 0.17.5
+      '@visactor/vtable-editors': 0.20.2
       '@visactor/vutils': 0.17.5
       '@visactor/vutils-extension': 1.8.11
       cssfontparser: 1.2.1
