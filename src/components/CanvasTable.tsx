@@ -1,13 +1,7 @@
 import { useTheme } from '@mui/material';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
-import {
-  ListColumn,
-  ListTable,
-  VTable,
-  type IVTable,
-} from '@visactor/react-vtable';
-import { themes } from '@visactor/vtable';
-import { ListTable as ListTableAPI } from '@visactor/vtable/ListTable';
+import { ListColumn, ListTable, VTable } from '@visactor/react-vtable';
+import { ListTable as ListTableAPI, themes } from '@visactor/vtable';
 import { useAtomValue } from 'jotai';
 import { useEffect, useRef, useState, type ComponentProps } from 'react';
 import useResizeObserver from 'use-resize-observer';
@@ -96,6 +90,14 @@ const lightTheme = themes.ARCO.extends(LIGHT_THEME);
 // const darkTheme = merge([themes.DARK, DARK_THEME]);
 const darkTheme = themes.DARK.extends(DARK_THEME);
 
+type PosType = {
+  x: number;
+  y: number;
+  row: number;
+  col: number;
+  content: string;
+};
+
 export function CanvasTable({
   data,
   titles,
@@ -138,7 +140,7 @@ export function CanvasTable({
   const [rightPinnedCols, setRightPinnedCols] = useState<string[]>([]);
   const { ref, height = 100 } = useResizeObserver<HTMLDivElement>();
 
-  const tableRef = useRef<IVTable & ListTableAPI>();
+  const tableRef = useRef<ListTableAPI>();
   const appTheme = useTheme();
   const tableFontFamily = useAtomValue(tableFontFamilyAtom);
 
@@ -159,7 +161,6 @@ export function CanvasTable({
     ),
     ...rightPinnedCols.map((key) => titleMap.get(key)),
   ];
-  console.log(__titles);
 
   const columns = __titles.map(({ key, style, name, dataType }, _) => {
     return (
@@ -192,16 +193,22 @@ export function CanvasTable({
     );
   });
 
+  // const [popup, _setPopup] = useState<Partial<PosType>>({});
+  // const popupRef = useRef(popup);
+  // const setPopup = (data: Partial<PosType>) => {
+  //   popupRef.current = data;
+  //   _setPopup(data);
+  // };
+
   const handleMouseEnterCell: ComponentProps<
     typeof ListTable
   >['onMouseEnterCell'] = async (args) => {
     const tableInstance = tableRef.current;
-    if (tableInstance === null) {
+    if (tableInstance === null || tableInstance === undefined) {
       return;
     }
 
     const { col, row } = args;
-
     if (!tableInstance.transpose && row === 0) {
       const rect = tableInstance.getVisibleCellRangeRelativeRect({
         col,
@@ -218,10 +225,7 @@ export function CanvasTable({
         },
         className: 'defineTooltip',
         style: {
-          bgColor: 'black',
-          color: 'white',
-          font: 'normal bold normal 12px/1',
-          arrowMark: true,
+          arrowMark: false,
         },
       });
     }
@@ -229,8 +233,8 @@ export function CanvasTable({
 
   useEffect(() => {
     const handleBodyClick = (_e: Event) => {
-      const tableInstance: ListTableAPI = tableRef.current;
-      if (tableInstance === null) {
+      const tableInstance = tableRef.current;
+      if (tableInstance === null || tableInstance === undefined) {
         return;
       }
       tableInstance.stateManager.hideMenu();
@@ -246,6 +250,7 @@ export function CanvasTable({
       document.body.removeEventListener('contextmenu', handleBodyClick);
     };
   }, []);
+
   return (
     <div
       ref={ref}
@@ -304,7 +309,7 @@ export function CanvasTable({
           console.log('context', arg);
         }}
         onSelectedCell={(arg) => {
-          console.log('selected', arg);
+          console.log('seleted', arg);
         }}
         onDropdownMenuClick={async (e) => {
           if (e.row == 0) {

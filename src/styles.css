@@ -27,3 +27,18 @@ body .vtable__menu-element__item {
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
 }
+
+body .vtable__bubble-tooltip-element {
+  color: hsl(var(--popover-foreground));
+  background-color: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow: 0px 2px 4px rgb(27 31 35 / 8%);
+  color: #141414;
+  font-size: 13px;
+}
+body .vtable__bubble-tooltip-element__content {
+  color: hsl(var(--popover-foreground));
+  background-color: hsl(var(--popover));
+}
