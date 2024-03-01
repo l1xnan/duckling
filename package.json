@@ -11,7 +11,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@apache-arrow/ts": "^14.0.2",
+    "@apache-arrow/ts": "^15.0.0",
     "@emotion/react": "^11.11.1",
     "@hookform/resolvers": "^3.3.4",
     "@mobily/ts-belt": "^3.13.1",
