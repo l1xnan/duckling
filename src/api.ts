@@ -27,15 +27,19 @@ export type OptionType = {
   order?: string;
 };
 
-export function convertArrow(arrowData: Array<number>, totalCount: number) {
+export function convertArrow(
+  arrowData: Array<number>,
+  totalCount: number,
+  titles?: TitleType[],
+) {
   const table: Table = tableFromIPC(Uint8Array.from(arrowData));
-  const schema: SchemaType[] = table.schema.fields.map((field: any) => {
+  const schema: SchemaType[] = table.schema.fields.map((field: any, i) => {
     return {
       name: field.name,
       dataType: field.type.toString(),
-      type: field.type,
       nullable: field.nullable,
       metadata: field.metadata,
+      type: titles?.[i]?.type ?? field.type,
     };
   });
 
@@ -57,8 +61,7 @@ function convert(res: ArrowResponse): ResultType {
   const { data, titles, total, code, message } = res;
   if (code === 0) {
     return {
-      ...convertArrow(data, total),
-      titles,
+      ...convertArrow(data, total, titles),
       code,
       message,
     };

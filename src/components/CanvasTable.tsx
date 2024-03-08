@@ -113,20 +113,17 @@ type PosType = {
 
 export const CanvasTable = React.memo(function CanvasTable({
   data,
-  titles,
   schema,
   beautify,
   orderBy,
   precision,
   transpose,
   style,
-  ...rest
 }: TableProps) {
   const titleMap = new Map();
 
   const _titles =
-    schema?.map(({ name, dataType }, i) => {
-      const title = titles?.[i];
+    schema?.map(({ name, dataType, type }, i) => {
       const style: Record<string, string> = {};
       if (isNumber(dataType)) {
         style['textAlign'] = 'right';
@@ -135,7 +132,7 @@ export const CanvasTable = React.memo(function CanvasTable({
       const item = {
         key: name,
         name,
-        type: title?.type ?? dataType,
+        type: type ?? dataType,
         dataType,
         style,
       };
@@ -201,7 +198,7 @@ export const CanvasTable = React.memo(function CanvasTable({
           }
           return value;
         },
-      };
+      } as ListColumnProps;
     },
   );
 

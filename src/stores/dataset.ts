@@ -8,9 +8,9 @@ import { QueryParamType, TabContextType, execute } from './tabs';
 export type SchemaType = {
   name: string;
   dataType: string;
-  type: string;
   nullable: boolean;
   metadata: unknown;
+  type?: string;
 };
 
 export interface ArrowResponse {

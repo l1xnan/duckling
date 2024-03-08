@@ -13,14 +13,12 @@ import {
 } from 'react';
 import { NonUndefined } from 'react-hook-form';
 
-import { TitleType } from '@/api.ts';
 import HeaderCell from '@/components/dataframe/HeaderCell';
 import { OrderByType, SchemaType } from '@/stores/dataset';
 import { getByteLength, isDarkTheme, isNumber } from '@/utils';
 
 export interface TableProps<T = unknown> {
   data: T[];
-  titles: TitleType[];
   schema: SchemaType[];
   beautify?: boolean;
   precision?: number;
@@ -78,7 +76,6 @@ type ColDefType = NonUndefined<
 
 export const AgTable = ({
   data,
-  titles,
   schema,
   beautify,
   orderBy,
@@ -103,11 +100,11 @@ export const AgTable = ({
   const row0 = (data?.[0] ?? {}) as RowType;
   const columnDefs = useMemo<RowType[]>(() => {
     const main: RowType[] =
-      schema?.map(({ name, dataType }, i) => {
+      schema?.map(({ name, dataType, type }) => {
         return {
           headerName: name,
           field: name,
-          sqlType: titles[i]?.type,
+          sqlType: type ?? dataType,
           width: columnWiths(name, row0),
           valueFormatter: formatter({
             dataType,
