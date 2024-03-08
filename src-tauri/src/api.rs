@@ -136,7 +136,7 @@ pub fn query(
   Ok(RawArrowData {
     total_count: total,
     batch,
-    titles,
+    titles: None,
   })
 }
 
