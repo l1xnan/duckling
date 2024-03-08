@@ -27,20 +27,7 @@ impl Connection for DuckDbDialect {
   }
 
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
-    api::query(&self.path, sql, limit, offset, self.cwd.clone())
-  }
-
-  async fn query_table(
-    &self,
-    table: &str,
-    limit: usize,
-    offset: usize,
-    where_: &str,
-    order_by: &str,
-  ) -> anyhow::Result<RawArrowData> {
-    let sql = self._table_query_sql(table, where_, order_by);
-    println!("query table {}: {}", table, sql);
-    self.query(&sql, limit, offset).await
+    api::query(&self.path, sql, 0, 0, self.cwd.clone())
   }
 
   async fn export(&self, sql: &str, file: &str) {

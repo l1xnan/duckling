@@ -36,19 +36,6 @@ impl Connection for FileDialect {
     api::query(":memory:", sql, limit, offset, None)
   }
 
-  async fn query_table(
-    &self,
-    table: &str,
-    limit: usize,
-    offset: usize,
-    where_: &str,
-    order_by: &str,
-  ) -> anyhow::Result<RawArrowData> {
-    let sql = self._table_query_sql(table, where_, order_by);
-    println!("query table {}: {}", table, sql);
-    self.query(&sql, limit, offset).await
-  }
-
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     let conn = self.connect()?;
     let sql = self._table_count_sql(table, r#where);

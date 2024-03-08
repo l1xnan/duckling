@@ -130,14 +130,13 @@ pub fn query(
   let schema = frames.get_schema();
   let records: Vec<_> = frames.collect();
 
-  let record_batch = arrow::compute::concat_batches(&schema, &records)?;
-  let total = record_batch.num_rows();
-  let batch = record_batch.slice(offset, std::cmp::min(limit, total - offset));
+  let batch = arrow::compute::concat_batches(&schema, &records)?;
+  let total = batch.num_rows();
 
   Ok(RawArrowData {
     total_count: total,
     batch,
-    titles: None,
+    titles,
   })
 }
 
