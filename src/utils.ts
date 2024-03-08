@@ -76,3 +76,8 @@ export function isNumber(dataType: string) {
 export function isFloat(dataType: string) {
   return dataType.includes('Float') || dataType.includes('Decimal');
 }
+
+export function uniqueArray<T>(arr: T[]) {
+  const seen = new Set();
+  return Array.from(arr.filter((item) => !seen.has(item) && seen.add(item)));
+}

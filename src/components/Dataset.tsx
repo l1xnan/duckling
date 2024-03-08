@@ -95,6 +95,7 @@ export function Dataset({ context }: { context: TabContextType }) {
     }
   }, []);
   const precision = useAtomValue(precisionAtom);
+
   return (
     <Stack sx={{ height: '100%' }}>
       <PageSizeToolbar />

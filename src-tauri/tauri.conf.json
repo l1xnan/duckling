@@ -42,15 +42,11 @@
     },
     "fileAssociations": [
       {
-        "ext": [
-          "duckdb"
-        ],
+        "ext": ["duckdb"],
         "mimeType": "application/octet-stream"
       },
       {
-        "ext": [
-          "parquet"
-        ],
+        "ext": ["parquet"],
         "mimeType": "application/octet-stream"
       }
     ]

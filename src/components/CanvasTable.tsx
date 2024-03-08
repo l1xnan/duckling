@@ -1,18 +1,29 @@
 import { useTheme } from '@mui/material';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { ListColumn, ListTable, VTable } from '@visactor/react-vtable';
-import { ListTable as ListTableAPI, themes } from '@visactor/vtable';
+import {
+  ListTable as ListTableAPI,
+  ListTableConstructorOptions,
+  themes,
+} from '@visactor/vtable';
 import { useAtomValue } from 'jotai';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import useResizeObserver from 'use-resize-observer';
 
 import { TableProps } from '@/components/AgTable.tsx';
 import { tableFontFamilyAtom } from '@/stores/setting';
-import { debounce, isDarkTheme, isFloat, isNumber } from '@/utils.ts';
+import {
+  debounce,
+  isDarkTheme,
+  isFloat,
+  isNumber,
+  uniqueArray,
+} from '@/utils.ts';
 
 import type { ComponentProps } from 'react';
 
 type ITableThemeDefine = ComponentProps<typeof ListTable>['theme'];
+type ListColumnProps = ComponentProps<typeof ListColumn>;
 
 const LIGHT_THEME: ITableThemeDefine = {
   defaultStyle: {
@@ -100,7 +111,7 @@ type PosType = {
   content: string;
 };
 
-export function CanvasTable({
+export const CanvasTable = React.memo(function CanvasTable({
   data,
   titles,
   schema,
@@ -155,29 +166,28 @@ export function CanvasTable({
     },
   });
 
+  const pinnedSet = new Set([...leftPinnedCols, ...rightPinnedCols]);
+
   const __titles = [
     ...leftPinnedCols.map((key) => titleMap.get(key)),
-    ..._titles.filter(
-      ({ key }) =>
-        !leftPinnedCols.includes(key) && !rightPinnedCols.includes(key),
-    ),
+    ..._titles.filter(({ key }) => !pinnedSet.has(key)),
     ...rightPinnedCols.map((key) => titleMap.get(key)),
   ];
 
-  const columns = __titles.map(({ key, style, name, dataType }, _) => {
-    return (
-      <ListColumn
-        field={name}
-        fieldKey={key}
-        title={name}
-        dragHeader={true}
-        style={(arg) => {
-          if (arg.value === null) {
+  const __columns: ListColumnProps[] = __titles.map(
+    ({ key, style, name, dataType }, _) => {
+      return {
+        field: name,
+        fieldKey: key,
+        title: name,
+        dragHeader: true,
+        style: (arg) => {
+          if (arg.value === null || arg.value === undefined) {
             return { ...style, color: 'gray' };
           }
           return style;
-        }}
-        fieldFormat={(record) => {
+        },
+        fieldFormat: (record) => {
           const value = record[key];
           if (value === null) {
             return '[null]';
@@ -190,10 +200,10 @@ export function CanvasTable({
             }
           }
           return value;
-        }}
-      />
-    );
-  });
+        },
+      };
+    },
+  );
 
   // const [popup, _setPopup] = useState<Partial<PosType>>({});
   // const popupRef = useRef(popup);
@@ -204,60 +214,40 @@ export function CanvasTable({
 
   useEffect(() => {
     const handleBodyClick = (_e: Event) => {
-      const tableInstance = tableRef.current;
-      if (tableInstance === null || tableInstance === undefined) {
-        return;
-      }
-      console.log('transpose', transpose);
-      tableInstance.stateManager.hideMenu();
+      tableRef.current?.stateManager.hideMenu();
     };
 
-    document.body.addEventListener('click', handleBodyClick);
-    document.body.addEventListener('dblclick', handleBodyClick);
-    document.body.addEventListener('contextmenu', handleBodyClick);
+    document.addEventListener('click', handleBodyClick);
+    document.addEventListener('dblclick', handleBodyClick);
+    document.addEventListener('contextmenu', handleBodyClick);
+    // document.addEventListener('mousedown', handleBodyClick);
 
     return () => {
-      document.body.removeEventListener('click', handleBodyClick);
-      document.body.removeEventListener('dblclick', handleBodyClick);
-      document.body.removeEventListener('contextmenu', handleBodyClick);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleAny = (...args) => {
-      console.log('any', args);
-    };
-    tableRef.current?.addEventListener('show_menu', handleAny);
-    tableRef.current?.addEventListener('contextmenu_cell', handleAny);
-
-    return () => {
-      tableRef.current?.removeEventListener('show_menu', handleAny);
-      tableRef.current?.removeEventListener('contextmenu_cell', handleAny);
+      document.removeEventListener('click', handleBodyClick);
+      document.removeEventListener('dblclick', handleBodyClick);
+      document.removeEventListener('contextmenu', handleBodyClick);
+      // document.removeEventListener('mousedown', handleBodyClick);
     };
   }, []);
 
   const handleMouseEnterCell: ComponentProps<
     typeof ListTable
   >['onMouseEnterCell'] = async (args) => {
-    const tableInstance = tableRef.current;
-    if (tableInstance === null || tableInstance === undefined) {
+    const table = tableRef.current;
+    if (!table) {
       return;
     }
 
     const { col, row } = args;
-    if (
-      !tableInstance.transpose &&
-      row === 0 &&
-      !tableInstance.stateManager.menu.isShow
-    ) {
-      const rect = tableInstance.getVisibleCellRangeRelativeRect({
+    if (!table.transpose && row === 0 && !table.stateManager.menu.isShow) {
+      const rect = table.getVisibleCellRangeRelativeRect({
         col,
         row,
       });
 
-      const name = tableInstance.getCellValue(col, row);
+      const name = table.getCellValue(col, row);
       const type = types.get(name);
-      tableInstance.showTooltip(col, row, {
+      table.showTooltip(col, row, {
         content: `${name}: ${type}`,
         referencePosition: {
           rect,
@@ -279,9 +269,11 @@ export function CanvasTable({
       if (e.menuKey == 'copy-field') {
         await writeText((e?.field as string) ?? '');
       } else if (e.menuKey == 'pin-to-left') {
-        setLeftPinnedCols((v) => [...v, e.field as string]);
+        setLeftPinnedCols((v) => uniqueArray([...v, e.field as string]));
+        setRightPinnedCols((v) => v.filter((key) => key != e.field));
       } else if (e.menuKey == 'pin-to-right') {
-        setRightPinnedCols((v) => [e.field as string, ...v]);
+        setRightPinnedCols((v) => uniqueArray([e.field as string, ...v]));
+        setLeftPinnedCols((v) => v.filter((key) => key != e.field));
       } else if (e.menuKey == 'pin-to-clear') {
         setLeftPinnedCols([]);
         setRightPinnedCols([]);
@@ -291,6 +283,67 @@ export function CanvasTable({
         await writeText((e?.field as string) ?? '');
       }
     }
+  };
+
+  const option: ListTableConstructorOptions = {
+    records: data,
+    limitMaxAutoWidth: 200,
+    heightMode: 'autoHeight',
+    widthMode: 'autoWidth',
+    showFrozenIcon: true,
+    frozenColCount: 1 + leftPinnedCols.length,
+    rightFrozenColCount: rightPinnedCols.length,
+    theme,
+    transpose,
+    columns: [
+      {
+        field: '__index__',
+        title: '',
+        dragHeader: false,
+        disableSelect: true,
+        disableHover: true,
+        disableHeaderHover: true,
+        disableHeaderSelect: true,
+        disableColumnResize: true,
+        style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
+      },
+      ...__columns,
+    ],
+    menu: {
+      contextMenuItems: (_field, row, col) => {
+        if ((!transpose && row == 0) || (transpose && col == 0)) {
+          return [
+            {
+              menuKey: 'copy-field',
+              text: 'Copy Field Name',
+            },
+            {
+              menuKey: 'pin-to-left',
+              text: 'Pin to left',
+            },
+            {
+              menuKey: 'pin-to-right',
+              text: 'Pin to right',
+            },
+            {
+              menuKey: 'pin-to-clear',
+              text: 'Clear pinned',
+            },
+          ];
+        }
+        return [];
+      },
+    },
+    hover: {
+      disableHover: true,
+      highlightMode: 'cell',
+      disableHeaderHover: true,
+    },
+    keyboardOptions: {
+      moveEditCellOnArrowKeys: true,
+      copySelected: true,
+      pasteValueToCell: true,
+    },
   };
 
   return (
@@ -306,74 +359,18 @@ export function CanvasTable({
       <ListTable
         ref={tableRef}
         height={height - 32}
-        records={data}
-        limitMaxAutoWidth={200}
-        heightMode="autoHeight"
-        widthMode="autoWidth"
-        showFrozenIcon={true}
-        frozenColCount={1 + leftPinnedCols.length}
-        rightFrozenColCount={rightPinnedCols.length}
-        dragHeaderMode="column"
-        transpose={transpose}
-        theme={theme}
-        menu={{
-          contextMenuItems: (_field, row, col) => {
-            if ((!transpose && row == 0) || (transpose && col == 0)) {
-              return [
-                {
-                  menuKey: 'copy-field',
-                  text: 'Copy Field Name',
-                },
-                {
-                  menuKey: 'pin-to-left',
-                  text: 'Pin to left',
-                },
-                {
-                  menuKey: 'pin-to-right',
-                  text: 'Pin to right',
-                },
-                {
-                  menuKey: 'pin-to-clear',
-                  text: 'Clear pinned',
-                },
-              ];
-            }
-            return [];
-          },
-        }}
-        hover={{
-          disableHover: true,
-          highlightMode: 'cell',
-          disableHeaderHover: true,
-        }}
-        keyboardOptions={{
-          moveEditCellOnArrowKeys: true,
-          copySelected: true,
-          pasteValueToCell: true,
-        }}
         onContextMenuCell={(arg) => {
           console.log('context', arg);
         }}
         onSelectedCell={(arg) => {
           console.log('seleted', arg);
           console.log(tableRef.current);
+          console.log(tableRef.current?.stateManager.menu);
         }}
         onDropdownMenuClick={handleDropdownMenuClick}
         onMouseEnterCell={debounce(handleMouseEnterCell)}
-      >
-        <ListColumn
-          field="__index__"
-          title=""
-          dragHeader={false}
-          disableSelect={true}
-          disableHover={true}
-          disableHeaderHover={true}
-          disableHeaderSelect={true}
-          disableColumnResize={true}
-          style={{ color: '#96938f', fontSize: 10, textAlign: 'center' }}
-        />
-        {columns}
-      </ListTable>
+        option={option}
+      />
     </div>
   );
-}
+});

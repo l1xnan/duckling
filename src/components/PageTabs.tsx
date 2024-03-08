@@ -174,7 +174,7 @@ export function PageTabs({
     <div className="h-full">
       <TabContext value={activeKey}>
         <Box>{items?.length > 0 ? tabList : <DatasetEmpty />}</Box>
-        <Box className={'h-full'}>
+        <Box className="h-full">
           {items.map((item) => {
             const tab = item.tab;
             return (

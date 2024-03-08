@@ -105,8 +105,8 @@ dependencies:
     specifier: 2.0.0-beta.2
     version: 2.0.0-beta.2
   '@visactor/react-vtable':
-    specifier: ^0.20.3
-    version: 0.20.3
+    specifier: ^0.20.4-alpha.3
+    version: 0.20.4-alpha.3
   '@visactor/vtable':
     specifier: ^0.20.3
     version: 0.20.3
@@ -3609,10 +3609,10 @@ packages:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
     dev: true
 
-  /@visactor/react-vtable@0.20.3:
-    resolution: {integrity: sha512-MyZxMoFE8stDdAmlssFwnF63Fv4/btr7zIZNwjXpb7XeC7Hhdxx71aUoZ6glI71GdEz3XxYVdWrZf7f4w8u6Eg==}
+  /@visactor/react-vtable@0.20.4-alpha.3:
+    resolution: {integrity: sha512-7fiYPQ65L/FfZdrt3ev11sRP8nr0JE40UoZ4VPyATDLmUR86QLTbqNyR/0MNH3dh2n8r9gB4/tJcUpWJSO1RLg==}
     dependencies:
-      '@visactor/vtable': 0.20.3
+      '@visactor/vtable': 0.20.4-alpha.3
       '@visactor/vutils': 0.17.5
       react-is: 18.2.0
     dev: false
@@ -3690,6 +3690,10 @@ packages:
     resolution: {integrity: sha512-gxDsSg/IZnjPX7iAqAl2TGJ/9SxlDcMpF6GVXuJ7jgv9RnUCCK7/PLhLfUrO22KAGs5VNlS+nye9ku3v+vpYLQ==}
     dev: false
 
+  /@visactor/vtable-editors@0.20.4-alpha.3:
+    resolution: {integrity: sha512-VdECIkG8ir9ggrYMNjG+1bZXPbBM38X7QfESqyY3129/i7Nz+160IiY7y//W8oMrH+K6EpxrzrEY225ogt1u+g==}
+    dev: false
+
   /@visactor/vtable@0.20.3:
     resolution: {integrity: sha512-weJ9w6/vuNOxTS00l9G5FrZWefxtsT+BCIILe9OVfciYuYbSoSlbsJ3Yfh6vom1wSGStz6cNYrpdUBLdj7f/yw==}
     dependencies:
@@ -3699,6 +3703,20 @@ packages:
       '@visactor/vrender-kits': 0.17.20-alpha.3
       '@visactor/vscale': 0.17.5
       '@visactor/vtable-editors': 0.20.3
+      '@visactor/vutils': 0.17.5
+      '@visactor/vutils-extension': 1.8.11
+      cssfontparser: 1.2.1
+    dev: false
+
+  /@visactor/vtable@0.20.4-alpha.3:
+    resolution: {integrity: sha512-ZPFTL8yNHA56b6AMe5Dnnn/5W11EtEoshqVOuzeWCV8jiNLbpuO5tPCi/5fVyE20M7h8ozjy1yvggl044/LYTw==}
+    dependencies:
+      '@visactor/vdataset': 0.17.5
+      '@visactor/vrender-components': 0.17.20-alpha.3
+      '@visactor/vrender-core': 0.17.20-alpha.3
+      '@visactor/vrender-kits': 0.17.20-alpha.3
+      '@visactor/vscale': 0.17.5
+      '@visactor/vtable-editors': 0.20.4-alpha.3
       '@visactor/vutils': 0.17.5
       '@visactor/vutils-extension': 1.8.11
       cssfontparser: 1.2.1
