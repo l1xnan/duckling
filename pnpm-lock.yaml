@@ -13,7 +13,7 @@ dependencies:
     version: 11.11.1(@types/react@18.2.60)(react@18.2.0)
   '@hookform/resolvers':
     specifier: ^3.3.4
-    version: 3.3.4(react-hook-form@7.50.1)
+    version: 3.3.4(react-hook-form@7.51.0)
   '@mobily/ts-belt':
     specifier: ^3.13.1
     version: 3.13.1
@@ -87,23 +87,23 @@ dependencies:
     specifier: 2.0.0-beta.3
     version: 2.0.0-beta.3
   '@tauri-apps/plugin-clipboard-manager':
-    specifier: 2.0.0-beta.1
-    version: 2.0.0-beta.1
+    specifier: 2.0.0-beta.2
+    version: 2.0.0-beta.2
   '@tauri-apps/plugin-dialog':
-    specifier: 2.0.0-beta.1
-    version: 2.0.0-beta.1
+    specifier: 2.0.0-beta.2
+    version: 2.0.0-beta.2
   '@tauri-apps/plugin-log':
-    specifier: 2.0.0-beta.1
-    version: 2.0.0-beta.1
+    specifier: 2.0.0-beta.2
+    version: 2.0.0-beta.2
   '@tauri-apps/plugin-process':
-    specifier: 2.0.0-beta.1
-    version: 2.0.0-beta.1
+    specifier: 2.0.0-beta.2
+    version: 2.0.0-beta.2
   '@tauri-apps/plugin-shell':
-    specifier: 2.0.0-beta.1
-    version: 2.0.0-beta.1
+    specifier: 2.0.0-beta.2
+    version: 2.0.0-beta.2
   '@tauri-apps/plugin-updater':
-    specifier: 2.0.0-beta.1
-    version: 2.0.0-beta.1
+    specifier: 2.0.0-beta.2
+    version: 2.0.0-beta.2
   '@visactor/react-vtable':
     specifier: ^0.20.3
     version: 0.20.3
@@ -153,11 +153,11 @@ dependencies:
     specifier: ^0.3.0
     version: 0.3.0(jotai@2.7.0)
   lucide-react:
-    specifier: ^0.341.0
-    version: 0.341.0(react@18.2.0)
+    specifier: ^0.350.0
+    version: 0.350.0(react@18.2.0)
   material-react-table:
-    specifier: 2.10.0
-    version: 2.10.0(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.15.1)(@mui/material@5.15.1)(@mui/x-date-pickers@6.19.6)(react-dom@18.2.0)(react@18.2.0)
+    specifier: 2.12.1
+    version: 2.12.1(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.15.1)(@mui/material@5.15.1)(@mui/x-date-pickers@6.19.6)(react-dom@18.2.0)(react@18.2.0)
   monaco-editor:
     specifier: ^0.46.0
     version: 0.46.0
@@ -177,8 +177,8 @@ dependencies:
     specifier: ^18.2.0
     version: 18.2.0(react@18.2.0)
   react-hook-form:
-    specifier: ^7.50.1
-    version: 7.50.1(react@18.2.0)
+    specifier: ^7.51.0
+    version: 7.51.0(react@18.2.0)
   react-router-dom:
     specifier: ^6.22.0
     version: 6.22.0(react-dom@18.2.0)(react@18.2.0)
@@ -225,10 +225,10 @@ devDependencies:
     version: 18.2.19
   '@typescript-eslint/eslint-plugin':
     specifier: ^7.1.0
-    version: 7.1.0(@typescript-eslint/parser@7.1.0)(eslint@8.56.0)(typescript@5.3.3)
+    version: 7.1.0(@typescript-eslint/parser@7.1.0)(eslint@8.56.0)(typescript@5.4.2)
   '@typescript-eslint/parser':
     specifier: ^7.1.0
-    version: 7.1.0(eslint@8.56.0)(typescript@5.3.3)
+    version: 7.1.0(eslint@8.56.0)(typescript@5.4.2)
   '@vitejs/plugin-react':
     specifier: ^4.2.1
     version: 4.2.1(vite@5.1.4)
@@ -266,8 +266,8 @@ devDependencies:
     specifier: ^3.4.1
     version: 3.4.1
   typescript:
-    specifier: ^5.3.3
-    version: 5.3.3
+    specifier: ^5.4.2
+    version: 5.4.2
   vite:
     specifier: ^5.1.4
     version: 5.1.4(@types/node@20.11.5)
@@ -958,12 +958,12 @@ packages:
     resolution: {integrity: sha512-9TANp6GPoMtYzQdt54kfAyMmz1+osLlXdg2ENroU7zzrtflTLrrC/lgrIfaSe+Wu0b89GKccT7vxXA0MoAIO+Q==}
     dev: false
 
-  /@hookform/resolvers@3.3.4(react-hook-form@7.50.1):
+  /@hookform/resolvers@3.3.4(react-hook-form@7.51.0):
     resolution: {integrity: sha512-o5cgpGOuJYrd+iMKvkttOclgwRW86EsWJZZRC23prf0uU2i48Htq4PuT73AVb9ionFyZrwYEITuOFGF+BydEtQ==}
     peerDependencies:
       react-hook-form: ^7.0.0
     dependencies:
-      react-hook-form: 7.50.1(react@18.2.0)
+      react-hook-form: 7.51.0(react@18.2.0)
     dev: false
 
   /@humanwhocodes/config-array@0.11.13:
@@ -3090,8 +3090,8 @@ packages:
     resolution: {integrity: sha512-WPPtihDcAwEm1QZM9MXQw6+r/R2/qx7KMU1eegsi9DsqBLAb0W2kbt6e/syvd6j9c+6XNpRVBW1ziGqSWQAWOg==}
     dev: false
 
-  /@tanstack/match-sorter-utils@8.11.7:
-    resolution: {integrity: sha512-4PUKgaaFpiB7MK406N5VAiLu2VUhDumojGWhEC8kNQ767RGU2vsJDI7Xp4D8lMBzijqswRWz3U8ioa2zUKnFeQ==}
+  /@tanstack/match-sorter-utils@8.11.8:
+    resolution: {integrity: sha512-3VPh0SYMGCa5dWQEqNab87UpCMk+ANWHDP4ALs5PeEW9EpfTAbrezzaOk/OiM52IESViefkoAOYuxdoa04p6aA==}
     engines: {node: '>=12'}
     dependencies:
       remove-accents: 0.4.2
@@ -3109,14 +3109,14 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /@tanstack/react-table@8.11.7(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-ZbzfMkLjxUTzNPBXJYH38pv2VpC9WUA+Qe5USSHEBz0dysDTv4z/ARI3csOed/5gmlmrPzVUN3UXGuUMbod3Jg==}
+  /@tanstack/react-table@8.13.2(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-b6mR3mYkjRtJ443QZh9sc7CvGTce81J35F/XMr0OoWbx0KIM7TTTdyNP2XKObvkLpYnLpCrYDwI3CZnLezWvpg==}
     engines: {node: '>=12'}
     peerDependencies:
       react: '>=16'
       react-dom: '>=16'
     dependencies:
-      '@tanstack/table-core': 8.11.7
+      '@tanstack/table-core': 8.13.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false
@@ -3132,13 +3132,13 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /@tanstack/react-virtual@3.0.2(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-9XbRLPKgnhMwwmuQMnJMv+5a9sitGNCSEtf/AZXzmJdesYk7XsjYHaEDny+IrJzvPNwZliIIDwCRiaUqR3zzCA==}
+  /@tanstack/react-virtual@3.1.3(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-YCzcbF/Ws/uZ0q3Z6fagH+JVhx4JLvbSflgldMgLsuvB8aXjZLLb3HvrEVxY480F9wFlBiXlvQxOyXb5ENPrNA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
-      '@tanstack/virtual-core': 3.0.0
+      '@tanstack/virtual-core': 3.1.3
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false
@@ -3148,8 +3148,8 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
-  /@tanstack/table-core@8.11.7:
-    resolution: {integrity: sha512-N3ksnkbPbsF3PjubuZCB/etTqvctpXWRHIXTmYfJFnhynQKjeZu8BCuHvdlLPpumKbA+bjY4Ay9AELYLOXPWBg==}
+  /@tanstack/table-core@8.13.2:
+    resolution: {integrity: sha512-/2saD1lWBUV6/uNAwrsg2tw58uvMJ07bO2F1IWMxjFRkJiXKQRuc3Oq2aufeobD3873+4oIM/DRySIw7+QsPPw==}
     engines: {node: '>=12'}
     dev: false
 
@@ -3157,13 +3157,17 @@ packages:
     resolution: {integrity: sha512-SYXOBTjJb05rXa2vl55TTwO40A6wKu0R5i1qQwhJYNDIqaIGF7D0HsLw+pJAyi2OvntlEIVusx3xtbbgSUi6zg==}
     dev: false
 
-  /@tauri-apps/api@2.0.0-beta.2:
-    resolution: {integrity: sha512-4r1r6kgttzIWxJ3HxkZQH+b7EiUtKhdUCPbi0KSalD+2T3j6klw+v8VyxhKwEdjM/eo60NE+J33v1E/Urq8puw==}
-    engines: {node: '>= 18', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
+  /@tanstack/virtual-core@3.1.3:
+    resolution: {integrity: sha512-Y5B4EYyv1j9V8LzeAoOVeTg0LI7Fo5InYKgAjkY1Pu9GjtUwX/EKxNcU7ng3sKr99WEf+bPTcktAeybyMOYo+g==}
     dev: false
 
   /@tauri-apps/api@2.0.0-beta.3:
     resolution: {integrity: sha512-gDSJzKpBs6efXw2ZWqjl9QVNImY5GR5qygXqB7JK4y7prcQInxnTj2ARFR0vD4wuzkrUHGrlIKraiJJPHWJ9vg==}
+    engines: {node: '>= 18', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
+    dev: false
+
+  /@tauri-apps/api@2.0.0-beta.4:
+    resolution: {integrity: sha512-Nxtj28NYUo5iwYkpYslxmOPkdI2WkELU2e3UH9nbJm9Ydki2CQwJVGQxx4EANtdZcMNsEsUzRqaDTvEUYH1l6w==}
     engines: {node: '>= 18', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
     dev: false
 
@@ -3278,40 +3282,40 @@ packages:
       '@tauri-apps/cli-win32-x64-msvc': 2.0.0-beta.5
     dev: true
 
-  /@tauri-apps/plugin-clipboard-manager@2.0.0-beta.1:
-    resolution: {integrity: sha512-nuC3aODbKrDadj2191ceSyobbh7vaU6EtNPnscSXv5nksRr5ZoarxtITk827UpOW14NmRQft7RDHKXY5Xr9Eew==}
+  /@tauri-apps/plugin-clipboard-manager@2.0.0-beta.2:
+    resolution: {integrity: sha512-yue7KTO9r9rlpgjcyRB9xcMyZKTrGOP2bWQnL/EoyVkECsr+8e8W8UMlvajXjv1hinFoiycXJe6GaSTPGO0Jlg==}
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.2
+      '@tauri-apps/api': 2.0.0-beta.4
     dev: false
 
-  /@tauri-apps/plugin-dialog@2.0.0-beta.1:
-    resolution: {integrity: sha512-nVZv2m67NaEU05SRbe59heFaZ5wlew9pgd/oi2yL8yUM+46abo9prky/eyXb1HzF8n66yRSaSkNcX1GZou5pNQ==}
+  /@tauri-apps/plugin-dialog@2.0.0-beta.2:
+    resolution: {integrity: sha512-WugTn/8d5jYA0GL1JRIJgA1OSxG0h2V4PSZZzehgA3v7rPlIU6w9s2+dSRqj55aMj6hm3Az9YbQqC18nuaHkpw==}
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.2
+      '@tauri-apps/api': 2.0.0-beta.4
     dev: false
 
-  /@tauri-apps/plugin-log@2.0.0-beta.1:
-    resolution: {integrity: sha512-y/pJdnI8pDTa1G7GOk4LqggnaKwoNwfWl0juCw5BOzdRQwKmuZJY/yilvJiql0FEfmrspAu4T3QWeyTwkJjYDQ==}
+  /@tauri-apps/plugin-log@2.0.0-beta.2:
+    resolution: {integrity: sha512-UiHQ5uMocYKRo+YbMd7L+SY4JD4wWWWtp+y/+RrUDzrXozISinPZEoEJHTuOJ0oXC4YLB7zyiY38sTzXeDa+HA==}
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.2
+      '@tauri-apps/api': 2.0.0-beta.4
     dev: false
 
-  /@tauri-apps/plugin-process@2.0.0-beta.1:
-    resolution: {integrity: sha512-rrKHWQ6zWeC7uTXXcSIcTvWCPcX/oPC2KzR4s6PAbzOkPFusRDWVgWvpfp5byN1KQ3znYkS7x0BOhWsPNbfeMw==}
+  /@tauri-apps/plugin-process@2.0.0-beta.2:
+    resolution: {integrity: sha512-CLF3Figv68fk+mqdV1q8bufFlcQS3SSTiNX8Lc7FbSD211XOWShgiGm4D6QMUkFBxgXzZICWh/mrYnWdv3aYQA==}
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.2
+      '@tauri-apps/api': 2.0.0-beta.4
     dev: false
 
-  /@tauri-apps/plugin-shell@2.0.0-beta.1:
-    resolution: {integrity: sha512-yMf9CMHCRkGnx0pv420MptEeUdk+bVrXyM5zwFisy75GBhXgvEEtSjAkubTsC0jkzLfn4EInizaW2GER9ub7cQ==}
+  /@tauri-apps/plugin-shell@2.0.0-beta.2:
+    resolution: {integrity: sha512-9rWsfN7Wt+EuWmpmNnK8bCs+04fzhEYrHtWyLIAYxb9diFdcJrEoctCP9YM2v+Uf8/y8qFC7VCbZ/9VQHANymQ==}
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.2
+      '@tauri-apps/api': 2.0.0-beta.4
     dev: false
 
-  /@tauri-apps/plugin-updater@2.0.0-beta.1:
-    resolution: {integrity: sha512-Pfb0mtzG72EPH5xR4WZGVRXyFz521uDb0a451inSKnb0ELcRlfKukRzLZEfuCtxgUAUw8cVX6sn16OduE4AkDg==}
+  /@tauri-apps/plugin-updater@2.0.0-beta.2:
+    resolution: {integrity: sha512-T8EkAXawbyV/6/Lcf1VVIWhtGuals63zKn+udYNqlC8CRM5iYQ+8bM8Nmy2E+pIzkkx93d1t6/8geFitLZPmKw==}
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.2
+      '@tauri-apps/api': 2.0.0-beta.4
     dev: false
 
   /@turf/boolean-clockwise@6.5.0:
@@ -3469,7 +3473,7 @@ packages:
     resolution: {integrity: sha512-I8EUhyrgfLrcTkzV3TSsGyl1tSuPrEDzr0yd5m90UgNxQkyDXULk3b6MlQqTCpZpNtWe1K0hzclnZkTcLBe2UQ==}
     dev: true
 
-  /@typescript-eslint/eslint-plugin@7.1.0(@typescript-eslint/parser@7.1.0)(eslint@8.56.0)(typescript@5.3.3):
+  /@typescript-eslint/eslint-plugin@7.1.0(@typescript-eslint/parser@7.1.0)(eslint@8.56.0)(typescript@5.4.2):
     resolution: {integrity: sha512-j6vT/kCulhG5wBmGtstKeiVr1rdXE4nk+DT1k6trYkwlrvW9eOF5ZbgKnd/YR6PcM4uTEXa0h6Fcvf6X7Dxl0w==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
@@ -3481,10 +3485,10 @@ packages:
         optional: true
     dependencies:
       '@eslint-community/regexpp': 4.10.0
-      '@typescript-eslint/parser': 7.1.0(eslint@8.56.0)(typescript@5.3.3)
+      '@typescript-eslint/parser': 7.1.0(eslint@8.56.0)(typescript@5.4.2)
       '@typescript-eslint/scope-manager': 7.1.0
-      '@typescript-eslint/type-utils': 7.1.0(eslint@8.56.0)(typescript@5.3.3)
-      '@typescript-eslint/utils': 7.1.0(eslint@8.56.0)(typescript@5.3.3)
+      '@typescript-eslint/type-utils': 7.1.0(eslint@8.56.0)(typescript@5.4.2)
+      '@typescript-eslint/utils': 7.1.0(eslint@8.56.0)(typescript@5.4.2)
       '@typescript-eslint/visitor-keys': 7.1.0
       debug: 4.3.4
       eslint: 8.56.0
@@ -3492,13 +3496,13 @@ packages:
       ignore: 5.3.1
       natural-compare: 1.4.0
       semver: 7.6.0
-      ts-api-utils: 1.2.1(typescript@5.3.3)
-      typescript: 5.3.3
+      ts-api-utils: 1.2.1(typescript@5.4.2)
+      typescript: 5.4.2
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /@typescript-eslint/parser@7.1.0(eslint@8.56.0)(typescript@5.3.3):
+  /@typescript-eslint/parser@7.1.0(eslint@8.56.0)(typescript@5.4.2):
     resolution: {integrity: sha512-V1EknKUubZ1gWFjiOZhDSNToOjs63/9O0puCgGS8aDOgpZY326fzFu15QAUjwaXzRZjf/qdsdBrckYdv9YxB8w==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
@@ -3510,11 +3514,11 @@ packages:
     dependencies:
       '@typescript-eslint/scope-manager': 7.1.0
       '@typescript-eslint/types': 7.1.0
-      '@typescript-eslint/typescript-estree': 7.1.0(typescript@5.3.3)
+      '@typescript-eslint/typescript-estree': 7.1.0(typescript@5.4.2)
       '@typescript-eslint/visitor-keys': 7.1.0
       debug: 4.3.4
       eslint: 8.56.0
-      typescript: 5.3.3
+      typescript: 5.4.2
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -3527,7 +3531,7 @@ packages:
       '@typescript-eslint/visitor-keys': 7.1.0
     dev: true
 
-  /@typescript-eslint/type-utils@7.1.0(eslint@8.56.0)(typescript@5.3.3):
+  /@typescript-eslint/type-utils@7.1.0(eslint@8.56.0)(typescript@5.4.2):
     resolution: {integrity: sha512-UZIhv8G+5b5skkcuhgvxYWHjk7FW7/JP5lPASMEUoliAPwIH/rxoUSQPia2cuOj9AmDZmwUl1usKm85t5VUMew==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
@@ -3537,12 +3541,12 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@typescript-eslint/typescript-estree': 7.1.0(typescript@5.3.3)
-      '@typescript-eslint/utils': 7.1.0(eslint@8.56.0)(typescript@5.3.3)
+      '@typescript-eslint/typescript-estree': 7.1.0(typescript@5.4.2)
+      '@typescript-eslint/utils': 7.1.0(eslint@8.56.0)(typescript@5.4.2)
       debug: 4.3.4
       eslint: 8.56.0
-      ts-api-utils: 1.2.1(typescript@5.3.3)
-      typescript: 5.3.3
+      ts-api-utils: 1.2.1(typescript@5.4.2)
+      typescript: 5.4.2
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -3552,7 +3556,7 @@ packages:
     engines: {node: ^16.0.0 || >=18.0.0}
     dev: true
 
-  /@typescript-eslint/typescript-estree@7.1.0(typescript@5.3.3):
+  /@typescript-eslint/typescript-estree@7.1.0(typescript@5.4.2):
     resolution: {integrity: sha512-k7MyrbD6E463CBbSpcOnwa8oXRdHzH1WiVzOipK3L5KSML92ZKgUBrTlehdi7PEIMT8k0bQixHUGXggPAlKnOQ==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
@@ -3568,13 +3572,13 @@ packages:
       is-glob: 4.0.3
       minimatch: 9.0.3
       semver: 7.6.0
-      ts-api-utils: 1.2.1(typescript@5.3.3)
-      typescript: 5.3.3
+      ts-api-utils: 1.2.1(typescript@5.4.2)
+      typescript: 5.4.2
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /@typescript-eslint/utils@7.1.0(eslint@8.56.0)(typescript@5.3.3):
+  /@typescript-eslint/utils@7.1.0(eslint@8.56.0)(typescript@5.4.2):
     resolution: {integrity: sha512-WUFba6PZC5OCGEmbweGpnNJytJiLG7ZvDBJJoUcX4qZYf1mGZ97mO2Mps6O2efxJcJdRNpqweCistDbZMwIVHw==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
@@ -3585,7 +3589,7 @@ packages:
       '@types/semver': 7.5.8
       '@typescript-eslint/scope-manager': 7.1.0
       '@typescript-eslint/types': 7.1.0
-      '@typescript-eslint/typescript-estree': 7.1.0(typescript@5.3.3)
+      '@typescript-eslint/typescript-estree': 7.1.0(typescript@5.4.2)
       eslint: 8.56.0
       semver: 7.6.0
     transitivePeerDependencies:
@@ -4603,7 +4607,7 @@ packages:
       eslint-import-resolver-webpack:
         optional: true
     dependencies:
-      '@typescript-eslint/parser': 7.1.0(eslint@8.56.0)(typescript@5.3.3)
+      '@typescript-eslint/parser': 7.1.0(eslint@8.56.0)(typescript@5.4.2)
       debug: 3.2.7
       eslint: 8.56.0
       eslint-import-resolver-node: 0.3.9
@@ -4622,7 +4626,7 @@ packages:
       '@typescript-eslint/parser':
         optional: true
     dependencies:
-      '@typescript-eslint/parser': 7.1.0(eslint@8.56.0)(typescript@5.3.3)
+      '@typescript-eslint/parser': 7.1.0(eslint@8.56.0)(typescript@5.4.2)
       array-includes: 3.1.7
       array.prototype.findlastindex: 1.2.3
       array.prototype.flat: 1.3.2
@@ -5604,16 +5608,16 @@ packages:
       yallist: 4.0.0
     dev: true
 
-  /lucide-react@0.341.0(react@18.2.0):
-    resolution: {integrity: sha512-fqI0TLU/VbzC3p90MHP3kdCRRUMTRT5qBfxwaXlllkZieYfRrMVd/RORXytqJUC2GBrvZdWYs6yvJIrqdsOmDQ==}
+  /lucide-react@0.350.0(react@18.2.0):
+    resolution: {integrity: sha512-5IZVKsxxG8Nn81gpsz4XLNgCAXkppCh0Y0P0GLO39h5iVD2WEaB9of6cPkLtzys1GuSfxJxmwsDh487y7LAf/g==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0
     dependencies:
       react: 18.2.0
     dev: false
 
-  /material-react-table@2.10.0(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.15.1)(@mui/material@5.15.1)(@mui/x-date-pickers@6.19.6)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-khKm/AMuLp6zV/Lj7ttdTy59cNXuEc0LyD6jh6GydslEWMHqasn4PKElGQKDnO+u5AInB+CzoK1U4zTOqRiIlQ==}
+  /material-react-table@2.12.1(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.15.1)(@mui/material@5.15.1)(@mui/x-date-pickers@6.19.6)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-nqILE26I/6/UfiILEc7mnVhIoVdG78qvkav85dcbn5BbNXkAJeA57Slut50eYytd7aQHCbaq9MoLvsVeO1yaIw==}
     engines: {node: '>=16'}
     peerDependencies:
       '@emotion/react': '>=11.11'
@@ -5621,17 +5625,17 @@ packages:
       '@mui/icons-material': '>=5.11'
       '@mui/material': '>=5.13'
       '@mui/x-date-pickers': '>=6.15.0'
-      react: '>=18.0'
-      react-dom: '>=18.0'
+      react: '>=17.0'
+      react-dom: '>=17.0'
     dependencies:
       '@emotion/react': 11.11.1(@types/react@18.2.60)(react@18.2.0)
       '@emotion/styled': 11.11.0(@emotion/react@11.11.1)(@types/react@18.2.60)(react@18.2.0)
       '@mui/icons-material': 5.15.1(@mui/material@5.15.1)(@types/react@18.2.60)(react@18.2.0)
       '@mui/material': 5.15.1(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
       '@mui/x-date-pickers': 6.19.6(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/material@5.15.1)(@mui/system@5.15.11)(@types/react@18.2.60)(dayjs@1.11.10)(react-dom@18.2.0)(react@18.2.0)
-      '@tanstack/match-sorter-utils': 8.11.7
-      '@tanstack/react-table': 8.11.7(react-dom@18.2.0)(react@18.2.0)
-      '@tanstack/react-virtual': 3.0.2(react-dom@18.2.0)(react@18.2.0)
+      '@tanstack/match-sorter-utils': 8.11.8
+      '@tanstack/react-table': 8.13.2(react-dom@18.2.0)(react@18.2.0)
+      '@tanstack/react-virtual': 3.1.3(react-dom@18.2.0)(react@18.2.0)
       highlight-words: 1.2.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -6193,8 +6197,8 @@ packages:
       react: 18.2.0
     dev: false
 
-  /react-hook-form@7.50.1(react@18.2.0):
-    resolution: {integrity: sha512-3PCY82oE0WgeOgUtIr3nYNNtNvqtJ7BZjsbxh6TnYNbXButaD5WpjOmTjdxZfheuHKR68qfeFnEDVYoSSFPMTQ==}
+  /react-hook-form@7.51.0(react@18.2.0):
+    resolution: {integrity: sha512-BggOy5j58RdhdMzzRUHGOYhSz1oeylFAv6jUSG86OvCIvlAvS7KvnRY7yoAf2pfEiPN7BesnR0xx73nEk3qIiw==}
     engines: {node: '>=12.22.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18
@@ -6937,13 +6941,13 @@ packages:
       commander: 2.20.3
     dev: false
 
-  /ts-api-utils@1.2.1(typescript@5.3.3):
+  /ts-api-utils@1.2.1(typescript@5.4.2):
     resolution: {integrity: sha512-RIYA36cJn2WiH9Hy77hdF9r7oEwxAtB/TS9/S4Qd90Ap4z5FSiin5zEiTL44OII1Y3IIlEvxwxFUVgrHSZ/UpA==}
     engines: {node: '>=16'}
     peerDependencies:
       typescript: '>=4.2.0'
     dependencies:
-      typescript: 5.3.3
+      typescript: 5.4.2
     dev: true
 
   /ts-interface-checker@0.1.13:
@@ -7019,8 +7023,8 @@ packages:
     resolution: {integrity: sha512-ueeb9YybpjhivjbHP2LdFDAjbS948fGEPj+ACAMs4xCMmh72OCOMQWBQKlaN4ZNQ04yfLSDLSx1tGRIoWimObQ==}
     dev: false
 
-  /typescript@5.3.3:
-    resolution: {integrity: sha512-pXWcraxM0uxAS+tN0AG/BF2TyqmHO014Z070UsJ+pFvYuRSq8KH8DmWpnbXe0pEPDHXZV3FcAbJkijJ5oNEnWw==}
+  /typescript@5.4.2:
+    resolution: {integrity: sha512-+2/g0Fds1ERlP6JsakQQDXjZdZMM+rqpamFZJEKh4kwTIn3iDkgKtby0CeNd5ATNZ4Ry1ax15TMx0W2V+miizQ==}
     engines: {node: '>=14.17'}
     hasBin: true
     dev: true
