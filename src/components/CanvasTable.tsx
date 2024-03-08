@@ -3,12 +3,14 @@ import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { ListColumn, ListTable, VTable } from '@visactor/react-vtable';
 import { ListTable as ListTableAPI, themes } from '@visactor/vtable';
 import { useAtomValue } from 'jotai';
-import { useEffect, useRef, useState, type ComponentProps } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useResizeObserver from 'use-resize-observer';
 
 import { TableProps } from '@/components/AgTable.tsx';
 import { tableFontFamilyAtom } from '@/stores/setting';
 import { debounce, isDarkTheme, isFloat, isNumber } from '@/utils.ts';
+
+import type { ComponentProps } from 'react';
 
 type ITableThemeDefine = ComponentProps<typeof ListTable>['theme'];
 
@@ -200,6 +202,40 @@ export function CanvasTable({
   //   _setPopup(data);
   // };
 
+  useEffect(() => {
+    const handleBodyClick = (_e: Event) => {
+      const tableInstance = tableRef.current;
+      if (tableInstance === null || tableInstance === undefined) {
+        return;
+      }
+      console.log('transpose', transpose);
+      tableInstance.stateManager.hideMenu();
+    };
+
+    document.body.addEventListener('click', handleBodyClick);
+    document.body.addEventListener('dblclick', handleBodyClick);
+    document.body.addEventListener('contextmenu', handleBodyClick);
+
+    return () => {
+      document.body.removeEventListener('click', handleBodyClick);
+      document.body.removeEventListener('dblclick', handleBodyClick);
+      document.body.removeEventListener('contextmenu', handleBodyClick);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleAny = (...args) => {
+      console.log('any', args);
+    };
+    tableRef.current?.addEventListener('show_menu', handleAny);
+    tableRef.current?.addEventListener('contextmenu_cell', handleAny);
+
+    return () => {
+      tableRef.current?.removeEventListener('show_menu', handleAny);
+      tableRef.current?.removeEventListener('contextmenu_cell', handleAny);
+    };
+  }, []);
+
   const handleMouseEnterCell: ComponentProps<
     typeof ListTable
   >['onMouseEnterCell'] = async (args) => {
@@ -209,7 +245,11 @@ export function CanvasTable({
     }
 
     const { col, row } = args;
-    if (!tableInstance.transpose && row === 0) {
+    if (
+      !tableInstance.transpose &&
+      row === 0 &&
+      !tableInstance.stateManager.menu.isShow
+    ) {
       const rect = tableInstance.getVisibleCellRangeRelativeRect({
         col,
         row,
@@ -231,25 +271,27 @@ export function CanvasTable({
     }
   };
 
-  useEffect(() => {
-    const handleBodyClick = (_e: Event) => {
-      const tableInstance = tableRef.current;
-      if (tableInstance === null || tableInstance === undefined) {
-        return;
+  const handleDropdownMenuClick: ComponentProps<
+    typeof ListTable
+  >['onDropdownMenuClick'] = async (e) => {
+    const transpose = tableRef.current?.transpose;
+    if ((!transpose && e.row == 0) || (transpose && e.col == 0)) {
+      if (e.menuKey == 'copy-field') {
+        await writeText((e?.field as string) ?? '');
+      } else if (e.menuKey == 'pin-to-left') {
+        setLeftPinnedCols((v) => [...v, e.field as string]);
+      } else if (e.menuKey == 'pin-to-right') {
+        setRightPinnedCols((v) => [e.field as string, ...v]);
+      } else if (e.menuKey == 'pin-to-clear') {
+        setLeftPinnedCols([]);
+        setRightPinnedCols([]);
       }
-      tableInstance.stateManager.hideMenu();
-    };
-
-    document.body.addEventListener('click', handleBodyClick);
-    document.body.addEventListener('dblclick', handleBodyClick);
-    document.body.addEventListener('contextmenu', handleBodyClick);
-
-    return () => {
-      document.body.removeEventListener('click', handleBodyClick);
-      document.body.removeEventListener('dblclick', handleBodyClick);
-      document.body.removeEventListener('contextmenu', handleBodyClick);
-    };
-  }, []);
+    } else {
+      if (e.menuKey == 'copy') {
+        await writeText((e?.field as string) ?? '');
+      }
+    }
+  };
 
   return (
     <div
@@ -275,7 +317,7 @@ export function CanvasTable({
         transpose={transpose}
         theme={theme}
         menu={{
-          contextMenuItems: (field, row, col) => {
+          contextMenuItems: (_field, row, col) => {
             if ((!transpose && row == 0) || (transpose && col == 0)) {
               return [
                 {
@@ -289,6 +331,10 @@ export function CanvasTable({
                 {
                   menuKey: 'pin-to-right',
                   text: 'Pin to right',
+                },
+                {
+                  menuKey: 'pin-to-clear',
+                  text: 'Clear pinned',
                 },
               ];
             }
@@ -310,23 +356,9 @@ export function CanvasTable({
         }}
         onSelectedCell={(arg) => {
           console.log('seleted', arg);
+          console.log(tableRef.current);
         }}
-        onDropdownMenuClick={async (e) => {
-          if (e.row == 0) {
-            if (e.menuKey == 'copy-field') {
-              console.log('clip', e?.field);
-              await writeText((e?.field as string) ?? '');
-            } else if (e.menuKey == 'pin-to-left') {
-              setLeftPinnedCols((v) => [...v, e.field as string]);
-            } else if (e.menuKey == 'pin-to-right') {
-              setRightPinnedCols((v) => [e.field as string, ...v]);
-            }
-          } else {
-            if (e.menuKey == 'copy') {
-              await writeText((e?.field as string) ?? '');
-            }
-          }
-        }}
+        onDropdownMenuClick={handleDropdownMenuClick}
         onMouseEnterCell={debounce(handleMouseEnterCell)}
       >
         <ListColumn
