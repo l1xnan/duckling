@@ -124,17 +124,11 @@ export const CanvasTable = React.memo(function CanvasTable({
 
   const _titles =
     schema?.map(({ name, dataType, type }, i) => {
-      const style: Record<string, string> = {};
-      if (isNumber(dataType)) {
-        style['textAlign'] = 'right';
-      }
-
       const item = {
         key: name,
         name,
         type: type ?? dataType,
         dataType,
-        style,
       };
       titleMap.set(name, item);
       return item;
@@ -172,22 +166,26 @@ export const CanvasTable = React.memo(function CanvasTable({
   ];
 
   const __columns: ListColumnProps[] = __titles.map(
-    ({ key, style, name, dataType }, _) => {
+    ({ key, name, dataType }, _) => {
       return {
         field: name,
         fieldKey: key,
         title: name,
         dragHeader: true,
         style: (arg) => {
-          if (arg.value === null || arg.value === undefined) {
-            return { ...style, color: 'gray' };
+          const style: Record<string, string> = {};
+          if (isNumber(dataType)) {
+            style['textAlign'] = 'right';
+          }
+          if (arg.dataValue === null || arg.dataValue === undefined) {
+            style['color'] = 'gray';
           }
           return style;
         },
         fieldFormat: (record) => {
           const value = record[key];
           if (value === null) {
-            return '[null]';
+            return '<null>';
           }
           if (beautify && isFloat(dataType) && precision) {
             try {
