@@ -172,6 +172,7 @@ export const CanvasTable = React.memo(function CanvasTable({
         fieldKey: key,
         title: name,
         dragHeader: true,
+        sort: true,
         style: (arg) => {
           const style: Record<string, string> = {};
           if (isNumber(dataType)) {
