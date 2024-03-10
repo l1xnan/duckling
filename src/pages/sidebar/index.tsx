@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import { invoke } from '@tauri-apps/api/core';
 import { useAtomValue } from 'jotai';
 import { nanoid } from 'nanoid';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { getDB } from '@/api';
 import ConfigDialog from '@/pages/sidebar/ConfigDialog';
@@ -18,6 +18,8 @@ import {
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 
 import DBTreeView from './DBTreeView';
+import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input.tsx';
 
 const TreeViewWrapper = styled(Box)<BoxProps>(() => ({
   width: '100%',
@@ -34,6 +36,8 @@ function Sidebar() {
   const configContext = useAtomValue(configAtom);
   const updateTab = useTabsStore((state) => state.update);
   const appendDB = useDBListStore((state) => state.append);
+
+  const [search, setSearch] = useState('');
 
   async function openUrl() {
     const path: string = await invoke('opened_urls');
@@ -62,15 +66,24 @@ function Sidebar() {
   return (
     <>
       <SideToolbar />
-
+      <div className="bg-background/95 p-0 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="relative">
+          <Search className="absolute left-2 top-2 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+            }}
+            placeholder="Search"
+            className="h-8 pl-8 py-0.5 text-xs focus-visible:ring-0"
+          />
+        </div>
+      </div>
       <TreeViewWrapper>
         {dbList.map((db, _i) => {
-          return <DBTreeView key={db.id} db={db} />;
+          return <DBTreeView key={db.id} db={db} filter={search} />;
         })}
       </TreeViewWrapper>
-      {/* <TreeViewWrapper>
-        <IndexPage data={dbList.map((db) => db.data)} />
-      </TreeViewWrapper> */}
 
       {/* ---------- modal/dialog ---------- */}
 

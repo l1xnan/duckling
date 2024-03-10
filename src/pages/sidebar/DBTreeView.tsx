@@ -31,12 +31,16 @@ import { TreeNode } from '@/types';
 import { DBTreeItem, TreeItemLabel } from './DBTreeItem';
 import { DBContextMenu } from './context-menu/DBContextMenu';
 import { TableContextMenu } from './context-menu/TableContextMenu';
+import { isEmpty } from '@/utils.ts';
 
 export const getTypeIcon = (type: string, expanded: boolean) => {
   if (type == 'path' && expanded) {
     return <IconFolderOpen />;
   }
   if (type == 'path' && !expanded) {
+    return <IconFolder />;
+  }
+  if (type == 'folder') {
     return <IconFolder />;
   }
   if (type == 'root') {
@@ -80,24 +84,25 @@ export const getTypeIcon = (type: string, expanded: boolean) => {
 
 export interface DBTreeViewProps extends TreeViewProps<boolean> {
   db: DBType;
+  filter?: string;
 }
 
-export default function DBTreeView({ db, ...rest }: DBTreeViewProps) {
+export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
   const updateTab = useTabsStore((state) => state.update);
   const dbTableMap = useAtomValue(tablesAtom);
   const renderTree = (node: TreeNode, isRoot = false) => {
+    if (
+      ['parquet', 'csv', 'view', 'table'].includes(node.type as string) &&
+      !isEmpty(filter) &&
+      !node.path.includes(filter as string)
+    ) {
+      return null;
+    }
     const label = (
       <TreeItemLabel
         nodeId={node.path}
         node={isRoot ? { ...node, name: db.displayName ?? node.name } : node}
-        icon={
-          isRoot &&
-          ['clickhouse', 'duckdb', 'sqlite', 'mysql', 'postgres'].indexOf(
-            db.dialect,
-          ) > -1
-            ? db.dialect
-            : node.type ?? 'file'
-        }
+        icon={isRoot ? db.dialect : node.type ?? 'file'}
       />
     );
     return (

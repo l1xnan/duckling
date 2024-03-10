@@ -7,20 +7,13 @@ import {
   themes,
 } from '@visactor/vtable';
 import { useAtomValue } from 'jotai';
+import type { ComponentProps } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import useResizeObserver from 'use-resize-observer';
 
 import { TableProps } from '@/components/AgTable.tsx';
 import { tableFontFamilyAtom } from '@/stores/setting';
-import {
-  debounce,
-  isDarkTheme,
-  isFloat,
-  isNumber,
-  uniqueArray,
-} from '@/utils.ts';
-
-import type { ComponentProps } from 'react';
+import { isDarkTheme, isFloat, isNumber, uniqueArray } from '@/utils.ts';
 
 type ITableThemeDefine = ComponentProps<typeof ListTable>['theme'];
 type ListColumnProps = ComponentProps<typeof ListColumn>;
@@ -228,7 +221,7 @@ export const CanvasTable = React.memo(function CanvasTable({
 
   const handleMouseEnterCell: ComponentProps<
     typeof ListTable
-  >['onMouseEnterCell'] = async (args) => {
+  >['onMouseEnterCell'] = (args) => {
     const table = tableRef.current;
     if (!table) {
       return;
@@ -367,7 +360,7 @@ export const CanvasTable = React.memo(function CanvasTable({
           console.log(tableRef.current?.stateManager.menu);
         }}
         onDropdownMenuClick={handleDropdownMenuClick}
-        onMouseEnterCell={debounce(handleMouseEnterCell)}
+        onMouseEnterCell={handleMouseEnterCell}
         option={option}
       />
     </div>
