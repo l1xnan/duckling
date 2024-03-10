@@ -21,15 +21,6 @@ import DBTreeView from './DBTreeView';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input.tsx';
 
-const TreeViewWrapper = styled(Box)<BoxProps>(() => ({
-  width: '100%',
-  maxHeight: 'calc(100vh - 64px)',
-  height: 'calc(100vh - 64px)',
-  overflow: 'auto',
-  pr: 1,
-  pb: 2,
-}));
-
 function Sidebar() {
   const dbList = useAtomValue(dbListAtom);
   const renameContext = useAtomValue(renameAtom);
@@ -79,11 +70,11 @@ function Sidebar() {
           />
         </div>
       </div>
-      <TreeViewWrapper>
+      <div className="w-full max-h-[calc(100vh-94px)] overflow-auto pr-1 pb-2">
         {dbList.map((db, _i) => {
           return <DBTreeView key={db.id} db={db} filter={search} />;
         })}
-      </TreeViewWrapper>
+      </div>
 
       {/* ---------- modal/dialog ---------- */}
 
