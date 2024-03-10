@@ -234,7 +234,11 @@ export const CanvasTable = React.memo(function CanvasTable({
     }
 
     const { col, row } = args;
-    if (!table.transpose && row === 0 && !table.stateManager.menu.isShow) {
+    const isShow = table.stateManager.menu.isShow;
+    if (
+      (!table.transpose && row === 0 && col !== 0 && !isShow) ||
+      (table.transpose && col === 0 && row !== 0 && !isShow)
+    ) {
       const rect = table.getVisibleCellRangeRelativeRect({
         col,
         row,
@@ -255,7 +259,6 @@ export const CanvasTable = React.memo(function CanvasTable({
       });
     }
   };
-
   const handleDropdownMenuClick: ComponentProps<
     typeof ListTable
   >['onDropdownMenuClick'] = async (e) => {
