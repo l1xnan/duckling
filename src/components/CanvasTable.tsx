@@ -333,9 +333,9 @@ export const CanvasTable = React.memo(function CanvasTable({
       },
     },
     hover: {
-      disableHover: true,
+      // disableHover: true,
       highlightMode: 'cell',
-      disableHeaderHover: true,
+      // disableHeaderHover: true,
     },
     keyboardOptions: {
       moveEditCellOnArrowKeys: true,
