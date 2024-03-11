@@ -24,6 +24,13 @@ import {
   FormLabel,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import {
   CsvParam,
@@ -138,6 +145,26 @@ function Profile() {
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="render"
+            render={({ field }) => (
+              <FormItem className="flex items-center w-[62.5%]">
+                <FormLabel className="w-1/5 mr-2 mt-2">Table render</FormLabel>
+                <Select {...field}>
+                  <FormControl className="w-4/5">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a dialect" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="canvas">Canvas</SelectItem>
+                    <SelectItem value="html">HTML</SelectItem>
+                  </SelectContent>
+                </Select>
               </FormItem>
             )}
           />

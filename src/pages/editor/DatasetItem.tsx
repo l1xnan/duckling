@@ -14,7 +14,7 @@ import {
 import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { AgTable } from '@/components/AgTable';
+import { CanvasTable } from '@/components/CanvasTable';
 import { Loading } from '@/components/Dataset';
 import { TablerSvgIcon } from '@/components/MuiIconButton';
 import { PaginationDropdown } from '@/components/PaginationDropdown';
@@ -77,14 +77,13 @@ export function DatasetItem({
       <div className="h-full">
         <Suspense fallback={<Loading />}>
           {loading ? <Loading /> : null}
-          <AgTable
-            titles={ctx.titles ?? []}
-            precision={precision}
+          <CanvasTable
             style={loading ? { display: 'none' } : undefined}
             data={ctx.data ?? []}
             schema={ctx.schema ?? []}
-            beautify={ctx.beautify}
             orderBy={ctx.orderBy}
+            precision={precision}
+            beautify={ctx.beautify}
           />
         </Suspense>
       </div>
