@@ -355,7 +355,7 @@ export const CanvasTable = React.memo(function CanvasTable({
     >
       <ListTable
         ref={tableRef}
-        height={height - 32}
+        height={height}
         onContextMenuCell={(arg) => {
           console.log('context', arg);
         }}

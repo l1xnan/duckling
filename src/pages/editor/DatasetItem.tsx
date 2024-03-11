@@ -71,13 +71,13 @@ export function DatasetItem({
 
   const TableComponent = tableRender === 'canvas' ? CanvasTable : AgTable;
   return (
-    <Stack height={'calc(100% - 32px)'}>
+    <div className="h-full flex flex-col">
       <PageSizeToolbar
         query={handleQuery}
         exportData={handleExport}
         ctx={context}
       />
-      <div className="h-full">
+      <div className="h-full flex-1">
         <Suspense fallback={<Loading />}>
           {loading ? <Loading /> : null}
           <TableComponent
@@ -90,7 +90,7 @@ export function DatasetItem({
           />
         </Suspense>
       </div>
-    </Stack>
+    </div>
   );
 }
 

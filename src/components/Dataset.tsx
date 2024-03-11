@@ -100,10 +100,10 @@ export function Dataset({ context }: { context: TabContextType }) {
   const TableComponent = tableRender === 'canvas' ? CanvasTable : AgTable;
 
   return (
-    <Stack sx={{ height: '100%' }}>
+    <div className="h-full flex flex-col">
       <PageSizeToolbar />
       <InputToolbar />
-      <Box sx={{ height: '100%' }}>
+      <div className="h-full flex-1">
         <Suspense fallback={<Loading />}>
           {loading ? <Loading /> : null}
           <TableComponent
@@ -116,8 +116,8 @@ export function Dataset({ context }: { context: TabContextType }) {
             transpose={transpose}
           />
         </Suspense>
-      </Box>
-    </Stack>
+      </div>
+    </div>
   );
 }
 
