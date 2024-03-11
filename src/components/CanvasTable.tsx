@@ -300,8 +300,8 @@ export const CanvasTable = React.memo(function CanvasTable({
         disableHeaderSelect: true,
         disableColumnResize: true,
         style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
-        fieldFormat: (_r, _col, row) => {
-          return row;
+        fieldFormat: (_r, col, row) => {
+          return transpose ? col : row;
         },
       },
       ...__columns,
