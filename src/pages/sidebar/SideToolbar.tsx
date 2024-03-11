@@ -1,5 +1,4 @@
 import RemoveIcon from '@mui/icons-material/Remove';
-import { Stack, Typography } from '@mui/material';
 import {
   IconDatabaseCog,
   IconFolderPlus,
@@ -11,7 +10,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { getDB } from '@/api';
 import { MuiIconButton } from '@/components/MuiIconButton';
 import ToggleColorMode from '@/components/ToggleColorMode';
-import { ToolbarBox } from '@/components/Toolbar';
+import { Stack, ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
 import Setting from '@/pages/settings/AppSetting';
 import { DatabaseDialog } from '@/pages/sidebar/DatabaseDialog';
 import {
@@ -52,6 +51,7 @@ export function SideToolbar() {
       removeDB(selectedNode.dbId);
     }
   }
+
   async function handleAppendDB() {
     const res = await dialog.open({
       directory: false,
@@ -102,20 +102,15 @@ export function SideToolbar() {
 
   return (
     <>
-      <ToolbarBox>
-        <Typography fontWeight={600}>Database Explorer</Typography>
-        <Stack direction="row">
+      <div className="h-[32px] w-full pl-4 flex items-center justify-between border-b">
+        <div className="font-semibold">Database Explorer</div>
+        <Stack>
           <ToggleColorMode />
           <Setting />
         </Stack>
-      </ToolbarBox>
-      <ToolbarBox>
-        <Stack
-          direction="row"
-          sx={{
-            marginLeft: -1,
-          }}
-        >
+      </div>
+      <ToolbarContainer>
+        <Stack>
           <MuiIconButton onClick={handleAppendFolder}>
             <IconFolderPlus />
           </MuiIconButton>
@@ -135,7 +130,7 @@ export function SideToolbar() {
             <IconRefresh />
           </MuiIconButton>
         </Stack>
-      </ToolbarBox>
+      </ToolbarContainer>
     </>
   );
 }

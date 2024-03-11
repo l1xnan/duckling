@@ -1,8 +1,8 @@
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
-import { IconButton, Stack } from '@mui/material';
+import { IconButton } from '@mui/material';
 
-import { ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
+import { Stack, ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -25,7 +25,7 @@ export function EditorToolbar({
   return (
     <ToolbarContainer>
       <ToolbarBox>
-        <Stack direction="row">
+        <Stack>
           <IconButton
             size="small"
             sx={{
@@ -45,7 +45,7 @@ export function EditorToolbar({
             <PlaylistAddIcon fontSize="inherit" />
           </IconButton>
         </Stack>
-        <Stack direction="row">
+        <Stack>
           <Connection content={session} />
         </Stack>
       </ToolbarBox>

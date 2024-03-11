@@ -4,14 +4,7 @@ import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import PivotTableChartIcon from '@mui/icons-material/PivotTableChart';
 import SyncIcon from '@mui/icons-material/Sync';
-import {
-  Box,
-  Divider,
-  IconButton,
-  InputBase,
-  InputLabel,
-  Stack,
-} from '@mui/material';
+import { Divider, IconButton } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import { Loader2Icon } from 'lucide-react';
@@ -25,7 +18,9 @@ import {
 } from 'react';
 import { toast } from 'sonner';
 
+import { AgTable } from '@/components/AgTable.tsx';
 import { PaginationDropdown } from '@/components/PaginationDropdown';
+import { Separator } from '@/components/ui/separator.tsx';
 import { cn } from '@/lib/utils';
 import {
   PageContext,
@@ -34,13 +29,11 @@ import {
 } from '@/stores/dataset';
 import { precisionAtom, tableRenderAtom } from '@/stores/setting';
 import { TabContextType, activeTabAtom } from '@/stores/tabs';
-import { borderTheme, convertOrderBy, isDarkTheme } from '@/utils';
+import { convertOrderBy } from '@/utils';
 
 import { CanvasTable } from './CanvasTable';
 import { TablerSvgIcon } from './MuiIconButton';
-import { ToolbarContainer } from './Toolbar';
-import { AgTable } from '@/components/AgTable.tsx';
-import { Separator } from '@/components/ui/separator.tsx';
+import { Stack, ToolbarContainer } from './Toolbar';
 
 export const Loading = ({ className }: { className?: string }) => {
   return (
@@ -148,18 +141,7 @@ function PageSizeToolbar() {
 
   return (
     <ToolbarContainer>
-      <Stack
-        direction="row"
-        spacing={1}
-        alignItems="center"
-        sx={(theme) => ({
-          backgroundColor: isDarkTheme(theme) ? '#2b2d30' : '#f7f8fa',
-          height: 32,
-          '& MuiSvgIcon-root': {
-            fontSize: 16,
-          },
-        })}
-      >
+      <Stack>
         <IconButton color="inherit" onClick={toFirst} disabled={page <= 1}>
           <KeyboardDoubleArrowLeftIcon />
         </IconButton>

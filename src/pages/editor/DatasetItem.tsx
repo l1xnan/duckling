@@ -1,4 +1,4 @@
-import { Divider, IconButton, Stack } from '@mui/material';
+import { Divider, IconButton } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
 import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
@@ -18,11 +18,10 @@ import { CanvasTable } from '@/components/CanvasTable';
 import { Loading } from '@/components/Dataset';
 import { TablerSvgIcon } from '@/components/MuiIconButton';
 import { PaginationDropdown } from '@/components/PaginationDropdown';
-import { ToolbarContainer } from '@/components/Toolbar';
+import { Stack, ToolbarContainer } from '@/components/Toolbar';
 import { atomStore } from '@/stores';
 import { precisionAtom, tableRenderAtom } from '@/stores/setting';
 import { execute, exportData, QueryContextType } from '@/stores/tabs';
-import { isDarkTheme } from '@/utils';
 import { AgTable } from '@/components/AgTable.tsx';
 
 export interface DatasetProps {
@@ -159,18 +158,7 @@ function PageSizeToolbar({ query, ctx, exportData }: PageSizeToolbarProps) {
   };
   return (
     <ToolbarContainer>
-      <Stack
-        direction="row"
-        spacing={1}
-        alignItems="center"
-        sx={(theme) => ({
-          backgroundColor: isDarkTheme(theme) ? '#2b2d30' : '#f7f8fa',
-          height: 32,
-          '& MuiSvgIcon-root': {
-            fontSize: 16,
-          },
-        })}
-      >
+      <Stack>
         <IconButton color="inherit" onClick={toFirst} disabled={page <= 1}>
           <ChevronsLeftIcon size={16} />
         </IconButton>
