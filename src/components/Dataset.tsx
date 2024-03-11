@@ -40,6 +40,7 @@ import { CanvasTable } from './CanvasTable';
 import { TablerSvgIcon } from './MuiIconButton';
 import { ToolbarContainer } from './Toolbar';
 import { AgTable } from '@/components/AgTable.tsx';
+import { Separator } from '@/components/ui/separator.tsx';
 
 export const Loading = ({ className }: { className?: string }) => {
   return (
@@ -215,58 +216,34 @@ export function InputToolbar() {
     setStmtOrder(orderBy ? convertOrderBy(orderBy) : '');
   }, [orderBy]);
   return (
-    <Box
-      sx={(theme) => ({
-        backgroundColor: isDarkTheme(theme) ? '#1e1f22' : '#ffffff',
-        height: 32,
-        display: 'flex',
-        alignItems: 'center',
-        borderBottom: borderTheme(theme),
-        '& input, & input:focus-visible, & .MuiInputBase-root': {
-          border: 'none',
-          height: '100%',
-          padding: 0,
-          outlineWidth: 0,
-          backgroundColor: isDarkTheme(theme) ? '#1e1f22' : '#ffffff',
-        },
-      })}
-    >
-      <Stack direction="row">
-        <Box sx={{ flexGrow: 0, mr: 1, ml: 1 }}>
-          <InputLabel sx={{ width: 'auto' }}>WHERE</InputLabel>
-        </Box>
-        <InputBase
-          color="primary"
-          onKeyDown={async (e) => {
-            if (e.key === 'Enter') {
-              setSQLWhere(stmtWhere);
-            }
-          }}
-          onChange={(e) => {
-            setStmtWhere(e.target.value);
-          }}
-        />
-      </Stack>
-      <Divider orientation="vertical" flexItem />
-      <Stack direction="row">
-        <Box sx={{ flexGrow: 0, mr: 1, ml: 1 }}>
-          <InputLabel>ORDER BY</InputLabel>
-        </Box>
-        <InputBase
-          value={stmtOrder}
-          fullWidth
-          color="primary"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              setSQLWhere(stmtWhere);
-            }
-          }}
-          onChange={(e) => {
-            setStmtOrder(e.target.value);
-          }}
-        />
-      </Stack>
-    </Box>
+    <div className="flex flex-row items-center h-8 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="mx-1">WHERE</div>
+      <input
+        className="flex-1 h-full border-none p-0 outline-none bg-transparent"
+        onKeyDown={async (e) => {
+          if (e.key === 'Enter') {
+            setSQLWhere(stmtWhere);
+          }
+        }}
+        onChange={(e) => {
+          setStmtWhere(e.target.value);
+        }}
+      />
+      <Separator orientation="vertical" />
+      <div className="mx-1">ORDER BY</div>
+      <input
+        className="flex-[2_2_0%] h-full border-none p-0 outline-none bg-transparent"
+        value={stmtOrder}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            setSQLWhere(stmtWhere);
+          }
+        }}
+        onChange={(e) => {
+          setStmtOrder(e.target.value);
+        }}
+      />
+    </div>
   );
 }
 
