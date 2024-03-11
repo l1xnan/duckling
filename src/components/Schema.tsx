@@ -115,11 +115,17 @@ export function DatabaseSchema({ context }: { context: SchemaContextType }) {
                   if (isEmpty(search)) {
                     return true;
                   }
-                  if (item?.name) {
-                    JSON.stringify(Object.values(item));
-                    return item?.name?.includes(search);
-                  }
-                  return true;
+
+                  const match = Object.entries(item ?? {}).filter(
+                    ([key, val]) => {
+                      return (
+                        key.toLocaleLowerCase().includes('name') &&
+                        String(val).includes(search)
+                      );
+                    },
+                  );
+
+                  return match.length > 0;
                 }) ?? []
               }
             />
