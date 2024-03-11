@@ -120,7 +120,9 @@ export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
           isRoot ? (
             <ConnectionContextMenu db={db}>{child}</ConnectionContextMenu>
           ) : node.type == 'database' ? (
-            <SchemaContextMenu node={node}>{child}</SchemaContextMenu>
+            <SchemaContextMenu db={db} node={node}>
+              {child}
+            </SchemaContextMenu>
           ) : (
             <TableContextMenu node={node}>{child}</TableContextMenu>
           )

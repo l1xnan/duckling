@@ -2,18 +2,20 @@ import { useTheme } from '@mui/material';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { ListColumn, ListTable, VTable } from '@visactor/react-vtable';
 import {
+  ColumnDefine,
   ListTable as ListTableAPI,
   ListTableConstructorOptions,
   themes,
 } from '@visactor/vtable';
 import { useAtomValue } from 'jotai';
-import type { ComponentProps } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import useResizeObserver from 'use-resize-observer';
 
 import { TableProps } from '@/components/AgTable.tsx';
 import { tableFontFamilyAtom } from '@/stores/setting';
 import { isDarkTheme, isFloat, isNumber, uniqueArray } from '@/utils.ts';
+
+import type { ComponentProps } from 'react';
 
 type ITableThemeDefine = ComponentProps<typeof ListTable>['theme'];
 type ListColumnProps = ComponentProps<typeof ListColumn>;
@@ -158,41 +160,39 @@ export const CanvasTable = React.memo(function CanvasTable({
     ...rightPinnedCols.map((key) => titleMap.get(key)),
   ];
 
-  const __columns: ListColumnProps[] = __titles.map(
-    ({ key, name, dataType }, _) => {
-      return {
-        field: name,
-        fieldKey: key,
-        title: name,
-        dragHeader: true,
-        sort: true,
-        style: (arg) => {
-          const style: Record<string, string> = {};
-          if (isNumber(dataType)) {
-            style['textAlign'] = 'right';
+  const __columns: ColumnDefine = __titles.map(({ key, name, dataType }, _) => {
+    return {
+      field: name,
+      fieldKey: key,
+      title: name,
+      dragHeader: true,
+      sort: true,
+      style: (arg) => {
+        const style: Record<string, string> = {};
+        if (isNumber(dataType)) {
+          style['textAlign'] = 'right';
+        }
+        if (arg.dataValue === null || arg.dataValue === undefined) {
+          style['color'] = 'gray';
+        }
+        return style;
+      },
+      fieldFormat: (record) => {
+        const value = record[key];
+        if (value === null) {
+          return '<null>';
+        }
+        if (beautify && isFloat(dataType) && precision) {
+          try {
+            return (value as number)?.toFixed(precision);
+          } catch (error) {
+            return value;
           }
-          if (arg.dataValue === null || arg.dataValue === undefined) {
-            style['color'] = 'gray';
-          }
-          return style;
-        },
-        fieldFormat: (record) => {
-          const value = record[key];
-          if (value === null) {
-            return '<null>';
-          }
-          if (beautify && isFloat(dataType) && precision) {
-            try {
-              return (value as number)?.toFixed(precision);
-            } catch (error) {
-              return value;
-            }
-          }
-          return value;
-        },
-      } as ListColumnProps;
-    },
-  );
+        }
+        return value;
+      },
+    } as ListColumnProps;
+  });
 
   // const [popup, _setPopup] = useState<Partial<PosType>>({});
   // const popupRef = useRef(popup);
@@ -298,6 +298,9 @@ export const CanvasTable = React.memo(function CanvasTable({
         disableHeaderSelect: true,
         disableColumnResize: true,
         style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
+        fieldFormat: (_r, _col, row) => {
+          return row;
+        },
       },
       ...__columns,
     ],
@@ -366,3 +369,60 @@ export const CanvasTable = React.memo(function CanvasTable({
     </div>
   );
 });
+
+export function SimpleTable({ data }: { data: unknown[] }) {
+  const { ref, height = 100 } = useResizeObserver<HTMLDivElement>();
+
+  const tableRef = useRef<ListTableAPI>();
+  const appTheme = useTheme();
+  const tableFontFamily = useAtomValue(tableFontFamilyAtom);
+
+  const theme = (isDarkTheme(appTheme) ? darkTheme : lightTheme).extends({
+    bodyStyle: {
+      fontFamily: tableFontFamily,
+    },
+    headerStyle: {
+      fontFamily: tableFontFamily,
+    },
+  });
+
+  const columns: ListColumnProps[] = Object.keys(data[0] ?? {}).map((key) => {
+    return {
+      field: key,
+      title: key,
+      dragHeader: true,
+      sort: true,
+    } as ListColumnProps;
+  });
+  console.log(columns, data);
+  const option: ListTableConstructorOptions = {
+    records: data,
+    limitMaxAutoWidth: 200,
+    heightMode: 'autoHeight',
+    widthMode: 'autoWidth',
+    showFrozenIcon: true,
+    theme,
+    columns,
+    hover: {
+      highlightMode: 'cell',
+    },
+    keyboardOptions: {
+      moveEditCellOnArrowKeys: true,
+      copySelected: true,
+      pasteValueToCell: true,
+    },
+  };
+
+  return (
+    <div
+      ref={ref}
+      className="h-full"
+      onContextMenu={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+      }}
+    >
+      <ListTable ref={tableRef} height={height - 32} option={option} />
+    </div>
+  );
+}

@@ -4,7 +4,6 @@
 use std::env;
 
 use cmd::OpenedUrls;
-use cmd::{export, get_db, opened_urls, query, query_table, table_row_count};
 use std::sync::Mutex;
 use tauri::menu::{
   CheckMenuItem, CheckMenuItemBuilder, MenuBuilder, MenuItem, MenuItemBuilder, SubmenuBuilder,
@@ -117,12 +116,13 @@ fn main() {
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
-      query,
-      query_table,
-      opened_urls,
-      get_db,
-      export,
-      table_row_count,
+      cmd::query,
+      cmd::query_table,
+      cmd::opened_urls,
+      cmd::get_db,
+      cmd::export,
+      cmd::table_row_count,
+      cmd::show_schema,
     ])
     .build(tauri::generate_context!())
     .expect("error while running tauri application")

@@ -65,13 +65,22 @@ export type EditorContextType = {
 export type TableContextType = {
   id: string;
   dbId: string;
+  schema?: string;
   tableId: string;
   type?: string;
   extra?: unknown;
   displayName: string;
 };
+export type SchemaContextType = {
+  id: string;
+  dbId: string;
+  schema: string;
+  type?: string;
+  displayName: string;
+};
 
 export type TabContextType =
+  | SchemaContextType
   | TableContextType
   | EditorContextType
   | QueryContextType;

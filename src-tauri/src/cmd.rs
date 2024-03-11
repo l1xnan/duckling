@@ -14,6 +14,7 @@ use crate::dialect::mysql::MySqlDialect;
 use crate::dialect::postgres::PostgresDialect;
 use crate::dialect::sqlite::SqliteDialect;
 use crate::dialect::{Connection, TreeNode};
+use crate::utils::Table;
 
 pub struct OpenedUrls(pub Mutex<Option<Vec<url::Url>>>);
 
@@ -193,4 +194,14 @@ pub async fn get_db(
   } else {
     Err("not support dialect".to_string())
   }
+}
+
+#[tauri::command]
+pub async fn show_schema(schema: &str, dialect: DialectPayload) -> Result<ArrowResponse, String> {
+  let d = get_dialect(dialect.clone())
+    .await
+    .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
+  let res = d.show_schema(schema).await;
+
+  Ok(api::convert(res))
 }

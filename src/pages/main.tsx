@@ -2,6 +2,7 @@ import { PrimitiveAtom, useAtomValue } from 'jotai';
 
 import { Dataset, PageProvider } from '@/components/Dataset';
 import { PageTabs } from '@/components/PageTabs';
+import DatabaseSchema from '@/components/Schema';
 import {
   EditorContextType,
   TabContextType,
@@ -15,9 +16,20 @@ import MonacoEditor from './editor';
 
 function TabContent({ tabAtom }: { tabAtom: PrimitiveAtom<TabContextType> }) {
   const tab = useAtomValue(tabAtom);
-  return tab.type === 'editor' ? (
-    <MonacoEditor context={tabAtom as PrimitiveAtom<EditorContextType>} />
-  ) : (
+  if (tab.type === 'schema') {
+    return (
+      <PageProvider context={tab}>
+        <DatabaseSchema context={tab} />
+      </PageProvider>
+    );
+  }
+  if (tab.type === 'editor') {
+    return (
+      <MonacoEditor context={tabAtom as PrimitiveAtom<EditorContextType>} />
+    );
+  }
+
+  return (
     <PageProvider context={tab}>
       <Dataset context={tab} />
     </PageProvider>

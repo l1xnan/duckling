@@ -49,6 +49,15 @@ impl Connection for ClickhouseDialect {
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     self._table_row_count(table, r#where).await
   }
+
+  async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
+    let sql = format!(
+      "select * from system.tables where database='{}' order by engine, name",
+      schema
+    );
+
+    self.query(&sql, 0, 0).await
+  }
 }
 
 impl ClickhouseDialect {
@@ -106,7 +115,7 @@ impl ClickhouseDialect {
     let block = conn.query(&sql).fetch_all().await?;
 
     for row in block.rows() {
-      let total= row.get::<u64, _>(0)?;
+      let total = row.get::<u64, _>(0)?;
       return Ok(total.as_usize());
     }
     Err(anyhow::anyhow!("null"))

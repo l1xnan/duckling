@@ -15,7 +15,7 @@ pub struct DuckDbDialect {
 impl Connection for DuckDbDialect {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
     let conn = self.connect()?;
-    let tables = get_tables(&conn)?;
+    let tables = get_tables(&conn, None)?;
     Ok(TreeNode {
       name: get_file_name(&self.path),
       path: self.path.clone(),
@@ -24,6 +24,19 @@ impl Connection for DuckDbDialect {
       size: None,
       comment: None,
     })
+  }
+
+  async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
+    let sql = format!(
+      "
+    select * from information_schema.tables
+    where table_schema='{}'
+    order by table_type, table_name
+    ",
+      schema
+    );
+
+    self.query(&sql, 0, 0).await
   }
 
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
@@ -51,12 +64,18 @@ impl DuckDbDialect {
   }
 }
 
-pub fn get_tables(conn: &duckdb::Connection) -> anyhow::Result<Vec<Table>> {
-  let sql = r#"
+pub fn get_tables(conn: &duckdb::Connection, schema: Option<&str>) -> anyhow::Result<Vec<Table>> {
+  let mut sql = r#"
   select table_name, table_type, table_schema, if(table_type='VIEW', 'view', 'table') as type
-  from information_schema.tables order by table_type, table_name
-  "#;
-  let mut stmt = conn.prepare(sql)?;
+  from information_schema.tables
+  "#
+  .to_string();
+  if let Some(schema) = schema {
+    sql += &format!(" where table_schema='{}'", schema)
+  }
+  sql += " order by table_type, table_name";
+
+  let mut stmt = conn.prepare(&sql)?;
 
   let rows = stmt.query_map([], |row| {
     Ok(Table {

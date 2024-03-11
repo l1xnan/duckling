@@ -44,7 +44,7 @@ export function convertArrow(
   });
 
   const data = table.toArray().map((item: any, i: number) => ({
-    __index__: i + 1,
+    // __index__: i + 1,
     ...item.toJSON(),
   }));
 
@@ -119,19 +119,6 @@ export async function exportCsv(
   return convert(res);
 }
 
-export async function read_parquet(
-  path: string,
-  { limit = 500, offset = 0, order }: OptionType,
-): Promise<ResultType> {
-  const res = await invoke<ArrowResponse>('read_parquet', {
-    path,
-    limit,
-    offset,
-    order,
-  });
-  return convert(res);
-}
-
 export async function getDB(option: DialectConfig): Promise<DBType> {
   const tree: TreeNode = await invoke('get_db', option);
   console.log('tree:', tree);
@@ -142,4 +129,12 @@ export async function getDB(option: DialectConfig): Promise<DBType> {
     config: option,
     displayName: tree.name,
   };
+}
+
+export async function showSchema(
+  schema: string,
+  dialect: DialectConfig,
+): Promise<ResultType> {
+  const res = await invoke('show_schema', { schema, dialect });
+  return convert(res);
 }

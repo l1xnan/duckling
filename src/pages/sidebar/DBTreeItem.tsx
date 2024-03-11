@@ -1,12 +1,10 @@
 import {
-  Box,
   Tooltip,
   TooltipProps,
   alpha,
   styled,
   tooltipClasses,
 } from '@mui/material';
-import Typography from '@mui/material/Typography';
 import {
   TreeItem,
   TreeItemContentProps,
@@ -197,33 +195,12 @@ export const TreeItemLabel = React.forwardRef(
         className="flex items-center p-0 pt-0.5 pb-0.5 text-sm h-6"
         ref={ref as React.Ref<HTMLDivElement>}
       >
-        <Box
-          color="inherit"
-          sx={{
-            mr: 1,
-            display: 'flex',
-            alignItems: 'center',
-            height: '100%',
-            '& svg': {
-              fontSize: '16px',
-              height: '16px',
-              width: '16px',
-            },
-          }}
-        >
+        <div className="mr-1 flex items-center h-full [&_svg]:text-base [&_svg]:h-4 [&_svg]:w-4">
           {getTypeIcon(icon, expanded)}
-        </Box>
-
-        <Typography
-          sx={{
-            fontWeight: 'inherit',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            fontFamily: 'Consolas',
-          }}
-        >
+        </div>
+        <div className="overflow-hidden text-ellipsis font-mono">
           {node.name}
-        </Typography>
+        </div>
       </div>
     );
   },
