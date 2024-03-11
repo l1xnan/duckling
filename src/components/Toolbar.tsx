@@ -36,7 +36,7 @@ export const ToolbarContainer = (
   props: React.ButtonHTMLAttributes<HTMLDivElement>,
 ) => (
   <div
-    className="h-8 w-full pl-1 flex items-center justify-between"
+    className="h-8 w-full pl-1 flex items-center justify-between border-b"
     {...props}
   />
 );

@@ -198,7 +198,7 @@ export function InputToolbar() {
     setStmtOrder(orderBy ? convertOrderBy(orderBy) : '');
   }, [orderBy]);
   return (
-    <div className="flex flex-row items-center h-8 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div className="flex flex-row items-center h-8 bg-background/40">
       <div className="mx-1">WHERE</div>
       <input
         className="flex-1 h-full border-none p-0 outline-none bg-transparent"
