@@ -48,6 +48,14 @@ impl Connection for MySqlDialect {
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     self._table_row_count(table, r#where).await
   }
+
+  async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
+    let sql = format!(
+      "select * from information_schema.tables where TABLE_SCHEMA='{}' order by TABLE_TYPE, TABLE_NAME",
+      schema
+    );
+    self.query(&sql, 0, 0).await
+  }
 }
 
 impl MySqlDialect {

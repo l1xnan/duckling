@@ -46,6 +46,17 @@ impl Connection for SqliteDialect {
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     self._table_row_count(table, r#where).await
   }
+
+  async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
+    let sql = format!(
+      "
+      SELECT * FROM sqlite_master
+      WHERE type IN ('table', 'view') and name NOT IN ('sqlite_sequence', 'sqlite_stat1')
+      ",
+      schema
+    );
+    self.query(&sql, 0, 0).await
+  }
 }
 
 impl SqliteDialect {
