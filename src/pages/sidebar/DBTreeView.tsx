@@ -27,11 +27,11 @@ import { HtmlTooltip } from '@/components/custom/Tooltip';
 import { DBType, selectedNodeAtom, tablesAtom } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { TreeNode } from '@/types';
+import { isEmpty } from '@/utils.ts';
 
 import { DBTreeItem, TreeItemLabel } from './DBTreeItem';
 import { DBContextMenu } from './context-menu/DBContextMenu';
 import { TableContextMenu } from './context-menu/TableContextMenu';
-import { isEmpty } from '@/utils.ts';
 
 export const getTypeIcon = (type: string, expanded: boolean) => {
   if (type == 'path' && expanded) {
@@ -139,32 +139,37 @@ export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
 
   const [selectedNode, setSelectedNode] = useAtom(selectedNodeAtom);
   const selected = selectedNode?.dbId == db.id ? selectedNode.tableId : null;
+
+  const handleNodeSelect: TreeViewProps<boolean>['onNodeSelect'] = (
+    _,
+    nodeIds,
+  ) => {
+    const nodes = dbTableMap.get(db.id)!;
+    const node = nodes.get(nodeIds as string);
+
+    const nodeContext = {
+      dbId: db.id,
+      tableId: nodeIds as string,
+    };
+
+    setSelectedNode(nodeContext);
+
+    const noDataTypes = ['path', 'database', 'root'];
+    if (node && !noDataTypes.includes(node.type ?? '')) {
+      const item: TableContextType = {
+        ...nodeContext,
+        id: `${db.id}:${nodeIds}`,
+        dbId: db.id,
+        displayName: node?.name as string,
+      };
+      updateTab!(item);
+    }
+  };
   return (
     <TreeView
       defaultCollapseIcon={<ExpandMoreIcon />}
       defaultExpandIcon={<ChevronRightIcon />}
-      onNodeSelect={(_, nodeIds) => {
-        const nodes = dbTableMap.get(db.id)!;
-        const node = nodes.get(nodeIds as string);
-
-        const nodeContext = {
-          dbId: db.id,
-          tableId: nodeIds as string,
-        };
-
-        setSelectedNode(nodeContext);
-
-        const noDataTypes = ['path', 'database', 'root'];
-        if (node && !noDataTypes.includes(node.type ?? '')) {
-          const item: TableContextType = {
-            ...nodeContext,
-            id: `${db.id}:${nodeIds}`,
-            dbId: db.id,
-            displayName: node?.name as string,
-          };
-          updateTab!(item);
-        }
-      }}
+      onNodeSelect={handleNodeSelect}
       onNodeToggle={handleToggle}
       expanded={expanded}
       selected={selected}

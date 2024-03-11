@@ -9,7 +9,7 @@ import {
   useMemo,
 } from 'react';
 
-import { DatasetEmpty } from '@/components/DatasetEmpty';
+import { Empty } from '@/components/Empty';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TabContextType } from '@/stores/tabs';
@@ -173,7 +173,7 @@ export function PageTabs({
   return (
     <div className="h-full">
       <TabContext value={activeKey}>
-        <Box>{items?.length > 0 ? tabList : <DatasetEmpty />}</Box>
+        <Box>{items?.length > 0 ? tabList : <Empty />}</Box>
         <Box className="h-full">
           {items.map((item) => {
             const tab = item.tab;

@@ -97,6 +97,7 @@ type DBListAction = {
   remove: (id: string) => void;
   rename: (id: string, displayName: string) => void;
   setCwd: (cwd: string, id: string) => void;
+  setDB: (config: DialectConfig, id: string) => void;
 
   setContextMenu: (contextMenu: ContextMenuType) => void;
 };
@@ -156,6 +157,13 @@ export const useDBListStore = create<DBListStore>()(
               : item;
           }),
         })),
+      setDB: (config, id: string) =>
+        set((state) => ({
+          dbList: state.dbList.map((item) =>
+            item.id == id ? { ...item, config } : item,
+          ),
+        })),
+
       rename: (dbId: string, displayName: string) => {
         set(({ dbList }) => ({
           dbList: dbList.map((item) => {

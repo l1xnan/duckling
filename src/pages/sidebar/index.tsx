@@ -1,11 +1,11 @@
-import { Box, BoxProps } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import { invoke } from '@tauri-apps/api/core';
 import { useAtomValue } from 'jotai';
+import { Search } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { useEffect, useState } from 'react';
 
 import { getDB } from '@/api';
+import { Input } from '@/components/ui/input.tsx';
 import ConfigDialog from '@/pages/sidebar/ConfigDialog';
 import RenameDialog from '@/pages/sidebar/RenameDialog';
 import { SideToolbar } from '@/pages/sidebar/SideToolbar';
@@ -18,8 +18,6 @@ import {
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 
 import DBTreeView from './DBTreeView';
-import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input.tsx';
 
 function Sidebar() {
   const dbList = useAtomValue(dbListAtom);
@@ -66,7 +64,7 @@ function Sidebar() {
               setSearch(e.target.value);
             }}
             placeholder="Search"
-            className="h-8 pl-8 py-0.5 text-xs focus-visible:ring-0"
+            className="h-8 pl-8 py-0.5 text-xs focus-visible:ring-0 shadow-none rounded-none border-t-0 border-b transition-none"
           />
         </div>
       </div>

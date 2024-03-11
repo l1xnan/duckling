@@ -192,14 +192,14 @@ export function DatabaseDialog() {
               </>
             ) : null}
           </div>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="secondary">Cancel</Button>
-            </DialogClose>
-            <Button type="submit">Ok</Button>
-          </DialogFooter>
         </form>
       </Form>
+      <DialogFooter>
+        <DialogClose asChild>
+          <Button variant="secondary">Cancel</Button>
+        </DialogClose>
+        <Button type="submit">Ok</Button>
+      </DialogFooter>
     </Dialog>
   );
 }
