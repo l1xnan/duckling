@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/context-menu';
 import { TreeNode } from '@/types';
 
-export function TableContextMenu({
+export function SchemaContextMenu({
   children,
   node,
 }: PropsWithChildren<{ node: TreeNode }>) {
@@ -17,6 +17,13 @@ export function TableContextMenu({
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-64">
+        <ContextMenuItem
+          onClick={async (e) => {
+            console.log('show databases');
+          }}
+        >
+          Show Database
+        </ContextMenuItem>
         <ContextMenuItem
           onClick={async (e) => {
             e.stopPropagation();

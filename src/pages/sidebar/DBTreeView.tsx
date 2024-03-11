@@ -30,7 +30,8 @@ import { TreeNode } from '@/types';
 import { isEmpty } from '@/utils.ts';
 
 import { DBTreeItem, TreeItemLabel } from './DBTreeItem';
-import { DBContextMenu } from './context-menu/DBContextMenu';
+import { ConnectionContextMenu } from './context-menu/ConnectionContextMenu';
+import { SchemaContextMenu } from './context-menu/SchemaContextMenu';
 import { TableContextMenu } from './context-menu/TableContextMenu';
 
 export const getTypeIcon = (type: string, expanded: boolean) => {
@@ -105,23 +106,23 @@ export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
         icon={isRoot ? db.dialect : node.type ?? 'file'}
       />
     );
+
+    const child = (
+      <HtmlTooltip title={node.path}>
+        <div className="truncate">{label}</div>
+      </HtmlTooltip>
+    );
     return (
       <DBTreeItem
         key={node.path}
         nodeId={node.path}
         label={
           isRoot ? (
-            <DBContextMenu db={db}>
-              <HtmlTooltip title={node.path}>
-                <div className="truncate">{label}</div>
-              </HtmlTooltip>
-            </DBContextMenu>
+            <ConnectionContextMenu db={db}>{child}</ConnectionContextMenu>
+          ) : node.type == 'database' ? (
+            <SchemaContextMenu node={node}>{child}</SchemaContextMenu>
           ) : (
-            <TableContextMenu node={node}>
-              <HtmlTooltip title={node.path}>
-                <div className="truncate">{label}</div>
-              </HtmlTooltip>
-            </TableContextMenu>
+            <TableContextMenu node={node}>{child}</TableContextMenu>
           )
         }
       >

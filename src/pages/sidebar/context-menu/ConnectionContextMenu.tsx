@@ -3,10 +3,10 @@ import { Code, RefreshCcw, Settings } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 
 import { getDB } from '@/api';
+import { ContextMenuItem } from '@/components/custom/context-menu';
 import {
   ContextMenu,
   ContextMenuContent,
-  ContextMenuItem,
   ContextMenuSeparator,
   ContextMenuShortcut,
   ContextMenuTrigger,
@@ -19,7 +19,7 @@ import {
 } from '@/stores/dbList';
 import { useTabsStore } from '@/stores/tabs';
 
-export function DBContextMenu({
+export function ConnectionContextMenu({
   children,
   db,
 }: PropsWithChildren<{ db: DBType }>) {
@@ -59,32 +59,28 @@ export function DBContextMenu({
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-64">
-        <ContextMenuItem className="py-1 text-xs" onSelect={handleProperties}>
+        <ContextMenuItem onSelect={handleProperties}>
           <Settings size={14} className="mr-2.5" />
           Properties
           <ContextMenuShortcut>F3</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuSeparator />
-        <ContextMenuItem className="py-1 text-xs" onSelect={handleEditor}>
+        <ContextMenuItem onSelect={handleEditor}>
           <Code size={14} className="mr-2.5" />
           SQL Editor
           <ContextMenuShortcut>F4</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuSeparator />
-        <ContextMenuItem
-          className="py-1 text-xs"
-          inset
-          onSelect={() => setRenameContext(db)}
-        >
+        <ContextMenuItem inset onSelect={() => setRenameContext(db)}>
           Rename
           <ContextMenuShortcut>F2</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem className="py-1 text-xs" onSelect={handleRefresh}>
+        <ContextMenuItem onSelect={handleRefresh}>
           <RefreshCcw size={14} className="mr-2.5" />
           Refresh
           <ContextMenuShortcut>F5</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem className="py-1 text-xs" inset onSelect={handleRemove}>
+        <ContextMenuItem inset onSelect={handleRemove}>
           Delete
           <ContextMenuShortcut>Del</ContextMenuShortcut>
         </ContextMenuItem>
