@@ -52,8 +52,7 @@ impl Connection for SqliteDialect {
       "
       SELECT * FROM sqlite_master
       WHERE type IN ('table', 'view') and name NOT IN ('sqlite_sequence', 'sqlite_stat1')
-      ",
-      schema
+      "
     );
     self.query(&sql, 0, 0).await
   }
