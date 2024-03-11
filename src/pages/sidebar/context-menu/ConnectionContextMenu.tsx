@@ -59,14 +59,12 @@ export function ConnectionContextMenu({
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-64">
-        <ContextMenuItem onSelect={handleProperties}>
-          <Settings size={14} className="mr-2.5" />
+        <ContextMenuItem onSelect={handleProperties} icon={Settings}>
           Properties
           <ContextMenuShortcut>F3</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuSeparator />
-        <ContextMenuItem onSelect={handleEditor}>
-          <Code size={14} className="mr-2.5" />
+        <ContextMenuItem onSelect={handleEditor} icon={Code}>
           SQL Editor
           <ContextMenuShortcut>F4</ContextMenuShortcut>
         </ContextMenuItem>
@@ -75,8 +73,7 @@ export function ConnectionContextMenu({
           Rename
           <ContextMenuShortcut>F2</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem onSelect={handleRefresh}>
-          <RefreshCcw size={14} className="mr-2.5" />
+        <ContextMenuItem onSelect={handleRefresh} icon={RefreshCcw}>
           Refresh
           <ContextMenuShortcut>F5</ContextMenuShortcut>
         </ContextMenuItem>
