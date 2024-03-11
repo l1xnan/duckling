@@ -104,26 +104,28 @@ export function DatabaseSchema({ context }: { context: SchemaContextType }) {
           <RefreshCw className="h-4 w-4" />
         </Button>
       </div>
-      <Suspense fallback={<Loading />}>
-        {loading ? (
-          <Loading />
-        ) : (
-          <SimpleTable
-            data={
-              data.filter((item) => {
-                if (isEmpty(search)) {
+      <div className="h-full">
+        <Suspense fallback={<Loading />}>
+          {loading ? (
+            <Loading />
+          ) : (
+            <SimpleTable
+              data={
+                data.filter((item) => {
+                  if (isEmpty(search)) {
+                    return true;
+                  }
+                  if (item?.name) {
+                    JSON.stringify(Object.values(item));
+                    return item?.name?.includes(search);
+                  }
                   return true;
-                }
-                if (item?.name) {
-                  JSON.stringify(Object.values(item));
-                  return item?.name?.includes(search);
-                }
-                return true;
-              }) ?? []
-            }
-          />
-        )}
-      </Suspense>
+                }) ?? []
+              }
+            />
+          )}
+        </Suspense>
+      </div>
     </div>
   );
 }

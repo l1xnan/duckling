@@ -160,39 +160,41 @@ export const CanvasTable = React.memo(function CanvasTable({
     ...rightPinnedCols.map((key) => titleMap.get(key)),
   ];
 
-  const __columns: ColumnDefine = __titles.map(({ key, name, dataType }, _) => {
-    return {
-      field: name,
-      fieldKey: key,
-      title: name,
-      dragHeader: true,
-      sort: true,
-      style: (arg) => {
-        const style: Record<string, string> = {};
-        if (isNumber(dataType)) {
-          style['textAlign'] = 'right';
-        }
-        if (arg.dataValue === null || arg.dataValue === undefined) {
-          style['color'] = 'gray';
-        }
-        return style;
-      },
-      fieldFormat: (record) => {
-        const value = record[key];
-        if (value === null) {
-          return '<null>';
-        }
-        if (beautify && isFloat(dataType) && precision) {
-          try {
-            return (value as number)?.toFixed(precision);
-          } catch (error) {
-            return value;
+  const __columns: ColumnDefine[] = __titles.map(
+    ({ key, name, dataType }, _) => {
+      return {
+        field: name,
+        fieldKey: key,
+        title: name,
+        dragHeader: true,
+        sort: true,
+        style: (arg) => {
+          const style: Record<string, string> = {};
+          if (isNumber(dataType)) {
+            style['textAlign'] = 'right';
           }
-        }
-        return value;
-      },
-    } as ListColumnProps;
-  });
+          if (arg.dataValue === null || arg.dataValue === undefined) {
+            style['color'] = 'gray';
+          }
+          return style;
+        },
+        fieldFormat: (record) => {
+          const value = record[key];
+          if (value === null) {
+            return '<null>';
+          }
+          if (beautify && isFloat(dataType) && precision) {
+            try {
+              return (value as number)?.toFixed(precision);
+            } catch (error) {
+              return value;
+            }
+          }
+          return value;
+        },
+      } as ColumnDefine;
+    },
+  );
 
   // const [popup, _setPopup] = useState<Partial<PosType>>({});
   // const popupRef = useRef(popup);
@@ -386,15 +388,15 @@ export function SimpleTable({ data }: { data: unknown[] }) {
     },
   });
 
-  const columns: ListColumnProps[] = Object.keys(data[0] ?? {}).map((key) => {
+  const columns: ColumnDefine[] = Object.keys(data[0] ?? {}).map((key) => {
     return {
       field: key,
       title: key,
       dragHeader: true,
       sort: true,
-    } as ListColumnProps;
+    } as ColumnDefine;
   });
-  console.log(columns, data);
+
   const option: ListTableConstructorOptions = {
     records: data,
     limitMaxAutoWidth: 200,
@@ -402,7 +404,23 @@ export function SimpleTable({ data }: { data: unknown[] }) {
     widthMode: 'autoWidth',
     showFrozenIcon: true,
     theme,
-    columns,
+    columns: [
+      {
+        field: '__index__',
+        title: '',
+        dragHeader: false,
+        disableSelect: true,
+        disableHover: true,
+        disableHeaderHover: true,
+        disableHeaderSelect: true,
+        disableColumnResize: true,
+        style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
+        fieldFormat: (_r, _col, row) => {
+          return row;
+        },
+      },
+      ...columns,
+    ],
     hover: {
       highlightMode: 'cell',
     },
@@ -422,7 +440,7 @@ export function SimpleTable({ data }: { data: unknown[] }) {
         e.preventDefault();
       }}
     >
-      <ListTable ref={tableRef} height={height - 32} option={option} />
+      <ListTable ref={tableRef} height={height - 64} option={option} />
     </div>
   );
 }
