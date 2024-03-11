@@ -32,13 +32,14 @@ import {
   createDatasetStore,
   usePageStore,
 } from '@/stores/dataset';
-import { precisionAtom } from '@/stores/setting';
+import { precisionAtom, tableRenderAtom } from '@/stores/setting';
 import { TabContextType, activeTabAtom } from '@/stores/tabs';
 import { borderTheme, convertOrderBy, isDarkTheme } from '@/utils';
 
 import { CanvasTable } from './CanvasTable';
 import { TablerSvgIcon } from './MuiIconButton';
 import { ToolbarContainer } from './Toolbar';
+import { AgTable } from '@/components/AgTable.tsx';
 
 export const Loading = ({ className }: { className?: string }) => {
   return (
@@ -95,6 +96,8 @@ export function Dataset({ context }: { context: TabContextType }) {
     }
   }, []);
   const precision = useAtomValue(precisionAtom);
+  const tableRender = useAtomValue(tableRenderAtom);
+  const TableComponent = tableRender === 'canvas' ? CanvasTable : AgTable;
 
   return (
     <Stack sx={{ height: '100%' }}>
@@ -103,7 +106,7 @@ export function Dataset({ context }: { context: TabContextType }) {
       <Box sx={{ height: '100%' }}>
         <Suspense fallback={<Loading />}>
           {loading ? <Loading /> : null}
-          <CanvasTable
+          <TableComponent
             style={loading ? { display: 'none' } : undefined}
             data={data ?? []}
             schema={schema ?? []}
@@ -199,6 +202,7 @@ function PageSizeToolbar() {
     </ToolbarContainer>
   );
 }
+
 export function InputToolbar() {
   const { orderBy, setSQLWhere } = usePageStore();
 

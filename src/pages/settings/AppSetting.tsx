@@ -150,14 +150,14 @@ function Profile() {
           />
           <FormField
             control={form.control}
-            name="render"
+            name="table_render"
             render={({ field }) => (
-              <FormItem className="flex items-center w-[62.5%]">
-                <FormLabel className="w-1/5 mr-2 mt-2">Table render</FormLabel>
-                <Select {...field}>
-                  <FormControl className="w-4/5">
+              <FormItem>
+                <FormLabel>Table render</FormLabel>
+                <Select onValueChange={field.onChange} {...field}>
+                  <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a dialect" />
+                      <SelectValue placeholder="Select a render" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>

@@ -20,9 +20,10 @@ import { TablerSvgIcon } from '@/components/MuiIconButton';
 import { PaginationDropdown } from '@/components/PaginationDropdown';
 import { ToolbarContainer } from '@/components/Toolbar';
 import { atomStore } from '@/stores';
-import { precisionAtom } from '@/stores/setting';
-import { QueryContextType, execute, exportData } from '@/stores/tabs';
+import { precisionAtom, tableRenderAtom } from '@/stores/setting';
+import { execute, exportData, QueryContextType } from '@/stores/tabs';
 import { isDarkTheme } from '@/utils';
+import { AgTable } from '@/components/AgTable.tsx';
 
 export interface DatasetProps {
   tableName: string;
@@ -66,7 +67,9 @@ export function DatasetItem({
     })();
   }, []);
   const precision = useAtomValue(precisionAtom);
+  const tableRender = useAtomValue(tableRenderAtom);
 
+  const TableComponent = tableRender === 'canvas' ? CanvasTable : AgTable;
   return (
     <Stack height={'calc(100% - 32px)'}>
       <PageSizeToolbar
@@ -77,7 +80,7 @@ export function DatasetItem({
       <div className="h-full">
         <Suspense fallback={<Loading />}>
           {loading ? <Loading /> : null}
-          <CanvasTable
+          <TableComponent
             style={loading ? { display: 'none' } : undefined}
             data={ctx.data ?? []}
             schema={ctx.schema ?? []}

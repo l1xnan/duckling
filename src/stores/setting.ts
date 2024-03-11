@@ -15,6 +15,7 @@ export type SettingState = {
   precision: number;
   table_font_family: string;
   main_font_family: string;
+  table_render: string;
   auto_update?: boolean;
   proxy?: string;
   csv?: CsvParam;
@@ -24,6 +25,7 @@ export const defaultSettings = {
   precision: 4,
   auto_update: true,
   table_font_family: 'Consolas',
+  table_render: 'canvas',
   main_font_family: [
     '-apple-system, BlinkMacSystemFont, PingFang SC, Hiragino Sans GB',
     'Segoe WPC, Segoe UI, Microsoft YaHei',
@@ -53,4 +55,8 @@ export const tableFontFamilyAtom = selectAtom(
 export const mainFontFamilyAtom = selectAtom(
   settingAtom,
   (s) => s.main_font_family ?? defaultSettings['main_font_family'],
+);
+export const tableRenderAtom = selectAtom(
+  settingAtom,
+  (s) => s.table_render ?? defaultSettings['table_render'],
 );
