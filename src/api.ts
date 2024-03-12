@@ -138,3 +138,12 @@ export async function showSchema(
   const res = await invoke('show_schema', { schema, dialect });
   return convert(res);
 }
+
+export async function showColumns(
+  table: string,
+  dialect: DialectConfig,
+): Promise<ResultType> {
+  console.log(table, dialect);
+  const res = await invoke('show_column', { table, dialect });
+  return convert(res);
+}

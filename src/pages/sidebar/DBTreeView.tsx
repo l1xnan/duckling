@@ -124,7 +124,9 @@ export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
               {child}
             </SchemaContextMenu>
           ) : (
-            <TableContextMenu node={node}>{child}</TableContextMenu>
+            <TableContextMenu db={db} node={node}>
+              {child}
+            </TableContextMenu>
           )
         }
       >

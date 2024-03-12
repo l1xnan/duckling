@@ -56,6 +56,11 @@ impl Connection for SqliteDialect {
     );
     self.query(&sql, 0, 0).await
   }
+
+  async fn show_column(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
+    let sql = format!("PRAGMA table_info({table})");
+    self.query(&sql, 0, 0).await
+  }
 }
 
 impl SqliteDialect {

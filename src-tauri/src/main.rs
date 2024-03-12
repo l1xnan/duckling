@@ -123,6 +123,7 @@ fn main() {
       cmd::export,
       cmd::table_row_count,
       cmd::show_schema,
+      cmd::show_column,
     ])
     .build(tauri::generate_context!())
     .expect("error while running tauri application")

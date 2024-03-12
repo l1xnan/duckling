@@ -8,7 +8,7 @@ import {
   themes,
 } from '@visactor/vtable';
 import { useAtomValue } from 'jotai';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { TableProps } from '@/components/AgTable.tsx';
 import { tableFontFamilyAtom } from '@/stores/setting';
@@ -141,14 +141,30 @@ export const CanvasTable = React.memo(function CanvasTable({
   const appTheme = useTheme();
   const tableFontFamily = useAtomValue(tableFontFamilyAtom);
 
-  const theme = (isDarkTheme(appTheme) ? darkTheme : lightTheme).extends({
-    bodyStyle: {
-      fontFamily: tableFontFamily,
-    },
-    headerStyle: {
-      fontFamily: tableFontFamily,
-    },
-  });
+  const theme = useMemo(
+    () =>
+      (isDarkTheme(appTheme) ? darkTheme : lightTheme).extends({
+        bodyStyle: {
+          fontFamily: tableFontFamily,
+          borderLineWidth: ({ row, col }) => {
+            if (row == 0) {
+              return [0, 1, 1, 1];
+            }
+            return 1;
+          },
+        },
+        headerStyle: {
+          fontFamily: tableFontFamily,
+          borderLineWidth: ({ row, col }) => {
+            if (transpose && row == 0) {
+              return [0, 0, 0, 1];
+            }
+            return transpose ? [1, 0, 0, 1] : [0, 1, 1, 1];
+          },
+        },
+      }),
+    [appTheme, transpose],
+  );
 
   const pinnedSet = new Set([...leftPinnedCols, ...rightPinnedCols]);
 
@@ -373,14 +389,19 @@ export function SimpleTable({ data }: { data: unknown[] }) {
   const appTheme = useTheme();
   const tableFontFamily = useAtomValue(tableFontFamilyAtom);
 
-  const theme = (isDarkTheme(appTheme) ? darkTheme : lightTheme).extends({
-    bodyStyle: {
-      fontFamily: tableFontFamily,
-    },
-    headerStyle: {
-      fontFamily: tableFontFamily,
-    },
-  });
+  const theme = useMemo(
+    () =>
+      (isDarkTheme(appTheme) ? darkTheme : lightTheme).extends({
+        bodyStyle: {
+          fontFamily: tableFontFamily,
+        },
+        headerStyle: {
+          fontFamily: tableFontFamily,
+          borderLineWidth: [0, 1, 1, 1],
+        },
+      }),
+    [appTheme],
+  );
 
   const columns: ColumnDefine[] = Object.keys(data[0] ?? {}).map((key) => {
     return {
@@ -426,13 +447,7 @@ export function SimpleTable({ data }: { data: unknown[] }) {
   };
 
   return (
-    <div
-      className="h-full"
-      onContextMenu={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-      }}
-    >
+    <div className="h-full">
       <ListTable ref={tableRef} option={option} />
     </div>
   );

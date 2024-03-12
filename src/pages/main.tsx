@@ -2,7 +2,7 @@ import { PrimitiveAtom, useAtomValue } from 'jotai';
 
 import { Dataset, PageProvider } from '@/components/Dataset';
 import { PageTabs } from '@/components/PageTabs';
-import DatabaseSchema from '@/components/Schema';
+import { ColumnSchema, DatabaseSchema } from '@/components/Schema';
 import {
   EditorContextType,
   TabContextType,
@@ -20,6 +20,13 @@ function TabContent({ tabAtom }: { tabAtom: PrimitiveAtom<TabContextType> }) {
     return (
       <PageProvider context={tab}>
         <DatabaseSchema context={tab} />
+      </PageProvider>
+    );
+  }
+  if (tab.type === 'column') {
+    return (
+      <PageProvider context={tab}>
+        <ColumnSchema context={tab} />
       </PageProvider>
     );
   }

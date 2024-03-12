@@ -6,10 +6,11 @@ import { ContextMenuItem } from '@/components/custom/context-menu';
 import {
   ContextMenu,
   ContextMenuContent,
+  ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
 import { DBType } from '@/stores/dbList';
-import { TableContextType, useTabsStore } from '@/stores/tabs';
+import { SchemaContextType, useTabsStore } from '@/stores/tabs';
 import { TreeNode } from '@/types';
 
 export function SchemaContextMenu({
@@ -24,9 +25,10 @@ export function SchemaContextMenu({
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-64">
         <ContextMenuItem
-          onClick={async () => {
-            console.log(node);
-            const item: TableContextType = {
+          onClick={async (e) => {
+            e.stopPropagation();
+            console.debug(node);
+            const item: SchemaContextType = {
               id: nanoid(),
               dbId: db.id,
               schema: node.path,
@@ -38,6 +40,8 @@ export function SchemaContextMenu({
         >
           Show Database
         </ContextMenuItem>
+        <ContextMenuSeparator />
+
         <ContextMenuItem
           onClick={async (e) => {
             e.stopPropagation();

@@ -55,7 +55,18 @@ impl Connection for ClickhouseDialect {
       "select * from system.tables where database='{}' order by engine, name",
       schema
     );
+    self.query(&sql, 0, 0).await
+  }
 
+  async fn show_column(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
+    let (db, tbl) = if schema.is_none() && table.contains(".") {
+      let parts: Vec<&str> = table.splitn(2, '.').collect();
+      (parts[0], parts[1])
+    } else {
+      ("", table)
+    };
+    let sql = format!("select * from system.columns where database='{db}' and table='{tbl}'");
+    log::info!("show columns: {}", &sql);
     self.query(&sql, 0, 0).await
   }
 }

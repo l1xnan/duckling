@@ -205,3 +205,17 @@ pub async fn show_schema(schema: &str, dialect: DialectPayload) -> Result<ArrowR
 
   Ok(api::convert(res))
 }
+
+#[tauri::command]
+pub async fn show_column(
+  schema: Option<&str>,
+  table: &str,
+  dialect: DialectPayload,
+) -> Result<ArrowResponse, String> {
+  let d = get_dialect(dialect.clone())
+    .await
+    .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
+  let res = d.show_column(schema, table).await;
+
+  Ok(api::convert(res))
+}
