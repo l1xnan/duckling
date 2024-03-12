@@ -7,6 +7,7 @@ use arrow::datatypes::{DataType, Field, Schema};
 use async_trait::async_trait;
 use futures_util::StreamExt;
 use rusqlite::types::Value;
+use rusqlite::Column;
 
 use crate::api::RawArrowData;
 use crate::api::{serialize_preview, ArrowData};
@@ -58,7 +59,7 @@ impl Connection for SqliteDialect {
   }
 
   async fn show_column(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
-    let sql = format!("PRAGMA table_info({table})");
+    let sql = format!("select * from pragma_table_info('{table}')");
     self.query(&sql, 0, 0).await
   }
 }
@@ -76,6 +77,7 @@ impl SqliteDialect {
     Ok(rusqlite::Connection::open(&self.path)?)
   }
 
+  #[allow(clippy::unused_async)]
   async fn _query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     let conn = self.connect()?;
     let mut stmt = conn.prepare(sql)?;
@@ -88,23 +90,7 @@ impl SqliteDialect {
         name: col.name().to_string(),
         r#type: col.decl_type().unwrap_or_default().to_string(),
       });
-      let typ = if let Some(decl_type) = col.decl_type() {
-        match decl_type {
-          "INTEGER" => DataType::Int64,
-          "REAL" => DataType::Float64,
-          "BOOLEAN" => DataType::Boolean,
-          "DATE" => DataType::Utf8,
-          "DATETIME" => DataType::Utf8,
-          "TIME" => DataType::Utf8,
-          decl_type if decl_type.starts_with("NUMERIC") => DataType::Utf8,
-          decl_type if decl_type.starts_with("NVARCHAR") => DataType::Utf8,
-          "BLOB" => DataType::Binary,
-          "NULL" => DataType::Null,
-          _ => DataType::Utf8,
-        }
-      } else {
-        DataType::Null
-      };
+      let typ = Self::arrow_type(&col);
       let field = Field::new(col.name(), typ, true);
       fields.push(field);
       println!("{:?} {:?}", col.name(), col.decl_type())
@@ -136,6 +122,28 @@ impl SqliteDialect {
       titles: Some(titles),
     })
   }
+
+  fn arrow_type(col: &Column) -> DataType {
+    if let Some(decl_type) = col.decl_type() {
+      match decl_type {
+        "INTEGER" => DataType::Int64,
+        "REAL" => DataType::Float64,
+        "BOOLEAN" => DataType::Boolean,
+        "DATE" => DataType::Utf8,
+        "DATETIME" => DataType::Utf8,
+        "TIME" => DataType::Utf8,
+        decl_type if decl_type.starts_with("NUMERIC") => DataType::Utf8,
+        decl_type if decl_type.starts_with("NVARCHAR") => DataType::Utf8,
+        "BLOB" => DataType::Binary,
+        "NULL" => DataType::Null,
+        _ => DataType::Utf8,
+      }
+    } else {
+      DataType::Utf8
+    }
+  }
+
+  #[allow(clippy::unused_async)]
   pub(crate) async fn _table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
     let conn = self.connect()?;
     let sql = self._table_count_sql(table, cond);
@@ -205,6 +213,8 @@ impl SqliteDialect {
       titles: None,
     })
   }
+
+  #[allow(clippy::unused_async)]
   async fn get_tables(&self) -> anyhow::Result<Vec<Table>> {
     let conn = self.connect()?;
     let sql = r#"
@@ -232,14 +242,14 @@ impl SqliteDialect {
 pub fn convert_arrow(value: &Value, typ: &str) -> ArrayRef {
   match value {
     Value::Integer(i) => {
-      if typ.starts_with("NUMERIC") {
+      if typ.starts_with("NUMERIC") || typ.is_empty() {
         Arc::new(StringArray::from(vec![i.to_string()])) as ArrayRef
       } else {
         Arc::new(Int64Array::from(vec![(*i)])) as ArrayRef
       }
     }
     Value::Real(f) => {
-      if typ.starts_with("NUMERIC") {
+      if typ.starts_with("NUMERIC") || typ.is_empty() {
         Arc::new(StringArray::from(vec![f.to_string()])) as ArrayRef
       } else {
         Arc::new(Float64Array::from(vec![(*f)])) as ArrayRef
@@ -292,17 +302,20 @@ pub fn convert_to_strings(values: &[Value]) -> Vec<Option<String>> {
 
 #[allow(dead_code)]
 pub fn convert_to_i64s(values: &[Value]) -> Vec<Option<i64>> {
-  values.iter().map(|v| convert_to_i64(v)).collect()
+  values.iter().map(convert_to_i64).collect()
 }
 
 #[allow(dead_code)]
 pub fn convert_to_f64s(values: &[Value]) -> Vec<Option<f64>> {
-  values.iter().map(|v| convert_to_f64(v)).collect()
+  values.iter().map(convert_to_f64).collect()
 }
 
 #[tokio::test]
 async fn test_tables() {
-  let _ = SqliteDialect {
+  use arrow::util::pretty::print_batches;
+  let d = SqliteDialect {
     path: String::from(r""),
   };
+  let res = d.query("", 0, 0).await.unwrap();
+  let _ = print_batches(&[res.batch]);
 }
