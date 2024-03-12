@@ -440,7 +440,7 @@ export function SimpleTable({ data }: { data: unknown[] }) {
         e.preventDefault();
       }}
     >
-      <ListTable ref={tableRef} height={height - 64} option={option} />
+      <ListTable ref={tableRef} height={height} option={option} />
     </div>
   );
 }

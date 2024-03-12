@@ -35,8 +35,8 @@ export interface PageTabsProps {
 
 export const PageTabList = styled(TabList)(({ theme }) => ({
   borderBottom: borderTheme(theme),
-  maxHeight: '32px',
-  minHeight: '32px',
+  maxHeight: '2rem',
+  minHeight: '2rem',
   backgroundColor: isDarkTheme(theme) ? '#26282e' : 'white',
   '& .MuiTabs-indicator': {},
 }));
@@ -44,8 +44,8 @@ export const PageTabList = styled(TabList)(({ theme }) => ({
 export const PageTab = styled((props: TabProps) => (
   <Tab disableRipple {...props} />
 ))(({ theme }) => ({
-  minHeight: '32px',
-  maxHeight: '32px',
+  maxHeight: '2rem',
+  minHeight: '2rem',
   textTransform: 'none',
   minWidth: 0,
   margin: 0,

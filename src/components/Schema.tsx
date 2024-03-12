@@ -86,9 +86,9 @@ export function DatabaseSchema({ context }: { context: SchemaContextType }) {
   const [search, setSearch] = useState('');
 
   return (
-    <div className="h-full">
-      <div className="h-[32px] flex flex-row justify-between">
-        <div className="relative flex-1 ">
+    <div className="h-full flex flex-col">
+      <div className="h-8 flex flex-row justify-between">
+        <div className="relative flex-1">
           <Search className="absolute left-2 top-2 h-4 w-4 text-muted-foreground" />
           <Input
             value={search}
@@ -104,7 +104,7 @@ export function DatabaseSchema({ context }: { context: SchemaContextType }) {
           <RefreshCw className="h-4 w-4" />
         </Button>
       </div>
-      <div className="h-full">
+      <div className="h-full flex-1">
         <Suspense fallback={<Loading />}>
           {loading ? (
             <Loading />

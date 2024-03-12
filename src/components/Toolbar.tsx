@@ -33,17 +33,15 @@ import React from 'react';
 // }));
 
 export const ToolbarContainer = (
-  props: React.ButtonHTMLAttributes<HTMLDivElement>,
+  props: React.HTMLAttributes<HTMLDivElement>,
 ) => (
   <div
-    className="h-8 w-full pl-1 flex items-center justify-between border-b"
+    className="h-8 w-full pl-1 flex flex-row items-center justify-between border-b"
     {...props}
   />
 );
 
-export const ToolbarBox = (
-  props: React.ButtonHTMLAttributes<HTMLDivElement>,
-) => (
+export const ToolbarBox = (props: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className="flex flex-row items-center justify-between w-full h-8"
     {...props}

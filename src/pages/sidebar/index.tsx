@@ -56,7 +56,7 @@ function Sidebar() {
     <>
       <SideToolbar />
       <div className="bg-background/40">
-        <div className="relative h-8">
+        <div className="relative h-8 border-b">
           <Search className="absolute left-2 top-2 h-4 w-4 text-muted-foreground" />
           <Input
             value={search}
@@ -64,7 +64,7 @@ function Sidebar() {
               setSearch(e.target.value);
             }}
             placeholder="Search"
-            className="h-8 pl-8 py-0.5 text-xs focus-visible:ring-0 shadow-none rounded-none border-x-0 border-b transition-none"
+            className="h-8 pl-8 py-0.5 text-xs focus-visible:ring-0 shadow-none rounded-none border-none transition-none"
           />
         </div>
       </div>
