@@ -5,9 +5,7 @@ use std::env;
 
 use cmd::OpenedUrls;
 use std::sync::Mutex;
-use tauri::menu::{
-  CheckMenuItem, CheckMenuItemBuilder, MenuBuilder, MenuItem, MenuItemBuilder, SubmenuBuilder,
-};
+use tauri::menu::{CheckMenuItem, MenuBuilder, MenuItem, SubmenuBuilder};
 use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_log::{Target, TargetKind};

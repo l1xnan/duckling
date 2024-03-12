@@ -139,24 +139,3 @@ pub fn query(
     titles: None,
   })
 }
-
-pub fn show_db_information(path: String, sql: &str) -> anyhow::Result<ArrowData> {
-  let db = Connection::open(path)?;
-  let mut stmt = db.prepare(sql).unwrap();
-  let frames = stmt.query_arrow(duckdb::params![]).unwrap();
-  let schema = frames.get_schema();
-  let records: Vec<RecordBatch> = frames.collect();
-  let record_batch = arrow::compute::concat_batches(&schema, &records).unwrap();
-  Ok(ArrowData {
-    total_count: records.len(),
-    preview: serialize_preview(&record_batch).unwrap(),
-    titles: None,
-  })
-}
-
-pub fn show_columns(path: String) -> anyhow::Result<ArrowData> {
-  show_db_information(
-    path,
-    "select * from information_schema.columns order by table_type, table_name",
-  )
-}
