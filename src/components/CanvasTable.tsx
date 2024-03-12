@@ -1,6 +1,6 @@
 import { useTheme } from '@mui/material';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
-import { ListColumn, ListTable, VTable } from '@visactor/react-vtable';
+import { ListTable, VTable } from '@visactor/react-vtable';
 import {
   ColumnDefine,
   ListTable as ListTableAPI,
@@ -9,7 +9,6 @@ import {
 } from '@visactor/vtable';
 import { useAtomValue } from 'jotai';
 import React, { useEffect, useRef, useState } from 'react';
-import useResizeObserver from 'use-resize-observer';
 
 import { TableProps } from '@/components/AgTable.tsx';
 import { tableFontFamilyAtom } from '@/stores/setting';
@@ -18,7 +17,6 @@ import { isDarkTheme, isFloat, isNumber, uniqueArray } from '@/utils.ts';
 import type { ComponentProps } from 'react';
 
 type ITableThemeDefine = ComponentProps<typeof ListTable>['theme'];
-type ListColumnProps = ComponentProps<typeof ListColumn>;
 
 const LIGHT_THEME: ITableThemeDefine = {
   defaultStyle: {
@@ -32,7 +30,11 @@ const LIGHT_THEME: ITableThemeDefine = {
       inlineColumnBgColor: '#9cbef4',
     },
   },
-  headerStyle: { fontSize: 12, padding: [8, 12, 6, 12] },
+  headerStyle: {
+    fontSize: 12,
+    padding: [8, 12, 6, 12],
+    borderLineWidth: [0, 1, 1, 1],
+  },
   bodyStyle: {
     fontSize: 12,
     fontFamily: 'Consolas',
@@ -71,7 +73,12 @@ const DARK_THEME: ITableThemeDefine = {
     lineHeight: 12,
     borderColor: '#444A54',
   },
-  headerStyle: { fontSize: 12, padding: [8, 12, 6, 12], bgColor: '#2e2f32' },
+  headerStyle: {
+    fontSize: 12,
+    padding: [8, 12, 6, 12],
+    bgColor: '#2e2f32',
+    // borderLineWidth: [0, 1, 1, 1],
+  },
   bodyStyle: {
     fontSize: 12,
     fontFamily: 'Consolas',
@@ -97,14 +104,6 @@ const DARK_THEME: ITableThemeDefine = {
 const lightTheme = themes.ARCO.extends(LIGHT_THEME);
 // const darkTheme = merge([themes.DARK, DARK_THEME]);
 const darkTheme = themes.DARK.extends(DARK_THEME);
-
-type PosType = {
-  x: number;
-  y: number;
-  row: number;
-  col: number;
-  content: string;
-};
 
 export const CanvasTable = React.memo(function CanvasTable({
   data,
@@ -137,7 +136,6 @@ export const CanvasTable = React.memo(function CanvasTable({
 
   const [leftPinnedCols, setLeftPinnedCols] = useState<string[]>([]);
   const [rightPinnedCols, setRightPinnedCols] = useState<string[]>([]);
-  const { ref, height = 100 } = useResizeObserver<HTMLDivElement>();
 
   const tableRef = useRef<ListTableAPI>();
   const appTheme = useTheme();
@@ -345,7 +343,6 @@ export const CanvasTable = React.memo(function CanvasTable({
 
   return (
     <div
-      ref={ref}
       className="h-full"
       style={style}
       onContextMenu={(e) => {
@@ -355,7 +352,6 @@ export const CanvasTable = React.memo(function CanvasTable({
     >
       <ListTable
         ref={tableRef}
-        height={height}
         onContextMenuCell={(arg) => {
           console.log('context', arg);
         }}
@@ -373,8 +369,6 @@ export const CanvasTable = React.memo(function CanvasTable({
 });
 
 export function SimpleTable({ data }: { data: unknown[] }) {
-  const { ref, height = 100 } = useResizeObserver<HTMLDivElement>();
-
   const tableRef = useRef<ListTableAPI>();
   const appTheme = useTheme();
   const tableFontFamily = useAtomValue(tableFontFamilyAtom);
@@ -433,14 +427,13 @@ export function SimpleTable({ data }: { data: unknown[] }) {
 
   return (
     <div
-      ref={ref}
       className="h-full"
       onContextMenu={(e) => {
         e.stopPropagation();
         e.preventDefault();
       }}
     >
-      <ListTable ref={tableRef} height={height} option={option} />
+      <ListTable ref={tableRef} option={option} />
     </div>
   );
 }
