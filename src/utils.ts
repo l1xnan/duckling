@@ -1,6 +1,7 @@
 import { Theme } from '@mui/material';
 
 import { OrderByType, StmtType } from './stores/dataset';
+import { TreeNode } from './types';
 
 export const isDarkTheme = (theme: Theme) => theme.palette.mode === 'dark';
 
@@ -90,4 +91,24 @@ export function isFloat(dataType: string) {
 export function uniqueArray<T>(arr: T[]) {
   const seen = new Set();
   return Array.from(arr.filter((item) => !seen.has(item) && seen.add(item)));
+}
+
+export function filterTree(node: TreeNode, filter: string) {
+  if (!node) return null;
+
+  // 检查当前节点的值是否包含字符串
+  const isMatch = node.path.includes(filter);
+  if (isMatch) {
+    return node;
+  }
+  // 递归处理子节点
+  const children = (node.children
+    ?.map((child) => filterTree(child, filter))
+    .filter(Boolean) ?? []) as TreeNode[];
+
+  // 如果当前节点或其子节点包含字符串，则保留当前节点
+  if (children.length > 0) {
+    return { ...node, children };
+  }
+  return null; // 否则过滤当前节点
 }
