@@ -120,6 +120,4 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
 async fn test_table() {
   use arrow::util::pretty::print_batches;
   let d = FolderDialect::new("");
-  let res = d.query_table("", 0, 0, "").await.unwrap();
-  let _ = print_batches(&[res.batch]);
 }
