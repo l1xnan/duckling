@@ -5,7 +5,9 @@ import { PageTabs } from '@/components/PageTabs';
 import { ColumnSchema, DatabaseSchema } from '@/components/Schema';
 import {
   EditorContextType,
+  SchemaContextType,
   TabContextType,
+  TableContextType,
   activeTabAtom,
   tabListAtom,
   tabsAtomsAtom,
@@ -19,14 +21,14 @@ function TabContent({ tabAtom }: { tabAtom: PrimitiveAtom<TabContextType> }) {
   if (tab.type === 'schema') {
     return (
       <PageProvider context={tab}>
-        <DatabaseSchema context={tab} />
+        <DatabaseSchema context={tab as SchemaContextType} />
       </PageProvider>
     );
   }
   if (tab.type === 'column') {
     return (
       <PageProvider context={tab}>
-        <ColumnSchema context={tab} />
+        <ColumnSchema context={tab as TableContextType} />
       </PageProvider>
     );
   }
