@@ -33,7 +33,7 @@ const LIGHT_THEME: ITableThemeDefine = {
   headerStyle: {
     fontSize: 12,
     padding: [8, 12, 6, 12],
-    borderLineWidth: [0, 1, 1, 1],
+    borderLineWidth: 1,
   },
   bodyStyle: {
     fontSize: 12,
@@ -77,7 +77,7 @@ const DARK_THEME: ITableThemeDefine = {
     fontSize: 12,
     padding: [8, 12, 6, 12],
     bgColor: '#2e2f32',
-    // borderLineWidth: [0, 1, 1, 1],
+    borderLineWidth: 1,
   },
   bodyStyle: {
     fontSize: 12,
