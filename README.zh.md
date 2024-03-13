@@ -18,7 +18,7 @@ Duckling 是使用 Tauri 构建的轻量级桌面应用，用于快速浏览 `pa
 
 从 [releases](https://github.com/l1xnan/Duckling/releases) 页面下载最新的安装包，进行安装。
 
-对于 Windows 平台，依赖 Webview2，如果遇到网络问题无法安装，可以[离线下载](https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section) 安装 Webview2。
+对于 Windows 平台依赖 Webview2，如果遇到网络问题无法安装，可以[离线下载](https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section) 安装 Webview2。
 
 ## 使用
 
