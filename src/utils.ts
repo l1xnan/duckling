@@ -93,11 +93,12 @@ export function uniqueArray<T>(arr: T[]) {
   return Array.from(arr.filter((item) => !seen.has(item) && seen.add(item)));
 }
 
-export function filterTree(node: TreeNode, filter: string) {
+export function filterTree(node: TreeNode, filter?: string) {
   if (!node) return null;
+  if (isEmpty(filter)) return node;
 
   // 检查当前节点的值是否包含字符串
-  const isMatch = node.path.includes(filter);
+  const isMatch = node.path.includes(filter as string);
   if (isMatch) {
     return node;
   }

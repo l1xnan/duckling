@@ -71,6 +71,7 @@ export function DatabaseDialog() {
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="duckdb">DuckDB</SelectItem>
+                      <SelectItem value="folder">Data Folder</SelectItem>
                       <SelectItem value="sqlite">SQLite</SelectItem>
                       <SelectItem value="mysql">MySQL</SelectItem>
                       <SelectItem value="postgres">Postgres</SelectItem>
@@ -160,7 +161,9 @@ export function DatabaseDialog() {
                 />
               </>
             ) : null}
-            {watchDialect == 'duckdb' || watchDialect == 'sqlite' ? (
+            {watchDialect == 'duckdb' ||
+            watchDialect == 'sqlite' ||
+            watchDialect == 'folder' ? (
               <>
                 <FormField
                   control={form.control}
@@ -198,7 +201,9 @@ export function DatabaseDialog() {
         <DialogClose asChild>
           <Button variant="secondary">Cancel</Button>
         </DialogClose>
-        <Button type="submit">Ok</Button>
+        <Button type="submit" onClick={form.handleSubmit(onSubmit)}>
+          Ok
+        </Button>
       </DialogFooter>
     </Dialog>
   );

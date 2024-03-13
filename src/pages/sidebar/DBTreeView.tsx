@@ -27,7 +27,7 @@ import { HtmlTooltip } from '@/components/custom/Tooltip';
 import { DBType, selectedNodeAtom, tablesAtom } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { TreeNode } from '@/types';
-import { isEmpty } from '@/utils.ts';
+import { filterTree, isEmpty } from '@/utils.ts';
 
 import { DBTreeItem, TreeItemLabel } from './DBTreeItem';
 import { ConnectionContextMenu } from './context-menu/ConnectionContextMenu';
@@ -170,7 +170,9 @@ export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
       updateTab!(item);
     }
   };
-  return (
+
+  const data = filterTree(db.data, filter);
+  return data ? (
     <TreeView
       defaultCollapseIcon={<ExpandMoreIcon />}
       defaultExpandIcon={<ChevronRightIcon />}
@@ -181,7 +183,7 @@ export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
       sx={{ position: 'relative' }}
       {...rest}
     >
-      {renderTree(db.data, true)}
+      {renderTree(data, true)}
     </TreeView>
-  );
+  ) : null;
 }
