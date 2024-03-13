@@ -309,7 +309,7 @@ export const CanvasTable = React.memo(function CanvasTable({
         title: '',
         dragHeader: false,
         disableSelect: true,
-        disableHover: true,
+        // disableHover: true,
         disableHeaderHover: true,
         disableHeaderSelect: true,
         disableColumnResize: true,
@@ -347,7 +347,7 @@ export const CanvasTable = React.memo(function CanvasTable({
     },
     hover: {
       // disableHover: true,
-      highlightMode: 'cell',
+      highlightMode: 'row',
       // disableHeaderHover: true,
     },
     keyboardOptions: {
@@ -425,7 +425,7 @@ export function SimpleTable({ data }: { data: unknown[] }) {
         title: '',
         dragHeader: false,
         disableSelect: true,
-        disableHover: true,
+        // disableHover: true,
         disableHeaderHover: true,
         disableHeaderSelect: true,
         disableColumnResize: true,
@@ -437,7 +437,7 @@ export function SimpleTable({ data }: { data: unknown[] }) {
       ...columns,
     ],
     hover: {
-      highlightMode: 'cell',
+      highlightMode: 'row',
     },
     keyboardOptions: {
       moveEditCellOnArrowKeys: true,
