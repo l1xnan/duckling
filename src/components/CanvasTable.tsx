@@ -159,7 +159,7 @@ export const CanvasTable = React.memo(function CanvasTable({
             if (transpose && row == 0) {
               return [0, 0, 0, 1];
             }
-            return transpose ? [1, 0, 0, 1] : [0, 1, 1, 1];
+            return transpose ? [1, 0, 1, 1] : [0, 1, 1, 1];
           },
         },
       }),
