@@ -58,7 +58,8 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
   let is_dir = path.is_dir();
   let name = path.file_name().unwrap().to_string_lossy().to_string();
 
-  let support_types = ["csv", "xlsx", "parquet"];
+  // TODO: support xlsx
+  let support_types = ["csv", "parquet"];
 
   let mut node_type = String::from("path");
 
