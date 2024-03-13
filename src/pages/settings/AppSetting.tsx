@@ -2,10 +2,12 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { DialogClose } from '@radix-ui/react-dialog';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { getTauriVersion, getVersion } from '@tauri-apps/api/app';
+import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { relaunch } from '@tauri-apps/plugin-process';
 import * as shell from '@tauri-apps/plugin-shell';
 import { check } from '@tauri-apps/plugin-updater';
 import { atom, useAtom } from 'jotai';
+import { nanoid } from 'nanoid';
 import { PropsWithChildren, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -38,6 +40,7 @@ import {
   settingAtom,
   useSettingStore,
 } from '@/stores/setting';
+import { isEmpty } from '@/utils';
 
 const items = [
   {
@@ -220,6 +223,9 @@ const UpdateForm = () => {
     }
     setLoading(false);
   };
+
+  const debug = form.watch('debug');
+
   return (
     <>
       <Form {...form}>
@@ -284,6 +290,32 @@ const UpdateForm = () => {
                 </Button>
               </div>
             </div>
+            <FormField
+              control={form.control}
+              name="debug"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Debug</FormLabel>
+                  <FormDescription>Developer debugging</FormDescription>
+                  <div className="flex flex-row">
+                    <FormControl>
+                      <Input placeholder="http://localhost:5173" {...field} />
+                    </FormControl>
+                    <Button
+                      disabled={isEmpty(debug)}
+                      onClick={async () => {
+                        new WebviewWindow(nanoid(), {
+                          url: debug,
+                          title: `Debug-${debug}`,
+                        });
+                      }}
+                    >
+                      Open
+                    </Button>
+                  </div>
+                </FormItem>
+              )}
+            />
           </div>
           <DialogFooter>
             <DialogClose asChild>

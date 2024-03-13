@@ -18,6 +18,7 @@ export type SettingState = {
   table_render: string;
   auto_update?: boolean;
   proxy?: string;
+  debug?: string;
   csv?: CsvParam;
 };
 

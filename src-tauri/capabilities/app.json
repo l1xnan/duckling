@@ -13,6 +13,8 @@
     "updater:default",
     "log:default",
     "webview:default",
+    "webview:allow-create-webview",
+    "webview:allow-create-webview-window",
     "shell:allow-open",
     "clipboard-manager:allow-read",
     "clipboard-manager:allow-write",
