@@ -40,6 +40,43 @@ export function TableContextMenu({
         >
           Show columns
         </ContextMenuItem>
+        {db.dialect == 'folder' ? (
+          <>
+            <ContextMenuItem
+              onClick={async (e) => {
+                e.stopPropagation();
+                console.log(node);
+                const item: TableContextType = {
+                  id: nanoid(),
+                  dbId: db.id,
+                  tableId: node.path,
+                  displayName: node?.name as string,
+                  type: 'table',
+                };
+                updateTab!(item);
+              }}
+            >
+              Show *.parquet
+            </ContextMenuItem>
+            <ContextMenuItem
+              onClick={async (e) => {
+                e.stopPropagation();
+                console.log(node);
+                const item: TableContextType = {
+                  id: nanoid(),
+                  dbId: db.id,
+                  tableId: node.path,
+                  displayName: node?.name as string,
+                  type: 'table',
+                };
+                updateTab!(item);
+              }}
+            >
+              Show *.csv
+            </ContextMenuItem>
+          </>
+        ) : null}
+
         <ContextMenuSeparator />
         <ContextMenuItem
           onClick={async (e) => {
