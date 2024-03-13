@@ -42,11 +42,15 @@
     },
     "fileAssociations": [
       {
-        "ext": ["duckdb"],
+        "ext": [
+          "duckdb"
+        ],
         "mimeType": "application/octet-stream"
       },
       {
-        "ext": ["parquet"],
+        "ext": [
+          "parquet"
+        ],
         "mimeType": "application/octet-stream"
       }
     ]
@@ -54,6 +58,9 @@
   "plugins": {
     "updater": {
       "active": true,
+      "windows": {
+        "installMode": "basicUi"
+      },
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEUxQTMyRkJEQzg5RUNCMUYKUldRZnk1N0l2UytqNFZTS1dMbFlsbnJuYWNaMGpVUEQwWDlBblBJUEM5cGZobFNHQ0Nicjd2TFQK",
       "endpoints": [
         "https://github.com/l1xnan/duckling/releases/latest/download/latest.json",

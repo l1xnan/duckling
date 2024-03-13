@@ -24,7 +24,7 @@ export type SettingState = {
 
 export const defaultSettings = {
   precision: 4,
-  auto_update: true,
+  auto_update: false,
   table_font_family: 'Consolas',
   table_render: 'canvas',
   main_font_family: [
@@ -33,7 +33,6 @@ export const defaultSettings = {
     'system-ui,Ubuntu, Droid Sans,Source Han Sans SC, Source Han Sans CN, Source Han Sans',
     'sans-serif',
   ].join(','),
-
   csv: {},
 };
 export const useSettingStore = create<SettingState>()(
@@ -57,6 +56,9 @@ export const mainFontFamilyAtom = selectAtom(
   settingAtom,
   (s) => s.main_font_family ?? defaultSettings['main_font_family'],
 );
+
+export const autoUpdateAtom = selectAtom(settingAtom, (s) => s.auto_update);
+
 export const tableRenderAtom = selectAtom(
   settingAtom,
   (s) => s.table_render ?? defaultSettings['table_render'],

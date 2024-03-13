@@ -5,7 +5,7 @@ import { getTauriVersion, getVersion } from '@tauri-apps/api/app';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { relaunch } from '@tauri-apps/plugin-process';
 import * as shell from '@tauri-apps/plugin-shell';
-import { check } from '@tauri-apps/plugin-updater';
+import { Update, check } from '@tauri-apps/plugin-updater';
 import { atom, useAtom } from 'jotai';
 import { nanoid } from 'nanoid';
 import { PropsWithChildren, useEffect, useState } from 'react';
@@ -204,24 +204,38 @@ const UpdateForm = () => {
     })();
   });
 
-  const handleUpdater = async () => {
+  const [update, setUpdate] = useState<Update | null>(null);
+  const [size, setSize] = useState<number | null>();
+
+  const handleCheck = async () => {
     setLoading(true);
     const update = await check({ proxy });
     console.log(update);
+    setUpdate(update);
     if (update?.version != update?.currentVersion) {
       toast('Discover new version', {
         action: {
           label: 'Update',
-          onClick: async () => {
-            await update?.downloadAndInstall();
-            await relaunch();
-          },
+          onClick: handleUpdater,
         },
       });
     } else {
       toast.success("It's the latest version");
     }
     setLoading(false);
+  };
+
+  const handleUpdater = async () => {
+    await update?.downloadAndInstall((e) => {
+      if (e.event == 'Started') {
+        setSize(e.data.contentLength);
+      } else if (e.event == 'Progress') {
+        if (size) {
+          e.data.chunkLength;
+        }
+      }
+    });
+    await relaunch();
   };
 
   const debug = form.watch('debug');
@@ -280,7 +294,7 @@ const UpdateForm = () => {
                   disabled={loading}
                   onClick={async (e) => {
                     e.preventDefault();
-                    await handleUpdater();
+                    await handleCheck();
                   }}
                 >
                   {loading ? (
@@ -307,7 +321,7 @@ const UpdateForm = () => {
                       variant="secondary"
                       disabled={isEmpty(debug)}
                       onClick={async () => {
-                        new WebviewWindow(nanoid(), {
+                        new WebviewWindow(`debug-${nanoid()}`, {
                           url: debug,
                           title: `Debug-${debug}`,
                         });

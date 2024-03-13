@@ -9,6 +9,7 @@ import { atomWithStorage } from 'jotai/utils';
 import { useEffect, useMemo } from 'react';
 
 import {
+  autoUpdateAtom,
   mainFontFamilyAtom,
   tableFontFamilyAtom,
   useSettingStore,
@@ -45,6 +46,7 @@ function App() {
 
   const tableFontFamily = useAtomValue(tableFontFamilyAtom);
   const mainFontFamily = useAtomValue(mainFontFamilyAtom);
+  const autoUpdate = useAtomValue(autoUpdateAtom);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -72,12 +74,14 @@ function App() {
   }, [tableFontFamily]);
 
   useEffect(() => {
-    if (!isDev) {
+    if (autoUpdate) {
       (async () => {
         const update = await check({ proxy });
         console.log(update);
         if (update?.version != update?.currentVersion) {
-          await update?.downloadAndInstall();
+          await update?.downloadAndInstall(async (e) => {
+            console.log(e);
+          });
           await relaunch();
         }
       })();
