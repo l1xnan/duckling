@@ -29,7 +29,6 @@ import {
 } from '@/stores/dataset';
 import { precisionAtom, tableRenderAtom } from '@/stores/setting';
 import { TabContextType, activeTabAtom } from '@/stores/tabs';
-import { convertOrderBy } from '@/utils';
 
 import { CanvasTable } from './CanvasTable';
 import { TablerSvgIcon } from './MuiIconButton';
@@ -187,42 +186,46 @@ function PageSizeToolbar() {
 }
 
 export function InputToolbar() {
-  const { orderBy, setSQLWhere } = usePageStore();
+  const { setSQLWhere, setSQLOrderBy } = usePageStore();
 
-  const [stmtWhere, setStmtWhere] = useState('');
-  const [stmtOrder, setStmtOrder] = useState(
-    orderBy ? convertOrderBy(orderBy) : '',
-  );
+  const [stmt, setStmt] = useState({
+    where: '',
+    orderBy: '',
+  });
+  // orderBy ? convertOrderBy(orderBy) : '',
+  // useEffect(() => {
+  //   setStmtOrder(orderBy ? convertOrderBy(orderBy) : '');
+  // }, [orderBy]);
 
-  useEffect(() => {
-    setStmtOrder(orderBy ? convertOrderBy(orderBy) : '');
-  }, [orderBy]);
   return (
-    <div className="flex flex-row items-center h-8 min-h-8 bg-background/40 border-b">
-      <div className="mx-1">WHERE</div>
+    <div className="flex flex-row items-center h-8 min-h-8 bg-background/40 border-b font-mono">
+      <div className="mx-1.5 text-muted-foreground">WHERE</div>
       <input
         className="flex-1 h-full border-none p-0 outline-none bg-transparent"
+        value={stmt.where}
         onKeyDown={async (e) => {
           if (e.key === 'Enter') {
-            setSQLWhere(stmtWhere);
+            setSQLOrderBy(stmt.orderBy);
+            setSQLWhere(stmt.where);
           }
         }}
         onChange={(e) => {
-          setStmtWhere(e.target.value);
+          setStmt((v) => ({ ...v, where: e.target.value }));
         }}
       />
       <Separator orientation="vertical" />
-      <div className="mx-1">ORDER BY</div>
+      <div className="mx-1.5 text-muted-foreground">ORDER BY</div>
       <input
         className="flex-[2_2_0%] h-full border-none p-0 outline-none bg-transparent"
-        value={stmtOrder}
-        onKeyDown={(e) => {
+        value={stmt.orderBy}
+        onKeyDown={async (e) => {
           if (e.key === 'Enter') {
-            setSQLWhere(stmtWhere);
+            setSQLOrderBy(stmt.orderBy);
+            setSQLWhere(stmt.where);
           }
         }}
         onChange={(e) => {
-          setStmtOrder(e.target.value);
+          setStmt((v) => ({ ...v, orderBy: e.target.value }));
         }}
       />
     </div>

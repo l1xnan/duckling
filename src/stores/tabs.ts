@@ -19,7 +19,7 @@ import {
   queryTable,
 } from '@/api';
 import { atomStore } from '@/stores';
-import { convertOrderBy, isEmpty } from '@/utils';
+import { isEmpty } from '@/utils';
 
 import { OrderByType, SchemaType } from './dataset';
 import { dbMapAtom, tablesAtom } from './dbList';
@@ -35,6 +35,7 @@ export type QueryParamType = {
   perPage: number;
 
   sqlWhere?: string;
+  sqlOrderBy?: string;
   orderBy?: OrderByType;
 };
 export type QueryContextType = QueryParamType & {
@@ -205,6 +206,7 @@ export function getParams(
     page = 1,
     perPage = 500,
     sqlWhere,
+    sqlOrderBy,
     orderBy,
     stmt,
     dbId,
@@ -263,7 +265,8 @@ export function getParams(
     dialect,
     table: tableName,
     where: sqlWhere,
-    orderBy: orderBy ? convertOrderBy(orderBy) : undefined,
+    orderBy: sqlOrderBy,
+    // orderBy: orderBy ? convertOrderBy(orderBy) : undefined,
     ...param,
   };
 }

@@ -37,6 +37,7 @@ export type DatasetState = {
   schema: SchemaType[];
   titles?: TitleType[];
   orderBy?: OrderByType;
+  sqlOrderBy?: string;
   sqlWhere?: string;
   beautify?: boolean;
   transpose?: boolean;
@@ -53,6 +54,7 @@ export type DatasetAction = {
   toLast: () => void;
   decrease: () => void;
   setSQLWhere: (value: string) => void;
+  setSQLOrderBy: (value: string) => void;
   setDialogColumn: (value: string) => void;
   refresh: (stmt?: string) => Promise<ResultType | undefined>;
   setBeautify: () => void;
@@ -94,6 +96,7 @@ export const createDatasetStore = (context: TabContextType) =>
     data: [],
     titles: [],
     sqlWhere: undefined,
+    sqlOrderBy: undefined,
     code: 0,
     message: undefined,
     beautify: true,
@@ -113,6 +116,9 @@ export const createDatasetStore = (context: TabContextType) =>
     setSQLWhere: (value: string) => {
       set((_) => ({ sqlWhere: value }));
       get().refresh();
+    },
+    setSQLOrderBy: (value: string) => {
+      set((_) => ({ sqlOrderBy: value }));
     },
     setDialogColumn: (dialogColumn: string) => set((_) => ({ dialogColumn })),
     toLast: () => {
@@ -162,14 +168,14 @@ export const createDatasetStore = (context: TabContextType) =>
       set((state) => ({ transpose: !state.transpose }));
     },
     refresh: async () => {
-      const { page, perPage, context, sqlWhere, orderBy } = get();
+      const { page, perPage, context, sqlWhere, sqlOrderBy } = get();
 
       const ctx: QueryParamType = {
         type: context?.type,
         page,
         perPage,
         sqlWhere,
-        orderBy,
+        sqlOrderBy,
         dbId: context?.dbId ?? '',
         tableId: context?.tableId ?? '',
       };
