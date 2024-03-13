@@ -1,5 +1,6 @@
 use sqlparser::ast::Statement;
 use sqlparser::dialect::Dialect;
+use sqlparser::dialect::GenericDialect;
 use sqlparser::parser::Parser;
 
 pub fn count_sql(sql: &str) -> String {
@@ -72,6 +73,23 @@ pub fn limit_stmt(
   }
 }
 
+fn parse_order_by_expr(order_by: &str) -> Vec<(String, Option<bool>)> {
+  let sql = format!("select * from __ order by {order_by}");
+
+  let dialect = GenericDialect {};
+  let stmts = Parser::parse_sql(&dialect, &sql).unwrap();
+
+  let mut exprs = vec![];
+  for stmt in &stmts {
+    if let Statement::Query(ref tmp) = stmt {
+      for expr in &tmp.order_by {
+        exprs.push((expr.expr.to_string(), expr.asc))
+      }
+    }
+  }
+  exprs
+}
+
 #[cfg(test)]
 mod tests {
   use sqlparser::dialect::GenericDialect;
@@ -102,5 +120,16 @@ mod tests {
     let ast = Parser::parse_sql(&dialect, cte_sql).unwrap();
 
     assert_eq!(count_stmt(&dialect, &ast[0]).unwrap(), "WITH tmp AS (SELECT * FROM table_1) SELECT count(*) FROM (SELECT a, b, 123, myfunc(b) FROM tmp WHERE a > b AND b < 100 ORDER BY a DESC, b) AS ____")
+  }
+
+  #[test]
+  fn test_order_by_expr() {
+    let exprs = parse_order_by_expr("a DESC, b, c + 1 ASC");
+    println!("{:?}", exprs);
+    assert_eq!(exprs[0].1.unwrap(), false);
+    assert_eq!(exprs[2].0, "c + 1");
+
+    // let serialized = serde_json::to_string_pretty(&stmts).unwrap();
+    // println!("Serialized as JSON:\n{serialized}");
   }
 }
