@@ -62,8 +62,11 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
   let support_types = ["csv", "parquet"];
 
   let mut node_type = String::from("path");
+  let mut size = None;
 
   if !is_dir {
+    size = path.metadata().ok().map(|m| m.len());
+
     if let Some(file_ext) = path.extension() {
       let file_ext = file_ext.to_string_lossy().to_string();
       if !support_types.contains(&file_ext.as_str()) {
@@ -112,7 +115,7 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
     path: path.display().to_string().replace('\\', "/"),
     children,
     node_type,
-    size: None,
+    size,
     comment: None,
   })
 }
