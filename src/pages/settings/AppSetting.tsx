@@ -296,12 +296,15 @@ const UpdateForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Debug</FormLabel>
-                  <FormDescription>Developer debugging</FormDescription>
-                  <div className="flex flex-row">
+                  <FormDescription>
+                    Open developer debugging page
+                  </FormDescription>
+                  <div className="flex w-full items-center space-x-2">
                     <FormControl>
                       <Input placeholder="http://localhost:5173" {...field} />
                     </FormControl>
                     <Button
+                      variant="secondary"
                       disabled={isEmpty(debug)}
                       onClick={async () => {
                         new WebviewWindow(nanoid(), {
