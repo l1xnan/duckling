@@ -54,9 +54,9 @@ export const SqliteIcon = createSvgIcon(
       y1="45.638"
       y2="45.638"
     >
-      <stop offset="0" stop-color="#97d9f6" />
-      <stop offset=".92" stop-color="#0f80cc" />
-      <stop offset="1" stop-color="#0f80cc" />
+      <stop offset="0" stopColor="#97d9f6" />
+      <stop offset=".92" stopColor="#0f80cc" />
+      <stop offset="1" stopColor="#0f80cc" />
     </linearGradient>
     <path
       d="m23.192 3.242h-17.569a2.147 2.147 0 0 0 -2.141 2.141v19.376a2.147 2.147 0 0 0 2.141 2.141h11.572c-.132-5.758 1.835-16.932 5.997-23.658z"
