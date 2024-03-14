@@ -1,4 +1,4 @@
-import { Divider, IconButton } from '@mui/material';
+import { IconButton } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
 import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
@@ -14,21 +14,18 @@ import {
 import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { CanvasTable } from '@/components/CanvasTable';
-import { Loading } from '@/components/Dataset';
 import { TablerSvgIcon } from '@/components/MuiIconButton';
 import { PaginationDropdown } from '@/components/PaginationDropdown';
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
+import { AgTable } from '@/components/tables/AgTable';
+import { CanvasTable } from '@/components/tables/CanvasTable';
+import { Separator } from '@/components/ui/separator';
+import { Loading } from '@/components/views/TableView';
 import { atomStore } from '@/stores';
 import { precisionAtom, tableRenderAtom } from '@/stores/setting';
-import { execute, exportData, QueryContextType } from '@/stores/tabs';
-import { AgTable } from '@/components/AgTable.tsx';
+import { QueryContextType, execute, exportData } from '@/stores/tabs';
 
-export interface DatasetProps {
-  tableName: string;
-}
-
-export function DatasetItem({
+export function QueryView({
   context,
 }: {
   context: PrimitiveAtom<QueryContextType>;
@@ -184,7 +181,7 @@ function PageSizeToolbar({ query, ctx, exportData }: PageSizeToolbarProps) {
         <IconButton color="inherit" onClick={handleBeautify}>
           <TablerSvgIcon icon={<IconDecimal />} />
         </IconButton>
-        <Divider orientation="vertical" flexItem />
+        <Separator orientation="vertical" />
         <IconButton color="inherit" onClick={handleRefresh}>
           <RefreshCwIcon size={16} />
         </IconButton>
@@ -196,4 +193,4 @@ function PageSizeToolbar({ query, ctx, exportData }: PageSizeToolbarProps) {
   );
 }
 
-export default DatasetItem;
+export default QueryView;

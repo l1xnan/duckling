@@ -31,7 +31,7 @@ function Home() {
           <div className={classes.resizeVertical} onMouseDown={actionLeft} />
         </div>
       </Box>
-      <Content sx={{ ml: `${sizeLeft}px` }}>
+      <Content style={{ marginLeft: sizeLeft }}>
         <Main />
       </Content>
     </div>

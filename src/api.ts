@@ -2,9 +2,9 @@ import { Table, tableFromIPC } from '@apache-arrow/ts';
 import { invoke } from '@tauri-apps/api/core';
 import { nanoid } from 'nanoid';
 
+import { ArrowResponse, SchemaType } from '@/stores/dataset';
 import { DBType, DialectConfig } from '@/stores/dbList';
 
-import { ArrowResponse, SchemaType } from './stores/dataset';
 import { TreeNode } from './types';
 
 export type TitleType = {
@@ -21,19 +21,13 @@ export type ResultType<T = unknown> = {
   message: string;
 };
 
-export type OptionType = {
-  limit: number;
-  offset: number;
-  order?: string;
-};
-
 export function convertArrow(
   arrowData: Array<number>,
   totalCount: number,
   titles?: TitleType[],
 ) {
   const table: Table = tableFromIPC(Uint8Array.from(arrowData));
-  const schema: SchemaType[] = table.schema.fields.map((field: any, i) => {
+  const schema: SchemaType[] = table.schema.fields.map((field, i) => {
     return {
       name: field.name,
       dataType: field.type.toString(),
@@ -43,10 +37,7 @@ export function convertArrow(
     };
   });
 
-  const data = table.toArray().map((item: any, i: number) => ({
-    // __index__: i + 1,
-    ...item.toJSON(),
-  }));
+  const data = table.toArray().map((item) => item.toJSON());
 
   console.table([...data.slice(0, 10)]);
   console.table(schema);
@@ -92,10 +83,8 @@ export type QueryTableParams = {
 };
 
 export async function query(params: QueryParams): Promise<ResultType> {
-  console.debug('params:', params);
+  console.debug('query sql params:', params);
   const res = await invoke<ArrowResponse>('query', params);
-  console.log(res);
-
   return convert(res);
 }
 
@@ -104,8 +93,6 @@ export async function queryTable(
 ): Promise<ResultType> {
   console.debug('query table params:', params);
   const res = await invoke<ArrowResponse>('query_table', params);
-  console.log(res);
-
   return convert(res);
 }
 
@@ -136,7 +123,7 @@ export async function showSchema(
   dialect: DialectConfig,
 ): Promise<ResultType> {
   const res = await invoke('show_schema', { schema, dialect });
-  return convert(res);
+  return convert(res as ArrowResponse);
 }
 
 export async function showColumns(
@@ -145,5 +132,5 @@ export async function showColumns(
 ): Promise<ResultType> {
   console.log(table, dialect);
   const res = await invoke('show_column', { table, dialect });
-  return convert(res);
+  return convert(res as ArrowResponse);
 }

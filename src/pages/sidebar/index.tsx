@@ -5,7 +5,7 @@ import { nanoid } from 'nanoid';
 import { useEffect, useState } from 'react';
 
 import { getDB } from '@/api';
-import { Input } from '@/components/ui/input.tsx';
+import { Input } from '@/components/ui/input';
 import ConfigDialog from '@/pages/sidebar/ConfigDialog';
 import RenameDialog from '@/pages/sidebar/RenameDialog';
 import { SideToolbar } from '@/pages/sidebar/SideToolbar';

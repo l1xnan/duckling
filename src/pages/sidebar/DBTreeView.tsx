@@ -23,11 +23,11 @@ import {
   PostgresIcon,
   SqliteIcon,
 } from '@/components/custom/Icons';
-import { HtmlTooltip } from '@/components/custom/Tooltip';
+import { Tooltip } from '@/components/custom/tooltip';
 import { DBType, selectedNodeAtom, tablesAtom } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { TreeNode } from '@/types';
-import { filterTree, isEmpty } from '@/utils.ts';
+import { filterTree, isEmpty } from '@/utils';
 
 import { DBTreeItem, TreeItemLabel } from './DBTreeItem';
 import { ConnectionContextMenu } from './context-menu/ConnectionContextMenu';
@@ -108,9 +108,9 @@ export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
     );
 
     const child = (
-      <HtmlTooltip title={node.path}>
+      <Tooltip title={node.path}>
         <div className="truncate">{label}</div>
-      </HtmlTooltip>
+      </Tooltip>
     );
     return (
       <DBTreeItem

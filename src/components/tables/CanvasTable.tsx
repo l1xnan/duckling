@@ -10,9 +10,9 @@ import {
 import { useAtomValue } from 'jotai';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-import { TableProps } from '@/components/AgTable.tsx';
+import { TableProps } from '@/components/tables/AgTable';
 import { tableFontFamilyAtom } from '@/stores/setting';
-import { isDarkTheme, isFloat, isNumber, uniqueArray } from '@/utils.ts';
+import { isDarkTheme, isFloat, isNumber, uniqueArray } from '@/utils';
 
 import type { ComponentProps } from 'react';
 
@@ -109,7 +109,6 @@ export const CanvasTable = React.memo(function CanvasTable({
   data,
   schema,
   beautify,
-  orderBy,
   precision,
   transpose,
   style,
@@ -117,7 +116,7 @@ export const CanvasTable = React.memo(function CanvasTable({
   const titleMap = new Map();
 
   const _titles =
-    schema?.map(({ name, dataType, type }, i) => {
+    schema?.map(({ name, dataType, type }) => {
       const item = {
         key: name,
         name,
@@ -146,16 +145,16 @@ export const CanvasTable = React.memo(function CanvasTable({
       (isDarkTheme(appTheme) ? darkTheme : lightTheme).extends({
         bodyStyle: {
           fontFamily: tableFontFamily,
-          borderLineWidth: ({ row, col }) => {
+          borderLineWidth: ({ row }) => {
             if (row == 0) {
               return [0, 1, 1, 1];
             }
-            return 1;
+            return [1, 1, 1, 1];
           },
         },
         headerStyle: {
           fontFamily: tableFontFamily,
-          borderLineWidth: ({ row, col }) => {
+          borderLineWidth: ({ row }) => {
             if (transpose && row == 0) {
               return [0, 0, 0, 1];
             }

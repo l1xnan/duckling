@@ -1,9 +1,8 @@
 import { debounce } from '@mui/material';
 import { atom } from 'jotai';
+import { atomFamily, splitAtom } from 'jotai/utils';
 import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
-// eslint-disable-next-line import/order
-import { atomFamily, splitAtom } from 'jotai/utils';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -209,7 +208,6 @@ export function getParams(
     perPage = 500,
     sqlWhere,
     sqlOrderBy,
-    orderBy,
     stmt,
     dbId,
     tableId,
@@ -252,7 +250,7 @@ export function getParams(
 
   if (tableName.endsWith('.csv')) {
     const csv = atomStore.get(settingAtom).csv;
-    const params = [`'${tableName}'`, 'auto_detect=true, union_by_name=true)'];
+    const params = [`'${tableName}'`, 'auto_detect=true, union_by_name=true'];
     for (const [key, val] of Object.entries(csv ?? {})) {
       if (!isEmpty(val)) {
         params.push(`${key}='${val}'`);

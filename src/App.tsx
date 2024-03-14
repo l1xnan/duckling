@@ -3,9 +3,8 @@ import { ThemeProvider } from '@mui/material/styles';
 import { relaunch } from '@tauri-apps/plugin-process';
 import { check } from '@tauri-apps/plugin-updater';
 import { Provider, useAtom, useAtomValue } from 'jotai';
-import { DevTools } from 'jotai-devtools';
-// eslint-disable-next-line import/order
 import { atomWithStorage } from 'jotai/utils';
+import { DevTools } from 'jotai-devtools';
 import { useEffect, useMemo } from 'react';
 
 import {

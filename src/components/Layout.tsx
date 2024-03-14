@@ -1,21 +1,41 @@
-import { Box, BoxProps, styled } from '@mui/material';
+import React from 'react';
 
-import { borderTheme } from '@/utils';
+import { cn } from '@/lib/utils';
 
-export const Content = styled(Box)<BoxProps>(({}) => ({
-  flexGrow: 1,
-  height: '100vh',
-  maxHeight: '100vh',
-  overflow: 'hidden',
-  display: 'flex',
-  flexDirection: 'column',
-}));
+export interface WrapperProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-export const Sidebar = styled(Box)<BoxProps>(({ theme }) => ({
-  flexShrink: 0,
-  minHeight: '100vh',
-  height: '100vh',
-  overflow: 'auto',
-  width: '100%',
-  borderRight: borderTheme(theme),
-}));
+const Content = React.forwardRef<HTMLDivElement, WrapperProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        className={cn(
+          'flex flex-col flex-grow h-screen min-h-screen overflow-hidden',
+          className,
+        )}
+        ref={ref}
+        {...props}
+      />
+    );
+  },
+);
+
+Content.displayName = 'Content';
+
+const Sidebar = React.forwardRef<HTMLDivElement, WrapperProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        className={cn(
+          'flex-shrink-0 h-screen min-h-screen w-full overflow-auto border-r',
+          className,
+        )}
+        ref={ref}
+        {...props}
+      />
+    );
+  },
+);
+
+Sidebar.displayName = 'Sidebar';
+
+export { Sidebar, Content };

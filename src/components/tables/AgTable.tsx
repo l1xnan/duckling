@@ -4,16 +4,10 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { AgGridReact } from 'ag-grid-react';
 import dayjs from 'dayjs';
-import {
-  CSSProperties,
-  ComponentProps,
-  useCallback,
-  useMemo,
-  useRef,
-} from 'react';
+import { CSSProperties, ComponentProps, useMemo, useRef } from 'react';
 import { NonUndefined } from 'react-hook-form';
 
-import HeaderCell from '@/components/dataframe/HeaderCell';
+import HeaderCell from '@/components/tables/HeaderCell';
 import { OrderByType, SchemaType } from '@/stores/dataset';
 import { getByteLength, isDarkTheme, isNumber } from '@/utils';
 
@@ -47,7 +41,7 @@ const formatter = ({
   beautify,
 }: {
   dataType: string;
-  precision: number;
+  precision?: number;
   beautify?: boolean;
 }) =>
   (({ value }) => {
@@ -143,13 +137,6 @@ export const AgTable = ({
       ...main,
     ];
   }, [schema, beautify]);
-
-  const clearPinned = useCallback(() => {
-    gridRef.current?.api.applyColumnState({
-      state: [{ colId: '__index__', pinned: 'left' }],
-      defaultState: { pinned: null },
-    });
-  }, []);
 
   const defaultColDef = useMemo(() => {
     return {

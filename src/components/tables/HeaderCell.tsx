@@ -6,11 +6,10 @@ import {
 } from '@tabler/icons-react';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { ColumnState, GridApi } from 'ag-grid-community';
-import dedent from 'dedent';
 import { PinIcon, PinOffIcon } from 'lucide-react';
 
-import { HtmlTooltip } from '@/components/custom/Tooltip.tsx';
 import { ContextMenuItem } from '@/components/custom/context-menu';
+import { Tooltip } from '@/components/custom/tooltip';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -18,7 +17,6 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
 import { usePageStore } from '@/stores/dataset';
-import { useTabsStore } from '@/stores/tabs';
 
 // https://ag-grid.com/react-data-grid/component-header/
 interface HeadCellProps {
@@ -32,13 +30,7 @@ interface HeadCellProps {
 }
 
 export default (props: HeadCellProps) => {
-  const {
-    context: table,
-    orderBy,
-    setOrderBy,
-    setDialogColumn,
-  } = usePageStore();
-  const updateTab = useTabsStore((state) => state.update);
+  const { orderBy, setOrderBy, setDialogColumn } = usePageStore();
   const colId = props.column.colId;
   const sqlType = props.column?.colDef?.sqlType;
   const isDesc = orderBy?.name == colId ? orderBy?.desc : undefined;
@@ -81,9 +73,9 @@ export default (props: HeadCellProps) => {
           className="flex items-center justify-between w-full h-20 px-1 text-sm"
           onClick={handleOrder}
         >
-          <HtmlTooltip title={`${displayName}: ${sqlType}`}>
+          <Tooltip title={`${displayName}: ${sqlType}`}>
             <div>{displayName}</div>
-          </HtmlTooltip>
+          </Tooltip>
           <AscOrDescIcon isDesc={isDesc} />
         </div>
       </ContextMenuTrigger>
@@ -95,26 +87,6 @@ export default (props: HeadCellProps) => {
           }}
         >
           Copy field name
-        </ContextMenuItem>
-        <ContextMenuItem
-          disabled
-          onClick={() => {
-            if (table) {
-              updateTab({
-                ...table,
-                id: `${table.id}-query`,
-                type: 'editor',
-                displayName: `query[${table.tableName}]`,
-                extra: dedent`
-                    select ${props.column.colId}, count(*)
-                    from ${table.tableName}
-                    group by ${props.column.colId};
-                `,
-              });
-            }
-          }}
-        >
-          Count(group by)
         </ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem

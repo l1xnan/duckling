@@ -89,6 +89,14 @@ export function TableContextMenu({
         <ContextMenuItem
           onClick={async (e) => {
             e.stopPropagation();
+          }}
+        >
+          Delete
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem
+          onClick={async (e) => {
+            e.stopPropagation();
             await writeText(node.path);
           }}
         >

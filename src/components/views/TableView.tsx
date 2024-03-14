@@ -4,7 +4,7 @@ import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import PivotTableChartIcon from '@mui/icons-material/PivotTableChart';
 import SyncIcon from '@mui/icons-material/Sync';
-import { Divider, IconButton } from '@mui/material';
+import { IconButton } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import { Loader2Icon } from 'lucide-react';
@@ -18,9 +18,11 @@ import {
 } from 'react';
 import { toast } from 'sonner';
 
-import { AgTable } from '@/components/AgTable.tsx';
 import { PaginationDropdown } from '@/components/PaginationDropdown';
-import { Separator } from '@/components/ui/separator.tsx';
+import { Stack, ToolbarContainer } from '@/components/Toolbar';
+import { AgTable } from '@/components/tables/AgTable';
+import { CanvasTable } from '@/components/tables/CanvasTable';
+import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import {
   PageContext,
@@ -30,9 +32,7 @@ import {
 import { precisionAtom, tableRenderAtom } from '@/stores/setting';
 import { TabContextType, activeTabAtom } from '@/stores/tabs';
 
-import { CanvasTable } from './CanvasTable';
-import { TablerSvgIcon } from './MuiIconButton';
-import { Stack, ToolbarContainer } from './Toolbar';
+import { TablerSvgIcon } from '../MuiIconButton';
 
 export const Loading = ({ className }: { className?: string }) => {
   return (
@@ -68,7 +68,7 @@ export const usePageStoreApi = () => {
   return store;
 };
 
-export function Dataset({ context }: { context: TabContextType }) {
+export function TableView({ context }: { context: TabContextType }) {
   const { refresh, data, schema, beautify, orderBy, transpose } =
     usePageStore();
   const currentTab = useAtomValue(activeTabAtom);
@@ -166,7 +166,7 @@ function PageSizeToolbar() {
         <IconButton color="inherit" onClick={setBeautify}>
           <TablerSvgIcon icon={<IconDecimal />} />
         </IconButton>
-        <Divider orientation="vertical" flexItem />
+        <Separator orientation="vertical" />
         <IconButton
           color="inherit"
           onClick={async () => {
@@ -232,4 +232,4 @@ export function InputToolbar() {
   );
 }
 
-export default Dataset;
+export default TableView;

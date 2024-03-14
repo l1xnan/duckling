@@ -1,66 +1,28 @@
 import { useAtomValue } from 'jotai';
-import { Loader2Icon, RefreshCw, Search } from 'lucide-react';
-import {
-  ReactNode,
-  Suspense,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { RefreshCw, Search } from 'lucide-react';
+import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { showColumns, showSchema } from '@/api';
-import { cn } from '@/lib/utils';
-import { PageContext, createDatasetStore } from '@/stores/dataset';
+import { Loading } from '@/components/views/TableView';
+import { DialectConfig } from '@/stores/dbList.ts';
 import {
   SchemaContextType,
-  TabContextType,
   TableContextType,
   activeTabAtom,
   getDatabase,
 } from '@/stores/tabs';
 import { isEmpty } from '@/utils';
 
-import { SimpleTable } from './CanvasTable';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
+import { SimpleTable } from '../tables/CanvasTable';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
 
-export const Loading = ({ className }: { className?: string }) => {
-  return (
-    <Loader2Icon
-      className={cn(
-        'my-28 h-16 w-full text-primary/60 animate-spin',
-        className,
-      )}
-    />
-  );
-};
-
-export const PageProvider = ({
+export function DatabaseSchemaView({
   context,
-  children,
 }: {
-  context: TabContextType;
-  children: ReactNode;
-}) => {
-  const storeRef = useRef(createDatasetStore(context));
-  return (
-    <PageContext.Provider value={storeRef.current}>
-      {children}
-    </PageContext.Provider>
-  );
-};
-
-export const usePageStoreApi = () => {
-  const store = useContext(PageContext);
-  if (store === null) {
-    throw new Error('no provider');
-  }
-  return store;
-};
-
-export function DatabaseSchema({ context }: { context: SchemaContextType }) {
+  context: SchemaContextType;
+}) {
   const currentTab = useAtomValue(activeTabAtom);
   const [loading, setLoading] = useState(false);
   const db = getDatabase(context?.dbId);
@@ -70,7 +32,10 @@ export function DatabaseSchema({ context }: { context: SchemaContextType }) {
   const handleQuery = async () => {
     try {
       setLoading(true);
-      const { data } = await showSchema(context.schema as string, db.config);
+      const { data } = await showSchema(
+        context.schema as string,
+        db?.config as DialectConfig,
+      );
       setData(data);
     } catch (error) {
       toast.error((error as Error).message);
@@ -137,7 +102,7 @@ export function DatabaseSchema({ context }: { context: SchemaContextType }) {
   );
 }
 
-export function ColumnSchema({ context }: { context: TableContextType }) {
+export function ColumnSchemaView({ context }: { context: TableContextType }) {
   const currentTab = useAtomValue(activeTabAtom);
   const [loading, setLoading] = useState(false);
   const db = getDatabase(context?.dbId);
@@ -147,7 +112,10 @@ export function ColumnSchema({ context }: { context: TableContextType }) {
   const handleQuery = async () => {
     try {
       setLoading(true);
-      const { data } = await showColumns(context.tableId as string, db.config);
+      const { data } = await showColumns(
+        context.tableId as string,
+        db?.config as DialectConfig,
+      );
       setData(data);
     } catch (error) {
       toast.error((error as Error).message);

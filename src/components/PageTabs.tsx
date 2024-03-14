@@ -15,8 +15,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TabContextType } from '@/stores/tabs';
 import { borderTheme, isDarkTheme } from '@/utils';
 
-import { HtmlTooltip } from './custom/Tooltip';
 import { ContextMenuItem } from './custom/context-menu';
+import { Tooltip } from './custom/tooltip';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -116,11 +116,11 @@ export function PageTabs({
                 <ContextMenu>
                   <ContextMenuTrigger className="w-full">
                     <div className="flex items-center justify-between">
-                      <HtmlTooltip title={tab.displayName}>
+                      <Tooltip title={tab.displayName}>
                         <div className="max-w-52 truncate">
                           {tab.displayName}
                         </div>
-                      </HtmlTooltip>
+                      </Tooltip>
                       <IconButton
                         size="small"
                         className="tab-close-icon"
