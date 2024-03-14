@@ -107,7 +107,10 @@ export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
       />
     );
 
-    const child = (
+    const isDummy = node.type == 'path' && db.dialect != 'folder';
+    const child = isDummy ? (
+      <div className="truncate">{label}</div>
+    ) : (
       <Tooltip title={node.path}>
         <div className="truncate">{label}</div>
       </Tooltip>
@@ -123,10 +126,12 @@ export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
             <SchemaContextMenu db={db} node={node}>
               {child}
             </SchemaContextMenu>
-          ) : (
+          ) : !isDummy ? (
             <TableContextMenu db={db} node={node}>
               {child}
             </TableContextMenu>
+          ) : (
+            child
           )
         }
       >
