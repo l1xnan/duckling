@@ -7,7 +7,7 @@ import SyncIcon from '@mui/icons-material/Sync';
 import { IconButton } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
-import { Loader2Icon } from 'lucide-react';
+import { CodeIcon, DownloadIcon, Loader2Icon } from 'lucide-react';
 import {
   ReactNode,
   Suspense,
@@ -20,8 +20,7 @@ import { toast } from 'sonner';
 
 import { PaginationDropdown } from '@/components/PaginationDropdown';
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
-import { AgTable } from '@/components/tables/AgTable';
-import { CanvasTable } from '@/components/tables/CanvasTable';
+import { AgTable, CanvasTable } from '@/components/tables';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import {
@@ -180,6 +179,13 @@ function PageSizeToolbar() {
         <IconButton color="inherit" onClick={setTranspose}>
           <PivotTableChartIcon fontSize="small" />
         </IconButton>
+        {/* TODO */}
+        <IconButton disabled color="inherit" onClick={() => {}}>
+          <CodeIcon size={16} />
+        </IconButton>
+        <IconButton disabled color="inherit" onClick={() => {}}>
+          <DownloadIcon size={16} />
+        </IconButton>
       </Stack>
     </ToolbarContainer>
   );
@@ -192,10 +198,6 @@ export function InputToolbar() {
     where: '',
     orderBy: '',
   });
-  // orderBy ? convertOrderBy(orderBy) : '',
-  // useEffect(() => {
-  //   setStmtOrder(orderBy ? convertOrderBy(orderBy) : '');
-  // }, [orderBy]);
 
   return (
     <div className="flex flex-row items-center h-8 min-h-8 bg-background/40 border-b font-mono">
