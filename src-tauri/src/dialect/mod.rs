@@ -25,6 +25,29 @@ pub struct TreeNode {
   pub comment: Option<String>,
 }
 
+impl TreeNode {
+  pub fn new_views(key: &str, children: Option<Vec<TreeNode>>) -> Self {
+    Self {
+      name: "views".to_string(),
+      path: format!("{key}-views"),
+      node_type: "path".to_string(),
+      children,
+      size: None,
+      comment: None,
+    }
+  }
+  pub fn new_tables(key: &str, children: Option<Vec<TreeNode>>) -> Self {
+    Self {
+      name: "tables".to_string(),
+      path: format!("{key}-tables"),
+      node_type: "path".to_string(),
+      children,
+      size: None,
+      comment: None,
+    }
+  }
+}
+
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Title {
   pub name: String,
