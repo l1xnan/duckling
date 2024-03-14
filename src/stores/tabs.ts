@@ -22,12 +22,13 @@ import { atomStore } from '@/stores';
 import { isEmpty } from '@/utils';
 
 import { OrderByType, SchemaType } from './dataset';
-import { dbMapAtom, tablesAtom } from './dbList';
+import { PostgresDialectType, dbMapAtom, tablesAtom } from './dbList';
 import { settingAtom } from './setting';
 
 export type QueryParamType = {
   dbId: string;
   tableId: string;
+  tableName?: string;
   type?: string;
   stmt?: string;
 
@@ -70,6 +71,7 @@ export type TableContextType = {
   tableId: string;
   type?: string;
   extra?: unknown;
+  tableName?: string;
   displayName: string;
 };
 export type SchemaContextType = {
@@ -237,20 +239,20 @@ export function getParams(
       ...param,
     };
   }
-
-  let tableName = tableId;
   const table = getTable(dbId, tableId);
-  if (ctx.type !== 'file') {
-    tableName = table!.path;
-  }
+
+  console.log(ctx);
+  let tableName = ctx.tableName ?? table?.path ?? tableId;
 
   if (dialect?.dialect == 'postgres') {
-    dialect['database'] = table?.path.split('.')[0];
+    (dialect as PostgresDialectType).database = table?.path.split(
+      '.',
+    )[0] as string;
   }
 
   if (tableName.endsWith('.csv')) {
     const csv = atomStore.get(settingAtom).csv;
-    const params = [`'${tableName}'`, 'auto_detect=true'];
+    const params = [`'${tableName}'`, 'auto_detect=true, union_by_name=true)'];
     for (const [key, val] of Object.entries(csv ?? {})) {
       if (!isEmpty(val)) {
         params.push(`${key}='${val}'`);
@@ -258,7 +260,7 @@ export function getParams(
     }
     tableName = `read_csv(${params.join(', ')})`;
   } else if (tableName.endsWith('.parquet')) {
-    tableName = `read_parquet('${tableName}')`;
+    tableName = `read_parquet('${tableName}', union_by_name=true)`;
   }
 
   return {

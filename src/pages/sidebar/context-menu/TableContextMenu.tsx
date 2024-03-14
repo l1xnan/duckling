@@ -50,6 +50,10 @@ export function TableContextMenu({
                   id: nanoid(),
                   dbId: db.id,
                   tableId: node.path,
+                  tableName:
+                    node.type == 'path'
+                      ? `read_parquet('${node.path}/*.parquet', union_by_name=true, filename=true)`
+                      : undefined,
                   displayName: node?.name as string,
                   type: 'table',
                 };
@@ -66,6 +70,10 @@ export function TableContextMenu({
                   id: nanoid(),
                   dbId: db.id,
                   tableId: node.path,
+                  tableName:
+                    node.type == 'path'
+                      ? `read_csv('${node.path}/*.csv', union_by_name=true, filename=true)`
+                      : undefined,
                   displayName: node?.name as string,
                   type: 'table',
                 };

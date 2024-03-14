@@ -1,3 +1,4 @@
+use glob::glob;
 use std::fs;
 use std::path::Path;
 
@@ -38,6 +39,46 @@ impl Connection for FolderDialect {
       write_csv(file, &batch);
     }
   }
+
+  async fn show_column(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
+    let path = Path::new(table);
+
+    let ext = path.extension().unwrap_or_default();
+    let sql = if path.is_dir() {
+      let mut tmp = vec![];
+      let pattern = format!("{table}/**/*.parquet");
+      if exist_glob(&pattern) {
+        tmp.push(format!("SELECT '*.parquet' as file_type, * FROM (DESCRIBE select * FROM read_parquet('{pattern}', union_by_name = true))"))
+      }
+      
+      let pattern = format!("{table}/**/*.csv");
+      if exist_glob(&pattern) {
+        tmp.push(format!("SELECT '*.csv' as file_type, * FROM (DESCRIBE select * FROM read_csv('{pattern}', union_by_name = true))"))
+      }
+
+      tmp.join("\n union all \n")
+    } else if (ext == "parquet") {
+      format!("DESCRIBE select * from read_parquet('{table}')")
+    } else if (ext == "csv") {
+      format!("DESCRIBE select * from read_csv('{table}', union_by_name=true)")
+    } else {
+      String::new()
+    };
+    log::info!("show columns: {}", &sql);
+    self.query(&sql, 0, 0).await
+  }
+}
+
+fn exist_glob(pattern: &str) -> bool {
+  if let Ok(items) = glob(pattern) {
+    for item in items {
+      return match item {
+        Ok(path) => true,
+        Err(e) => false,
+      };
+    }
+  }
+  return false;
 }
 
 impl FolderDialect {

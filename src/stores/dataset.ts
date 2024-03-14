@@ -178,6 +178,7 @@ export const createDatasetStore = (context: TabContextType) =>
         sqlOrderBy,
         dbId: context?.dbId ?? '',
         tableId: context?.tableId ?? '',
+        tableName: context?.tableName,
       };
       const data = await execute(ctx);
 

@@ -1637,6 +1637,7 @@ dependencies = [
  "clickhouse-rs",
  "duckdb",
  "futures-util",
+ "glob",
  "log",
  "mysql",
  "nanoid",

@@ -55,6 +55,7 @@ time = "0.3.34"
 uuid = { version = "1.7.0", features = ["v4"] }
 tokio = { version = "1.36.0", features = ["macros", "test-util"] }
 sqlparser = { version = "0.44", features = ["json_example"] }
+glob="*"
 
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
 tauri-plugin-updater = "2.0.0-beta"
