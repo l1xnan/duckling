@@ -71,7 +71,7 @@ impl Connection for DuckDbDialect {
     self.query(&sql, 0, 0).await
   }
 
-  async fn drop_table(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
+  async fn drop_table(&self, schema: Option<&str>, table: &str) -> anyhow::Result<String> {
     let (db, tbl) = if schema.is_none() && table.contains(".") {
       let parts: Vec<&str> = table.splitn(2, '.').collect();
       (parts[0], parts[1])
@@ -87,7 +87,9 @@ impl Connection for DuckDbDialect {
 
     let sql = format!("DROP VIEW IF EXISTS {}", table_name);
     log::warn!("drop table: {}", &sql);
-    self.query(&sql, 0, 0).await
+    // TODO: raw query
+    let _ = self.query(&sql, 0, 0).await;
+    Ok(String::new())
   }
 }
 

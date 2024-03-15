@@ -14,7 +14,6 @@ use crate::dialect::mysql::MySqlDialect;
 use crate::dialect::postgres::PostgresDialect;
 use crate::dialect::sqlite::SqliteDialect;
 use crate::dialect::{Connection, TreeNode};
-use crate::utils::Table;
 
 pub struct OpenedUrls(pub Mutex<Option<Vec<url::Url>>>);
 
@@ -225,11 +224,11 @@ pub async fn drop_table(
   schema: Option<&str>,
   table: &str,
   dialect: DialectPayload,
-) -> Result<ArrowResponse, String> {
+) -> Result<String, String> {
   let d = get_dialect(dialect.clone())
     .await
     .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
-  let res = d.drop_table(schema, table).await;
-
-  Ok(api::convert(res))
+  // TODO: ERROR INFO
+  let res = d.drop_table(schema, table).await.expect("ERROR");
+  Ok(res)
 }

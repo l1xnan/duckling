@@ -1,8 +1,8 @@
-use glob::glob;
 use std::fs;
 use std::path::Path;
 
 use async_trait::async_trait;
+use glob::glob;
 
 use crate::api;
 use crate::dialect::RawArrowData;
@@ -50,7 +50,7 @@ impl Connection for FolderDialect {
       if exist_glob(&pattern) {
         tmp.push(format!("SELECT '*.parquet' as file_type, * FROM (DESCRIBE select * FROM read_parquet('{pattern}', union_by_name = true))"))
       }
-      
+
       let pattern = format!("{table}/**/*.csv");
       if exist_glob(&pattern) {
         tmp.push(format!("SELECT '*.csv' as file_type, * FROM (DESCRIBE select * FROM read_csv('{pattern}', union_by_name = true))"))
@@ -66,6 +66,15 @@ impl Connection for FolderDialect {
     };
     log::info!("show columns: {}", &sql);
     self.query(&sql, 0, 0).await
+  }
+  async fn drop_table(&self, schema: Option<&str>, table: &str) -> anyhow::Result<String> {
+    let path = Path::new(table);
+    if path.is_dir() {
+      fs::remove_dir_all(path)?;
+    } else {
+      fs::remove_file(path)?;
+    }
+    Ok("".to_string())
   }
 }
 
@@ -163,6 +172,5 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
 
 #[tokio::test]
 async fn test_table() {
-  use arrow::util::pretty::print_batches;
   let d = FolderDialect::new("");
 }
