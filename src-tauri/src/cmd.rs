@@ -219,3 +219,17 @@ pub async fn show_column(
 
   Ok(api::convert(res))
 }
+
+#[tauri::command]
+pub async fn drop_table(
+  schema: Option<&str>,
+  table: &str,
+  dialect: DialectPayload,
+) -> Result<ArrowResponse, String> {
+  let d = get_dialect(dialect.clone())
+    .await
+    .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
+  let res = d.drop_table(schema, table).await;
+
+  Ok(api::convert(res))
+}

@@ -2,6 +2,7 @@ import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { nanoid } from 'nanoid';
 import { PropsWithChildren } from 'react';
 
+import { dropTable } from '@/api';
 import { ContextMenuItem } from '@/components/custom/context-menu';
 import {
   ContextMenu,
@@ -9,7 +10,7 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { DBType } from '@/stores/dbList';
+import { DBType, DialectConfig } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { TreeNode } from '@/types';
 
@@ -20,6 +21,12 @@ export function TableContextMenu({
 }: PropsWithChildren<{ node: TreeNode; db: DBType }>) {
   const updateTab = useTabsStore((state) => state.update);
 
+  const handleDropTable: React.MouseEventHandler<HTMLDivElement> = async (
+    e,
+  ) => {
+    e.stopPropagation();
+    await dropTable(node.path, db.config as DialectConfig);
+  };
   return (
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
@@ -86,13 +93,7 @@ export function TableContextMenu({
         ) : null}
 
         <ContextMenuSeparator />
-        <ContextMenuItem
-          onClick={async (e) => {
-            e.stopPropagation();
-          }}
-        >
-          Delete
-        </ContextMenuItem>
+        <ContextMenuItem onClick={handleDropTable}>Delete</ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem
           onClick={async (e) => {

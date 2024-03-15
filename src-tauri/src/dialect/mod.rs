@@ -145,6 +145,10 @@ pub trait Connection: Sync + Send {
     unimplemented!()
   }
 
+  async fn drop_table(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
+    unimplemented!()
+  }
+
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     unimplemented!()
   }

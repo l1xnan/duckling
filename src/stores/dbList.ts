@@ -1,7 +1,6 @@
 import { atom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
-// eslint-disable-next-line import/order
 import { splitAtom } from 'jotai/utils';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';

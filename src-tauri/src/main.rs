@@ -122,6 +122,7 @@ fn main() {
       cmd::table_row_count,
       cmd::show_schema,
       cmd::show_column,
+      cmd::drop_table,
     ])
     .build(tauri::generate_context!())
     .expect("error while running tauri application")

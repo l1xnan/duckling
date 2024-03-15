@@ -134,3 +134,12 @@ export async function showColumns(
   const res = await invoke('show_column', { table, dialect });
   return convert(res as ArrowResponse);
 }
+
+export async function dropTable(
+  table: string,
+  dialect: DialectConfig,
+): Promise<ResultType> {
+  console.log(table, dialect);
+  const res = await invoke('drop_table', { table, dialect });
+  return convert(res as ArrowResponse);
+}

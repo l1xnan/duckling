@@ -64,8 +64,29 @@ impl Connection for DuckDbDialect {
     } else {
       ("", table)
     };
-    let sql = format!("select * from information_schema.columns where table_schema='{db}' and table_name='{tbl}'");
+    let sql = format!(
+      "select * from information_schema.columns where table_schema='{db}' and table_name='{tbl}'"
+    );
     log::info!("show columns: {}", &sql);
+    self.query(&sql, 0, 0).await
+  }
+
+  async fn drop_table(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
+    let (db, tbl) = if schema.is_none() && table.contains(".") {
+      let parts: Vec<&str> = table.splitn(2, '.').collect();
+      (parts[0], parts[1])
+    } else {
+      ("", table)
+    };
+
+    let table_name = if db.is_empty() {
+      format!("{tbl}")
+    } else {
+      format!("{db}.{tbl}")
+    };
+
+    let sql = format!("DROP VIEW IF EXISTS {}", table_name);
+    log::warn!("drop table: {}", &sql);
     self.query(&sql, 0, 0).await
   }
 }
@@ -73,6 +94,17 @@ impl Connection for DuckDbDialect {
 impl DuckDbDialect {
   fn connect(&self) -> anyhow::Result<duckdb::Connection> {
     Ok(duckdb::Connection::open(&self.path)?)
+  }
+
+  fn new(path: &str) -> Self {
+    Self {
+      path: path.to_string(),
+      cwd: None,
+    }
+  }
+
+  fn set_cwd(&mut self, cwd: Option<String>) {
+    self.cwd = cwd;
   }
 }
 
@@ -105,4 +137,17 @@ pub fn get_tables(conn: &duckdb::Connection, schema: Option<&str>) -> anyhow::Re
     tables.push(row?);
   }
   Ok(tables)
+}
+
+#[tokio::test]
+async fn test_duckdb() {
+  use arrow::util::pretty::print_batches;
+
+  let path = r"D:\Code\yibai-season\data\season.duckdb";
+  let d = DuckDbDialect::new(path);
+  let res = d
+    .drop_table(None, "main.yb_ama_sku_seasonal_strength0")
+    .await
+    .unwrap();
+  print_batches(&[res.batch]);
 }

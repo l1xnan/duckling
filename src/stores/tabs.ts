@@ -1,8 +1,8 @@
 import { debounce } from '@mui/material';
 import { atom } from 'jotai';
-import { atomFamily, splitAtom } from 'jotai/utils';
 import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
+import { atomFamily, splitAtom } from 'jotai/utils';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -266,7 +266,6 @@ export function getParams(
     table: tableName,
     where: sqlWhere,
     orderBy: sqlOrderBy,
-    // orderBy: orderBy ? convertOrderBy(orderBy) : undefined,
     ...param,
   };
 }
