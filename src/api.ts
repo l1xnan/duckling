@@ -143,3 +143,21 @@ export async function dropTable(
   const res = await invoke('drop_table', { table, dialect });
   return convert(res as ArrowResponse);
 }
+
+export class Connection {
+  db: unknown;
+
+  constructor(db: unknown) {
+    this.db = db;
+  }
+
+  getTables() {}
+
+  showColumns() {}
+
+  dropTable() {}
+
+  execute() {}
+
+  query() {}
+}
