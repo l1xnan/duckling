@@ -3,20 +3,14 @@ import { IconDecimal } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
 import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
-import {
-  ArrowDownToLineIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronsLeftIcon,
-  ChevronsRightIcon,
-  RefreshCwIcon,
-} from 'lucide-react';
+
+import { ArrowDownToLineIcon, RefreshCwIcon } from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { TablerSvgIcon } from '@/components/MuiIconButton';
-import { PaginationDropdown } from '@/components/PaginationDropdown';
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
+import { Pagination } from '@/components/custom/pagination';
 import { AgTable } from '@/components/tables/AgTable';
 import { CanvasTable } from '@/components/tables/CanvasTable';
 import { Separator } from '@/components/ui/separator';
@@ -24,6 +18,7 @@ import { Loading } from '@/components/views/TableView';
 import { atomStore } from '@/stores';
 import { precisionAtom, tableRenderAtom } from '@/stores/setting';
 import { QueryContextType, execute, exportData } from '@/stores/tabs';
+import PivotTableChartIcon from '@mui/icons-material/PivotTableChart';
 
 export function QueryView({
   context,
@@ -62,6 +57,7 @@ export function QueryView({
       await handleQuery(ctx);
     })();
   }, []);
+
   const precision = useAtomValue(precisionAtom);
   const tableRender = useAtomValue(tableRenderAtom);
 
@@ -83,6 +79,7 @@ export function QueryView({
             orderBy={ctx.orderBy}
             precision={precision}
             beautify={ctx.beautify}
+            transpose={ctx.transpose}
           />
         </Suspense>
       </div>
@@ -104,9 +101,11 @@ function PageSizeToolbar({ query, ctx, exportData }: PageSizeToolbarProps) {
   const pageAtom = focusAtom(ctx, (o) => o.prop('page'));
   const perPageAtom = focusAtom(ctx, (o) => o.prop('perPage'));
   const beautifyAtom = focusAtom(ctx, (o) => o.prop('beautify'));
+  const transposeAtom = focusAtom(ctx, (o) => o.prop('transpose'));
   const setPage = useSetAtom(pageAtom);
   const setPerPage = useSetAtom(perPageAtom);
   const setBeautify = useSetAtom(beautifyAtom);
+  const setTranspose = useSetAtom(transposeAtom);
 
   const handleBeautify = () => {
     setBeautify((prev) => !prev);
@@ -115,34 +114,16 @@ function PageSizeToolbar({ query, ctx, exportData }: PageSizeToolbarProps) {
     await query(context);
   };
 
-  const toFirst = async () => {
-    setPage(1);
-    await query();
-  };
-  const toLast = async () => {
-    setPage(Math.ceil(context.totalCount / context.perPage));
-    await query();
-  };
-
-  const increase = async () => {
-    setPage((prev) => prev + 1);
-    await query();
-  };
-
-  const decrease = async () => {
-    setPage((prev) => prev - 1);
-    await query();
-  };
-
-  const handlePerPage = async (perPage: number) => {
+  const handeChange = async (page: number, perPage: number) => {
+    setPage(page);
     setPerPage(perPage);
     await query();
   };
+  const handleTranspose = () => {
+    setTranspose((v) => !v);
+  };
 
   const count = data?.length ?? 0;
-  const start = perPage * (page - 1) + 1;
-  const end = start + count - 1;
-  const content = count >= totalCount ? `${count} rows` : `${start}-${end}`;
   const handleExport = async () => {
     const file = await dialog.save({
       title: 'Export',
@@ -156,28 +137,13 @@ function PageSizeToolbar({ query, ctx, exportData }: PageSizeToolbarProps) {
   return (
     <ToolbarContainer>
       <Stack>
-        <IconButton color="inherit" onClick={toFirst} disabled={page <= 1}>
-          <ChevronsLeftIcon size={16} />
-        </IconButton>
-        <IconButton color="inherit" onClick={decrease} disabled={page <= 1}>
-          <ChevronLeftIcon size={16} />
-        </IconButton>
-        <PaginationDropdown content={content} setPerPage={handlePerPage} />
-        {count < totalCount ? `of ${totalCount}` : null}
-        <IconButton
-          color="inherit"
-          onClick={increase}
-          disabled={page >= Math.ceil(totalCount / perPage)}
-        >
-          <ChevronRightIcon size={16} />
-        </IconButton>
-        <IconButton
-          color="inherit"
-          onClick={toLast}
-          disabled={page >= Math.ceil(totalCount / perPage)}
-        >
-          <ChevronsRightIcon size={16} />
-        </IconButton>
+        <Pagination
+          current={page}
+          count={count}
+          total={totalCount}
+          pageSize={perPage}
+          onChange={handeChange}
+        />
         <IconButton color="inherit" onClick={handleBeautify}>
           <TablerSvgIcon icon={<IconDecimal />} />
         </IconButton>
@@ -186,9 +152,14 @@ function PageSizeToolbar({ query, ctx, exportData }: PageSizeToolbarProps) {
           <RefreshCwIcon size={16} />
         </IconButton>
       </Stack>
-      <IconButton color="inherit" onClick={handleExport}>
-        <ArrowDownToLineIcon size={16} />
-      </IconButton>
+      <Stack>
+        <IconButton color="inherit" onClick={handleExport}>
+          <ArrowDownToLineIcon size={16} />
+        </IconButton>
+        <IconButton color="inherit" onClick={handleTranspose}>
+          <PivotTableChartIcon fontSize="small" />
+        </IconButton>
+      </Stack>
     </ToolbarContainer>
   );
 }

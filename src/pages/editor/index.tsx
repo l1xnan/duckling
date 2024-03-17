@@ -1,4 +1,4 @@
-import { OnChange, OnMount } from '@monaco-editor/react';
+import { OnChange } from '@monaco-editor/react';
 import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { nanoid } from 'nanoid';
@@ -18,9 +18,7 @@ import MonacoEditor, { EditorRef } from './MonacoEditor';
 import { QueryTabs } from './QueryTabs';
 import VerticalContainer from './VerticalContainer';
 
-type OnMountParams = Parameters<OnMount>;
-
-function createStore(item: Partial<QueryContextType>): QueryContextType {
+function createStore(item: Partial<QueryContextType>) {
   return {
     page: 1,
     perPage: 500,

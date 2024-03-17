@@ -1,36 +1,21 @@
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
-import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import PivotTableChartIcon from '@mui/icons-material/PivotTableChart';
 import SyncIcon from '@mui/icons-material/Sync';
 import { IconButton } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import { CodeIcon, DownloadIcon, Loader2Icon } from 'lucide-react';
-import {
-  ReactNode,
-  Suspense,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { PaginationDropdown } from '@/components/PaginationDropdown';
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
 import { AgTable, CanvasTable } from '@/components/tables';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import {
-  PageContext,
-  createDatasetStore,
-  usePageStore,
-} from '@/stores/dataset';
 import { precisionAtom, tableRenderAtom } from '@/stores/setting';
 import { TabContextType, activeTabAtom } from '@/stores/tabs';
 
+import { Pagination } from '@/components/custom/pagination.tsx';
+import { usePageStore } from '@/hooks/context';
 import { TablerSvgIcon } from '../MuiIconButton';
 
 export const Loading = ({ className }: { className?: string }) => {
@@ -42,29 +27,6 @@ export const Loading = ({ className }: { className?: string }) => {
       )}
     />
   );
-};
-
-export const PageProvider = ({
-  context,
-  children,
-}: {
-  context: TabContextType;
-  children: ReactNode;
-}) => {
-  const storeRef = useRef(createDatasetStore(context));
-  return (
-    <PageContext.Provider value={storeRef.current}>
-      {children}
-    </PageContext.Provider>
-  );
-};
-
-export const usePageStoreApi = () => {
-  const store = useContext(PageContext);
-  if (store === null) {
-    throw new Error('no provider');
-  }
-  return store;
 };
 
 export function TableView({ context }: { context: TabContextType }) {
@@ -115,53 +77,31 @@ export function TableView({ context }: { context: TabContextType }) {
 
 function PageSizeToolbar() {
   const {
-    refresh,
     data,
     page,
-    totalCount,
-    setBeautify,
-    increase,
-    decrease,
-    toFirst,
-    toLast,
     perPage,
-    setPerPage,
+    totalCount,
+
+    refresh,
+    setBeautify,
+    setPagination,
     setTranspose,
   } = usePageStore();
 
-  const count = data.length;
-  const start = perPage * (page - 1) + 1;
-  const end = start + count - 1;
-  const content = count >= totalCount ? `${count} rows` : `${start}-${end}`;
-  const handlePerPage = (page: number) => {
-    setPerPage?.(page);
+  const handeChange = (page: number, perPage: number) => {
+    setPagination?.({ page, perPage });
   };
 
   return (
     <ToolbarContainer>
       <Stack>
-        <IconButton color="inherit" onClick={toFirst} disabled={page <= 1}>
-          <KeyboardDoubleArrowLeftIcon />
-        </IconButton>
-        <IconButton color="inherit" onClick={decrease} disabled={page <= 1}>
-          <KeyboardArrowLeftIcon />
-        </IconButton>
-        <PaginationDropdown content={content} setPerPage={handlePerPage} />
-        {count < totalCount ? `/ ${totalCount}` : null}
-        <IconButton
-          color="inherit"
-          onClick={increase}
-          disabled={page >= Math.ceil(totalCount / perPage)}
-        >
-          <KeyboardArrowRightIcon />
-        </IconButton>
-        <IconButton
-          color="inherit"
-          onClick={toLast}
-          disabled={page >= Math.ceil(totalCount / perPage)}
-        >
-          <KeyboardDoubleArrowRightIcon />
-        </IconButton>
+        <Pagination
+          current={page}
+          count={data.length}
+          total={totalCount}
+          pageSize={perPage}
+          onChange={handeChange}
+        />
         <IconButton color="inherit" onClick={setBeautify}>
           <TablerSvgIcon icon={<IconDecimal />} />
         </IconButton>

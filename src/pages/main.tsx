@@ -6,7 +6,6 @@ import {
   DatabaseSchemaView,
   TableView,
 } from '@/components/views';
-import { PageProvider } from '@/components/views/TableView';
 import {
   EditorContextType,
   SchemaContextType,
@@ -18,6 +17,7 @@ import {
   useTabsStore,
 } from '@/stores/tabs';
 
+import { PageProvider } from '@/hooks/context';
 import MonacoEditor from './editor';
 
 function TabContent({ tabAtom }: { tabAtom: PrimitiveAtom<TabContextType> }) {

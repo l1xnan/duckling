@@ -1,5 +1,4 @@
-import { createContext, useContext } from 'react';
-import { createStore, useStore } from 'zustand';
+import { createStore } from 'zustand';
 
 import { ResultType, TitleType } from '@/api';
 
@@ -48,11 +47,8 @@ export type DatasetAction = {
   setStore?: (res: Partial<DatasetState>) => void;
   setOrderBy?: (name: string) => void;
   setPerPage?: (perPage: number) => void;
+  setPage?: (page: number) => void;
   setTranspose?: () => void;
-  increase: () => void;
-  toFirst: () => void;
-  toLast: () => void;
-  decrease: () => void;
   setSQLWhere: (value: string) => void;
   setSQLOrderBy: (value: string) => void;
   setDialogColumn: (value: string) => void;
@@ -71,18 +67,6 @@ export type StmtType = {
   perPage?: number;
   orderBy?: OrderByType;
   where?: string;
-};
-
-export const PageContext = createContext<ReturnType<
-  typeof createDatasetStore
-> | null>(null);
-
-export const usePageStore = () => {
-  const store = useContext(PageContext);
-  if (store === null) {
-    throw new Error('no provider');
-  }
-  return useStore(store);
 };
 
 export const createDatasetStore = (context: TabContextType) =>
@@ -106,6 +90,10 @@ export const createDatasetStore = (context: TabContextType) =>
     setStore: (res: object) => set((_) => res),
     increase: () => {
       set((state) => ({ page: state.page + 1 }));
+      get().refresh();
+    },
+    setPage: (page: number) => {
+      set(() => ({ page }));
       get().refresh();
     },
     setBeautify: () => set((state) => ({ beautify: !state.beautify })),

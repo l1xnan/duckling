@@ -1,3 +1,4 @@
+import { createSelectors } from '@/stores/utils';
 import { atomWithStore } from 'jotai-zustand';
 import { selectAtom } from 'jotai/utils';
 import { create } from 'zustand';
@@ -34,12 +35,15 @@ export const defaultSettings = {
   ].join(','),
   csv: {},
 };
-export const useSettingStore = create<SettingState>()(
+
+export const store = create<SettingState>()(
   persist((_) => defaultSettings, {
-    name: 'settingStore',
+    name: 'setting',
     storage: createJSONStorage(() => localStorage),
   }),
 );
+
+export const useSettingStore = createSelectors(store);
 
 export const settingAtom = atomWithStore(useSettingStore);
 

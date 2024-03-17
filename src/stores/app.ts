@@ -3,6 +3,7 @@ import { atomWithStore } from 'jotai-zustand';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { createSelectors } from '@/stores/utils';
 import { debounce } from '@/utils';
 
 type AppState = {
@@ -15,17 +16,21 @@ type AppAction = {
 
 type AppStore = AppState & AppAction;
 
-export const useAppStore = create<AppStore>()(
+export const store = create<AppStore>()(
   persist<AppStore>(
     (set, _get) => ({
       size: 300,
-      setSize: debounce((size) => set((_) => ({ size }))),
+      setSize: debounce<(size: number) => void>((size) =>
+        set((_) => ({ size })),
+      ),
     }),
     {
       name: 'app',
     },
   ),
 );
+
+const useAppStore = createSelectors(store);
 
 export const appAtom = atomWithStore(useAppStore);
 

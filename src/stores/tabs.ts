@@ -51,12 +51,14 @@ export type QueryContextType = QueryParamType & {
   schema?: SchemaType[];
   message?: string;
   beautify?: boolean;
+  transpose?: boolean;
 
   target?: 'export';
 };
 export type EditorContextType = {
   id: string;
   dbId: string;
+  schema?: string;
   tableId?: string;
   type?: string;
   extra?: unknown;
@@ -73,6 +75,7 @@ export type TableContextType = {
   tableName?: string;
   displayName: string;
 };
+
 export type SchemaContextType = {
   id: string;
   dbId: string;
@@ -162,7 +165,7 @@ export const useTabsStore = create<TabsState & TabsAction>()(
         ),
       }),
       {
-        name: 'tabsStore',
+        name: 'tabs',
         storage: createJSONStorage(() => localStorage),
       },
     ),
@@ -174,8 +177,6 @@ export const activeTabAtom = focusAtom(tabsAtom, (o) => o.prop('currentTab'));
 export const tabListAtom = focusAtom(tabsAtom, (o) => o.prop('tabs'));
 
 export const tabsAtomsAtom = splitAtom(tabListAtom);
-
-export const queryTabsAtom = atom<Record<string, unknown>>({});
 
 export type SubTab = {
   id: string;

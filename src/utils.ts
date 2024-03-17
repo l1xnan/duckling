@@ -37,7 +37,7 @@ export function genStmt({ tableName, orderBy, where }: StmtType) {
 
 export function debounce<T extends (...args: Parameters<T>) => ReturnType<T>>(
   callback: T,
-  delay: number,
+  delay: number = 300,
 ) {
   let timer: ReturnType<typeof setTimeout>;
   return (...args: Parameters<T>) => {
@@ -84,6 +84,7 @@ export function isNumber(dataType: string) {
     dataType.includes('Decimal')
   );
 }
+
 export function isFloat(dataType: string) {
   return dataType.includes('Float') || dataType.includes('Decimal');
 }

@@ -3,7 +3,7 @@ import { splitAtom } from 'jotai/utils';
 
 import { PageTabs } from '@/components/PageTabs';
 import { QueryView } from '@/components/views';
-import { PageProvider } from '@/components/views/TableView';
+import { PageProvider } from '@/hooks/context';
 import { QueryContextType } from '@/stores/tabs';
 
 export interface QueryTabsProps {

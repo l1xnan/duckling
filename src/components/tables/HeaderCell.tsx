@@ -16,7 +16,8 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { usePageStore } from '@/stores/dataset';
+
+import { usePageStore } from '@/hooks/context';
 
 // https://ag-grid.com/react-data-grid/component-header/
 interface HeadCellProps {
