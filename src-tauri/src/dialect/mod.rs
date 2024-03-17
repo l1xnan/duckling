@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use sqlparser::parser::Parser;
 
-use crate::{api::RawArrowData, utils::Table};
+use crate::{api::RawArrowData};
 
 pub mod ast;
 pub mod clickhouse;
@@ -136,19 +136,19 @@ pub trait Connection: Sync + Send {
     res.map(|r| RawArrowData { total, ..r })
   }
 
-  async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
+  async fn show_schema(&self, _schema: &str) -> anyhow::Result<RawArrowData> {
     unimplemented!()
   }
 
-  async fn show_column(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
+  async fn show_column(&self, _schema: Option<&str>, _table: &str) -> anyhow::Result<RawArrowData> {
     unimplemented!()
   }
 
-  async fn drop_table(&self, schema: Option<&str>, table: &str) -> anyhow::Result<String> {
+  async fn drop_table(&self, _schema: Option<&str>, _table: &str) -> anyhow::Result<String> {
     unimplemented!()
   }
 
-  async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
+  async fn table_row_count(&self, _table: &str, _where: &str) -> anyhow::Result<usize> {
     unimplemented!()
   }
 

@@ -5,7 +5,7 @@ use anyhow::{anyhow, Context};
 use arrow::array::*;
 use arrow::datatypes::{ArrowNativeType, DataType, Field, Schema};
 use arrow::json::ReaderBuilder;
-use arrow::util::pretty::print_batches;
+
 use async_trait::async_trait;
 use futures_util::FutureExt;
 use rust_decimal::prelude::*;
@@ -62,7 +62,7 @@ impl Connection for PostgresDialect {
   }
 
   async fn show_column(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
-    let (db, tbl) = if schema.is_none() && table.contains(".") {
+    let (_db, tbl) = if schema.is_none() && table.contains(".") {
       let parts: Vec<&str> = table.splitn(2, '.').collect();
       (parts[0], parts[1])
     } else {
@@ -142,7 +142,7 @@ impl PostgresDialect {
     Ok(tables)
   }
 
-  async fn _query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
+  async fn _query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     let conn = self.get_conn(&self.database()).await?;
 
     let stmt = conn.prepare(sql).await?;

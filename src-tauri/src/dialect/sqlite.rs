@@ -40,7 +40,7 @@ impl Connection for SqliteDialect {
     self._query(sql, limit, offset).await
   }
 
-  async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
+  async fn show_schema(&self, _schema: &str) -> anyhow::Result<RawArrowData> {
     let sql = "
       SELECT * FROM sqlite_master
       WHERE type IN ('table', 'view') and name NOT IN ('sqlite_sequence', 'sqlite_stat1')
@@ -48,7 +48,7 @@ impl Connection for SqliteDialect {
     self.query(sql, 0, 0).await
   }
 
-  async fn show_column(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
+  async fn show_column(&self, _schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
     let sql = format!("select * from pragma_table_info('{table}')");
     self.query(&sql, 0, 0).await
   }

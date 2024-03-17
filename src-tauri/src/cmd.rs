@@ -95,7 +95,7 @@ pub async fn get_dialect(
 }
 
 #[tauri::command]
-pub async fn show_tables(path: String) -> ArrowResponse {
+pub async fn show_tables(_path: String) -> ArrowResponse {
   unimplemented!()
 }
 

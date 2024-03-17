@@ -38,7 +38,7 @@ impl Connection for DuckDbDialect {
     self.query(&sql, 0, 0).await
   }
 
-  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
+  async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     api::query(&self.path, sql, 0, 0, self.cwd.clone())
   }
 

@@ -83,8 +83,8 @@ pub fn fetch_all(path: &str, sql: &str, cwd: Option<String>) -> anyhow::Result<R
 pub fn query(
   path: &str,
   sql: &str,
-  limit: usize,
-  offset: usize,
+  _limit: usize,
+  _offset: usize,
   cwd: Option<String>,
 ) -> anyhow::Result<RawArrowData> {
   if let Some(cwd) = &cwd {

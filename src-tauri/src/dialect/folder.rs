@@ -40,7 +40,7 @@ impl Connection for FolderDialect {
     }
   }
 
-  async fn show_column(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
+  async fn show_column(&self, _schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
     let path = Path::new(table);
 
     let ext = path.extension().unwrap_or_default();
@@ -67,7 +67,7 @@ impl Connection for FolderDialect {
     log::info!("show columns: {}", &sql);
     self.query(&sql, 0, 0).await
   }
-  async fn drop_table(&self, schema: Option<&str>, table: &str) -> anyhow::Result<String> {
+  async fn drop_table(&self, _schema: Option<&str>, table: &str) -> anyhow::Result<String> {
     let path = Path::new(table);
     if path.is_dir() {
       fs::remove_dir_all(path)?;
@@ -82,8 +82,8 @@ fn exist_glob(pattern: &str) -> bool {
   if let Ok(items) = glob(pattern) {
     for item in items {
       return match item {
-        Ok(path) => true,
-        Err(e) => false,
+        Ok(_path) => true,
+        Err(_e) => false,
       };
     }
   }
@@ -172,5 +172,5 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
 
 #[tokio::test]
 async fn test_table() {
-  let d = FolderDialect::new("");
+  let _d = FolderDialect::new("");
 }

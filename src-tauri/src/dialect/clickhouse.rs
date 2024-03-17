@@ -43,7 +43,7 @@ impl Connection for ClickhouseDialect {
     })
   }
 
-  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
+  async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     self.fetch_all(sql).await
   }
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
