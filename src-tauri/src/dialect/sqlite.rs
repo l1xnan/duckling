@@ -5,7 +5,6 @@ use arrow::array::*;
 use arrow::datatypes::*;
 use arrow::datatypes::{DataType, Field, Schema};
 use async_trait::async_trait;
-use futures_util::StreamExt;
 use rusqlite::types::Value;
 use rusqlite::Column;
 
@@ -22,13 +21,12 @@ pub struct SqliteDialect {
 #[async_trait]
 impl Connection for SqliteDialect {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
-    let url = self.get_url();
     let tables = self.get_tables().await?;
     let tree = build_tree(tables);
-    let children = if tree.len() > 0 {
-      &tree[0].children
-    } else {
+    let children = if tree.is_empty() {
       &None
+    } else {
+      &tree[0].children
     };
     Ok(TreeNode {
       name: get_file_name(&self.path),
@@ -44,31 +42,25 @@ impl Connection for SqliteDialect {
     self._query(sql, limit, offset).await
   }
 
-  async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
-    self._table_row_count(table, r#where).await
-  }
-
   async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
-    let sql = format!(
-      "
+    let sql = "
       SELECT * FROM sqlite_master
       WHERE type IN ('table', 'view') and name NOT IN ('sqlite_sequence', 'sqlite_stat1')
-      "
-    );
-    self.query(&sql, 0, 0).await
+      ";
+    self.query(sql, 0, 0).await
   }
 
   async fn show_column(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
     let sql = format!("select * from pragma_table_info('{table}')");
     self.query(&sql, 0, 0).await
   }
+
+  async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
+    self._table_row_count(table, r#where).await
+  }
 }
 
 impl SqliteDialect {
-  fn get_url(&self) -> String {
-    format!("{}", self.path)
-  }
-
   async fn get_schema(&self) -> Vec<Table> {
     unimplemented!()
   }
@@ -162,22 +154,7 @@ impl SqliteDialect {
         name: col.name().to_string(),
         r#type: col.decl_type().unwrap_or_default().to_string(),
       });
-      let typ = if let Some(decl_type) = col.decl_type() {
-        match decl_type {
-          "INTEGER" => DataType::Int64,
-          "REAL" => DataType::Float64,
-          "NUMERIC" => DataType::Utf8,
-          "BOOLEAN" => DataType::Boolean,
-          "DATE" => DataType::Utf8,
-          "DATETIME" => DataType::Utf8,
-          "TIME" => DataType::Utf8,
-          "BLOB" => DataType::Binary,
-          "NULL" => DataType::Null,
-          _ => DataType::Utf8,
-        }
-      } else {
-        DataType::Null
-      };
+      let typ = Self::arrow_type(&col);
       let field = Field::new(col.name(), typ, true);
       fields.push(field);
     }
@@ -217,11 +194,10 @@ impl SqliteDialect {
   #[allow(clippy::unused_async)]
   async fn get_tables(&self) -> anyhow::Result<Vec<Table>> {
     let conn = self.connect()?;
-    let sql = r#"
-    SELECT tbl_name, name, type
-    FROM sqlite_master
-    WHERE type IN ('table', 'view') and name NOT IN ('sqlite_sequence', 'sqlite_stat1')
-    "#;
+    let sql = "
+      SELECT tbl_name, name, type
+      FROM sqlite_master
+      WHERE type IN ('table', 'view') and name NOT IN ('sqlite_sequence', 'sqlite_stat1')";
     let mut stmt = conn.prepare(sql)?;
     let mut rows = stmt.query([])?;
     let mut tables: Vec<Table> = Vec::new();
