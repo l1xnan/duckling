@@ -78,15 +78,8 @@ export type DBType = {
   config?: DialectConfig;
 };
 
-type ContextMenuType = {
-  mouseX: number;
-  mouseY: number;
-  context: NodeContextType;
-} | null;
-
 type DBListState = {
   dbList: DBType[];
-  contextMenu: ContextMenuType;
 };
 
 type DBListAction = {
@@ -97,8 +90,6 @@ type DBListAction = {
   rename: (id: string, displayName: string) => void;
   setCwd: (cwd: string, id: string) => void;
   setDB: (config: DialectConfig, id: string) => void;
-
-  setContextMenu: (contextMenu: ContextMenuType) => void;
 };
 
 type DBListStore = DBListState & DBListAction;
@@ -122,11 +113,6 @@ export const useDBListStore = create<DBListStore>()(
     (set, _get) => ({
       // state
       dbList: [],
-
-      contextMenu: null,
-      setContextMenu: (contextMenu: ContextMenuType) => {
-        set(() => ({ contextMenu }));
-      },
 
       // action
       append: (db) => set((state) => ({ dbList: [...state.dbList, db] })),

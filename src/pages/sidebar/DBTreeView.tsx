@@ -102,6 +102,7 @@ export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
         id: `${db.id}:${nodeIds}`,
         dbId: db.id,
         displayName: node?.name as string,
+        type: 'table',
       };
 
       console.log('item', item);

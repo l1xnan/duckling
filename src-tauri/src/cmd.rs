@@ -29,6 +29,7 @@ pub struct DialectPayload {
   pub cwd: Option<String>,
 }
 
+#[allow(clippy::unused_async)]
 pub async fn get_dialect(
   DialectPayload {
     dialect,
@@ -161,34 +162,14 @@ pub async fn opened_urls(state: State<'_, OpenedUrls>) -> Result<String, String>
       .collect::<Vec<_>>()
       .join(", ")
   } else {
-    "".into()
+    String::new()
   };
   Ok(opened_urls)
 }
 
 #[tauri::command]
-pub async fn get_db(
-  dialect: &str,
-  path: Option<String>,
-  username: Option<String>,
-  password: Option<String>,
-  host: Option<String>,
-  port: Option<String>,
-  cwd: Option<String>,
-  database: Option<String>,
-) -> Result<TreeNode, String> {
-  let payload = DialectPayload {
-    dialect: dialect.to_string(),
-    path,
-    username,
-    password,
-    host,
-    port,
-    cwd,
-    database,
-  };
-
-  if let Some(d) = get_dialect(payload).await {
+pub async fn get_db(dialect: DialectPayload) -> Result<TreeNode, String> {
+  if let Some(d) = get_dialect(dialect).await {
     d.get_db().await.map_err(|e| e.to_string())
   } else {
     Err("not support dialect".to_string())

@@ -60,8 +60,7 @@ export type EditorContextType = {
   dbId: string;
   schema?: string;
   tableId?: string;
-  type?: string;
-  extra?: unknown;
+  type: string;
   displayName: string;
 };
 
@@ -70,7 +69,7 @@ export type TableContextType = {
   dbId: string;
   schema?: string;
   tableId: string;
-  type?: string;
+  type: string;
   extra?: unknown;
   tableName?: string;
   displayName: string;
@@ -81,7 +80,7 @@ export type SchemaContextType = {
   dbId: string;
   schema: string;
 
-  type?: string;
+  type: string;
   displayName: string;
 };
 
@@ -214,7 +213,6 @@ export function getParams(
     dbId,
     tableId,
   } = ctx;
-  console.log(ctx);
 
   const db = getDatabase(ctx?.dbId);
   if (!db && ctx.type != 'file') {
@@ -241,7 +239,6 @@ export function getParams(
   }
   const table = getTable(dbId, tableId);
 
-  console.log(ctx);
   let tableName = ctx.tableName ?? table?.path ?? tableId;
 
   if (dialect?.dialect == 'postgres') {

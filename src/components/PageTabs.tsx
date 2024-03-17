@@ -116,7 +116,7 @@ export function PageTabs({
                 <ContextMenu>
                   <ContextMenuTrigger className="w-full">
                     <div className="flex items-center justify-between">
-                      <Tooltip title={tab.displayName}>
+                      <Tooltip title={`${tab.type}: ${tab.displayName}`}>
                         <div className="max-w-52 truncate">
                           {tab.displayName}
                         </div>

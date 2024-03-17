@@ -102,7 +102,7 @@ export async function exportCsv(
 }
 
 export async function getDB(option: DialectConfig): Promise<DBType> {
-  const tree: TreeNode = await invoke('get_db', option);
+  const tree: TreeNode = await invoke('get_db', { dialect: option });
   console.log('tree:', tree);
   return {
     id: nanoid(),
