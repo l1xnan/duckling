@@ -64,7 +64,9 @@ impl Connection for MySqlDialect {
     } else {
       ("", table)
     };
-    let sql = format!("select * from information_schema.columns where table_schema='{db}' and table_name='{tbl}'");
+    let sql = format!(
+      "select * from information_schema.columns where table_schema='{db}' and table_name='{tbl}'"
+    );
     log::info!("show columns: {}", &sql);
     self.query(&sql, 0, 0).await
   }
@@ -206,7 +208,7 @@ impl MySqlDialect {
     let schema = Schema::new(fields);
     let batch = RecordBatch::try_new(Arc::new(schema), arrs)?;
     Ok(RawArrowData {
-      total_count: batch.num_rows(),
+      total: batch.num_rows(),
       batch,
       titles: Some(titles.clone()),
     })

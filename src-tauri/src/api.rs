@@ -20,7 +20,7 @@ pub struct ArrowData {
 
 pub struct RawArrowData {
   /// The total number of rows that were selected.
-  pub total_count: usize,
+  pub total: usize,
   pub batch: RecordBatch,
   pub titles: Option<Vec<Title>>,
 }
@@ -42,7 +42,7 @@ pub fn convert(res: anyhow::Result<RawArrowData>) -> ArrowResponse {
   match res {
     Ok(raw) => match serialize_preview(&raw.batch) {
       Ok(data) => ArrowResponse {
-        total: raw.total_count,
+        total: raw.total,
         data,
         titles: raw.titles,
         code: 0,
@@ -134,7 +134,7 @@ pub fn query(
   let total = batch.num_rows();
 
   Ok(RawArrowData {
-    total_count: total,
+    total,
     batch,
     titles: None,
   })

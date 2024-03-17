@@ -182,7 +182,7 @@ impl PostgresDialect {
     let batch = decoder.flush()?.unwrap();
 
     Ok(RawArrowData {
-      total_count: batch.num_rows(),
+      total: batch.num_rows(),
       batch,
       titles: Some(titles),
     })

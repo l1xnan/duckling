@@ -27,7 +27,7 @@ pub fn count_stmt(dialect: &dyn Dialect, stmt: &Statement) -> Option<String> {
         tmp.with = None;
 
         let count_sql = count_sql(&tmp.to_string());
-        let mut stmt: &mut Statement = &mut Parser::parse_sql(dialect, &count_sql).unwrap()[0];
+        let stmt: &mut Statement = &mut Parser::parse_sql(dialect, &count_sql).unwrap()[0];
 
         if let Statement::Query(ref mut tmp) = stmt {
           tmp.with = Some(with.clone());
@@ -57,7 +57,7 @@ pub fn limit_stmt(
         tmp.with = None;
 
         let count_sql = limit_sql(&tmp.to_string(), limit, offset);
-        let mut stmt: &mut Statement = &mut Parser::parse_sql(dialect, &count_sql).unwrap()[0];
+        let stmt: &mut Statement = &mut Parser::parse_sql(dialect, &count_sql).unwrap()[0];
 
         if let Statement::Query(ref mut tmp) = stmt {
           tmp.with = Some(with.clone());

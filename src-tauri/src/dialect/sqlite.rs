@@ -117,7 +117,7 @@ impl SqliteDialect {
     let batch = arrow::compute::concat_batches(&Arc::new(schema), &batchs)?;
 
     Ok(RawArrowData {
-      total_count: batch.num_rows(),
+      total: batch.num_rows(),
       batch,
       titles: Some(titles),
     })

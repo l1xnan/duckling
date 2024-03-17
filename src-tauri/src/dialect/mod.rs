@@ -76,16 +76,13 @@ pub trait Connection: Sync + Send {
   ) -> anyhow::Result<RawArrowData> {
     let mut sql = sql.to_string();
     let dialect = sqlparser::dialect::GenericDialect {};
-    let stmt = Parser::parse_sql(&dialect, &sql)
-      .ok()
-      .map(|t| {
-        if t.len() == 1 {
-          Some(t[0].clone())
-        } else {
-          None
-        }
-      })
-      .flatten();
+    let stmt = Parser::parse_sql(&dialect, &sql).ok().and_then(|t| {
+      if t.len() == 1 {
+        Some(t[0].clone())
+      } else {
+        None
+      }
+    });
 
     if let Some(ref _stmt) = stmt {
       sql = ast::limit_stmt(&dialect, _stmt, limit, offset).unwrap_or(sql);
@@ -96,7 +93,7 @@ pub trait Connection: Sync + Send {
     if let Some(ref _stmt) = stmt {
       if let Some(count_sql) = ast::count_stmt(&dialect, _stmt) {
         if let Ok(count) = self._sql_row_count(&count_sql).await {
-          res.total_count = count
+          res.total = count;
         };
       }
     }
@@ -131,10 +128,7 @@ pub trait Connection: Sync + Send {
       .await
       .unwrap_or_default();
 
-    res.map(|r| RawArrowData {
-      total_count: total,
-      ..r
-    })
+    res.map(|r| RawArrowData { total, ..r })
   }
 
   async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
@@ -204,7 +198,7 @@ pub async fn _paging_query(
   if let Some(ref _stmt) = stmt {
     if let Some(count_sql) = ast::count_stmt(dialect, _stmt) {
       if let Ok(count) = d._sql_row_count(&count_sql).await {
-        res.total_count = count
+        res.total = count;
       };
     }
   }

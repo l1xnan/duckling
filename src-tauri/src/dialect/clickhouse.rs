@@ -125,7 +125,7 @@ impl ClickhouseDialect {
     let sql = self._table_count_sql(table, r#where);
     let block = conn.query(&sql).fetch_all().await?;
 
-    for row in block.rows() {
+    if let Some(row) = block.rows().next() {
       let total = row.get::<u64, _>(0)?;
       return Ok(total.as_usize());
     }
@@ -178,7 +178,7 @@ impl ClickhouseDialect {
     let schema = b.schema();
     let batch = arrow::compute::concat_batches(&schema, &batchs)?;
     Ok(RawArrowData {
-      total_count: batch.num_rows(),
+      total: batch.num_rows(),
       batch,
       titles: Some(titles),
     })
@@ -199,13 +199,13 @@ impl ClickhouseDialect {
 
     let mut offset = offset;
     let mut row_count = 0;
-    let mut total_count = 0;
+    let mut total = 0;
 
     let mut titles = vec![];
     while let Some(block) = stream.next().await {
       let block = block?;
 
-      if total_count == 0 {
+      if total == 0 {
         titles = block
           .columns()
           .iter()
@@ -217,7 +217,7 @@ impl ClickhouseDialect {
       }
 
       let count = block.row_count();
-      total_count += count;
+      total += count;
       if (offset as i64 - count as i64) >= 0 {
         offset -= count;
         continue;
@@ -237,7 +237,7 @@ impl ClickhouseDialect {
     let batch = batch.slice(offset, std::cmp::min(limit, total - offset));
 
     Ok(RawArrowData {
-      total_count,
+      total,
       batch,
       titles: Some(titles),
     })
