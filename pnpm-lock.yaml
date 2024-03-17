@@ -104,6 +104,9 @@ dependencies:
   '@tauri-apps/plugin-shell':
     specifier: 2.0.0-beta.2
     version: 2.0.0-beta.2
+  '@tauri-apps/plugin-store':
+    specifier: 2.0.0-beta.2
+    version: 2.0.0-beta.2
   '@tauri-apps/plugin-updater':
     specifier: 2.0.0-beta.2
     version: 2.0.0-beta.2
@@ -182,6 +185,9 @@ dependencies:
   react-hook-form:
     specifier: ^7.51.0
     version: 7.51.0(react@18.2.0)
+  react-resizable-panels:
+    specifier: ^2.0.13
+    version: 2.0.13(react-dom@18.2.0)(react@18.2.0)
   react-router-dom:
     specifier: ^6.22.0
     version: 6.22.0(react-dom@18.2.0)(react@18.2.0)
@@ -3339,6 +3345,12 @@ packages:
       '@tauri-apps/api': 2.0.0-beta.4
     dev: false
 
+  /@tauri-apps/plugin-store@2.0.0-beta.2:
+    resolution: {integrity: sha512-9TdMLLYEPqRSABRX3GtwFNWiulfW+SUHdi+5dVgdk73B8PtGf457gdtwvgrP/O2k9Vt/ET2X6Nurimx1185AzA==}
+    dependencies:
+      '@tauri-apps/api': 2.0.0-beta.4
+    dev: false
+
   /@tauri-apps/plugin-updater@2.0.0-beta.2:
     resolution: {integrity: sha512-T8EkAXawbyV/6/Lcf1VVIWhtGuals63zKn+udYNqlC8CRM5iYQ+8bM8Nmy2E+pIzkkx93d1t6/8geFitLZPmKw==}
     dependencies:
@@ -6341,6 +6353,16 @@ packages:
 
   /react-resizable-panels@0.0.54(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-f8hHdQrqvXoiZGdRNuoOi/C2cdYT2nEpaOb1KIWVWorSTPZmnE+ZQiamGeu+AMx3iZ/tqBtlAkBOpKXzTnDCoA==}
+    peerDependencies:
+      react: ^16.14.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.14.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /react-resizable-panels@2.0.13(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-DZxLv5Pc6rfuqkgQ+2JW3eLPiX3BgAAR38Cd0lXuCVHXEZLrD+3W4Nag5TqCoNgEM/4IUU9L/pLM2toOUOd6UQ==}
     peerDependencies:
       react: ^16.14.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.14.0 || ^17.0.0 || ^18.0.0

@@ -1,5 +1,5 @@
 .sideBar {
-  height: 100vh;
+  height: 100%;
   left: 0;
   top: 0;
   position: absolute;
@@ -12,7 +12,7 @@
   z-index: 99;
   position: absolute;
   right: 0;
-  height: 100vh;
+  height: 100%;
 }
 
 .controls:hover,
@@ -40,8 +40,6 @@
   height: 4px;
   cursor: ns-resize;
 }
-
-
 
 
 .controlsH {
