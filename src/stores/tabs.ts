@@ -14,6 +14,7 @@ import {
   ResultType,
   TitleType,
   exportCsv,
+  pagingQuery,
   query,
   queryTable,
 } from '@/api';
@@ -35,6 +36,8 @@ export type QueryParamType = {
   page: number;
   perPage: number;
 
+  hasLimit?: boolean;
+
   sqlWhere?: string;
   sqlOrderBy?: string;
 };
@@ -44,14 +47,16 @@ export type QueryContextType = QueryParamType & {
   extra?: unknown;
   displayName: string;
 
-  totalCount: number;
+  total: number;
 
   data?: unknown[];
+  sql?: string;
   titles?: TitleType[];
   tableSchema?: SchemaType[];
   message?: string;
   beautify?: boolean;
   transpose?: boolean;
+  hasLimit?: boolean;
 
   target?: 'export';
 };
@@ -297,7 +302,9 @@ export async function executeSQL(
   if (!param) {
     return;
   }
-  const data = await query(param as QueryParams);
+
+  const func = ctx.hasLimit ? pagingQuery : query;
+  const data = await func(param as QueryParams);
 
   console.log('data:', data);
   if (data?.code == 401 && data?.message) {

@@ -57,9 +57,9 @@ impl Connection for FolderDialect {
       }
 
       tmp.join("\n union all \n")
-    } else if (ext == "parquet") {
+    } else if ext == "parquet" {
       format!("DESCRIBE select * from read_parquet('{table}')")
-    } else if (ext == "csv") {
+    } else if ext == "csv" {
       format!("DESCRIBE select * from read_csv('{table}', union_by_name=true)")
     } else {
       String::new()

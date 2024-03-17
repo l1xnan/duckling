@@ -4,7 +4,7 @@ import * as dialog from '@tauri-apps/plugin-dialog';
 import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 
-import { ArrowDownToLineIcon, RefreshCwIcon } from 'lucide-react';
+import { ArrowDownToLineIcon, CodeIcon, RefreshCwIcon } from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -13,6 +13,11 @@ import { Stack, ToolbarContainer } from '@/components/Toolbar';
 import { Pagination } from '@/components/custom/pagination';
 import { AgTable } from '@/components/tables/AgTable';
 import { CanvasTable } from '@/components/tables/CanvasTable';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card.tsx';
 import { Separator } from '@/components/ui/separator';
 import { Loading } from '@/components/views/TableView';
 import { atomStore } from '@/stores';
@@ -60,6 +65,7 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
   const tableRender = useAtomValue(tableRenderAtom);
 
   const TableComponent = tableRender === 'canvas' ? CanvasTable : AgTable;
+  console.log('====', ctx);
   return (
     <div className="h-full flex flex-col">
       <PageSizeToolbar
@@ -97,11 +103,12 @@ function PageSizeToolbar({ query, ctx, exportData }: PageSizeToolbarProps) {
   const setTranspose = useSetAtom(focusAtom(ctx, (o) => o.prop('transpose')));
 
   const context = useAtomValue(ctx);
-  const { page, perPage, totalCount, data } = context;
+  const { page, perPage, total, data } = context;
 
   const handleBeautify = () => {
     setBeautify((prev) => !prev);
   };
+
   const handleRefresh = async () => {
     await query(context);
   };
@@ -132,19 +139,34 @@ function PageSizeToolbar({ query, ctx, exportData }: PageSizeToolbarProps) {
         <Pagination
           current={page}
           count={count}
-          total={totalCount}
+          total={total}
           pageSize={perPage}
           onChange={handeChange}
         />
         <IconButton color="inherit" onClick={handleBeautify}>
           <TablerSvgIcon icon={<IconDecimal />} />
         </IconButton>
+
         <Separator orientation="vertical" />
         <IconButton color="inherit" onClick={handleRefresh}>
           <RefreshCwIcon size={16} />
         </IconButton>
       </Stack>
       <Stack>
+        <HoverCard>
+          <HoverCardTrigger>
+            <IconButton
+              disabled={!context.sql}
+              color="inherit"
+              onClick={() => {}}
+            >
+              <CodeIcon size={16} />
+            </IconButton>
+          </HoverCardTrigger>
+          <HoverCardContent className="font-mono">
+            {context.sql}
+          </HoverCardContent>
+        </HoverCard>
         <IconButton color="inherit" onClick={handleExport}>
           <ArrowDownToLineIcon size={16} />
         </IconButton>

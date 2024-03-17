@@ -74,7 +74,7 @@ impl Connection for ClickhouseDialect {
 impl ClickhouseDialect {
   pub(crate) fn get_url(&self) -> String {
     format!(
-      "tcp://{}:{}@{}:{}/{}?compression=lz4&ping_timeout=42ms",
+      "tcp://{}:{}@{}:{}/{}?compression=lz4",
       self.username,
       self.password,
       self.host,
@@ -93,11 +93,11 @@ impl ClickhouseDialect {
     vec![]
   }
   async fn get_tables(&self) -> anyhow::Result<Vec<Table>> {
-    let sql = r#"
-    select database as db_name, name as table_name, engine as table_type,
-      if(engine='View', 'view', 'table') as type, total_bytes, comment
-    from system.tables order by database, table_type
-    "#;
+    let sql = "
+      select database as db_name, name as table_name, engine as table_type,
+        if(engine='View', 'view', 'table') as type, total_bytes, comment
+      from system.tables order by database, table_type
+      ";
     let mut client = self.client().await?;
     let block = client.query(sql).fetch_all().await?;
     let mut tables = Vec::new();
@@ -131,6 +131,7 @@ impl ClickhouseDialect {
     }
     Err(anyhow::anyhow!("null"))
   }
+
   async fn export(&self, sql: &str, file: &str) -> anyhow::Result<()> {
     let mut client = self.client().await?;
     let mut stream = client.query(sql).stream_blocks();

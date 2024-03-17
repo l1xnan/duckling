@@ -85,6 +85,12 @@ export async function query(params: QueryParams): Promise<ResultType> {
   return convert(res);
 }
 
+export async function pagingQuery(params: QueryParams): Promise<ResultType> {
+  console.debug('query sql params:', params);
+  const res = await invoke<ArrowResponse>('paging_query', params);
+  return convert(res);
+}
+
 export async function queryTable(
   params: QueryTableParams,
 ): Promise<ResultType> {

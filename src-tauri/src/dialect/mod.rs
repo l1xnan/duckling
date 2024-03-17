@@ -60,6 +60,10 @@ pub trait Connection: Sync + Send {
   async fn query(&self, _sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     unimplemented!()
   }
+
+  async fn query_count(&self, _sql: &str) -> anyhow::Result<usize> {
+    unimplemented!()
+  }
   async fn query_all(&self, _sql: &str) -> anyhow::Result<RawArrowData> {
     unimplemented!()
   }
@@ -87,12 +91,13 @@ pub trait Connection: Sync + Send {
     if let Some(ref _stmt) = stmt {
       sql = ast::limit_stmt(&dialect, _stmt, limit, offset).unwrap_or(sql);
     }
-    let mut res = self.query_all(&sql).await?;
+    let mut res = self.query(&sql, 0, 0).await?;
 
     // get total row count
     if let Some(ref _stmt) = stmt {
       if let Some(count_sql) = ast::count_stmt(&dialect, _stmt) {
-        if let Ok(count) = self._sql_row_count(&count_sql).await {
+        log::info!("count_sql: {count_sql}");
+        if let Ok(count) = self.query_count(&count_sql).await {
           res.total = count;
         };
       }
@@ -154,6 +159,7 @@ pub trait Connection: Sync + Send {
     }
     sql
   }
+
   fn _table_query_sql(&self, table: &str, where_: &str, order_by: &str) -> String {
     let mut sql = format!("select * from {table}");
     if !where_.trim().is_empty() {

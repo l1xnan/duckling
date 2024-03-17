@@ -2,7 +2,7 @@ import { OnChange } from '@monaco-editor/react';
 import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { nanoid } from 'nanoid';
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import { schemaMapAtom } from '@/stores/dbList';
 import {
@@ -47,6 +47,7 @@ export default function Editor({
 
   const subTabsAtom = focusAtom(tabAtom, (o) => o.prop('children'));
   const setSubTabs = useSetAtom(subTabsAtom);
+  const [hasLimit, setHasLimit] = useState(true);
 
   const stmt = docs[id] ?? '';
 
@@ -93,6 +94,7 @@ export default function Editor({
         tableId: tabContext.tableId,
         type: 'query',
         stmt,
+        hasLimit,
         displayName: `Result${(tab?.children?.length ?? 0) + 1}`,
         id,
       });
@@ -102,7 +104,7 @@ export default function Editor({
       setSubTabs((tabs) =>
         (tabs ?? []).map((item) =>
           item.id == tab.activeKey
-            ? { ...item, stmt, id, page: 1, perPage: 500 }
+            ? { ...item, stmt, id, page: 1, perPage: 500, hasLimit }
             : item,
         ),
       );
@@ -112,7 +114,12 @@ export default function Editor({
 
   return (
     <>
-      <EditorToolbar onClick={handleClick} session={db?.displayName} />
+      <EditorToolbar
+        onClick={handleClick}
+        session={db?.displayName}
+        onHasLimit={setHasLimit}
+        hasLimit={hasLimit}
+      />
       <VerticalContainer bottom={tab.children.length > 0 ? 300 : undefined}>
         <div className="h-full flex flex-col border-b-[1px]">
           <MonacoEditor

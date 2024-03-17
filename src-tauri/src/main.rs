@@ -116,6 +116,7 @@ fn main() {
     })
     .invoke_handler(tauri::generate_handler![
       cmd::query,
+      cmd::paging_query,
       cmd::query_table,
       cmd::opened_urls,
       cmd::get_db,

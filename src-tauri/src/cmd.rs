@@ -104,6 +104,21 @@ pub async fn query(
 }
 
 #[tauri::command]
+pub async fn paging_query(
+  sql: String,
+  limit: usize,
+  offset: usize,
+  dialect: DialectPayload,
+) -> Result<ArrowResponse, String> {
+  if let Some(d) = get_dialect(dialect).await {
+    let res = d.paging_query(&sql, Some(limit), Some(offset)).await;
+    Ok(api::convert(res))
+  } else {
+    Err("not support dialect".to_string())
+  }
+}
+
+#[tauri::command]
 pub async fn query_table(
   table: &str,
   limit: usize,

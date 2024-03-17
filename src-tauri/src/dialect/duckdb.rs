@@ -146,9 +146,6 @@ async fn test_duckdb() {
 
   let path = r"D:\Code\yibai-season\data\season.duckdb";
   let d = DuckDbDialect::new(path);
-  let res = d
-    .drop_table(None, "main.yb_ama_sku_seasonal_strength0")
-    .await
-    .unwrap();
+  let res = d.query("", 0, 0).await.unwrap();
   print_batches(&[res.batch]);
 }

@@ -14,13 +14,18 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { useDBListStore } from '@/stores/dbList';
+import { FlaskConical, FlaskConicalOffIcon } from 'lucide-react';
 
 export function EditorToolbar({
   onClick,
   session,
+  onHasLimit,
+  hasLimit,
 }: {
   onClick: (action?: string) => void;
+  onHasLimit: (limit: boolean) => void;
   session?: string;
+  hasLimit?: boolean;
 }) {
   return (
     <ToolbarContainer>
@@ -43,6 +48,18 @@ export function EditorToolbar({
             onClick={() => onClick('new')}
           >
             <PlaylistAddIcon fontSize="inherit" />
+          </IconButton>
+          <IconButton
+            color="inherit"
+            onClick={() => {
+              onHasLimit(!hasLimit);
+            }}
+          >
+            {hasLimit ? (
+              <FlaskConical className="h-3.5 w-3.5" />
+            ) : (
+              <FlaskConicalOffIcon className="h-3.5 w-3.5" />
+            )}
           </IconButton>
         </Stack>
         <Stack>
