@@ -70,6 +70,16 @@ impl Connection for MySqlDialect {
     log::info!("show columns: {}", &sql);
     self.query(&sql, 0, 0).await
   }
+
+  #[allow(clippy::unused_async)]
+  async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
+    let mut conn = self.get_conn()?;
+    if let Some(total) = conn.query_first::<usize, _>(sql)? {
+      Ok(total)
+    } else {
+      Err(anyhow::anyhow!("null"))
+    }
+  }
 }
 
 impl MySqlDialect {

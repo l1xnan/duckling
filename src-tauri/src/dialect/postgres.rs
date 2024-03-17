@@ -72,6 +72,13 @@ impl Connection for PostgresDialect {
     log::info!("show columns: {}", &sql);
     self.query(&sql, 0, 0).await
   }
+
+  async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
+    let conn = self.get_conn(&self.database()).await?;
+    let row = conn.query_one(sql, &[]).await?;
+    let total: u32 = row.get(0);
+    Ok(total as usize)
+  }
 }
 
 impl PostgresDialect {
@@ -109,15 +116,15 @@ impl PostgresDialect {
   pub async fn get_tables(&self, db: &str) -> anyhow::Result<Vec<Table>> {
     let client = self.get_conn(db).await?;
 
-    let sql = r#"
-    select
-      table_catalog as db_name,
-      table_schema as table_schema,
-      table_name as table_name,
-      table_type as table_type,
-      CASE WHEN table_type='BASE TABLE' THEN 'table' ELSE 'view' END as type
-    from information_schema.tables WHERE table_schema='public'
-    "#;
+    let sql = "
+      select
+        table_catalog as db_name,
+        table_schema as table_schema,
+        table_name as table_name,
+        table_type as table_type,
+        CASE WHEN table_type='BASE TABLE' THEN 'table' ELSE 'view' END as type
+      from information_schema.tables WHERE table_schema='public'
+      ";
     let mut tables = vec![];
     for row in client.query(sql, &[]).await? {
       tables.push(Table {

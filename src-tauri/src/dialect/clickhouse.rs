@@ -69,6 +69,18 @@ impl Connection for ClickhouseDialect {
     log::info!("show columns: {}", &sql);
     self.query(&sql, 0, 0).await
   }
+
+  #[allow(clippy::unused_async)]
+  async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
+    let mut client = self.client().await?;
+    let block = client.query(sql).fetch_all().await?;
+    if let Some(row) = block.rows().next() {
+      let total = row.get::<u32, _>(0)?;
+      Ok(total as usize)
+    } else {
+      Err(anyhow::anyhow!("null"))
+    }
+  }
 }
 
 impl ClickhouseDialect {
