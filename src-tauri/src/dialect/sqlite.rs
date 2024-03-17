@@ -9,7 +9,6 @@ use rusqlite::types::Value;
 use rusqlite::Column;
 
 use crate::api::RawArrowData;
-use crate::api::{serialize_preview, ArrowData};
 use crate::dialect::{Connection, Title, TreeNode};
 use crate::utils::{build_tree, get_file_name, Table};
 
@@ -112,6 +111,7 @@ impl SqliteDialect {
       total: batch.num_rows(),
       batch,
       titles: Some(titles),
+      sql: Some(sql.to_string()),
     })
   }
 
@@ -141,54 +141,6 @@ impl SqliteDialect {
     let sql = self._table_count_sql(table, cond);
     let total = conn.query_row(&sql, [], |row| row.get::<_, usize>(0))?;
     Ok(total)
-  }
-  fn fetch_all(&self, sql: &str) -> anyhow::Result<ArrowData> {
-    let conn = self.connect()?;
-    let mut stmt = conn.prepare(sql)?;
-
-    let mut fields = vec![];
-    let k = stmt.column_count();
-    let mut titles = vec![];
-    for col in stmt.columns() {
-      titles.push(Title {
-        name: col.name().to_string(),
-        r#type: col.decl_type().unwrap_or_default().to_string(),
-      });
-      let typ = Self::arrow_type(&col);
-      let field = Field::new(col.name(), typ, true);
-      fields.push(field);
-    }
-    let schema = Schema::new(fields);
-
-    let mut rows = stmt.query([])?;
-    let mut tables: Vec<Vec<Value>> = (0..k).map(|_| vec![]).collect();
-    while let Some(row) = rows.next()? {
-      for i in 0..k {
-        let val = row.get::<_, Value>(i).unwrap();
-        tables[i].push(val);
-      }
-    }
-
-    let mut arrs = vec![];
-    for (col, title) in tables.iter().zip(titles) {
-      let arr: ArrayRef = match title.r#type.as_str() {
-        "INTEGER" => Arc::new(Int64Array::from(convert_to_i64s(col))),
-        "REAL" => Arc::new(Float64Array::from(convert_to_f64s(col))),
-        "NUMERIC" => Arc::new(StringArray::from(convert_to_strings(col))),
-        "DATE" | "DATETIME" => Arc::new(StringArray::from(convert_to_strings(col))),
-        "TIME" => Arc::new(StringArray::from(convert_to_strings(col))),
-        "BOOLEAN" => Arc::new(StringArray::from(convert_to_strings(col))),
-        _ => Arc::new(StringArray::from(convert_to_strings(col))),
-      };
-      arrs.push(arr);
-    }
-    let batch = RecordBatch::try_new(Arc::new(schema), arrs)?;
-
-    Ok(ArrowData {
-      total_count: batch.num_rows(),
-      preview: serialize_preview(&batch)?,
-      titles: None,
-    })
   }
 
   #[allow(clippy::unused_async)]

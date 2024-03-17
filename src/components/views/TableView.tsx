@@ -15,6 +15,11 @@ import { precisionAtom, tableRenderAtom } from '@/stores/setting';
 import { TabContextType, activeTabAtom } from '@/stores/tabs';
 
 import { Pagination } from '@/components/custom/pagination.tsx';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
 import { usePageStore } from '@/hooks/context';
 import { TablerSvgIcon } from '../MuiIconButton';
 
@@ -77,6 +82,7 @@ function PageSizeToolbar() {
     page,
     perPage,
     total,
+    sql,
 
     refresh,
     setBeautify,
@@ -116,9 +122,16 @@ function PageSizeToolbar() {
           <PivotTableChartIcon fontSize="small" />
         </IconButton>
         {/* TODO */}
-        <IconButton disabled color="inherit" onClick={() => {}}>
-          <CodeIcon size={16} />
-        </IconButton>
+
+        <HoverCard>
+          <HoverCardTrigger>
+            <IconButton disabled={!sql} color="inherit" onClick={() => {}}>
+              <CodeIcon size={16} />
+            </IconButton>
+          </HoverCardTrigger>
+          <HoverCardContent className="font-mono">{sql}</HoverCardContent>
+        </HoverCard>
+
         <IconButton disabled color="inherit" onClick={() => {}}>
           <DownloadIcon size={16} />
         </IconButton>
@@ -169,5 +182,3 @@ export function InputToolbar() {
     </div>
   );
 }
-
-export default TableView;

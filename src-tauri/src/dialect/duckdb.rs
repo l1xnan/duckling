@@ -30,10 +30,9 @@ impl Connection for DuckDbDialect {
     let sql = format!(
       "
     select * from information_schema.tables
-    where table_schema='{}'
+    where table_schema='{schema}'
     order by table_type, table_name
-    ",
-      schema
+    "
     );
 
     self.query(&sql, 0, 0).await

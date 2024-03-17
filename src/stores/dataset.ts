@@ -21,6 +21,7 @@ export interface ArrowResponse {
   total: number;
   data: Array<number>;
   titles?: TitleType[];
+  sql?: string;
   code: number;
   message: string;
 }
@@ -37,6 +38,7 @@ export type DatasetState = {
 
   data: unknown[];
   tableSchema: SchemaType[];
+  sql?: string;
 
   tableName?: string;
   code?: number;

@@ -185,6 +185,7 @@ impl PostgresDialect {
       total: batch.num_rows(),
       batch,
       titles: Some(titles),
+      sql: Some(sql.to_string()),
     })
   }
 

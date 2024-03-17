@@ -181,6 +181,7 @@ impl ClickhouseDialect {
       total: batch.num_rows(),
       batch,
       titles: Some(titles),
+      sql: Some(sql.to_string()),
     })
   }
 
@@ -240,6 +241,7 @@ impl ClickhouseDialect {
       total,
       batch,
       titles: Some(titles),
+      sql: Some(sql.to_string()),
     })
   }
 }

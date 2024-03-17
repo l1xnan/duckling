@@ -4,25 +4,15 @@ use anyhow::anyhow;
 use arrow::{ipc::writer::StreamWriter, record_batch::RecordBatch};
 use duckdb::Connection;
 use serde::{Deserialize, Serialize};
-use tokio_postgres::types::IsNull::No;
 
 use crate::dialect::Title;
-
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct ArrowData {
-  /// The total number of rows that were selected.
-  pub total_count: usize,
-  /// A preview of the first N records, serialized as an Apache Arrow array
-  /// using their IPC format.
-  pub preview: Vec<u8>,
-  pub titles: Option<Vec<Title>>,
-}
 
 pub struct RawArrowData {
   /// The total number of rows that were selected.
   pub total: usize,
   pub batch: RecordBatch,
   pub titles: Option<Vec<Title>>,
+  pub sql: Option<String>,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
@@ -33,6 +23,7 @@ pub struct ArrowResponse {
   /// using their IPC format.
   pub data: Vec<u8>,
   pub titles: Option<Vec<Title>>,
+  pub sql: Option<String>,
 
   pub code: i32,
   pub message: String,
@@ -43,27 +34,23 @@ pub fn convert(res: anyhow::Result<RawArrowData>) -> ArrowResponse {
     Ok(raw) => match serialize_preview(&raw.batch) {
       Ok(data) => ArrowResponse {
         total: raw.total,
+        sql: raw.sql,
         data,
         titles: raw.titles,
-        code: 0,
-        message: String::new(),
+        ..ArrowResponse::default()
       },
       Err(err) => ArrowResponse {
-        total: 0,
-        data: vec![],
-        titles: None,
         code: 401,
         message: err.to_string(),
+        ..ArrowResponse::default()
       },
     },
     Err(err) => {
       log::error!("error:{}", err);
       ArrowResponse {
-        total: 0,
-        data: vec![],
-        titles: None,
         code: 401,
         message: err.to_string(),
+        ..ArrowResponse::default()
       }
     }
   }
@@ -137,5 +124,6 @@ pub fn query(
     total,
     batch,
     titles: None,
+    sql: Some(sql.to_string()),
   })
 }

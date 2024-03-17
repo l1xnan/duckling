@@ -17,6 +17,7 @@ export type ResultType<T = unknown> = {
   data: T[];
   tableSchema: SchemaType[];
   code: number;
+  sql?: string;
   message: string;
 };
 
@@ -43,12 +44,13 @@ export function convertArrow(arrowData: Array<number>, titles?: TitleType[]) {
 }
 
 function convert(res: ArrowResponse): ResultType {
-  const { data, titles, total, code, message } = res;
+  const { data, titles, sql, total, code, message } = res;
   if (code === 0) {
     return {
       ...convertArrow(data, titles),
       total: total ?? data.length,
       code,
+      sql,
       message,
     };
   }

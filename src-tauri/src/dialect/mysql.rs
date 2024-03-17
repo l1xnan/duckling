@@ -211,6 +211,7 @@ impl MySqlDialect {
       total: batch.num_rows(),
       batch,
       titles: Some(titles.clone()),
+      sql: Some(sql.to_string()),
     })
   }
 
