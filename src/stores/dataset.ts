@@ -33,12 +33,14 @@ export type DatasetState = {
   perPage: number;
   total: number;
 
+  loading?: boolean;
+
   data: unknown[];
+  tableSchema: SchemaType[];
 
   tableName?: string;
   code?: number;
   message?: string;
-  tableSchema: SchemaType[];
   titles?: TitleType[];
   orderBy?: OrderByType;
   sqlOrderBy?: string;
@@ -82,6 +84,7 @@ export const createDatasetStore = (context: TabContextType) =>
     total: 0,
     tableSchema: [],
     data: [],
+    loading: false,
     titles: [],
     sqlWhere: undefined,
     sqlOrderBy: undefined,
@@ -127,10 +130,15 @@ export const createDatasetStore = (context: TabContextType) =>
         sqlWhere,
         sqlOrderBy,
       };
-      const data = await execute(ctx);
-
-      set({ ...data });
-
-      return data;
+      set({ loading: true });
+      try {
+        const data = await execute(ctx);
+        set({ ...data, loading: false });
+        return data;
+      } catch (e) {
+        /* empty */
+      } finally {
+        set({ loading: false });
+      }
     },
   }));

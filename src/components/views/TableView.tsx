@@ -30,21 +30,17 @@ export const Loading = ({ className }: { className?: string }) => {
 };
 
 export function TableView({ context }: { context: TabContextType }) {
-  const { refresh, data, tableSchema, beautify, orderBy, transpose } =
+  const { refresh, loading, data, tableSchema, beautify, orderBy, transpose } =
     usePageStore();
   const currentTab = useAtomValue(activeTabAtom);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (currentTab?.id == context.id) {
       (async () => {
         try {
-          setLoading(true);
           await refresh();
         } catch (error) {
           toast.error((error as Error).message);
-        } finally {
-          setLoading(false);
         }
       })();
     }

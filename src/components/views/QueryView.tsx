@@ -20,11 +20,9 @@ import { precisionAtom, tableRenderAtom } from '@/stores/setting';
 import { QueryContextType, executeSQL, exportData } from '@/stores/tabs';
 import PivotTableChartIcon from '@mui/icons-material/PivotTableChart';
 
-export function QueryView({
-  context,
-}: {
-  context: PrimitiveAtom<QueryContextType>;
-}) {
+type QueryContextAtom = PrimitiveAtom<QueryContextType>;
+
+export function QueryView({ context }: { context: QueryContextAtom }) {
   const [ctx, setContext] = useAtom(context);
   const [loading, setLoading] = useState(false);
 
@@ -89,22 +87,17 @@ export function QueryView({
 interface PageSizeToolbarProps {
   query: (ctx?: QueryContextType) => Promise<void>;
   exportData: (file: string) => Promise<void>;
-  ctx: PrimitiveAtom<QueryContextType>;
+  ctx: QueryContextAtom;
 }
 
 function PageSizeToolbar({ query, ctx, exportData }: PageSizeToolbarProps) {
+  const setPage = useSetAtom(focusAtom(ctx, (o) => o.prop('page')));
+  const setPerPage = useSetAtom(focusAtom(ctx, (o) => o.prop('perPage')));
+  const setBeautify = useSetAtom(focusAtom(ctx, (o) => o.prop('beautify')));
+  const setTranspose = useSetAtom(focusAtom(ctx, (o) => o.prop('transpose')));
+
   const context = useAtomValue(ctx);
-
   const { page, perPage, totalCount, data } = context;
-
-  const pageAtom = focusAtom(ctx, (o) => o.prop('page'));
-  const perPageAtom = focusAtom(ctx, (o) => o.prop('perPage'));
-  const beautifyAtom = focusAtom(ctx, (o) => o.prop('beautify'));
-  const transposeAtom = focusAtom(ctx, (o) => o.prop('transpose'));
-  const setPage = useSetAtom(pageAtom);
-  const setPerPage = useSetAtom(perPageAtom);
-  const setBeautify = useSetAtom(beautifyAtom);
-  const setTranspose = useSetAtom(transposeAtom);
 
   const handleBeautify = () => {
     setBeautify((prev) => !prev);
@@ -162,5 +155,3 @@ function PageSizeToolbar({ query, ctx, exportData }: PageSizeToolbarProps) {
     </ToolbarContainer>
   );
 }
-
-export default QueryView;
