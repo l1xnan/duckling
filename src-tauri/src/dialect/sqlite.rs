@@ -2,7 +2,6 @@ use std::convert::From;
 use std::sync::Arc;
 
 use arrow::array::*;
-use arrow::datatypes::*;
 use arrow::datatypes::{DataType, Field, Schema};
 use async_trait::async_trait;
 use rusqlite::types::Value;

@@ -30,6 +30,17 @@ pub struct DialectPayload {
 }
 
 #[allow(clippy::unused_async)]
+pub fn get_ast_dialect(dialect: &str) -> Box<dyn sqlparser::dialect::Dialect> {
+  match dialect {
+    "folder" | "file" | "duckdb" => Box::new(sqlparser::dialect::DuckDbDialect {}),
+    "clickhouse" => Box::new(sqlparser::dialect::ClickHouseDialect {}),
+    "mysql" => Box::new(sqlparser::dialect::MySqlDialect {}),
+    "postgres" => Box::new(sqlparser::dialect::PostgreSqlDialect {}),
+    _ => Box::new(sqlparser::dialect::GenericDialect {}),
+  }
+}
+
+#[allow(clippy::unused_async)]
 pub async fn get_dialect(
   DialectPayload {
     dialect,

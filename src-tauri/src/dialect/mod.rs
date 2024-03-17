@@ -198,12 +198,13 @@ pub async fn _paging_query(
   if let Some(ref _stmt) = stmt {
     sql = ast::limit_stmt(dialect, _stmt, limit, offset).unwrap_or(sql);
   }
-  let mut res = d.query_all(&sql).await?;
+  let mut res = d.query(&sql, 0, 0).await?;
 
   // get total row count
   if let Some(ref _stmt) = stmt {
     if let Some(count_sql) = ast::count_stmt(dialect, _stmt) {
-      if let Ok(count) = d._sql_row_count(&count_sql).await {
+      log::info!("count_sql: {count_sql}");
+      if let Ok(count) = d.query_count(&count_sql).await {
         res.total = count;
       };
     }
