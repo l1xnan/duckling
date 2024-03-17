@@ -2,7 +2,12 @@ import { createStore } from 'zustand';
 
 import { ResultType, TitleType } from '@/api';
 
-import { QueryParamType, TabContextType, execute } from './tabs';
+import {
+  QueryParamType,
+  TabContextType,
+  TableContextType,
+  execute,
+} from './tabs';
 
 export type SchemaType = {
   name: string;
@@ -26,14 +31,14 @@ export type DatasetState = {
 
   page: number;
   perPage: number;
-  totalCount: number;
+  total: number;
 
   data: unknown[];
 
   tableName?: string;
   code?: number;
   message?: string;
-  schema: SchemaType[];
+  tableSchema: SchemaType[];
   titles?: TitleType[];
   orderBy?: OrderByType;
   sqlOrderBy?: string;
@@ -46,8 +51,7 @@ export type DatasetState = {
 export type DatasetAction = {
   setStore?: (res: Partial<DatasetState>) => void;
   setOrderBy?: (name: string) => void;
-  setPerPage?: (perPage: number) => void;
-  setPage?: (page: number) => void;
+  setPagination?: (p: { page?: number; perPage?: number }) => void;
   setTranspose?: () => void;
   setSQLWhere: (value: string) => void;
   setSQLOrderBy: (value: string) => void;
@@ -75,8 +79,8 @@ export const createDatasetStore = (context: TabContextType) =>
     context,
     page: 1,
     perPage: 500,
-    totalCount: 0,
-    schema: [],
+    total: 0,
+    tableSchema: [],
     data: [],
     titles: [],
     sqlWhere: undefined,
@@ -88,19 +92,16 @@ export const createDatasetStore = (context: TabContextType) =>
 
     // action
     setStore: (res: object) => set((_) => res),
-    increase: () => {
-      set((state) => ({ page: state.page + 1 }));
+    setBeautify: () => set((s) => ({ beautify: !s.beautify })),
+    setTranspose: () => {
+      set((s) => ({ transpose: !s.transpose }));
+    },
+
+    setPagination: (p) => {
+      set(() => ({ ...p }));
       get().refresh();
     },
-    setPage: (page: number) => {
-      set(() => ({ page }));
-      get().refresh();
-    },
-    setBeautify: () => set((state) => ({ beautify: !state.beautify })),
-    toFirst: () => {
-      set((_) => ({ page: 1 }));
-      get().refresh();
-    },
+
     setSQLWhere: (value: string) => {
       set((_) => ({ sqlWhere: value }));
       get().refresh();
@@ -109,64 +110,22 @@ export const createDatasetStore = (context: TabContextType) =>
       set((_) => ({ sqlOrderBy: value }));
     },
     setDialogColumn: (dialogColumn: string) => set((_) => ({ dialogColumn })),
-    toLast: () => {
-      set((state) => {
-        return { page: Math.ceil(state.totalCount / state.perPage) };
-      });
-      get().refresh();
-    },
-    setOrderBy: (name: string) => {
-      set((state) => {
-        const { name: prevName, desc } = state?.orderBy ?? {};
-        if (name == prevName) {
-          if (!desc) {
-            return {
-              orderBy: {
-                name,
-                desc: true,
-              },
-            };
-          }
-          return {
-            orderBy: undefined,
-          };
-        }
-        return {
-          orderBy: {
-            name,
-            desc: false,
-          },
-        };
-      });
-      if (context.type != 'query') {
-        get().refresh();
-      } else {
-        // TODO: sort
-      }
-    },
-    setPerPage: (perPage: number) => {
-      set((_) => ({ perPage }));
-      get().refresh();
-    },
-    decrease: () => {
-      set((state) => ({ page: state.page - 1 }));
-      get().refresh();
-    },
-    setTranspose: () => {
-      set((state) => ({ transpose: !state.transpose }));
-    },
+
+    setOrderBy: (_name: string) => {},
+
     refresh: async () => {
-      const { page, perPage, context, sqlWhere, sqlOrderBy } = get();
+      const { page, perPage, sqlWhere, sqlOrderBy } = get();
+      const context = get().context as TableContextType;
 
       const ctx: QueryParamType = {
         type: context?.type,
+        dbId: context?.dbId,
+        tableId: context?.tableId,
+        tableName: context?.tableName,
         page,
         perPage,
         sqlWhere,
         sqlOrderBy,
-        dbId: context?.dbId ?? '',
-        tableId: context?.tableId ?? '',
-        tableName: context?.tableName,
       };
       const data = await execute(ctx);
 

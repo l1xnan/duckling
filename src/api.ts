@@ -13,21 +13,16 @@ export type TitleType = {
 };
 
 export type ResultType<T = unknown> = {
-  totalCount: number;
+  total: number;
   data: T[];
-  schema: SchemaType[];
-  titles?: TitleType[];
+  tableSchema: SchemaType[];
   code: number;
   message: string;
 };
 
-export function convertArrow(
-  arrowData: Array<number>,
-  totalCount: number,
-  titles?: TitleType[],
-) {
+export function convertArrow(arrowData: Array<number>, titles?: TitleType[]) {
   const table: Table = tableFromIPC(Uint8Array.from(arrowData));
-  const schema: SchemaType[] = table.schema.fields.map((field, i) => {
+  const tableSchema: SchemaType[] = table.schema.fields.map((field, i) => {
     return {
       name: field.name,
       dataType: field.type.toString(),
@@ -40,11 +35,10 @@ export function convertArrow(
   const data = table.toArray().map((item) => item.toJSON());
 
   console.table([...data.slice(0, 10)]);
-  console.table(schema);
+  console.table(tableSchema);
   return {
-    totalCount,
     data,
-    schema,
+    tableSchema,
   };
 }
 
@@ -52,15 +46,16 @@ function convert(res: ArrowResponse): ResultType {
   const { data, titles, total, code, message } = res;
   if (code === 0) {
     return {
-      ...convertArrow(data, total, titles),
+      ...convertArrow(data, titles),
+      total: total ?? data.length,
       code,
       message,
     };
   }
   return {
     data: [],
-    schema: [],
-    totalCount: 0,
+    tableSchema: [],
+    total: 0,
     code,
     message,
   };

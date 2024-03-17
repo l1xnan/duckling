@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import React, { ReactNode } from 'react';
+import { Children, LegacyRef, ReactNode } from 'react';
 
 import { useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
@@ -16,7 +16,7 @@ export default function VerticalContainer({
   const [targetRefTop, _sizeTop, actionTop] = useResize(bottom ?? 0, 'bottom');
 
   const sizeTop = _sizeTop == 0 ? bottom ?? 0 : _sizeTop;
-  const childrenArray = React.Children.toArray(children);
+  const childrenArray = Children.toArray(children);
 
   return (
     <Box
@@ -35,16 +35,16 @@ export default function VerticalContainer({
         {childrenArray[0]}
       </Box>
       {bottom ? (
-        <Box
-          ref={targetRefTop}
+        <div
+          ref={targetRefTop as LegacyRef<HTMLDivElement>}
           className={classes.rightBottom}
-          sx={{ height: `${sizeTop}px`, width: '100%', minHeight: 32 }}
+          style={{ height: sizeTop, width: '100%', minHeight: 32 }}
         >
           <div className={classes.controlsH}>
             <div className={classes.resizeHorizontal} onMouseDown={actionTop} />
           </div>
           {childrenArray[1] ?? null}
-        </Box>
+        </div>
       ) : null}
     </Box>
   );

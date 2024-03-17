@@ -20,13 +20,14 @@ import {
 import { atomStore } from '@/stores';
 import { isEmpty } from '@/utils';
 
-import { OrderByType, SchemaType } from './dataset';
+import { SchemaType } from './dataset';
 import { PostgresDialectType, dbMapAtom, tablesAtom } from './dbList';
 import { settingAtom } from './setting';
 
 export type QueryParamType = {
   dbId: string;
   tableId: string;
+  schema?: string;
   tableName?: string;
   type?: string;
   stmt?: string;
@@ -36,7 +37,6 @@ export type QueryParamType = {
 
   sqlWhere?: string;
   sqlOrderBy?: string;
-  orderBy?: OrderByType;
 };
 export type QueryContextType = QueryParamType & {
   id: string;
@@ -48,7 +48,7 @@ export type QueryContextType = QueryParamType & {
 
   data?: unknown[];
   titles?: TitleType[];
-  schema?: SchemaType[];
+  tableSchema?: SchemaType[];
   message?: string;
   beautify?: boolean;
   transpose?: boolean;
@@ -80,6 +80,7 @@ export type SchemaContextType = {
   id: string;
   dbId: string;
   schema: string;
+
   type?: string;
   displayName: string;
 };
@@ -284,6 +285,22 @@ export async function execute(
   } else {
     data = await query(param as QueryParams);
   }
+
+  console.log('data:', data);
+  if (data?.code == 401 && data?.message) {
+    toast.warning(data?.message);
+  }
+  return data;
+}
+
+export async function executeSQL(
+  ctx: QueryParamType,
+): Promise<ResultType | undefined> {
+  const param = getParams(ctx);
+  if (!param) {
+    return;
+  }
+  const data = await query(param as QueryParams);
 
   console.log('data:', data);
   if (data?.code == 401 && data?.message) {

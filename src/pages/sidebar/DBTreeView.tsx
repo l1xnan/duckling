@@ -1,87 +1,18 @@
-import { default as AccountTreeIcon } from '@mui/icons-material/AccountTree';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { TreeView, TreeViewProps } from '@mui/x-tree-view/TreeView';
-import {
-  IconBorderOuter,
-  IconDatabase,
-  IconFile,
-  IconFilePower,
-  IconFileTypeCsv,
-  IconFileTypeXls,
-  IconFolder,
-  IconFolderOpen,
-  IconTable,
-} from '@tabler/icons-react';
-import { useAtom, useAtomValue } from 'jotai';
-import { useState } from 'react';
-
-import {
-  ClickhouseIcon,
-  DuckdbIcon,
-  MySqlIcon,
-  PostgresIcon,
-  SqliteIcon,
-} from '@/components/custom/Icons';
 import { Tooltip } from '@/components/custom/tooltip';
 import { DBType, selectedNodeAtom, tablesAtom } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { TreeNode } from '@/types';
 import { filterTree, isEmpty } from '@/utils';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { TreeView, TreeViewProps } from '@mui/x-tree-view/TreeView';
+import { useAtom, useAtomValue } from 'jotai';
+import { useState } from 'react';
 
-import { DBTreeItem, TreeItemLabel } from './DBTreeItem';
+import { TreeItem, TreeItemLabel } from '../../components/TreeItem.tsx';
 import { ConnectionContextMenu } from './context-menu/ConnectionContextMenu';
 import { SchemaContextMenu } from './context-menu/SchemaContextMenu';
 import { TableContextMenu } from './context-menu/TableContextMenu';
-
-export const getTypeIcon = (type: string, expanded: boolean) => {
-  if (type == 'path' && expanded) {
-    return <IconFolderOpen />;
-  }
-  if (type == 'path' && !expanded) {
-    return <IconFolder />;
-  }
-  if (type == 'folder') {
-    return <IconFolder />;
-  }
-  if (type == 'root') {
-    return <IconDatabase />;
-  }
-  if (type == 'clickhouse') {
-    return <ClickhouseIcon />;
-  }
-  if (type == 'duckdb') {
-    return <DuckdbIcon />;
-  }
-  if (type == 'sqlite') {
-    return <SqliteIcon />;
-  }
-  if (type == 'mysql') {
-    return <MySqlIcon />;
-  }
-  if (type == 'postgres') {
-    return <PostgresIcon />;
-  }
-  if (type == 'database') {
-    return <AccountTreeIcon />;
-  }
-  if (type == 'table') {
-    return <IconTable />;
-  }
-  if (type == 'view') {
-    return <IconBorderOuter />;
-  }
-  if (type == 'csv') {
-    return <IconFileTypeCsv />;
-  }
-  if (type == 'xlsx') {
-    return <IconFileTypeXls />;
-  }
-  if (type == 'parquet') {
-    return <IconFilePower />;
-  }
-  return <IconFile />;
-};
 
 export interface DBTreeViewProps extends TreeViewProps<boolean> {
   db: DBType;
@@ -116,7 +47,7 @@ export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
       </Tooltip>
     );
     return (
-      <DBTreeItem
+      <TreeItem
         key={node.path}
         nodeId={node.path}
         label={
@@ -138,7 +69,7 @@ export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
         {Array.isArray(node.children) && node.children.length > 0
           ? node.children.map((node) => renderTree(node))
           : null}
-      </DBTreeItem>
+      </TreeItem>
     );
   };
 
@@ -172,6 +103,8 @@ export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
         dbId: db.id,
         displayName: node?.name as string,
       };
+
+      console.log('item', item);
       updateTab!(item);
     }
   };

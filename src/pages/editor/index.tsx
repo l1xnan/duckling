@@ -2,7 +2,7 @@ import { OnChange } from '@monaco-editor/react';
 import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { nanoid } from 'nanoid';
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 
 import { schemaMapAtom } from '@/stores/dbList';
 import {
@@ -49,12 +49,6 @@ export default function Editor({
   const setSubTabs = useSetAtom(subTabsAtom);
 
   const stmt = docs[id] ?? '';
-  useEffect(() => {
-    const extra = tabContext.extra;
-    if (extra) {
-      setStmt(id, `${stmt}\n${extra}`);
-    }
-  }, []);
 
   const schemaMap = useAtomValue(schemaMapAtom);
 
@@ -71,7 +65,7 @@ export default function Editor({
   const setActiveKey = (key?: string) => {
     setTab((item) => ({ ...item, activeKey: key }));
   };
-  const handleClick = async (action?: string) => {
+  const getStmt = () => {
     const editor = ref.current;
     if (!editor) {
       return;
@@ -86,11 +80,17 @@ export default function Editor({
     if (stmt.length === 0) {
       return;
     }
+    return stmt;
+  };
 
-    const id = `${tab.id}-${nanoid()}`;
+  const handleClick = async (action?: string) => {
+    const stmt = getStmt();
+    const id = `${tab.id}@${nanoid()}`;
     if (action == 'new' || tab.children.length == 0) {
       const subContext: QueryContextType = createStore({
-        ...tabContext,
+        dbId: tabContext.dbId,
+        schema: tabContext.schema,
+        tableId: tabContext.tableId,
         type: 'query',
         stmt,
         displayName: `Result${(tab?.children?.length ?? 0) + 1}`,

@@ -17,7 +17,7 @@ import { Separator } from '@/components/ui/separator';
 import { Loading } from '@/components/views/TableView';
 import { atomStore } from '@/stores';
 import { precisionAtom, tableRenderAtom } from '@/stores/setting';
-import { QueryContextType, execute, exportData } from '@/stores/tabs';
+import { QueryContextType, executeSQL, exportData } from '@/stores/tabs';
 import PivotTableChartIcon from '@mui/icons-material/PivotTableChart';
 
 export function QueryView({
@@ -34,7 +34,7 @@ export function QueryView({
       if (!ctx) {
         ctx = atomStore.get(context);
       }
-      const res = (await execute(ctx)) ?? {};
+      const res = (await executeSQL(ctx)) ?? {};
       setContext((prev) => ({ ...prev, ...res }));
     } catch (error) {
       console.error(error);
@@ -75,8 +75,7 @@ export function QueryView({
           <TableComponent
             style={loading ? { display: 'none' } : undefined}
             data={ctx.data ?? []}
-            schema={ctx.schema ?? []}
-            orderBy={ctx.orderBy}
+            schema={ctx.tableSchema ?? []}
             precision={precision}
             beautify={ctx.beautify}
             transpose={ctx.transpose}

@@ -30,7 +30,7 @@ export const Loading = ({ className }: { className?: string }) => {
 };
 
 export function TableView({ context }: { context: TabContextType }) {
-  const { refresh, data, schema, beautify, orderBy, transpose } =
+  const { refresh, data, tableSchema, beautify, orderBy, transpose } =
     usePageStore();
   const currentTab = useAtomValue(activeTabAtom);
   const [loading, setLoading] = useState(false);
@@ -63,7 +63,7 @@ export function TableView({ context }: { context: TabContextType }) {
           <TableComponent
             style={loading ? { display: 'none' } : undefined}
             data={data ?? []}
-            schema={schema ?? []}
+            schema={tableSchema ?? []}
             beautify={beautify}
             orderBy={orderBy}
             precision={precision}
@@ -80,7 +80,7 @@ function PageSizeToolbar() {
     data,
     page,
     perPage,
-    totalCount,
+    total,
 
     refresh,
     setBeautify,
@@ -98,7 +98,7 @@ function PageSizeToolbar() {
         <Pagination
           current={page}
           count={data.length}
-          total={totalCount}
+          total={total}
           pageSize={perPage}
           onChange={handeChange}
         />

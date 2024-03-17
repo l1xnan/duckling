@@ -1,22 +1,32 @@
 import {
-  Tooltip,
-  TooltipProps,
-  alpha,
-  styled,
-  tooltipClasses,
-} from '@mui/material';
+  ClickhouseIcon,
+  DuckdbIcon,
+  MySqlIcon,
+  PostgresIcon,
+  SqliteIcon,
+} from '@/components/custom/Icons';
+import { TreeNode } from '@/types.ts';
+import { default as AccountTreeIcon } from '@mui/icons-material/AccountTree';
+import { alpha, styled } from '@mui/material';
 import {
-  TreeItem,
+  TreeItem as MTreeItem,
   TreeItemContentProps,
   TreeItemProps,
   useTreeItem,
 } from '@mui/x-tree-view/TreeItem';
+import {
+  IconBorderOuter,
+  IconDatabase,
+  IconFile,
+  IconFilePower,
+  IconFileTypeCsv,
+  IconFileTypeXls,
+  IconFolder,
+  IconFolderOpen,
+  IconTable,
+} from '@tabler/icons-react';
 import clsx from 'clsx';
 import * as React from 'react';
-
-import { TreeNode } from '@/types';
-
-import { getTypeIcon } from './DBTreeView';
 
 const CustomContentRoot = styled('div')(({ theme }) => ({
   WebkitTapHighlightColor: 'transparent',
@@ -150,11 +160,11 @@ const CustomContent = React.forwardRef(function CustomContent(
   );
 });
 
-export const DBTreeItem = React.forwardRef(function CustomTreeItem(
+export const TreeItem = React.forwardRef(function CustomTreeItem(
   props: TreeItemProps,
   ref: React.Ref<HTMLLIElement>,
 ) {
-  return <TreeItem ContentComponent={CustomContent} {...props} ref={ref} />;
+  return <MTreeItem ContentComponent={CustomContent} {...props} ref={ref} />;
 });
 
 interface TreeItemLabelProps {
@@ -163,29 +173,54 @@ interface TreeItemLabelProps {
   icon: string;
 }
 
-export const NoMaxWidthTooltip = styled(
-  ({ className, ...props }: TooltipProps) => (
-    <Tooltip
-      PopperProps={{
-        modifiers: [
-          {
-            name: 'offset',
-            options: {
-              offset: [5, -10],
-            },
-          },
-        ],
-      }}
-      {...props}
-      classes={{ popper: className }}
-    />
-  ),
-)({
-  [`& .${tooltipClasses.tooltip}`]: {
-    maxWidth: 'none',
-  },
-});
-
+export const getTypeIcon = (type: string, expanded: boolean) => {
+  if (type == 'path' && expanded) {
+    return <IconFolderOpen />;
+  }
+  if (type == 'path' && !expanded) {
+    return <IconFolder />;
+  }
+  if (type == 'folder') {
+    return <IconFolder />;
+  }
+  if (type == 'root') {
+    return <IconDatabase />;
+  }
+  if (type == 'clickhouse') {
+    return <ClickhouseIcon />;
+  }
+  if (type == 'duckdb') {
+    return <DuckdbIcon />;
+  }
+  if (type == 'sqlite') {
+    return <SqliteIcon />;
+  }
+  if (type == 'mysql') {
+    return <MySqlIcon />;
+  }
+  if (type == 'postgres') {
+    return <PostgresIcon />;
+  }
+  if (type == 'database') {
+    return <AccountTreeIcon />;
+  }
+  if (type == 'table') {
+    return <IconTable />;
+  }
+  if (type == 'view') {
+    return <IconBorderOuter />;
+  }
+  if (type == 'csv') {
+    return <IconFileTypeCsv />;
+  }
+  if (type == 'xlsx') {
+    return <IconFileTypeXls />;
+  }
+  if (type == 'parquet') {
+    return <IconFilePower />;
+  }
+  return <IconFile />;
+};
 export const TreeItemLabel = React.forwardRef(
   (props: TreeItemLabelProps, ref) => {
     const { node, nodeId, icon } = props;
