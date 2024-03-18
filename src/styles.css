@@ -3,6 +3,10 @@
   font-size: 15px;
 }
 
+body {
+  user-select: none;
+}
+
 body .vtable__menu-element {
   background-color: hsl(var(--popover));
   border-width: 1px;

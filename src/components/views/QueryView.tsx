@@ -172,7 +172,7 @@ function PageSizeToolbar({ query, ctx, exportData }: PageSizeToolbarProps) {
               <CodeIcon size={16} />
             </IconButton>
           </HoverCardTrigger>
-          <HoverCardContent className="font-mono">
+          <HoverCardContent className="font-mono select-all">
             {context.sql}
           </HoverCardContent>
         </HoverCard>

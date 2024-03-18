@@ -157,7 +157,10 @@ export const AgTable = ({
     : 'ag-theme-alpine';
 
   return (
-    <TableWrapper className={className} style={rest.style}>
+    <TableWrapper
+      className={className}
+      style={{ ...rest.style, userSelect: 'auto' }}
+    >
       <AgGridReact
         ref={gridRef}
         rowData={data}

@@ -129,7 +129,9 @@ function PageSizeToolbar() {
               <CodeIcon size={16} />
             </IconButton>
           </HoverCardTrigger>
-          <HoverCardContent className="font-mono">{sql}</HoverCardContent>
+          <HoverCardContent className="font-mono select-all">
+            {sql}
+          </HoverCardContent>
         </HoverCard>
 
         <IconButton disabled color="inherit" onClick={() => {}}>

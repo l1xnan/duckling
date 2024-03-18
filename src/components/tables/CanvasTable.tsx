@@ -358,7 +358,7 @@ export const CanvasTable = React.memo(function CanvasTable({
 
   return (
     <div
-      className="h-full"
+      className="h-full select-text"
       style={style}
       onContextMenu={(e) => {
         e.stopPropagation();
