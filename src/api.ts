@@ -147,6 +147,12 @@ export async function dropTable(
   return convert(res as ArrowResponse);
 }
 
+export async function formatSQL(sql: string): Promise<string> {
+  const res = await invoke('format_sql', { sql });
+  console.log('format sql:', res);
+  return res;
+}
+
 export class Connection {
   db: unknown;
 

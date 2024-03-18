@@ -5,7 +5,9 @@ import { ForwardedRef, forwardRef, useImperativeHandle, useRef } from 'react';
 
 import { isDarkTheme } from '@/utils';
 
+import { formatSQL } from '@/api';
 import type monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { format } from 'sql-formatter';
 
 interface MonacoEditorProps extends EditorProps {}
 
@@ -132,6 +134,35 @@ function registerCompletion(monaco: Monaco, tableSchema: TableSchemaType[]) {
           B.A.uniqBy((s) => s.insertText),
         ) as monaco.languages.CompletionItem[],
       };
+    },
+  });
+
+  monaco.languages.registerDocumentFormattingEditProvider('sql', {
+    async provideDocumentFormattingEdits(model, _options) {
+      const formatted = await formatSQL(model.getValue());
+      return [
+        {
+          range: model.getFullModelRange(),
+          text: formatted,
+        },
+      ];
+    },
+  });
+
+  // define a range formatting provider
+  // select some codes and right click those codes
+  // you contextmenu will have an "Format Selection" action
+  monaco.languages.registerDocumentRangeFormattingEditProvider('sql', {
+    async provideDocumentRangeFormattingEdits(model, range, options) {
+      const formatted = format(model.getValueInRange(range), {
+        tabWidth: 2,
+      });
+      return [
+        {
+          range: range,
+          text: formatted,
+        },
+      ];
     },
   });
 }

@@ -2,6 +2,7 @@ use std::sync::Mutex;
 
 use serde::Deserialize;
 use serde::Serialize;
+use sqlformat::{FormatOptions, QueryParams};
 use tauri::State;
 
 use crate::api;
@@ -238,4 +239,11 @@ pub async fn drop_table(
   // TODO: ERROR INFO
   let res = d.drop_table(schema, table).await.expect("ERROR");
   Ok(res)
+}
+
+#[tauri::command]
+pub async fn format_sql(sql: &str) -> Result<String, String> {
+  let params = QueryParams::default();
+  let options = FormatOptions::default();
+  Ok(sqlformat::format(sql, &params, options))
 }

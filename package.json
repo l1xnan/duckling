@@ -76,6 +76,7 @@
     "react-resizable-panels": "^2.0.13",
     "react-router-dom": "^6.22.0",
     "sonner": "^1.4.0",
+    "sql-formatter": "^15.3.0",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7",
     "use-resize-observer": "^9.1.0",
