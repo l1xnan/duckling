@@ -3,9 +3,9 @@ import { IconDecimal } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
 import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
-
 import { ArrowDownToLineIcon, CodeIcon, RefreshCwIcon } from 'lucide-react';
-import { Suspense, useEffect, useState } from 'react';
+import * as O from 'optics-ts';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { TablerSvgIcon } from '@/components/MuiIconButton';
@@ -96,11 +96,20 @@ interface PageSizeToolbarProps {
   ctx: QueryContextAtom;
 }
 
+function useFocusAtom<T, K extends keyof T>(anAtom: PrimitiveAtom<T>, key: K) {
+  return useSetAtom(
+    focusAtom(
+      anAtom,
+      useCallback((optic: O.OpticFor_<T>) => optic.prop(key), []),
+    ),
+  );
+}
+
 function PageSizeToolbar({ query, ctx, exportData }: PageSizeToolbarProps) {
-  const setPage = useSetAtom(focusAtom(ctx, (o) => o.prop('page')));
-  const setPerPage = useSetAtom(focusAtom(ctx, (o) => o.prop('perPage')));
-  const setBeautify = useSetAtom(focusAtom(ctx, (o) => o.prop('beautify')));
-  const setTranspose = useSetAtom(focusAtom(ctx, (o) => o.prop('transpose')));
+  const setPage = useFocusAtom(ctx, 'page');
+  const setPerPage = useFocusAtom(ctx, 'perPage');
+  const setTranspose = useFocusAtom(ctx, 'transpose');
+  const setBeautify = useFocusAtom(ctx, 'beautify');
 
   const context = useAtomValue(ctx);
   const { page, perPage, total, data } = context;
