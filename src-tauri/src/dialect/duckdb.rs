@@ -90,6 +90,13 @@ impl Connection for DuckDbDialect {
     let _ = self.query(&sql, 0, 0).await;
     Ok(String::new())
   }
+
+  #[allow(clippy::unused_async)]
+  async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
+    let conn = self.connect()?;
+    let total = conn.query_row(sql, [], |row| row.get::<_, usize>(0))?;
+    Ok(total)
+  }
 }
 
 impl DuckDbDialect {

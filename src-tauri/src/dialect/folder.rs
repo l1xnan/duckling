@@ -76,6 +76,13 @@ impl Connection for FolderDialect {
     }
     Ok("".to_string())
   }
+  
+  #[allow(clippy::unused_async)]
+  async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
+    let conn = self.connect()?;
+    let total = conn.query_row(sql, [], |row| row.get::<_, usize>(0))?;
+    Ok(total)
+  }
 }
 
 fn exist_glob(pattern: &str) -> bool {
