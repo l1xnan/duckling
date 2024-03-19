@@ -1,5 +1,6 @@
 import { Theme } from '@mui/material';
 
+import { isEmpty } from 'radash';
 import { OrderByType, StmtType } from './stores/dataset';
 import { TreeNode } from './types';
 
@@ -33,41 +34,6 @@ export function genStmt({ tableName, orderBy, where }: StmtType) {
     stmt = `${stmt} order by ${convertOrderBy(orderBy)}`;
   }
   return stmt;
-}
-
-export function debounce<T extends (...args: Parameters<T>) => ReturnType<T>>(
-  callback: T,
-  delay: number = 300,
-) {
-  let timer: ReturnType<typeof setTimeout>;
-  return (...args: Parameters<T>) => {
-    const p = new Promise<ReturnType<T> | Error>((resolve, reject) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        try {
-          const output = callback(...args);
-          resolve(output);
-        } catch (err) {
-          if (err instanceof Error) {
-            reject(err);
-          }
-          reject(new Error(`An error has occurred:${err}`));
-        }
-      }, delay);
-    });
-    return p;
-  };
-}
-
-export function isEmpty(v: string | unknown[] | number | null | undefined) {
-  if (typeof v === 'string') {
-    return v.length == 0;
-  }
-  if (Array.isArray(v)) {
-    return v.length == 0;
-  }
-
-  return !v;
 }
 
 export function compareAny(a: unknown, b: unknown) {

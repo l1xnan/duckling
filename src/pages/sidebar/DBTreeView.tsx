@@ -2,11 +2,12 @@ import { Tooltip } from '@/components/custom/tooltip';
 import { DBType, selectedNodeAtom, tablesAtom } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { TreeNode } from '@/types';
-import { filterTree, isEmpty } from '@/utils';
+import { filterTree } from '@/utils';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { TreeView, TreeViewProps } from '@mui/x-tree-view/TreeView';
 import { useAtom, useAtomValue } from 'jotai';
+import { isEmpty } from 'radash';
 import { useState } from 'react';
 
 import { TreeItem, TreeItemLabel } from '../../components/TreeItem.tsx';

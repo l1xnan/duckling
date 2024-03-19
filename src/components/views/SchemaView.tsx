@@ -12,7 +12,7 @@ import {
   activeTabAtom,
   getDatabase,
 } from '@/stores/tabs';
-import { isEmpty } from '@/utils';
+import { isEmpty } from 'radash';
 
 import { SimpleTable } from '../tables/CanvasTable';
 import { Button } from '../ui/button';

@@ -4,7 +4,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { createSelectors } from '@/stores/utils';
-import { debounce } from '@/utils';
+import { debounce } from 'radash';
 
 type AppState = {
   size: number;
@@ -20,9 +20,7 @@ export const store = create<AppStore>()(
   persist<AppStore>(
     (set, _get) => ({
       size: 300,
-      setSize: debounce<(size: number) => void>((size) =>
-        set((_) => ({ size })),
-      ),
+      setSize: debounce({ delay: 300 }, (size) => set((_) => ({ size }))),
     }),
     {
       name: 'app',

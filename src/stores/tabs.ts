@@ -1,8 +1,8 @@
-import { debounce } from '@mui/material';
 import { atom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
 import { atomFamily, splitAtom } from 'jotai/utils';
+import { debounce, isEmpty } from 'radash';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -19,7 +19,6 @@ import {
   queryTable,
 } from '@/api';
 import { atomStore } from '@/stores';
-import { isEmpty } from '@/utils';
 
 import { SchemaType } from './dataset';
 import { PostgresDialectType, dbMapAtom, tablesAtom } from './dbList';
@@ -99,7 +98,7 @@ interface TabsState {
   tabs: TabContextType[];
   currentTab?: TabContextType;
 
-  docs: { [key: string]: string };
+  docs: Record<string, string>;
 }
 
 type TabsAction = {
@@ -163,11 +162,11 @@ export const useTabsStore = create<TabsState & TabsAction>()(
             };
           });
         },
-        setStmt: debounce((key, stmt) =>
-          set((state) => ({
-            docs: { ...state.docs, [key]: stmt },
-          })),
-        ),
+        setStmt: debounce({ delay: 300 }, (key, stmt) => {
+          set((s) => ({
+            docs: { ...s.docs, [key]: stmt },
+          }));
+        }),
       }),
       {
         name: 'tabs',

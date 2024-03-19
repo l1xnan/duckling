@@ -40,7 +40,7 @@ import {
   settingAtom,
   useSettingStore,
 } from '@/stores/setting';
-import { isEmpty } from '@/utils';
+import { isEmpty } from 'radash';
 
 const items = [
   {
