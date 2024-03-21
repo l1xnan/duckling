@@ -1,3 +1,4 @@
+import { DataType } from '@apache-arrow/ts';
 import { useTheme } from '@mui/material';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { ListTable, VTable } from '@visactor/react-vtable';
@@ -10,11 +11,12 @@ import {
 import { useAtomValue } from 'jotai';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
+import dayjs from 'dayjs';
+import type { ComponentProps } from 'react';
+
 import { TableProps } from '@/components/tables/AgTable';
 import { tableFontFamilyAtom } from '@/stores/setting';
-import { isDarkTheme, isFloat, isNumber, uniqueArray } from '@/utils';
-
-import type { ComponentProps } from 'react';
+import { isDarkTheme, isNumberType, uniqueArray } from '@/utils';
 
 type ITableThemeDefine = ComponentProps<typeof ListTable>['theme'];
 
@@ -183,7 +185,7 @@ export const CanvasTable = React.memo(function CanvasTable({
         sort: true,
         style: (arg) => {
           const style: Record<string, string> = {};
-          if (isNumber(dataType)) {
+          if (isNumberType(dataType)) {
             style['textAlign'] = 'right';
           }
           if (arg.dataValue === null || arg.dataValue === undefined) {
@@ -196,7 +198,12 @@ export const CanvasTable = React.memo(function CanvasTable({
           if (value === null) {
             return '<null>';
           }
-          if (beautify && isFloat(dataType) && precision) {
+
+          if (DataType.isDate(dataType)) {
+            return dayjs(value).format('YYYY-MM-DD');
+          }
+
+          if (beautify && DataType.isFloat(dataType) && precision) {
             try {
               return (value as number)?.toFixed(precision);
             } catch (error) {

@@ -26,7 +26,7 @@ export function convertArrow(arrowData: Array<number>, titles?: TitleType[]) {
   const tableSchema: SchemaType[] = table.schema.fields.map((field, i) => {
     return {
       name: field.name,
-      dataType: field.type.toString(),
+      dataType: field.type,
       nullable: field.nullable,
       metadata: field.metadata,
       type: titles?.[i]?.type ?? field.type,

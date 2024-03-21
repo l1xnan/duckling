@@ -1,5 +1,6 @@
 import { Theme } from '@mui/material';
 
+import { DataType } from '@apache-arrow/ts';
 import { isEmpty } from 'radash';
 import { OrderByType, StmtType } from './stores/dataset';
 import { TreeNode } from './types';
@@ -48,6 +49,14 @@ export function isNumber(dataType: string) {
     dataType.includes('Int') ||
     dataType.includes('Float') ||
     dataType.includes('Decimal')
+  );
+}
+
+export function isNumberType(dataType: DataType) {
+  return (
+    DataType.isDecimal(dataType) ||
+    DataType.isFloat(dataType) ||
+    DataType.isInt(dataType)
   );
 }
 
