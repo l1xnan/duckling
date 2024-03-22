@@ -117,11 +117,11 @@ dependencies:
     specifier: 2.0.0-beta.2
     version: 2.0.0-beta.2
   '@visactor/react-vtable':
-    specifier: ^0.21.3
-    version: 0.21.3
+    specifier: ^0.22.1
+    version: 0.22.1
   '@visactor/vtable':
-    specifier: ^0.21.3
-    version: 0.21.3
+    specifier: ^0.22.1
+    version: 0.22.1
   ag-grid-community:
     specifier: ^31.1.0
     version: 31.1.0
@@ -1627,7 +1627,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -1637,7 +1636,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -1647,7 +1645,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -1657,7 +1654,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -2844,7 +2840,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -2854,7 +2849,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -2864,7 +2858,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -2874,7 +2867,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -3716,10 +3708,10 @@ packages:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
     dev: true
 
-  /@visactor/react-vtable@0.21.3:
-    resolution: {integrity: sha512-vuDwqSW6/hDzVQx9ZsFf654q9jVx212Q/gVaBjEFbqRH3shSrm+VgKjP1cAOqrjwuTRktuxrMxyciO7vgaBYtg==}
+  /@visactor/react-vtable@0.22.1:
+    resolution: {integrity: sha512-1p6KqlsyQ7FquQCC/C9p0J3seEqBI41zxlckZ0DrzH+CCa2/DzzwsHq3MAJXR1GS3t743yuLmYLx9dIIalEgFw==}
     dependencies:
-      '@visactor/vtable': 0.21.3
+      '@visactor/vtable': 0.22.1
       '@visactor/vutils': 0.18.1
       react-is: 18.2.0
     dev: false
@@ -3799,19 +3791,19 @@ packages:
       '@visactor/vutils': 0.18.1
     dev: false
 
-  /@visactor/vtable-editors@0.21.3:
-    resolution: {integrity: sha512-weOBK/0rVd7sQu8Lhu9BpRETlH9Gm46RMjUus9ckG85xRe8e2Lq+/DpmJToovaVjgmq5jqp84K2DbiXm/HNGAw==}
+  /@visactor/vtable-editors@0.22.1:
+    resolution: {integrity: sha512-ZoYNNGdZaOfMVH6IjjnM6IXCPUVEYNLc4FZE3PU7RVVghJ/rx7FvIy7ZJ/AedL8aTVMEEx6ROSJAuPk6b9d1gQ==}
     dev: false
 
-  /@visactor/vtable@0.21.3:
-    resolution: {integrity: sha512-4dewQPgTvNWem8aSFIrUDv57jmlrA51mL6tJElcsntyU2QjeRthrftxukOEOPuWjJrj3VL4a+mA9qq4lao6PNQ==}
+  /@visactor/vtable@0.22.1:
+    resolution: {integrity: sha512-SDT3o3h2+565hfBUMtQ00qMnjol2XH9FAtCfNLT9ZTakA0MIzGjg8VtEmDXyKAphOm8ube9adHsPpo//6UGl3w==}
     dependencies:
       '@visactor/vdataset': 0.18.1
       '@visactor/vrender-components': 0.18.2-alpha.1
       '@visactor/vrender-core': 0.18.2-alpha.1
       '@visactor/vrender-kits': 0.18.2-alpha.1
       '@visactor/vscale': 0.18.1
-      '@visactor/vtable-editors': 0.21.3
+      '@visactor/vtable-editors': 0.22.1
       '@visactor/vutils': 0.18.1
       '@visactor/vutils-extension': 1.8.11
       cssfontparser: 1.2.1
@@ -6234,7 +6226,7 @@ packages:
     dependencies:
       nanoid: 3.3.7
       picocolors: 1.0.0
-      source-map-js: 1.0.2
+      source-map-js: 1.2.0
     dev: false
 
   /postcss@8.4.33:
@@ -6843,7 +6835,6 @@ packages:
   /source-map-js@1.2.0:
     resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
     engines: {node: '>=0.10.0'}
-    dev: true
 
   /source-map@0.5.7:
     resolution: {integrity: sha512-LbrmJOMUSdEVxIKvdcJzQC+nQhe8FUZQTXQy6+I75skNgn3OoQ0DZA8YnFa7gp8tqtL3KPf1kmo0R5DoApeSGQ==}

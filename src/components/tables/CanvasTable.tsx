@@ -163,6 +163,9 @@ export const CanvasTable = React.memo(function CanvasTable({
             return transpose ? [1, 0, 1, 1] : [0, 1, 1, 1];
           },
         },
+        scrollStyle: {
+          width: 8,
+        },
       }),
     [appTheme, transpose],
   );
@@ -326,6 +329,25 @@ export const CanvasTable = React.memo(function CanvasTable({
       },
       ...__columns,
     ],
+    // rowSeriesNumber: {
+    //   title: ' ',
+    //   dragOrder: false,
+    //   width: 'auto',
+    //   // @ts-expect-error
+    //   dragHeader: false,
+    //   disableSelect: true,
+    //   disableHeaderHover: true,
+    //   disableHeaderSelect: true,
+    //   disableColumnResize: true,
+    //   headerStyle: {
+    //     color: 'black',
+    //   },
+    //   style: {
+    //     color: '#96938f',
+    //     fontSize: 10,
+    //     textAlign: 'center',
+    //   },
+    // },
     menu: {
       contextMenuItems: (_field, row, col) => {
         if ((!transpose && row == 0) || (transpose && col == 0)) {

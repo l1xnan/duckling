@@ -154,7 +154,7 @@ export function InputToolbar() {
     <div className="flex flex-row items-center h-8 min-h-8 bg-background/40 border-b font-mono">
       <div className="mx-1.5 text-muted-foreground">WHERE</div>
       <input
-        className="flex-1 h-full border-none p-0 outline-none bg-transparent"
+        className="flex-[2_2_0%] h-full border-none p-0 outline-none bg-transparent"
         value={stmt.where}
         onKeyDown={async (e) => {
           if (e.key === 'Enter') {
@@ -169,7 +169,7 @@ export function InputToolbar() {
       <Separator orientation="vertical" />
       <div className="mx-1.5 text-muted-foreground">ORDER BY</div>
       <input
-        className="flex-[2_2_0%] h-full border-none p-0 outline-none bg-transparent"
+        className="flex-1 h-full border-none p-0 outline-none bg-transparent"
         value={stmt.orderBy}
         onKeyDown={async (e) => {
           if (e.key === 'Enter') {
