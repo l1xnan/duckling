@@ -17,6 +17,7 @@ import type { ComponentProps } from 'react';
 import { TableProps } from '@/components/tables/AgTable';
 import { tableFontFamilyAtom } from '@/stores/setting';
 import { isDarkTheme, isNumberType, uniqueArray } from '@/utils';
+import { StylePropertyFunctionArg } from '@visactor/vtable/es/ts-types';
 
 type ITableThemeDefine = ComponentProps<typeof ListTable>['theme'];
 
@@ -107,6 +108,32 @@ const lightTheme = themes.ARCO.extends(LIGHT_THEME);
 // const darkTheme = merge([themes.DARK, DARK_THEME]);
 const darkTheme = themes.DARK.extends(DARK_THEME);
 
+function getDarkBackgroundColor(args: StylePropertyFunctionArg): string {
+  const { row, table } = args;
+  const index = row - table.frozenRowCount;
+  if (row == table.stateManager.select.cellPos.row) {
+    return '#2F4774';
+  }
+  if (!(index & 1)) {
+    return '#2d3137';
+  }
+  return '#282a2e';
+}
+
+function getLightBackgroundColor(args: StylePropertyFunctionArg): string {
+  const { row, table } = args;
+  const index = row - table.frozenRowCount;
+
+  if (row == table.stateManager.select.cellPos.row) {
+    return '#c8daf6';
+  }
+
+  if (!(index & 1)) {
+    return '#FFF';
+  }
+  return '#fbfbfc';
+}
+
 export const CanvasTable = React.memo(function CanvasTable({
   data,
   schema,
@@ -141,6 +168,7 @@ export const CanvasTable = React.memo(function CanvasTable({
   const tableRef = useRef<ListTableAPI>();
   const appTheme = useTheme();
   const tableFontFamily = useAtomValue(tableFontFamilyAtom);
+  const [selectCell, setSelectCell] = useState<number | undefined>();
 
   const theme = useMemo(
     () =>
@@ -153,6 +181,9 @@ export const CanvasTable = React.memo(function CanvasTable({
             }
             return [1, 1, 1, 1];
           },
+          bgColor: isDarkTheme(appTheme)
+            ? getDarkBackgroundColor
+            : getLightBackgroundColor,
         },
         headerStyle: {
           fontFamily: tableFontFamily,
@@ -167,7 +198,7 @@ export const CanvasTable = React.memo(function CanvasTable({
           width: 8,
         },
       }),
-    [appTheme, transpose],
+    [appTheme, transpose, selectCell],
   );
 
   const pinnedSet = new Set([...leftPinnedCols, ...rightPinnedCols]);
@@ -384,7 +415,6 @@ export const CanvasTable = React.memo(function CanvasTable({
       pasteValueToCell: true,
     },
   };
-
   return (
     <div
       className="h-full select-text"
@@ -400,6 +430,7 @@ export const CanvasTable = React.memo(function CanvasTable({
           console.log('context', arg);
         }}
         onSelectedCell={(arg) => {
+          setSelectCell(arg.row);
           console.log('seleted', arg);
           console.log(tableRef.current);
           console.log(tableRef.current?.stateManager.menu);
