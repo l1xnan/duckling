@@ -6,6 +6,7 @@ import {
   ColumnDefine,
   ListTable as ListTableAPI,
   ListTableConstructorOptions,
+  TYPES,
   themes,
 } from '@visactor/vtable';
 import { useAtomValue } from 'jotai';
@@ -17,7 +18,6 @@ import type { ComponentProps } from 'react';
 import { TableProps } from '@/components/tables/AgTable';
 import { tableFontFamilyAtom } from '@/stores/setting';
 import { isDarkTheme, isNumberType, uniqueArray } from '@/utils';
-import { StylePropertyFunctionArg } from '@visactor/vtable/es/ts-types';
 
 type ITableThemeDefine = ComponentProps<typeof ListTable>['theme'];
 
@@ -108,7 +108,7 @@ const lightTheme = themes.ARCO.extends(LIGHT_THEME);
 // const darkTheme = merge([themes.DARK, DARK_THEME]);
 const darkTheme = themes.DARK.extends(DARK_THEME);
 
-function getDarkBackgroundColor(args: StylePropertyFunctionArg): string {
+function getDarkBackgroundColor(args: TYPES.StylePropertyFunctionArg): string {
   const { row, table } = args;
   const index = row - table.frozenRowCount;
   if (row == table.stateManager.select.cellPos.row) {
@@ -120,7 +120,7 @@ function getDarkBackgroundColor(args: StylePropertyFunctionArg): string {
   return '#282a2e';
 }
 
-function getLightBackgroundColor(args: StylePropertyFunctionArg): string {
+function getLightBackgroundColor(args: TYPES.StylePropertyFunctionArg): string {
   const { row, table } = args;
   const index = row - table.frozenRowCount;
 
