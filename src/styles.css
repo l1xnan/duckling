@@ -14,8 +14,7 @@ body .vtable__menu-element {
   --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color),
   0 2px 4px -2px var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-  var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
 body .vtable__menu-element--normal {
@@ -30,6 +29,13 @@ body .vtable__menu-element__item {
   height: 22px;
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
+  font-size: .75rem;
+  margin: 0 0.25rem;
+}
+
+.vtable__menu-element__content.vtable__menu-element__item-text {
+  font-size: .75rem;
+  font-family: var(--main-font-family);
 }
 
 body .vtable__bubble-tooltip-element {
@@ -39,7 +45,7 @@ body .vtable__bubble-tooltip-element {
   box-sizing: border-box;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgb(27 31 35 / 8%);
-  font-size: .74rem;
+  font-size: .75rem;
 }
 
 body .vtable__bubble-tooltip-element__content {

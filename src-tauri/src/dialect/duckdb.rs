@@ -26,6 +26,14 @@ impl Connection for DuckDbDialect {
     })
   }
 
+  fn normalize(&self, name: &str) -> String {
+    if name.contains(' ') {
+      format!("\"{name}\"")
+    } else {
+      name.to_string()
+    }
+  }
+
   async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
     let sql = format!(
       "

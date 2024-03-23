@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use sqlparser::parser::Parser;
 
-use crate::{api::RawArrowData};
+use crate::api::RawArrowData;
 
 pub mod ast;
 pub mod clickhouse;
@@ -160,7 +160,16 @@ pub trait Connection: Sync + Send {
     sql
   }
 
+  fn normalize(&self, name: &str) -> String {
+    if name.contains(' ') {
+      format!("`{name}`")
+    } else {
+      name.to_string()
+    }
+  }
+
   fn _table_query_sql(&self, table: &str, where_: &str, order_by: &str) -> String {
+    let table = self.normalize(table);
     let mut sql = format!("select * from {table}");
     if !where_.trim().is_empty() {
       sql = format!("{sql} where {where_}");
