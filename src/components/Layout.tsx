@@ -38,4 +38,4 @@ const Sidebar = React.forwardRef<HTMLDivElement, WrapperProps>(
 
 Sidebar.displayName = 'Sidebar';
 
-export { Sidebar, Content };
+export { Content, Sidebar };

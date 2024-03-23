@@ -20,6 +20,11 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from '@/components/ui/resizable.tsx';
 import { usePageStore } from '@/hooks/context';
 import { TablerSvgIcon } from '../MuiIconButton';
 
@@ -152,35 +157,41 @@ export function InputToolbar() {
 
   return (
     <div className="flex flex-row items-center h-8 min-h-8 bg-background/40 border-b font-mono">
-      <div className="mx-1.5 text-muted-foreground">WHERE</div>
-      <input
-        className="flex-[2_2_0%] h-full border-none p-0 outline-none bg-transparent"
-        value={stmt.where}
-        onKeyDown={async (e) => {
-          if (e.key === 'Enter') {
-            setSQLOrderBy(stmt.orderBy);
-            setSQLWhere(stmt.where);
-          }
-        }}
-        onChange={(e) => {
-          setStmt((v) => ({ ...v, where: e.target.value }));
-        }}
-      />
-      <Separator orientation="vertical" />
-      <div className="mx-1.5 text-muted-foreground">ORDER BY</div>
-      <input
-        className="flex-1 h-full border-none p-0 outline-none bg-transparent"
-        value={stmt.orderBy}
-        onKeyDown={async (e) => {
-          if (e.key === 'Enter') {
-            setSQLOrderBy(stmt.orderBy);
-            setSQLWhere(stmt.where);
-          }
-        }}
-        onChange={(e) => {
-          setStmt((v) => ({ ...v, orderBy: e.target.value }));
-        }}
-      />
+      <ResizablePanelGroup direction="horizontal">
+        <ResizablePanel defaultSize={50} className="flex flex-row items-center">
+          <div className="mx-1.5 text-muted-foreground">WHERE</div>
+          <input
+            className="flex-1 h-full border-none p-0 outline-none bg-transparent"
+            value={stmt.where}
+            onKeyDown={async (e) => {
+              if (e.key === 'Enter') {
+                setSQLOrderBy(stmt.orderBy);
+                setSQLWhere(stmt.where);
+              }
+            }}
+            onChange={(e) => {
+              setStmt((v) => ({ ...v, where: e.target.value }));
+            }}
+          />
+        </ResizablePanel>
+        <ResizableHandle />
+        <ResizablePanel defaultSize={50} className="flex flex-row items-center">
+          <div className="mx-1.5 text-muted-foreground">ORDER BY</div>
+          <input
+            className="flex-1 h-full border-none p-0 outline-none bg-transparent"
+            value={stmt.orderBy}
+            onKeyDown={async (e) => {
+              if (e.key === 'Enter') {
+                setSQLOrderBy(stmt.orderBy);
+                setSQLWhere(stmt.where);
+              }
+            }}
+            onChange={(e) => {
+              setStmt((v) => ({ ...v, orderBy: e.target.value }));
+            }}
+          />
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 }
