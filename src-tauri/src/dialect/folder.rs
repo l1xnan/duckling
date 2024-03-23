@@ -1,6 +1,7 @@
 use std::fs;
 use std::path::Path;
 
+use arrow::array::{Array, AsArray, StringArray};
 use async_trait::async_trait;
 use glob::glob;
 
@@ -74,27 +75,85 @@ impl Connection for FolderDialect {
     } else {
       fs::remove_file(path)?;
     }
-    Ok("".to_string())
+    Ok(String::new())
   }
-  
+
   #[allow(clippy::unused_async)]
   async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
     let conn = self.connect()?;
     let total = conn.query_row(sql, [], |row| row.get::<_, usize>(0))?;
     Ok(total)
   }
+
+  #[allow(clippy::unused_async)]
+  async fn find(&self, value: &str, table: &str) -> anyhow::Result<RawArrowData> {
+    let path = Path::new(table);
+
+    let ext = path.extension().unwrap_or_default();
+    let sql = if path.is_dir() {
+      let mut tmp = vec![];
+      let pattern = format!("{table}/**/*.parquet");
+      if exist_glob(&pattern) {
+        tmp.push(format!(
+          "select * FROM read_parquet('{pattern}', union_by_name=true, filename=true)"
+        ));
+      }
+
+      let pattern = format!("{table}/**/*.csv");
+      if exist_glob(&pattern) {
+        tmp.push(format!(
+          "select * FROM read_csv('{pattern}', union_by_name=true, filename=true)"
+        ));
+      }
+
+      tmp.join("\n union all \n")
+    } else if ext == "parquet" {
+      format!("select * from read_parquet('{table}', union_by_name=true, filename=true)")
+    } else if ext == "csv" {
+      format!("select * from read_csv('{table}', union_by_name=true, filename=true)")
+    } else {
+      String::new()
+    };
+    log::info!("show columns: {}", &sql);
+
+    let describe = format!("SELECT * FROM (DESCRIBE {sql})");
+    let res = self.query(&describe, 0, 0).await;
+
+    let mut likes = vec![];
+    if let Ok(r) = res {
+      if let Some(col) = r.batch.column_by_name("column_name") {
+        if let Some(arr) = col.as_any().downcast_ref::<StringArray>() {
+          for c in arr {
+            if let Some(c) = c {
+              let like = format!(
+                "select filename, '{}' as col from ({}) where CAST({} AS VARCHAR) like '%{}%'",
+                c, sql, c, value
+              );
+              likes.push(like);
+            }
+          }
+        }
+      }
+    }
+    let sql = format!(
+      "select filename, col, count(*) as count from ({}) group by all",
+      likes.join("\n union all \n")
+    );
+    log::info!("{}", sql);
+    self.query(&sql, 0, 0).await
+  }
 }
 
 fn exist_glob(pattern: &str) -> bool {
-  if let Ok(items) = glob(pattern) {
-    for item in items {
+  if let Ok(ref mut items) = glob(pattern) {
+    if let Some(item) = items.next() {
       return match item {
         Ok(_path) => true,
         Err(_e) => false,
       };
     }
   }
-  return false;
+  false
 }
 
 impl FolderDialect {

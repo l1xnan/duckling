@@ -148,9 +148,15 @@ export async function dropTable(
 }
 
 export async function formatSQL(sql: string): Promise<string> {
-  const res = await invoke('format_sql', { sql });
+  const res = await invoke<string>('format_sql', { sql });
   console.log('format sql:', res);
   return res;
+}
+
+export async function find(value: string): Promise<string> {
+  const res = await invoke('find', { value });
+  console.log('format sql:', res);
+  return res as string;
 }
 
 export class Connection {

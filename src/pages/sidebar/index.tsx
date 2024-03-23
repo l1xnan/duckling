@@ -1,11 +1,9 @@
 import { invoke } from '@tauri-apps/api/core';
 import { useAtomValue } from 'jotai';
-import { Search } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { useEffect, useState } from 'react';
 
 import { getDB } from '@/api';
-import { Input } from '@/components/ui/input';
 import ConfigDialog from '@/pages/sidebar/ConfigDialog';
 import RenameDialog from '@/pages/sidebar/RenameDialog';
 import { SideToolbar } from '@/pages/sidebar/SideToolbar';
@@ -17,6 +15,8 @@ import {
 } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 
+import { SearchInput } from '@/components/custom/search';
+import SearchDialog from '@/pages/sidebar/context-menu/SearchDialog';
 import DBTreeView from './DBTreeView';
 
 function Sidebar() {
@@ -56,17 +56,12 @@ function Sidebar() {
     <>
       <SideToolbar />
       <div className="bg-background/40">
-        <div className="relative h-8 border-b">
-          <Search className="absolute left-2 top-2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-            }}
-            placeholder="Search"
-            className="h-8 pl-8 py-0.5 text-xs focus-visible:ring-0 shadow-none rounded-none border-none transition-none"
-          />
-        </div>
+        <SearchInput
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+          }}
+        />
       </div>
       <div className="w-full max-h-[calc(100vh-94px)] overflow-auto pr-1 pb-2">
         {dbList.map((db, _i) => {
@@ -80,6 +75,7 @@ function Sidebar() {
       {renameContext !== null ? <RenameDialog /> : null}
       {/* db config */}
       {configContext !== null ? <ConfigDialog /> : null}
+      <SearchDialog />
     </>
   );
 }

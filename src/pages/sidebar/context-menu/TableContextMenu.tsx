@@ -10,9 +10,11 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
+import { searchAtom } from '@/pages/sidebar/context-menu/SearchDialog';
 import { DBType, DialectConfig } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { TreeNode } from '@/types';
+import { useAtom } from 'jotai';
 
 export function TableContextMenu({
   children,
@@ -20,6 +22,7 @@ export function TableContextMenu({
   db,
 }: PropsWithChildren<{ node: TreeNode; db: DBType }>) {
   const updateTab = useTabsStore((state) => state.update);
+  const [search, setSearch] = useAtom(searchAtom);
 
   const handleDropTable: React.MouseEventHandler<HTMLDivElement> = async (
     e,
@@ -88,6 +91,24 @@ export function TableContextMenu({
               }}
             >
               Show *.csv
+            </ContextMenuItem>
+            <ContextMenuSeparator />
+            <ContextMenuItem
+              onClick={async (e) => {
+                e.stopPropagation();
+                console.log(node);
+                const item: TableContextType = {
+                  id: nanoid(),
+                  dbId: db.id,
+                  tableId: node.path,
+                  displayName: node?.name as string,
+                  type: 'table',
+                };
+
+                setSearch({ open: true, item });
+              }}
+            >
+              Search
             </ContextMenuItem>
           </>
         ) : null}
