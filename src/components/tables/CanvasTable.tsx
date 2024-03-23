@@ -198,7 +198,7 @@ export const CanvasTable = React.memo(function CanvasTable({
           width: 8,
         },
       }),
-    [appTheme, transpose, selectCell],
+    [appTheme, transpose],
   );
 
   const pinnedSet = new Set([...leftPinnedCols, ...rightPinnedCols]);

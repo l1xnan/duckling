@@ -1,13 +1,15 @@
 import { useAtom } from 'jotai/react';
 
 import { Content, Sidebar as SidebarWrapper } from '@/components/Layout';
-import { Button } from '@/components/ui/button.tsx';
+import { Hidden } from '@/components/custom/hidden';
 import { useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
 import { Main } from '@/pages/main';
 import Sidebar from '@/pages/sidebar';
+import { Favorite, History, SqlCode } from '@/pages/sidebar/Favorite.tsx';
+import { ASide, activeSideAtom } from '@/pages/sidebar/aside';
 import { sizeAtom } from '@/stores/app';
-import { DatabaseIcon, FolderIcon, HistoryIcon } from 'lucide-react';
+import { useAtomValue } from 'jotai';
 import { RefObject } from 'react';
 
 function Home() {
@@ -18,27 +20,28 @@ function Home() {
     'left',
     setSize,
   );
-
+  const activeAside = useAtomValue(activeSideAtom);
   return (
     <div className="h-full max-h-screen p-0 m-0">
-      <div className="h-full left-0 top-0 absolute flex flex-col w-8 items-center border-r">
-        <Button variant="ghost" size="icon" className="rounded">
-          <DatabaseIcon className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon" className="rounded">
-          <FolderIcon className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon" className="rounded">
-          <HistoryIcon className="h-4 w-4" />
-        </Button>
-      </div>
+      <ASide />
       <div
         ref={targetRefLeft as RefObject<HTMLDivElement>}
-        className="h-full left-8 top-0 absolute flex"
-        style={{ width: sizeLeft - 30 }}
+        className="h-full pl-9 top-0 absolute flex flex-row"
+        style={{ width: sizeLeft }}
       >
         <SidebarWrapper>
-          <Sidebar />
+          <Hidden display={activeAside == 'database'}>
+            <Sidebar />
+          </Hidden>
+          <Hidden display={activeAside == 'favorite'}>
+            <Favorite />
+          </Hidden>
+          <Hidden display={activeAside == 'history'}>
+            <History />
+          </Hidden>
+          <Hidden display={activeAside == 'code'}>
+            <SqlCode />
+          </Hidden>
         </SidebarWrapper>
         <div className={classes.controls}>
           <div className={classes.resizeVertical} onMouseDown={actionLeft} />

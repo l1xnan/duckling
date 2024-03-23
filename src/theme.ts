@@ -107,7 +107,8 @@ export const lightTheme = createTheme(initTheme('light'), {
     mode: 'light',
     divider: '#ebecf0',
     background: {
-      default: '#f7f8fa',
+      // default: '#f7f8fa',
+      default: '#fff',
     },
     text: {
       primary: '#1e1e1e',

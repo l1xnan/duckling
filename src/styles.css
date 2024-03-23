@@ -38,8 +38,7 @@ body .vtable__bubble-tooltip-element {
   border: 1px solid hsl(var(--border));
   box-sizing: border-box;
   border-radius: 4px;
-  box-shadow: 0px 2px 4px rgb(27 31 35 / 8%);
-  color: #141414;
+  box-shadow: 0 2px 4px rgb(27 31 35 / 8%);
   font-size: .74rem;
 }
 

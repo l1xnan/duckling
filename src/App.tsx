@@ -89,7 +89,7 @@ function App() {
 
   return (
     <Provider store={atomStore}>
-      <DevTools />
+      <DevTools position="bottom-right" />
       <ColorModeContext.Provider value={colorMode}>
         <ThemeProvider theme={theme}>
           <CssBaseline enableColorScheme />
