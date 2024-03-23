@@ -24,6 +24,7 @@ function parseSqlAndFindTableNameAndAliases(sql: string) {
     /\b(?:FROM|JOIN)\s+([^\s.]+(?:\.[^\s.]+)?)\s*(?:AS)?\s*([^\s,]+)?/gi;
   const tables = [];
 
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     const match = regex.exec(sql);
     if (!match) {
@@ -153,7 +154,7 @@ function registerCompletion(monaco: Monaco, tableSchema: TableSchemaType[]) {
   // select some codes and right click those codes
   // you contextmenu will have an "Format Selection" action
   monaco.languages.registerDocumentRangeFormattingEditProvider('sql', {
-    async provideDocumentRangeFormattingEdits(model, range, options) {
+    async provideDocumentRangeFormattingEdits(model, range, _options) {
       const formatted = format(model.getValueInRange(range), {
         tabWidth: 2,
       });
@@ -166,6 +167,7 @@ function registerCompletion(monaco: Monaco, tableSchema: TableSchemaType[]) {
     },
   });
 }
+
 export type TableSchemaType = { table_name: string; column_name: string };
 
 const MonacoEditor = forwardRef<

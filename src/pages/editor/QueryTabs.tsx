@@ -1,7 +1,7 @@
 import { PrimitiveAtom, useAtom, useAtomValue } from 'jotai';
 import { splitAtom } from 'jotai/utils';
 
-import { PageTabs } from '@/components/PageTabs';
+import { PageTabs1 } from '@/components/PageTabs';
 import { QueryView } from '@/components/views';
 import { PageProvider } from '@/hooks/context';
 import { QueryContextType } from '@/stores/tabs';
@@ -55,7 +55,7 @@ export function QueryTabs({
   };
 
   return (
-    <PageTabs
+    <PageTabs1
       items={items}
       activeKey={activeKey ?? tabs[0]?.id ?? ''}
       onChange={handleChange}

@@ -15,6 +15,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TabContextType } from '@/stores/tabs';
 import { borderTheme, isDarkTheme } from '@/utils';
 
+import { Button } from '@/components/ui/button';
+import { XIcon } from 'lucide-react';
 import { ContextMenuItem } from './custom/context-menu';
 import { Tooltip } from './custom/tooltip';
 import {
@@ -205,27 +207,33 @@ export function PageTabs1({
       value={activeKey}
       onValueChange={onChange}
     >
-      <TabsList className="p-0 h-8">
+      <TabsList className="p-0 h-8 border-b-1 w-full justify-start">
         {items.map(({ tab }) => {
           return (
             <TabsTrigger
               key={tab.id}
               value={tab.id}
               className={
-                'wm-200 pl-3 pr-1.5 data-[state=active]:border-b-2 data-[state=active]:shadow-none data-[state=active]:rounded-none data-[state=active]:border-gray-900'
+                'h-8 text-xs relative wm-200 pl-3 pr-1.5 rounded-none group border-r ' +
+                'data-[state=active]:bg-muted ' +
+                'data-[state=active]:text-foreground ' +
+                'data-[state=active]:shadow-none ' +
+                'data-[state=active]:rounded-none '
               }
             >
+              <div className="h-[2px] w-full bg-[#1976d2] absolute bottom-0 left-0 invisible z-6 group-data-[state=active]:visible" />
               {tab.displayName}
-              <IconButton
-                size="small"
-                component="div"
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-lg size-6 invisible group-hover:visible group-data-[state=active]:visible"
                 onClick={(e) => {
                   e.stopPropagation();
                   onRemove(tab.id);
                 }}
               >
-                <CloseIcon fontSize="inherit" />
-              </IconButton>
+                <XIcon className="size-4" />
+              </Button>
             </TabsTrigger>
           );
         })}
