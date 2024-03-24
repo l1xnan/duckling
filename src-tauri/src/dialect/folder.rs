@@ -85,6 +85,9 @@ impl Connection for FolderDialect {
     Ok(total)
   }
 
+  fn normalize(&self, name: &str) -> String {
+    name.to_string()
+  }
   #[allow(clippy::unused_async)]
   async fn find(&self, value: &str, table: &str) -> anyhow::Result<RawArrowData> {
     let path = Path::new(table);
