@@ -129,8 +129,7 @@ impl Connection for FolderDialect {
           for c in arr {
             if let Some(c) = c {
               let like = format!(
-                "select filename, '{}' as col from ({}) where CAST({} AS VARCHAR) like '%{}%'",
-                c, sql, c, value
+                "select filename, '{c}' as col from ({sql}) where CAST({c} AS VARCHAR) like '%{value}%'"
               );
               likes.push(like);
             }
@@ -138,10 +137,8 @@ impl Connection for FolderDialect {
         }
       }
     }
-    let sql = format!(
-      "select filename, col, count(*) as count from ({}) group by all",
-      likes.join("\n union all \n")
-    );
+    let detail = likes.join("\n union all \n");
+    let sql = format!("select filename, col, count(*) as count from ({detail}) group by all");
     log::info!("{}", sql);
     self.query(&sql, 0, 0).await
   }
