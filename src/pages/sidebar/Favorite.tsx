@@ -4,8 +4,6 @@ import { Code2Icon, SearchIcon, TableIcon } from 'lucide-react';
 
 export function Favorite() {
   const items = useAtomValue(favoriteAtom);
-
-  console.log(items);
   return (
     <div className="grid min-h-screen w-full">
       <div className="hidden border-r bg-muted/40 md:block">

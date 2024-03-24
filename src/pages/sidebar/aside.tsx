@@ -60,7 +60,7 @@ export function ASide() {
     <aside className="inset-y fixed left-0 z-20 flex h-full flex-col border-r w-9">
       <nav className="grid gap-0.5 p-0 [&>*]:place-self-center">
         <SideButton id="database" label="Database" icon={DatabaseIcon} />
-        <SideButton id="favorite" label="Folder" icon={FolderHeart} />
+        <SideButton id="favorite" label="Favorite" icon={FolderHeart} />
         <SideButton id="code" label="Code" icon={Code2} />
         <SideButton id="history" label="History" icon={HistoryIcon} />
       </nav>
