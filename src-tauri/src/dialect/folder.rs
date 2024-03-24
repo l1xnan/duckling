@@ -126,13 +126,11 @@ impl Connection for FolderDialect {
     if let Ok(r) = res {
       if let Some(col) = r.batch.column_by_name("column_name") {
         if let Some(arr) = col.as_any().downcast_ref::<StringArray>() {
-          for c in arr {
-            if let Some(c) = c {
-              let like = format!(
+          for c in arr.into_iter().flatten() {
+            let like = format!(
                 "select filename, '{c}' as col from ({sql}) where CAST({c} AS VARCHAR) like '%{value}%'"
               );
-              likes.push(like);
-            }
+            likes.push(like);
           }
         }
       }
