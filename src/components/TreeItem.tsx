@@ -231,7 +231,7 @@ export const TreeItemLabel = React.forwardRef(
         className="flex items-center p-0 pt-0.5 pb-0.5 text-sm h-6"
         ref={ref as React.Ref<HTMLDivElement>}
       >
-        <div className="mr-1 flex items-center h-full [&_svg]:text-base [&_svg]:h-4 [&_svg]:w-4">
+        <div className="mr-1 flex items-center h-full [&_svg]:text-base [&_svg]:size-4">
           {getTypeIcon(icon, expanded)}
         </div>
         <div className="overflow-hidden text-ellipsis font-mono">

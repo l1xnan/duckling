@@ -1,4 +1,11 @@
+import { favoriteAtom } from '@/stores/app';
+import { useAtomValue } from 'jotai';
+import { Code2Icon, SearchIcon, TableIcon } from 'lucide-react';
+
 export function Favorite() {
+  const items = useAtomValue(favoriteAtom);
+
+  console.log(items);
   return (
     <div className="grid min-h-screen w-full">
       <div className="hidden border-r bg-muted/40 md:block">
@@ -9,7 +16,28 @@ export function Favorite() {
             </a>
           </div>
           <div className="flex-1">
-            <nav className="grid items-start px-1 text-sm font-medium"></nav>
+            <nav className="grid items-start px-1 text-sm">
+              {items.map((item, i) => {
+                const Comp =
+                  item.type == 'search'
+                    ? SearchIcon
+                    : item.type == 'editor'
+                      ? Code2Icon
+                      : TableIcon;
+                return (
+                  <a
+                    key={i}
+                    href="#"
+                    className="flex items-center rounded-lg px-2 py-1 text-muted-foreground transition-all hover:text-primary overflow-hidden"
+                  >
+                    <Comp className="size-4 min-w-4 mr-1" />
+                    <div className="overflow-hidden text-ellipsis font-mono font-normal whitespace-nowrap">
+                      {item.displayName}
+                    </div>
+                  </a>
+                );
+              })}
+            </nav>
           </div>
         </div>
       </div>

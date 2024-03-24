@@ -1,7 +1,9 @@
+import { favoriteAtom } from '@/stores/app';
 import CloseIcon from '@mui/icons-material/Close';
 import { TabContext, TabList, TabPanelProps, useTabContext } from '@mui/lab';
 import { Box, IconButton, Tab, TabProps, styled } from '@mui/material';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
+import { useSetAtom } from 'jotai';
 import {
   FunctionComponent,
   PropsWithChildren,
@@ -102,6 +104,7 @@ export function PageTabs({
   onRemove,
   onRemoveOther,
 }: PageTabsProps) {
+  const setFavorite = useSetAtom(favoriteAtom);
   const tabList = useMemo(() => {
     return (
       <PageTabList
@@ -151,6 +154,16 @@ export function PageTabs({
                       }}
                     >
                       Close Other
+                    </ContextMenuItem>
+
+                    <ContextMenuSeparator />
+
+                    <ContextMenuItem
+                      onClick={async () => {
+                        setFavorite((prev) => [...prev, tab]);
+                      }}
+                    >
+                      Favorite
                     </ContextMenuItem>
 
                     <ContextMenuSeparator />
