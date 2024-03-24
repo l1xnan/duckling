@@ -3,14 +3,12 @@ import { DBType, selectedNodeAtom, tablesAtom } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { TreeNode } from '@/types';
 import { filterTree } from '@/utils';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { TreeView, TreeViewProps } from '@mui/x-tree-view/TreeView';
 import { useAtom, useAtomValue } from 'jotai';
 import { isEmpty } from 'radash';
 import { useState } from 'react';
 
-import { TreeItem, TreeItemLabel } from '../../components/TreeItem.tsx';
+import { TreeItem, TreeItemLabel } from '@/components/TreeItem';
+import { SimpleTreeView as TreeView, TreeViewProps } from '@mui/x-tree-view';
 import { ConnectionContextMenu } from './context-menu/ConnectionContextMenu';
 import { SchemaContextMenu } from './context-menu/SchemaContextMenu';
 import { TableContextMenu } from './context-menu/TableContextMenu';
@@ -50,7 +48,7 @@ export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
     return (
       <TreeItem
         key={node.path}
-        nodeId={node.path}
+        itemId={node.path}
         label={
           isRoot ? (
             <ConnectionContextMenu db={db}>{child}</ConnectionContextMenu>
@@ -82,16 +80,16 @@ export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
   const [selectedNode, setSelectedNode] = useAtom(selectedNodeAtom);
   const selected = selectedNode?.dbId == db.id ? selectedNode.tableId : null;
 
-  const handleNodeSelect: TreeViewProps<boolean>['onNodeSelect'] = (
+  const handleNodeSelect: TreeViewProps<boolean>['onSelectedItemsChange'] = (
     _,
-    nodeIds,
+    itemIds,
   ) => {
     const nodes = dbTableMap.get(db.id)!;
-    const node = nodes.get(nodeIds as string);
+    const node = nodes.get(itemIds as string);
 
     const nodeContext = {
       dbId: db.id,
-      tableId: nodeIds as string,
+      tableId: itemIds as string,
     };
 
     setSelectedNode(nodeContext);
@@ -100,7 +98,7 @@ export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
     if (node && !noDataTypes.includes(node.type ?? '')) {
       const item: TableContextType = {
         ...nodeContext,
-        id: `${db.id}:${nodeIds}`,
+        id: `${db.id}:${itemIds}`,
         dbId: db.id,
         displayName: node?.name as string,
         type: 'table',
@@ -114,12 +112,10 @@ export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
   const data = filterTree(db.data, filter);
   return data ? (
     <TreeView
-      defaultCollapseIcon={<ExpandMoreIcon />}
-      defaultExpandIcon={<ChevronRightIcon />}
-      onNodeSelect={handleNodeSelect}
-      onNodeToggle={handleToggle}
-      expanded={expanded}
-      selected={selected}
+      onSelectedItemsChange={handleNodeSelect}
+      onExpandedItemsChange={handleToggle}
+      expandedItems={expanded}
+      selectedItems={selected}
       sx={{ position: 'relative' }}
       {...rest}
     >

@@ -12,8 +12,9 @@ import {
   TreeItem as MTreeItem,
   TreeItemContentProps,
   TreeItemProps,
-  useTreeItem,
+  useTreeItemState,
 } from '@mui/x-tree-view/TreeItem';
+
 import {
   IconBorderOuter,
   IconDatabase,
@@ -90,7 +91,7 @@ const CustomContent = React.forwardRef(function CustomContent(
     classes,
     className,
     label,
-    nodeId,
+    itemId,
     icon: iconProp,
     expansionIcon,
     displayIcon,
@@ -106,7 +107,7 @@ const CustomContent = React.forwardRef(function CustomContent(
     handleExpansion,
     handleSelection,
     preventSelection,
-  } = useTreeItem(nodeId);
+  } = useTreeItemState(itemId);
 
   const icon = iconProp || expansionIcon || displayIcon;
 
@@ -224,7 +225,7 @@ export const getTypeIcon = (type: string, expanded: boolean) => {
 export const TreeItemLabel = React.forwardRef(
   (props: TreeItemLabelProps, ref) => {
     const { node, nodeId, icon } = props;
-    const { expanded } = useTreeItem(nodeId);
+    const { expanded } = useTreeItemState(nodeId);
     return (
       <div
         className="flex items-center p-0 pt-0.5 pb-0.5 text-sm h-6"
