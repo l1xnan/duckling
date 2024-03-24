@@ -17,17 +17,8 @@ export default function VerticalContainer({
   const childrenArray = Children.toArray(children);
 
   return (
-    <div
-      className="flex flex-col relative"
-      style={{
-        height: 'calc(100vh - 64px)',
-      }}
-    >
-      <div
-        style={{
-          height: `calc(100vh - ${sizeTop + 64}px)`,
-        }}
-      >
+    <div className="flex flex-col relative h-full overflow-hidden">
+      <div style={{ height: `calc(100% - ${sizeTop}px)` }}>
         {childrenArray[0]}
       </div>
       {bottom ? (

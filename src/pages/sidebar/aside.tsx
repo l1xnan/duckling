@@ -57,7 +57,7 @@ const SideButton = ({ id, icon: Comp, label }: SideButtonProps) => {
 
 export function ASide() {
   return (
-    <aside className="inset-y fixed left-0 z-20 flex h-full flex-col border-r w-9">
+    <aside className="inset-y absolute left-0 z-20 flex h-full flex-col border-r w-9">
       <nav className="grid gap-0.5 p-0 [&>*]:place-self-center">
         <SideButton id="database" label="Database" icon={DatabaseIcon} />
         <SideButton id="favorite" label="Favorite" icon={FolderHeart} />

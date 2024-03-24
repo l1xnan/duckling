@@ -9,7 +9,7 @@ const Content = React.forwardRef<HTMLDivElement, WrapperProps>(
     return (
       <div
         className={cn(
-          'flex flex-col flex-grow h-screen min-h-screen overflow-hidden',
+          'flex flex-col flex-grow overflow-hidden h-full',
           className,
         )}
         ref={ref}
@@ -25,10 +25,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, WrapperProps>(
   ({ className, ...props }, ref) => {
     return (
       <div
-        className={cn(
-          'flex-shrink-0 h-screen min-h-screen w-full overflow-auto border-r',
-          className,
-        )}
+        className={cn('flex-shrink-0 w-full overflow-auto border-r', className)}
         ref={ref}
         {...props}
       />

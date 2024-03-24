@@ -113,7 +113,7 @@ export default function Editor({
   };
 
   return (
-    <>
+    <div className="h-full w-full overflow-hidden flex flex-col">
       <EditorToolbar
         onClick={handleClick}
         session={db?.displayName}
@@ -121,7 +121,7 @@ export default function Editor({
         hasLimit={hasLimit}
       />
       <VerticalContainer bottom={tab.children.length > 0 ? 300 : undefined}>
-        <div className="h-full flex flex-col border-b-[1px]">
+        <div className="h-full flex flex-col overflow-hidden border-b">
           <MonacoEditor
             ref={ref}
             value={stmt}
@@ -135,6 +135,6 @@ export default function Editor({
           setActiveKey={setActiveKey}
         />
       </VerticalContainer>
-    </>
+    </div>
   );
 }
