@@ -24,7 +24,7 @@ function Home() {
   const activeAside = useAtomValue(activeSideAtom);
   return (
     <div className="h-screen max-h-screen p-0 m-0 flex flex-col">
-      <div className="h-full p-0 m-0 flex-1 relative">
+      <div className="h-full p-0 m-0 flex-1 relative overflow-hidden">
         <ASide />
         <div
           ref={targetRefLeft as RefObject<HTMLDivElement>}

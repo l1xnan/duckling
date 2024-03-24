@@ -1,7 +1,7 @@
 import { favoriteAtom } from '@/stores/app';
 import CloseIcon from '@mui/icons-material/Close';
 import { TabContext, TabList, TabPanelProps, useTabContext } from '@mui/lab';
-import { Box, IconButton, Tab, TabProps, styled } from '@mui/material';
+import { IconButton, Tab, TabProps, styled } from '@mui/material';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useSetAtom } from 'jotai';
 import {
@@ -90,9 +90,9 @@ export const PageTabPanel: FunctionComponent<
 > = ({ children, value }) => {
   const { value: contextValue } = useTabContext() || {};
   return (
-    <Box hidden={value !== contextValue} className="h-full" key={value}>
+    <div hidden={value !== contextValue} className="h-full" key={value}>
       {children}
-    </Box>
+    </div>
   );
 };
 
@@ -186,7 +186,7 @@ export function PageTabs({
   }, [items]);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col overflow-hidden">
       <TabContext value={activeKey}>
         <div>{items?.length > 0 ? tabList : <Empty />}</div>
         <div className="h-full flex-1">
