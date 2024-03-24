@@ -10,7 +10,7 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { searchAtom } from '@/pages/sidebar/context-menu/SearchDialog';
+import { searchAtom } from '@/pages/sidebar/SearchDialog';
 import { DBType, DialectConfig } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { TreeNode } from '@/types';
@@ -22,7 +22,7 @@ export function TableContextMenu({
   db,
 }: PropsWithChildren<{ node: TreeNode; db: DBType }>) {
   const updateTab = useTabsStore((state) => state.update);
-  const [search, setSearch] = useAtom(searchAtom);
+  const [, setSearch] = useAtom(searchAtom);
 
   const handleDropTable: React.MouseEventHandler<HTMLDivElement> = async (
     e,

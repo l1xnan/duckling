@@ -153,10 +153,13 @@ export async function formatSQL(sql: string): Promise<string> {
   return res;
 }
 
-export async function find(value: string): Promise<string> {
-  const res = await invoke('find', { value });
-  console.log('format sql:', res);
-  return res as string;
+export async function find(
+  value: string,
+  path: string,
+  dialect: DialectConfig,
+): Promise<ResultType> {
+  const res = await invoke('find', { value, path, dialect });
+  return convert(res as ArrowResponse);
 }
 
 export class Connection {

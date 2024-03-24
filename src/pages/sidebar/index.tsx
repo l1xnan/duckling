@@ -16,10 +16,10 @@ import {
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 
 import { SearchInput } from '@/components/custom/search';
-import SearchDialog from '@/pages/sidebar/context-menu/SearchDialog';
+import SearchDialog from '@/pages/sidebar/SearchDialog';
 import DBTreeView from './DBTreeView';
 
-function Sidebar() {
+function DBTree() {
   const dbList = useAtomValue(dbListAtom);
   const renameContext = useAtomValue(renameAtom);
   const configContext = useAtomValue(configAtom);
@@ -80,4 +80,4 @@ function Sidebar() {
   );
 }
 
-export default Sidebar;
+export default DBTree;

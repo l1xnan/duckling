@@ -247,3 +247,17 @@ pub async fn format_sql(sql: &str) -> Result<String, String> {
   let options = FormatOptions::default();
   Ok(sqlformat::format(sql, &params, options))
 }
+
+#[tauri::command]
+pub async fn find(
+  value: &str,
+  path: &str,
+  dialect: DialectPayload,
+) -> Result<ArrowResponse, String> {
+  let d = get_dialect(dialect.clone())
+    .await
+    .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
+  let res = d.find(value, path).await;
+
+  Ok(api::convert(res))
+}

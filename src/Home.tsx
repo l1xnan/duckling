@@ -1,11 +1,11 @@
 import { useAtom } from 'jotai/react';
 
-import { Content, Sidebar as SidebarWrapper } from '@/components/Layout';
+import { Content, Sidebar } from '@/components/Layout';
 import { Hidden } from '@/components/custom/hidden';
 import { useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
 import { Main } from '@/pages/main';
-import Sidebar from '@/pages/sidebar';
+import DBTree from '@/pages/sidebar';
 import { Favorite, History, SqlCode } from '@/pages/sidebar/Favorite.tsx';
 import { ASide, activeSideAtom } from '@/pages/sidebar/aside';
 import { sizeAtom } from '@/stores/app';
@@ -29,9 +29,9 @@ function Home() {
         className="h-full pl-9 top-0 absolute flex flex-row"
         style={{ width: sizeLeft }}
       >
-        <SidebarWrapper>
+        <Sidebar>
           <Hidden display={activeAside == 'database'}>
-            <Sidebar />
+            <DBTree />
           </Hidden>
           <Hidden display={activeAside == 'favorite'}>
             <Favorite />
@@ -42,7 +42,7 @@ function Home() {
           <Hidden display={activeAside == 'code'}>
             <SqlCode />
           </Hidden>
-        </SidebarWrapper>
+        </Sidebar>
         <div className={classes.controls}>
           <div className={classes.resizeVertical} onMouseDown={actionLeft} />
         </div>

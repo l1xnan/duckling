@@ -17,6 +17,7 @@ import {
   useTabsStore,
 } from '@/stores/tabs';
 
+import { SearchView } from '@/components/views/SchemaView.tsx';
 import { PageProvider } from '@/hooks/context';
 import MonacoEditor from './editor';
 
@@ -33,6 +34,13 @@ function TabContent({ tabAtom }: { tabAtom: PrimitiveAtom<TabContextType> }) {
     return (
       <PageProvider context={tab}>
         <ColumnSchemaView context={tab as TableContextType} />
+      </PageProvider>
+    );
+  }
+  if (tab.type === 'search') {
+    return (
+      <PageProvider context={tab}>
+        <SearchView context={tab as TableContextType} />
       </PageProvider>
     );
   }
