@@ -28,7 +28,7 @@ function Home() {
         <ASide />
         <div
           ref={targetRefLeft as RefObject<HTMLDivElement>}
-          className="h-full pl-9 top-0 absolute flex flex-row"
+          className="h-full pl-9 top-0 absolute flex flex-row overflow-hidden"
           style={{ width: sizeLeft }}
         >
           <Sidebar>

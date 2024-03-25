@@ -25,7 +25,10 @@ const Sidebar = React.forwardRef<HTMLDivElement, WrapperProps>(
   ({ className, ...props }, ref) => {
     return (
       <div
-        className={cn('flex-shrink-0 w-full overflow-auto border-r', className)}
+        className={cn(
+          'flex-shrink-0 w-full overflow-hidden border-r',
+          className,
+        )}
         ref={ref}
         {...props}
       />

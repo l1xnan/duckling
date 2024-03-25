@@ -63,7 +63,7 @@ function DBTree() {
           }}
         />
       </div>
-      <div className="w-full max-h-[calc(100vh-94px)] overflow-auto pr-1 pb-2">
+      <div className="size-full overflow-auto pr-1 pb-2">
         {dbList.map((db, _i) => {
           return <DBTreeView key={db.id} db={db} filter={search} />;
         })}

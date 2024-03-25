@@ -6,5 +6,7 @@ export const Hidden = ({
   children,
   className,
 }: PropsWithChildren<{ display: boolean; className?: string }>) => (
-  <div className={cn(className, display ? '' : 'hidden')}>{children}</div>
+  <div className={cn('size-full', className, display ? '' : 'hidden')}>
+    {children}
+  </div>
 );
