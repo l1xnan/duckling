@@ -336,7 +336,8 @@ export const CanvasTable = React.memo(function CanvasTable({
   const option: ListTableConstructorOptions = {
     records: data,
     limitMaxAutoWidth: 200,
-    heightMode: 'autoHeight',
+    heightMode: 'standard',
+    defaultRowHeight: 24,
     widthMode: 'autoWidth',
     showFrozenIcon: true,
     frozenColCount: 1 + leftPinnedCols.length,
@@ -430,10 +431,13 @@ export const CanvasTable = React.memo(function CanvasTable({
           console.log('context', arg);
         }}
         onSelectedCell={(arg) => {
-          setSelectCell(arg.row);
           console.log('seleted', arg);
           console.log(tableRef.current);
-          console.log(tableRef.current?.stateManager.menu);
+
+          const table = tableRef.current;
+          if (table) {
+            table.updateTheme(table.theme);
+          }
         }}
         onDropdownMenuClick={handleDropdownMenuClick}
         onMouseEnterCell={handleMouseEnterCell}
@@ -474,7 +478,9 @@ export function SimpleTable({ data }: { data: unknown[] }) {
   const option: ListTableConstructorOptions = {
     records: data,
     limitMaxAutoWidth: 200,
-    heightMode: 'autoHeight',
+    // heightMode: 'autoHeight',
+    heightMode: 'standard',
+    defaultRowHeight: 28,
     widthMode: 'autoWidth',
     showFrozenIcon: true,
     theme,
