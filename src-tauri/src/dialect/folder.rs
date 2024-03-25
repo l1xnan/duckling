@@ -128,7 +128,7 @@ impl Connection for FolderDialect {
         if let Some(arr) = col.as_any().downcast_ref::<StringArray>() {
           for c in arr.into_iter().flatten() {
             let like = format!(
-                "select filename, '{c}' as col from ({sql}) where CAST({c} AS VARCHAR) like '%{value}%'"
+                "select filename, '{c}' as col from ({sql}) where CAST(\"{c}\" AS VARCHAR) like '%{value}%'"
               );
             likes.push(like);
           }
