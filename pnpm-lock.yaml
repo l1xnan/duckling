@@ -126,8 +126,8 @@ dependencies:
     specifier: ^31.1.0
     version: 31.1.0
   ag-grid-react:
-    specifier: ^31.1.0
-    version: 31.1.0(react-dom@18.2.0)(react@18.2.0)
+    specifier: ^31.1.1
+    version: 31.1.1(react-dom@18.2.0)(react@18.2.0)
   class-variance-authority:
     specifier: ^0.7.0
     version: 0.7.0
@@ -1571,7 +1571,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -1581,7 +1580,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -1591,7 +1589,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -1601,7 +1598,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -3829,13 +3825,17 @@ packages:
     resolution: {integrity: sha512-MTGBWwtJiKm2XHkyrmjxsybDODiOHAcPZm8QfxozwVfWy5yPUED08GFJd2sIdSs8n2OxAnIqmr6lJloX4j3zaw==}
     dev: false
 
-  /ag-grid-react@31.1.0(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-C5hbGHD0FJHCesmthQxkHPf+QKi4BBv9JHGYti9qtxLgzv/3i10+O8qg5Fer4juvWdKxCrPJ0dZWW+7fQ6kApQ==}
+  /ag-grid-community@31.1.1:
+    resolution: {integrity: sha512-tiQZ7VQ07yJScTMIQpaYoUMPgiyXMwYDcwTxe4riRrcYGTg0e258XEihoPUZFejR60P1fYWMxdJaR2JUnyhGrg==}
+    dev: false
+
+  /ag-grid-react@31.1.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-aaDMSP8MGhoXL5M9c4UmhBClRlc3mEMMC0E0/1mhXU6bdiz0QxXT/xQtDe3DFC62VrtXVda9x20Lpj6p6Bfy8g==}
     peerDependencies:
       react: ^16.3.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.3.0 || ^17.0.0 || ^18.0.0
     dependencies:
-      ag-grid-community: 31.1.0
+      ag-grid-community: 31.1.1
       prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
