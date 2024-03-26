@@ -222,6 +222,7 @@ export const getTypeIcon = (type: string, expanded: boolean) => {
   }
   return <IconFile />;
 };
+
 export const TreeItemLabel = React.forwardRef(
   (props: TreeItemLabelProps, ref) => {
     const { node, nodeId, icon } = props;

@@ -49,7 +49,7 @@ const items = [
   },
   {
     key: 'csv',
-    title: 'Export',
+    title: 'Import/Export',
   },
   {
     key: 'update',
