@@ -45,11 +45,7 @@ export function TableContextMenu({
   };
 
   return (
-    <AlertDialog
-      onOpenChange={(s) => {
-        console.log('alert', s);
-      }}
-    >
+    <AlertDialog>
       <ContextMenu>
         <ContextMenuTrigger>{children}</ContextMenuTrigger>
         <ContextMenuContent
