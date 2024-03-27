@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { favoriteAtom } from '@/stores/app';
+import { favoriteAtom, runsAtom } from '@/stores/app';
 import { useTabsStore } from '@/stores/tabs';
 import { useAtomValue } from 'jotai';
 import { Code2Icon, SearchIcon, TableIcon } from 'lucide-react';
@@ -72,17 +72,42 @@ export function Favorite() {
 }
 
 export function History() {
+  const items = useAtomValue(runsAtom);
+  const updateTab = useTabsStore((state) => state.update);
+
+  const handleClick = (item) => {
+    updateTab(item);
+  };
   return (
     <div className="grid h-full w-full">
-      <div className="hidden border-r bg-muted/40 md:block">
+      <div className="hidden border-r md:block">
         <div className="flex h-full flex-col gap-2">
           <div className="flex h-8 items-center border-b px-4">
             <a className="flex items-center gap-2 font-semibold">
-              <span className="">History</span>
+              <span className="">Favorite</span>
             </a>
           </div>
           <div className="flex-1">
-            <nav className="grid items-start px-1 text-sm font-medium"></nav>
+            <nav className="grid items-start px-1 text-sm">
+              {items.map((item, i) => {
+                const Comp =
+                  item.type == 'search'
+                    ? SearchIcon
+                    : item.type == 'editor'
+                      ? Code2Icon
+                      : TableIcon;
+                return (
+                  <ItemLabel
+                    key={i}
+                    content={item.stmt}
+                    icon={<Comp className="size-4 min-w-4 mr-1" />}
+                    onClick={() => {
+                      handleClick(item);
+                    }}
+                  />
+                );
+              })}
+            </nav>
           </div>
         </div>
       </div>
@@ -92,9 +117,9 @@ export function History() {
 
 export function SqlCode() {
   return (
-    <div className="grid h-full w-full">
+    <div className="grid size-full">
       <div className="hidden border-r bg-muted/40 md:block">
-        <div className="flex h-full h-full flex-col gap-2">
+        <div className="flex h-full flex-col gap-2">
           <div className="flex h-8 items-center border-b px-4">
             <a className="flex items-center gap-2 font-semibold">
               <span className="">Code</span>

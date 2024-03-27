@@ -13,6 +13,7 @@ import {
   useTabsStore,
 } from '@/stores/tabs';
 
+import { runsAtom } from '@/stores/app';
 import { EditorToolbar } from './EditorToolbar';
 import MonacoEditor, { EditorRef } from './MonacoEditor';
 import { QueryTabs } from './QueryTabs';
@@ -84,6 +85,7 @@ export default function Editor({
     return stmt;
   };
 
+  const setRuns = useSetAtom(runsAtom);
   const handleClick = async (action?: string) => {
     const stmt = getStmt();
     const id = `${tab.id}@${nanoid()}`;
@@ -98,15 +100,17 @@ export default function Editor({
         displayName: `Result${(tab?.children?.length ?? 0) + 1}`,
         id,
       });
-
+      setRuns((prev) => [...(prev ?? []), subContext]);
       setSubTabs((prev) => [...(prev ?? []), subContext]);
     } else {
       setSubTabs((tabs) =>
-        (tabs ?? []).map((item) =>
-          item.id == tab.activeKey
-            ? { ...item, stmt, id, page: 1, perPage: 500, hasLimit }
-            : item,
-        ),
+        (tabs ?? []).map((item) => {
+          if (item.id == tab.activeKey) {
+            item = { ...item, stmt, id, page: 1, perPage: 500, hasLimit };
+            setRuns((prev) => [...(prev ?? []), item]);
+          }
+          return item;
+        }),
       );
     }
     setTab((item) => ({ ...item, activeKey: id }));

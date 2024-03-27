@@ -37,3 +37,4 @@ export const appAtom = atomWithStore(useAppStore);
 export const sizeAtom = focusAtom(appAtom, (optic) => optic.prop('size'));
 
 export const favoriteAtom = atomWithStorage<TabContextType[]>('favorite', []);
+export const runsAtom = atomWithStorage<TabContextType[]>('runs', []);
