@@ -1,3 +1,5 @@
+use std::env::{current_dir, set_current_dir};
+
 use async_trait::async_trait;
 
 use crate::api;
@@ -93,9 +95,11 @@ impl Connection for DuckDbDialect {
     };
 
     let sql = format!("DROP VIEW IF EXISTS {}", table_name);
-    log::warn!("drop table: {}", &sql);
+    log::warn!("drop: {}", &sql);
     // TODO: raw query
-    let _ = self.query(&sql, 0, 0).await;
+    let _ = self.execute(&sql);
+    let sql = format!("DROP TABLE IF EXISTS {}", table_name);
+    let _ = self.execute(&sql);
     Ok(String::new())
   }
 
@@ -121,6 +125,20 @@ impl DuckDbDialect {
 
   fn set_cwd(&mut self, cwd: Option<String>) {
     self.cwd = cwd;
+  }
+
+  fn execute(&self, sql: &str) -> anyhow::Result<usize> {
+    if let Some(cwd) = &self.cwd {
+      let _ = set_current_dir(cwd);
+    }
+    log::info!("current_dir: {}", current_dir()?.display());
+    let con = if self.path == ":memory:" {
+      duckdb::Connection::open_in_memory()?
+    } else {
+      duckdb::Connection::open(&self.path)?
+    };
+    let res = con.execute(sql, [])?;
+    Ok(res)
   }
 }
 
