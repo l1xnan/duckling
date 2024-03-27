@@ -84,6 +84,16 @@ impl Connection for ClickhouseDialect {
 }
 
 impl ClickhouseDialect {
+  pub fn new(host: &str, port: &str, username: &str, password: &str) -> Self {
+    Self {
+      host: host.to_string(),
+      port: port.to_string(),
+      username: username.to_string(),
+      password: password.to_string(),
+      database: None,
+    }
+  }
+
   pub(crate) fn get_url(&self) -> String {
     format!(
       "tcp://{}:{}@{}:{}/{}?compression=lz4",
@@ -277,7 +287,7 @@ fn convert_type(col_type: &SqlType) -> DataType {
     SqlType::DateTime(_) => DataType::Date64,
     SqlType::Nullable(t) => convert_type(*t),
     SqlType::Decimal(_d1, _d2) => DataType::Utf8,
-    SqlType::Array(t) => DataType::List(Arc::new(Field::new("", convert_type(t), false))),
+    SqlType::Array(t) => DataType::List(Arc::new(Field::new("item", convert_type(t), true))),
     _ => DataType::Utf8,
   }
 }
@@ -346,6 +356,18 @@ fn convert_col(
     SqlType::Int64 => generate_array!(block, col, Int64Array, i64, nullable),
     SqlType::Float32 => generate_array!(block, col, Float32Array, f32, nullable),
     SqlType::Float64 => generate_array!(block, col, Float64Array, f64, nullable),
+    SqlType::Array(t) => {
+      let mut builder = ListBuilder::new(Int64Builder::new());
+
+      for item in col.iter::<Vec<i64>>()? {
+        let i: Vec<_> = item.into_iter().map(|t| Some((*t).clone())).collect();
+        builder.append_value(i);
+      }
+
+      let values = builder.finish();
+
+      Arc::new(values) as ArrayRef
+    }
     SqlType::Date => {
       if nullable {
         let res: Vec<_> = collect_block::<Option<NaiveDate>>(block, col.name())
@@ -429,10 +451,9 @@ fn block_to_arrow(block: &Block) -> anyhow::Result<RecordBatch> {
   let mut fields = vec![];
   let mut data = vec![];
   for col in block.columns() {
-    if let Ok((field, arr)) = convert_col(block, &col.sql_type(), col) {
-      fields.push(field);
-      data.push(arr);
-    }
+    let (field, arr) = convert_col(block, &col.sql_type(), col)?;
+    fields.push(field);
+    data.push(arr);
   }
 
   let schema = Schema::new(fields);
@@ -454,4 +475,9 @@ async fn query_stream(url: &str, sql: &str) -> anyhow::Result<()> {
     }
   }
   Ok(())
+}
+
+#[tokio::test]
+async fn test_duckdb() {
+  use arrow::util::pretty::print_batches;
 }
