@@ -4,7 +4,7 @@ export const ToolbarContainer = (
   props: React.HTMLAttributes<HTMLDivElement>,
 ) => (
   <div
-    className="h-8 w-full pl-1 flex flex-row items-center justify-between border-b"
+    className="h-8 min-h-8 w-full pl-1 flex flex-row items-center justify-between border-b"
     {...props}
   />
 );
