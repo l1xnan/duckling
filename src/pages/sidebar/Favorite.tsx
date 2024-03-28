@@ -1,3 +1,4 @@
+import { tabTypeIcon } from '@/components/PageTabs';
 import { Button } from '@/components/ui/button';
 import { favoriteAtom, runsAtom } from '@/stores/app';
 import { useTabsStore } from '@/stores/tabs';
@@ -90,12 +91,7 @@ export function History() {
           <div className="flex-1">
             <nav className="grid items-start px-1 text-sm">
               {items.map((item, i) => {
-                const Comp =
-                  item.type == 'search'
-                    ? SearchIcon
-                    : item.type == 'editor'
-                      ? Code2Icon
-                      : TableIcon;
+                const Comp = tabTypeIcon(item.type);
                 return (
                   <ItemLabel
                     key={i}

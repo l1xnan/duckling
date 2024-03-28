@@ -18,7 +18,7 @@ import { TabContextType } from '@/stores/tabs';
 import { borderTheme, isDarkTheme } from '@/utils';
 
 import { Button } from '@/components/ui/button';
-import { XIcon } from 'lucide-react';
+import { Code2Icon, SearchIcon, TableIcon, XIcon } from 'lucide-react';
 import { ContextMenuItem } from './custom/context-menu';
 import { Tooltip } from './custom/tooltip';
 import {
@@ -96,6 +96,9 @@ export const PageTabPanel: FunctionComponent<
   );
 };
 
+export const tabTypeIcon = (type: string) =>
+  type == 'search' ? SearchIcon : type == 'editor' ? Code2Icon : TableIcon;
+
 export function PageTabs({
   items,
   activeKey,
@@ -113,6 +116,7 @@ export function PageTabs({
         onChange={(_, value) => onChange(value)}
       >
         {items.map(({ tab }) => {
+          const Comp = tabTypeIcon(tab.type);
           return (
             <PageTab
               key={tab.id}
@@ -122,9 +126,12 @@ export function PageTabs({
                   <ContextMenuTrigger className="w-full">
                     <div className="flex items-center justify-between">
                       <Tooltip title={`${tab.type}: ${tab.displayName}`}>
-                        <div className="max-w-52 truncate">
-                          {tab.displayName}
-                        </div>
+                        <>
+                          <Comp className="size-4 mr-1" />
+                          <div className="max-w-52 truncate">
+                            {tab.displayName}
+                          </div>
+                        </>
                       </Tooltip>
                       <IconButton
                         size="small"
