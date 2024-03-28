@@ -71,7 +71,7 @@ fn handle_open_url(app: &mut tauri::App) {
     let opened_urls = if let Some(urls) = &*app.state::<OpenedUrls>().0.lock().unwrap() {
       urls
         .iter()
-        .map(|u| u.as_str().replace('\\', "\\\\"))
+        .map(|u| u.as_str().replace('\\', "/"))
         .collect::<Vec<_>>()
         .join(", ")
     } else {

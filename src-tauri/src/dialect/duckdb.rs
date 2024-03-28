@@ -109,6 +109,20 @@ impl Connection for DuckDbDialect {
     let total = conn.query_row(sql, [], |row| row.get::<_, usize>(0))?;
     Ok(total)
   }
+
+  async fn execute(&self, sql: &str) -> anyhow::Result<usize> {
+    if let Some(cwd) = &self.cwd {
+      let _ = set_current_dir(cwd);
+    }
+    log::info!("current_dir: {}", current_dir()?.display());
+    let con = if self.path == ":memory:" {
+      duckdb::Connection::open_in_memory()?
+    } else {
+      duckdb::Connection::open(&self.path)?
+    };
+    let res = con.execute(sql, [])?;
+    Ok(res)
+  }
 }
 
 impl DuckDbDialect {
@@ -125,20 +139,6 @@ impl DuckDbDialect {
 
   fn set_cwd(&mut self, cwd: Option<String>) {
     self.cwd = cwd;
-  }
-
-  fn execute(&self, sql: &str) -> anyhow::Result<usize> {
-    if let Some(cwd) = &self.cwd {
-      let _ = set_current_dir(cwd);
-    }
-    log::info!("current_dir: {}", current_dir()?.display());
-    let con = if self.path == ":memory:" {
-      duckdb::Connection::open_in_memory()?
-    } else {
-      duckdb::Connection::open(&self.path)?
-    };
-    let res = con.execute(sql, [])?;
-    Ok(res)
   }
 }
 

@@ -187,6 +187,9 @@ pub trait Connection: Sync + Send {
   async fn find(&self, value: &str, path: &str) -> anyhow::Result<RawArrowData> {
     unimplemented!()
   }
+  async fn execute(&self, sql: &str) -> anyhow::Result<usize> {
+    unimplemented!()
+  }
 }
 
 pub async fn _paging_query(
