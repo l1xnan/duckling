@@ -167,6 +167,9 @@ dependencies:
   jotai-zustand:
     specifier: ^0.3.0
     version: 0.3.0(jotai@2.7.0)
+  keepalive-for-react:
+    specifier: ^2.0.2
+    version: 2.0.2(react-dom@18.2.0)(react@18.2.0)
   lucide-react:
     specifier: ^0.363.0
     version: 0.363.0(react@18.2.0)
@@ -5631,6 +5634,16 @@ packages:
       diff-match-patch: 1.0.5
     dev: false
     bundledDependencies: []
+
+  /keepalive-for-react@2.0.2(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-n8uoGEeuso/UkLhAeEHkx/Y8PxLrUgO5kjudIhaE3cadeSLkOaTl6OkVohm2/vw4XMn26bwEon8pi6P/2q2FeA==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
 
   /keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}

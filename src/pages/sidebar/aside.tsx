@@ -3,10 +3,10 @@ import {
   DatabaseIcon,
   FolderHeart,
   HistoryIcon,
-  LifeBuoy,
   LucideIcon,
 } from 'lucide-react';
 
+import ToggleColorMode from '@/components/ToggleColorMode';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -17,6 +17,7 @@ import {
 import { cn } from '@/lib/utils.ts';
 import { atom } from 'jotai';
 import { useAtom } from 'jotai/react';
+import AppSettingDialog from '../settings/AppSetting';
 
 export const activeSideAtom = atom('database');
 
@@ -24,10 +25,14 @@ interface SideButtonProps {
   id: string;
   icon: LucideIcon;
   label: string;
+  onClick?: () => void;
 }
 
-const SideButton = ({ id, icon: Comp, label }: SideButtonProps) => {
+const SideButton = ({ id, icon: Comp, label, onClick }: SideButtonProps) => {
   const [activeSide, setActiveSide] = useAtom(activeSideAtom);
+  const handleClick = () => {
+    setActiveSide(id);
+  };
   return (
     <TooltipProvider>
       <Tooltip>
@@ -40,9 +45,7 @@ const SideButton = ({ id, icon: Comp, label }: SideButtonProps) => {
               activeSide == id ? 'bg-muted' : '',
             )}
             aria-label={label}
-            onClick={() => {
-              setActiveSide(id);
-            }}
+            onClick={onClick ?? handleClick}
           >
             <Comp className="size-4" />
           </Button>
@@ -58,14 +61,16 @@ const SideButton = ({ id, icon: Comp, label }: SideButtonProps) => {
 export function ASide() {
   return (
     <aside className="inset-y absolute left-0 z-20 flex h-full flex-col border-r w-9">
-      <nav className="grid gap-0.5 p-0 [&>*]:place-self-center">
+      <nav className="grid gap-0.5 p-0.5 [&>*]:place-self-center">
         <SideButton id="database" label="Database" icon={DatabaseIcon} />
         <SideButton id="favorite" label="Favorite" icon={FolderHeart} />
         <SideButton id="code" label="Code" icon={Code2} />
         <SideButton id="history" label="History" icon={HistoryIcon} />
       </nav>
       <nav className="mt-auto grid gap-1 p-0">
-        <SideButton id="help" label="Help" icon={LifeBuoy} />
+        <ToggleColorMode />
+        <AppSettingDialog />
+        {/* <SideButton id="help" label="Help" icon={LifeBuoy} /> */}
       </nav>
     </aside>
   );

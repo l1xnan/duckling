@@ -53,7 +53,7 @@ function DBTree() {
   }, []);
 
   return (
-    <>
+    <div className="h-full overflow-hidden flex flex-col">
       <SideToolbar />
       <div className="bg-background/40">
         <SearchInput
@@ -76,7 +76,7 @@ function DBTree() {
       {/* db config */}
       {configContext !== null ? <ConfigDialog /> : null}
       <SearchDialog />
-    </>
+    </div>
   );
 }
 

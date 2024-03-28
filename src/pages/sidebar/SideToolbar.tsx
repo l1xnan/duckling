@@ -9,9 +9,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 
 import { getDB } from '@/api';
 import { MuiIconButton } from '@/components/MuiIconButton';
-import ToggleColorMode from '@/components/ToggleColorMode';
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
-import Setting from '@/pages/settings/AppSetting';
 import { DatabaseDialog } from '@/pages/sidebar/DatabaseDialog';
 import {
   DialectType,
@@ -102,12 +100,8 @@ export function SideToolbar() {
 
   return (
     <>
-      <div className="h-8 w-full pl-4 flex items-center justify-between border-b">
+      <div className="h-8 min-h-8 w-full pl-4 flex items-center justify-between border-b">
         <div className="font-semibold">Database Explorer</div>
-        <Stack>
-          <ToggleColorMode />
-          <Setting />
-        </Stack>
       </div>
       <ToolbarContainer>
         <Stack>
