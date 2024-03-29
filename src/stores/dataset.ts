@@ -49,6 +49,7 @@ export type DatasetState = {
   sqlWhere?: string;
   beautify?: boolean;
   transpose?: boolean;
+  showValue?: boolean;
   dialogColumn?: string;
 };
 
@@ -62,6 +63,7 @@ export type DatasetAction = {
   setDialogColumn: (value: string) => void;
   refresh: (stmt?: string) => Promise<ResultType | undefined>;
   setBeautify: () => void;
+  setShowValue: () => void;
 };
 
 export type OrderByType = {
@@ -100,6 +102,10 @@ export const createDatasetStore = (context: TabContextType) =>
     setBeautify: () => set((s) => ({ beautify: !s.beautify })),
     setTranspose: () => {
       set((s) => ({ transpose: !s.transpose }));
+    },
+
+    setShowValue: () => {
+      set((s) => ({ showValue: !s.showValue }));
     },
 
     setPagination: (p) => {

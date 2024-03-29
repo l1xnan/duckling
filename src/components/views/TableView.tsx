@@ -3,7 +3,7 @@ import SyncIcon from '@mui/icons-material/Sync';
 import { IconButton } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
-import { CodeIcon, DownloadIcon, Loader2Icon } from 'lucide-react';
+import { CodeIcon, DownloadIcon, EyeIcon, Loader2Icon } from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -40,8 +40,16 @@ export const Loading = ({ className }: { className?: string }) => {
 };
 
 export function TableView({ context }: { context: TabContextType }) {
-  const { refresh, loading, data, tableSchema, beautify, orderBy, transpose } =
-    usePageStore();
+  const {
+    refresh,
+    loading,
+    data,
+    tableSchema,
+    beautify,
+    orderBy,
+    transpose,
+    showValue,
+  } = usePageStore();
   const currentTab = useAtomValue(activeTabAtom);
 
   useEffect(() => {
@@ -62,21 +70,36 @@ export function TableView({ context }: { context: TabContextType }) {
   return (
     <div className="h-full flex flex-col">
       <PageSizeToolbar />
-      <InputToolbar />
-      <div className="h-full flex-1">
-        <Suspense fallback={<Loading />}>
-          {loading ? <Loading /> : null}
-          <TableComponent
-            style={loading ? { display: 'none' } : undefined}
-            data={data ?? []}
-            schema={tableSchema ?? []}
-            beautify={beautify}
-            orderBy={orderBy}
-            precision={precision}
-            transpose={transpose}
-          />
-        </Suspense>
-      </div>
+      <ResizablePanelGroup direction="horizontal">
+        <ResizablePanel defaultSize={80} className="flex flex-col size-full">
+          <div className="h-full flex flex-col">
+            <InputToolbar />
+            <div className="h-full flex-1">
+              <Suspense fallback={<Loading />}>
+                {loading ? <Loading /> : null}
+                <TableComponent
+                  style={loading ? { display: 'none' } : undefined}
+                  data={data ?? []}
+                  schema={tableSchema ?? []}
+                  beautify={beautify}
+                  orderBy={orderBy}
+                  precision={precision}
+                  transpose={transpose}
+                />
+              </Suspense>
+            </div>
+          </div>
+        </ResizablePanel>
+        <ResizableHandle />
+        {showValue ? (
+          <ResizablePanel
+            defaultSize={20}
+            className="flex flex-row items-center"
+          >
+            // TODO: selectCell value
+          </ResizablePanel>
+        ) : null}
+      </ResizablePanelGroup>
     </div>
   );
 }
@@ -88,6 +111,8 @@ function PageSizeToolbar() {
     perPage,
     total,
     sql,
+
+    setShowValue,
 
     refresh,
     setBeautify,
@@ -138,6 +163,16 @@ function PageSizeToolbar() {
             {sql}
           </HoverCardContent>
         </HoverCard>
+
+        <IconButton
+          color="inherit"
+          disabled
+          onClick={() => {
+            setShowValue();
+          }}
+        >
+          <EyeIcon size={16} />
+        </IconButton>
 
         <IconButton disabled color="inherit" onClick={() => {}}>
           <DownloadIcon size={16} />

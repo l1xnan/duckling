@@ -120,11 +120,11 @@ dependencies:
     specifier: 2.0.0-beta.2
     version: 2.0.0-beta.2
   '@visactor/react-vtable':
-    specifier: ^0.22.1
-    version: 0.22.1
+    specifier: ^0.23.0
+    version: 0.23.0
   '@visactor/vtable':
-    specifier: ^0.22.1
-    version: 0.22.1
+    specifier: ^0.23.0
+    version: 0.23.0
   ag-grid-community:
     specifier: ^31.1.0
     version: 31.1.0
@@ -1577,7 +1577,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -1587,7 +1586,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -1597,7 +1595,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -1607,7 +1604,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -2820,7 +2816,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -2830,7 +2825,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -2840,7 +2834,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -2850,7 +2843,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -3686,10 +3678,10 @@ packages:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
     dev: true
 
-  /@visactor/react-vtable@0.22.1:
-    resolution: {integrity: sha512-1p6KqlsyQ7FquQCC/C9p0J3seEqBI41zxlckZ0DrzH+CCa2/DzzwsHq3MAJXR1GS3t743yuLmYLx9dIIalEgFw==}
+  /@visactor/react-vtable@0.23.0:
+    resolution: {integrity: sha512-7pQxYHHUfJGqrACccR9hc2jMs6LSVKY/ThQlIQSnY55180H5oq9r7k5dbRqPIzjEIIc5vwSru2YQi0kdQDV5pQ==}
     dependencies:
-      '@visactor/vtable': 0.22.1
+      '@visactor/vtable': 0.23.0
       '@visactor/vutils': 0.18.1
       react-is: 18.2.0
     dev: false
@@ -3769,19 +3761,19 @@ packages:
       '@visactor/vutils': 0.18.1
     dev: false
 
-  /@visactor/vtable-editors@0.22.1:
-    resolution: {integrity: sha512-ZoYNNGdZaOfMVH6IjjnM6IXCPUVEYNLc4FZE3PU7RVVghJ/rx7FvIy7ZJ/AedL8aTVMEEx6ROSJAuPk6b9d1gQ==}
+  /@visactor/vtable-editors@0.23.0:
+    resolution: {integrity: sha512-5xa9tOr96axQJi7dVjqnsvsudZaR5+VbziskyuNFpS/CMcP4oUJIg6V9+auPG/TvwdLaBbXgnLB6Aov+40H5Lg==}
     dev: false
 
-  /@visactor/vtable@0.22.1:
-    resolution: {integrity: sha512-SDT3o3h2+565hfBUMtQ00qMnjol2XH9FAtCfNLT9ZTakA0MIzGjg8VtEmDXyKAphOm8ube9adHsPpo//6UGl3w==}
+  /@visactor/vtable@0.23.0:
+    resolution: {integrity: sha512-KySN84cKUoMbDR4324AWHXtSGmajBG2wRiPxdAmbWou74M6C+pRhSyLUOkDswtJdzPrQOz+QXQMlQfTDJND/EQ==}
     dependencies:
       '@visactor/vdataset': 0.18.1
       '@visactor/vrender-components': 0.18.2-alpha.1
       '@visactor/vrender-core': 0.18.2-alpha.1
       '@visactor/vrender-kits': 0.18.2-alpha.1
       '@visactor/vscale': 0.18.1
-      '@visactor/vtable-editors': 0.22.1
+      '@visactor/vtable-editors': 0.23.0
       '@visactor/vutils': 0.18.1
       '@visactor/vutils-extension': 1.8.11
       cssfontparser: 1.2.1
