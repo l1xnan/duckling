@@ -1,7 +1,7 @@
 import { tabTypeIcon } from '@/components/PageTabs';
 import { Button } from '@/components/ui/button';
 import { favoriteAtom, runsAtom } from '@/stores/app';
-import { useTabsStore } from '@/stores/tabs';
+import { TabContextType, useTabsStore } from '@/stores/tabs';
 import { useAtomValue } from 'jotai';
 import { Code2Icon, SearchIcon, TableIcon } from 'lucide-react';
 import React, { ReactNode } from 'react';
@@ -32,7 +32,7 @@ export function Favorite() {
   const items = useAtomValue(favoriteAtom);
   const updateTab = useTabsStore((state) => state.update);
 
-  const handleClick = (item) => {
+  const handleClick = (item: TabContextType) => {
     updateTab(item);
   };
   return (
@@ -76,7 +76,7 @@ export function History() {
   const items = useAtomValue(runsAtom);
   const updateTab = useTabsStore((state) => state.update);
 
-  const handleClick = (item) => {
+  const handleClick = (item: TabContextType) => {
     updateTab(item);
   };
   return (
@@ -112,9 +112,16 @@ export function History() {
 }
 
 export function SqlCode() {
+  const tabs = useTabsStore((state) => state.tabs);
+  const updateTab = useTabsStore((state) => state.update);
+
+  const handleClick = (item: TabContextType) => {
+    updateTab(item);
+  };
+
   return (
     <div className="grid size-full">
-      <div className="hidden border-r bg-muted/40 md:block">
+      <div className="hidden border-r md:block">
         <div className="flex h-full flex-col gap-2">
           <div className="flex h-8 items-center border-b px-4">
             <a className="flex items-center gap-2 font-semibold">
@@ -122,7 +129,21 @@ export function SqlCode() {
             </a>
           </div>
           <div className="flex-1">
-            <nav className="grid items-start px-1 text-sm font-medium"></nav>
+            <nav className="grid items-start px-1 text-sm font-medium">
+              {Object.values(tabs)
+                .filter((tab) => tab.type == 'editor')
+                .map((item) => {
+                  return (
+                    <ItemLabel
+                      key={item.id}
+                      content={item.displayName}
+                      onClick={() => {
+                        handleClick(item);
+                      }}
+                    />
+                  );
+                })}
+            </nav>
           </div>
         </div>
       </div>

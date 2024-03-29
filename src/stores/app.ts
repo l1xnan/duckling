@@ -38,3 +38,4 @@ export const sizeAtom = focusAtom(appAtom, (optic) => optic.prop('size'));
 
 export const favoriteAtom = atomWithStorage<TabContextType[]>('favorite', []);
 export const runsAtom = atomWithStorage<TabContextType[]>('runs', []);
+export const docsAtom = atomWithStorage<Record<string, string>>('docs', {});

@@ -9,19 +9,19 @@ import {
 import {
   EditorContextType,
   SchemaContextType,
-  TabContextType,
   TableContextType,
-  activeTabAtom,
-  tabListAtom,
-  tabsAtomsAtom,
+  tabObjAtom,
   useTabsStore,
 } from '@/stores/tabs';
 
 import { SearchView } from '@/components/views/SchemaView.tsx';
 import { PageProvider } from '@/hooks/context';
+import { focusAtom } from 'jotai-optics';
+import { useMemo } from 'react';
 import MonacoEditor from './editor';
 
-function TabContent({ tabAtom }: { tabAtom: PrimitiveAtom<TabContextType> }) {
+function TabContent({ id }: { id: string }) {
+  const tabAtom = useTabsAtom(tabObjAtom, id);
   const tab = useAtomValue(tabAtom);
   if (tab.type === 'schema') {
     return (
@@ -57,26 +57,33 @@ function TabContent({ tabAtom }: { tabAtom: PrimitiveAtom<TabContextType> }) {
   );
 }
 
+const useTabsAtom = (objAtom: typeof tabObjAtom, key: string) => {
+  return useMemo(() => {
+    return focusAtom(objAtom, (optic) => optic.path(key));
+  }, [objAtom, key]);
+};
+
 export function Main() {
-  const activateTab = useTabsStore((state) => state.active);
-  const removeTab = useTabsStore((state) => state.remove);
-  const removeOtherTab = useTabsStore((state) => state.removeOther);
+  const { activateTab, removeTab, removeOtherTab, tabObj, ids, currentId } =
+    useTabsStore((state) => ({
+      activateTab: state.active,
+      removeTab: state.remove,
+      removeOtherTab: state.removeOther,
+      tabObj: state.tabs,
+      currentId: state.currentId,
+      ids: state.ids,
+    }));
 
-  const tabs = useAtomValue(tabListAtom);
-  const currentTab = useAtomValue(activeTabAtom);
-
-  const tabsAtoms = useAtomValue(tabsAtomsAtom);
-
-  const items = tabsAtoms.map((tabAtom, i) => {
-    const tab = tabs[i];
-    return { tab, children: <TabContent tabAtom={tabAtom} /> };
+  const items = ids.map((id) => {
+    const tab = tabObj[id];
+    return { tab, children: <TabContent id={tab.id} /> };
   });
 
   return (
     <PageTabs
       items={items}
       onChange={(value) => activateTab(value)}
-      activeKey={currentTab?.id ?? ''}
+      activeKey={currentId ?? ''}
       onRemove={removeTab}
       onRemoveOther={removeOtherTab}
     />

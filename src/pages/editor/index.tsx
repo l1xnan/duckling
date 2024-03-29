@@ -10,10 +10,9 @@ import {
   QueryContextType,
   getDatabase,
   subTabsAtomFamily,
-  useTabsStore,
 } from '@/stores/tabs';
 
-import { runsAtom } from '@/stores/app';
+import { docsAtom, runsAtom } from '@/stores/app';
 import { EditorToolbar } from './EditorToolbar';
 import MonacoEditor, { EditorRef } from './MonacoEditor';
 import { QueryTabs } from './QueryTabs';
@@ -34,8 +33,7 @@ export default function Editor({
   context: PrimitiveAtom<EditorContextType>;
 }) {
   const tabContext = useAtomValue(context);
-  const setStmt = useTabsStore((state) => state.setStmt);
-  const docs = useTabsStore((state) => state.docs);
+  const [docs, setDocs] = useAtom(docsAtom);
 
   const id = tabContext.id;
 
@@ -61,7 +59,7 @@ export default function Editor({
   const ref = useRef<EditorRef | null>(null);
 
   const handleChange: OnChange = (value, _event) => {
-    setStmt(id, value ?? '');
+    setDocs((prev) => ({ ...prev, [id]: value ?? '' }));
   };
 
   const setActiveKey = (key?: string) => {

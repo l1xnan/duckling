@@ -1,12 +1,11 @@
 import { atom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
-import { atomFamily, splitAtom } from 'jotai/utils';
-import { debounce, isEmpty } from 'radash';
+import { atomFamily } from 'jotai/utils';
+import { isEmpty, shake } from 'radash';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
 
 import {
   QueryParams,
@@ -66,6 +65,7 @@ export type EditorContextType = {
   tableId?: string;
   type: string;
   displayName: string;
+  docId?: string;
 };
 
 export type TableContextType = {
@@ -95,10 +95,9 @@ export type TabContextType =
   | QueryContextType;
 
 interface TabsState {
-  tabs: TabContextType[];
-  currentTab?: TabContextType;
-
-  docs: Record<string, string>;
+  ids: string[];
+  tabs: Record<string, TabContextType>;
+  currentId?: string;
 }
 
 type TabsAction = {
@@ -107,80 +106,86 @@ type TabsAction = {
   remove: (key: string) => void;
   removeOther: (key: string) => void;
   active: (idx: string) => void;
-
-  setStmt: (key: string, value: string) => void;
 };
 
 export const useTabsStore = create<TabsState & TabsAction>()(
-  immer(
-    persist(
-      (set, _get) => ({
-        tabs: [],
-        currentTab: undefined,
-        docs: {},
-
-        append: (tab: TabContextType) =>
-          set((state) => ({ tabs: [...state.tabs, tab] })),
-        active: (index) =>
-          set((state) => {
-            const idx = state.tabs.findIndex(({ id }) => id === index);
-            return { currentTab: state.tabs[idx] };
-          }),
-        update: (item: TabContextType) => {
-          set((state) => {
-            let tabs = state.tabs;
-            if (tabs.findIndex(({ id }) => id === item.id) < 0) {
-              tabs = [...tabs, item];
-            }
-            return { currentTab: item, tabs };
-          });
-        },
-        remove: (key) => {
-          set((state) => {
-            const tabs = state.tabs;
-            let table = state.currentTab;
-            const delIndex = tabs.findIndex(({ id }) => id === key);
-            const updatedTabs = tabs.filter((_tab, index) => {
-              return index !== delIndex;
-            });
-
-            if (key == table?.id) {
-              table = tabs[delIndex - 1] || tabs[delIndex + 1] || undefined;
-            }
-
-            return {
-              tabs: updatedTabs,
-              currentTab: table,
-            };
-          });
-        },
-        removeOther: (key) => {
-          set((state) => {
-            return {
-              tabs: state.tabs.filter((item) => item.id == key),
-              currentTab: state.tabs.filter((item) => item.id == key)[0],
-            };
-          });
-        },
-        setStmt: debounce({ delay: 300 }, (key, stmt) => {
-          set((s) => ({
-            docs: { ...s.docs, [key]: stmt },
-          }));
+  // immer(
+  persist(
+    (set, _get) => ({
+      ids: [],
+      tabs: {},
+      currentTab: undefined,
+      append: (tab: TabContextType) =>
+        set((state) => ({
+          tabs: { ...state.tabs, [tab.id]: tab },
+          ids: [...state.ids, tab.id],
+        })),
+      active: (id) =>
+        set(() => {
+          return { currentId: id };
         }),
-      }),
-      {
-        name: 'tabs',
-        storage: createJSONStorage(() => localStorage),
+      update: (item: TabContextType) => {
+        set((state) => {
+          const { ids, tabs } = state;
+          if (ids.findIndex((id) => id === item.id) < 0) {
+            tabs[item.id] = item;
+            ids.push(item.id);
+          }
+          return {
+            tabs,
+            ids,
+            currentId: item.id,
+          };
+        });
       },
-    ),
+      remove: (key) => {
+        set((state) => {
+          const ids = state.ids;
+          let cur = state.currentId;
+          const delIndex = ids.findIndex((id) => id === key);
+          const updatedIds = ids.filter((_tab, index) => {
+            return index !== delIndex;
+          });
+
+          if (key == cur) {
+            cur = ids[delIndex - 1] || ids[delIndex + 1] || undefined;
+          }
+
+          return {
+            ids: updatedIds,
+            tabs: shake(state.tabs, (a) => {
+              return !(a.id != key || a.type == 'editor');
+            }),
+            currentId: cur,
+          };
+        });
+      },
+      removeOther: (key) => {
+        set((state) => {
+          return {
+            ids: [key],
+            tabs: shake(state.tabs, (a) => {
+              return a.id != key && a.type != 'editor';
+            }),
+            currentId: key,
+          };
+        });
+      },
+    }),
+    {
+      name: 'tabs',
+      storage: createJSONStorage(() => localStorage),
+    },
   ),
+  // ),
 );
 
-export const tabsAtom = atomWithStore(useTabsStore);
-export const activeTabAtom = focusAtom(tabsAtom, (o) => o.prop('currentTab'));
-export const tabListAtom = focusAtom(tabsAtom, (o) => o.prop('tabs'));
+export const tabsStoreAtom = atomWithStore(useTabsStore);
+export const activeTabAtom = focusAtom(tabsStoreAtom, (o) =>
+  o.prop('currentId'),
+);
 
-export const tabsAtomsAtom = splitAtom(tabListAtom);
+export const tabObjAtom = focusAtom(tabsStoreAtom, (o) => o.prop('tabs'));
 
 export type SubTab = {
   id: string;

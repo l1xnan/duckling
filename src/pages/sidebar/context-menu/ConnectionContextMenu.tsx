@@ -1,5 +1,6 @@
 import { useSetAtom } from 'jotai';
 import { Code, RefreshCcw, Settings } from 'lucide-react';
+import { nanoid } from 'nanoid';
 import { PropsWithChildren } from 'react';
 
 import { getDB } from '@/api';
@@ -34,9 +35,9 @@ export function ConnectionContextMenu({
     if (db) {
       const displayName = db?.displayName ?? '';
       updateTab!({
+        id: nanoid(),
         dbId: db.id,
         displayName,
-        id: db.id,
         type: 'editor',
       });
     }

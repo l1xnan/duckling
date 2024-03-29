@@ -37,7 +37,7 @@ export function TableContextMenu({
   const updateTab = useTabsStore((state) => state.update);
   const [, setSearch] = useAtom(searchAtom);
 
-  const handleDropTable: React.MouseEventHandler<HTMLDivElement> = async (
+  const handleDropTable: React.MouseEventHandler<HTMLButtonElement> = async (
     e,
   ) => {
     e.stopPropagation();

@@ -53,7 +53,7 @@ export function TableView({ context }: { context: TabContextType }) {
   const currentTab = useAtomValue(activeTabAtom);
 
   useEffect(() => {
-    if (currentTab?.id == context.id) {
+    if (currentTab == context.id) {
       (async () => {
         try {
           await refresh();

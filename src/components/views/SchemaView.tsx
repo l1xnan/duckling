@@ -45,7 +45,7 @@ export function DatabaseSchemaView({
   };
 
   useEffect(() => {
-    if (currentTab?.id == context.id) {
+    if (currentTab == context.id) {
       handleQuery();
     }
   }, []);
@@ -125,7 +125,7 @@ export function ColumnSchemaView({ context }: { context: TableContextType }) {
   };
 
   useEffect(() => {
-    if (currentTab?.id == context.id) {
+    if (currentTab == context.id) {
       handleQuery();
     }
   }, []);
@@ -206,7 +206,7 @@ export function SearchView({ context }: { context: TableContextType }) {
   };
 
   useEffect(() => {
-    if (currentTab?.id == context.id) {
+    if (currentTab == context.id) {
       handleQuery();
     }
   }, []);
