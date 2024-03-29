@@ -77,7 +77,7 @@ export function History() {
   const updateTab = useTabsStore((state) => state.update);
 
   const handleClick = (item: TabContextType) => {
-    updateTab(item);
+    // updateTab(item);
   };
   return (
     <div className="grid h-full w-full">
@@ -85,7 +85,7 @@ export function History() {
         <div className="flex h-full flex-col gap-2">
           <div className="flex h-8 items-center border-b px-4">
             <a className="flex items-center gap-2 font-semibold">
-              <span className="">Favorite</span>
+              <span className="">History</span>
             </a>
           </div>
           <div className="flex-1">
