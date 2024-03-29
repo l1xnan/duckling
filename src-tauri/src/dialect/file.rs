@@ -42,4 +42,8 @@ impl Connection for FileDialect {
     let total = conn.query_row(&sql, [], |row| row.get::<_, usize>(0))?;
     Ok(total)
   }
+
+  fn normalize(&self, name: &str) -> String {
+    name.to_string()
+  }
 }

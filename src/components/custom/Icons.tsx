@@ -75,7 +75,7 @@ export const SqliteIcon = createSvgIcon(
 );
 export const MySqlIcon = createSvgIcon(
   <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-    <g fill-rule="evenodd">
+    <g fillRule="evenodd">
       <path
         d="m8.785 6.865a3.055 3.055 0 0 0 -.785.1v.035h.038a6.461 6.461 0 0 0 .612.785c.154.306.288.611.441.917.019-.019.038-.039.038-.039a1.074 1.074 0 0 0 .4-.957 4.314 4.314 0 0 1 -.23-.4c-.115-.191-.364-.287-.517-.44"
         fill="#5d87a1"
