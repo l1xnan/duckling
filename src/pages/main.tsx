@@ -11,13 +11,12 @@ import {
   SchemaContextType,
   TableContextType,
   tabObjAtom,
+  useTabsAtom,
   useTabsStore,
 } from '@/stores/tabs';
 
 import { SearchView } from '@/components/views/SchemaView.tsx';
 import { PageProvider } from '@/hooks/context';
-import { focusAtom } from 'jotai-optics';
-import { useMemo } from 'react';
 import MonacoEditor from './editor';
 
 function TabContent({ id }: { id: string }) {
@@ -56,12 +55,6 @@ function TabContent({ id }: { id: string }) {
     </PageProvider>
   );
 }
-
-const useTabsAtom = (objAtom: typeof tabObjAtom, key: string) => {
-  return useMemo(() => {
-    return focusAtom(objAtom, (optic) => optic.path(key));
-  }, [objAtom, key]);
-};
 
 export function Main() {
   const { activateTab, removeTab, removeOtherTab, tabObj, ids, currentId } =

@@ -1,24 +1,42 @@
-import { favoriteAtom } from '@/stores/app';
+import Dialog from '@/components/custom/Dialog';
+
+import { Empty } from '@/components/Empty';
+import ErrorBoundary from '@/components/ErrorBoundary';
+
+import { Button } from '@/components/ui/button';
+import { DialogClose, DialogFooter } from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+import { docsAtom, favoriteAtom } from '@/stores/app';
+import {
+  TabContextType,
+  tabObjAtom,
+  useTabsAtom,
+  useTabsStore,
+} from '@/stores/tabs';
+import { borderTheme, isDarkTheme } from '@/utils';
 import CloseIcon from '@mui/icons-material/Close';
 import { TabContext, TabList, TabPanelProps, useTabContext } from '@mui/lab';
 import { IconButton, Tab, TabProps, styled } from '@mui/material';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
-import { useSetAtom } from 'jotai';
+import { atom, useAtom, useSetAtom } from 'jotai';
+import { Code2Icon, SearchIcon, TableIcon, XIcon } from 'lucide-react';
+import { shake } from 'radash';
 import {
   FunctionComponent,
   PropsWithChildren,
   ReactNode,
   useMemo,
 } from 'react';
-
-import { Empty } from '@/components/Empty';
-import ErrorBoundary from '@/components/ErrorBoundary';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TabContextType } from '@/stores/tabs';
-import { borderTheme, isDarkTheme } from '@/utils';
-
-import { Button } from '@/components/ui/button';
-import { Code2Icon, SearchIcon, TableIcon, XIcon } from 'lucide-react';
+import { useForm } from 'react-hook-form';
 import { ContextMenuItem } from './custom/context-menu';
 import { Tooltip } from './custom/tooltip';
 import {
@@ -108,6 +126,20 @@ export function PageTabs({
   onRemoveOther,
 }: PageTabsProps) {
   const setFavorite = useSetAtom(favoriteAtom);
+  const setDocs = useSetAtom(docsAtom);
+  const [{ open }, setOpen] = useAtom(openAtom);
+
+  const { removeTab } = useTabsStore((state) => ({
+    removeTab: state.remove,
+  }));
+
+  const handleDeleteTab = (tab: TabContextType) => {
+    removeTab(tab.id, true);
+    setDocs((prev) => shake(prev, (a) => a.id != tab.id));
+  };
+  const handleRenameTab = (tab: TabContextType) => {
+    setOpen({ open: true, id: tab.id });
+  };
   const tabList = useMemo(() => {
     return (
       <PageTabList
@@ -182,6 +214,25 @@ export function PageTabs({
                     >
                       Copy
                     </ContextMenuItem>
+                    {tab.type == 'editor' ? (
+                      <>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem
+                          onClick={async () => {
+                            handleRenameTab(tab);
+                          }}
+                        >
+                          Rename
+                        </ContextMenuItem>
+                        <ContextMenuItem
+                          onClick={async () => {
+                            handleDeleteTab(tab);
+                          }}
+                        >
+                          Delete
+                        </ContextMenuItem>
+                      </>
+                    ) : null}
                   </ContextMenuContent>
                 </ContextMenu>
               }
@@ -211,6 +262,7 @@ export function PageTabs({
           })}
         </div>
       </TabContext>
+      {open ? <RenameDialog /> : null}
     </div>
   );
 }
@@ -274,5 +326,68 @@ export function PageTabs1({
         );
       })}
     </Tabs>
+  );
+}
+
+const openAtom = atom({ open: false, id: undefined });
+
+function RenameDialog() {
+  const [{ open, id }, setOpen] = useAtom(openAtom);
+  if (!id) {
+    return null;
+  }
+  const tabAtom = useTabsAtom(tabObjAtom, id);
+  const [tab, setTab] = useAtom(tabAtom);
+
+  const handClose = () => {
+    setOpen({
+      open: false,
+      id: undefined,
+    });
+  };
+
+  const handleSubmit = ({ name }: { name: string }) => {
+    setTab((prev) => ({ ...prev, displayName: name }));
+    handClose();
+  };
+
+  const form = useForm<{ name: string }>({
+    defaultValues: { name: tab?.displayName },
+  });
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(open) => {
+        setOpen((prev) => ({
+          ...prev,
+          open,
+        }));
+      }}
+      title="Rename"
+    >
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="secondary">Cancel</Button>
+            </DialogClose>
+            <Button type="submit">Ok</Button>
+          </DialogFooter>
+        </form>
+      </Form>
+    </Dialog>
   );
 }

@@ -3,6 +3,7 @@ import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
 import { atomFamily } from 'jotai/utils';
 import { isEmpty, shake } from 'radash';
+import { useMemo } from 'react';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -103,7 +104,7 @@ interface TabsState {
 type TabsAction = {
   append: (tab: TabContextType) => void;
   update: (tab: TabContextType) => void;
-  remove: (key: string) => void;
+  remove: (key: string, force?: boolean) => void;
   removeOther: (key: string) => void;
   active: (idx: string) => void;
 };
@@ -138,7 +139,7 @@ export const useTabsStore = create<TabsState & TabsAction>()(
           };
         });
       },
-      remove: (key) => {
+      remove: (key, force) => {
         set((state) => {
           const ids = state.ids;
           let cur = state.currentId;
@@ -154,7 +155,7 @@ export const useTabsStore = create<TabsState & TabsAction>()(
           return {
             ids: updatedIds,
             tabs: shake(state.tabs, (a) => {
-              return !(a.id != key || a.type == 'editor');
+              return a.id == key && (a.type != 'editor' || !!force);
             }),
             currentId: cur,
           };
@@ -186,6 +187,12 @@ export const activeTabAtom = focusAtom(tabsStoreAtom, (o) =>
 );
 
 export const tabObjAtom = focusAtom(tabsStoreAtom, (o) => o.prop('tabs'));
+
+export const useTabsAtom = (objAtom: typeof tabObjAtom, key: string) => {
+  return useMemo(() => {
+    return focusAtom(objAtom, (optic) => optic.path(key));
+  }, [objAtom, key]);
+};
 
 export type SubTab = {
   id: string;
