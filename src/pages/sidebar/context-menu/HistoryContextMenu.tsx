@@ -1,5 +1,7 @@
+import { runsAtom } from '@/stores/app.ts';
 import { QueryContextType } from '@/stores/tabs.ts';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
+import { useSetAtom } from 'jotai';
 import { PropsWithChildren } from 'react';
 
 import { ContextMenuItem } from '@/components/custom/context-menu';
@@ -13,6 +15,8 @@ export function HistoryContextMenu({
   children,
   ctx,
 }: PropsWithChildren<{ ctx: QueryContextType }>) {
+  const setItems = useSetAtom(runsAtom);
+
   return (
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
@@ -24,6 +28,14 @@ export function HistoryContextMenu({
           }}
         >
           Copy
+        </ContextMenuItem>{' '}
+        <ContextMenuItem
+          onClick={async (e) => {
+            e.stopPropagation();
+            setItems((prev) => prev.filter((p) => p.id != ctx.id));
+          }}
+        >
+          Delete
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
