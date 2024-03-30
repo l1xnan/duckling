@@ -160,6 +160,8 @@ function PageSizeToolbar({ query, ctx, exportData }: PageSizeToolbarProps) {
         <IconButton color="inherit" onClick={handleRefresh}>
           <RefreshCwIcon size={16} />
         </IconButton>
+
+        <div className="text-xs ml-6">elapsed time: {context.elapsed}ms</div>
       </Stack>
       <Stack>
         <HoverCard>

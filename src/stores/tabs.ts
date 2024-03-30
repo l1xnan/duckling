@@ -47,6 +47,7 @@ export type QueryContextType = QueryParamType & {
   displayName: string;
 
   total: number;
+  elapsed: number;
 
   data?: unknown[];
   sql?: string;

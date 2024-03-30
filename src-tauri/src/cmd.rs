@@ -121,8 +121,10 @@ pub async fn paging_query(
   dialect: DialectPayload,
 ) -> Result<ArrowResponse, String> {
   if let Some(d) = get_dialect(dialect).await {
+    let start = Instant::now();
     let res = d.paging_query(&sql, Some(limit), Some(offset)).await;
-    Ok(api::convert(res, None))
+    let duration = start.elapsed().as_millis();
+    Ok(api::convert(res, Some(duration)))
   } else {
     Err("not support dialect".to_string())
   }
