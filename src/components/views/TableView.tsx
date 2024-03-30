@@ -146,7 +146,9 @@ function PageSizeToolbar() {
         >
           <SyncIcon fontSize="small" />
         </IconButton>
-        <div className="text-xs ml-6">elapsed time: {elapsed}ms</div>
+        <div className="text-xs ml-6">
+          elapsed time: {elapsedRender(elapsed)}
+        </div>
       </Stack>
       <Stack>
         <IconButton color="inherit" onClick={setTranspose}>
@@ -181,6 +183,10 @@ function PageSizeToolbar() {
       </Stack>
     </ToolbarContainer>
   );
+}
+
+export function elapsedRender(elapsed?: number) {
+  return elapsed ? `${elapsed}ms` : 'NA';
 }
 
 export function InputToolbar() {

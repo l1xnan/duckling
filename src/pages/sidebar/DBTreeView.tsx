@@ -6,7 +6,7 @@ import { filterTree } from '@/utils';
 import { useAtom, useAtomValue } from 'jotai';
 import { nanoid } from 'nanoid';
 import { isEmpty } from 'radash';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import { TreeItem, TreeItemLabel } from '@/components/TreeItem';
 import { SimpleTreeView as TreeView, TreeViewProps } from '@mui/x-tree-view';

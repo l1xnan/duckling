@@ -1,7 +1,8 @@
 import { tabTypeIcon } from '@/components/PageTabs';
 import { Button } from '@/components/ui/button';
+import { HistoryContextMenu } from '@/pages/sidebar/context-menu/HistoryContextMenu.tsx';
 import { favoriteAtom, runsAtom } from '@/stores/app';
-import { TabContextType, useTabsStore } from '@/stores/tabs';
+import { QueryContextType, TabContextType, useTabsStore } from '@/stores/tabs';
 import { useAtomValue } from 'jotai';
 import { Code2Icon, SearchIcon, TableIcon } from 'lucide-react';
 import React, { ReactNode } from 'react';
@@ -17,12 +18,16 @@ export const ItemLabel = React.forwardRef(
     return (
       <Button
         variant="ghost"
-        className="flex items-center justify-start p-0 pt-0.5 pb-0.5 text-sm h-6"
+        className="w-full flex flex-row items-center justify-start p-0 pt-0.5 pb-0.5 text-sm h-6"
         ref={ref as React.Ref<HTMLButtonElement>}
         onClick={onClick}
       >
-        <div className="mx-2 flex items-center h-full">{icon ?? ''}</div>
-        <div className="truncate font-mono">{content}</div>
+        {icon ? (
+          <div className="ml-2 flex items-center h-full">{icon}</div>
+        ) : null}
+        <div className="ml-2 w-full truncate font-mono text-left">
+          {content}
+        </div>
       </Button>
     );
   },
@@ -76,7 +81,7 @@ export function History() {
   const items = useAtomValue(runsAtom);
   const updateTab = useTabsStore((state) => state.update);
 
-  const handleClick = (item: TabContextType) => {
+  const handleClick = (item: QueryContextType) => {
     // updateTab(item);
   };
   return (
@@ -90,17 +95,17 @@ export function History() {
           </div>
           <div className="flex-1">
             <nav className="grid items-start px-1 text-sm">
-              {items.map((item, i) => {
+              {items.map((item: QueryContextType, i) => {
                 const Comp = tabTypeIcon(item.type);
                 return (
-                  <ItemLabel
-                    key={i}
-                    content={item.stmt}
-                    icon={<Comp className="size-4 min-w-4 mr-1" />}
-                    onClick={() => {
-                      handleClick(item);
-                    }}
-                  />
+                  <HistoryContextMenu key={i} ctx={item}>
+                    <ItemLabel
+                      content={item.stmt}
+                      onClick={() => {
+                        handleClick(item);
+                      }}
+                    />
+                  </HistoryContextMenu>
                 );
               })}
             </nav>

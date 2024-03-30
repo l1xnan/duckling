@@ -105,7 +105,16 @@ export default function Editor({
         (tabs ?? []).map((item) => {
           if (item.id == tab.activeKey) {
             item = { ...item, stmt, id, page: 1, perPage: 500, hasLimit };
-            setRuns((prev) => [...(prev ?? []), item]);
+            setRuns((prev) => [
+              ...(prev ?? []),
+              {
+                dbId: item.dbId,
+                tableId: item.tableId,
+                type: 'query',
+                stmt: item.stmt,
+                hasLimit: item.hasLimit,
+              },
+            ]);
           }
           return item;
         }),
