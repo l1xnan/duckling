@@ -1,4 +1,5 @@
 use std::sync::Mutex;
+use std::time::Instant;
 
 use serde::Deserialize;
 use serde::Serialize;
@@ -96,11 +97,6 @@ pub async fn get_dialect(
 }
 
 #[tauri::command]
-pub async fn show_tables(_path: String) -> ArrowResponse {
-  unimplemented!()
-}
-
-#[tauri::command]
 pub async fn query(
   sql: String,
   limit: usize,
@@ -108,8 +104,10 @@ pub async fn query(
   dialect: DialectPayload,
 ) -> Result<ArrowResponse, String> {
   if let Some(d) = get_dialect(dialect).await {
+    let start = Instant::now();
     let res = d.query(&sql, limit, offset).await;
-    Ok(api::convert(res))
+    let duration = start.elapsed().as_millis();
+    Ok(api::convert(res, Some(duration)))
   } else {
     Err("not support dialect".to_string())
   }
@@ -124,7 +122,7 @@ pub async fn paging_query(
 ) -> Result<ArrowResponse, String> {
   if let Some(d) = get_dialect(dialect).await {
     let res = d.paging_query(&sql, Some(limit), Some(offset)).await;
-    Ok(api::convert(res))
+    Ok(api::convert(res, None))
   } else {
     Err("not support dialect".to_string())
   }
@@ -143,6 +141,7 @@ pub async fn query_table(
     .await
     .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
 
+  let start = Instant::now();
   let res = d
     .query_table(
       table,
@@ -152,7 +151,8 @@ pub async fn query_table(
       &orderBy.clone().unwrap_or_default(),
     )
     .await;
-  Ok(api::convert(res))
+  let duration = start.elapsed().as_millis();
+  Ok(api::convert(res, Some(duration)))
 }
 
 #[tauri::command]
@@ -210,7 +210,7 @@ pub async fn show_schema(schema: &str, dialect: DialectPayload) -> Result<ArrowR
     .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
   let res = d.show_schema(schema).await;
 
-  Ok(api::convert(res))
+  Ok(api::convert(res, None))
 }
 
 #[tauri::command]
@@ -224,7 +224,7 @@ pub async fn show_column(
     .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
   let res = d.show_column(schema, table).await;
 
-  Ok(api::convert(res))
+  Ok(api::convert(res, None))
 }
 
 #[tauri::command]
@@ -259,5 +259,5 @@ pub async fn find(
     .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
   let res = d.find(value, path).await;
 
-  Ok(api::convert(res))
+  Ok(api::convert(res, None))
 }

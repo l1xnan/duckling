@@ -23,6 +23,7 @@ export interface ArrowResponse {
   titles?: TitleType[];
   sql?: string;
   code: number;
+  elapsed: number;
   message: string;
 }
 
@@ -43,6 +44,8 @@ export type DatasetState = {
   tableName?: string;
   code?: number;
   message?: string;
+  elapsed?: number;
+
   titles?: TitleType[];
   orderBy?: OrderByType;
   sqlOrderBy?: string;

@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
 import { AgTable, CanvasTable } from '@/components/tables';
-import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { precisionAtom, tableRenderAtom } from '@/stores/setting';
 import { TabContextType, activeTabAtom } from '@/stores/tabs';
@@ -111,6 +110,7 @@ function PageSizeToolbar() {
     perPage,
     total,
     sql,
+    elapsed,
 
     setShowValue,
 
@@ -137,7 +137,7 @@ function PageSizeToolbar() {
         <IconButton color="inherit" onClick={setBeautify}>
           <TablerSvgIcon icon={<IconDecimal />} />
         </IconButton>
-        <Separator orientation="vertical" />
+        {/*<Separator orientation="vertical" />*/}
         <IconButton
           color="inherit"
           onClick={async () => {
@@ -146,6 +146,7 @@ function PageSizeToolbar() {
         >
           <SyncIcon fontSize="small" />
         </IconButton>
+        <div className="text-xs ml-6">elapsed time: {elapsed}ms</div>
       </Stack>
       <Stack>
         <IconButton color="inherit" onClick={setTranspose}>

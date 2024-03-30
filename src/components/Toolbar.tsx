@@ -17,5 +17,8 @@ export const ToolbarBox = (props: React.HTMLAttributes<HTMLDivElement>) => (
 );
 
 export const Stack = (props: React.ButtonHTMLAttributes<HTMLDivElement>) => (
-  <div className="flex flex-row gap-1 items-center justify-start" {...props} />
+  <div
+    className="flex flex-row gap-1 h-full items-center justify-start"
+    {...props}
+  />
 );

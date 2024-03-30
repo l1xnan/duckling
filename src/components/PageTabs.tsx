@@ -329,7 +329,10 @@ export function PageTabs1({
   );
 }
 
-const openAtom = atom({ open: false, id: undefined });
+const openAtom = atom<{ open: boolean; id?: string }>({
+  open: false,
+  id: undefined,
+});
 
 function RenameDialog() {
   const [{ open, id }, setOpen] = useAtom(openAtom);

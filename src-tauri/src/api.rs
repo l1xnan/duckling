@@ -27,20 +27,23 @@ pub struct ArrowResponse {
 
   pub code: i32,
   pub message: String,
+  pub elapsed: Option<u128>,
 }
 
-pub fn convert(res: anyhow::Result<RawArrowData>) -> ArrowResponse {
+pub fn convert(res: anyhow::Result<RawArrowData>, elapsed: Option<u128>) -> ArrowResponse {
   match res {
     Ok(raw) => match serialize_preview(&raw.batch) {
       Ok(data) => ArrowResponse {
         total: raw.total,
         sql: raw.sql,
         data,
+        elapsed,
         titles: raw.titles,
         ..ArrowResponse::default()
       },
       Err(err) => ArrowResponse {
         code: 401,
+        elapsed,
         message: err.to_string(),
         ..ArrowResponse::default()
       },
@@ -49,6 +52,7 @@ pub fn convert(res: anyhow::Result<RawArrowData>) -> ArrowResponse {
       log::error!("error:{}", err);
       ArrowResponse {
         code: 401,
+        elapsed,
         message: err.to_string(),
         ..ArrowResponse::default()
       }
