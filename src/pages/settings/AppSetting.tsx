@@ -1,4 +1,3 @@
-import SettingsIcon from '@mui/icons-material/Settings';
 import { DialogClose } from '@radix-ui/react-dialog';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { getTauriVersion, getVersion } from '@tauri-apps/api/app';
@@ -7,12 +6,12 @@ import { relaunch } from '@tauri-apps/plugin-process';
 import * as shell from '@tauri-apps/plugin-shell';
 import { Update, check } from '@tauri-apps/plugin-updater';
 import { atom, useAtom } from 'jotai';
+import { SettingsIcon } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { PropsWithChildren, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { MuiIconButton } from '@/components/MuiIconButton';
 import Dialog from '@/components/custom/Dialog';
 import { SidebarNav } from '@/components/custom/siderbar-nav';
 import { Button } from '@/components/ui/button';
@@ -73,9 +72,9 @@ export default function AppSettingDialog() {
       title="Setting"
       className="min-w-[800px] min-h-[600px]"
       trigger={
-        <MuiIconButton>
-          <SettingsIcon fontSize="inherit" />
-        </MuiIconButton>
+        <Button variant="ghost" size="icon" className="size-8 rounded-lg">
+          <SettingsIcon className="size-4" />
+        </Button>
       }
     >
       <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
