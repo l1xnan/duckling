@@ -1,4 +1,3 @@
-import { tabTypeIcon } from '@/components/PageTabs';
 import { Button } from '@/components/ui/button';
 import { HistoryContextMenu } from '@/pages/sidebar/context-menu/HistoryContextMenu.tsx';
 import { favoriteAtom, runsAtom } from '@/stores/app';
@@ -10,7 +9,7 @@ import React, { ReactNode } from 'react';
 interface ItemLabelProps {
   icon?: ReactNode;
   content: ReactNode;
-  onClick: () => void;
+  onClick?: () => void;
 }
 
 export const ItemLabel = React.forwardRef(
@@ -78,12 +77,8 @@ export function Favorite() {
 }
 
 export function History() {
-  const items = useAtomValue(runsAtom);
-  const updateTab = useTabsStore((state) => state.update);
+  const items = useAtomValue(runsAtom) as QueryContextType[];
 
-  const handleClick = (item: QueryContextType) => {
-    // updateTab(item);
-  };
   return (
     <div className="grid h-full w-full">
       <div className="hidden border-r md:block">
@@ -95,16 +90,10 @@ export function History() {
           </div>
           <div className="flex-1">
             <nav className="grid items-start px-1 text-sm">
-              {items.map((item: QueryContextType, i) => {
-                const Comp = tabTypeIcon(item.type);
+              {items.map((item, i) => {
                 return (
                   <HistoryContextMenu key={i} ctx={item}>
-                    <ItemLabel
-                      content={item.stmt}
-                      onClick={() => {
-                        handleClick(item);
-                      }}
-                    />
+                    <ItemLabel content={item.stmt} />
                   </HistoryContextMenu>
                 );
               })}

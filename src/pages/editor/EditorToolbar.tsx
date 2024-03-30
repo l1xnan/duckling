@@ -1,20 +1,72 @@
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
-import { IconButton } from '@mui/material';
-
-import { Stack, ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
 import {
   DropdownMenu,
   DropdownMenuItem,
   DropdownMenuLabel,
 } from '@/components/custom/dropdown-menu';
+
+import { Stack, ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
+
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useDBListStore } from '@/stores/dbList';
-import { FlaskConical, FlaskConicalOffIcon } from 'lucide-react';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import { IconButton } from '@mui/material';
+import {
+  IconInfinity,
+  IconInfinityOff,
+  Icon as TablerIcon,
+} from '@tabler/icons-react';
+import { atom } from 'jotai';
+import { LucideIcon } from 'lucide-react';
+
+export const activeSideAtom = atom('database');
+
+interface TooltipButtonProps {
+  active?: boolean;
+  icon: LucideIcon | TablerIcon;
+  onClick?: () => void;
+}
+
+const LimitButton = ({ active, icon: Comp, onClick }: TooltipButtonProps) => {
+  const label = !active ? 'limit 500' : 'query all';
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7 rounded-lg"
+            aria-label={label}
+            onClick={onClick}
+          >
+            <Comp className="size-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent
+          side="right"
+          sideOffset={5}
+          alignOffset={5}
+          className="font-mono text-xs"
+        >
+          {label}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
 
 export function EditorToolbar({
   onClick,
@@ -49,18 +101,14 @@ export function EditorToolbar({
           >
             <PlaylistAddIcon fontSize="inherit" />
           </IconButton>
-          <IconButton
-            color="inherit"
+
+          <LimitButton
+            icon={(hasLimit ? IconInfinityOff : IconInfinity) as TablerIcon}
+            active={!hasLimit}
             onClick={() => {
               onHasLimit(!hasLimit);
             }}
-          >
-            {hasLimit ? (
-              <FlaskConical className="h-3.5 w-3.5" />
-            ) : (
-              <FlaskConicalOffIcon className="h-3.5 w-3.5" />
-            )}
-          </IconButton>
+          />
         </Stack>
         <Stack>
           <Connection content={session} />

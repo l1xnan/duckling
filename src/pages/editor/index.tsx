@@ -8,6 +8,7 @@ import { schemaMapAtom } from '@/stores/dbList';
 import {
   EditorContextType,
   QueryContextType,
+  TabContextType,
   getDatabase,
   subTabsAtomFamily,
 } from '@/stores/tabs';
@@ -113,7 +114,7 @@ export default function Editor({
                 type: 'query',
                 stmt: item.stmt,
                 hasLimit: item.hasLimit,
-              },
+              } as TabContextType,
             ]);
           }
           return item;
