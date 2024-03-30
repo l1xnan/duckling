@@ -1,7 +1,7 @@
 import { useSetAtom } from 'jotai';
 import { Code, RefreshCcw, Settings } from 'lucide-react';
 import { nanoid } from 'nanoid';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useState } from 'react';
 
 import { getDB } from '@/api';
 import { ContextMenuItem } from '@/components/custom/context-menu';
@@ -19,6 +19,7 @@ import {
   useDBListStore,
 } from '@/stores/dbList';
 import { useTabsStore } from '@/stores/tabs';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 export function ConnectionContextMenu({
   children,
@@ -56,8 +57,21 @@ export function ConnectionContextMenu({
       updateDB(db.id, data);
     }
   };
+
+  const handleRename = () => setRenameContext(db);
+  const [enabled, setEnabled] = useState(false);
+
+  useHotkeys('f2', handleRename, { enabled });
+  useHotkeys('f3', handleProperties, { enabled });
+  useHotkeys('f4', handleEditor, { enabled });
+  useHotkeys('f5', handleRefresh, { enabled });
+  useHotkeys('delete', handleRemove, { enabled });
   return (
-    <ContextMenu>
+    <ContextMenu
+      onOpenChange={(open) => {
+        setEnabled(open);
+      }}
+    >
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-64">
         <ContextMenuItem onSelect={handleProperties} icon={Settings}>
@@ -70,7 +84,7 @@ export function ConnectionContextMenu({
           <ContextMenuShortcut>F4</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuSeparator />
-        <ContextMenuItem inset onSelect={() => setRenameContext(db)}>
+        <ContextMenuItem inset onSelect={handleRename}>
           Rename
           <ContextMenuShortcut>F2</ContextMenuShortcut>
         </ContextMenuItem>
@@ -78,7 +92,7 @@ export function ConnectionContextMenu({
           Refresh
           <ContextMenuShortcut>F5</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem inset onSelect={handleRemove}>
+        <ContextMenuItem inset onSelect={handleRemove} tabIndex={-1}>
           Delete
           <ContextMenuShortcut>Del</ContextMenuShortcut>
         </ContextMenuItem>

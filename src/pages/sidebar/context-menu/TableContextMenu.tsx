@@ -1,20 +1,5 @@
-import { writeText } from '@tauri-apps/plugin-clipboard-manager';
-import { nanoid } from 'nanoid';
-import { PropsWithChildren } from 'react';
-
-import { dropTable } from '@/api';
+import { dropTable, getDB } from '@/api';
 import { ContextMenuItem } from '@/components/custom/context-menu';
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from '@/components/ui/context-menu';
-import { searchAtom } from '@/pages/sidebar/SearchDialog';
-import { DBType, DialectConfig } from '@/stores/dbList';
-import { TableContextType, useTabsStore } from '@/stores/tabs';
-import { TreeNode } from '@/types';
-import { useAtom } from 'jotai';
 
 import {
   AlertDialog,
@@ -28,6 +13,22 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu';
+import { searchAtom } from '@/pages/sidebar/SearchDialog';
+import { DBType, DialectConfig, useDBListStore } from '@/stores/dbList';
+import { TableContextType, useTabsStore } from '@/stores/tabs';
+import { TreeNode } from '@/types';
+import { writeText } from '@tauri-apps/plugin-clipboard-manager';
+import { useAtom } from 'jotai';
+import { RefreshCcw } from 'lucide-react';
+import { nanoid } from 'nanoid';
+import { PropsWithChildren } from 'react';
 
 export function TableContextMenu({
   children,
@@ -36,6 +37,7 @@ export function TableContextMenu({
 }: PropsWithChildren<{ node: TreeNode; db: DBType }>) {
   const updateTab = useTabsStore((state) => state.update);
   const [, setSearch] = useAtom(searchAtom);
+  const updateDB = useDBListStore((state) => state.update);
 
   const handleDropTable: React.MouseEventHandler<HTMLButtonElement> = async (
     e,
@@ -44,6 +46,12 @@ export function TableContextMenu({
     await dropTable(node.path, db.config as DialectConfig);
   };
 
+  const handleRefresh = async () => {
+    if (db.config) {
+      const { data } = await getDB(db.config);
+      updateDB(db.id, data);
+    }
+  };
   return (
     <AlertDialog>
       <ContextMenu>
@@ -147,6 +155,12 @@ export function TableContextMenu({
             }}
           >
             Copy
+          </ContextMenuItem>
+          <ContextMenuSeparator />
+
+          <ContextMenuItem onSelect={handleRefresh} icon={RefreshCcw}>
+            Refresh
+            <ContextMenuShortcut>F5</ContextMenuShortcut>
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>

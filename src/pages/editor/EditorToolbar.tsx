@@ -39,7 +39,7 @@ interface TooltipButtonProps {
 }
 
 const LimitButton = ({ active, icon: Comp, onClick }: TooltipButtonProps) => {
-  const label = !active ? 'limit 500' : 'query all';
+  const label = !active ? 'limit 500' : 'not limit';
 
   return (
     <TooltipProvider>
@@ -56,7 +56,8 @@ const LimitButton = ({ active, icon: Comp, onClick }: TooltipButtonProps) => {
           </Button>
         </TooltipTrigger>
         <TooltipContent
-          side="right"
+          side="bottom"
+          align="start"
           sideOffset={5}
           alignOffset={5}
           className="font-mono text-xs"
