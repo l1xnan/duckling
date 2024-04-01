@@ -80,7 +80,7 @@
     "react-hotkeys-hook": "^4.5.0",
     "react-resizable-panels": "^2.0.13",
     "react-router-dom": "^6.22.0",
-    "sonner": "^1.4.32",
+    "sonner": "^1.4.41",
     "sql-formatter": "^15.3.0",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7",
