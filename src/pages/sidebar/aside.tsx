@@ -67,7 +67,7 @@ export function ASide() {
         <SideButton id="code" label="Code" icon={Code2} />
         <SideButton id="history" label="History" icon={HistoryIcon} />
       </nav>
-      <nav className="mt-auto grid gap-1 p-0">
+      <nav className="mt-auto grid gap-1 p-0 [&>*]:place-self-center">
         <ToggleColorMode />
         <AppSettingDialog />
         {/* <SideButton id="help" label="Help" icon={LifeBuoy} /> */}
