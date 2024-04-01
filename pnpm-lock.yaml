@@ -21,8 +21,8 @@ dependencies:
     specifier: ^4.6.0
     version: 4.6.0(monaco-editor@0.47.0)(react-dom@18.2.0)(react@18.2.0)
   '@mui/icons-material':
-    specifier: ^5.15.1
-    version: 5.15.1(@mui/material@5.15.14)(@types/react@18.2.60)(react@18.2.0)
+    specifier: ^5.15.14
+    version: 5.15.14(@mui/material@5.15.14)(@types/react@18.2.60)(react@18.2.0)
   '@mui/lab':
     specifier: 5.0.0-alpha.157
     version: 5.0.0-alpha.157(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/material@5.15.14)(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
@@ -178,7 +178,7 @@ dependencies:
     version: 0.363.0(react@18.2.0)
   material-react-table:
     specifier: 2.12.1
-    version: 2.12.1(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.15.1)(@mui/material@5.15.14)(@mui/x-date-pickers@6.19.6)(react-dom@18.2.0)(react@18.2.0)
+    version: 2.12.1(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.15.14)(@mui/material@5.15.14)(@mui/x-date-pickers@6.19.6)(react-dom@18.2.0)(react@18.2.0)
   monaco-editor:
     specifier: ^0.47.0
     version: 0.47.0
@@ -1192,8 +1192,8 @@ packages:
     resolution: {integrity: sha512-on75VMd0XqZfaQW+9pGjSNiqW+ghc5E2ZSLRBXwcXl/C4YzjfyjrLPhrEpKnR9Uym9KXBvxrhoHfPcczYHweyA==}
     dev: false
 
-  /@mui/icons-material@5.15.1(@mui/material@5.15.14)(@types/react@18.2.60)(react@18.2.0):
-    resolution: {integrity: sha512-VPJdBSyap6uOxCb5BLbWbkvd6aeJCp1pQZm8DcZBITCH0NOSv8Mz9c8Zvo8xr4Od7+xyWHUAgvRSL4047pL2WQ==}
+  /@mui/icons-material@5.15.14(@mui/material@5.15.14)(@types/react@18.2.60)(react@18.2.0):
+    resolution: {integrity: sha512-vj/51k7MdFmt+XVw94sl30SCvGx6+wJLsNYjZRgxhS6y3UtnWnypMOsm3Kmg8TN+P0dqwsjy4/fX7B1HufJIhw==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
       '@mui/material': ^5.0.0
@@ -1203,7 +1203,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.24.0
       '@mui/material': 5.15.14(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
       '@types/react': 18.2.60
       react: 18.2.0
@@ -1583,7 +1583,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -1593,7 +1592,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -1603,7 +1601,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -1613,7 +1610,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -5758,7 +5754,7 @@ packages:
       react: 18.2.0
     dev: false
 
-  /material-react-table@2.12.1(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.15.1)(@mui/material@5.15.14)(@mui/x-date-pickers@6.19.6)(react-dom@18.2.0)(react@18.2.0):
+  /material-react-table@2.12.1(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/icons-material@5.15.14)(@mui/material@5.15.14)(@mui/x-date-pickers@6.19.6)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-nqILE26I/6/UfiILEc7mnVhIoVdG78qvkav85dcbn5BbNXkAJeA57Slut50eYytd7aQHCbaq9MoLvsVeO1yaIw==}
     engines: {node: '>=16'}
     peerDependencies:
@@ -5772,7 +5768,7 @@ packages:
     dependencies:
       '@emotion/react': 11.11.1(@types/react@18.2.60)(react@18.2.0)
       '@emotion/styled': 11.11.0(@emotion/react@11.11.1)(@types/react@18.2.60)(react@18.2.0)
-      '@mui/icons-material': 5.15.1(@mui/material@5.15.14)(@types/react@18.2.60)(react@18.2.0)
+      '@mui/icons-material': 5.15.14(@mui/material@5.15.14)(@types/react@18.2.60)(react@18.2.0)
       '@mui/material': 5.15.14(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
       '@mui/x-date-pickers': 6.19.6(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/material@5.15.14)(@mui/system@5.15.14)(@types/react@18.2.60)(dayjs@1.11.10)(react-dom@18.2.0)(react@18.2.0)
       '@tanstack/match-sorter-utils': 8.11.8
