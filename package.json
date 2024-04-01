@@ -79,7 +79,7 @@
     "react-hook-form": "^7.51.0",
     "react-hotkeys-hook": "^4.5.0",
     "react-resizable-panels": "^2.0.13",
-    "react-router-dom": "^6.22.0",
+    "react-router-dom": "^6.22.3",
     "sonner": "^1.4.32",
     "sql-formatter": "^15.3.0",
     "tailwind-merge": "^2.2.0",
