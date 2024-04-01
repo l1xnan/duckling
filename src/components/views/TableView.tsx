@@ -1,6 +1,7 @@
+import MonacoEditor from '@monaco-editor/react';
 import PivotTableChartIcon from '@mui/icons-material/PivotTableChart';
 import SyncIcon from '@mui/icons-material/Sync';
-import { IconButton } from '@mui/material';
+import { IconButton, useTheme } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import { CodeIcon, DownloadIcon, EyeIcon, Loader2Icon } from 'lucide-react';
@@ -25,6 +26,7 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable.tsx';
 import { usePageStore } from '@/hooks/context';
+import { isDarkTheme } from '@/utils';
 import { TablerSvgIcon } from '../MuiIconButton';
 
 export const Loading = ({ className }: { className?: string }) => {
@@ -66,9 +68,13 @@ export function TableView({ context }: { context: TabContextType }) {
   const tableRender = useAtomValue(tableRenderAtom);
   const TableComponent = tableRender === 'canvas' ? CanvasTable : AgTable;
 
+  const [selectedCell, setSelectCell] = useState<string | null>();
+
+  const theme = useTheme();
+
   return (
     <div className="h-full flex flex-col">
-      <PageSizeToolbar />
+      <ViewToolbar />
       <ResizablePanelGroup direction="horizontal">
         <ResizablePanel defaultSize={80} className="flex flex-col size-full">
           <div className="h-full flex flex-col">
@@ -84,6 +90,9 @@ export function TableView({ context }: { context: TabContextType }) {
                   orderBy={orderBy}
                   precision={precision}
                   transpose={transpose}
+                  onSelectedCell={(arg) => {
+                    setSelectCell(arg as string);
+                  }}
                 />
               </Suspense>
             </div>
@@ -93,9 +102,24 @@ export function TableView({ context }: { context: TabContextType }) {
         {showValue ? (
           <ResizablePanel
             defaultSize={20}
-            className="flex flex-row items-center"
+            className="flex flex-row items-start"
           >
-            // TODO: selectCell value
+            {selectedCell === null ? (
+              <pre className="size-full flex items-center justify-center">
+                not selected
+              </pre>
+            ) : (
+              <MonacoEditor
+                theme={isDarkTheme(theme) ? 'vs-dark' : 'light'}
+                value={selectedCell?.toString()}
+                options={{
+                  minimap: {
+                    enabled: false,
+                  },
+                  wordWrap: 'on',
+                }}
+              />
+            )}
           </ResizablePanel>
         ) : null}
       </ResizablePanelGroup>
@@ -103,7 +127,7 @@ export function TableView({ context }: { context: TabContextType }) {
   );
 }
 
-function PageSizeToolbar() {
+function ViewToolbar() {
   const {
     data,
     page,
@@ -169,7 +193,6 @@ function PageSizeToolbar() {
 
         <IconButton
           color="inherit"
-          disabled
           onClick={() => {
             setShowValue();
           }}

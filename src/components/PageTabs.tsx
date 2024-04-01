@@ -317,7 +317,7 @@ export function PageTabs1({
             value={tab.id}
             forceMount
             hidden={tab.id != activeKey}
-            className="h-full w-full mt-0"
+            className="h-full w-full mt-0 overflow-hidden"
           >
             <ErrorBoundary fallback={<p>Something went wrong</p>}>
               {children}

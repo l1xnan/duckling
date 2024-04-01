@@ -19,6 +19,7 @@ export interface TableProps<T = unknown> {
   style?: CSSProperties;
   orderBy?: OrderByType;
   transpose?: boolean;
+  onSelectedCell?: (value: unknown) => void;
 }
 
 type RowType = Record<string, unknown>;

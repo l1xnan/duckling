@@ -57,6 +57,7 @@ export type QueryContextType = QueryParamType & {
   beautify?: boolean;
   transpose?: boolean;
   hasLimit?: boolean;
+  showValue?: boolean;
 
   target?: 'export';
 };

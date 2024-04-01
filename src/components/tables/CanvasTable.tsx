@@ -141,6 +141,7 @@ export const CanvasTable = React.memo(function CanvasTable({
   precision,
   transpose,
   style,
+  onSelectedCell,
 }: TableProps) {
   const titleMap = new Map();
 
@@ -168,7 +169,6 @@ export const CanvasTable = React.memo(function CanvasTable({
   const tableRef = useRef<ListTableAPI>();
   const appTheme = useTheme();
   const tableFontFamily = useAtomValue(tableFontFamilyAtom);
-  const [selectCell, setSelectCell] = useState<number | undefined>();
 
   const theme = useMemo(
     () =>
@@ -333,89 +333,94 @@ export const CanvasTable = React.memo(function CanvasTable({
     }
   };
 
-  const option: ListTableConstructorOptions = {
-    records: data,
-    limitMaxAutoWidth: 200,
-    heightMode: 'standard',
-    defaultRowHeight: 24,
-    widthMode: 'autoWidth',
-    showFrozenIcon: true,
-    frozenColCount: 1 + leftPinnedCols.length,
-    rightFrozenColCount: rightPinnedCols.length,
-    theme,
-    transpose,
-    columns: [
-      {
-        field: '__index__',
-        title: '',
-        dragHeader: false,
-        disableSelect: true,
-        // disableHover: true,
-        disableHeaderHover: true,
-        disableHeaderSelect: true,
-        disableColumnResize: true,
-        style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
-        fieldFormat: (_r, col, row) => {
-          return transpose ? col : row;
+  const option: ListTableConstructorOptions = React.useMemo(
+    () => ({
+      records: data,
+      limitMaxAutoWidth: 200,
+      heightMode: 'standard',
+      defaultRowHeight: 24,
+      widthMode: 'autoWidth',
+      showFrozenIcon: true,
+      frozenColCount: 1 + leftPinnedCols.length,
+      rightFrozenColCount: rightPinnedCols.length,
+      theme,
+      transpose,
+      columns: [
+        {
+          field: '__index__',
+          title: '',
+          dragHeader: false,
+          disableSelect: true,
+          // disableHover: true,
+          disableHeaderHover: true,
+          disableHeaderSelect: true,
+          disableColumnResize: true,
+          style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
+          fieldFormat: (_r, col, row) => {
+            return transpose ? col : row;
+          },
+        },
+        ...__columns,
+      ],
+      // rowSeriesNumber: {
+      //   title: ' ',
+      //   dragOrder: false,
+      //   width: 'auto',
+      //   // @ts-expect-error
+      //   dragHeader: false,
+      //   disableSelect: true,
+      //   disableHeaderHover: true,
+      //   disableHeaderSelect: true,
+      //   disableColumnResize: true,
+      //   headerStyle: {
+      //     color: 'black',
+      //   },
+      //   style: {
+      //     color: '#96938f',
+      //     fontSize: 10,
+      //     textAlign: 'center',
+      //   },
+      // },
+      menu: {
+        contextMenuItems: (_field, row, col) => {
+          if ((!transpose && row == 0) || (transpose && col == 0)) {
+            return [
+              {
+                menuKey: 'copy-field',
+                text: 'Copy Field Name',
+              },
+              {
+                menuKey: 'pin-to-left',
+                text: 'Pin to left',
+              },
+              {
+                menuKey: 'pin-to-right',
+                text: 'Pin to right',
+              },
+              {
+                menuKey: 'pin-to-clear',
+                text: 'Clear pinned',
+              },
+            ];
+          }
+          return [];
         },
       },
-      ...__columns,
-    ],
-    // rowSeriesNumber: {
-    //   title: ' ',
-    //   dragOrder: false,
-    //   width: 'auto',
-    //   // @ts-expect-error
-    //   dragHeader: false,
-    //   disableSelect: true,
-    //   disableHeaderHover: true,
-    //   disableHeaderSelect: true,
-    //   disableColumnResize: true,
-    //   headerStyle: {
-    //     color: 'black',
-    //   },
-    //   style: {
-    //     color: '#96938f',
-    //     fontSize: 10,
-    //     textAlign: 'center',
-    //   },
-    // },
-    menu: {
-      contextMenuItems: (_field, row, col) => {
-        if ((!transpose && row == 0) || (transpose && col == 0)) {
-          return [
-            {
-              menuKey: 'copy-field',
-              text: 'Copy Field Name',
-            },
-            {
-              menuKey: 'pin-to-left',
-              text: 'Pin to left',
-            },
-            {
-              menuKey: 'pin-to-right',
-              text: 'Pin to right',
-            },
-            {
-              menuKey: 'pin-to-clear',
-              text: 'Clear pinned',
-            },
-          ];
-        }
-        return [];
+      hover: {
+        // disableHover: true,
+        highlightMode: 'cell',
+        // disableHeaderHover: true,
       },
-    },
-    hover: {
-      // disableHover: true,
-      highlightMode: 'cell',
-      // disableHeaderHover: true,
-    },
-    keyboardOptions: {
-      moveEditCellOnArrowKeys: true,
-      copySelected: true,
-      pasteValueToCell: true,
-    },
-  };
+      keyboardOptions: {
+        moveEditCellOnArrowKeys: true,
+        copySelected: true,
+        pasteValueToCell: true,
+      },
+    }),
+    [data, transpose, appTheme],
+  );
+  const [cell, setCell] = useState();
+
   return (
     <div
       className="h-full select-text"
@@ -437,11 +442,16 @@ export const CanvasTable = React.memo(function CanvasTable({
           const table = tableRef.current;
           if (table) {
             table.updateTheme(table.theme);
+            const value = table.getCellRawValue(arg.col, arg.row);
+            onSelectedCell?.(value);
           }
         }}
         onDropdownMenuClick={handleDropdownMenuClick}
         onMouseEnterCell={handleMouseEnterCell}
         option={option}
+        onReady={(...arg) => {
+          console.log('onReady:', arg);
+        }}
       />
     </div>
   );
@@ -466,50 +476,51 @@ export function SimpleTable({ data }: { data: unknown[] }) {
     [appTheme],
   );
 
-  const columns: ColumnDefine[] = Object.keys(data[0] ?? {}).map((key) => {
-    return {
-      field: key,
-      title: key,
-      dragHeader: true,
-      sort: true,
-    } as ColumnDefine;
-  });
-
-  const option: ListTableConstructorOptions = {
-    records: data,
-    limitMaxAutoWidth: 200,
-    // heightMode: 'autoHeight',
-    heightMode: 'standard',
-    defaultRowHeight: 28,
-    widthMode: 'autoWidth',
-    showFrozenIcon: true,
-    theme,
-    columns: [
-      {
-        field: '__index__',
-        title: '',
-        dragHeader: false,
-        disableSelect: true,
-        // disableHover: true,
-        disableHeaderHover: true,
-        disableHeaderSelect: true,
-        disableColumnResize: true,
-        style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
-        fieldFormat: (_r, _col, row) => {
-          return row;
+  const option: ListTableConstructorOptions = React.useMemo(
+    () => ({
+      records: data,
+      limitMaxAutoWidth: 200,
+      // heightMode: 'autoHeight',
+      heightMode: 'standard',
+      defaultRowHeight: 28,
+      widthMode: 'autoWidth',
+      showFrozenIcon: true,
+      theme,
+      columns: [
+        {
+          field: '__index__',
+          title: '',
+          dragHeader: false,
+          disableSelect: true,
+          // disableHover: true,
+          disableHeaderHover: true,
+          disableHeaderSelect: true,
+          disableColumnResize: true,
+          style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
+          fieldFormat: (_r, _col, row) => {
+            return row;
+          },
         },
+        ...Object.keys(data[0] ?? {}).map((key) => {
+          return {
+            field: key,
+            title: key,
+            dragHeader: true,
+            sort: true,
+          } as ColumnDefine;
+        }),
+      ],
+      hover: {
+        highlightMode: 'row',
       },
-      ...columns,
-    ],
-    hover: {
-      highlightMode: 'row',
-    },
-    keyboardOptions: {
-      moveEditCellOnArrowKeys: true,
-      copySelected: true,
-      pasteValueToCell: true,
-    },
-  };
+      keyboardOptions: {
+        moveEditCellOnArrowKeys: true,
+        copySelected: true,
+        pasteValueToCell: true,
+      },
+    }),
+    [data],
+  );
 
   return (
     <div className="h-full">
