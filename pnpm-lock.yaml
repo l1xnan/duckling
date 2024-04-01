@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@apache-arrow/ts':
-    specifier: ^14.0.2
-    version: 14.0.2
+    specifier: ^15.0.2
+    version: 15.0.2
   '@emotion/react':
     specifier: ^11.11.1
     version: 11.11.1(@types/react@18.2.60)(react@18.2.0)
@@ -334,18 +334,17 @@ packages:
       '@jridgewell/gen-mapping': 0.3.3
       '@jridgewell/trace-mapping': 0.3.20
 
-  /@apache-arrow/ts@14.0.2:
-    resolution: {integrity: sha512-CtwAvLkK0CZv7xsYeCo91ml6PvlfzAmAJZkRYuz2GNBwfYufj5SVi0iuSMwIMkcU/szVwvLdzORSLa5PlF/2ug==}
+  /@apache-arrow/ts@15.0.2:
+    resolution: {integrity: sha512-WvNRZGV0bYonTyP7e5JdHFRX1N2OXLAoci7O4uIMrtQ3nUAby7Xvwfc/iX3uasQHLoVh7yfVa0hn20PMx9WTRQ==}
     dependencies:
-      '@types/command-line-args': 5.2.0
+      '@swc/helpers': 0.5.2
+      '@types/command-line-args': 5.2.3
       '@types/command-line-usage': 5.0.2
-      '@types/node': 20.3.0
-      '@types/pad-left': 2.1.1
+      '@types/node': 20.11.5
       command-line-args: 5.2.1
       command-line-usage: 7.0.1
       flatbuffers: 23.5.26
       json-bignum: 0.0.3
-      pad-left: 2.1.0
       tslib: 2.6.2
     dev: false
 
@@ -1583,7 +1582,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -1593,7 +1591,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -1603,7 +1600,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -1613,7 +1609,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -3514,8 +3509,8 @@ packages:
     resolution: {integrity: sha512-OzOWrTluG9cwqidEzC/Q6FAmIPcnZfm8BFRlIx0+UIUqnuAmi5OS88O0RpT3Yz6qdmqObvUhasrbNsCofE4W9A==}
     dev: false
 
-  /@types/command-line-args@5.2.0:
-    resolution: {integrity: sha512-UuKzKpJJ/Ief6ufIaIzr3A/0XnluX7RvFgwkV89Yzvm77wCh1kFaFmqN8XEnGcN62EuHdedQjEMb8mYxFLGPyA==}
+  /@types/command-line-args@5.2.3:
+    resolution: {integrity: sha512-uv0aG6R0Y8WHZLTamZwtfsDLVRnOa+n+n5rEvFWL5Na5gZ8V2Teab/duDPFzIIIhs9qizDpcavCusCLJZu62Kw==}
     dev: false
 
   /@types/command-line-usage@5.0.2:
@@ -3542,15 +3537,6 @@ packages:
     resolution: {integrity: sha512-g557vgQjUUfN76MZAN/dt1z3dzcUsimuysco0KeluHgrPdJXkP/XdAURgyO2W9fZWHRtRBiVKzKn8vyOAwlG+w==}
     dependencies:
       undici-types: 5.26.5
-    dev: true
-
-  /@types/node@20.3.0:
-    resolution: {integrity: sha512-cumHmIAf6On83X7yP+LrsEyUOf/YlociZelmpRYaGFydoaPdxdt80MAbu6vWerQT2COCp2nPvHdsbD7tHn/YlQ==}
-    dev: false
-
-  /@types/pad-left@2.1.1:
-    resolution: {integrity: sha512-Xd22WCRBydkGSApl5Bw0PhAOHKSVjNL3E3AwzKaps96IMraPqy5BvZIsBVK6JLwdybUzjHnuWVwpDd0JjTfHXA==}
-    dev: false
 
   /@types/parse-json@4.0.2:
     resolution: {integrity: sha512-dISoDXWWQwUquiKsyZ4Ng+HX2KsPL7LyHKHQwgGFEA3IaKac4Obd+h2a/a6waisAoepJlBcx9paWqjA8/HVjCw==}
@@ -6074,13 +6060,6 @@ packages:
       p-limit: 3.1.0
     dev: true
 
-  /pad-left@2.1.0:
-    resolution: {integrity: sha512-HJxs9K9AztdIQIAIa/OIazRAUW/L6B9hbQDxO4X07roW3eo9XqZc2ur9bn1StH9CnbbI9EgvejHQX7CBpCF1QA==}
-    engines: {node: '>=0.10.0'}
-    dependencies:
-      repeat-string: 1.6.1
-    dev: false
-
   /parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
     engines: {node: '>=6'}
@@ -6629,11 +6608,6 @@ packages:
 
   /remove-accents@0.4.2:
     resolution: {integrity: sha512-7pXIJqJOq5tFgG1A2Zxti3Ht8jJF337m4sowbuHsW30ZnkQFnDzy9qBNhgzX8ZLW4+UBcXiiR7SwR6pokHsxiA==}
-    dev: false
-
-  /repeat-string@1.6.1:
-    resolution: {integrity: sha512-PV0dzCYDNfRi1jCDbJzpW7jNNDRuCOG/jI5ctQcGKt/clZD+YcPS3yIlWuTJMmESC8aevCFmWJy5wjAFgNqN6w==}
-    engines: {node: '>=0.10'}
     dev: false
 
   /resolve-from@4.0.0:
@@ -7280,7 +7254,6 @@ packages:
 
   /undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
-    dev: true
 
   /untildify@4.0.0:
     resolution: {integrity: sha512-KK8xQ1mkzZeg9inewmFVDNkg3l5LUhoq9kN6iWYB/CC9YMG8HA+c1Q8HwDe6dEX7kErrEVNVBO3fWsVq5iDgtw==}
