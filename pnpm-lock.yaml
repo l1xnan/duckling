@@ -171,8 +171,8 @@ dependencies:
     specifier: ^0.3.0
     version: 0.3.0(jotai@2.7.0)
   keepalive-for-react:
-    specifier: ^2.0.2
-    version: 2.0.2(react-dom@18.2.0)(react@18.2.0)
+    specifier: ^2.0.4
+    version: 2.0.4(react-dom@18.2.0)(react@18.2.0)
   lucide-react:
     specifier: ^0.363.0
     version: 0.363.0(react@18.2.0)
@@ -1583,7 +1583,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -1593,7 +1592,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -1603,7 +1601,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -1613,7 +1610,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -5669,8 +5665,8 @@ packages:
     dev: false
     bundledDependencies: []
 
-  /keepalive-for-react@2.0.2(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-n8uoGEeuso/UkLhAeEHkx/Y8PxLrUgO5kjudIhaE3cadeSLkOaTl6OkVohm2/vw4XMn26bwEon8pi6P/2q2FeA==}
+  /keepalive-for-react@2.0.4(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-GeDpPWWRcrISadVIuH3QwZzRbqGZBggwI8iTNoK5KLakwLuG2b+//9l1zp8WXdrtLbGSn3arJBQMip2FTh7Z6Q==}
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
