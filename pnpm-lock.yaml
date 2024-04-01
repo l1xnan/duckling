@@ -153,23 +153,23 @@ dependencies:
     specifier: ^10.0.3
     version: 10.0.3
   jotai:
-    specifier: ^2.7.0
-    version: 2.7.0(@types/react@18.2.60)(react@18.2.0)
+    specifier: ^2.7.2
+    version: 2.7.2(@types/react@18.2.60)(react@18.2.0)
   jotai-devtools:
     specifier: ^0.8.0
     version: 0.8.0(@emotion/react@11.11.1)(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)(redux@5.0.1)
   jotai-optics:
     specifier: ^0.3.2
-    version: 0.3.2(jotai@2.7.0)(optics-ts@2.4.1)
+    version: 0.3.2(jotai@2.7.2)(optics-ts@2.4.1)
   jotai-scope:
     specifier: ^0.5.1
-    version: 0.5.1(jotai@2.7.0)(react@18.2.0)
+    version: 0.5.1(jotai@2.7.2)(react@18.2.0)
   jotai-valtio:
     specifier: ^0.4.0
-    version: 0.4.0(jotai@2.7.0)(valtio@1.13.1)
+    version: 0.4.0(jotai@2.7.2)(valtio@1.13.1)
   jotai-zustand:
     specifier: ^0.3.0
-    version: 0.3.0(jotai@2.7.0)
+    version: 0.3.0(jotai@2.7.2)
   keepalive-for-react:
     specifier: ^2.0.2
     version: 2.0.2(react-dom@18.2.0)(react@18.2.0)
@@ -1583,7 +1583,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -1593,7 +1592,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -1603,7 +1601,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: false
     optional: true
@@ -1613,7 +1610,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: false
     optional: true
@@ -5557,46 +5553,46 @@ packages:
       - redux
     dev: false
 
-  /jotai-optics@0.3.2(jotai@2.7.0)(optics-ts@2.4.1):
+  /jotai-optics@0.3.2(jotai@2.7.2)(optics-ts@2.4.1):
     resolution: {integrity: sha512-RH6SvqU5hmkVqnHmaqf9zBXvIAs4jLxkDHS4fr5ljuBKHs8+HQ02v+9hX7ahTppxx6dUb0GGUE80jQKJ0kFTLw==}
     peerDependencies:
       jotai: '>=1.11.0'
       optics-ts: '*'
     dependencies:
-      jotai: 2.7.0(@types/react@18.2.60)(react@18.2.0)
+      jotai: 2.7.2(@types/react@18.2.60)(react@18.2.0)
       optics-ts: 2.4.1
     dev: false
 
-  /jotai-scope@0.5.1(jotai@2.7.0)(react@18.2.0):
+  /jotai-scope@0.5.1(jotai@2.7.2)(react@18.2.0):
     resolution: {integrity: sha512-GKaqtCj1Hv36nyl63PVm+s5jo+hQqz+wAb81iqA8VuUXp5ot4eXGOZt4Hc66lFZMP0N/yEOISMlazprmDI6kFA==}
     peerDependencies:
       jotai: '>=2.5.0'
       react: '>=17.0.0'
     dependencies:
-      jotai: 2.7.0(@types/react@18.2.60)(react@18.2.0)
+      jotai: 2.7.2(@types/react@18.2.60)(react@18.2.0)
       react: 18.2.0
     dev: false
 
-  /jotai-valtio@0.4.0(jotai@2.7.0)(valtio@1.13.1):
+  /jotai-valtio@0.4.0(jotai@2.7.2)(valtio@1.13.1):
     resolution: {integrity: sha512-j19IjUHjlbIzwM3I5dE8Me9nVGa/uJMQrnprg+wnR9xxdB7uXf4b+fldlTyNFgDN6HP8XSdIztKTMHlIp1365Q==}
     peerDependencies:
       jotai: '>=1.11.0'
       valtio: '*'
     dependencies:
-      jotai: 2.7.0(@types/react@18.2.60)(react@18.2.0)
+      jotai: 2.7.2(@types/react@18.2.60)(react@18.2.0)
       valtio: 1.13.1(@types/react@18.2.60)(react@18.2.0)
     dev: false
 
-  /jotai-zustand@0.3.0(jotai@2.7.0):
+  /jotai-zustand@0.3.0(jotai@2.7.2):
     resolution: {integrity: sha512-hwu49XzES51tzKe9qqHS7LTlqesWbmzqhL+m7zEEW6hTOOGfnYiMYMmPb8ueMKCmMe122L3thwMeeblsFtlzPg==}
     peerDependencies:
       jotai: '>=1.11.0'
     dependencies:
-      jotai: 2.7.0(@types/react@18.2.60)(react@18.2.0)
+      jotai: 2.7.2(@types/react@18.2.60)(react@18.2.0)
     dev: false
 
-  /jotai@2.7.0(@types/react@18.2.60)(react@18.2.0):
-    resolution: {integrity: sha512-4qsyFKu4MprI39rj2uoItyhu24NoCHzkOV7z70PQr65SpzV6CSyhQvVIfbNlNqOIOspNMdf5OK+kTXLvqe63Jw==}
+  /jotai@2.7.2(@types/react@18.2.60)(react@18.2.0):
+    resolution: {integrity: sha512-6Ft5kpNu8p93Ssf1Faoza3hYQZRIYp7rioK8MwTTFnbQKwUyZElwquPwl1h6U0uo9hC0jr+ghO3gcSjc6P35/Q==}
     engines: {node: '>=12.20.0'}
     peerDependencies:
       '@types/react': '>=17.0.0'
