@@ -17,7 +17,7 @@
     "@mobily/ts-belt": "^3.13.1",
     "@monaco-editor/react": "^4.6.0",
     "@mui/icons-material": "^5.15.1",
-    "@mui/lab": "5.0.0-alpha.157",
+    "@mui/lab": "5.0.0-alpha.169",
     "@mui/material": "^5.15.14",
     "@mui/x-tree-view": "^7.1.0",
     "@radix-ui/react-accordion": "^1.1.2",
