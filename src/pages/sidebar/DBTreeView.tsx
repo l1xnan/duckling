@@ -4,7 +4,6 @@ import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { TreeNode } from '@/types';
 import { filterTree } from '@/utils';
 import { useAtom, useAtomValue } from 'jotai';
-import { nanoid } from 'nanoid';
 import { isEmpty } from 'radash';
 import React, { useState } from 'react';
 
@@ -99,7 +98,7 @@ export default function DBTreeView({ db, filter, ...rest }: DBTreeViewProps) {
     if (node && !noDataTypes.includes(node.type ?? '')) {
       const item: TableContextType = {
         ...nodeContext,
-        id: nanoid(),
+        id: `${db.id}:${itemIds}`,
         dbId: db.id,
         displayName: node?.name as string,
         type: 'table',
