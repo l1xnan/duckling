@@ -60,7 +60,7 @@
     "dedent": "^1.5.1",
     "deepmerge": "^4.3.1",
     "immer": "^10.0.3",
-    "jotai": "^2.7.0",
+    "jotai": "^2.7.2",
     "jotai-devtools": "^0.8.0",
     "jotai-optics": "^0.3.2",
     "jotai-scope": "^0.5.1",
@@ -80,7 +80,7 @@
     "react-hotkeys-hook": "^4.5.0",
     "react-resizable-panels": "^2.0.13",
     "react-router-dom": "^6.22.0",
-    "sonner": "^1.4.32",
+    "sonner": "^1.4.41",
     "sql-formatter": "^15.3.0",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7",
@@ -95,7 +95,7 @@
     "@tauri-apps/cli": "2.0.0-beta.11",
     "@types/node": "^20.11.5",
     "@types/react": "^18.2.60",
-    "@types/react-dom": "^18.2.19",
+    "@types/react-dom": "^18.2.23",
     "@typescript-eslint/eslint-plugin": "^7.4.0",
     "@typescript-eslint/parser": "^7.4.0",
     "@vitejs/plugin-react": "^4.2.1",
@@ -106,12 +106,12 @@
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-prettier": "^5.0.1",
-    "postcss": "^8.4.33",
+    "postcss": "^8.4.38",
     "prettier": "^3.2.5",
     "prettier-plugin-organize-imports": "^3.2.4",
     "tailwind-scrollbar": "^3.0.5",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.4.2",
-    "vite": "^5.2.2"
+    "vite": "^5.2.7"
   }
 }
