@@ -117,7 +117,6 @@ export const useTabsStore = create<TabsState & TabsAction>()(
     (set, _get) => ({
       ids: [],
       tabs: {},
-      currentTab: undefined,
       append: (tab: TabContextType) =>
         set((state) => ({
           tabs: { ...state.tabs, [tab.id]: tab },
@@ -192,7 +191,7 @@ export const tabObjAtom = focusAtom(tabsStoreAtom, (o) => o.prop('tabs'));
 
 export const useTabsAtom = (objAtom: typeof tabObjAtom, key: string) => {
   return useMemo(() => {
-    return focusAtom(objAtom, (optic) => optic.path(key));
+    return focusAtom(objAtom, (optic) => optic.prop(key));
   }, [objAtom, key]);
 };
 
