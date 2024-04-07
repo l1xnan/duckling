@@ -15,7 +15,7 @@ import {
   useTabsStore,
 } from '@/stores/tabs';
 
-import { SearchView } from '@/components/views/SchemaView.tsx';
+import { SearchView } from '@/components/views/SchemaView';
 import { PageProvider } from '@/hooks/context';
 import MonacoEditor from './editor';
 

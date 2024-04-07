@@ -87,6 +87,7 @@ jobs:
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
+          cache-on-failure: true
           workspaces: './src-tauri -> target'
           key: ${{ runner.os }}
 
