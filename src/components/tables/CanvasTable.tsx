@@ -417,9 +417,8 @@ export const CanvasTable = React.memo(function CanvasTable({
         pasteValueToCell: true,
       },
     }),
-    [data, transpose, appTheme],
+    [data, transpose, appTheme, leftPinnedCols, rightPinnedCols],
   );
-  const [cell, setCell] = useState();
 
   return (
     <div
