@@ -123,17 +123,17 @@ dependencies:
     specifier: 2.0.0-beta.2
     version: 2.0.0-beta.2
   '@visactor/react-vtable':
-    specifier: ^0.23.0
-    version: 0.23.0
+    specifier: ^0.23.1
+    version: 0.23.1
   '@visactor/vtable':
-    specifier: ^0.23.0
-    version: 0.23.0
+    specifier: ^0.23.1
+    version: 0.23.1
   ag-grid-community:
-    specifier: ^31.1.0
-    version: 31.1.0
+    specifier: ^31.2.0
+    version: 31.2.0
   ag-grid-react:
-    specifier: ^31.1.1
-    version: 31.1.1(react-dom@18.2.0)(react@18.2.0)
+    specifier: ^31.2.0
+    version: 31.2.0(react-dom@18.2.0)(react@18.2.0)
   class-variance-authority:
     specifier: ^0.7.0
     version: 0.7.0
@@ -153,23 +153,23 @@ dependencies:
     specifier: ^10.0.3
     version: 10.0.3
   jotai:
-    specifier: ^2.7.2
-    version: 2.7.2(@types/react@18.2.60)(react@18.2.0)
+    specifier: ^2.8.0
+    version: 2.8.0(@types/react@18.2.60)(react@18.2.0)
   jotai-devtools:
     specifier: ^0.8.0
     version: 0.8.0(@emotion/react@11.11.1)(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)(redux@5.0.1)
   jotai-optics:
     specifier: ^0.3.2
-    version: 0.3.2(jotai@2.7.2)(optics-ts@2.4.1)
+    version: 0.3.2(jotai@2.8.0)(optics-ts@2.4.1)
   jotai-scope:
     specifier: ^0.5.1
-    version: 0.5.1(jotai@2.7.2)(react@18.2.0)
+    version: 0.5.1(jotai@2.8.0)(react@18.2.0)
   jotai-valtio:
     specifier: ^0.4.0
-    version: 0.4.0(jotai@2.7.2)(valtio@1.13.1)
+    version: 0.4.0(jotai@2.8.0)(valtio@1.13.1)
   jotai-zustand:
     specifier: ^0.3.0
-    version: 0.3.0(jotai@2.7.2)
+    version: 0.3.0(jotai@2.8.0)
   keepalive-for-react:
     specifier: ^2.0.2
     version: 2.0.2(react-dom@18.2.0)(react@18.2.0)
@@ -183,8 +183,8 @@ dependencies:
     specifier: ^0.47.0
     version: 0.47.0
   nanoid:
-    specifier: ^5.0.6
-    version: 5.0.6
+    specifier: ^5.0.7
+    version: 5.0.7
   next-themes:
     specifier: ^0.3.0
     version: 0.3.0(react-dom@18.2.0)(react@18.2.0)
@@ -3630,10 +3630,10 @@ packages:
       eslint-visitor-keys: 3.4.3
     dev: true
 
-  /@visactor/react-vtable@0.23.0:
-    resolution: {integrity: sha512-7pQxYHHUfJGqrACccR9hc2jMs6LSVKY/ThQlIQSnY55180H5oq9r7k5dbRqPIzjEIIc5vwSru2YQi0kdQDV5pQ==}
+  /@visactor/react-vtable@0.23.1:
+    resolution: {integrity: sha512-ZHo/jSIgTj64VJ5s1es6n/KN3FP2RMD36qfHSGcndle2UNmJyrVnfNtamvHOVJ4SBhXSbTnrjabha24/Bmvu8g==}
     dependencies:
-      '@visactor/vtable': 0.23.0
+      '@visactor/vtable': 0.23.1
       '@visactor/vutils': 0.18.1
       react-is: 18.2.0
     dev: false
@@ -3713,19 +3713,19 @@ packages:
       '@visactor/vutils': 0.18.1
     dev: false
 
-  /@visactor/vtable-editors@0.23.0:
-    resolution: {integrity: sha512-5xa9tOr96axQJi7dVjqnsvsudZaR5+VbziskyuNFpS/CMcP4oUJIg6V9+auPG/TvwdLaBbXgnLB6Aov+40H5Lg==}
+  /@visactor/vtable-editors@0.23.1:
+    resolution: {integrity: sha512-6aD2p2Oj6Wy+LuZU2dTwzR8JckLVNg8t5hoJmqxGnJVXNIk181mfLS5IfUNomSsISW63vF6s3nTLvswVwyvoTA==}
     dev: false
 
-  /@visactor/vtable@0.23.0:
-    resolution: {integrity: sha512-KySN84cKUoMbDR4324AWHXtSGmajBG2wRiPxdAmbWou74M6C+pRhSyLUOkDswtJdzPrQOz+QXQMlQfTDJND/EQ==}
+  /@visactor/vtable@0.23.1:
+    resolution: {integrity: sha512-s9XvEwfNDI5aqI/CNS+deVp4pIdtH1hAoR4+cFj30sQinRr2jy/FqPYUUQ5oHxAqdAxvahdJRrVBhKFgn4cNbA==}
     dependencies:
       '@visactor/vdataset': 0.18.1
       '@visactor/vrender-components': 0.18.2-alpha.1
       '@visactor/vrender-core': 0.18.2-alpha.1
       '@visactor/vrender-kits': 0.18.2-alpha.1
       '@visactor/vscale': 0.18.1
-      '@visactor/vtable-editors': 0.23.0
+      '@visactor/vtable-editors': 0.23.1
       '@visactor/vutils': 0.18.1
       '@visactor/vutils-extension': 1.8.11
       cssfontparser: 1.2.1
@@ -3801,21 +3801,17 @@ packages:
     hasBin: true
     dev: true
 
-  /ag-grid-community@31.1.0:
-    resolution: {integrity: sha512-MTGBWwtJiKm2XHkyrmjxsybDODiOHAcPZm8QfxozwVfWy5yPUED08GFJd2sIdSs8n2OxAnIqmr6lJloX4j3zaw==}
+  /ag-grid-community@31.2.0:
+    resolution: {integrity: sha512-Ija6X171Iq3mFZASZlriQIIdEFqA71rZIsjQD6KHy5lMmxnoseZTX2neThBav1gvr6SA6n5B2PD6eUHdZnrUfw==}
     dev: false
 
-  /ag-grid-community@31.1.1:
-    resolution: {integrity: sha512-tiQZ7VQ07yJScTMIQpaYoUMPgiyXMwYDcwTxe4riRrcYGTg0e258XEihoPUZFejR60P1fYWMxdJaR2JUnyhGrg==}
-    dev: false
-
-  /ag-grid-react@31.1.1(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-aaDMSP8MGhoXL5M9c4UmhBClRlc3mEMMC0E0/1mhXU6bdiz0QxXT/xQtDe3DFC62VrtXVda9x20Lpj6p6Bfy8g==}
+  /ag-grid-react@31.2.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-ObFdPmF3EC7/xWZX8NjrZjURePyFa72MWjb1ZgUqDP7Wq09OSXXyKBN1qXmfUIT3h4o5+os6tCQEqoo7Op+3ZA==}
     peerDependencies:
       react: ^16.3.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.3.0 || ^17.0.0 || ^18.0.0
     dependencies:
-      ag-grid-community: 31.1.1
+      ag-grid-community: 31.2.0
       prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -5307,46 +5303,46 @@ packages:
       - redux
     dev: false
 
-  /jotai-optics@0.3.2(jotai@2.7.2)(optics-ts@2.4.1):
+  /jotai-optics@0.3.2(jotai@2.8.0)(optics-ts@2.4.1):
     resolution: {integrity: sha512-RH6SvqU5hmkVqnHmaqf9zBXvIAs4jLxkDHS4fr5ljuBKHs8+HQ02v+9hX7ahTppxx6dUb0GGUE80jQKJ0kFTLw==}
     peerDependencies:
       jotai: '>=1.11.0'
       optics-ts: '*'
     dependencies:
-      jotai: 2.7.2(@types/react@18.2.60)(react@18.2.0)
+      jotai: 2.8.0(@types/react@18.2.60)(react@18.2.0)
       optics-ts: 2.4.1
     dev: false
 
-  /jotai-scope@0.5.1(jotai@2.7.2)(react@18.2.0):
+  /jotai-scope@0.5.1(jotai@2.8.0)(react@18.2.0):
     resolution: {integrity: sha512-GKaqtCj1Hv36nyl63PVm+s5jo+hQqz+wAb81iqA8VuUXp5ot4eXGOZt4Hc66lFZMP0N/yEOISMlazprmDI6kFA==}
     peerDependencies:
       jotai: '>=2.5.0'
       react: '>=17.0.0'
     dependencies:
-      jotai: 2.7.2(@types/react@18.2.60)(react@18.2.0)
+      jotai: 2.8.0(@types/react@18.2.60)(react@18.2.0)
       react: 18.2.0
     dev: false
 
-  /jotai-valtio@0.4.0(jotai@2.7.2)(valtio@1.13.1):
+  /jotai-valtio@0.4.0(jotai@2.8.0)(valtio@1.13.1):
     resolution: {integrity: sha512-j19IjUHjlbIzwM3I5dE8Me9nVGa/uJMQrnprg+wnR9xxdB7uXf4b+fldlTyNFgDN6HP8XSdIztKTMHlIp1365Q==}
     peerDependencies:
       jotai: '>=1.11.0'
       valtio: '*'
     dependencies:
-      jotai: 2.7.2(@types/react@18.2.60)(react@18.2.0)
+      jotai: 2.8.0(@types/react@18.2.60)(react@18.2.0)
       valtio: 1.13.1(@types/react@18.2.60)(react@18.2.0)
     dev: false
 
-  /jotai-zustand@0.3.0(jotai@2.7.2):
+  /jotai-zustand@0.3.0(jotai@2.8.0):
     resolution: {integrity: sha512-hwu49XzES51tzKe9qqHS7LTlqesWbmzqhL+m7zEEW6hTOOGfnYiMYMmPb8ueMKCmMe122L3thwMeeblsFtlzPg==}
     peerDependencies:
       jotai: '>=1.11.0'
     dependencies:
-      jotai: 2.7.2(@types/react@18.2.60)(react@18.2.0)
+      jotai: 2.8.0(@types/react@18.2.60)(react@18.2.0)
     dev: false
 
-  /jotai@2.7.2(@types/react@18.2.60)(react@18.2.0):
-    resolution: {integrity: sha512-6Ft5kpNu8p93Ssf1Faoza3hYQZRIYp7rioK8MwTTFnbQKwUyZElwquPwl1h6U0uo9hC0jr+ghO3gcSjc6P35/Q==}
+  /jotai@2.8.0(@types/react@18.2.60)(react@18.2.0):
+    resolution: {integrity: sha512-yZNMC36FdLOksOr8qga0yLf14miCJlEThlp5DeFJNnqzm2+ZG7wLcJzoOyij5K6U6Xlc5ljQqPDlJRgqW0Y18g==}
     engines: {node: '>=12.20.0'}
     peerDependencies:
       '@types/react': '>=17.0.0'
@@ -5603,8 +5599,8 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  /nanoid@5.0.6:
-    resolution: {integrity: sha512-rRq0eMHoGZxlvaFOUdK1Ev83Bd1IgzzR+WJ3IbDJ7QOSdAxYjlurSPqFs9s4lJg29RT6nPwizFtJhQS6V5xgiA==}
+  /nanoid@5.0.7:
+    resolution: {integrity: sha512-oLxFY2gd2IqnjcYyOXD8XGCftpGtZP2AbHbOkthDkvRywH5ayNtPVy9YlOPcHckXzbLTCHpkb7FB+yuxKV13pQ==}
     engines: {node: ^18 || >=20}
     hasBin: true
     dev: false
