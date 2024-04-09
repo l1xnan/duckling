@@ -67,11 +67,16 @@ export function EditorToolbar({
     <ToolbarContainer>
       <ToolbarBox>
         <Stack>
-          <TooltipButton className="text-green-900" onClick={() => onClick()}>
+          <TooltipButton
+            className="text-green-900"
+            tooltip="Run"
+            onClick={() => onClick()}
+          >
             <PlayArrowIcon fontSize="inherit" />
           </TooltipButton>
           <TooltipButton
             className="text-green-900"
+            tooltip="Run in the new TAB"
             onClick={() => onClick('new')}
           >
             <PlaylistAddIcon fontSize="inherit" />
