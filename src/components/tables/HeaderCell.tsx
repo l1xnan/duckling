@@ -1,4 +1,3 @@
-import { Box } from '@mui/material';
 import {
   IconCaretDownFilled,
   IconCaretUpDownFilled,
@@ -129,17 +128,7 @@ export default (props: HeadCellProps) => {
 
 const AscOrDescIcon = ({ isDesc }: { isDesc?: boolean }) => {
   return (
-    <Box
-      sx={{
-        fontSize: 1,
-        '& *': {
-          maxHeight: '12px',
-          height: '12px',
-          maxWidth: '12px',
-          fontWeight: 400,
-        },
-      }}
-    >
+    <div className="text-xs [&_*]:max-h-[12px]">
       {isDesc === undefined ? (
         <IconCaretUpDownFilled />
       ) : !isDesc ? (
@@ -147,6 +136,6 @@ const AscOrDescIcon = ({ isDesc }: { isDesc?: boolean }) => {
       ) : (
         <IconCaretDownFilled />
       )}
-    </Box>
+    </div>
   );
 };
