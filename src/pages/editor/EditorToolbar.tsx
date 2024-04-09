@@ -15,42 +15,16 @@ import {
 import { useDBListStore } from '@/stores/dbList';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
-import {
-  IconInfinity,
-  IconInfinityOff,
-  Icon as TablerIcon,
-} from '@tabler/icons-react';
-import { atom } from 'jotai';
-import { LucideIcon } from 'lucide-react';
+import { TooltipContentProps } from '@radix-ui/react-tooltip';
+import { IconInfinity, IconInfinityOff } from '@tabler/icons-react';
 
-export const activeSideAtom = atom('database');
-
-interface TooltipButtonProps {
-  active?: boolean;
-  icon: LucideIcon | TablerIcon;
-  onClick?: () => void;
-}
-
-const LimitButton = ({ active, icon: Comp, onClick }: TooltipButtonProps) => {
-  const label = !active ? 'limit 500' : 'not limit';
-
-  return (
-    <TooltipButton
-      onClick={onClick}
-      tooltip={label}
-      className="size-7 rounded-lg"
-      tooltipProps={{
-        side: 'bottom',
-        align: 'start',
-        sideOffset: 5,
-        alignOffset: 5,
-        className: 'font-mono text-xs',
-      }}
-    >
-      <Comp />
-    </TooltipButton>
-  );
-};
+const tooltipProps = {
+  side: 'bottom',
+  align: 'start',
+  sideOffset: 5,
+  alignOffset: 5,
+  className: 'font-mono text-xs',
+} as TooltipContentProps;
 
 export function EditorToolbar({
   onClick,
@@ -82,13 +56,15 @@ export function EditorToolbar({
             <PlaylistAddIcon fontSize="inherit" />
           </TooltipButton>
 
-          <LimitButton
-            icon={(hasLimit ? IconInfinityOff : IconInfinity) as TablerIcon}
-            active={!hasLimit}
+          <TooltipButton
             onClick={() => {
               onHasLimit(!hasLimit);
             }}
-          />
+            tooltip={hasLimit ? 'limit 500' : 'not limit'}
+            tooltipProps={tooltipProps}
+          >
+            {hasLimit ? <IconInfinityOff /> : <IconInfinity />}
+          </TooltipButton>
         </Stack>
         <Stack>
           <Connection content={session} />
