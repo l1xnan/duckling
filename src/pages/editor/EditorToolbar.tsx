@@ -1,3 +1,4 @@
+import { TooltipButton } from '@/components/custom/button';
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -6,22 +7,14 @@ import {
 
 import { Stack, ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
 
-import { Button } from '@/components/ui/button';
 import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { useDBListStore } from '@/stores/dbList';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
-import { IconButton } from '@mui/material';
 import {
   IconInfinity,
   IconInfinityOff,
@@ -42,30 +35,20 @@ const LimitButton = ({ active, icon: Comp, onClick }: TooltipButtonProps) => {
   const label = !active ? 'limit 500' : 'not limit';
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7 rounded-lg"
-            aria-label={label}
-            onClick={onClick}
-          >
-            <Comp className="size-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent
-          side="bottom"
-          align="start"
-          sideOffset={5}
-          alignOffset={5}
-          className="font-mono text-xs"
-        >
-          {label}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <TooltipButton
+      onClick={onClick}
+      tooltip={label}
+      className="size-7 rounded-lg"
+      tooltipProps={{
+        side: 'bottom',
+        align: 'start',
+        sideOffset: 5,
+        alignOffset: 5,
+        className: 'font-mono text-xs',
+      }}
+    >
+      <Comp />
+    </TooltipButton>
   );
 };
 
@@ -84,24 +67,15 @@ export function EditorToolbar({
     <ToolbarContainer>
       <ToolbarBox>
         <Stack>
-          <IconButton
-            size="small"
-            sx={{
-              color: 'green',
-            }}
-            onClick={() => onClick()}
-          >
+          <TooltipButton className="text-green-900" onClick={() => onClick()}>
             <PlayArrowIcon fontSize="inherit" />
-          </IconButton>
-          <IconButton
-            size="small"
-            sx={{
-              color: 'green',
-            }}
+          </TooltipButton>
+          <TooltipButton
+            className="text-green-900"
             onClick={() => onClick('new')}
           >
             <PlaylistAddIcon fontSize="inherit" />
-          </IconButton>
+          </TooltipButton>
 
           <LimitButton
             icon={(hasLimit ? IconInfinityOff : IconInfinity) as TablerIcon}

@@ -6,11 +6,13 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { TooltipContentProps } from '@radix-ui/react-tooltip';
 import React, { PropsWithChildren, ReactElement } from 'react';
 
 interface IconButtonProps extends PropsWithChildren<ButtonProps> {
-  icon: ReactElement;
+  icon?: ReactElement;
   tooltip?: string;
+  tooltipProps?: TooltipContentProps;
 }
 
 export const TooltipButton = ({
@@ -18,9 +20,10 @@ export const TooltipButton = ({
   icon,
   children,
   className,
+  tooltipProps,
   ...props
 }: IconButtonProps) => {
-  const elem = icon ?? React.Children.only(children);
+  const elem = icon ?? (React.Children.only(children) as ReactElement);
   const element = React.cloneElement(elem, {
     className: cn('size-4', elem.props?.className),
   });
@@ -31,13 +34,15 @@ export const TooltipButton = ({
           <Button
             variant="ghost"
             size="icon"
-            className={cn('size-8 h-8 w-8 rounded-lg', className)}
+            className={cn('size-7 rounded-lg', className)}
             {...props}
           >
             {element}
           </Button>
         </TooltipTrigger>
-        {tooltip ? <TooltipContent>{tooltip}</TooltipContent> : null}
+        {tooltip ? (
+          <TooltipContent {...(tooltipProps ?? {})}>{tooltip}</TooltipContent>
+        ) : null}
       </Tooltip>
     </TooltipProvider>
   );
