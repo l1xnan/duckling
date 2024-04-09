@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { getDB } from '@/api';
-import { MuiIconButton } from '@/components/MuiIconButton';
 import Dialog from '@/components/custom/Dialog';
+import { TooltipButton } from '@/components/custom/button';
 import { Button } from '@/components/ui/button';
 import { DialogClose, DialogFooter } from '@/components/ui/dialog';
 import {
@@ -45,9 +45,9 @@ export function DatabaseDialog() {
       title="New Connection"
       className="min-w-[800px] min-h-[500px]"
       trigger={
-        <MuiIconButton>
+        <TooltipButton tooltip='Add data'>
           <IconDatabasePlus />
-        </MuiIconButton>
+        </TooltipButton>
       }
     >
       <Form {...form}>

@@ -8,8 +8,8 @@ import * as dialog from '@tauri-apps/plugin-dialog';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { getDB } from '@/api';
-import { MuiIconButton } from '@/components/MuiIconButton';
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
+import { TooltipButton } from '@/components/custom/button';
 import { DatabaseDialog } from '@/pages/sidebar/DatabaseDialog';
 import {
   DialectType,
@@ -50,26 +50,6 @@ export function SideToolbar() {
     }
   }
 
-  async function handleAppendDB() {
-    const res = await dialog.open({
-      directory: false,
-      filters: [
-        {
-          name: 'Data File',
-          extensions: ['duckdb', 'parquet', 'csv'],
-        },
-      ],
-    });
-    if (!res) {
-      return;
-    }
-    if (res.path.endsWith('.duckdb')) {
-      handleGetDB(res.path, 'duckdb');
-    } else {
-      handleGetDB(res.path, 'file');
-    }
-  }
-
   async function handleAppendFolder() {
     const res = await dialog.open({
       directory: true,
@@ -105,24 +85,33 @@ export function SideToolbar() {
       </div>
       <ToolbarContainer>
         <Stack>
-          <MuiIconButton onClick={handleAppendFolder}>
+          <TooltipButton tooltip="Add data folder" onClick={handleAppendFolder}>
             <IconFolderPlus />
-          </MuiIconButton>
+          </TooltipButton>
           <DatabaseDialog />
-          {/* <MuiIconButton onClick={handleAppendDB}>
-            <IconDatabasePlus />
-          </MuiIconButton> */}
-          <MuiIconButton disabled={!isRoot} onClick={handleOpen}>
+          <TooltipButton
+            tooltip="DB setting"
+            disabled={!isRoot}
+            onClick={handleOpen}
+          >
             <IconDatabaseCog />
-          </MuiIconButton>
+          </TooltipButton>
           {/* remove db */}
-          <MuiIconButton disabled={!isRoot} onClick={handleRemoveDB}>
+          <TooltipButton
+            tooltip="Remove DB"
+            disabled={!isRoot}
+            onClick={handleRemoveDB}
+          >
             <RemoveIcon />
-          </MuiIconButton>
+          </TooltipButton>
           {/* refresh tree */}
-          <MuiIconButton disabled={!isRoot} onClick={handleRefresh}>
+          <TooltipButton
+            tooltip="Refresh DB"
+            disabled={!isRoot}
+            onClick={handleRefresh}
+          >
             <IconRefresh />
-          </MuiIconButton>
+          </TooltipButton>
         </Stack>
       </ToolbarContainer>
     </>
