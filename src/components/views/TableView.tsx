@@ -1,10 +1,9 @@
 import MonacoEditor from '@monaco-editor/react';
 import PivotTableChartIcon from '@mui/icons-material/PivotTableChart';
-import SyncIcon from '@mui/icons-material/Sync';
-import { IconButton, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
-import { CodeIcon, DownloadIcon, EyeIcon, Loader2Icon } from 'lucide-react';
+import { CodeIcon, DownloadIcon, EyeIcon, Loader2Icon, RefreshCw } from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -14,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { precisionAtom, tableRenderAtom } from '@/stores/setting';
 import { TabContextType, activeTabAtom } from '@/stores/tabs';
 
+import { TooltipButton } from '@/components/custom/button';
 import { Pagination } from '@/components/custom/pagination.tsx';
 import {
   HoverCard,
@@ -27,7 +27,6 @@ import {
 } from '@/components/ui/resizable.tsx';
 import { usePageStore } from '@/hooks/context';
 import { isDarkTheme } from '@/utils';
-import { TablerSvgIcon } from '../MuiIconButton';
 
 export const Loading = ({ className }: { className?: string }) => {
   return (
@@ -158,51 +157,57 @@ function ViewToolbar() {
           pageSize={perPage}
           onChange={handeChange}
         />
-        <IconButton color="inherit" onClick={setBeautify}>
-          <TablerSvgIcon icon={<IconDecimal />} />
-        </IconButton>
+
+        <TooltipButton
+          icon={<IconDecimal className="size-5" />}
+          onClick={setBeautify}
+          tooltip="Float precision"
+        />
         {/*<Separator orientation="vertical" />*/}
-        <IconButton
-          color="inherit"
+
+        <TooltipButton
+          icon={<RefreshCw />}
           onClick={async () => {
             await refresh();
           }}
-        >
-          <SyncIcon fontSize="small" />
-        </IconButton>
+          tooltip="Refresh"
+        />
         <div className="text-xs ml-6">
           elapsed time: {elapsedRender(elapsed)}
         </div>
       </Stack>
       <Stack>
-        <IconButton color="inherit" onClick={setTranspose}>
-          <PivotTableChartIcon fontSize="small" />
-        </IconButton>
+        <TooltipButton
+          icon={<PivotTableChartIcon fontSize="small" />}
+          onClick={setTranspose}
+          tooltip="Transpose"
+        />
         {/* TODO */}
 
         <HoverCard>
           <HoverCardTrigger>
-            <IconButton disabled={!sql} color="inherit" onClick={() => {}}>
-              <CodeIcon size={16} />
-            </IconButton>
+            <TooltipButton
+              disabled={!sql}
+              icon={<CodeIcon />}
+              onClick={setTranspose}
+            />
           </HoverCardTrigger>
           <HoverCardContent className="font-mono select-all">
             {sql}
           </HoverCardContent>
         </HoverCard>
 
-        <IconButton
-          color="inherit"
-          onClick={() => {
-            setShowValue();
-          }}
-        >
-          <EyeIcon size={16} />
-        </IconButton>
-
-        <IconButton disabled color="inherit" onClick={() => {}}>
-          <DownloadIcon size={16} />
-        </IconButton>
+        <TooltipButton
+          icon={<EyeIcon />}
+          onClick={setShowValue}
+          tooltip="Value Viewer"
+        />
+        <TooltipButton
+          disabled
+          icon={<DownloadIcon />}
+          tooltip="Export to CSV"
+          onClick={() => {}}
+        />
       </Stack>
     </ToolbarContainer>
   );

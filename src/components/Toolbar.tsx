@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import React from 'react';
 
 export const ToolbarContainer = (
@@ -18,7 +19,10 @@ export const ToolbarBox = (props: React.HTMLAttributes<HTMLDivElement>) => (
 
 export const Stack = (props: React.ButtonHTMLAttributes<HTMLDivElement>) => (
   <div
-    className="flex flex-row gap-1 h-full items-center justify-start"
     {...props}
+    className={cn(
+      'flex flex-row gap-1 h-full items-center justify-start',
+      props.className,
+    )}
   />
 );

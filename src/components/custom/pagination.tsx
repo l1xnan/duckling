@@ -1,4 +1,5 @@
 import { Stack } from '@/components/Toolbar.tsx';
+import { TooltipButton } from '@/components/custom/button';
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -8,7 +9,6 @@ import {
   DropdownMenuContent,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { IconButton } from '@mui/material';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -63,19 +63,17 @@ export function Pagination({
   const content = count >= total ? `${count} rows` : `${start}-${end}`;
 
   return (
-    <Stack>
-      <IconButton
-        color="inherit"
+    <Stack className="gap-0">
+      <TooltipButton
         onClick={() => {
           setPage(1);
           props?.onChange(1, pageSize);
         }}
         disabled={page <= 1}
-      >
-        <ChevronsLeftIcon size={16} />
-      </IconButton>
-      <IconButton
-        color="inherit"
+        icon={<ChevronsLeftIcon />}
+      />
+
+      <TooltipButton
         onClick={() => {
           setPage((prev) => {
             props?.onChange(prev - 1, pageSize);
@@ -83,9 +81,8 @@ export function Pagination({
           });
         }}
         disabled={page <= 1}
-      >
-        <ChevronLeftIcon size={16} />
-      </IconButton>
+        icon={<ChevronLeftIcon />}
+      />
       <PaginationDropdown
         content={content}
         setPerPage={(pageSize) => {
@@ -93,8 +90,8 @@ export function Pagination({
           props?.onChange(page, pageSize);
         }}
       />
-      {count < total ? `of ${total}` : null}
-      <IconButton
+      <span className="mr-1">{count < total ? `of ${total}` : null}</span>
+      <TooltipButton
         color="inherit"
         onClick={() => {
           setPage((prev) => {
@@ -103,19 +100,17 @@ export function Pagination({
           });
         }}
         disabled={page >= last}
-      >
-        <ChevronRightIcon size={16} />
-      </IconButton>
-      <IconButton
+        icon={<ChevronRightIcon size={16} />}
+      />
+      <TooltipButton
         color="inherit"
         onClick={() => {
           setPage(last);
           props?.onChange(last, pageSize);
         }}
         disabled={page >= last}
-      >
-        <ChevronsRightIcon size={16} />
-      </IconButton>
+        icon={<ChevronsRightIcon />}
+      />
     </Stack>
   );
 }
