@@ -98,7 +98,7 @@ impl ClickhouseDialect {
     format!(
       "tcp://{}:{}@{}:{}/{}?compression=lz4",
       self.username,
-      self.password,
+      url::form_urlencoded::byte_serialize(self.password.as_bytes()).collect::<String>(),
       self.host,
       self.port,
       self.database.clone().unwrap_or_default(),
@@ -115,9 +115,10 @@ impl ClickhouseDialect {
     vec![]
   }
   async fn get_tables(&self) -> anyhow::Result<Vec<Table>> {
+    // TODO: comment field
     let sql = "
       select database as db_name, name as table_name, engine as table_type,
-        if(engine='View', 'view', 'table') as type, total_bytes, comment
+        if(engine='View', 'view', 'table') as type, total_bytes
       from system.tables order by database, table_type
       ";
     let mut client = self.client().await?;
