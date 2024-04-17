@@ -9,11 +9,13 @@ import {
   EditorContextType,
   QueryContextType,
   TabContextType,
+  activeTabAtom,
   getDatabase,
   subTabsAtomFamily,
 } from '@/stores/tabs';
 
 import { docsAtom, runsAtom } from '@/stores/app';
+import { useHotkeys } from 'react-hotkeys-hook';
 import { EditorToolbar } from './EditorToolbar';
 import MonacoEditor, { EditorRef } from './MonacoEditor';
 import { QueryTabs } from './QueryTabs';
@@ -35,6 +37,7 @@ export default function Editor({
 }) {
   const tabContext = useAtomValue(context);
   const [docs, setDocs] = useAtom(docsAtom);
+  const currentTab = useAtomValue(activeTabAtom);
 
   const id = tabContext.id;
 
@@ -124,6 +127,8 @@ export default function Editor({
     setTab((item) => ({ ...item, activeKey: id }));
   };
 
+  useHotkeys('ctrl+enter', () => handleClick(), { enabled: currentTab == id });
+
   return (
     <div className="h-full w-full overflow-hidden flex flex-col">
       <EditorToolbar
@@ -139,6 +144,7 @@ export default function Editor({
             value={stmt}
             onChange={handleChange}
             tableSchema={tableSchema}
+            onRun={handleClick}
           />
         </div>
         <QueryTabs

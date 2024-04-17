@@ -174,6 +174,7 @@ const MonacoEditor = forwardRef<
   EditorRef,
   MonacoEditorProps & {
     tableSchema?: TableSchemaType[];
+    onRun: () => void;
   }
 >(function MonacoEditor(props, ref: ForwardedRef<EditorRef>) {
   const editorRef = useRef<OnMountParams[0] | null>(null);
@@ -189,6 +190,23 @@ const MonacoEditor = forwardRef<
     props.onMount?.(editor, monaco);
 
     registerCompletion(monaco, props.tableSchema ?? []);
+
+    const disposable = monaco.editor.addEditorAction({
+      id: 'my-action',
+      label: 'My Action',
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+      run: () => {
+        console.log('My Action triggered');
+        props?.onRun()
+      },
+    });
+
+    // monaco.editor.addCommand({
+    //   id: 'my-action',
+    //   run: () => {
+    //     alert('save');
+    //   },
+    // });
   };
 
   useImperativeHandle(ref, () => ({
