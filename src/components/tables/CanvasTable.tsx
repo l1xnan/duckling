@@ -236,6 +236,9 @@ export const CanvasTable = React.memo(function CanvasTable({
           if (DataType.isDate(dataType)) {
             return dayjs(value).format('YYYY-MM-DD');
           }
+          if (DataType.isTimestamp(dataType)) {
+            return dayjs(value).format('YYYY-MM-DD HH:mm:ss');
+          }
 
           if (beautify && DataType.isFloat(dataType) && precision) {
             try {
