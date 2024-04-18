@@ -43,7 +43,7 @@ export function EditorToolbar({
         <Stack>
           <TooltipButton
             className="text-green-900"
-            tooltip="Run"
+            tooltip="Run (Ctrl+Enter)"
             onClick={() => onClick()}
           >
             <PlayArrowIcon fontSize="inherit" />
