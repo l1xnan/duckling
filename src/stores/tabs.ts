@@ -100,7 +100,7 @@ export type TabContextType =
 interface TabsState {
   ids: string[];
   tabs: Record<string, TabContextType>;
-  currentId?: string;
+  currentId?: string | null;
 }
 
 type TabsAction = {
@@ -117,6 +117,7 @@ export const useTabsStore = create<TabsState & TabsAction>()(
     (set, _get) => ({
       ids: [],
       tabs: {},
+      currentId: null,
       append: (tab: TabContextType) =>
         set((state) => ({
           tabs: { ...state.tabs, [tab.id]: tab },

@@ -14,8 +14,9 @@ import {
   useSettingStore,
 } from '@/stores/setting';
 
+import { Toaster } from '@/components/ui/sonner';
+import 'jotai-devtools/styles.css';
 import Home from './Home';
-import { Toaster } from './components/ui/sonner';
 import { atomStore } from './stores';
 import { ColorModeContext, darkTheme, lightTheme } from './theme';
 

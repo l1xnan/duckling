@@ -3,7 +3,13 @@ import PivotTableChartIcon from '@mui/icons-material/PivotTableChart';
 import { useTheme } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
-import { CodeIcon, DownloadIcon, EyeIcon, Loader2Icon, RefreshCw } from 'lucide-react';
+import {
+  CodeIcon,
+  DownloadIcon,
+  EyeIcon,
+  Loader2Icon,
+  RefreshCw,
+} from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -11,7 +17,7 @@ import { Stack, ToolbarContainer } from '@/components/Toolbar';
 import { AgTable, CanvasTable } from '@/components/tables';
 import { cn } from '@/lib/utils';
 import { precisionAtom, tableRenderAtom } from '@/stores/setting';
-import { TabContextType, activeTabAtom } from '@/stores/tabs';
+import { TabContextType, useTabsStore } from '@/stores/tabs';
 
 import { TooltipButton } from '@/components/custom/button';
 import { Pagination } from '@/components/custom/pagination.tsx';
@@ -50,7 +56,7 @@ export function TableView({ context }: { context: TabContextType }) {
     transpose,
     showValue,
   } = usePageStore();
-  const currentTab = useAtomValue(activeTabAtom);
+  const currentTab = useTabsStore((s) => s.currentId);
 
   useEffect(() => {
     if (currentTab == context.id) {

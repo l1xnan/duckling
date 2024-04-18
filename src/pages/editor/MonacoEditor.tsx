@@ -1,7 +1,13 @@
 import * as B from '@mobily/ts-belt';
 import Editor, { EditorProps, Monaco, OnMount } from '@monaco-editor/react';
 import { useTheme } from '@mui/material';
-import { ForwardedRef, forwardRef, useImperativeHandle, useRef } from 'react';
+import {
+  ForwardedRef,
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useRef,
+} from 'react';
 
 import { isDarkTheme } from '@/utils';
 
@@ -179,7 +185,7 @@ const MonacoEditor = forwardRef<
 >(function MonacoEditor(props, ref: ForwardedRef<EditorRef>) {
   const editorRef = useRef<OnMountParams[0] | null>(null);
 
-  const handleMount: OnMount = (editor, monaco) => {
+  const handleMount: OnMount = useCallback((editor, monaco) => {
     editorRef.current = editor;
     monaco.editor.defineTheme('dark', {
       base: 'vs-dark',
@@ -192,12 +198,12 @@ const MonacoEditor = forwardRef<
     registerCompletion(monaco, props.tableSchema ?? []);
 
     const disposable = monaco.editor.addEditorAction({
-      id: 'my-action',
-      label: 'My Action',
+      id: 'editor.run',
+      label: 'Run',
+      contextMenuGroupId: 'navigation',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
       run: () => {
-        console.log('My Action triggered');
-        props?.onRun()
+        props?.onRun();
       },
     });
 
@@ -207,7 +213,7 @@ const MonacoEditor = forwardRef<
     //     alert('save');
     //   },
     // });
-  };
+  }, []);
 
   useImperativeHandle(ref, () => ({
     editor: () => editorRef.current,
