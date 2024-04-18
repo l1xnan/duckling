@@ -1,10 +1,16 @@
 import * as B from '@mobily/ts-belt';
-import Editor, { EditorProps, Monaco, OnMount } from '@monaco-editor/react';
+import Editor, {
+  BeforeMount,
+  EditorProps,
+  Monaco,
+  OnMount,
+  useMonaco,
+} from '@monaco-editor/react';
 import { useTheme } from '@mui/material';
 import {
   ForwardedRef,
   forwardRef,
-  useCallback,
+  useEffect,
   useImperativeHandle,
   useRef,
 } from 'react';
@@ -184,36 +190,44 @@ const MonacoEditor = forwardRef<
   }
 >(function MonacoEditor(props, ref: ForwardedRef<EditorRef>) {
   const editorRef = useRef<OnMountParams[0] | null>(null);
-
-  const handleMount: OnMount = useCallback((editor, monaco) => {
-    editorRef.current = editor;
+  const monaco = useMonaco();
+  const handleBeforeMount: BeforeMount = (monaco) => {
     monaco.editor.defineTheme('dark', {
       base: 'vs-dark',
       inherit: true,
       rules: [],
       colors: {},
     });
-    props.onMount?.(editor, monaco);
-
     registerCompletion(monaco, props.tableSchema ?? []);
+  };
+  
+  const handleMount: OnMount = (editor, monaco) => {
+    editorRef.current = editor;
+    props.onMount?.(editor, monaco);
+  };
 
-    const disposable = monaco.editor.addEditorAction({
+  useEffect(() => {
+    const disposable1 = monaco?.editor.addEditorAction({
       id: 'editor.run',
       label: 'Run',
       contextMenuGroupId: 'navigation',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
       run: () => {
-        props?.onRun();
+        props.onRun?.();
       },
     });
 
-    // monaco.editor.addCommand({
-    //   id: 'my-action',
-    //   run: () => {
-    //     alert('save');
-    //   },
-    // });
-  }, []);
+    const disposable2 = monaco?.editor.addCommand({
+      id: 'editor.run',
+      run: () => {
+        props.onRun?.();
+      },
+    });
+    return () => {
+      disposable1?.dispose();
+      disposable2?.dispose();
+    };
+  }, [props.onRun, monaco]);
 
   useImperativeHandle(ref, () => ({
     editor: () => editorRef.current,
@@ -252,6 +266,7 @@ const MonacoEditor = forwardRef<
         },
       }}
       {...props}
+      beforeMount={handleBeforeMount}
       onMount={handleMount}
     />
   );
