@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import { ChevronRight } from 'lucide-react';
 import { NodeRendererProps, Tree } from 'react-arborist';
+import { TreeProps } from 'react-arborist/dist/module/types/tree-props';
 import { SQL_ICON, TreeViewFolderIcon } from './TreeView1';
 
 export const data = [
@@ -90,15 +91,15 @@ function Node({ node, style, dragHandle }: NodeRendererProps<any>) {
           strokeWidth={1.5}
         />
       )}
-      <div className={cn('text-ellipsis')}>
-        {node.data.name} {node.data.type}
+      <div className={cn('truncate')}>
+        {node.data.name}
       </div>
     </div>
   );
 }
 
 /* Customize Appearance */
-export default function TreeDemo() {
+export default function TreeDemo(props: TreeProps<unknown>) {
   return (
     <Tree
       initialData={data}
@@ -110,6 +111,7 @@ export default function TreeDemo() {
       paddingTop={30}
       paddingBottom={10}
       padding={25 /* sets both */}
+      {...props}
     >
       {Node}
     </Tree>
