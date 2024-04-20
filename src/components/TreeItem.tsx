@@ -174,7 +174,7 @@ interface TreeItemLabelProps {
   icon: string;
 }
 
-export const getTypeIcon = (type: string, expanded: boolean) => {
+export const getTypeIcon = (type: string, expanded?: boolean) => {
   if (type == 'path' && expanded) {
     return <IconFolderOpen />;
   }

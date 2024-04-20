@@ -1,8 +1,14 @@
+import { Tooltip } from '@/components/custom/tooltip';
 import { cn } from '@/lib/utils';
+
+import { tablesAtom } from '@/stores/dbList';
+import { TableContextType, useTabsStore } from '@/stores/tabs';
+import { useAtomValue } from 'jotai';
 import { ChevronRight } from 'lucide-react';
 import { NodeRendererProps, Tree } from 'react-arborist';
 import { TreeProps } from 'react-arborist/dist/module/types/tree-props';
-import { SQL_ICON, TreeViewFolderIcon } from './TreeView1';
+import useResizeObserver from 'use-resize-observer';
+import { getTypeIcon } from '../TreeItem';
 
 export const data = [
   { id: '1', name: 'Unread', type: '----' },
@@ -28,16 +34,14 @@ export const data = [
   },
 ];
 
-function Node({ node, style, dragHandle }: NodeRendererProps<any>) {
+function Node({ node, style }: NodeRendererProps<any>) {
   /* This node instance can do many things. See the API reference. */
-  console.log(node.isSelected);
+  const { icon, name, path } = node.data;
   return (
     <div
       style={style}
-      ref={dragHandle}
-      onClick={() => node.toggle()}
+      onDoubleClick={() => node.toggle()}
       className={cn(
-        node.isSelected ? 'bg-accent' : '',
         'relative',
         'transition-colors',
         'flex items-center gap-1',
@@ -45,75 +49,80 @@ function Node({ node, style, dragHandle }: NodeRendererProps<any>) {
         'cursor-pointer',
         'select-none',
         'text-foreground-light',
-        'group',
-        'h-[22px]',
         'hover:bg-accent',
       )}
     >
       {(node.children?.length ?? 0) > 0 ? (
-        <>
-          <ChevronRight
-            className={cn(
-              'text-foreground-muted',
-              'group-aria-selected:text-foreground-light',
-              'group-aria-expanded:text-foreground-light',
-              'transition-transform duration-200',
-              'group-aria-expanded:rotate-90',
-              !node.isClosed ? 'rotate-90' : '',
-              'size-4',
-            )}
-          />
-          <TreeViewFolderIcon
-            className={cn(
-              'transition-colors',
-              'text-foreground-muted',
-              'group-aria-selected:text-foreground-light',
-              'group-aria-expanded:text-foreground-light',
-              'size-4',
-            )}
-            isOpen={!node.isClosed}
-            size={16}
-            strokeWidth={1.5}
-          />
-        </>
-      ) : (
-        <SQL_ICON
+        <ChevronRight
+          onClick={() => node.toggle()}
           className={cn(
-            'transition-colors',
-            'fill-foreground-muted',
-            'fill-foreground',
-            // 'group-aria-selected:fill-foreground',
+            'text-foreground-muted',
+            'transition-transform duration-200',
             'size-4',
-            'ml-3.5',
-            // '-ml-0.5',
+            !node.isClosed ? 'rotate-90' : '',
           )}
-          size={16}
-          strokeWidth={1.5}
         />
+      ) : (
+        <div className="size-4"></div>
       )}
-      <div className={cn('truncate')}>
-        {node.data.name}
+      <div className="mr-1 flex items-center [&_svg]:size-4">
+        {getTypeIcon(icon)}
       </div>
+      <Tooltip title={path}>
+        <div className="truncate">{name}</div>
+      </Tooltip>
     </div>
   );
 }
 
 /* Customize Appearance */
 export default function TreeDemo(props: TreeProps<unknown>) {
+  const { ref, width, height } = useResizeObserver();
+  const updateTab = useTabsStore((state) => state.update);
+  const dbTableMap = useAtomValue(tablesAtom);
+  console.log('tree data', width, height);
+
+  const handleSelect: TreeProps<unknown>['onSelect'] = (nodes) => {
+    console.log(nodes);
+    const t = nodes[0].data;
+    const dbId = t?.dbId;
+    const tableId = t?.path;
+
+    const node = dbTableMap.get(dbId)?.get(tableId);
+
+    const nodeContext = { dbId, tableId };
+
+    const noDataTypes = ['path', 'database', 'root'];
+    if (node && !noDataTypes.includes(node.type ?? '')) {
+      const item: TableContextType = {
+        ...nodeContext,
+        id: `${dbId}:${tableId}`,
+        dbId,
+        displayName: node?.name as string,
+        type: 'table',
+      };
+
+      console.log('item', item);
+      updateTab!(item);
+    }
+  };
   return (
-    <Tree
-      initialData={data}
-      openByDefault={false}
-      // width={600}
-      height={1000}
-      indent={24}
-      rowHeight={22}
-      paddingTop={30}
-      paddingBottom={10}
-      padding={25 /* sets both */}
-      {...props}
-    >
-      {Node}
-    </Tree>
+    <div className="size-full overflow-hidden" ref={ref}>
+      <Tree
+        openByDefault={false}
+        indent={16}
+        rowHeight={22}
+        width={width}
+        height={height}
+        disableDrag={true}
+        disableDrop={true}
+        rowClassName="aria-selected:bg-accent"
+        className="overflow-hidden !will-change-auto"
+        onSelect={handleSelect}
+        {...props}
+      >
+        {Node}
+      </Tree>
+    </div>
   );
 }
