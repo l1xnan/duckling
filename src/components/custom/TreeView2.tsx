@@ -74,7 +74,7 @@ function Node({ node, style }: NodeRendererProps<NodeType>) {
           {getTypeIcon(icon)}
         </div>
         <Tooltip title={path}>
-          <div className="truncate">{name}</div>
+          <div className="truncate font-mono">{name}</div>
         </Tooltip>
       </div>
     </ContextNode>

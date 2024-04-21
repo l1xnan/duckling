@@ -15,6 +15,7 @@ import {
 } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 
+import TreeDemo from '@/components/custom/TreeView2';
 import { SearchInput } from '@/components/custom/search';
 import SearchDialog from '@/pages/sidebar/SearchDialog';
 import DBTreeView from './DBTreeView';
@@ -63,11 +64,21 @@ function DBTree() {
           }}
         />
       </div>
-      <div className="size-full overflow-auto pr-1 pb-2">
+      <TreeDemo
+        searchMatch={(node, term) =>
+          node.data.path.toLowerCase().includes(term.toLowerCase())
+        }
+        searchTerm={search}
+        data={dbList.map((db) => ({
+          ...convertId(db.data, db.id),
+          icon: db.dialect,
+        }))}
+      />
+      {/* <div className="size-full overflow-x-hidden pr-1 pb-2">
         {dbList.map((db, _i) => {
           return <DBTreeView key={db.id} db={db} filter={search} />;
         })}
-      </div>
+      </div> */}
 
       {/* ---------- modal/dialog ---------- */}
 
@@ -81,3 +92,17 @@ function DBTree() {
 }
 
 export default DBTree;
+
+function convertId(data, dbId) {
+  let children;
+  if (data.children) {
+    children = data.children.map((item) => convertId(item, dbId));
+  }
+  return {
+    id: `${dbId}:${data.path}`,
+    dbId,
+    icon: data.type ?? 'file',
+    ...data,
+    children,
+  };
+}
