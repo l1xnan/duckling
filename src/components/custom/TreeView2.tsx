@@ -1,10 +1,14 @@
 import { Tooltip } from '@/components/custom/tooltip';
 import { cn } from '@/lib/utils';
 
-import { tablesAtom } from '@/stores/dbList';
+import { ConnectionContextMenu } from '@/pages/sidebar/context-menu/ConnectionContextMenu';
+import { SchemaContextMenu } from '@/pages/sidebar/context-menu/SchemaContextMenu';
+import { TableContextMenu } from '@/pages/sidebar/context-menu/TableContextMenu';
+import { dbMapAtom, tablesAtom } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { useAtomValue } from 'jotai';
 import { ChevronRight } from 'lucide-react';
+import { PropsWithChildren } from 'react';
 import { NodeRendererProps, Tree } from 'react-arborist';
 import { TreeProps } from 'react-arborist/dist/module/types/tree-props';
 import useResizeObserver from 'use-resize-observer';
@@ -34,57 +38,93 @@ export const data = [
   },
 ];
 
-function Node({ node, style }: NodeRendererProps<any>) {
+function Node({ node, style }: NodeRendererProps<NodeType>) {
   /* This node instance can do many things. See the API reference. */
   const { icon, name, path } = node.data;
   return (
-    <div
-      style={style}
-      onDoubleClick={() => node.toggle()}
-      className={cn(
-        'relative',
-        'transition-colors',
-        'flex items-center gap-1',
-        'text-sm',
-        'cursor-pointer',
-        'select-none',
-        'text-foreground-light',
-        'hover:bg-accent',
-      )}
-    >
-      {(node.children?.length ?? 0) > 0 ? (
-        <ChevronRight
-          onClick={() => node.toggle()}
-          className={cn(
-            'text-foreground-muted',
-            'transition-transform duration-200',
-            'size-4',
-            !node.isClosed ? 'rotate-90' : '',
-          )}
-        />
-      ) : (
-        <div className="size-4"></div>
-      )}
-      <div className="mr-1 flex items-center [&_svg]:size-4">
-        {getTypeIcon(icon)}
+    <ContextNode node={node}>
+      <div
+        style={style}
+        onDoubleClick={() => node.toggle()}
+        className={cn(
+          'relative',
+          'transition-colors',
+          'flex items-center gap-1',
+          'text-sm',
+          'cursor-pointer',
+          'select-none',
+          'text-foreground-light',
+          'hover:bg-accent',
+        )}
+      >
+        {(node.children?.length ?? 0) > 0 ? (
+          <ChevronRight
+            onClick={() => node.toggle()}
+            className={cn(
+              'text-foreground-muted',
+              'transition-transform duration-200',
+              'size-4',
+              !node.isClosed ? 'rotate-90' : '',
+            )}
+          />
+        ) : (
+          <div className="size-4"></div>
+        )}
+        <div className="mr-1 flex items-center [&_svg]:size-4">
+          {getTypeIcon(icon)}
+        </div>
+        <Tooltip title={path}>
+          <div className="truncate">{name}</div>
+        </Tooltip>
       </div>
-      <Tooltip title={path}>
-        <div className="truncate">{name}</div>
-      </Tooltip>
-    </div>
+    </ContextNode>
   );
 }
 
+function ContextNode({
+  children,
+  node,
+}: PropsWithChildren<Pick<NodeRendererProps<NodeType>, 'node'>>) {
+  const dbMap = useAtomValue(dbMapAtom);
+  const db = dbMap.get(node.data.dbId);
+  if (!db) {
+    return children;
+  }
+  return node.level === 0 ? (
+    <ConnectionContextMenu db={db}>{children}</ConnectionContextMenu>
+  ) : node.data.type == 'database' ? (
+    <SchemaContextMenu db={db} node={node.data}>
+      {children}
+    </SchemaContextMenu>
+  ) : (
+    <TableContextMenu db={db} node={node.data}>
+      {children}
+    </TableContextMenu>
+  );
+}
+
+interface NodeType {
+  path: string;
+  dbId: string;
+  name: string;
+  icon: string;
+  type: string;
+  children?: NodeType[];
+}
+
 /* Customize Appearance */
-export default function TreeDemo(props: TreeProps<unknown>) {
+export default function TreeDemo(props: TreeProps<NodeType>) {
   const { ref, width, height } = useResizeObserver();
   const updateTab = useTabsStore((state) => state.update);
   const dbTableMap = useAtomValue(tablesAtom);
   console.log('tree data', width, height);
 
-  const handleSelect: TreeProps<unknown>['onSelect'] = (nodes) => {
+  const handleSelect: TreeProps<NodeType>['onSelect'] = (nodes) => {
     console.log(nodes);
-    const t = nodes[0].data;
+    const t = nodes?.[0]?.data;
+    if (!t) {
+      return;
+    }
     const dbId = t?.dbId;
     const tableId = t?.path;
 
