@@ -90,16 +90,21 @@ function ContextNode({
   if (!db) {
     return children;
   }
+
+  const isDummy = node.data.type == 'path' && db.dialect != 'folder';
+
   return node.level === 0 ? (
     <ConnectionContextMenu db={db}>{children}</ConnectionContextMenu>
   ) : node.data.type == 'database' ? (
     <SchemaContextMenu db={db} node={node.data}>
       {children}
     </SchemaContextMenu>
-  ) : (
+  ) : !isDummy ? (
     <TableContextMenu db={db} node={node.data}>
       {children}
     </TableContextMenu>
+  ) : (
+    children
   );
 }
 
