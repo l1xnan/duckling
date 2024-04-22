@@ -14,30 +14,6 @@ import { TreeProps } from 'react-arborist/dist/module/types/tree-props';
 import useResizeObserver from 'use-resize-observer';
 import { getTypeIcon } from '../TreeItem';
 
-export const data = [
-  { id: '1', name: 'Unread', type: '----' },
-  { id: '2', name: 'Threads' },
-  {
-    id: '3',
-    name: 'Chat Rooms',
-    type: '----',
-    children: [
-      { id: 'c1', name: 'General' },
-      { id: 'c2', name: 'Random' },
-      { id: 'c3', name: 'Open Source Projects' },
-    ],
-  },
-  {
-    id: '4',
-    name: 'Direct Messages',
-    children: [
-      { id: 'd1', name: 'Alice' },
-      { id: 'd2', name: 'Bob' },
-      { id: 'd3', name: 'Charlie' },
-    ],
-  },
-];
-
 function Node({ node, style }: NodeRendererProps<NodeType>) {
   /* This node instance can do many things. See the API reference. */
   const { icon, name, path } = node.data;
@@ -134,10 +110,9 @@ export default function TreeDemo(props: TreeProps<NodeType>) {
     const dbId = t?.dbId;
     const tableId = t?.path;
 
-    
     const nodeContext = { dbId, tableId };
     setSelectedNode(nodeContext);
-    
+
     const node = dbTableMap.get(dbId)?.get(tableId);
     const noDataTypes = ['path', 'database', 'root'];
     if (node && !noDataTypes.includes(node.type ?? '')) {
