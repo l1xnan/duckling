@@ -4,9 +4,9 @@ import { cn } from '@/lib/utils';
 import { ConnectionContextMenu } from '@/pages/sidebar/context-menu/ConnectionContextMenu';
 import { SchemaContextMenu } from '@/pages/sidebar/context-menu/SchemaContextMenu';
 import { TableContextMenu } from '@/pages/sidebar/context-menu/TableContextMenu';
-import { dbMapAtom, tablesAtom } from '@/stores/dbList';
+import { dbMapAtom, selectedNodeAtom, tablesAtom } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { ChevronRight } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 import { NodeRendererProps, Tree } from 'react-arborist';
@@ -68,9 +68,9 @@ function Node({ node, style }: NodeRendererProps<NodeType>) {
             )}
           />
         ) : (
-          <div className="size-4"></div>
+          <div className="size-4 min-w-4"></div>
         )}
-        <div className="mr-1 flex items-center [&_svg]:size-4">
+        <div className="flex items-center [&_svg]:size-4">
           {getTypeIcon(icon)}
         </div>
         <Tooltip title={path}>
@@ -122,7 +122,7 @@ export default function TreeDemo(props: TreeProps<NodeType>) {
   const { ref, width, height } = useResizeObserver();
   const updateTab = useTabsStore((state) => state.update);
   const dbTableMap = useAtomValue(tablesAtom);
-  console.log('tree data', width, height);
+  const [selectedNode, setSelectedNode] = useAtom(selectedNodeAtom);
 
   const handleSelect: TreeProps<NodeType>['onSelect'] = (nodes) => {
     console.log(nodes);
@@ -136,6 +136,7 @@ export default function TreeDemo(props: TreeProps<NodeType>) {
     const node = dbTableMap.get(dbId)?.get(tableId);
 
     const nodeContext = { dbId, tableId };
+    setSelectedNode(nodeContext);
 
     const noDataTypes = ['path', 'database', 'root'];
     if (node && !noDataTypes.includes(node.type ?? '')) {
