@@ -54,7 +54,8 @@ function Node({ node, style }: NodeRendererProps<NodeType>) {
           'cursor-pointer',
           'select-none',
           'text-foreground-light',
-          'hover:bg-accent',
+          node.isSelected ? '' : 'hover:bg-accent',
+          'h-[22px]',
         )}
       >
         {(node.children?.length ?? 0) > 0 ? (
@@ -162,7 +163,7 @@ export default function TreeDemo(props: TreeProps<NodeType>) {
         height={height}
         disableDrag={true}
         disableDrop={true}
-        rowClassName="aria-selected:bg-accent"
+        rowClassName="aria-selected:bg-primary/20"
         className="overflow-hidden !will-change-auto"
         onSelect={handleSelect}
         {...props}
