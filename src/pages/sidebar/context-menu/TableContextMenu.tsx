@@ -52,6 +52,95 @@ export function TableContextMenu({
       updateDB(db.id, data);
     }
   };
+
+  const handleShowTable = async (e: Event) => {
+    e.stopPropagation();
+
+    const dbId = db?.id;
+    const tableId = node?.path;
+
+    const nodeContext = { dbId, tableId };
+
+    const noDataTypes = ['path', 'database', 'root'];
+    if (node && !noDataTypes.includes(node.type ?? '')) {
+      const item: TableContextType = {
+        ...nodeContext,
+        id: `${dbId}:${tableId}`,
+        dbId,
+        displayName: node?.name as string,
+        type: 'table',
+      };
+
+      console.log('item', item);
+      updateTab!(item);
+    }
+  };
+
+  const handleShowParquet = async (e: Event) => {
+    e.stopPropagation();
+    console.log(node);
+    const item: TableContextType = {
+      id: nanoid(),
+      dbId: db.id,
+      tableId: node.path,
+      tableName:
+        node.type == 'path'
+          ? `read_parquet('${node.path}/*.parquet', union_by_name=true, filename=true)`
+          : undefined,
+      displayName: node?.name as string,
+      type: 'table',
+    };
+    updateTab!(item);
+  };
+
+  const handleShowCsv = async (e: Event) => {
+    e.stopPropagation();
+    console.log(node);
+    const item: TableContextType = {
+      id: nanoid(),
+      dbId: db.id,
+      tableId: node.path,
+      tableName:
+        node.type == 'path'
+          ? `read_csv('${node.path}/*.csv', union_by_name=true, filename=true)`
+          : undefined,
+      displayName: node?.name as string,
+      type: 'table',
+    };
+    updateTab!(item);
+  };
+
+  const handleShowColumn = async (e: Event) => {
+    e.stopPropagation();
+    const item: TableContextType = {
+      id: nanoid(),
+      dbId: db.id,
+      tableId: node.path,
+      displayName: node?.name as string,
+      type: 'column',
+    };
+    updateTab!(item);
+  };
+
+  const handleSearch = async (e: Event) => {
+    e.stopPropagation();
+    console.log(node);
+    const item: TableContextType = {
+      id: nanoid(),
+      dbId: db.id,
+      tableId: node.path,
+      displayName: node?.name as string,
+      type: 'table',
+    };
+
+    setSearch({ open: true, item });
+  };
+
+  const handleCopy = async (e: Event) => {
+    e.stopPropagation();
+    await writeText(node.path);
+  };
+
   return (
     <AlertDialog>
       <ContextMenu>
@@ -62,82 +151,22 @@ export function TableContextMenu({
             e.stopPropagation();
           }}
         >
-          <ContextMenuItem
-            onClick={async (e) => {
-              e.stopPropagation();
-              console.log(node);
-              const item: TableContextType = {
-                id: nanoid(),
-                dbId: db.id,
-                tableId: node.path,
-                displayName: node?.name as string,
-                type: 'column',
-              };
-              updateTab!(item);
-            }}
-          >
+          <ContextMenuItem onSelect={handleShowTable}>
+            Show table
+          </ContextMenuItem>
+          <ContextMenuItem onSelect={handleShowColumn}>
             Show columns
           </ContextMenuItem>
           {db.dialect == 'folder' ? (
             <>
-              <ContextMenuItem
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  console.log(node);
-                  const item: TableContextType = {
-                    id: nanoid(),
-                    dbId: db.id,
-                    tableId: node.path,
-                    tableName:
-                      node.type == 'path'
-                        ? `read_parquet('${node.path}/*.parquet', union_by_name=true, filename=true)`
-                        : undefined,
-                    displayName: node?.name as string,
-                    type: 'table',
-                  };
-                  updateTab!(item);
-                }}
-              >
+              <ContextMenuItem onSelect={handleShowParquet}>
                 Show *.parquet
               </ContextMenuItem>
-              <ContextMenuItem
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  console.log(node);
-                  const item: TableContextType = {
-                    id: nanoid(),
-                    dbId: db.id,
-                    tableId: node.path,
-                    tableName:
-                      node.type == 'path'
-                        ? `read_csv('${node.path}/*.csv', union_by_name=true, filename=true)`
-                        : undefined,
-                    displayName: node?.name as string,
-                    type: 'table',
-                  };
-                  updateTab!(item);
-                }}
-              >
+              <ContextMenuItem onSelect={handleShowCsv}>
                 Show *.csv
               </ContextMenuItem>
               <ContextMenuSeparator />
-              <ContextMenuItem
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  console.log(node);
-                  const item: TableContextType = {
-                    id: nanoid(),
-                    dbId: db.id,
-                    tableId: node.path,
-                    displayName: node?.name as string,
-                    type: 'table',
-                  };
-
-                  setSearch({ open: true, item });
-                }}
-              >
-                Search
-              </ContextMenuItem>
+              <ContextMenuItem onSelect={handleSearch}>Search</ContextMenuItem>
             </>
           ) : null}
 
@@ -148,14 +177,7 @@ export function TableContextMenu({
           </AlertDialogTrigger>
 
           <ContextMenuSeparator />
-          <ContextMenuItem
-            onClick={async (e) => {
-              e.stopPropagation();
-              await writeText(node.path);
-            }}
-          >
-            Copy
-          </ContextMenuItem>
+          <ContextMenuItem onSelect={handleCopy}>Copy</ContextMenuItem>
           <ContextMenuSeparator />
 
           <ContextMenuItem onSelect={handleRefresh} icon={RefreshCcw}>

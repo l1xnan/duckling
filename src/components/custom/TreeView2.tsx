@@ -6,7 +6,7 @@ import { SchemaContextMenu } from '@/pages/sidebar/context-menu/SchemaContextMen
 import { TableContextMenu } from '@/pages/sidebar/context-menu/TableContextMenu';
 import { dbMapAtom, selectedNodeAtom, tablesAtom } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { ChevronRight } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 import { NodeRendererProps, Tree } from 'react-arborist';
@@ -123,7 +123,7 @@ export default function TreeDemo(props: TreeProps<NodeType>) {
   const { ref, width, height } = useResizeObserver();
   const updateTab = useTabsStore((state) => state.update);
   const dbTableMap = useAtomValue(tablesAtom);
-  const [selectedNode, setSelectedNode] = useAtom(selectedNodeAtom);
+  const setSelectedNode = useSetAtom(selectedNodeAtom);
 
   const handleSelect: TreeProps<NodeType>['onSelect'] = (nodes) => {
     console.log(nodes);
@@ -134,11 +134,11 @@ export default function TreeDemo(props: TreeProps<NodeType>) {
     const dbId = t?.dbId;
     const tableId = t?.path;
 
-    const node = dbTableMap.get(dbId)?.get(tableId);
-
+    
     const nodeContext = { dbId, tableId };
     setSelectedNode(nodeContext);
-
+    
+    const node = dbTableMap.get(dbId)?.get(tableId);
     const noDataTypes = ['path', 'database', 'root'];
     if (node && !noDataTypes.includes(node.type ?? '')) {
       const item: TableContextType = {

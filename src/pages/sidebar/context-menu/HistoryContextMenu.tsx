@@ -17,26 +17,21 @@ export function HistoryContextMenu({
 }: PropsWithChildren<{ ctx: QueryContextType }>) {
   const setItems = useSetAtom(runsAtom);
 
+  const handleCopy = async (e: Event) => {
+    e.stopPropagation();
+    await writeText(ctx.stmt ?? '');
+  };
+  const handleDelete = async (e: Event) => {
+    e.stopPropagation();
+    setItems((prev) => prev.filter((p) => p.id != ctx.id));
+  };
+
   return (
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-64">
-        <ContextMenuItem
-          onClick={async (e) => {
-            e.stopPropagation();
-            await writeText(ctx.stmt ?? '');
-          }}
-        >
-          Copy
-        </ContextMenuItem>{' '}
-        <ContextMenuItem
-          onClick={async (e) => {
-            e.stopPropagation();
-            setItems((prev) => prev.filter((p) => p.id != ctx.id));
-          }}
-        >
-          Delete
-        </ContextMenuItem>
+        <ContextMenuItem onSelect={handleCopy}>Copy</ContextMenuItem>{' '}
+        <ContextMenuItem onSelect={handleDelete}>Delete</ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );

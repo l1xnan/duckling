@@ -20,36 +20,31 @@ export function SchemaContextMenu({
 }: PropsWithChildren<{ node: TreeNode; db: DBType }>) {
   const updateTab = useTabsStore((state) => state.update);
 
+  const handleShowDB = async (e: Event) => {
+    e.stopPropagation();
+    const item: SchemaContextType = {
+      id: nanoid(),
+      dbId: db.id,
+      schema: node.path,
+      displayName: node?.name as string,
+      type: 'schema',
+    };
+    updateTab!(item);
+  };
+
+  const handleCopy = async (e: Event) => {
+    e.stopPropagation();
+    await writeText(node.path);
+  };
+
   return (
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-64">
-        <ContextMenuItem
-          onClick={async (e) => {
-            e.stopPropagation();
-            console.debug(node);
-            const item: SchemaContextType = {
-              id: nanoid(),
-              dbId: db.id,
-              schema: node.path,
-              displayName: node?.name as string,
-              type: 'schema',
-            };
-            updateTab!(item);
-          }}
-        >
-          Show Database
-        </ContextMenuItem>
+        <ContextMenuItem onSelect={handleShowDB}>Show Database</ContextMenuItem>
         <ContextMenuSeparator />
 
-        <ContextMenuItem
-          onClick={async (e) => {
-            e.stopPropagation();
-            await writeText(node.path);
-          }}
-        >
-          Copy
-        </ContextMenuItem>
+        <ContextMenuItem onSelect={handleCopy}>Copy</ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );
