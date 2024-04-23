@@ -42,7 +42,7 @@ tauri-plugin-dialog = "2.0.0-beta"
 tauri-plugin-log = "2.0.0-beta"
 tauri-plugin-process = "2.0.0-beta"
 tauri-plugin-window-state = "2.0.0-beta"
-tauri-plugin-clipboard-manager = "2.0.0-beta"
+tauri-plugin-clipboard-manager = "2.1.0-beta"
 tauri-plugin-store = "2.0.0-beta"
 
 anyhow = "1.0.75"

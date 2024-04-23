@@ -20,14 +20,17 @@
     "webview:allow-create-webview",
     "webview:allow-create-webview-window",
     "shell:allow-open",
-    "clipboard-manager:allow-read",
-    "clipboard-manager:allow-write",
+    "clipboard-manager:allow-read-text",
+    "clipboard-manager:allow-write-text",
+    "clipboard-manager:allow-read-image",
+    "clipboard-manager:allow-write-image",
+    "clipboard-manager:allow-clear",
     "dialog:allow-ask",
     "dialog:allow-confirm",
     "dialog:allow-message",
     "dialog:allow-open",
     "dialog:allow-save",
-    "window-state:allow-restore-window-state",
+    "window-state:allow-restore-state",
     "window-state:allow-save-window-state"
   ]
 }
