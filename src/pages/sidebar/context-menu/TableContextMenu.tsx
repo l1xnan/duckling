@@ -1,5 +1,6 @@
 import { dropTable, getDB } from '@/api';
 import { ContextMenuItem } from '@/components/custom/context-menu';
+import { useDialog } from '@/components/custom/use-dialog';
 
 import {
   AlertDialog,
@@ -10,7 +11,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -140,9 +140,10 @@ export function TableContextMenu({
     e.stopPropagation();
     await writeText(node.path);
   };
+  const dialog = useDialog();
 
   return (
-    <AlertDialog>
+    <>
       <ContextMenu>
         <ContextMenuTrigger>{children}</ContextMenuTrigger>
         <ContextMenuContent
@@ -171,11 +172,7 @@ export function TableContextMenu({
           ) : null}
 
           <ContextMenuSeparator />
-
-          <AlertDialogTrigger asChild>
-            <ContextMenuItem>Delete</ContextMenuItem>
-          </AlertDialogTrigger>
-
+          <ContextMenuItem onSelect={dialog.trigger}>Delete</ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem onSelect={handleCopy}>Copy</ContextMenuItem>
           <ContextMenuSeparator />
@@ -186,20 +183,26 @@ export function TableContextMenu({
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Confirm deletion of table: <code>{node.path}</code>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction asChild onClick={handleDropTable}>
-            <Button variant="destructive">Yes</Button>
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+      <AlertDialog {...dialog.props}>
+        <AlertDialogContent
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Confirm deletion of table: <code>{node.path}</code>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction asChild onClick={handleDropTable}>
+              <Button variant="destructive">Yes</Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
