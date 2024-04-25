@@ -11,7 +11,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@apache-arrow/ts": "^14.0.2",
+    "@apache-arrow/ts": "^16.0.0",
     "@emotion/react": "^11.11.1",
     "@hookform/resolvers": "^3.3.4",
     "@mobily/ts-belt": "^3.13.1",
@@ -61,7 +61,7 @@
     "deepmerge": "^4.3.1",
     "immer": "^10.0.3",
     "jotai": "^2.8.0",
-    "jotai-devtools": "^0.9.0",
+    "jotai-devtools": "^0.9.1",
     "jotai-optics": "^0.3.2",
     "jotai-scope": "^0.5.1",
     "jotai-valtio": "^0.4.0",
@@ -69,7 +69,7 @@
     "keepalive-for-react": "^2.0.2",
     "lucide-react": "^0.373.0",
     "material-react-table": "2.12.1",
-    "monaco-editor": "^0.47.0",
+    "monaco-editor": "^0.48.0",
     "nanoid": "^5.0.7",
     "next-themes": "^0.3.0",
     "optics-ts": "^2.4.1",
