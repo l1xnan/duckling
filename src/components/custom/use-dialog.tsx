@@ -1,34 +1,17 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
+// https://github.com/radix-ui/primitives/issues/1836
 export function useDialog() {
   const [isOpen, setIsOpen] = useState(false);
-  const triggerRef = useRef<HTMLElement>();
 
-  function trigger() {
-    setIsOpen(true);
-  }
-
-  function dismiss() {
-    setIsOpen(false);
-    triggerRef.current?.focus();
-  }
+  const trigger = () => setIsOpen(true);
 
   return {
-    triggerProps: {
-      ref: triggerRef,
-      onClick: trigger,
-    },
     props: {
       open: isOpen,
-      onOpenChange: (open: boolean) => {
-        if (open) {
-          trigger();
-        } else {
-          dismiss();
-        }
-      },
+      onOpenChange: setIsOpen,
     },
-    trigger,
-    dismiss,
+    trigger: trigger,
+    dismiss: () => setIsOpen(false),
   };
 }

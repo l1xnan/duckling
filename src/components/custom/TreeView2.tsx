@@ -6,6 +6,7 @@ import { SchemaContextMenu } from '@/pages/sidebar/context-menu/SchemaContextMen
 import { TableContextMenu } from '@/pages/sidebar/context-menu/TableContextMenu';
 import { dbMapAtom, selectedNodeAtom, tablesAtom } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
+import { NodeElementType } from '@/types';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ChevronRight } from 'lucide-react';
 import { PropsWithChildren } from 'react';
@@ -14,9 +15,9 @@ import { TreeProps } from 'react-arborist/dist/module/types/tree-props';
 import useResizeObserver from 'use-resize-observer';
 import { getTypeIcon } from '../TreeItem';
 
-function Node({ node, style }: NodeRendererProps<NodeType>) {
+function Node({ node, style }: NodeRendererProps<NodeElementType>) {
   /* This node instance can do many things. See the API reference. */
-  const { icon, name, path } = node.data;
+  const { icon, name, path, displayName } = node.data;
   return (
     <ContextNode node={node}>
       <div
@@ -51,7 +52,7 @@ function Node({ node, style }: NodeRendererProps<NodeType>) {
           {getTypeIcon(icon)}
         </div>
         <Tooltip title={path}>
-          <div className="truncate font-mono">{name}</div>
+          <div className="truncate font-mono">{displayName ?? name}</div>
         </Tooltip>
       </div>
     </ContextNode>
@@ -61,48 +62,43 @@ function Node({ node, style }: NodeRendererProps<NodeType>) {
 function ContextNode({
   children,
   node,
-}: PropsWithChildren<Pick<NodeRendererProps<NodeType>, 'node'>>) {
+}: PropsWithChildren<Pick<NodeRendererProps<NodeElementType>, 'node'>>) {
   const dbMap = useAtomValue(dbMapAtom);
-  const db = dbMap.get(node.data.dbId);
+  const { data, level } = node;
+  const db = dbMap.get(data?.dbId);
   if (!db) {
     return children;
   }
 
-  const isDummy = node.data.type == 'path' && db.dialect != 'folder';
+  const isDummy = data.type == 'path' && db.dialect != 'folder';
 
-  return node.level === 0 ? (
-    <ConnectionContextMenu db={db}>{children}</ConnectionContextMenu>
-  ) : node.data.type == 'database' ? (
-    <SchemaContextMenu db={db} node={node.data}>
-      {children}
-    </SchemaContextMenu>
-  ) : !isDummy ? (
-    <TableContextMenu db={db} node={node.data}>
-      {children}
-    </TableContextMenu>
-  ) : (
-    children
+  return (
+    <>
+      {level === 0 ? (
+        <ConnectionContextMenu db={db}>{children}</ConnectionContextMenu>
+      ) : data.type == 'database' ? (
+        <SchemaContextMenu db={db} node={data}>
+          {children}
+        </SchemaContextMenu>
+      ) : !isDummy ? (
+        <TableContextMenu db={db} node={data}>
+          {children}
+        </TableContextMenu>
+      ) : (
+        children
+      )}
+    </>
   );
 }
 
-interface NodeType {
-  path: string;
-  dbId: string;
-  name: string;
-  icon: string;
-  type: string;
-  children?: NodeType[];
-}
-
 /* Customize Appearance */
-export default function TreeDemo(props: TreeProps<NodeType>) {
+export default function TreeDemo(props: TreeProps<NodeElementType>) {
   const { ref, width, height } = useResizeObserver();
   const updateTab = useTabsStore((state) => state.update);
   const dbTableMap = useAtomValue(tablesAtom);
   const setSelectedNode = useSetAtom(selectedNodeAtom);
 
-  const handleSelect: TreeProps<NodeType>['onSelect'] = (nodes) => {
-    console.log(nodes);
+  const handleSelect: TreeProps<NodeElementType>['onSelect'] = (nodes) => {
     const t = nodes?.[0]?.data;
     if (!t) {
       return;

@@ -32,6 +32,12 @@ export default ({
         className={cn('grid-rows-[auto_1fr]', className)}
         onInteractOutside={(e) => {
           e.preventDefault();
+          e.stopPropagation();
+
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
         }}
       >
         <DialogHeader className="h-5">

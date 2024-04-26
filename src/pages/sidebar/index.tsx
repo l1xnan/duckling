@@ -5,24 +5,17 @@ import { useEffect, useState } from 'react';
 
 import { getDB } from '@/api';
 import ConfigDialog from '@/pages/sidebar/ConfigDialog';
-import RenameDialog from '@/pages/sidebar/RenameDialog';
 import { SideToolbar } from '@/pages/sidebar/SideToolbar';
-import {
-  configAtom,
-  dbListAtom,
-  renameAtom,
-  useDBListStore,
-} from '@/stores/dbList';
+import { configAtom, dbListAtom, useDBListStore } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 
 import TreeDemo from '@/components/custom/TreeView2';
 import { SearchInput } from '@/components/custom/search';
 import SearchDialog from '@/pages/sidebar/SearchDialog';
-import DBTreeView from './DBTreeView';
+import { convertId } from '@/stores/utils';
 
 function DBTree() {
   const dbList = useAtomValue(dbListAtom);
-  const renameContext = useAtomValue(renameAtom);
   const configContext = useAtomValue(configAtom);
   const updateTab = useTabsStore((state) => state.update);
   const appendDB = useDBListStore((state) => state.append);
@@ -70,7 +63,7 @@ function DBTree() {
         }
         searchTerm={search}
         data={dbList.map((db) => ({
-          ...convertId(db.data, db.id),
+          ...convertId(db.data, db.id, db.displayName),
           icon: db.dialect,
         }))}
       />
@@ -82,8 +75,6 @@ function DBTree() {
 
       {/* ---------- modal/dialog ---------- */}
 
-      {/* rename */}
-      {renameContext !== null ? <RenameDialog /> : null}
       {/* db config */}
       {configContext !== null ? <ConfigDialog /> : null}
       <SearchDialog />
@@ -92,17 +83,3 @@ function DBTree() {
 }
 
 export default DBTree;
-
-function convertId(data, dbId) {
-  let children;
-  if (data.children) {
-    children = data.children.map((item) => convertId(item, dbId));
-  }
-  return {
-    id: `${dbId}:${data.path}`,
-    dbId,
-    icon: data.type ?? 'file',
-    ...data,
-    children,
-  };
-}

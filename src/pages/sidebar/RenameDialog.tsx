@@ -1,4 +1,3 @@
-import { useAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 
 import Dialog from '@/components/custom/Dialog';
@@ -12,28 +11,33 @@ import {
   FormLabel,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { renameAtom, useDBListStore } from '@/stores/dbList';
+import { DBType, useDBListStore } from '@/stores/dbList';
+import { DialogProps } from '@radix-ui/react-dialog';
+import React, { useEffect } from 'react';
 
 // rename db
-export default function RenameDialog() {
+export const RenameDialog = React.memo(function RenameDialog(
+  props: DialogProps & { ctx: DBType },
+) {
   const rename = useDBListStore((s) => s.rename);
 
-  const [db, setContext] = useAtom(renameAtom);
-
-  const handClose = () => {
-    setContext(null);
-  };
-
+  const db = props.ctx;
   const handleSubmit = ({ name }: { name: string }) => {
     rename(db!.id, name);
-    handClose();
+    props.onOpenChange?.(false);
   };
 
   const form = useForm<{ name: string }>({
     defaultValues: { name: db?.displayName },
   });
+
+  useEffect(() => {
+    form.reset();
+    form.setValue('name', db?.displayName);
+  }, [props.open]);
+
   return (
-    <Dialog open={db != null} onOpenChange={handClose} title="Rename">
+    <Dialog open={props.open} onOpenChange={props.onOpenChange} title="Rename">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
           <FormField
@@ -59,4 +63,4 @@ export default function RenameDialog() {
       </Form>
     </Dialog>
   );
-}
+});
