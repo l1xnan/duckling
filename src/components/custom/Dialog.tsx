@@ -33,11 +33,6 @@ export default ({
         onInteractOutside={(e) => {
           e.preventDefault();
           e.stopPropagation();
-
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
         }}
       >
         <DialogHeader className="h-5">

@@ -1,4 +1,4 @@
-import { atom, useAtom } from 'jotai';
+import { atom } from 'jotai';
 import { useForm } from 'react-hook-form';
 
 import Dialog from '@/components/custom/Dialog';
@@ -6,7 +6,9 @@ import { SearchInput } from '@/components/custom/search';
 import { Button } from '@/components/ui/button';
 import { DialogClose, DialogFooter } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
-import { SchemaContextType, getDatabase, useTabsStore } from '@/stores/tabs';
+import { SearchContextType, useTabsStore } from '@/stores/tabs';
+import { NodeElementType } from '@/types';
+import { DialogProps } from '@radix-ui/react-alert-dialog';
 import { nanoid } from 'nanoid';
 
 type SearchType = {
@@ -18,32 +20,26 @@ export const searchAtom = atom<SearchType>({
   open: false,
 });
 
-export default function SearchDialog() {
-  const [ctx, setCtx] = useAtom(searchAtom);
+export function SearchDialog(props: DialogProps & { ctx: NodeElementType }) {
+  const ctx = props.ctx;
   const updateTab = useTabsStore((state) => state.update);
-
-  const handClose = () => {
-    setCtx({ open: false });
-  };
 
   const handleSubmit = async ({ value }: { value: string }) => {
     console.log(value, ctx);
 
-    const db = getDatabase(ctx?.item?.dbId)!;
-    const path = ctx?.item?.tableId;
+    const path = ctx?.path;
     if (path) {
-      const item: SchemaContextType = {
+      const item: SearchContextType = {
         id: nanoid(),
-        dbId: db.id,
+        dbId: ctx.dbId,
         path,
         value,
-        displayName: ctx.item?.tableId ?? '',
+        displayName: ctx.path ?? '',
         type: 'search',
       };
       updateTab!(item);
     }
-
-    handClose();
+    props.onOpenChange?.(false);
   };
 
   const form = useForm<{ value: string }>({
@@ -52,9 +48,9 @@ export default function SearchDialog() {
 
   return (
     <Dialog
-      open={ctx.open}
-      onOpenChange={handClose}
-      title={`Search: ${ctx?.item?.tableId}`}
+      open={props.open}
+      onOpenChange={props.onOpenChange}
+      title={`Search: ${ctx?.path}`}
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">

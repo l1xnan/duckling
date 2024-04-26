@@ -86,12 +86,24 @@ export type SchemaContextType = {
   id: string;
   dbId: string;
   schema: string;
+  path?: string;
+
+  type: string;
+  displayName: string;
+};
+
+export type SearchContextType = {
+  id: string;
+  dbId: string;
+  path?: string;
+  value?: string;
 
   type: string;
   displayName: string;
 };
 
 export type TabContextType =
+  | SearchContextType
   | SchemaContextType
   | TableContextType
   | EditorContextType

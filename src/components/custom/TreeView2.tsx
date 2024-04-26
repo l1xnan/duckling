@@ -9,15 +9,37 @@ import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { NodeElementType } from '@/types';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ChevronRight } from 'lucide-react';
-import { PropsWithChildren } from 'react';
-import { NodeRendererProps, Tree } from 'react-arborist';
+import React, { PropsWithChildren } from 'react';
+import { NodeRendererProps, RowRendererProps, Tree } from 'react-arborist';
 import { TreeProps } from 'react-arborist/dist/module/types/tree-props';
 import useResizeObserver from 'use-resize-observer';
 import { getTypeIcon } from '../TreeItem';
 
-function Node({ node, style }: NodeRendererProps<NodeElementType>) {
+export const DefaultRow = React.memo(function DefaultRow<T>({
+  node,
+  attrs,
+  innerRef,
+  children,
+}: RowRendererProps<T>) {
+  return (
+    <div
+      {...attrs}
+      ref={innerRef}
+      // onFocus={(e) => e.preventDefault()}
+      onClick={node.handleClick}
+    >
+      {children}
+    </div>
+  );
+});
+
+const Node = React.memo(function Node({
+  node,
+  style,
+}: NodeRendererProps<NodeElementType>) {
   /* This node instance can do many things. See the API reference. */
   const { icon, name, path, displayName } = node.data;
+  console.log('=========', name);
   return (
     <ContextNode node={node}>
       <div
@@ -31,7 +53,8 @@ function Node({ node, style }: NodeRendererProps<NodeElementType>) {
           'cursor-pointer',
           'select-none',
           'text-foreground',
-          node.isSelected ? '' : 'hover:bg-accent',
+          'group-hover:bg-accent',
+          'group-aria-selected:bg-selection',
           'h-[22px]',
         )}
       >
@@ -57,9 +80,9 @@ function Node({ node, style }: NodeRendererProps<NodeElementType>) {
       </div>
     </ContextNode>
   );
-}
+});
 
-function ContextNode({
+export function ContextNode({
   children,
   node,
 }: PropsWithChildren<Pick<NodeRendererProps<NodeElementType>, 'node'>>) {
@@ -99,6 +122,7 @@ export default function TreeDemo(props: TreeProps<NodeElementType>) {
   const setSelectedNode = useSetAtom(selectedNodeAtom);
 
   const handleSelect: TreeProps<NodeElementType>['onSelect'] = (nodes) => {
+    console.log(nodes);
     const t = nodes?.[0]?.data;
     if (!t) {
       return;
@@ -124,6 +148,7 @@ export default function TreeDemo(props: TreeProps<NodeElementType>) {
       updateTab!(item);
     }
   };
+
   return (
     <div className="size-full overflow-hidden" ref={ref}>
       <Tree
@@ -134,13 +159,13 @@ export default function TreeDemo(props: TreeProps<NodeElementType>) {
         height={height}
         disableDrag={true}
         disableDrop={true}
-        rowClassName="aria-selected:bg-selection"
+        renderRow={DefaultRow}
+        rowClassName="group"
         className="overflow-hidden !will-change-auto"
         onSelect={handleSelect}
+        children={Node}
         {...props}
-      >
-        {Node}
-      </Tree>
+      />
     </div>
   );
 }

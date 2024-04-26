@@ -11,7 +11,6 @@ import { TableContextType, useTabsStore } from '@/stores/tabs';
 
 import TreeDemo from '@/components/custom/TreeView2';
 import { SearchInput } from '@/components/custom/search';
-import SearchDialog from '@/pages/sidebar/SearchDialog';
 import { convertId } from '@/stores/utils';
 
 function DBTree() {
@@ -77,7 +76,6 @@ function DBTree() {
 
       {/* db config */}
       {configContext !== null ? <ConfigDialog /> : null}
-      <SearchDialog />
     </div>
   );
 }

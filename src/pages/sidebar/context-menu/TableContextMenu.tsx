@@ -20,12 +20,11 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { searchAtom } from '@/pages/sidebar/SearchDialog';
+import { SearchDialog } from '@/pages/sidebar/SearchDialog';
 import { DBType, DialectConfig, useDBListStore } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
-import { TreeNode } from '@/types';
+import { NodeElementType } from '@/types';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
-import { useAtom } from 'jotai';
 import { RefreshCcw } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { PropsWithChildren } from 'react';
@@ -34,11 +33,13 @@ export function TableContextMenu({
   children,
   node,
   db,
-}: PropsWithChildren<{ node: TreeNode; db: DBType }>) {
+}: PropsWithChildren<{ node: NodeElementType; db: DBType }>) {
   const updateTab = useTabsStore((state) => state.update);
-  const [, setSearch] = useAtom(searchAtom);
   const updateDB = useDBListStore((state) => state.update);
 
+  const alertDialog = useDialog();
+  const searchDialog = useDialog();
+  
   const handleDropTable: React.MouseEventHandler<HTMLButtonElement> = async (
     e,
   ) => {
@@ -123,24 +124,14 @@ export function TableContextMenu({
   };
 
   const handleSearch = async (e: Event) => {
-    e.stopPropagation();
-    console.log(node);
-    const item: TableContextType = {
-      id: nanoid(),
-      dbId: db.id,
-      tableId: node.path,
-      displayName: node?.name as string,
-      type: 'table',
-    };
-
-    setSearch({ open: true, item });
+    searchDialog.trigger();
   };
 
   const handleCopy = async (e: Event) => {
     e.stopPropagation();
     await writeText(node.path);
   };
-  const dialog = useDialog();
+ 
 
   return (
     <>
@@ -172,7 +163,7 @@ export function TableContextMenu({
           ) : null}
 
           <ContextMenuSeparator />
-          <ContextMenuItem onSelect={dialog.trigger}>Delete</ContextMenuItem>
+          <ContextMenuItem onSelect={alertDialog.trigger}>Delete</ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem onSelect={handleCopy}>Copy</ContextMenuItem>
           <ContextMenuSeparator />
@@ -183,7 +174,7 @@ export function TableContextMenu({
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
-      <AlertDialog {...dialog.props}>
+      <AlertDialog {...alertDialog.props}>
         <AlertDialogContent
           onClick={(e) => {
             e.stopPropagation();
@@ -203,6 +194,7 @@ export function TableContextMenu({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <SearchDialog {...searchDialog.props} ctx={node} />
     </>
   );
 }
