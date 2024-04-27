@@ -3,7 +3,7 @@ import { Theme } from '@mui/material';
 import { DataType } from '@apache-arrow/ts';
 import { isEmpty } from 'radash';
 import { OrderByType, StmtType } from './stores/dataset';
-import { TreeNode } from './types';
+import { NodeElementType, TreeNode } from './types';
 
 export const isDarkTheme = (theme: Theme) => theme.palette.mode === 'dark';
 
@@ -69,12 +69,12 @@ export function uniqueArray<T>(arr: T[]) {
   return Array.from(arr.filter((item) => !seen.has(item) && seen.add(item)));
 }
 
-export function filterTree(node: TreeNode, filter?: string) {
+export function filterTree(node: TreeNode | NodeElementType, filter?: string) {
   if (!node) return null;
   if (isEmpty(filter)) return node;
 
   // 检查当前节点的值是否包含字符串
-  const isMatch = node.path.includes(filter as string);
+  const isMatch = node.path?.includes(filter as string);
   if (isMatch) {
     return node;
   }
@@ -88,4 +88,47 @@ export function filterTree(node: TreeNode, filter?: string) {
     return { ...node, children };
   }
   return null; // 否则过滤当前节点
+}
+
+export function convertId(
+  data: TreeNode,
+  dbId: string,
+  displayName?: string,
+): NodeElementType {
+  data.children = data?.children?.map((item) => convertId(item, dbId));
+  return {
+    id: `${dbId}:${data.path}`,
+    dbId,
+    icon: data.type ?? 'file',
+    ...data,
+    displayName,
+  } as NodeElementType;
+}
+
+export type Node3Type = {
+  data: NodeElementType;
+  name: string;
+  children?: string[];
+};
+
+export function convertTreeToMap(
+  data: NodeElementType,
+): Record<string, Node3Type> {
+  const res: Record<string, Node3Type> = {};
+
+  const dfs = (item: NodeElementType) => {
+    res[item.id] = {
+      data: item,
+      name: item.name,
+      children: item.children?.map((t) => {
+        dfs(t);
+        return t.id;
+      }),
+    };
+  };
+  if (data) {
+    dfs(data);
+  }
+
+  return res;
 }

@@ -68,7 +68,7 @@ function DBTree() {
         }))}
       /> */}
 
-      <TreeView3 data={dbList}/>
+      <TreeView3 dbList={dbList} search={search}/>
       {/* <div className="size-full overflow-x-hidden pr-1 pb-2">
         {dbList.map((db, _i) => {
           return <DBTreeView key={db.id} db={db} filter={search} />;
