@@ -10,6 +10,7 @@ import { configAtom, dbListAtom, useDBListStore } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 
 import TreeDemo from '@/components/custom/TreeView2';
+import { TreeView3 } from '@/components/custom/TreeView3';
 import { SearchInput } from '@/components/custom/search';
 import { convertId } from '@/stores/utils';
 
@@ -56,7 +57,7 @@ function DBTree() {
           }}
         />
       </div>
-      <TreeDemo
+      {/* <TreeDemo
         searchMatch={(node, term) =>
           node.data.path.toLowerCase().includes(term.toLowerCase())
         }
@@ -65,7 +66,9 @@ function DBTree() {
           ...convertId(db.data, db.id, db.displayName),
           icon: db.dialect,
         }))}
-      />
+      /> */}
+
+      <TreeView3 data={dbList}/>
       {/* <div className="size-full overflow-x-hidden pr-1 pb-2">
         {dbList.map((db, _i) => {
           return <DBTreeView key={db.id} db={db} filter={search} />;

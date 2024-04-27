@@ -1,4 +1,6 @@
+import { Tooltip } from '@/components/custom/tooltip';
 import { cn } from '@/lib/utils';
+import { Node3Type, convertData } from '@/stores/utils';
 import {
   ItemInstance,
   TreeInstance,
@@ -18,6 +20,8 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { getTypeIcon } from '../TreeItem';
+import { ContextNode } from './TreeView2';
 
 const Node = React.memo(
   ({
@@ -25,8 +29,8 @@ const Node = React.memo(
     item,
     style,
   }: {
-    tree: TreeInstance<string>;
-    item: ItemInstance<string>;
+    tree: TreeInstance<Node3Type>;
+    item: ItemInstance<Node3Type>;
     style: React.CSSProperties;
   }) => {
     const { onClick, ...props } = item.getProps();
@@ -35,80 +39,87 @@ const Node = React.memo(
       'aria-expanded': item.isExpanded(),
     };
 
+    const node = item.getItemData();
+    const { displayName, path, name, icon } = node.data;
+    const level = item.getItemMeta().level;
+
+    console.log('data', node, level);
     return (
-      <div
-        key={item.getId()}
-        onDoubleClick={onClick}
-        onClick={() => {
-          tree.setSelectedItems([item.getItemMeta().itemId]);
-        }}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          ...style,
-        }}
-        {...rowAttrs}
-        {...props}
-        className={cn(
-          'group',
-          'relative',
-          'transition-colors',
-          'flex items-center gap-1',
-          'text-sm',
-          'cursor-pointer',
-          'select-none',
-          'text-foreground',
-          'hover:bg-accent',
-          'aria-selected:bg-selection',
-          'aria-selected:hover:bg-selection',
-          'h-[22px]',
-        )}
-      >
-        {item.isFolder() ? (
-          <ChevronRight
-            onClick={onClick}
+      <div style={style} className="w-full" ref={item.registerElement}>
+        <ContextNode node={{ ...node, level }}>
+          <div
+            key={item.getId()}
+            onDoubleClick={onClick}
+            onClick={() => {
+              tree.setSelectedItems([item.getItemMeta().itemId]);
+            }}
+            {...rowAttrs}
+            {...props}
+            style={{ paddingLeft: `${level * 16}px` }}
             className={cn(
-              'text-foreground-muted',
-              'transition-transform duration-200',
-              'size-4',
-              'group-aria-expanded:rotate-90',
+              'group',
+              'treeitem',
+              'relative',
+              'transition-colors',
+              'flex items-center gap-1',
+              'text-sm',
+              'cursor-pointer',
+              'select-none',
+              'text-foreground',
+              'hover:bg-accent',
+              'aria-selected:bg-selection',
+              'aria-selected:hover:bg-selection',
+              'z-0',
+              'h-[22px]',
             )}
-          />
-        ) : (
-          <div className="size-4 min-w-4"></div>
-        )}
-        <button
-          {...props}
-          ref={item.registerElement}
-          className={cn('treeitem')}
-        >
-          {item.getItemName()}
-        </button>
+          >
+            {item.isFolder() ? (
+              <ChevronRight
+                onClick={onClick}
+                className={cn(
+                  'text-foreground-muted',
+                  'transition-transform duration-200',
+                  'size-4',
+                  'group-aria-expanded:rotate-90',
+                )}
+              />
+            ) : (
+              <div className="size-4 min-w-4"></div>
+            )}
+            <div className="flex items-center [&_svg]:size-4">
+              {getTypeIcon(icon)}
+            </div>
+
+            <Tooltip title={path}>
+              <div className="truncate font-mono">{displayName ?? name}</div>
+            </Tooltip>
+          </div>
+        </ContextNode>
       </div>
     );
   },
 );
 
 const Inner = forwardRef<Virtualizer<HTMLDivElement, Element>, any>(
-  ({ tree }: { tree: TreeInstance<string> }, ref) => {
+  ({ tree }: { tree: TreeInstance<Node3Type> }, ref) => {
     const parentRef = useRef<HTMLDivElement | null>(null);
 
     const virtualizer = useVirtualizer({
       count: tree.getItems().length,
       getScrollElement: () => parentRef.current,
       estimateSize: () => 22,
+      overscan: 10,
     });
 
     useImperativeHandle(ref, () => virtualizer);
+    const totalSize = virtualizer.getTotalSize();
 
     return (
-      <div ref={parentRef} className="h-full overflow-x-hidden">
+      <div ref={parentRef} className="h-full overflow-auto overflow-x-hidden">
         <div
           ref={tree.registerElement}
-          className={cn('tree size-full relative')}
-          style={{ height: `${virtualizer.getTotalSize()}px` }}
+          className="tree w-full relative"
+          style={{ height: `${totalSize}px` }}
         >
           {virtualizer.getVirtualItems().map((virtualItem) => {
             const item = tree.getItems()[virtualItem.index];
@@ -118,14 +129,10 @@ const Inner = forwardRef<Virtualizer<HTMLDivElement, Element>, any>(
               left: 0,
               width: '100%',
               transform: `translateY(${virtualItem.start}px)`,
-              paddingLeft: `${item.getItemMeta().level * 16}px`,
+              height: '22px',
+              // paddingLeft: `${item.getItemMeta().level * 16}px`,
             } as React.CSSProperties;
 
-            const rowAttrs: React.HTMLAttributes<any> = {
-              role: 'treeitem',
-              'aria-expanded': item.isExpanded(),
-              style,
-            };
             return (
               <Node key={item.getId()} tree={tree} item={item} style={style} />
             );
@@ -137,22 +144,24 @@ const Inner = forwardRef<Virtualizer<HTMLDivElement, Element>, any>(
 );
 
 export const TreeView3 = ({ data }) => {
-  console.log(data);
   const virtualizer = useRef<Virtualizer<HTMLDivElement, Element> | null>(null);
 
-  const [dataLoader] = useMemo(() => createDemoData(), []);
+  const _data = useMemo(() => convertData(data), [data]);
 
   const [state, setState] = useState({});
-  const tree = useTree<string>({
+  const tree = useTree<Node3Type>({
     // state,
     // setState,
-    rootItemId: 'root',
+    rootItemId: '__root__',
     getItemName: (item) => item.getItemData()?.name,
     isItemFolder: (item) => !!item.getItemData()?.children,
     scrollToItem: (item) => {
       virtualizer.current?.scrollToIndex(item.getItemMeta().index);
     },
-    dataLoader,
+    dataLoader: {
+      getItem: (id: string) => _data[id],
+      getChildren: (id: string) => _data[id]?.children ?? [],
+    },
     features: [
       syncDataLoaderFeature,
       selectionFeature,
@@ -163,91 +172,4 @@ export const TreeView3 = ({ data }) => {
   });
 
   return <Inner tree={tree} ref={virtualizer} />;
-};
-
-export type DemoItem = {
-  name: string;
-  children?: string[];
-};
-
-export const createDemoData = () => {
-  const data: Record<string, DemoItem> = {
-    root: {
-      name: 'Root',
-      children: ['fruit', 'vegetables', 'meals', 'dessert', 'drinks'],
-    },
-    fruit: {
-      name: 'Fruit',
-      children: ['apple', 'banana', 'orange', 'berries'],
-    },
-    apple: { name: 'Apple' },
-    banana: { name: 'Banana' },
-    orange: { name: 'Orange' },
-    berries: { name: 'Berries', children: ['red', 'blue', 'black'] },
-    red: { name: 'Red', children: ['strawberry', 'raspberry'] },
-    strawberry: { name: 'Strawberry' },
-    raspberry: { name: 'Raspberry' },
-    blue: { name: 'Blue', children: ['blueberry'] },
-    blueberry: { name: 'Blueberry' },
-    black: { name: 'Black', children: ['blackberry'] },
-    blackberry: { name: 'Blackberry' },
-    vegetables: {
-      name: 'Vegetables',
-      children: ['tomato', 'carrot', 'cucumber', 'potato'],
-    },
-    tomato: { name: 'Tomato' },
-    carrot: { name: 'Carrot' },
-    cucumber: { name: 'Cucumber' },
-    potato: { name: 'Potato' },
-    meals: {
-      name: 'Meals',
-      children: ['america', 'europe', 'asia', 'australia'],
-    },
-    america: { name: 'America', children: ['burger', 'hotdog', 'pizza'] },
-    burger: { name: 'Burger' },
-    hotdog: { name: 'Hotdog' },
-    pizza: { name: 'Pizza' },
-    europe: {
-      name: 'Europe',
-      children: ['pasta', 'paella', 'schnitzel', 'risotto', 'weisswurst'],
-    },
-    pasta: { name: 'Pasta' },
-    paella: { name: 'Paella' },
-    schnitzel: { name: 'Schnitzel' },
-    risotto: { name: 'Risotto' },
-    weisswurst: { name: 'Weisswurst' },
-    asia: { name: 'Asia', children: ['sushi', 'ramen', 'curry', 'noodles'] },
-    sushi: { name: 'Sushi' },
-    ramen: { name: 'Ramen' },
-    curry: { name: 'Curry' },
-    noodles: { name: 'Noodles' },
-    australia: {
-      name: 'Australia',
-      children: ['potatowedges', 'pokebowl', 'lemoncurd', 'kumarafries'],
-    },
-    potatowedges: { name: 'Potato Wedges' },
-    pokebowl: { name: 'Poke Bowl' },
-    lemoncurd: { name: 'Lemon Curd' },
-    kumarafries: { name: 'Kumara Fries' },
-    dessert: {
-      name: 'Dessert',
-      children: ['icecream', 'cake', 'pudding', 'cookies'],
-    },
-    icecream: { name: 'Icecream' },
-    cake: { name: 'Cake' },
-    pudding: { name: 'Pudding' },
-    cookies: { name: 'Cookies' },
-    drinks: { name: 'Drinks', children: ['water', 'juice', 'beer', 'wine'] },
-    water: { name: 'Water' },
-    juice: { name: 'Juice' },
-    beer: { name: 'Beer' },
-    wine: { name: 'Wine' },
-  };
-
-  const dataLoader = {
-    getItem: (id: string) => data[id],
-    getChildren: (id: string) => data[id]?.children ?? [],
-  };
-
-  return [dataLoader, data] as const;
 };

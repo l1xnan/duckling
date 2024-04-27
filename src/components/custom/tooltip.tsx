@@ -1,5 +1,6 @@
 import { TooltipProviderProps } from '@radix-ui/react-tooltip';
 import { PropsWithChildren, ReactNode } from 'react';
+import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
 import {
   Tooltip as ITooltip,
@@ -16,13 +17,15 @@ export function Tooltip({
     <TooltipProvider delayDuration={1500} skipDelayDuration={1000}>
       <ITooltip>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
-        <TooltipContent
-          side="bottom"
-          align="start"
-          className="bg-popover text-popover-foreground border"
-        >
-          {title}
-        </TooltipContent>
+        <TooltipPrimitive.Portal>
+          <TooltipContent
+            side="bottom"
+            align="start"
+            className="bg-popover text-popover-foreground border"
+          >
+            {title}
+          </TooltipContent>
+        </TooltipPrimitive.Portal>
       </ITooltip>
     </TooltipProvider>
   );
