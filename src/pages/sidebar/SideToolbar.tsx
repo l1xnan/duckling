@@ -20,7 +20,13 @@ import {
 } from '@/stores/dbList';
 import { ChevronsDownUpIcon, ChevronsUpDownIcon } from 'lucide-react';
 
-export function SideToolbar({ onExpandAll, onCollapseAll }) {
+export function SideToolbar({
+  onExpandAll,
+  onCollapseAll,
+}: {
+  onExpandAll: () => void;
+  onCollapseAll: () => void;
+}) {
   const dbList = useDBListStore((state) => state.dbList);
   const appendDB = useDBListStore((state) => state.append);
   const removeDB = useDBListStore((state) => state.remove);

@@ -11,6 +11,7 @@ import { TableContextType, useTabsStore } from '@/stores/tabs';
 
 import { TreeView3 } from '@/components/custom/TreeView3';
 import { SearchInput } from '@/components/custom/search';
+import { TreeInstance } from '@headless-tree/core';
 
 function DBTree() {
   const dbList = useAtomValue(dbListAtom);
@@ -44,21 +45,21 @@ function DBTree() {
     })();
   }, []);
 
-  const treeRef = useRef(null);
+  const treeRef = useRef<TreeInstance<unknown>>(null);
 
   const handleExpandAll = () => {
-    console.log(treeRef.current);
-    treeRef.current?.expandAll()
-
+    treeRef.current?.expandAll();
   };
   const handleCollapseAll = () => {
-    console.log(treeRef.current);
-    treeRef.current?.collapseAll()
+    treeRef.current?.collapseAll();
   };
 
   return (
     <div className="h-full overflow-hidden flex flex-col">
-      <SideToolbar onExpandAll={handleExpandAll} onCollapseAll={handleCollapseAll}/>
+      <SideToolbar
+        onExpandAll={handleExpandAll}
+        onCollapseAll={handleCollapseAll}
+      />
       <div className="bg-background/40">
         <SearchInput
           value={search}
