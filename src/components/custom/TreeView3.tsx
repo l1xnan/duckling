@@ -190,7 +190,6 @@ export const TreeView = forwardRef(
           createItemInstance: (prev, item) => ({
             ...prev,
             onDoubleClick: () => {
-              console.log('plugin', item);
               onSelect(item);
             },
           }),
