@@ -1,6 +1,7 @@
 import { Tooltip } from '@/components/custom/tooltip';
 import { cn } from '@/lib/utils';
-import { DBType } from '@/stores/dbList';
+import { DBType, tablesAtom } from '@/stores/dbList';
+import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { NodeElementType } from '@/types';
 import { Node3Type, convertId, convertTreeToMap, filterTree } from '@/utils';
 import {
@@ -14,6 +15,7 @@ import {
 } from '@headless-tree/core';
 import { useTree } from '@headless-tree/react';
 import { Virtualizer, useVirtualizer } from '@tanstack/react-virtual';
+import { useAtomValue } from 'jotai';
 import { ChevronRight } from 'lucide-react';
 import React, {
   forwardRef,
@@ -25,6 +27,12 @@ import React, {
 } from 'react';
 import { getTypeIcon } from '../TreeItem';
 import { ContextNode } from './TreeView2';
+
+declare module '@headless-tree/core' {
+  export interface ItemInstance<T> {
+    onDoubleClick: () => void;
+  }
+}
 
 const Node = React.memo(
   ({
@@ -46,13 +54,15 @@ const Node = React.memo(
     const { displayName, path, name, icon } = node?.data ?? {};
     const level = item.getItemMeta().level;
 
-    console.log('data', node, level);
     return (
       <div style={style} className="w-full" ref={item.registerElement}>
         <ContextNode node={{ ...node, level }}>
           <div
             key={item.getId()}
-            onDoubleClick={onClick}
+            onDoubleClick={(e) => {
+              onClick(e);
+              item?.onDoubleClick();
+            }}
             onClick={() => {
               tree.setSelectedItems([item.getItemMeta().itemId]);
             }}
@@ -111,7 +121,7 @@ const Inner = forwardRef<Virtualizer<HTMLDivElement, Element>, any>(
       count: tree.getItems().length,
       getScrollElement: () => parentRef.current,
       estimateSize: () => 22,
-      overscan: 10,
+      overscan: 50,
     });
 
     useImperativeHandle(ref, () => virtualizer);
@@ -150,7 +160,7 @@ const ROOT = '__root__';
 
 export const TreeView = forwardRef(
   (
-    { data }: { data: Record<string, Node3Type> },
+    { data, onSelect }: { data: Record<string, Node3Type> },
     ref: React.Ref<unknown> | undefined,
   ) => {
     const virtualizer = useRef<Virtualizer<HTMLDivElement, Element> | null>(
@@ -176,6 +186,15 @@ export const TreeView = forwardRef(
         hotkeysCoreFeature,
         searchFeature,
         expandAllFeature,
+        {
+          createItemInstance: (prev, item) => ({
+            ...prev,
+            onDoubleClick: () => {
+              console.log('plugin', item);
+              onSelect(item);
+            },
+          }),
+        },
       ],
     });
 
@@ -216,11 +235,44 @@ export const TreeView3 = forwardRef(
       () => filterTree(treeData, search),
       [treeData, search],
     );
+    const updateTab = useTabsStore((s) => s.update);
 
     const data = useMemo(() => convertTreeToMap(filterData), [filterData]);
+    const dbTableMap = useAtomValue(tablesAtom);
 
     console.log('filterData', filterData, data);
+    const handleNodeSelect = (item: ItemInstance<Node3Type>) => {
+      const data = item.getItemData()?.data;
 
-    return <TreeView data={data} ref={ref} />;
+      if (!data) {
+        return;
+      }
+
+      const dbId = data.dbId;
+
+      const nodes = dbTableMap.get(data.dbId)!;
+      const node = nodes.get(data.path as string);
+
+      const nodeContext = {
+        dbId,
+        tableId: data.path as string,
+      };
+
+      const noDataTypes = ['path', 'database', 'root'];
+      if (node && !noDataTypes.includes(node.type ?? '')) {
+        const item: TableContextType = {
+          ...nodeContext,
+          id: data.id,
+          dbId,
+          displayName: node?.name as string,
+          type: 'table',
+        };
+
+        console.log('item', item);
+        updateTab!(item);
+      }
+    };
+
+    return <TreeView data={data} ref={ref} onSelect={handleNodeSelect} />;
   },
 );
