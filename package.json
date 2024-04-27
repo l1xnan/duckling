@@ -13,6 +13,8 @@
   "dependencies": {
     "@apache-arrow/ts": "^16.0.0",
     "@emotion/react": "^11.11.1",
+    "@headless-tree/core": "^0.0.8",
+    "@headless-tree/react": "^0.0.7",
     "@hookform/resolvers": "^3.3.4",
     "@mobily/ts-belt": "^3.13.1",
     "@monaco-editor/react": "^4.6.0",
