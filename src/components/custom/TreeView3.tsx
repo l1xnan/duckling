@@ -148,64 +148,79 @@ const Inner = forwardRef<Virtualizer<HTMLDivElement, Element>, any>(
 
 const ROOT = '__root__';
 
-export const TreeView = ({ data }: { data: Record<string, Node3Type> }) => {
-  const virtualizer = useRef<Virtualizer<HTMLDivElement, Element> | null>(null);
-  const [state, setState] = useState({});
-  const tree = useTree<Node3Type>({
-    state,
-    setState,
-    rootItemId: ROOT,
-    getItemName: (item) => item.getItemData()?.name,
-    isItemFolder: (item) => !!item.getItemData()?.children,
-    scrollToItem: (item) => {
-      virtualizer.current?.scrollToIndex(item.getItemMeta().index);
+export const TreeView = forwardRef(
+  (
+    { data }: { data: Record<string, Node3Type> },
+    ref: React.Ref<unknown> | undefined,
+  ) => {
+    const virtualizer = useRef<Virtualizer<HTMLDivElement, Element> | null>(
+      null,
+    );
+    const [state, setState] = useState({});
+    const tree = useTree<Node3Type>({
+      state,
+      setState,
+      rootItemId: ROOT,
+      getItemName: (item) => item.getItemData()?.name,
+      isItemFolder: (item) => !!item.getItemData()?.children,
+      scrollToItem: (item) => {
+        virtualizer.current?.scrollToIndex(item.getItemMeta().index);
+      },
+      dataLoader: {
+        getItem: (id: string) => data[id],
+        getChildren: (id: string) => data[id]?.children ?? [],
+      },
+      features: [
+        syncDataLoaderFeature,
+        selectionFeature,
+        hotkeysCoreFeature,
+        searchFeature,
+        expandAllFeature,
+      ],
+    });
+
+    useEffect(() => {
+      tree.rebuildTree();
+    }, [data]);
+
+    useImperativeHandle(ref, () => tree);
+
+    return <Inner tree={tree} ref={virtualizer} />;
+  },
+);
+
+export const TreeView3 = forwardRef(
+  (
+    {
+      dbList,
+      search,
+    }: {
+      dbList: DBType[];
+      search?: string;
     },
-    dataLoader: {
-      getItem: (id: string) => data[id],
-      getChildren: (id: string) => data[id]?.children ?? [],
-    },
-    features: [
-      syncDataLoaderFeature,
-      selectionFeature,
-      hotkeysCoreFeature,
-      searchFeature,
-      expandAllFeature,
-    ],
-  });
+    ref,
+  ) => {
+    const treeData = useMemo(
+      () =>
+        ({
+          id: ROOT,
+          children: dbList.map((db) => ({
+            ...convertId(db.data, db.id, db.displayName),
+            icon: db.dialect,
+          })),
+        }) as NodeElementType,
+      [dbList],
+    );
 
-  useEffect(() => {
-    tree.rebuildTree();
-  }, [data]);
-  return <Inner tree={tree} ref={virtualizer} />;
-};
+    const filterData = useMemo(
+      () => filterTree(treeData, search),
+      [treeData, search],
+    );
 
-export const TreeView3 = ({
-  dbList,
-  search,
-}: {
-  dbList: DBType[];
-  search?: string;
-}) => {
-  const treeData = useMemo(
-    () =>
-      ({
-        id: ROOT,
-        children: dbList.map((db) => ({
-          ...convertId(db.data, db.id, db.displayName),
-          icon: db.dialect,
-        })),
-      }) as NodeElementType,
-    [dbList],
-  );
+    const data = useMemo(() => convertTreeToMap(filterData), [filterData]);
 
-  const filterData = useMemo(
-    () => filterTree(treeData, search),
-    [treeData, search],
-  );
+    console.log('filterData', filterData, data);
 
-  const data = useMemo(() => convertTreeToMap(filterData), [filterData]);
-
-  console.log('filterData', filterData, data);
-
-  return <TreeView data={data} />;
-};
+    return <TreeView data={data} ref={ref} />;
+  },
+);

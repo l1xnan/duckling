@@ -18,8 +18,9 @@ import {
   selectedNodeAtom,
   useDBListStore,
 } from '@/stores/dbList';
+import { ChevronsDownUpIcon, ChevronsUpDownIcon } from 'lucide-react';
 
-export function SideToolbar() {
+export function SideToolbar({ onExpandAll, onCollapseAll }) {
   const dbList = useDBListStore((state) => state.dbList);
   const appendDB = useDBListStore((state) => state.append);
   const removeDB = useDBListStore((state) => state.remove);
@@ -80,8 +81,16 @@ export function SideToolbar() {
 
   return (
     <>
-      <div className="h-8 min-h-8 w-full pl-4 flex items-center justify-between border-b">
-        <div className="font-semibold">Database Explorer</div>
+      <div className="h-8 min-h-8 w-full px-2 flex items-center justify-between border-b">
+        <div className="font-semibold text-sm">Database Explorer</div>
+        <div className="flex items-center">
+          <TooltipButton tooltip="Expand All" onClick={onExpandAll}>
+            <ChevronsUpDownIcon />
+          </TooltipButton>
+          <TooltipButton tooltip="Collapse All" onClick={onCollapseAll}>
+            <ChevronsDownUpIcon />
+          </TooltipButton>
+        </div>
       </div>
       <ToolbarContainer>
         <Stack>

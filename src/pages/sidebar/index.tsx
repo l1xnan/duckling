@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { useAtomValue } from 'jotai';
 import { nanoid } from 'nanoid';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { getDB } from '@/api';
 import ConfigDialog from '@/pages/sidebar/ConfigDialog';
@@ -9,10 +9,8 @@ import { SideToolbar } from '@/pages/sidebar/SideToolbar';
 import { configAtom, dbListAtom, useDBListStore } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 
-import TreeDemo from '@/components/custom/TreeView2';
 import { TreeView3 } from '@/components/custom/TreeView3';
 import { SearchInput } from '@/components/custom/search';
-import { convertId } from '@/stores/utils';
 
 function DBTree() {
   const dbList = useAtomValue(dbListAtom);
@@ -46,9 +44,21 @@ function DBTree() {
     })();
   }, []);
 
+  const treeRef = useRef(null);
+
+  const handleExpandAll = () => {
+    console.log(treeRef.current);
+    treeRef.current?.expandAll()
+
+  };
+  const handleCollapseAll = () => {
+    console.log(treeRef.current);
+    treeRef.current?.collapseAll()
+  };
+
   return (
     <div className="h-full overflow-hidden flex flex-col">
-      <SideToolbar />
+      <SideToolbar onExpandAll={handleExpandAll} onCollapseAll={handleCollapseAll}/>
       <div className="bg-background/40">
         <SearchInput
           value={search}
@@ -68,7 +78,7 @@ function DBTree() {
         }))}
       /> */}
 
-      <TreeView3 dbList={dbList} search={search}/>
+      <TreeView3 dbList={dbList} search={search} ref={treeRef} />
       {/* <div className="size-full overflow-x-hidden pr-1 pb-2">
         {dbList.map((db, _i) => {
           return <DBTreeView key={db.id} db={db} filter={search} />;

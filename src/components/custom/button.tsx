@@ -34,7 +34,7 @@ export const TooltipButton = ({
           <Button
             variant="ghost"
             size="icon"
-            className={cn('size-7 rounded-lg', className)}
+            className={cn('size-6 rounded-lg', className)}
             {...props}
           >
             {element}
