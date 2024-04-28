@@ -82,7 +82,6 @@ const Node = React.memo(
               'hover:bg-accent',
               'aria-selected:bg-selection',
               'aria-selected:hover:bg-selection',
-              'z-0',
               'h-[22px]',
             )}
           >

@@ -112,7 +112,7 @@ export type Node3Type = {
 };
 
 export function convertTreeToMap(
-  data: NodeElementType,
+  data?: NodeElementType,
 ): Record<string, Node3Type> {
   const res: Record<string, Node3Type> = {};
 
