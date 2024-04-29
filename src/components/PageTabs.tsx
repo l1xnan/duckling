@@ -15,6 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+import { cn } from '@/lib/utils';
 import { docsAtom, favoriteAtom } from '@/stores/app';
 import {
   TabContextType,
@@ -26,8 +27,9 @@ import { borderTheme, isDarkTheme } from '@/utils';
 import CloseIcon from '@mui/icons-material/Close';
 import { TabContext, TabList, TabPanelProps, useTabContext } from '@mui/lab';
 import { IconButton, Tab, TabProps, styled } from '@mui/material';
+import { DialogProps } from '@radix-ui/react-dialog';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
-import { atom, useAtom, useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { Code2Icon, SearchIcon, TableIcon, XIcon } from 'lucide-react';
 import { shake } from 'radash';
 import {
@@ -39,6 +41,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { ContextMenuItem } from './custom/context-menu';
 import { Tooltip } from './custom/tooltip';
+import { useDialog } from './custom/use-dialog';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -50,9 +53,9 @@ export interface PageTabsProps {
   items: { tab: TabContextType; children: ReactNode }[];
   activeKey: string;
   fallback?: ReactNode;
-  onRemove: (key: string) => void;
-  onRemoveOther: (key: string) => void;
+  onRemove?: (key: string) => void;
   onChange: (key: string) => void;
+  renderItem?: ({ tab }: { tab: TabContextType }) => JSX.Element;
 }
 
 export const PageTabList = styled(TabList)(({ theme }) => ({
@@ -117,29 +120,13 @@ export const PageTabPanel: FunctionComponent<
 export const tabTypeIcon = (type: string) =>
   type == 'search' ? SearchIcon : type == 'editor' ? Code2Icon : TableIcon;
 
-export function PageTabs({
+export function PageTabs1({
   items,
   activeKey,
   fallback,
   onChange,
-  onRemove,
-  onRemoveOther,
+  renderItem,
 }: PageTabsProps) {
-  const setFavorite = useSetAtom(favoriteAtom);
-  const setDocs = useSetAtom(docsAtom);
-  const [{ open }, setOpen] = useAtom(openAtom);
-
-  const { removeTab } = useTabsStore((state) => ({
-    removeTab: state.remove,
-  }));
-
-  const handleDeleteTab = (tab: TabContextType) => {
-    removeTab(tab.id, true);
-    setDocs((prev) => shake(prev, (a) => a.id != tab.id));
-  };
-  const handleRenameTab = (tab: TabContextType) => {
-    setOpen({ open: true, id: tab.id });
-  };
   const tabList = useMemo(() => {
     return (
       <PageTabList
@@ -148,95 +135,8 @@ export function PageTabs({
         onChange={(_, value) => onChange(value)}
       >
         {items.map(({ tab }) => {
-          const Comp = tabTypeIcon(tab.type);
           return (
-            <PageTab
-              key={tab.id}
-              value={tab.id}
-              label={
-                <ContextMenu>
-                  <ContextMenuTrigger className="w-full">
-                    <div className="flex items-center justify-between">
-                      <Tooltip title={`${tab.type}: ${tab.displayName}`}>
-                        <>
-                          <Comp className="size-4 mr-1" />
-                          <div className="max-w-52 truncate">
-                            {tab.displayName}
-                          </div>
-                        </>
-                      </Tooltip>
-                      <IconButton
-                        size="small"
-                        className="tab-close-icon"
-                        component="div"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onRemove(tab.id);
-                        }}
-                      >
-                        <CloseIcon fontSize="inherit" />
-                      </IconButton>
-                    </div>
-                  </ContextMenuTrigger>
-
-                  <ContextMenuContent className="w-64">
-                    <ContextMenuItem
-                      onClick={async () => {
-                        onRemove(tab.id);
-                      }}
-                    >
-                      Close
-                    </ContextMenuItem>
-                    <ContextMenuItem
-                      onClick={async () => {
-                        onRemoveOther(tab.id);
-                      }}
-                    >
-                      Close Other
-                    </ContextMenuItem>
-
-                    <ContextMenuSeparator />
-
-                    <ContextMenuItem
-                      onClick={async () => {
-                        setFavorite((prev) => [...prev, tab]);
-                      }}
-                    >
-                      Favorite
-                    </ContextMenuItem>
-
-                    <ContextMenuSeparator />
-
-                    <ContextMenuItem
-                      onClick={async () => {
-                        await writeText(tab.displayName);
-                      }}
-                    >
-                      Copy
-                    </ContextMenuItem>
-                    {tab.type == 'editor' ? (
-                      <>
-                        <ContextMenuSeparator />
-                        <ContextMenuItem
-                          onClick={async () => {
-                            handleRenameTab(tab);
-                          }}
-                        >
-                          Rename
-                        </ContextMenuItem>
-                        <ContextMenuItem
-                          onClick={async () => {
-                            handleDeleteTab(tab);
-                          }}
-                        >
-                          Delete
-                        </ContextMenuItem>
-                      </>
-                    ) : null}
-                  </ContextMenuContent>
-                </ContextMenu>
-              }
-            />
+            <PageTab key={tab.id} value={tab.id} label={renderItem({ tab })} />
           );
         })}
       </PageTabList>
@@ -262,16 +162,98 @@ export function PageTabs({
           })}
         </div>
       </TabContext>
-      {open ? <RenameDialog /> : null}
     </div>
   );
 }
 
-export function PageTabs1({
+export function TabItemContextMenu({
+  tab,
+  onRemove,
+  onRemoveOther,
+  children,
+}: PropsWithChildren<{
+  tab: TabContextType;
+  onRemove: (key: string) => void;
+  onRemoveOther: (key: string) => void;
+}>) {
+  const setFavorite = useSetAtom(favoriteAtom);
+  const setDocs = useSetAtom(docsAtom);
+
+  const { removeTab } = useTabsStore((state) => ({
+    removeTab: state.remove,
+  }));
+
+  const handleDeleteTab = (tab: TabContextType) => {
+    removeTab(tab.id, true);
+    setDocs((prev) => shake(prev, (a) => a.id != tab.id));
+  };
+  const dialog = useDialog();
+
+  return (
+    <>
+      <ContextMenu>
+        <ContextMenuTrigger className="w-full">{children}</ContextMenuTrigger>
+        <ContextMenuContent className="w-64">
+          <ContextMenuItem
+            onClick={async () => {
+              onRemove(tab.id);
+            }}
+          >
+            Close
+          </ContextMenuItem>
+          <ContextMenuItem
+            onClick={async () => {
+              onRemoveOther(tab.id);
+            }}
+          >
+            Close Other
+          </ContextMenuItem>
+
+          <ContextMenuSeparator />
+
+          <ContextMenuItem
+            onClick={async () => {
+              setFavorite((prev) => [...prev, tab]);
+            }}
+          >
+            Favorite
+          </ContextMenuItem>
+
+          <ContextMenuSeparator />
+
+          <ContextMenuItem
+            onClick={async () => {
+              await writeText(tab.displayName);
+            }}
+          >
+            Copy
+          </ContextMenuItem>
+          {tab.type == 'editor' ? (
+            <>
+              <ContextMenuSeparator />
+              <ContextMenuItem onClick={dialog.trigger}>Rename</ContextMenuItem>
+              <ContextMenuItem
+                onClick={async () => {
+                  handleDeleteTab(tab);
+                }}
+              >
+                Delete
+              </ContextMenuItem>
+            </>
+          ) : null}
+        </ContextMenuContent>
+      </ContextMenu>
+      <RenameDialog {...dialog.props} id={tab.id} />
+    </>
+  );
+}
+
+export function PageTabs({
   items,
   activeKey,
   onChange,
   onRemove,
+  renderItem,
 }: PageTabsProps) {
   return (
     <Tabs
@@ -285,27 +267,26 @@ export function PageTabs1({
             <TabsTrigger
               key={tab.id}
               value={tab.id}
-              className={
-                'h-8 text-xs relative wm-200 pl-3 pr-1.5 rounded-none group border-r ' +
-                'data-[state=active]:bg-muted ' +
-                'data-[state=active]:text-foreground ' +
-                'data-[state=active]:shadow-none ' +
-                'data-[state=active]:rounded-none '
-              }
+              className={cn(
+                'h-8 text-xs relative wm-200 pl-3 pr-1.5 rounded-none border-r',
+                'group',
+                'data-[state=active]:bg-muted',
+                'data-[state=active]:text-foreground',
+                'data-[state=active]:shadow-none',
+                'data-[state=active]:rounded-none',
+              )}
             >
-              <div className="h-[2px] w-full bg-[#1976d2] absolute bottom-0 left-0 invisible z-6 group-data-[state=active]:visible" />
-              {tab.displayName}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-lg size-6 invisible group-hover:visible group-data-[state=active]:visible"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRemove(tab.id);
-                }}
-              >
-                <XIcon className="size-4" />
-              </Button>
+              <div
+                className={cn(
+                  'h-[2px] w-full bg-[#1976d2] absolute bottom-0 left-0 invisible z-6',
+                  'group-data-[state=active]:visible',
+                )}
+              />
+              {renderItem ? (
+                renderItem({ tab })
+              ) : (
+                <DefaultTab1 tab={tab} onRemove={onRemove} />
+              )}
             </TabsTrigger>
           );
         })}
@@ -329,45 +310,74 @@ export function PageTabs1({
   );
 }
 
-const openAtom = atom<{ open: boolean; id?: string }>({
-  open: false,
-  id: undefined,
-});
+export function DefaultTab({ tab, onRemove }) {
+  const Comp = tabTypeIcon(tab.type);
+  return (
+    <div className="flex items-center justify-between">
+      <Tooltip title={`${tab.type}: ${tab.displayName}`}>
+        <>
+          <Comp className="size-4 mr-1" />
+          <div className="max-w-52 truncate">{tab.displayName}</div>
+        </>
+      </Tooltip>
+      <IconButton
+        size="small"
+        className="tab-close-icon"
+        component="div"
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove(tab.id);
+        }}
+      >
+        <CloseIcon fontSize="inherit" />
+      </IconButton>
+    </div>
+  );
+}
+export function DefaultTab1({ tab, onRemove }) {
+  return (
+    <>
+      <span>{tab.displayName}</span>
+      <Button
+        variant="ghost"
+        size="icon"
+        className={cn(
+          'rounded-lg size-6 invisible',
+          'group-hover:visible',
+          'group-data-[state=active]:visible',
+        )}
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove?.(tab.id);
+        }}
+      >
+        <XIcon className="size-4" />
+      </Button>
+    </>
+  );
+}
 
-function RenameDialog() {
-  const [{ open, id }, setOpen] = useAtom(openAtom);
+function RenameDialog({
+  id,
+  open,
+  onOpenChange,
+}: DialogProps & { id: string }) {
   if (!id) {
     return null;
   }
   const tabAtom = useTabsAtom(tabObjAtom, id);
   const [tab, setTab] = useAtom(tabAtom);
 
-  const handClose = () => {
-    setOpen({
-      open: false,
-      id: undefined,
-    });
-  };
-
   const handleSubmit = ({ name }: { name: string }) => {
     setTab((prev) => ({ ...prev, displayName: name }));
-    handClose();
+    onOpenChange?.(false);
   };
 
   const form = useForm<{ name: string }>({
     defaultValues: { name: tab?.displayName },
   });
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(open) => {
-        setOpen((prev) => ({
-          ...prev,
-          open,
-        }));
-      }}
-      title="Rename"
-    >
+    <Dialog open={open} onOpenChange={onOpenChange} title="Rename">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
           <FormField

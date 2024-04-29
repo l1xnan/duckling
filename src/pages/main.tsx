@@ -1,6 +1,10 @@
 import { PrimitiveAtom, useAtomValue } from 'jotai';
 
-import { PageTabs } from '@/components/PageTabs';
+import {
+  DefaultTab,
+  PageTabs,
+  TabItemContextMenu,
+} from '@/components/PageTabs';
 import {
   ColumnSchemaView,
   DatabaseSchemaView,
@@ -9,6 +13,7 @@ import {
 import {
   EditorContextType,
   SchemaContextType,
+  TabContextType,
   TableContextType,
   tabObjAtom,
   useTabsAtom,
@@ -17,6 +22,7 @@ import {
 
 import { SearchView } from '@/components/views/SchemaView';
 import { PageProvider } from '@/hooks/context';
+import { useMemo } from 'react';
 import MonacoEditor from './editor';
 
 function TabContent({ id }: { id: string }) {
@@ -67,18 +73,29 @@ export function Main() {
       ids: state.ids,
     }));
 
-  const items = ids.map((id) => {
-    const tab = tabObj[id];
-    return { tab, children: <TabContent id={tab.id} /> };
-  });
+  const items = useMemo(
+    () =>
+      ids.map((id) => {
+        const tab = tabObj[id];
+        return { tab, children: <TabContent id={tab.id} /> };
+      }),
+    [ids, tabObj],
+  );
 
   return (
     <PageTabs
       items={items}
       onChange={(value) => activateTab(value)}
       activeKey={currentId ?? ''}
-      onRemove={removeTab}
-      onRemoveOther={removeOtherTab}
+      renderItem={({ tab }: { tab: TabContextType }) => (
+        <TabItemContextMenu
+          tab={tab}
+          onRemove={removeTab}
+          onRemoveOther={removeOtherTab}
+        >
+          <DefaultTab tab={tab} onRemove={removeTab} />
+        </TabItemContextMenu>
+      )}
     />
   );
 }
