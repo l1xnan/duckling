@@ -1,4 +1,3 @@
-import RemoveIcon from '@mui/icons-material/Remove';
 import {
   IconDatabaseCog,
   IconFolderPlus,
@@ -51,11 +50,11 @@ export function SideToolbar({
     }
   };
 
-  async function handleRemoveDB() {
-    if (selectedNode) {
-      removeDB(selectedNode.dbId);
-    }
-  }
+  // async function handleRemoveDB() {
+  //   if (selectedNode) {
+  //     removeDB(selectedNode.dbId);
+  //   }
+  // }
 
   async function handleAppendFolder() {
     const res = await dialog.open({
@@ -81,9 +80,7 @@ export function SideToolbar({
     }
   }
 
-  const isRoot = selectedNode
-    ? dbList.map((item) => item.data.path).includes(selectedNode?.tableId)
-    : false;
+  const isRoot = selectedNode?.type == 'root';
 
   return (
     <>
@@ -112,13 +109,13 @@ export function SideToolbar({
             <IconDatabaseCog />
           </TooltipButton>
           {/* remove db */}
-          <TooltipButton
+          {/* <TooltipButton
             tooltip="Remove DB"
             disabled={!isRoot}
             onClick={handleRemoveDB}
           >
             <RemoveIcon />
-          </TooltipButton>
+          </TooltipButton> */}
           {/* refresh tree */}
           <TooltipButton
             tooltip="Refresh DB"

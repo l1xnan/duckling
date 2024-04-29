@@ -9,9 +9,9 @@ import React, { useState } from 'react';
 
 import { TreeItem, TreeItemLabel } from '@/components/TreeItem';
 import { SimpleTreeView as TreeView, TreeViewProps } from '@mui/x-tree-view';
-import { ConnectionContextMenu } from './context-menu/ConnectionContextMenu';
-import { SchemaContextMenu } from './context-menu/SchemaContextMenu';
-import { TableContextMenu } from './context-menu/TableContextMenu';
+import { ConnectionContextMenu } from '../../pages/sidebar/context-menu/ConnectionContextMenu';
+import { SchemaContextMenu } from '../../pages/sidebar/context-menu/SchemaContextMenu';
+import { TableContextMenu } from '../../pages/sidebar/context-menu/TableContextMenu';
 
 export interface DBTreeViewProps extends TreeViewProps<boolean> {
   db: DBType;
