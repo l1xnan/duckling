@@ -1,6 +1,5 @@
 import Dialog from '@/components/custom/Dialog';
 
-import { Empty } from '@/components/Empty';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 import { Button } from '@/components/ui/button';
@@ -15,6 +14,15 @@ import {
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+import { ContextMenuItem } from '@/components/custom/context-menu';
+import { Tooltip } from '@/components/custom/tooltip';
+import { useDialog } from '@/components/custom/use-dialog';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu';
 import { cn } from '@/lib/utils';
 import { docsAtom, favoriteAtom } from '@/stores/app';
 import {
@@ -23,31 +31,13 @@ import {
   useTabsAtom,
   useTabsStore,
 } from '@/stores/tabs';
-import { borderTheme, isDarkTheme } from '@/utils';
-import CloseIcon from '@mui/icons-material/Close';
-import { TabContext, TabList, TabPanelProps, useTabContext } from '@mui/lab';
-import { IconButton, Tab, TabProps, styled } from '@mui/material';
 import { DialogProps } from '@radix-ui/react-dialog';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useAtom, useSetAtom } from 'jotai';
 import { Code2Icon, SearchIcon, TableIcon, XIcon } from 'lucide-react';
 import { shake } from 'radash';
-import {
-  FunctionComponent,
-  PropsWithChildren,
-  ReactNode,
-  useMemo,
-} from 'react';
+import { PropsWithChildren, ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
-import { ContextMenuItem } from './custom/context-menu';
-import { Tooltip } from './custom/tooltip';
-import { useDialog } from './custom/use-dialog';
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from './ui/context-menu';
 
 export interface PageTabsProps {
   items: { tab: TabContextType; children: ReactNode }[];
@@ -58,113 +48,8 @@ export interface PageTabsProps {
   renderItem?: ({ tab }: { tab: TabContextType }) => JSX.Element;
 }
 
-export const PageTabList = styled(TabList)(({ theme }) => ({
-  borderBottom: borderTheme(theme),
-  maxHeight: '2rem',
-  minHeight: '2rem',
-  backgroundColor: isDarkTheme(theme) ? '#26282e' : 'white',
-  '& .MuiTabs-indicator': {},
-}));
-
-export const PageTab = styled((props: TabProps) => (
-  <Tab disableRipple {...props} />
-))(({ theme }) => ({
-  maxHeight: '2rem',
-  minHeight: '2rem',
-  textTransform: 'none',
-  minWidth: 0,
-  margin: 0,
-  marginRight: 0,
-  padding: 0,
-  borderRight: isDarkTheme(theme) ? '1px solid #1e1e1e' : '1px solid #e5e5e5',
-  paddingLeft: 9,
-  [theme.breakpoints.up('sm')]: {
-    minWidth: 0,
-  },
-  fontWeight: theme.typography.fontWeightRegular,
-  paddingRight: theme.spacing(1),
-  opacity: 0.8,
-  '&:hover': {
-    opacity: 1,
-  },
-  '& .tab-close-icon': {
-    visibility: 'hidden',
-  },
-  '&.Mui-selected .tab-close-icon': {
-    visibility: 'visible',
-  },
-  '&:hover .tab-close-icon': {
-    visibility: 'visible',
-  },
-  '&.Mui-selected': {
-    fontWeight: theme.typography.fontWeightMedium,
-    opacity: 1,
-    backgroundColor: isDarkTheme(theme) ? '#1f1f1f' : '#f6f8fa',
-  },
-  '&.Mui-focusVisible': {
-    backgroundColor: '#d1eaff',
-  },
-}));
-
-export const PageTabPanel: FunctionComponent<
-  PropsWithChildren<TabPanelProps>
-> = ({ children, value }) => {
-  const { value: contextValue } = useTabContext() || {};
-  return (
-    <div hidden={value !== contextValue} className="h-full" key={value}>
-      {children}
-    </div>
-  );
-};
-
 export const tabTypeIcon = (type: string) =>
   type == 'search' ? SearchIcon : type == 'editor' ? Code2Icon : TableIcon;
-
-export function PageTabs1({
-  items,
-  activeKey,
-  fallback,
-  onChange,
-  renderItem,
-}: PageTabsProps) {
-  const tabList = useMemo(() => {
-    return (
-      <PageTabList
-        variant="scrollable"
-        scrollButtons="auto"
-        onChange={(_, value) => onChange(value)}
-      >
-        {items.map(({ tab }) => {
-          return (
-            <PageTab key={tab.id} value={tab.id} label={renderItem({ tab })} />
-          );
-        })}
-      </PageTabList>
-    );
-  }, [items]);
-
-  return (
-    <div className="h-full flex flex-col overflow-hidden">
-      <TabContext value={activeKey}>
-        <div>{items?.length > 0 ? tabList : <Empty />}</div>
-        <div className="h-full flex-1">
-          {items.map((item) => {
-            const tab = item.tab;
-            return (
-              <PageTabPanel key={tab.id} value={tab.id}>
-                <ErrorBoundary
-                  fallback={fallback ?? <p>Something went wrong</p>}
-                >
-                  {item.children}
-                </ErrorBoundary>
-              </PageTabPanel>
-            );
-          })}
-        </div>
-      </TabContext>
-    </div>
-  );
-}
 
 export function TabItemContextMenu({
   tab,
@@ -320,17 +205,21 @@ export function DefaultTab({ tab, onRemove }) {
           <div className="max-w-52 truncate">{tab.displayName}</div>
         </>
       </Tooltip>
-      <IconButton
-        size="small"
-        className="tab-close-icon"
-        component="div"
+      <Button
+        variant="ghost"
+        size="icon"
+        className={cn(
+          'rounded-lg size-6 invisible',
+          'group-hover:visible',
+          'group-data-[state=active]:visible',
+        )}
         onClick={(e) => {
           e.stopPropagation();
-          onRemove(tab.id);
+          onRemove?.(tab.id);
         }}
       >
-        <CloseIcon fontSize="inherit" />
-      </IconButton>
+        <XIcon className="size-4" />
+      </Button>
     </div>
   );
 }
