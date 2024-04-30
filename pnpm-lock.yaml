@@ -132,11 +132,11 @@ importers:
         specifier: 2.0.0-beta.2
         version: 2.0.0-beta.2
       '@visactor/react-vtable':
-        specifier: ^0.24.1
-        version: 0.24.1
+        specifier: ^0.25.0
+        version: 0.25.0
       '@visactor/vtable':
-        specifier: ^0.24.1
-        version: 0.24.1
+        specifier: ^0.25.0
+        version: 0.25.0
       ag-grid-community:
         specifier: ^31.2.0
         version: 31.2.0
@@ -218,6 +218,9 @@ importers:
       react-hook-form:
         specifier: ^7.51.0
         version: 7.51.0(react@18.3.1)
+      react-horizontal-scrolling-menu:
+        specifier: ^7.0.0
+        version: 7.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-hotkeys-hook:
         specifier: ^4.5.0
         version: 4.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -303,6 +306,9 @@ importers:
       postcss:
         specifier: ^8.4.38
         version: 8.4.38
+      postcss-nesting:
+        specifier: ^12.1.2
+        version: 12.1.2(postcss@8.4.38)
       prettier:
         specifier: ^3.2.5
         version: 3.2.5
@@ -453,6 +459,18 @@ packages:
   '@babel/types@7.23.6':
     resolution: {integrity: sha512-+uarb83brBzPKN38NX1MkB6vb6+mwvR6amUulqAE7ccQw1pEl+bCia9TbdG1lsnFP7lZySvUn37CHyXQdfTwzg==}
     engines: {node: '>=6.9.0'}
+
+  '@csstools/selector-resolve-nested@1.1.0':
+    resolution: {integrity: sha512-uWvSaeRcHyeNenKg8tp17EVDRkpflmdyvbE0DHo6D/GdBb6PDnCYYU6gRpXhtICMGMcahQmj2zGxwFM/WC8hCg==}
+    engines: {node: ^14 || ^16 || >=18}
+    peerDependencies:
+      postcss-selector-parser: ^6.0.13
+
+  '@csstools/selector-specificity@3.0.3':
+    resolution: {integrity: sha512-KEPNw4+WW5AVEIyzC80rTbWEUatTW2lXpN8+8ILC8PiPeWPjwUzrPZDIOZ2wwqDmeqOYTdSGyL3+vE5GC3FB3Q==}
+    engines: {node: ^14 || ^16 || >=18}
+    peerDependencies:
+      postcss-selector-parser: ^6.0.13
 
   '@emotion/babel-plugin@11.11.0':
     resolution: {integrity: sha512-m4HEDZleaaCH+XgDDsPF15Ht6wTLsgDTeR3WYj9Q/k76JtWhrJjcP4+/XlG8LGT/Rol9qUfOIztXeA84ATpqPQ==}
@@ -2069,8 +2087,8 @@ packages:
     resolution: {integrity: sha512-gBL3Eq25uADw1LQ9kVpf3hRM+DWzs0uZknHYK3hq4jcTPqVCClHGDnB6UUUV2SFeBeA4KWHWbbLqmbGcZ4FYbw==}
     engines: {node: ^18.18.0 || >=20.0.0}
 
-  '@visactor/react-vtable@0.24.1':
-    resolution: {integrity: sha512-988/YQngvw+vQaqlQeBfyuxSNhz4TxrPkfw3TJWpsjWFQvfm4ogKlR0txHrZnDYz7Ywbt1zBaeUy9LxqDE0i6g==}
+  '@visactor/react-vtable@0.25.0':
+    resolution: {integrity: sha512-4VKNJueLBH7MSKUOQrk7T32j3WIUTuPvWhTqBN84drLIBDuVyD4nm6fJZVvhbSeDgoqVsGgjgkXwm0V41Mqsqg==}
 
   '@visactor/vdataset@0.18.1':
     resolution: {integrity: sha512-ByrBt2kgLvYRve+Q+9oo3Ibav5WVSyWPuxdDJHK7kDTJGtTuV8z4qKcqArB86PcAOJS1s5L0TtHlV4Femm2xoA==}
@@ -2099,11 +2117,11 @@ packages:
   '@visactor/vscale@0.18.1':
     resolution: {integrity: sha512-0wpd0avbFLvuDKNHt2PxdKdqLSU9+zUkM6GJYWbXsUUYOiKaFkt2xTkdwUHKq66v23C7Iy14Pm7VVr0wVgflbA==}
 
-  '@visactor/vtable-editors@0.24.1':
-    resolution: {integrity: sha512-EU4JyjEmUDTKgHABKX+RQqykdIQj3JEPPNNTIWUOm88lXOrqAVJun6jISvDi3R21F/lxmWocccRRQ+ro+MoPmg==}
+  '@visactor/vtable-editors@0.25.0':
+    resolution: {integrity: sha512-9NR8Pczd2F20goh0mMmolRWoH+hc8eXQELSHkBhbh1fNZYzcTmjRXalwiqo0Oo4mDT6mxQO/dalf17NJHF3e9g==}
 
-  '@visactor/vtable@0.24.1':
-    resolution: {integrity: sha512-dkr7YCKYGRaDNhddSj1O4Cgij86380yZucW4npEPWGMkZ5uS1juKTJFqUAqRvDpgrBl6f7VRd33JdrVV842t5A==}
+  '@visactor/vtable@0.25.0':
+    resolution: {integrity: sha512-976OYUKUHgqQM7zTynrkLGhpNAd9+kccwEAO1U+gsqjJ0yRWTpR6EFS2v8FciqfkoIyaLgbuaWfFY64wpkuGOg==}
 
   '@visactor/vutils-extension@1.10.4':
     resolution: {integrity: sha512-1qoZ+oEz+Ms3/iQrx8AudWi58IFPqjxcRE72Vam5xZN5jxrIdbQftN3BAvmQrcjteDMeSS1HgE0j/mUnxxDR8A==}
@@ -2353,6 +2371,9 @@ packages:
   commander@4.1.1:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
     engines: {node: '>= 6'}
+
+  compute-scroll-into-view@3.1.0:
+    resolution: {integrity: sha512-rj8l8pD4bJ1nx+dAkMhV1xB5RuZEyVysfxJqB1pRchh1KVvwOv9b7CGB8ZfjTImVv2oF+sYMUkMZq6Na5Ftmbg==}
 
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
@@ -3348,6 +3369,12 @@ packages:
     peerDependencies:
       postcss: ^8.2.14
 
+  postcss-nesting@12.1.2:
+    resolution: {integrity: sha512-FUmTHGDNundodutB4PUBxt/EPuhgtpk8FJGRsBhOuy+6FnkR2A8RZWIsyyy6XmhvX2DZQQWIkvu+HB4IbJm+Ew==}
+    engines: {node: ^14 || ^16 || >=18}
+    peerDependencies:
+      postcss: ^8.4
+
   postcss-selector-parser@6.0.15:
     resolution: {integrity: sha512-rEYkQOMUCEMhsKbK66tbEU9QVIxbhN18YiniAwA7XQYTVBqrBy+P2p5JcdqsHgKM2zWylp8d7J6eszocfds5Sw==}
     engines: {node: '>=4'}
@@ -3462,6 +3489,13 @@ packages:
     engines: {node: '>=12.22.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18
+
+  react-horizontal-scrolling-menu@7.0.0:
+    resolution: {integrity: sha512-tH4yI3AiA9C8S4zwrxz8Au2gVSFphBGNvPm+VyBuyGNAu02JT2IalXe+Z01tLi3/N/F5DAez+46Ff63ZtT5lyw==}
+    engines: {node: '>=18', npm: '>=9.5.0'}
+    peerDependencies:
+      react: '>=16.8'
+      react-dom: '>=16.8'
 
   react-hotkeys-hook@4.5.0:
     resolution: {integrity: sha512-Samb85GSgAWFQNvVt3PS90LPPGSf9mkH/r4au81ZP1yOIFayLC3QAvqTgGtJ8YEDMXtPmaVBs6NgipHO6h4Mug==}
@@ -3661,6 +3695,9 @@ packages:
   scheduler@0.23.2:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
 
+  scroll-into-view-if-needed@3.1.0:
+    resolution: {integrity: sha512-49oNpRjWRvnU8NyGVmUaYG4jtTkNonFZI86MmGRDqBphEK2EXT9gdEUoQPZhuBM8yWHxCWbobltqYO5M4XrUvQ==}
+
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
     hasBin: true
@@ -3716,6 +3753,9 @@ packages:
 
   slice-source@0.4.1:
     resolution: {integrity: sha512-YiuPbxpCj4hD9Qs06hGAz/OZhQ0eDuALN0lRWJez0eD/RevzKqGdUx1IOMUnXgpr+sXZLq3g8ERwbAH0bCb8vg==}
+
+  smooth-scroll-into-view-if-needed@2.0.2:
+    resolution: {integrity: sha512-z54WzUSlM+xHHvJu3lMIsh+1d1kA4vaakcAtQvqzeGJ5Ffau7EKjpRrMHh1/OBo5zyU2h30ZYEt77vWmPHqg7Q==}
 
   sonner@1.4.41:
     resolution: {integrity: sha512-uG511ggnnsw6gcn/X+YKkWPo5ep9il9wYi3QJxHsYe7yTZ4+cOd1wuodOUmOpFuXL+/RE3R04LczdNCDygTDgQ==}
@@ -4271,6 +4311,14 @@ snapshots:
       '@babel/helper-string-parser': 7.23.4
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
+
+  '@csstools/selector-resolve-nested@1.1.0(postcss-selector-parser@6.0.15)':
+    dependencies:
+      postcss-selector-parser: 6.0.15
+
+  '@csstools/selector-specificity@3.0.3(postcss-selector-parser@6.0.15)':
+    dependencies:
+      postcss-selector-parser: 6.0.15
 
   '@emotion/babel-plugin@11.11.0':
     dependencies:
@@ -5817,9 +5865,9 @@ snapshots:
       '@typescript-eslint/types': 7.7.1
       eslint-visitor-keys: 3.4.3
 
-  '@visactor/react-vtable@0.24.1':
+  '@visactor/react-vtable@0.25.0':
     dependencies:
-      '@visactor/vtable': 0.24.1
+      '@visactor/vtable': 0.25.0
       '@visactor/vutils': 0.18.1
       react-is: 18.2.0
 
@@ -5889,16 +5937,16 @@ snapshots:
     dependencies:
       '@visactor/vutils': 0.18.1
 
-  '@visactor/vtable-editors@0.24.1': {}
+  '@visactor/vtable-editors@0.25.0': {}
 
-  '@visactor/vtable@0.24.1':
+  '@visactor/vtable@0.25.0':
     dependencies:
       '@visactor/vdataset': 0.18.1
       '@visactor/vrender-components': 0.18.14-alpha.0
       '@visactor/vrender-core': 0.18.14-alpha.0
       '@visactor/vrender-kits': 0.18.14-alpha.0
       '@visactor/vscale': 0.18.1
-      '@visactor/vtable-editors': 0.24.1
+      '@visactor/vtable-editors': 0.25.0
       '@visactor/vutils': 0.18.1
       '@visactor/vutils-extension': 1.10.4
       cssfontparser: 1.2.1
@@ -6189,6 +6237,8 @@ snapshots:
   commander@2.20.3: {}
 
   commander@4.1.1: {}
+
+  compute-scroll-into-view@3.1.0: {}
 
   concat-map@0.0.1: {}
 
@@ -7214,6 +7264,13 @@ snapshots:
       postcss: 8.4.38
       postcss-selector-parser: 6.0.15
 
+  postcss-nesting@12.1.2(postcss@8.4.38):
+    dependencies:
+      '@csstools/selector-resolve-nested': 1.1.0(postcss-selector-parser@6.0.15)
+      '@csstools/selector-specificity': 3.0.3(postcss-selector-parser@6.0.15)
+      postcss: 8.4.38
+      postcss-selector-parser: 6.0.15
+
   postcss-selector-parser@6.0.15:
     dependencies:
       cssesc: 3.0.0
@@ -7324,6 +7381,12 @@ snapshots:
   react-hook-form@7.51.0(react@18.3.1):
     dependencies:
       react: 18.3.1
+
+  react-horizontal-scrolling-menu@7.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      smooth-scroll-into-view-if-needed: 2.0.2
 
   react-hotkeys-hook@4.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
@@ -7547,6 +7610,10 @@ snapshots:
     dependencies:
       loose-envify: 1.4.0
 
+  scroll-into-view-if-needed@3.1.0:
+    dependencies:
+      compute-scroll-into-view: 3.1.0
+
   semver@6.3.1: {}
 
   semver@7.6.0:
@@ -7606,6 +7673,10 @@ snapshots:
   slash@3.0.0: {}
 
   slice-source@0.4.1: {}
+
+  smooth-scroll-into-view-if-needed@2.0.2:
+    dependencies:
+      scroll-into-view-if-needed: 3.1.0
 
   sonner@1.4.41(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:

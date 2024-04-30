@@ -1,8 +1,14 @@
 import Dialog from '@/components/custom/Dialog';
 
 import ErrorBoundary from '@/components/ErrorBoundary';
+import {
+  ScrollMenu,
+  VisibilityContext,
+  type publicApiType,
+} from 'react-horizontal-scrolling-menu';
+import 'react-horizontal-scrolling-menu/dist/styles.css';
 
-import { Button } from '@/components/ui/button';
+import { Button, ButtonProps } from '@/components/ui/button';
 import { DialogClose, DialogFooter } from '@/components/ui/dialog';
 import {
   Form,
@@ -34,10 +40,18 @@ import {
 import { DialogProps } from '@radix-ui/react-dialog';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useAtom, useSetAtom } from 'jotai';
-import { Code2Icon, SearchIcon, TableIcon, XIcon } from 'lucide-react';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  Code2Icon,
+  SearchIcon,
+  TableIcon,
+  XIcon,
+} from 'lucide-react';
 import { shake } from 'radash';
-import { PropsWithChildren, ReactNode } from 'react';
+import { PropsWithChildren, ReactNode, useContext } from 'react';
 import { useForm } from 'react-hook-form';
+import { ScrollArea, ScrollBar } from './ui/scroll-area';
 
 export interface PageTabsProps {
   items: { tab: TabContextType; children: ReactNode }[];
@@ -140,42 +154,54 @@ export function PageTabs({
   onRemove,
   renderItem,
 }: PageTabsProps) {
+  const tabsList = items.map(({ tab }) => {
+    return (
+      <TabsTrigger
+        key={tab.id}
+        value={tab.id}
+        className={cn(
+          'h-8 text-xs relative wm-200 pl-3 pr-1.5 rounded-none border-r',
+          'group',
+          'data-[state=active]:bg-muted',
+          'data-[state=active]:text-foreground',
+          'data-[state=active]:shadow-none',
+          'data-[state=active]:rounded-none',
+        )}
+      >
+        <div
+          className={cn(
+            'h-[2px] w-full bg-[#1976d2] absolute bottom-0 left-0 invisible z-6',
+            'group-data-[state=active]:visible',
+          )}
+        />
+        {renderItem ? (
+          renderItem({ tab })
+        ) : (
+          <DefaultTab1 tab={tab} onRemove={onRemove} />
+        )}
+      </TabsTrigger>
+    );
+  });
   return (
     <Tabs
       className="w-full h-full flex flex-col justify-start items-start"
       value={activeKey}
       onValueChange={onChange}
     >
-      <TabsList className="p-0 h-8 border-b-1 w-full justify-start">
-        {items.map(({ tab }) => {
-          return (
-            <TabsTrigger
-              key={tab.id}
-              value={tab.id}
-              className={cn(
-                'h-8 text-xs relative wm-200 pl-3 pr-1.5 rounded-none border-r',
-                'group',
-                'data-[state=active]:bg-muted',
-                'data-[state=active]:text-foreground',
-                'data-[state=active]:shadow-none',
-                'data-[state=active]:rounded-none',
-              )}
+      <ScrollArea className="w-full h-8 min-h-8 overflow-hidden">
+        <div className="w-full relative h-8 overflow-hidden">
+          <TabsList className=" p-0 h-8 border-b-1 w-max flex flex-row justify-stretch">
+            <ScrollMenu
+              onWheel={onWheel}
+              // LeftArrow={LeftArrow}
+              // RightArrow={RightArrow}
             >
-              <div
-                className={cn(
-                  'h-[2px] w-full bg-[#1976d2] absolute bottom-0 left-0 invisible z-6',
-                  'group-data-[state=active]:visible',
-                )}
-              />
-              {renderItem ? (
-                renderItem({ tab })
-              ) : (
-                <DefaultTab1 tab={tab} onRemove={onRemove} />
-              )}
-            </TabsTrigger>
-          );
-        })}
-      </TabsList>
+              {tabsList}
+            </ScrollMenu>
+          </TabsList>
+        </div>
+        <ScrollBar orientation="horizontal" className="h-1.5" />
+      </ScrollArea>
       {items.map(({ tab, children }) => {
         return (
           <TabsContent
@@ -293,3 +319,85 @@ function RenameDialog({
     </Dialog>
   );
 }
+
+function onWheel(apiObj: publicApiType, ev: React.WheelEvent): void {
+  // NOTE: no good standart way to distinguish touchpad scrolling gestures
+  // but can assume that gesture will affect X axis, mouse scroll only Y axis
+  // of if deltaY too small probably is it touchpad
+  const isThouchpad = Math.abs(ev.deltaX) !== 0 || Math.abs(ev.deltaY) < 15;
+
+  if (isThouchpad) {
+    ev.stopPropagation();
+    return;
+  }
+
+  if (ev.deltaY > 0) {
+    apiObj.scrollNext();
+  } else {
+    apiObj.scrollPrev();
+  }
+}
+
+function LeftArrow() {
+  const visibility = useContext<publicApiType>(VisibilityContext);
+  const isFirstItemVisible = visibility.useIsVisible('last', true);
+
+  // NOTE: Look here
+  const onClick = () =>
+    visibility.scrollToItem(visibility.getPrevElement(), 'smooth', 'start');
+
+  return (
+    <Arrow disabled={isFirstItemVisible} onClick={onClick} testId="left-arrow">
+      <ChevronLeftIcon />
+    </Arrow>
+  );
+}
+
+function RightArrow() {
+  const visibility = useContext<publicApiType>(VisibilityContext);
+  const isLastItemVisible = visibility.useIsVisible('first', false);
+
+  // NOTE: Look here
+  const onClick = () =>
+    visibility.scrollToItem(visibility.getNextElement(), 'smooth', 'end');
+
+  return (
+    <Arrow disabled={isLastItemVisible} onClick={onClick} testId="right-arrow">
+      <ChevronRightIcon />
+    </Arrow>
+  );
+}
+
+function Arrow({
+  children,
+  disabled,
+  onClick,
+  className,
+  testId,
+}: {
+  children: React.ReactNode;
+  disabled: boolean;
+  onClick: VoidFunction;
+  className?: string;
+  testId: string;
+}) {
+  return (
+    <ArrowButton
+      disabled={disabled}
+      onClick={onClick}
+      className={'arrow' + `-${className}`}
+      data-testid={testId}
+    >
+      {children}
+    </ArrowButton>
+  );
+}
+const ArrowButton = (props: ButtonProps) => (
+  <Button
+    {...props}
+    className={cn(
+      'pointer flex w-6 flex-col justify-center select-none border-r-2 border',
+      props.disabled ? 'opacity-0' : 'opacity-100',
+    )}
+  />
+);
