@@ -1,10 +1,11 @@
 import { Empty } from '@/components/Empty';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import { borderTheme, isDarkTheme } from '@/utils';
+import { isDarkTheme } from '@/utils';
 import { TabContext, TabList, TabPanelProps, useTabContext } from '@mui/lab';
 import { Tab, TabProps, styled } from '@mui/material';
 import { FunctionComponent, PropsWithChildren, useMemo } from 'react';
 import { PageTabsProps } from '../PageTabs';
+import { borderTheme } from './theme';
 
 export const PageTabList = styled(TabList)(({ theme }) => ({
   borderBottom: borderTheme(theme),

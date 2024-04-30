@@ -1,12 +1,4 @@
-import {
-  ClickhouseIcon,
-  DuckdbIcon,
-  MySqlIcon,
-  PostgresIcon,
-  SqliteIcon,
-} from '@/components/custom/Icons';
 import { TreeNode } from '@/types.ts';
-import { default as AccountTreeIcon } from '@mui/icons-material/AccountTree';
 import { alpha, styled } from '@mui/material';
 import {
   TreeItem as MTreeItem,
@@ -15,17 +7,7 @@ import {
   useTreeItemState,
 } from '@mui/x-tree-view/TreeItem';
 
-import {
-  IconBorderOuter,
-  IconDatabase,
-  IconFile,
-  IconFilePower,
-  IconFileTypeCsv,
-  IconFileTypeXls,
-  IconFolder,
-  IconFolderOpen,
-  IconTable,
-} from '@tabler/icons-react';
+import { getTypeIcon } from '@/components/custom/Icons';
 import clsx from 'clsx';
 import * as React from 'react';
 
@@ -173,55 +155,6 @@ interface TreeItemLabelProps {
   nodeId: string;
   icon: string;
 }
-
-export const getTypeIcon = (type: string, expanded?: boolean) => {
-  if (type == 'path' && expanded) {
-    return <IconFolderOpen />;
-  }
-  if (type == 'path' && !expanded) {
-    return <IconFolder />;
-  }
-  if (type == 'folder') {
-    return <IconFolder />;
-  }
-  if (type == 'root') {
-    return <IconDatabase />;
-  }
-  if (type == 'clickhouse') {
-    return <ClickhouseIcon />;
-  }
-  if (type == 'duckdb') {
-    return <DuckdbIcon />;
-  }
-  if (type == 'sqlite') {
-    return <SqliteIcon />;
-  }
-  if (type == 'mysql') {
-    return <MySqlIcon />;
-  }
-  if (type == 'postgres') {
-    return <PostgresIcon />;
-  }
-  if (type == 'database') {
-    return <AccountTreeIcon />;
-  }
-  if (type == 'table') {
-    return <IconTable />;
-  }
-  if (type == 'view') {
-    return <IconBorderOuter />;
-  }
-  if (type == 'csv') {
-    return <IconFileTypeCsv />;
-  }
-  if (type == 'xlsx') {
-    return <IconFileTypeXls />;
-  }
-  if (type == 'parquet') {
-    return <IconFilePower />;
-  }
-  return <IconFile />;
-};
 
 export const TreeItemLabel = React.forwardRef(
   (props: TreeItemLabelProps, ref) => {

@@ -13,7 +13,7 @@ import React, { PropsWithChildren } from 'react';
 import { NodeRendererProps, RowRendererProps, Tree } from 'react-arborist';
 import { TreeProps } from 'react-arborist/dist/module/types/tree-props';
 import useResizeObserver from 'use-resize-observer';
-import { getTypeIcon } from '../mui/TreeItem';
+import { getTypeIcon } from './Icons';
 
 export const DefaultRow = React.memo(function DefaultRow<T>({
   node,

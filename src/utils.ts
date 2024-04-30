@@ -1,5 +1,3 @@
-import { Theme } from '@mui/material';
-
 import { DataType } from '@apache-arrow/ts';
 import { isEmpty } from 'radash';
 import { ThemeProviderState } from './hooks/theme-provider';
@@ -7,10 +5,6 @@ import { OrderByType, StmtType } from './stores/dataset';
 import { NodeElementType, TreeNode } from './types';
 
 export const isDarkTheme = (s: ThemeProviderState) => s.theme === 'dark';
-
-export const isMuiDarkTheme = (theme: Theme) => theme.palette.mode === 'dark';
-export const borderTheme = (theme: Theme) =>
-  isMuiDarkTheme(theme) ? '1px solid #393b40' : '1px solid #ebecf0';
 
 export function getByteLength(str: string) {
   let length = 0;

@@ -1,4 +1,4 @@
-import { ThemeOptions, createTheme } from '@mui/material/styles';
+import { Theme, ThemeOptions, createTheme } from '@mui/material/styles';
 import { createContext } from 'react';
 
 export const ColorModeContext = createContext({
@@ -174,3 +174,5 @@ export const darkTheme = createTheme(initTheme('dark'), {
     },
   },
 });
+export const isMuiDarkTheme = (theme: Theme) => theme.palette.mode === 'dark';
+export const borderTheme = (theme: Theme) => isMuiDarkTheme(theme) ? '1px solid #393b40' : '1px solid #ebecf0';

@@ -195,7 +195,6 @@ function ViewToolbar() {
             <TooltipButton
               disabled={!sql}
               icon={<CodeIcon />}
-              onClick={setTranspose}
             />
           </HoverCardTrigger>
           <HoverCardContent className="font-mono select-all">

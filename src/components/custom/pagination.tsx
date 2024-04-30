@@ -90,7 +90,9 @@ export function Pagination({
           props?.onChange(page, pageSize);
         }}
       />
-      <span className="mr-1">{count < total ? `of ${total}` : null}</span>
+      <span className="mr-1 text-sm">
+        {count < total ? `of ${total}` : null}
+      </span>
       <TooltipButton
         color="inherit"
         onClick={() => {

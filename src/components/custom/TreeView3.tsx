@@ -25,7 +25,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { getTypeIcon } from '../mui/TreeItem';
+import { getTypeIcon } from './Icons';
 import { ContextNode } from './TreeView2';
 
 declare module '@headless-tree/core' {
@@ -258,7 +258,6 @@ export const TreeView3 = forwardRef(
 
     const handleSelectNode = (item: ItemInstance<Node3Type>) => {
       const data = item.getItemData()?.data;
-      console.log("selected", data);
       setSelectedNode(data);
     };
     const handleDoubleClickNode = (item: ItemInstance<Node3Type>) => {

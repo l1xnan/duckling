@@ -1,3 +1,15 @@
+import { default as AccountTreeIcon } from '@mui/icons-material/AccountTree';
+import {
+  IconBorderOuter,
+  IconDatabase,
+  IconFile,
+  IconFilePower,
+  IconFileTypeCsv,
+  IconFileTypeXls,
+  IconFolder,
+  IconFolderOpen,
+  IconTable,
+} from '@tabler/icons-react';
 import * as React from 'react';
 export interface IconProps extends React.SVGAttributes<SVGElement> {
   children?: never;
@@ -147,3 +159,52 @@ export const PostgresIcon = React.forwardRef<SVGSVGElement, IconProps>(
     );
   },
 );
+
+export const getTypeIcon = (type: string, expanded?: boolean) => {
+  if (type == 'path' && expanded) {
+    return <IconFolderOpen />;
+  }
+  if (type == 'path' && !expanded) {
+    return <IconFolder />;
+  }
+  if (type == 'folder') {
+    return <IconFolder />;
+  }
+  if (type == 'root') {
+    return <IconDatabase />;
+  }
+  if (type == 'clickhouse') {
+    return <ClickhouseIcon />;
+  }
+  if (type == 'duckdb') {
+    return <DuckdbIcon />;
+  }
+  if (type == 'sqlite') {
+    return <SqliteIcon />;
+  }
+  if (type == 'mysql') {
+    return <MySqlIcon />;
+  }
+  if (type == 'postgres') {
+    return <PostgresIcon />;
+  }
+  if (type == 'database') {
+    return <AccountTreeIcon />;
+  }
+  if (type == 'table') {
+    return <IconTable />;
+  }
+  if (type == 'view') {
+    return <IconBorderOuter />;
+  }
+  if (type == 'csv') {
+    return <IconFileTypeCsv />;
+  }
+  if (type == 'xlsx') {
+    return <IconFileTypeXls />;
+  }
+  if (type == 'parquet') {
+    return <IconFilePower />;
+  }
+  return <IconFile />;
+};
