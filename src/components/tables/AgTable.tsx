@@ -1,4 +1,3 @@
-import { Box, BoxProps, styled } from '@mui/material';
 import { CellStyle } from 'ag-grid-community/dist/lib/entities/colDef';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
@@ -159,9 +158,14 @@ export const AgTable = ({
     : 'ag-theme-alpine';
 
   return (
-    <TableWrapper
+    <div
       className={className}
-      style={{ ...rest.style, userSelect: 'auto' }}
+      style={{
+        ...rest.style,
+        userSelect: 'auto',
+        width: '100%',
+        height: '100%',
+      }}
     >
       <AgGridReact
         ref={gridRef}
@@ -170,38 +174,6 @@ export const AgTable = ({
         defaultColDef={defaultColDef}
         components={components}
       />
-    </TableWrapper>
+    </div>
   );
 };
-
-export const TableWrapper = styled((props: BoxProps) => <Box {...props} />)(
-  ({ theme }) => ({
-    width: '100%',
-    height: '100%',
-    '&': {
-      '--ag-grid-size': '4px',
-      //   "--ag-borders": "none",
-      '--ag-row-height': '25px',
-      '--ag-list-item-height': '30px',
-      '--ag-font-size': '10px',
-      '--ag-font-family': `var(--table-font-family)`,
-      '--ag-border-color': isDarkTheme(theme) ? '#313438' : '#ebecf0',
-      '--ag-cell-horizontal-border': isDarkTheme(theme)
-        ? '1px solid #313438'
-        : '1px solid #ebecf0',
-    },
-    '& .ag-root-wrapper': {
-      border: 'none',
-    },
-    '& .ag-header-cell': {
-      border: isDarkTheme(theme) ? '1px solid #313438' : '1px solid #ebecf0',
-    },
-    '& .ag-header-cell-resize': {
-      opacity: 0,
-    },
-    '& .ag-cell': {
-      borderBottom: 'none',
-      borderTop: 'none',
-    },
-  }),
-);

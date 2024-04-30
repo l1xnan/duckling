@@ -69,4 +69,35 @@
   body {
     font-family: var(--main-font-family);
   }
+
+  :root {
+    --ag-grid-size: 4px;
+    --ag-row-height: 25px;
+    --ag-list-item-height: 30px;
+    --ag-font-size: 10px;
+    --ag-font-family: var(--table-font-family);
+    --ag-border-color: #ebecf0;
+    --ag-cell-horizontal-border: 1px solid #ebecf0;
+
+    .ag-root-wrapper {
+      border: none;
+    }
+    .ag-header-cell {
+      border: 1px solid #ebecf0;
+    }
+    .ag-header-cell-resize {
+      opacity: 0;
+    }
+    .ag-cell {
+      border-bottom: none;
+      border-top: none;
+    }
+  }
+  .dark {
+    --ag-border-color: #313438;
+    --ag-cell-horizontal-border: 1px solid #313438;
+    .ag-header-cell {
+      border: 1px solid #313438;
+    }
+  }
 }
