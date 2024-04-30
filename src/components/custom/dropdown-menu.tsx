@@ -1,4 +1,3 @@
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { ComponentProps, PropsWithChildren } from 'react';
 
 import {
@@ -12,6 +11,7 @@ import {
   PaginationItem,
   PaginationLink,
 } from '@/components/ui/pagination';
+import { ChevronDownIcon } from 'lucide-react';
 
 export interface DropdownProps
   extends PropsWithChildren<ComponentProps<typeof UIDropdownMenu>> {
@@ -26,7 +26,7 @@ export function DropdownMenu({ content, children }: DropdownProps) {
           <PaginationItem>
             <PaginationLink className="w-full px-2" size={'sm'}>
               {content}
-              <KeyboardArrowDownIcon />
+              <ChevronDownIcon />
             </PaginationLink>
           </PaginationItem>
         </PaginationContent>

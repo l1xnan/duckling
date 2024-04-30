@@ -1,5 +1,4 @@
 import MonacoEditor from '@monaco-editor/react';
-import PivotTableChartIcon from '@mui/icons-material/PivotTableChart';
 import { IconDecimal } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import {
@@ -18,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { precisionAtom, tableRenderAtom } from '@/stores/setting';
 import { TabContextType, useTabsStore } from '@/stores/tabs';
 
+import { TransposeIcon } from '@/components/custom/Icons';
 import { TooltipButton } from '@/components/custom/button';
 import { Pagination } from '@/components/custom/pagination.tsx';
 import {
@@ -184,7 +184,7 @@ function ViewToolbar() {
       </Stack>
       <Stack>
         <TooltipButton
-          icon={<PivotTableChartIcon fontSize="small" />}
+          icon={<TransposeIcon />}
           onClick={setTranspose}
           tooltip="Transpose"
         />
@@ -192,10 +192,7 @@ function ViewToolbar() {
 
         <HoverCard>
           <HoverCardTrigger>
-            <TooltipButton
-              disabled={!sql}
-              icon={<CodeIcon />}
-            />
+            <TooltipButton disabled={!sql} icon={<CodeIcon />} />
           </HoverCardTrigger>
           <HoverCardContent className="font-mono select-all">
             {sql}

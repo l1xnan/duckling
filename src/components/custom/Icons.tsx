@@ -1,8 +1,7 @@
-import { default as AccountTreeIcon } from '@mui/icons-material/AccountTree';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import {
   IconBorderOuter,
   IconDatabase,
-  IconFile,
   IconFilePower,
   IconFileTypeCsv,
   IconFileTypeXls,
@@ -10,11 +9,34 @@ import {
   IconFolderOpen,
   IconTable,
 } from '@tabler/icons-react';
+import { FolderArchive } from 'lucide-react';
 import * as React from 'react';
+
 export interface IconProps extends React.SVGAttributes<SVGElement> {
   children?: never;
   color?: string;
 }
+
+export const TransposeIcon = React.forwardRef<SVGSVGElement, IconProps>(
+  ({ color = 'currentColor', ...props }, forwardedRef) => {
+    return (
+      <svg
+        height="16"
+        viewBox="0 0 16 16"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+        {...props}
+        ref={forwardedRef}
+      >
+        <path
+          d="m1 1v14h7v-7h7v-7zm2 2h3v3h-3zm0 5h3v5h-3zm12 2-5 5h5z"
+          fill={color}
+        />
+      </svg>
+    );
+  },
+);
+
 export const ClickhouseIcon = React.forwardRef<SVGSVGElement, IconProps>(
   ({ color = 'currentColor', ...props }, forwardedRef) => {
     return (
@@ -135,6 +157,7 @@ export const MySqlIcon = React.forwardRef<SVGSVGElement, IconProps>(
   },
 );
 
+// https://reactsvgicons.com/search?q=Postgresql
 export const PostgresIcon = React.forwardRef<SVGSVGElement, IconProps>(
   ({ color = 'currentColor', ...props }, forwardedRef) => {
     return (
@@ -168,7 +191,7 @@ export const getTypeIcon = (type: string, expanded?: boolean) => {
     return <IconFolder />;
   }
   if (type == 'folder') {
-    return <IconFolder />;
+    return <FolderArchive />;
   }
   if (type == 'root') {
     return <IconDatabase />;
@@ -206,5 +229,4 @@ export const getTypeIcon = (type: string, expanded?: boolean) => {
   if (type == 'parquet') {
     return <IconFilePower />;
   }
-  return <IconFile />;
 };

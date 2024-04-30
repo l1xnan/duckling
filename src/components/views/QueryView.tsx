@@ -10,6 +10,7 @@ import { Suspense, useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
+import { TransposeIcon } from '@/components/custom/Icons';
 import { Pagination } from '@/components/custom/pagination';
 import { AgTable } from '@/components/tables/AgTable';
 import { CanvasTable } from '@/components/tables/CanvasTable';
@@ -25,13 +26,13 @@ import { atomStore } from '@/stores';
 import { precisionAtom, tableRenderAtom } from '@/stores/setting';
 import { QueryContextType, executeSQL, exportData } from '@/stores/tabs';
 import { isDarkTheme } from '@/utils';
-import PivotTableChartIcon from '@mui/icons-material/PivotTableChart';
-import { TooltipButton } from '../custom/button';
+
+import { TooltipButton } from '@/components/custom/button';
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from '../ui/resizable';
+} from '@/components/ui/resizable';
 
 type QueryContextAtom = PrimitiveAtom<QueryContextType>;
 
@@ -232,7 +233,7 @@ function PageSizeToolbar({ query, ctx, exportData }: PageSizeToolbarProps) {
         />
 
         <TooltipButton
-          icon={<PivotTableChartIcon fontSize="small" />}
+          icon={<TransposeIcon fontSize="small" />}
           onClick={handleTranspose}
           tooltip="Transpose"
         />
