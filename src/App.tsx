@@ -15,7 +15,6 @@ import {
 import { Toaster } from '@/components/ui/sonner';
 import 'jotai-devtools/styles.css';
 import Home from './Home';
-import { ThemeWrapper } from './components/mui/Theme';
 import { atomStore } from './stores';
 
 export const themeAtom = atomWithStorage<ThemeType>('mode', 'light');
@@ -76,10 +75,8 @@ function App() {
   return (
     <Provider store={atomStore}>
       <DevTools position="bottom-right" />
-      <ThemeWrapper>
-        <Home />
-        <Toaster richColors />
-      </ThemeWrapper>
+      <Home />
+      <Toaster richColors />
     </Provider>
   );
 }
