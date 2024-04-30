@@ -7,7 +7,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { isEmpty } from 'radash';
 import React, { useState } from 'react';
 
-import { TreeItem, TreeItemLabel } from '@/components/TreeItem';
+import { TreeItem, TreeItemLabel } from '@/components/mui/TreeItem';
 import { SimpleTreeView as TreeView, TreeViewProps } from '@mui/x-tree-view';
 import { ConnectionContextMenu } from '../../pages/sidebar/context-menu/ConnectionContextMenu';
 import { SchemaContextMenu } from '../../pages/sidebar/context-menu/SchemaContextMenu';

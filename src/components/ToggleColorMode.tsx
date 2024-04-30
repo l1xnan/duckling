@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
+import { useTheme } from '@/hooks/theme-provider';
 import { ColorModeContext } from '@/theme';
 import { isDarkTheme } from '@/utils';
-import { useTheme } from '@mui/material';
 import { MoonIcon, SunIcon } from 'lucide-react';
 import { useContext } from 'react';
 

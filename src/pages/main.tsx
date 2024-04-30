@@ -22,7 +22,6 @@ import {
 
 import { SearchView } from '@/components/views/SchemaView';
 import { PageProvider } from '@/hooks/context';
-import { useMemo } from 'react';
 import MonacoEditor from './editor';
 
 function TabContent({ id }: { id: string }) {
@@ -73,14 +72,10 @@ export function Main() {
       ids: state.ids,
     }));
 
-  const items = useMemo(
-    () =>
-      ids.map((id) => {
-        const tab = tabObj[id];
-        return { tab, children: <TabContent id={tab.id} /> };
-      }),
-    [ids, tabObj],
-  );
+  const items = ids.map((id) => {
+    const tab = tabObj[id];
+    return { tab, children: <TabContent id={tab.id} /> };
+  });
 
   return (
     <PageTabs

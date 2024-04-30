@@ -1,5 +1,4 @@
 import { DataType } from '@apache-arrow/ts';
-import { useTheme } from '@mui/material';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { ListTable, VTable } from '@visactor/react-vtable';
 import {
@@ -16,6 +15,7 @@ import dayjs from 'dayjs';
 import type { ComponentProps } from 'react';
 
 import { TableProps } from '@/components/tables/AgTable';
+import { useTheme } from '@/hooks/theme-provider';
 import { tableFontFamilyAtom } from '@/stores/setting';
 import { isDarkTheme, isNumberType, uniqueArray } from '@/utils';
 

@@ -1,11 +1,9 @@
-import { CssBaseline } from '@mui/material';
-import { ThemeProvider } from '@mui/material/styles';
 import { relaunch } from '@tauri-apps/plugin-process';
 import { check } from '@tauri-apps/plugin-updater';
 import { Provider, useAtom, useAtomValue } from 'jotai';
 import { DevTools } from 'jotai-devtools';
 import { atomWithStorage } from 'jotai/utils';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 
 import {
   autoUpdateAtom,
@@ -17,8 +15,8 @@ import {
 import { Toaster } from '@/components/ui/sonner';
 import 'jotai-devtools/styles.css';
 import Home from './Home';
+import { ThemeWrapper } from './components/mui/Theme';
 import { atomStore } from './stores';
-import { ColorModeContext, darkTheme, lightTheme } from './theme';
 
 export const themeAtom = atomWithStorage<ThemeType>('mode', 'light');
 
@@ -29,20 +27,7 @@ const isDev = import.meta.env.MODE === 'development';
 function App() {
   const proxy = useSettingStore((state) => state.proxy);
 
-  const [themeMode, setMode] = useAtom(themeAtom);
-  const colorMode = useMemo(
-    () => ({
-      toggleColorMode: () => {
-        setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
-      },
-    }),
-    [],
-  );
-
-  const theme = useMemo(
-    () => (themeMode == 'dark' ? darkTheme : lightTheme),
-    [themeMode],
-  );
+  const [themeMode] = useAtom(themeAtom);
 
   const tableFontFamily = useAtomValue(tableFontFamilyAtom);
   const mainFontFamily = useAtomValue(mainFontFamilyAtom);
@@ -91,13 +76,10 @@ function App() {
   return (
     <Provider store={atomStore}>
       <DevTools position="bottom-right" />
-      <ColorModeContext.Provider value={colorMode}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline enableColorScheme />
-          <Home />
-          <Toaster richColors />
-        </ThemeProvider>
-      </ColorModeContext.Provider>
+      <ThemeWrapper>
+        <Home />
+        <Toaster richColors />
+      </ThemeWrapper>
     </Provider>
   );
 }

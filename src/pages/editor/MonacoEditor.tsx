@@ -6,7 +6,6 @@ import Editor, {
   OnMount,
   useMonaco,
 } from '@monaco-editor/react';
-import { useTheme } from '@mui/material';
 import {
   ForwardedRef,
   forwardRef,
@@ -18,6 +17,7 @@ import {
 import { isDarkTheme } from '@/utils';
 
 import { formatSQL } from '@/api';
+import { useTheme } from '@/hooks/theme-provider';
 import type monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { format } from 'sql-formatter';
 

@@ -1,4 +1,4 @@
-import { Box, BoxProps, styled, useTheme } from '@mui/material';
+import { Box, BoxProps, styled } from '@mui/material';
 import { CellStyle } from 'ag-grid-community/dist/lib/entities/colDef';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
@@ -8,6 +8,7 @@ import { CSSProperties, ComponentProps, useMemo, useRef } from 'react';
 import { NonUndefined } from 'react-hook-form';
 
 import HeaderCell from '@/components/tables/HeaderCell';
+import { useTheme } from '@/hooks/theme-provider';
 import { OrderByType, SchemaType } from '@/stores/dataset';
 import { getByteLength, isDarkTheme, isNumber } from '@/utils';
 

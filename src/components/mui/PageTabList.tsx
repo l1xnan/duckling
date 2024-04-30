@@ -4,7 +4,7 @@ import { borderTheme, isDarkTheme } from '@/utils';
 import { TabContext, TabList, TabPanelProps, useTabContext } from '@mui/lab';
 import { Tab, TabProps, styled } from '@mui/material';
 import { FunctionComponent, PropsWithChildren, useMemo } from 'react';
-import { PageTabsProps } from './PageTabs';
+import { PageTabsProps } from '../PageTabs';
 
 export const PageTabList = styled(TabList)(({ theme }) => ({
   borderBottom: borderTheme(theme),

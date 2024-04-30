@@ -1,6 +1,5 @@
 import MonacoEditor from '@monaco-editor/react';
 import PivotTableChartIcon from '@mui/icons-material/PivotTableChart';
-import { useTheme } from '@mui/material';
 import { IconDecimal } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import {
@@ -32,6 +31,7 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable.tsx';
 import { usePageStore } from '@/hooks/context';
+import { useTheme } from '@/hooks/theme-provider';
 import { isDarkTheme } from '@/utils';
 
 export const Loading = ({ className }: { className?: string }) => {

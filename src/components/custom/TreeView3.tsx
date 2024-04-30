@@ -25,7 +25,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { getTypeIcon } from '../TreeItem';
+import { getTypeIcon } from '../mui/TreeItem';
 import { ContextNode } from './TreeView2';
 
 declare module '@headless-tree/core' {

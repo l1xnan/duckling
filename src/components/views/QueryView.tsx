@@ -1,5 +1,5 @@
 import MonacoEditor from '@monaco-editor/react';
-import { IconButton, useTheme } from '@mui/material';
+import { IconButton } from '@mui/material';
 
 import { IconDecimal } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/hover-card.tsx';
 import { Separator } from '@/components/ui/separator';
 import { Loading } from '@/components/views/TableView';
+import { useTheme } from '@/hooks/theme-provider';
 import { atomStore } from '@/stores';
 import { precisionAtom, tableRenderAtom } from '@/stores/setting';
 import { QueryContextType, executeSQL, exportData } from '@/stores/tabs';
