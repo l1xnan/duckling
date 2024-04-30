@@ -234,7 +234,7 @@ export function InputToolbar() {
     <div className="flex flex-row items-center h-8 min-h-8 bg-background/40 border-b font-mono">
       <ResizablePanelGroup direction="horizontal">
         <ResizablePanel defaultSize={50} className="flex flex-row items-center">
-          <div className="mx-1.5 text-muted-foreground">WHERE</div>
+          <div className="mx-1.5 text-muted-foreground text-sm">WHERE</div>
           <input
             className="flex-1 h-full border-none p-0 outline-none bg-transparent"
             value={stmt.where}
@@ -251,7 +251,7 @@ export function InputToolbar() {
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel defaultSize={50} className="flex flex-row items-center">
-          <div className="mx-1.5 text-muted-foreground">ORDER BY</div>
+          <div className="mx-1.5 text-muted-foreground text-sm">ORDER BY</div>
           <input
             className="flex-1 h-full border-none p-0 outline-none bg-transparent"
             value={stmt.orderBy}

@@ -1,6 +1,6 @@
 import { relaunch } from '@tauri-apps/plugin-process';
 import { check } from '@tauri-apps/plugin-updater';
-import { Provider, useAtom, useAtomValue } from 'jotai';
+import { Provider, useAtomValue } from 'jotai';
 import { DevTools } from 'jotai-devtools';
 import { useEffect } from 'react';
 
@@ -13,37 +13,16 @@ import {
 
 import { Toaster } from '@/components/ui/sonner';
 import { atomStore } from '@/stores';
-import { themeAtom } from '@/stores/app';
 import 'jotai-devtools/styles.css';
 import Home from './Home';
-import { ShadcnThemeProvider } from './hooks/theme-provider';
+import { ThemeProvider } from './hooks/theme-provider';
 
 function App() {
   const proxy = useSettingStore((state) => state.proxy);
 
-  const [themeMode] = useAtom(themeAtom);
-
   const tableFontFamily = useAtomValue(tableFontFamilyAtom);
   const mainFontFamily = useAtomValue(mainFontFamilyAtom);
   const autoUpdate = useAtomValue(autoUpdateAtom);
-
-  useEffect(() => {
-    const root = window.document.documentElement;
-
-    root.classList.remove('light', 'dark');
-
-    if (themeMode === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
-        .matches
-        ? 'dark'
-        : 'light';
-
-      root.classList.add(systemTheme);
-      return;
-    }
-
-    root.classList.add(themeMode);
-  }, [themeMode]);
 
   useEffect(() => {
     const rootElement = document.documentElement;
@@ -69,11 +48,11 @@ function App() {
 
   return (
     <Provider store={atomStore}>
-      <ShadcnThemeProvider defaultTheme={themeMode} storageKey="mode">
+      <ThemeProvider>
         <DevTools position="bottom-right" />
         <Home />
         <Toaster richColors />
-      </ShadcnThemeProvider>
+      </ThemeProvider>
     </Provider>
   );
 }
