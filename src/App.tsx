@@ -2,7 +2,6 @@ import { relaunch } from '@tauri-apps/plugin-process';
 import { check } from '@tauri-apps/plugin-updater';
 import { Provider, useAtom, useAtomValue } from 'jotai';
 import { DevTools } from 'jotai-devtools';
-import { atomWithStorage } from 'jotai/utils';
 import { useEffect } from 'react';
 
 import {
@@ -13,15 +12,11 @@ import {
 } from '@/stores/setting';
 
 import { Toaster } from '@/components/ui/sonner';
+import { atomStore } from '@/stores';
+import { themeAtom } from '@/stores/app';
 import 'jotai-devtools/styles.css';
 import Home from './Home';
-import { atomStore } from './stores';
-
-export const themeAtom = atomWithStorage<ThemeType>('mode', 'light');
-
-type ThemeType = 'light' | 'dark' | 'system';
-
-const isDev = import.meta.env.MODE === 'development';
+import { ShadcnThemeProvider } from './hooks/theme-provider';
 
 function App() {
   const proxy = useSettingStore((state) => state.proxy);
@@ -74,9 +69,11 @@ function App() {
 
   return (
     <Provider store={atomStore}>
-      <DevTools position="bottom-right" />
-      <Home />
-      <Toaster richColors />
+      <ShadcnThemeProvider defaultTheme={themeMode} storageKey="mode">
+        <DevTools position="bottom-right" />
+        <Home />
+        <Toaster richColors />
+      </ShadcnThemeProvider>
     </Provider>
   );
 }

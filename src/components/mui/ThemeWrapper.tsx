@@ -1,17 +1,19 @@
-import { themeAtom } from '@/App';
-
-import { ColorModeContext, darkTheme, lightTheme } from "@/theme";
-import { CssBaseline, ThemeProvider } from "@mui/material";
-import { useAtom } from "jotai";
-import { PropsWithChildren, useMemo } from "react";
-
+import {
+  ColorModeContext,
+  darkTheme,
+  lightTheme,
+} from '@/components/mui/theme';
+import { themeAtom } from '@/stores/app';
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import { useAtom } from 'jotai';
+import { PropsWithChildren, useMemo } from 'react';
 
 export const ThemeWrapper = ({ children }: PropsWithChildren<{}>) => {
   const [themeMode, setMode] = useAtom(themeAtom);
 
   const theme = useMemo(
     () => (themeMode == 'dark' ? darkTheme : lightTheme),
-    [themeMode]
+    [themeMode],
   );
 
   const colorMode = useMemo(
@@ -20,7 +22,7 @@ export const ThemeWrapper = ({ children }: PropsWithChildren<{}>) => {
         setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
       },
     }),
-    []
+    [],
   );
   return (
     <ColorModeContext.Provider value={colorMode}>

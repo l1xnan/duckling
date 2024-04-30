@@ -39,3 +39,10 @@ export const sizeAtom = focusAtom(appAtom, (optic) => optic.prop('size'));
 export const favoriteAtom = atomWithStorage<TabContextType[]>('favorite', []);
 export const runsAtom = atomWithStorage<TabContextType[]>('runs', []);
 export const docsAtom = atomWithStorage<Record<string, string>>('docs', {});
+
+
+export const themeAtom = atomWithStorage<ThemeType>('mode', 'light');
+
+export type ThemeType = 'light' | 'dark' | 'system';
+
+export const isDev = import.meta.env.MODE === 'development';

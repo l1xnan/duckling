@@ -1,17 +1,17 @@
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/hooks/theme-provider';
-import { ColorModeContext } from '@/theme';
 import { isDarkTheme } from '@/utils';
 import { MoonIcon, SunIcon } from 'lucide-react';
-import { useContext } from 'react';
 
 export default function ToggleColorMode() {
   const theme = useTheme();
-  const colorMode = useContext(ColorModeContext);
 
   return (
     <Button
-      onClick={colorMode.toggleColorMode}
+      onClick={() => {
+        const mode = theme.theme == 'dark' ? 'light' : 'dark';
+        theme.setTheme(mode);
+      }}
       variant="ghost"
       size="icon"
       className="size-8 rounded-lg"
