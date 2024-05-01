@@ -82,7 +82,7 @@ export default function Connection({ content }: DropdownProps) {
   const dbList = useDBListStore((s) => s.dbList);
 
   return (
-    <DropdownMenu content={content ?? `unknowm`}>
+    <DropdownMenu content={content ?? `unknown`}>
       <DropdownMenuContent className="w-full">
         <DropdownMenuLabel>Session</DropdownMenuLabel>
         <DropdownMenuSeparator />

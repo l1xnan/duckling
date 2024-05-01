@@ -365,25 +365,6 @@ export const CanvasTable = React.memo(function CanvasTable({
         },
         ...__columns,
       ],
-      // rowSeriesNumber: {
-      //   title: ' ',
-      //   dragOrder: false,
-      //   width: 'auto',
-      //   // @ts-expect-error
-      //   dragHeader: false,
-      //   disableSelect: true,
-      //   disableHeaderHover: true,
-      //   disableHeaderSelect: true,
-      //   disableColumnResize: true,
-      //   headerStyle: {
-      //     color: 'black',
-      //   },
-      //   style: {
-      //     color: '#96938f',
-      //     fontSize: 10,
-      //     textAlign: 'center',
-      //   },
-      // },
       menu: {
         contextMenuItems: (_field, row, col) => {
           if ((!transpose && row == 0) || (transpose && col == 0)) {
@@ -437,10 +418,7 @@ export const CanvasTable = React.memo(function CanvasTable({
         onContextMenuCell={(arg) => {
           console.log('context', arg);
         }}
-        onSelectedCell={(arg) => {
-          console.log('seleted', arg);
-          console.log(tableRef.current);
-
+        onMouseDownCell={(arg) => {
           const table = tableRef.current;
           if (table) {
             table.updateTheme(table.theme);

@@ -1,4 +1,4 @@
-import { Stack } from '@/components/Toolbar.tsx';
+import { Stack } from '@/components/Toolbar';
 import { TooltipButton } from '@/components/custom/button';
 import {
   DropdownMenu,

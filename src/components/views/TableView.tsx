@@ -19,7 +19,7 @@ import { TabContextType, useTabsStore } from '@/stores/tabs';
 
 import { TransposeIcon } from '@/components/custom/Icons';
 import { TooltipButton } from '@/components/custom/button';
-import { Pagination } from '@/components/custom/pagination.tsx';
+import { Pagination } from '@/components/custom/pagination';
 import {
   HoverCard,
   HoverCardContent,
@@ -29,7 +29,7 @@ import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from '@/components/ui/resizable.tsx';
+} from '@/components/ui/resizable';
 import { usePageStore } from '@/hooks/context';
 import { useTheme } from '@/hooks/theme-provider';
 import { isDarkTheme } from '@/utils';
@@ -79,7 +79,7 @@ export function TableView({ context }: { context: TabContextType }) {
 
   return (
     <div className="h-full flex flex-col">
-      <ViewToolbar />
+      <DataViewToolbar />
       <ResizablePanelGroup direction="horizontal">
         <ResizablePanel defaultSize={80} className="flex flex-col size-full">
           <div className="h-full flex flex-col">
@@ -132,7 +132,7 @@ export function TableView({ context }: { context: TabContextType }) {
   );
 }
 
-function ViewToolbar() {
+function DataViewToolbar() {
   const {
     data,
     page,
@@ -194,7 +194,7 @@ function ViewToolbar() {
           <HoverCardTrigger>
             <TooltipButton disabled={!sql} icon={<CodeIcon />} />
           </HoverCardTrigger>
-          <HoverCardContent className="font-mono select-all">
+          <HoverCardContent className="font-mono select-all text-xs">
             {sql}
           </HoverCardContent>
         </HoverCard>

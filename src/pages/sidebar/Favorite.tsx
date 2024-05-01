@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button';
-import { HistoryContextMenu } from '@/pages/sidebar/context-menu/HistoryContextMenu.tsx';
+import { HistoryContextMenu } from '@/pages/sidebar/context-menu/HistoryContextMenu';
 import { favoriteAtom, runsAtom } from '@/stores/app';
 import { QueryContextType, TabContextType, useTabsStore } from '@/stores/tabs';
 import { useAtomValue } from 'jotai';
 import { Code2Icon, SearchIcon, TableIcon } from 'lucide-react';
-import React, { ReactNode } from 'react';
+import React, { PropsWithChildren, ReactNode } from 'react';
 
 interface ItemLabelProps {
   icon?: ReactNode;
@@ -32,6 +32,28 @@ export const ItemLabel = React.forwardRef(
   },
 );
 
+export function Container({
+  children,
+  title,
+}: PropsWithChildren<{ title: string }>) {
+  return (
+    <div className="grid h-full w-full">
+      <div className="hidden border-r md:block">
+        <div className="flex h-full flex-col gap-2">
+          <div className="flex h-8 items-center border-b px-2">
+            <a className="flex items-center gap-2 font-semibold">
+              <span className="text-sm">{title}</span>
+            </a>
+          </div>
+          <div className="flex-1">
+            <nav className="grid items-start px-1 text-sm">{children}</nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function Favorite() {
   const items = useAtomValue(favoriteAtom);
   const updateTab = useTabsStore((state) => state.update);
@@ -40,68 +62,41 @@ export function Favorite() {
     updateTab(item);
   };
   return (
-    <div className="grid h-full w-full">
-      <div className="hidden border-r md:block">
-        <div className="flex h-full flex-col gap-2">
-          <div className="flex h-8 items-center border-b px-4">
-            <a className="flex items-center gap-2 font-semibold">
-              <span className="">Favorite</span>
-            </a>
-          </div>
-          <div className="flex-1">
-            <nav className="grid items-start px-1 text-sm">
-              {items.map((item, i) => {
-                const Comp =
-                  item.type == 'search'
-                    ? SearchIcon
-                    : item.type == 'editor'
-                      ? Code2Icon
-                      : TableIcon;
-                return (
-                  <ItemLabel
-                    key={i}
-                    content={item.displayName}
-                    icon={<Comp className="size-4 min-w-4 mr-1" />}
-                    onClick={() => {
-                      handleClick(item);
-                    }}
-                  />
-                );
-              })}
-            </nav>
-          </div>
-        </div>
-      </div>
-    </div>
+    <Container title="Favorite">
+      {items.map((item, i) => {
+        const Comp =
+          item.type == 'search'
+            ? SearchIcon
+            : item.type == 'editor'
+              ? Code2Icon
+              : TableIcon;
+        return (
+          <ItemLabel
+            key={i}
+            content={item.displayName}
+            icon={<Comp className="size-4 min-w-4 mr-1" />}
+            onClick={() => {
+              handleClick(item);
+            }}
+          />
+        );
+      })}
+    </Container>
   );
 }
 
 export function History() {
   const items = useAtomValue(runsAtom) as QueryContextType[];
-
   return (
-    <div className="grid h-full w-full">
-      <div className="hidden border-r md:block">
-        <div className="flex h-full flex-col gap-2">
-          <div className="flex h-8 items-center border-b px-4">
-            <a className="flex items-center gap-2 font-semibold">
-              <span className="">History</span>
-            </a>
-          </div>
-          <div className="flex-1">
-            <nav className="grid items-start px-1 text-sm">
-              {items.map((item, i) => {
-                return (
-                  <HistoryContextMenu key={i} ctx={item}>
-                    <ItemLabel content={item.stmt} />
-                  </HistoryContextMenu>
-                );
-              })}
-            </nav>
-          </div>
-        </div>
-      </div>
-    </div>
+    <Container title="History">
+      {items.map((item, i) => {
+        return (
+          <HistoryContextMenu key={i} ctx={item}>
+            <ItemLabel content={item.stmt} />
+          </HistoryContextMenu>
+        );
+      })}
+    </Container>
   );
 }
 
@@ -114,33 +109,20 @@ export function SqlCode() {
   };
 
   return (
-    <div className="grid size-full">
-      <div className="hidden border-r md:block">
-        <div className="flex h-full flex-col gap-2">
-          <div className="flex h-8 items-center border-b px-4">
-            <a className="flex items-center gap-2 font-semibold">
-              <span className="">Code</span>
-            </a>
-          </div>
-          <div className="flex-1">
-            <nav className="grid items-start px-1 text-sm font-medium">
-              {Object.values(tabs)
-                .filter((tab) => tab.type == 'editor')
-                .map((item) => {
-                  return (
-                    <ItemLabel
-                      key={item.id}
-                      content={item.displayName}
-                      onClick={() => {
-                        handleClick(item);
-                      }}
-                    />
-                  );
-                })}
-            </nav>
-          </div>
-        </div>
-      </div>
-    </div>
+    <Container title="Code">
+      {Object.values(tabs)
+        .filter((tab) => tab.type == 'editor')
+        .map((item) => {
+          return (
+            <ItemLabel
+              key={item.id}
+              content={item.displayName}
+              onClick={() => {
+                handleClick(item);
+              }}
+            />
+          );
+        })}
+    </Container>
   );
 }

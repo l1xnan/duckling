@@ -1,14 +1,17 @@
+import { ContextMenuItem } from '@/components/custom/context-menu';
 import Dialog from '@/components/custom/Dialog';
+import { Tooltip } from '@/components/custom/tooltip';
+import { useDialog } from '@/components/custom/use-dialog';
 
 import ErrorBoundary from '@/components/ErrorBoundary';
-import {
-  ScrollMenu,
-  VisibilityContext,
-  type publicApiType,
-} from 'react-horizontal-scrolling-menu';
-import 'react-horizontal-scrolling-menu/dist/styles.css';
 
 import { Button, ButtonProps } from '@/components/ui/button';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu';
 import { DialogClose, DialogFooter } from '@/components/ui/dialog';
 import {
   Form,
@@ -19,16 +22,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-import { ContextMenuItem } from '@/components/custom/context-menu';
-import { Tooltip } from '@/components/custom/tooltip';
-import { useDialog } from '@/components/custom/use-dialog';
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from '@/components/ui/context-menu';
 import { cn } from '@/lib/utils';
 import { docsAtom, favoriteAtom } from '@/stores/app';
 import {
@@ -51,6 +44,12 @@ import {
 import { shake } from 'radash';
 import { PropsWithChildren, ReactNode, useContext } from 'react';
 import { useForm } from 'react-hook-form';
+import {
+  ScrollMenu,
+  VisibilityContext,
+  type publicApiType,
+} from 'react-horizontal-scrolling-menu';
+import 'react-horizontal-scrolling-menu/dist/styles.css';
 import { ScrollArea, ScrollBar } from './ui/scroll-area';
 
 export interface PageTabsProps {
@@ -170,14 +169,14 @@ export function PageTabs({
       >
         <div
           className={cn(
-            'h-[2px] w-full bg-[#1976d2] absolute bottom-0 left-0 invisible z-6',
+            'h-px w-full bg-[#1976d2] absolute top-0 left-0 invisible z-6',
             'group-data-[state=active]:visible',
           )}
         />
         {renderItem ? (
           renderItem({ tab })
         ) : (
-          <DefaultTab1 tab={tab} onRemove={onRemove} />
+          <DefaultTab1 tab={tab} onRemove={onRemove as (s: string) => void} />
         )}
       </TabsTrigger>
     );
@@ -221,7 +220,12 @@ export function PageTabs({
   );
 }
 
-export function DefaultTab({ tab, onRemove }) {
+export interface TabItemProps {
+  tab: TabContextType;
+  onRemove: (id: string) => void;
+}
+
+export function DefaultTab({ tab, onRemove }: TabItemProps) {
   const Comp = tabTypeIcon(tab.type);
   return (
     <div className="flex items-center justify-between">
@@ -249,7 +253,8 @@ export function DefaultTab({ tab, onRemove }) {
     </div>
   );
 }
-export function DefaultTab1({ tab, onRemove }) {
+
+export function DefaultTab1({ tab, onRemove }: TabItemProps) {
   return (
     <>
       <span>{tab.displayName}</span>
@@ -321,12 +326,12 @@ function RenameDialog({
 }
 
 function onWheel(apiObj: publicApiType, ev: React.WheelEvent): void {
-  // NOTE: no good standart way to distinguish touchpad scrolling gestures
+  // NOTE: no good standard way to distinguish touchpad scrolling gestures
   // but can assume that gesture will affect X axis, mouse scroll only Y axis
   // of if deltaY too small probably is it touchpad
-  const isThouchpad = Math.abs(ev.deltaX) !== 0 || Math.abs(ev.deltaY) < 15;
+  const isTouchpad = Math.abs(ev.deltaX) !== 0 || Math.abs(ev.deltaY) < 15;
 
-  if (isThouchpad) {
+  if (isTouchpad) {
     ev.stopPropagation();
     return;
   }
@@ -338,7 +343,7 @@ function onWheel(apiObj: publicApiType, ev: React.WheelEvent): void {
   }
 }
 
-function LeftArrow() {
+export function LeftArrow() {
   const visibility = useContext<publicApiType>(VisibilityContext);
   const isFirstItemVisible = visibility.useIsVisible('last', true);
 
@@ -353,7 +358,7 @@ function LeftArrow() {
   );
 }
 
-function RightArrow() {
+export function RightArrow() {
   const visibility = useContext<publicApiType>(VisibilityContext);
   const isLastItemVisible = visibility.useIsVisible('first', false);
 
@@ -368,7 +373,7 @@ function RightArrow() {
   );
 }
 
-function Arrow({
+export function Arrow({
   children,
   disabled,
   onClick,
@@ -392,6 +397,7 @@ function Arrow({
     </ArrowButton>
   );
 }
+
 const ArrowButton = (props: ButtonProps) => (
   <Button
     {...props}

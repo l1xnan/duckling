@@ -18,7 +18,7 @@ import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from '@/components/ui/hover-card.tsx';
+} from '@/components/ui/hover-card';
 import { Separator } from '@/components/ui/separator';
 import { Loading } from '@/components/views/TableView';
 import { useTheme } from '@/hooks/theme-provider';
