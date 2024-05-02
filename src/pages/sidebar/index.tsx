@@ -4,13 +4,12 @@ import { nanoid } from 'nanoid';
 import { useEffect, useRef, useState } from 'react';
 
 import { getDB } from '@/api';
-import ConfigDialog from '@/pages/sidebar/dialog/ConfigDialog';
 import { SideToolbar } from '@/pages/sidebar/SideToolbar';
-import { configAtom, dbListAtom, useDBListStore } from '@/stores/dbList';
+import { dbListAtom, useDBListStore } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 
-import { TreeView3 } from '@/components/custom/TreeView3';
 import { SearchInput } from '@/components/custom/search';
+import { TreeView3 } from '@/components/custom/TreeView3';
 import { TreeInstance } from '@headless-tree/core';
 
 function useInitOpenUrl() {
@@ -44,7 +43,6 @@ function useInitOpenUrl() {
 
 function DBTree() {
   const dbList = useAtomValue(dbListAtom);
-  const configContext = useAtomValue(configAtom);
 
   useInitOpenUrl();
 
@@ -73,28 +71,7 @@ function DBTree() {
           }}
         />
       </div>
-      {/* <TreeDemo
-        searchMatch={(node, term) =>
-          node.data.path.toLowerCase().includes(term.toLowerCase())
-        }
-        searchTerm={search}
-        data={dbList.map((db) => ({
-          ...convertId(db.data, db.id, db.displayName),
-          icon: db.dialect,
-        }))}
-      /> */}
-
       <TreeView3 dbList={dbList} search={search} ref={treeRef} />
-      {/* <div className="size-full overflow-x-hidden pr-1 pb-2">
-        {dbList.map((db, _i) => {
-          return <DBTreeView key={db.id} db={db} filter={search} />;
-        })}
-      </div> */}
-
-      {/* ---------- modal/dialog ---------- */}
-
-      {/* db config */}
-      {configContext !== null ? <ConfigDialog /> : null}
     </div>
   );
 }
