@@ -1,4 +1,3 @@
-import { useSetAtom } from 'jotai';
 import { Code, RefreshCcw, Settings } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { PropsWithChildren, useState } from 'react';
@@ -13,8 +12,9 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
+import { ConfigDialog } from '@/pages/sidebar/dialog/ConfigDialog';
 import { RenameDialog } from '@/pages/sidebar/dialog/RenameDialog';
-import { DBType, configAtom, useDBListStore } from '@/stores/dbList';
+import { DBType, useDBListStore } from '@/stores/dbList';
 import { useTabsStore } from '@/stores/tabs';
 import React from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
@@ -23,13 +23,12 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
   children,
   db,
 }: PropsWithChildren<{ db: DBType }>) {
-  const setConfigContext = useSetAtom(configAtom);
-
   const updateTab = useTabsStore((state) => state.update);
   const removeDB = useDBListStore((state) => state.remove);
   const updateDB = useDBListStore((state) => state.update);
 
   const dialog = useDialog();
+  const configDialog = useDialog();
 
   const handleEditor = () => {
     if (db) {
@@ -47,7 +46,7 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
     removeDB(db.id);
   };
   const handleProperties = () => {
-    setConfigContext(db);
+    configDialog.trigger();
   };
 
   const handleRefresh = async () => {
@@ -98,6 +97,7 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
         </ContextMenuContent>
       </ContextMenu>
       <RenameDialog {...dialog.props} ctx={db} />
+      <ConfigDialog {...configDialog.props} ctx={db} />
     </>
   );
 });

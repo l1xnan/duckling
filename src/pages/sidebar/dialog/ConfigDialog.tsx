@@ -23,10 +23,10 @@ import { DBType, DialectConfig, useDBListStore } from '@/stores/dbList';
 import { DialogProps } from '@radix-ui/react-alert-dialog';
 import { useEffect } from 'react';
 
-export default function ConfigDialog({
+export function ConfigDialog({
   ctx: db,
   ...props
-}: DialogProps & { ctx: DBType }) {
+}: DialogProps & { ctx?: DBType }) {
   const updateDB = useDBListStore((state) => state.setDB);
 
   const form = useForm<DialectConfig>({

@@ -4,22 +4,21 @@ import {
   IconRefresh,
 } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 
 import { getDB } from '@/api';
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
 import { TooltipButton } from '@/components/custom/button';
+import { useDialog } from '@/components/custom/use-dialog';
+import { ConfigDialog } from '@/pages/sidebar/dialog/ConfigDialog';
 import { DatabaseDialog } from '@/pages/sidebar/dialog/DatabaseDialog';
 import {
   DialectType,
-  configAtom,
   dbMapAtom,
   selectedNodeAtom,
   useDBListStore,
 } from '@/stores/dbList';
 import { ChevronsDownUpIcon, ChevronsUpDownIcon } from 'lucide-react';
-import { useDialog } from '@/components/custom/use-dialog';
-import ConfigDialog from './dialog/ConfigDialog';
 
 export function SideToolbar({
   onExpandAll,
@@ -35,8 +34,6 @@ export function SideToolbar({
     s.remove,
   ]);
 
-  const setConfigContext = useSetAtom(configAtom);
-
   async function handleGetDB(path: string, dialect: DialectType) {
     const data = await getDB({ path, dialect });
     appendDB(data);
@@ -44,18 +41,7 @@ export function SideToolbar({
 
   const selectedNode = useAtomValue(selectedNodeAtom);
   const dbMap = useAtomValue(dbMapAtom);
-  const db = dbMap.get(selectedNode?.dbId);
-
-  console.log(db, selectedNode)
-
-  const handleOpen = () => {
-    if (selectedNode) {
-      const db = dbMap.get(selectedNode.dbId);
-      if (db) {
-        setConfigContext(db);
-      }
-    }
-  };
+  const db = selectedNode ? dbMap.get(selectedNode?.dbId) : undefined;
 
   async function handleAppendFolder() {
     const res = await dialog.open({
@@ -119,7 +105,7 @@ export function SideToolbar({
             <IconRefresh />
           </TooltipButton>
         </Stack>
-        <ConfigDialog key={db?.id} {...d.props} ctx={db}/> 
+        <ConfigDialog key={db?.id} {...d.props} ctx={db} />
       </ToolbarContainer>
     </>
   );
