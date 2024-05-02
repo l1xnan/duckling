@@ -2,9 +2,9 @@ import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { ReactNode } from 'react';
 
 import {
-  Dialog,
   DialogContent,
   DialogHeader,
+  Dialog as DialogRoot,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
@@ -17,7 +17,7 @@ interface DialogProps extends DialogPrimitive.DialogProps {
   trigger?: ReactNode;
 }
 
-export default ({
+export const Dialog = ({
   open,
   onOpenChange,
   title,
@@ -26,7 +26,7 @@ export default ({
   className,
 }: DialogProps) => {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <DialogRoot open={open} onOpenChange={onOpenChange}>
       {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
       <DialogContent
         className={cn('grid-rows-[auto_1fr]', className)}
@@ -40,6 +40,8 @@ export default ({
         </DialogHeader>
         {children}
       </DialogContent>
-    </Dialog>
+    </DialogRoot>
   );
 };
+
+export default Dialog;

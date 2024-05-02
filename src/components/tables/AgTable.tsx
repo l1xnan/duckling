@@ -1,4 +1,3 @@
-import { CellStyle } from 'ag-grid-community/dist/lib/entities/colDef';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { AgGridReact } from 'ag-grid-react';
@@ -108,7 +107,7 @@ export const AgTable = ({
           }),
 
           cellStyle: (({ value }) => {
-            const style: CellStyle = {};
+            const style: ColDefType['cellStyle'] = {};
             if (value === null) {
               style['color'] = 'gray';
             }

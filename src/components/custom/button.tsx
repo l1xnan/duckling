@@ -15,14 +15,10 @@ interface IconButtonProps extends PropsWithChildren<ButtonProps> {
   tooltipProps?: TooltipContentProps;
 }
 
-export const TooltipButton = ({
-  tooltip,
-  icon,
-  children,
-  className,
-  tooltipProps,
-  ...props
-}: IconButtonProps) => {
+export const TooltipButton = React.forwardRef<
+  HTMLButtonElement,
+  IconButtonProps
+>(({ tooltip, icon, children, className, tooltipProps, ...props }, ref) => {
   const elem = icon ?? (React.Children.only(children) as ReactElement);
   const element = React.cloneElement(elem, {
     className: cn('size-4', elem.props?.className),
@@ -34,7 +30,8 @@ export const TooltipButton = ({
           <Button
             variant="ghost"
             size="icon"
-            className={cn('size-6 rounded-lg', className)}
+            className={cn('size-6 rounded-lg [&>*]:size-4', className)}
+            ref={ref}
             {...props}
           >
             {element}
@@ -46,4 +43,4 @@ export const TooltipButton = ({
       </Tooltip>
     </TooltipProvider>
   );
-};
+});

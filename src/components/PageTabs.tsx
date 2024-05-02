@@ -90,7 +90,9 @@ export function TabItemContextMenu({
   return (
     <>
       <ContextMenu>
-        <ContextMenuTrigger className="w-full">{children}</ContextMenuTrigger>
+        <ContextMenuTrigger className="w-full" asChild>
+          {children}
+        </ContextMenuTrigger>
         <ContextMenuContent className="w-64">
           <ContextMenuItem
             onClick={async () => {
@@ -201,13 +203,13 @@ export function PageTabs({
         </div>
         <ScrollBar orientation="horizontal" className="h-1.5" />
       </ScrollArea>
-      {items.map(({ tab, children }) => {
+      {items.map(({ tab: { id }, children }) => {
         return (
           <TabsContent
-            key={tab.id}
-            value={tab.id}
+            key={id}
+            value={id}
             forceMount
-            hidden={tab.id != activeKey}
+            hidden={id != activeKey}
             className="h-full w-full mt-0 overflow-hidden"
           >
             <ErrorBoundary fallback={<p>Something went wrong</p>}>
@@ -236,10 +238,11 @@ export function DefaultTab({ tab, onRemove }: TabItemProps) {
         </>
       </Tooltip>
       <Button
+        asChild
         variant="ghost"
         size="icon"
         className={cn(
-          'rounded-lg size-6 invisible',
+          'rounded-lg size-4 invisible',
           'group-hover:visible',
           'group-data-[state=active]:visible',
         )}

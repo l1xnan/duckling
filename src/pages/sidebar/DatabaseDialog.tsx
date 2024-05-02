@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { getDB } from '@/api';
-import Dialog from '@/components/custom/Dialog';
+import { Dialog } from '@/components/custom/Dialog';
 import { TooltipButton } from '@/components/custom/button';
 import { Button } from '@/components/ui/button';
 import { DialogClose, DialogFooter } from '@/components/ui/dialog';
@@ -44,11 +44,7 @@ export function DatabaseDialog() {
       onOpenChange={setOpen}
       title="New Connection"
       className="min-w-[800px] min-h-[500px]"
-      trigger={
-        <TooltipButton tooltip='Add data'>
-          <IconDatabasePlus />
-        </TooltipButton>
-      }
+      trigger={<TooltipButton tooltip="Add data" icon={<IconDatabasePlus />} />}
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
