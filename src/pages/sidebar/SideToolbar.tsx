@@ -9,7 +9,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { getDB } from '@/api';
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
 import { TooltipButton } from '@/components/custom/button';
-import { DatabaseDialog } from '@/pages/sidebar/DatabaseDialog';
+import { DatabaseDialog } from '@/pages/sidebar/dialog/DatabaseDialog';
 import {
   DialectType,
   configAtom,
@@ -18,6 +18,8 @@ import {
   useDBListStore,
 } from '@/stores/dbList';
 import { ChevronsDownUpIcon, ChevronsUpDownIcon } from 'lucide-react';
+import { useDialog } from '@/components/custom/use-dialog';
+import ConfigDialog from './dialog/ConfigDialog';
 
 export function SideToolbar({
   onExpandAll,
@@ -26,10 +28,12 @@ export function SideToolbar({
   onExpandAll: () => void;
   onCollapseAll: () => void;
 }) {
-  const dbList = useDBListStore((state) => state.dbList);
-  const appendDB = useDBListStore((state) => state.append);
-  const removeDB = useDBListStore((state) => state.remove);
-  const updateDB = useDBListStore((state) => state.update);
+  const [dbList, appendDB, updateDB, removeDB] = useDBListStore((s) => [
+    s.dbList,
+    s.append,
+    s.update,
+    s.remove,
+  ]);
 
   const setConfigContext = useSetAtom(configAtom);
 
@@ -40,6 +44,9 @@ export function SideToolbar({
 
   const selectedNode = useAtomValue(selectedNodeAtom);
   const dbMap = useAtomValue(dbMapAtom);
+  const db = dbMap.get(selectedNode?.dbId);
+
+  console.log(db, selectedNode)
 
   const handleOpen = () => {
     if (selectedNode) {
@@ -49,12 +56,6 @@ export function SideToolbar({
       }
     }
   };
-
-  // async function handleRemoveDB() {
-  //   if (selectedNode) {
-  //     removeDB(selectedNode.dbId);
-  //   }
-  // }
 
   async function handleAppendFolder() {
     const res = await dialog.open({
@@ -80,8 +81,9 @@ export function SideToolbar({
     }
   }
 
+  // TODO: Remove the root element restriction
   const isRoot = selectedNode?.type == 'root';
-
+  const d = useDialog();
   return (
     <>
       <div className="h-8 min-h-8 w-full px-2 flex items-center justify-between border-b">
@@ -104,18 +106,10 @@ export function SideToolbar({
           <TooltipButton
             tooltip="DB setting"
             disabled={!isRoot}
-            onClick={handleOpen}
+            onClick={d.trigger}
           >
             <IconDatabaseCog />
           </TooltipButton>
-          {/* remove db */}
-          {/* <TooltipButton
-            tooltip="Remove DB"
-            disabled={!isRoot}
-            onClick={handleRemoveDB}
-          >
-            <RemoveIcon />
-          </TooltipButton> */}
           {/* refresh tree */}
           <TooltipButton
             tooltip="Refresh DB"
@@ -125,6 +119,7 @@ export function SideToolbar({
             <IconRefresh />
           </TooltipButton>
         </Stack>
+        <ConfigDialog key={db?.id} {...d.props} ctx={db}/> 
       </ToolbarContainer>
     </>
   );

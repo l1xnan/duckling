@@ -13,11 +13,11 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
+import { RenameDialog } from '@/pages/sidebar/dialog/RenameDialog';
 import { DBType, configAtom, useDBListStore } from '@/stores/dbList';
 import { useTabsStore } from '@/stores/tabs';
 import React from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { RenameDialog } from '../RenameDialog';
 
 export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
   children,

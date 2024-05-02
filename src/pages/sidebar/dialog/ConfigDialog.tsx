@@ -1,4 +1,3 @@
-import { useAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 
 import Dialog from '@/components/custom/Dialog';
@@ -20,34 +19,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { DialectConfig, configAtom, useDBListStore } from '@/stores/dbList';
+import { DBType, DialectConfig, useDBListStore } from '@/stores/dbList';
+import { DialogProps } from '@radix-ui/react-alert-dialog';
+import { useEffect } from 'react';
 
-export default function ConfigDialog() {
+export default function ConfigDialog({
+  ctx: db,
+  ...props
+}: DialogProps & { ctx: DBType }) {
   const updateDB = useDBListStore((state) => state.setDB);
-
-  const [db, setContext] = useAtom(configAtom);
-
-  const handClose = () => {
-    setContext(null);
-  };
 
   const form = useForm<DialectConfig>({
     defaultValues: db?.config,
   });
 
-  console.log(db?.config);
+  useEffect(() => {
+    form.reset();
+  }, [db?.id]);
 
   async function handleSubmit(values: DialectConfig) {
     updateDB(values, db!.id);
-    handClose();
+    props.onOpenChange?.(false);
   }
 
   const watchDialect = form.watch('dialect');
 
   return (
     <Dialog
-      open={db != null}
-      onOpenChange={handClose}
+      {...props}
       className="min-w-[800px] min-h-[500px]"
       title={db?.displayName ?? db?.id ?? ''}
     >

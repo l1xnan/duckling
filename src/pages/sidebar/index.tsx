@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid';
 import { useEffect, useRef, useState } from 'react';
 
 import { getDB } from '@/api';
-import ConfigDialog from '@/pages/sidebar/ConfigDialog';
+import ConfigDialog from '@/pages/sidebar/dialog/ConfigDialog';
 import { SideToolbar } from '@/pages/sidebar/SideToolbar';
 import { configAtom, dbListAtom, useDBListStore } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
@@ -13,17 +13,13 @@ import { TreeView3 } from '@/components/custom/TreeView3';
 import { SearchInput } from '@/components/custom/search';
 import { TreeInstance } from '@headless-tree/core';
 
-function DBTree() {
-  const dbList = useAtomValue(dbListAtom);
-  const configContext = useAtomValue(configAtom);
-  const updateTab = useTabsStore((state) => state.update);
-  const appendDB = useDBListStore((state) => state.append);
-
-  const [search, setSearch] = useState('');
+function useInitOpenUrl() {
+  const updateTab = useTabsStore((s) => s.update);
+  const appendDB = useDBListStore((s) => s.append);
 
   async function openUrl() {
     const path: string = await invoke('opened_urls');
-    console.log('opened_urls', path);
+    console.warn('opened_urls', path);
     if (path?.endsWith('.parquet')) {
       const item: TableContextType = {
         id: nanoid(),
@@ -44,6 +40,15 @@ function DBTree() {
       await openUrl();
     })();
   }, []);
+}
+
+function DBTree() {
+  const dbList = useAtomValue(dbListAtom);
+  const configContext = useAtomValue(configAtom);
+
+  useInitOpenUrl();
+
+  const [search, setSearch] = useState('');
 
   const treeRef = useRef<TreeInstance<unknown>>(null);
 

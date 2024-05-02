@@ -20,7 +20,7 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { SearchDialog } from '@/pages/sidebar/SearchDialog';
+import { SearchDialog } from '@/pages/sidebar/dialog/SearchDialog';
 import { DBType, DialectConfig, useDBListStore } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { NodeElementType } from '@/types';
@@ -39,7 +39,7 @@ export function TableContextMenu({
 
   const alertDialog = useDialog();
   const searchDialog = useDialog();
-  
+
   const handleDropTable: React.MouseEventHandler<HTMLButtonElement> = async (
     e,
   ) => {
@@ -131,7 +131,6 @@ export function TableContextMenu({
     e.stopPropagation();
     await writeText(node.path);
   };
- 
 
   return (
     <>
@@ -163,7 +162,9 @@ export function TableContextMenu({
           ) : null}
 
           <ContextMenuSeparator />
-          <ContextMenuItem onSelect={alertDialog.trigger}>Delete</ContextMenuItem>
+          <ContextMenuItem onSelect={alertDialog.trigger}>
+            Delete
+          </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem onSelect={handleCopy}>Copy</ContextMenuItem>
           <ContextMenuSeparator />
