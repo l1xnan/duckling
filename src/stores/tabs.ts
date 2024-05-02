@@ -118,6 +118,7 @@ interface TabsState {
 type TabsAction = {
   append: (tab: TabContextType) => void;
   update: (tab: TabContextType) => void;
+  setSession: (tab: TabContextType) => void;
   remove: (key: string, force?: boolean) => void;
   removeOther: (key: string) => void;
   active: (idx: string) => void;
@@ -151,6 +152,15 @@ export const useTabsStore = create<TabsState & TabsAction>()(
             ids,
             currentId: item.id,
           };
+        });
+      },
+      setSession: (item: TabContextType) => {
+        set((state) => {
+          const { ids, tabs } = state;
+          if (ids.findIndex((id) => id === item.id) >= 0) {
+            tabs[item.id] = item;
+          }
+          return { tabs };
         });
       },
       remove: (key, force) => {

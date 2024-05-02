@@ -1,10 +1,10 @@
 import { OnChange } from '@monaco-editor/react';
-import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { nanoid } from 'nanoid';
 import { useMemo, useRef, useState } from 'react';
 
-import { schemaMapAtom } from '@/stores/dbList';
+import { DBType, schemaMapAtom } from '@/stores/dbList';
 import {
   EditorContextType,
   QueryContextType,
@@ -12,6 +12,7 @@ import {
   activeTabAtom,
   getDatabase,
   subTabsAtomFamily,
+  useTabsStore,
 } from '@/stores/tabs';
 
 import { docsAtom, runsAtom } from '@/stores/app';
@@ -30,18 +31,12 @@ function createStore(item: Partial<QueryContextType>) {
   } as QueryContextType;
 }
 
-export default function Editor({
-  context,
-}: {
-  context: PrimitiveAtom<EditorContextType>;
-}) {
-  const tabContext = useAtomValue(context);
+export default function Editor({ context }: { context: EditorContextType }) {
+  const { id, dbId } = context;
+  const db = getDatabase(dbId);
+
   const [docs, setDocs] = useAtom(docsAtom);
   const currentTab = useAtomValue(activeTabAtom);
-
-  const id = tabContext.id;
-
-  const db = getDatabase(tabContext.dbId);
 
   const tabAtom = subTabsAtomFamily({ id, children: [] });
   tabAtom.debugLabel = `tabAtom-${id}`;
@@ -56,10 +51,7 @@ export default function Editor({
 
   const schemaMap = useAtomValue(schemaMapAtom);
 
-  const tableSchema = useMemo(
-    () => schemaMap.get(tabContext.dbId) ?? [],
-    [tabContext.dbId],
-  );
+  const tableSchema = useMemo(() => schemaMap.get(dbId) ?? [], [dbId]);
   const ref = useRef<EditorRef | null>(null);
 
   const handleChange: OnChange = (value, _event) => {
@@ -93,9 +85,9 @@ export default function Editor({
     const id = `${tab.id}@${nanoid()}`;
     if (action == 'new' || tab.children.length == 0) {
       const subContext: QueryContextType = createStore({
-        dbId: tabContext.dbId,
-        schema: tabContext.schema,
-        tableId: tabContext.tableId,
+        dbId: ctx.dbId,
+        schema: ctx.schema,
+        tableId: ctx.tableId,
         type: 'query',
         stmt,
         hasLimit,
@@ -129,11 +121,21 @@ export default function Editor({
 
   useHotkeys('ctrl+enter', () => handleClick(), { enabled: currentTab == id });
 
+  const setSession = useTabsStore((s) => s.setSession);
+  const handleSession = (db: DBType) => {
+    setSession({
+      ...context,
+      displayName: db.displayName,
+      dbId: db.id,
+    });
+  };
+
   return (
     <div className="h-full w-full overflow-hidden flex flex-col">
       <EditorToolbar
         onClick={handleClick}
         session={db?.displayName}
+        setSession={handleSession}
         onHasLimit={setHasLimit}
         hasLimit={hasLimit}
       />

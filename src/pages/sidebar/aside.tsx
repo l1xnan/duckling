@@ -2,6 +2,7 @@ import {
   Code2,
   DatabaseIcon,
   FolderHeart,
+  HelpCircleIcon,
   HistoryIcon,
   LucideIcon,
 } from 'lucide-react';
@@ -15,6 +16,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils.ts';
+import { open } from '@tauri-apps/plugin-shell';
 import { atom } from 'jotai';
 import { useAtom } from 'jotai/react';
 import AppSettingDialog from '../settings/AppSetting';
@@ -68,9 +70,16 @@ export function ASide() {
         <SideButton id="history" label="History" icon={HistoryIcon} />
       </nav>
       <nav className="mt-auto grid gap-1 p-0 [&>*]:place-self-center">
+        <SideButton
+          id="help"
+          label="Help"
+          icon={HelpCircleIcon}
+          onClick={() => {
+            open('https://github.com/l1xnan/duckling');
+          }}
+        />
         <ToggleColorMode />
         <AppSettingDialog />
-        {/* <SideButton id="help" label="Help" icon={LifeBuoy} /> */}
       </nav>
     </aside>
   );

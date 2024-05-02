@@ -7,14 +7,14 @@ import {
 
 import { Stack, ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
 
+import { PlayArrowIcon, PlaylistAddIcon } from '@/components/custom/Icons';
 import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { useDBListStore } from '@/stores/dbList';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import { DBType, useDBListStore } from '@/stores/dbList';
+import { TabContextType } from '@/stores/tabs';
 import { TooltipContentProps } from '@radix-ui/react-tooltip';
 import { IconInfinity, IconInfinityOff } from '@tabler/icons-react';
 
@@ -31,11 +31,13 @@ export function EditorToolbar({
   session,
   onHasLimit,
   hasLimit,
+  setSession,
 }: {
   onClick: (action?: string) => void;
   onHasLimit: (limit: boolean) => void;
   session?: string;
   hasLimit?: boolean;
+  setSession: (s: DBType) => void;
 }) {
   return (
     <ToolbarContainer>
@@ -67,7 +69,7 @@ export function EditorToolbar({
           </TooltipButton>
         </Stack>
         <Stack>
-          <Connection content={session} />
+          <Connection content={session} setSession={setSession} />
         </Stack>
       </ToolbarBox>
     </ToolbarContainer>
@@ -76,9 +78,10 @@ export function EditorToolbar({
 
 export interface DropdownProps {
   content?: string;
+  setSession: (s: DBType) => void;
 }
 
-export default function Connection({ content }: DropdownProps) {
+export default function Connection({ content, setSession }: DropdownProps) {
   const dbList = useDBListStore((s) => s.dbList);
 
   return (
@@ -91,7 +94,7 @@ export default function Connection({ content }: DropdownProps) {
             <DropdownMenuItem
               key={item.id}
               onClick={() => {
-                // TODO: update tab context
+                setSession(item);
               }}
             >
               {item.displayName}

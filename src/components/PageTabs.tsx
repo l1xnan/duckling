@@ -89,8 +89,12 @@ export function TabItemContextMenu({
 
   return (
     <>
-      <ContextMenu>
-        <ContextMenuTrigger className="w-full" asChild>
+      <ContextMenu
+        onOpenChange={(open) => {
+          console.log(open);
+        }}
+      >
+        <ContextMenuTrigger className="w-full">
           {children}
         </ContextMenuTrigger>
         <ContextMenuContent className="w-64">
@@ -156,6 +160,7 @@ export function PageTabs({
   renderItem,
 }: PageTabsProps) {
   const tabsList = items.map(({ tab }) => {
+    const Comp = renderItem;
     return (
       <TabsTrigger
         key={tab.id}
@@ -171,12 +176,12 @@ export function PageTabs({
       >
         <div
           className={cn(
-            'h-px w-full bg-[#1976d2] absolute top-0 left-0 invisible z-6',
+            'h-0.5 w-full bg-[#1976d2] absolute bottom-0 left-0 invisible z-6',
             'group-data-[state=active]:visible',
           )}
         />
-        {renderItem ? (
-          renderItem({ tab })
+        {Comp ? (
+          <Comp tab={tab} />
         ) : (
           <DefaultTab1 tab={tab} onRemove={onRemove as (s: string) => void} />
         )}
@@ -260,7 +265,7 @@ export function DefaultTab({ tab, onRemove }: TabItemProps) {
 export function DefaultTab1({ tab, onRemove }: TabItemProps) {
   return (
     <>
-      <span>{tab.displayName}</span>
+      <span>11{tab.displayName}</span>
       <Button
         variant="ghost"
         size="icon"

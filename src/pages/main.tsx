@@ -1,5 +1,3 @@
-import { PrimitiveAtom, useAtomValue } from 'jotai';
-
 import {
   DefaultTab,
   PageTabs,
@@ -11,12 +9,9 @@ import {
   TableView,
 } from '@/components/views';
 import {
-  EditorContextType,
   SchemaContextType,
   TabContextType,
   TableContextType,
-  tabObjAtom,
-  useTabsAtom,
   useTabsStore,
 } from '@/stores/tabs';
 
@@ -24,9 +19,9 @@ import { SearchView } from '@/components/views/SchemaView';
 import { PageProvider } from '@/hooks/context';
 import MonacoEditor from './editor';
 
-function TabContent({ id }: { id: string }) {
-  const tabAtom = useTabsAtom(tabObjAtom, id);
-  const tab = useAtomValue(tabAtom);
+function TabContent({ id, tab }: { id: string; tab: TabContextType }) {
+  // const tabAtom = useTabsAtom(tabObjAtom, id);
+  // const tab = useAtomValue(tabAtom);
   if (tab.type === 'schema') {
     return (
       <PageProvider context={tab}>
@@ -50,7 +45,9 @@ function TabContent({ id }: { id: string }) {
   }
   if (tab.type === 'editor') {
     return (
-      <MonacoEditor context={tabAtom as PrimitiveAtom<EditorContextType>} />
+      <PageProvider context={tab}>
+        <MonacoEditor context={tab} />
+      </PageProvider>
     );
   }
 
@@ -63,18 +60,18 @@ function TabContent({ id }: { id: string }) {
 
 export function Main() {
   const { activateTab, removeTab, removeOtherTab, tabObj, ids, currentId } =
-    useTabsStore((state) => ({
-      activateTab: state.active,
-      removeTab: state.remove,
-      removeOtherTab: state.removeOther,
-      tabObj: state.tabs,
-      currentId: state.currentId,
-      ids: state.ids,
+    useTabsStore((s) => ({
+      activateTab: s.active,
+      removeTab: s.remove,
+      removeOtherTab: s.removeOther,
+      tabObj: s.tabs,
+      currentId: s.currentId,
+      ids: s.ids,
     }));
 
   const items = ids.map((id) => {
     const tab = tabObj[id];
-    return { tab, children: <TabContent id={tab.id} /> };
+    return { tab, children: <TabContent id={tab.id} tab={tab} /> };
   });
 
   return (
