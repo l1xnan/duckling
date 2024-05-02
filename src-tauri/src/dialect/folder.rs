@@ -236,5 +236,11 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
 
 #[tokio::test]
 async fn test_table() {
-  let _d = FolderDialect::new("");
+  use arrow::util::pretty::print_batches;
+  let _d = FolderDialect::new(r"D:\Code\duckdb\data\parquet-testing");
+  let res = _d
+    .find("123", r"D:/Code/duckdb/data/parquet-testing/decimal")
+    .await
+    .unwrap();
+  print_batches(&[res.batch]);
 }

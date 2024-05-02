@@ -23,12 +23,12 @@ export const Stack = React.forwardRef<
 >((props, ref) => {
   return (
     <div
+      {...props}
       className={cn(
         'flex flex-row gap-1 h-full items-center justify-start',
         props.className,
       )}
       ref={ref}
-      {...props}
     />
   );
 });
