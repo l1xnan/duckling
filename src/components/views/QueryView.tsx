@@ -7,7 +7,6 @@ import { focusAtom } from 'jotai-optics';
 import { CodeIcon, DownloadIcon, EyeIcon, RefreshCw } from 'lucide-react';
 import * as O from 'optics-ts';
 import { Suspense, useCallback, useEffect, useState } from 'react';
-import { toast } from 'sonner';
 
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
 import { TransposeIcon } from '@/components/custom/Icons';
@@ -39,6 +38,7 @@ type QueryContextAtom = PrimitiveAtom<QueryContextType>;
 export function QueryView({ context }: { context: QueryContextAtom }) {
   const [ctx, setContext] = useAtom(context);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleQuery = async (ctx?: QueryContextType) => {
     try {
@@ -50,7 +50,8 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
       setContext((prev) => ({ ...prev, ...res }));
     } catch (error) {
       console.error(error);
-      toast.warning((error as Error).message);
+      // toast.warning((error as Error).message);
+      setError(error);
     } finally {
       setLoading(false);
     }
@@ -89,6 +90,7 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
         <ResizablePanel defaultSize={80}>
           <Suspense fallback={<Loading />}>
             {loading ? <Loading /> : null}
+            {!ctx.data?.length && error ? <div>{error}</div> : null}
             <TableComponent
               style={loading ? { display: 'none' } : undefined}
               data={ctx.data ?? []}
