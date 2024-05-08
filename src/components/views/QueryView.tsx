@@ -38,7 +38,7 @@ type QueryContextAtom = PrimitiveAtom<QueryContextType>;
 export function QueryView({ context }: { context: QueryContextAtom }) {
   const [ctx, setContext] = useAtom(context);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleQuery = async (ctx?: QueryContextType) => {
     try {
@@ -46,12 +46,14 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
       if (!ctx) {
         ctx = atomStore.get(context);
       }
-      const res = (await executeSQL(ctx)) ?? {};
+      const res = await executeSQL(ctx);
       setContext((prev) => ({ ...prev, ...res }));
+      if (res?.message) {
+        setError(res?.message);
+      }
     } catch (error) {
       console.error(error);
-      // toast.warning((error as Error).message);
-      setError(error);
+      setError(error as string);
     } finally {
       setLoading(false);
     }
@@ -78,6 +80,7 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
   const [selectedCell, setSelectCell] = useState<string | null>(null);
 
   const theme = useTheme();
+
   return (
     <div className="h-full flex flex-col">
       <PageSizeToolbar
@@ -90,9 +93,15 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
         <ResizablePanel defaultSize={80}>
           <Suspense fallback={<Loading />}>
             {loading ? <Loading /> : null}
-            {!ctx.data?.length && error ? <div>{error}</div> : null}
+            {!ctx.data?.length && error ? (
+              <div className="font-mono text-sm select-text">{error}</div>
+            ) : null}
             <TableComponent
-              style={loading ? { display: 'none' } : undefined}
+              style={
+                loading || (!ctx.data?.length && error)
+                  ? { display: 'none' }
+                  : undefined
+              }
               data={ctx.data ?? []}
               schema={ctx.tableSchema ?? []}
               precision={precision}

@@ -85,9 +85,9 @@ export default function Editor({ context }: { context: EditorContextType }) {
     const id = `${tab.id}@${nanoid()}`;
     if (action == 'new' || tab.children.length == 0) {
       const subContext: QueryContextType = createStore({
-        dbId: ctx.dbId,
-        schema: ctx.schema,
-        tableId: ctx.tableId,
+        dbId: context.dbId,
+        schema: context.schema,
+        tableId: context.tableId,
         type: 'query',
         stmt,
         hasLimit,
