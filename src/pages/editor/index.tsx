@@ -85,7 +85,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
     const id = `${tab.id}@${nanoid()}`;
     if (action == 'new' || tab.children.length == 0) {
       const subContext: QueryContextType = createStore({
-        dbId: context.dbId,
+        dbId,
         schema: context.schema,
         tableId: context.tableId,
         type: 'query',
@@ -100,11 +100,11 @@ export default function Editor({ context }: { context: EditorContextType }) {
       setSubTabs((tabs) =>
         (tabs ?? []).map((item) => {
           if (item.id == tab.activeKey) {
-            item = { ...item, stmt, id, page: 1, perPage: 500, hasLimit };
+            item = { ...item, stmt, id, dbId, page: 1, perPage: 500, hasLimit };
             setRuns((prev) => [
               ...(prev ?? []),
               {
-                dbId: item.dbId,
+                dbId,
                 tableId: item.tableId,
                 type: 'query',
                 stmt: item.stmt,

@@ -96,8 +96,8 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tabler/icons-react':
-        specifier: ^3.2.0
-        version: 3.2.0(react@18.3.1)
+        specifier: ^3.3.0
+        version: 3.3.0(react@18.3.1)
       '@tanstack/react-table':
         specifier: ^8.15.3
         version: 8.15.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -129,11 +129,11 @@ importers:
         specifier: ^2.0.0-beta.3
         version: 2.0.0-beta.3
       '@visactor/react-vtable':
-        specifier: ^0.25.0
-        version: 0.25.0
+        specifier: ^0.25.2
+        version: 0.25.2
       '@visactor/vtable':
-        specifier: ^0.25.0
-        version: 0.25.0
+        specifier: ^0.25.2
+        version: 0.25.2
       ag-grid-community:
         specifier: ^31.2.0
         version: 31.2.0
@@ -150,8 +150,8 @@ importers:
         specifier: ^1.11.10
         version: 1.11.10
       dedent:
-        specifier: ^1.5.1
-        version: 1.5.1(babel-plugin-macros@3.1.0)
+        specifier: ^1.5.3
+        version: 1.5.3(babel-plugin-macros@3.1.0)
       deepmerge:
         specifier: ^4.3.1
         version: 4.3.1
@@ -168,8 +168,8 @@ importers:
         specifier: ^0.3.2
         version: 0.3.2(jotai@2.8.0(@types/react@18.3.1)(react@18.3.1))(optics-ts@2.4.1)
       jotai-scope:
-        specifier: ^0.5.2
-        version: 0.5.2(jotai@2.8.0(@types/react@18.3.1)(react@18.3.1))(react@18.3.1)
+        specifier: ^0.6.0
+        version: 0.6.0(jotai@2.8.0(@types/react@18.3.1)(react@18.3.1))(react@18.3.1)
       jotai-valtio:
         specifier: ^0.4.0
         version: 0.4.0(jotai@2.8.0(@types/react@18.3.1)(react@18.3.1))(valtio@1.13.1(@types/react@18.3.1)(react@18.3.1))
@@ -1676,13 +1676,13 @@ packages:
   '@swc/types@0.1.5':
     resolution: {integrity: sha512-myfUej5naTBWnqOCc/MdVOLVjXUXtIA+NpDrDBKJtLLg2shUjBu3cZmB/85RyitKc55+lUUyl7oRfLOvkr2hsw==}
 
-  '@tabler/icons-react@3.2.0':
-    resolution: {integrity: sha512-b1mZT1XpZrzvbM+eFe1YbYbxkzgJ18tM4knZKqXh0gnHDZ6XVLIH3TzJZ3HZ7PTkUqZLZ7XcGae3qQVGburlBw==}
+  '@tabler/icons-react@3.3.0':
+    resolution: {integrity: sha512-Qn1Po+0gErh1zCWlaOdoVoGqeonWfSuiboYgwZBs6PIJNsj7yr3bIa4BkHmgJgtlXLT9LvCzt/RvwlgjxLfjjg==}
     peerDependencies:
       react: '>= 16'
 
-  '@tabler/icons@3.2.0':
-    resolution: {integrity: sha512-h8GQ2rtxgiSjltrVz4vcopAxTPSpUSUi5nBfJ09H3Bk4fJk6wZ/dVUjzhv/BHfDwGTkAxZBiYe/Q/T95cPeg5Q==}
+  '@tabler/icons@3.3.0':
+    resolution: {integrity: sha512-PLVe9d7b59sKytbx00KgeGhQG3N176Ezv8YMmsnSz4s0ifDzMWlp/h2wEfQZ0ZNe8e377GY2OW6kovUe3Rnd0g==}
 
   '@tanstack/react-table@8.15.3':
     resolution: {integrity: sha512-aocQ4WpWiAh7R+yxNp+DGQYXeVACh5lv2kk96DjYgFiHDCB0cOFoYMT/pM6eDOzeMXR9AvPoLeumTgq8/0qX+w==}
@@ -1934,8 +1934,8 @@ packages:
     resolution: {integrity: sha512-q4/gibTNBQNA0lGyYQCmWRS5D15n8rXh4QjK3KV+MBPlTYHpfBUT3D3PaPR/HeNiI9W6R7FvlkcGhNyAoP+caA==}
     engines: {node: ^18.18.0 || >=20.0.0}
 
-  '@visactor/react-vtable@0.25.0':
-    resolution: {integrity: sha512-4VKNJueLBH7MSKUOQrk7T32j3WIUTuPvWhTqBN84drLIBDuVyD4nm6fJZVvhbSeDgoqVsGgjgkXwm0V41Mqsqg==}
+  '@visactor/react-vtable@0.25.2':
+    resolution: {integrity: sha512-FvvNszqoACrnGY4mg0C6ihDGaRIbVQ1JcIHb9izCVlMGz6T4J/5RwRKCA6h3GLn4a5KP310LS03Im28fFrzNVw==}
 
   '@visactor/vdataset@0.18.1':
     resolution: {integrity: sha512-ByrBt2kgLvYRve+Q+9oo3Ibav5WVSyWPuxdDJHK7kDTJGtTuV8z4qKcqArB86PcAOJS1s5L0TtHlV4Femm2xoA==}
@@ -1943,20 +1943,11 @@ packages:
   '@visactor/vrender-components@0.18.14-alpha.0':
     resolution: {integrity: sha512-PKYdDdJvDmhoNl7Pnnvvy0GixD73xexWdlWNvxpkEvR6ndVhJayqYEA+0jxyyD5O/JWCpRtNQFoQj7zYRcISVg==}
 
-  '@visactor/vrender-components@0.18.8':
-    resolution: {integrity: sha512-/P7MSXIYFzg++zw/jg+Fqogknp17BJWhaoVrCBIZgF45O+qGkCbxZGa2kMR4dGs05lqLvb6/Zle8D3g3Pr2/qg==}
-
   '@visactor/vrender-core@0.18.14-alpha.0':
     resolution: {integrity: sha512-9Sqkg0na+W/ddEVaojA5ao6VkmdBr3kKUi3w9az0AtoWXa6RDBJePTXm3cMbH7YZt5tXXRgJGMHd/M2k8+IIgw==}
 
-  '@visactor/vrender-core@0.18.8':
-    resolution: {integrity: sha512-b3NgF89qsX1DvYAAR/YUIWqZVjjyXt5HF5+xfNh1VGhti6l8CLCa70Hxkg2Hnw3RBVP+o9t2T54U+Mwjg7RBuQ==}
-
   '@visactor/vrender-kits@0.18.14-alpha.0':
     resolution: {integrity: sha512-7fxSj3LqOnBMURqRehYWx/rBOw2udDK9EsxAYagQcrIgKADiakP5+lWNqrHGy/Qr1HKYLVz6WLZH8oJSdu/bSg==}
-
-  '@visactor/vrender-kits@0.18.8':
-    resolution: {integrity: sha512-cJppsZOuFB2BPFKn5Lq3uXDZ0SBQErMblwXdeL70f25MDgv1+FZm+TDoHjo9452rA7nHGSM4GaKoN47gb7HhIg==}
 
   '@visactor/vscale@0.17.5':
     resolution: {integrity: sha512-2dkS1IlAJ/IdTp8JElbctOOv6lkHKBKPDm8KvwBo0NuGWQeYAebSeyN3QCdwKbj76gMlCub4zc+xWrS5YiA2zA==}
@@ -1964,14 +1955,17 @@ packages:
   '@visactor/vscale@0.18.1':
     resolution: {integrity: sha512-0wpd0avbFLvuDKNHt2PxdKdqLSU9+zUkM6GJYWbXsUUYOiKaFkt2xTkdwUHKq66v23C7Iy14Pm7VVr0wVgflbA==}
 
-  '@visactor/vtable-editors@0.25.0':
-    resolution: {integrity: sha512-9NR8Pczd2F20goh0mMmolRWoH+hc8eXQELSHkBhbh1fNZYzcTmjRXalwiqo0Oo4mDT6mxQO/dalf17NJHF3e9g==}
+  '@visactor/vtable-editors@0.25.2':
+    resolution: {integrity: sha512-KO6NZncl2XdezvAC5EVjoqMjPa6IMZDBkj+HmBjTHh+XCiW/P1FoHcPbFAqvPyVfNc1KqVRNz4C8TBBTECXoYg==}
 
-  '@visactor/vtable@0.25.0':
-    resolution: {integrity: sha512-976OYUKUHgqQM7zTynrkLGhpNAd9+kccwEAO1U+gsqjJ0yRWTpR6EFS2v8FciqfkoIyaLgbuaWfFY64wpkuGOg==}
+  '@visactor/vtable@0.25.2':
+    resolution: {integrity: sha512-LTSw2MstsNG7UIIdPODmJ3viGw0H32tqYBMbjPH9NGBNpMw0bKMMi7oXccyZIzOHlGK2I0pQKlPpChT4+cbqZA==}
 
-  '@visactor/vutils-extension@1.10.4':
-    resolution: {integrity: sha512-1qoZ+oEz+Ms3/iQrx8AudWi58IFPqjxcRE72Vam5xZN5jxrIdbQftN3BAvmQrcjteDMeSS1HgE0j/mUnxxDR8A==}
+  '@visactor/vutils-extension@1.10.6-alpha.2':
+    resolution: {integrity: sha512-/4y6DMcf6OyExLyYpfsjYhlrET/HTx0/O2ELJwmWdr2Xm8pgZ7JsX0+vZKtIhKYcyJOBQKeGr06w1qvEXGbS4A==}
+    peerDependencies:
+      '@visactor/vrender-components': '>=0.18'
+      '@visactor/vrender-core': '>=0.18'
 
   '@visactor/vutils@0.17.5':
     resolution: {integrity: sha512-HFN6Pk1Wc1RK842g02MeKOlvdri5L7/nqxMVTqxIvi0XMhHXpmoqN4+/9H+h8LmJpVohyrI/MT85TRBV/rManw==}
@@ -2298,8 +2292,8 @@ packages:
       supports-color:
         optional: true
 
-  dedent@1.5.1:
-    resolution: {integrity: sha512-+LxW+KLWxu3HW3M2w2ympwtqPrqYRzU8fqi6Fhd18fBALe15blJPI/I4+UHveMVG6lJqB4JNd4UG0S5cnVHwIg==}
+  dedent@1.5.3:
+    resolution: {integrity: sha512-NHQtfOOW68WD8lgypbLA5oT+Bt0xXJhiYvoR6SmmNXZfpzOGXwdKWmcwG8N7PwVVWV3eF/68nmD9BaJSsTBhyQ==}
     peerDependencies:
       babel-plugin-macros: ^3.1.0
     peerDependenciesMeta:
@@ -2846,8 +2840,8 @@ packages:
       jotai: '>=1.11.0'
       optics-ts: '*'
 
-  jotai-scope@0.5.2:
-    resolution: {integrity: sha512-2G0QQwLOooEy0H5HIm2x9OjYUynvvwuoK6EFmZLkpxRXY/7Fc1Y1CfGHJ4UTZafJm1yLVE7SYWpRJhWtS7FaHA==}
+  jotai-scope@0.6.0:
+    resolution: {integrity: sha512-jNf6vi+eCkciGE3Q4d5g1QmGSAmcX+jGcypnDxuVApPxaH1pNw1cjlnaImsVa1bjCe9F5kYwpTVjRWtC+oiRSA==}
     peerDependencies:
       jotai: '>=2.5.0'
       react: '>=17.0.0'
@@ -5312,12 +5306,12 @@ snapshots:
 
   '@swc/types@0.1.5': {}
 
-  '@tabler/icons-react@3.2.0(react@18.3.1)':
+  '@tabler/icons-react@3.3.0(react@18.3.1)':
     dependencies:
-      '@tabler/icons': 3.2.0
+      '@tabler/icons': 3.3.0
       react: 18.3.1
 
-  '@tabler/icons@3.2.0': {}
+  '@tabler/icons@3.3.0': {}
 
   '@tanstack/react-table@8.15.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -5586,9 +5580,9 @@ snapshots:
       '@typescript-eslint/types': 7.8.0
       eslint-visitor-keys: 3.4.3
 
-  '@visactor/react-vtable@0.25.0':
+  '@visactor/react-vtable@0.25.2':
     dependencies:
-      '@visactor/vtable': 0.25.0
+      '@visactor/vtable': 0.25.2
       '@visactor/vutils': 0.18.1
       react-is: 18.2.0
 
@@ -5619,19 +5613,7 @@ snapshots:
       '@visactor/vscale': 0.17.5
       '@visactor/vutils': 0.18.1
 
-  '@visactor/vrender-components@0.18.8':
-    dependencies:
-      '@visactor/vrender-core': 0.18.8
-      '@visactor/vrender-kits': 0.18.8
-      '@visactor/vscale': 0.17.5
-      '@visactor/vutils': 0.18.1
-
   '@visactor/vrender-core@0.18.14-alpha.0':
-    dependencies:
-      '@visactor/vutils': 0.18.1
-      color-convert: 2.0.1
-
-  '@visactor/vrender-core@0.18.8':
     dependencies:
       '@visactor/vutils': 0.18.1
       color-convert: 2.0.1
@@ -5643,13 +5625,6 @@ snapshots:
       '@visactor/vutils': 0.18.1
       roughjs: 4.5.2
 
-  '@visactor/vrender-kits@0.18.8':
-    dependencies:
-      '@resvg/resvg-js': 2.4.1
-      '@visactor/vrender-core': 0.18.8
-      '@visactor/vutils': 0.18.1
-      roughjs: 4.5.2
-
   '@visactor/vscale@0.17.5':
     dependencies:
       '@visactor/vutils': 0.17.5
@@ -5658,26 +5633,25 @@ snapshots:
     dependencies:
       '@visactor/vutils': 0.18.1
 
-  '@visactor/vtable-editors@0.25.0': {}
+  '@visactor/vtable-editors@0.25.2': {}
 
-  '@visactor/vtable@0.25.0':
+  '@visactor/vtable@0.25.2':
     dependencies:
       '@visactor/vdataset': 0.18.1
       '@visactor/vrender-components': 0.18.14-alpha.0
       '@visactor/vrender-core': 0.18.14-alpha.0
       '@visactor/vrender-kits': 0.18.14-alpha.0
       '@visactor/vscale': 0.18.1
-      '@visactor/vtable-editors': 0.25.0
+      '@visactor/vtable-editors': 0.25.2
       '@visactor/vutils': 0.18.1
-      '@visactor/vutils-extension': 1.10.4
+      '@visactor/vutils-extension': 1.10.6-alpha.2(@visactor/vrender-components@0.18.14-alpha.0)(@visactor/vrender-core@0.18.14-alpha.0)
       cssfontparser: 1.2.1
 
-  '@visactor/vutils-extension@1.10.4':
+  '@visactor/vutils-extension@1.10.6-alpha.2(@visactor/vrender-components@0.18.14-alpha.0)(@visactor/vrender-core@0.18.14-alpha.0)':
     dependencies:
       '@visactor/vdataset': 0.18.1
-      '@visactor/vrender-components': 0.18.8
-      '@visactor/vrender-core': 0.18.8
-      '@visactor/vrender-kits': 0.18.8
+      '@visactor/vrender-components': 0.18.14-alpha.0
+      '@visactor/vrender-core': 0.18.14-alpha.0
       '@visactor/vscale': 0.18.1
       '@visactor/vutils': 0.18.1
 
@@ -6028,7 +6002,7 @@ snapshots:
     dependencies:
       ms: 2.1.2
 
-  dedent@1.5.1(babel-plugin-macros@3.1.0):
+  dedent@1.5.3(babel-plugin-macros@3.1.0):
     optionalDependencies:
       babel-plugin-macros: 3.1.0
 
@@ -6670,7 +6644,7 @@ snapshots:
       jotai: 2.8.0(@types/react@18.3.1)(react@18.3.1)
       optics-ts: 2.4.1
 
-  jotai-scope@0.5.2(jotai@2.8.0(@types/react@18.3.1)(react@18.3.1))(react@18.3.1):
+  jotai-scope@0.6.0(jotai@2.8.0(@types/react@18.3.1)(react@18.3.1))(react@18.3.1):
     dependencies:
       jotai: 2.8.0(@types/react@18.3.1)(react@18.3.1)
       react: 18.3.1
