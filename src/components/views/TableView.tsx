@@ -233,7 +233,7 @@ export function InputToolbar() {
         <ResizablePanel defaultSize={50} className="flex flex-row items-center">
           <div className="mx-1.5 text-muted-foreground text-sm">WHERE</div>
           <input
-            className="flex-1 h-full border-none p-0 outline-none bg-transparent"
+            className="flex-1 h-full border-none p-0 outline-none bg-transparent text-sm"
             value={stmt.where}
             onKeyDown={async (e) => {
               if (e.key === 'Enter') {
@@ -250,7 +250,7 @@ export function InputToolbar() {
         <ResizablePanel defaultSize={50} className="flex flex-row items-center">
           <div className="mx-1.5 text-muted-foreground text-sm">ORDER BY</div>
           <input
-            className="flex-1 h-full border-none p-0 outline-none bg-transparent"
+            className="flex-1 h-full border-none p-0 outline-none bg-transparent text-sm"
             value={stmt.orderBy}
             onKeyDown={async (e) => {
               if (e.key === 'Enter') {
