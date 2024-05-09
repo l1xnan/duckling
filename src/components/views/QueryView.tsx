@@ -2,11 +2,9 @@ import MonacoEditor from '@monaco-editor/react';
 
 import { IconDecimal } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
-import { PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { focusAtom } from 'jotai-optics';
+import { PrimitiveAtom, useAtom, useAtomValue } from 'jotai';
 import { CodeIcon, DownloadIcon, EyeIcon, RefreshCw } from 'lucide-react';
-import * as O from 'optics-ts';
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
 import { TransposeIcon } from '@/components/custom/Icons';
@@ -32,6 +30,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
+import { useFocusAtom } from '@/hooks';
 
 type QueryContextAtom = PrimitiveAtom<QueryContextType>;
 
@@ -147,15 +146,6 @@ interface PageSizeToolbarProps {
   query: (ctx?: QueryContextType) => Promise<void>;
   exportData: (file: string) => Promise<void>;
   ctx: QueryContextAtom;
-}
-
-function useFocusAtom<T, K extends keyof T>(anAtom: PrimitiveAtom<T>, key: K) {
-  return useSetAtom(
-    focusAtom(
-      anAtom,
-      useCallback((optic: O.OpticFor_<T>) => optic.prop(key), []),
-    ),
-  );
 }
 
 function PageSizeToolbar({ query, ctx, exportData }: PageSizeToolbarProps) {

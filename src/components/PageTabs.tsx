@@ -265,7 +265,7 @@ export function DefaultTab({ tab, onRemove }: TabItemProps) {
 export function DefaultTab1({ tab, onRemove }: TabItemProps) {
   return (
     <>
-      <span>11{tab.displayName}</span>
+      <span>{tab.displayName}</span>
       <Button
         variant="ghost"
         size="icon"
