@@ -68,7 +68,7 @@ export function SideToolbar({
   }
 
   // TODO: Remove the root element restriction
-  const isRoot = selectedNode?.type == 'root';
+  // const isRoot = selectedNode?.type == 'root';
   const d = useDialog();
   return (
     <>
@@ -91,7 +91,7 @@ export function SideToolbar({
           <DatabaseDialog />
           <TooltipButton
             tooltip="DB setting"
-            disabled={!isRoot}
+            disabled={!selectedNode}
             onClick={d.trigger}
           >
             <IconDatabaseCog />
@@ -99,7 +99,7 @@ export function SideToolbar({
           {/* refresh tree */}
           <TooltipButton
             tooltip="Refresh DB"
-            disabled={!isRoot}
+            disabled={!selectedNode}
             onClick={handleRefresh}
           >
             <IconRefresh />
