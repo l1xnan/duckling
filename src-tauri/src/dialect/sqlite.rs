@@ -8,8 +8,8 @@ use rusqlite::types::Value;
 use rusqlite::Column;
 
 use crate::api::RawArrowData;
-use crate::dialect::{Connection, Title, TreeNode};
-use crate::utils::{build_tree, get_file_name, Table};
+use crate::dialect::Connection;
+use crate::utils::{build_tree, get_file_name, Table, Title, TreeNode};
 
 #[derive(Debug, Default)]
 pub struct SqliteDialect {

@@ -1,8 +1,12 @@
+use std::ops::Deref;
+
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use sqlparser::parser::Parser;
 
 use crate::api::RawArrowData;
+use crate::dialect::ast::first_stmt;
+use crate::utils::TreeNode;
 
 pub mod ast;
 pub mod clickhouse;
@@ -12,47 +16,6 @@ pub mod folder;
 pub mod mysql;
 pub mod postgres;
 pub mod sqlite;
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TreeNode {
-  pub name: String,
-  pub path: String,
-  #[serde(skip_serializing_if = "Option::is_none")]
-  pub children: Option<Vec<TreeNode>>,
-  #[serde(rename(serialize = "type"))]
-  pub node_type: String,
-  pub size: Option<u64>,
-  pub comment: Option<String>,
-}
-
-impl TreeNode {
-  pub fn new_views(key: &str, children: Option<Vec<TreeNode>>) -> Self {
-    Self {
-      name: "views".to_string(),
-      path: format!("{key}-views"),
-      node_type: "path".to_string(),
-      children,
-      size: None,
-      comment: None,
-    }
-  }
-  pub fn new_tables(key: &str, children: Option<Vec<TreeNode>>) -> Self {
-    Self {
-      name: "tables".to_string(),
-      path: format!("{key}-tables"),
-      node_type: "path".to_string(),
-      children,
-      size: None,
-      comment: None,
-    }
-  }
-}
-
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct Title {
-  pub name: String,
-  pub r#type: String,
-}
 
 #[async_trait]
 pub trait Connection: Sync + Send {
@@ -68,9 +31,9 @@ pub trait Connection: Sync + Send {
     unimplemented!()
   }
 
-  // fn dialect() -> sqlparser::dialect::GenericDialect {
-  //   sqlparser::dialect::GenericDialect {}
-  // }
+  fn dialect(&self) -> &'static str {
+    "generic"
+  }
 
   async fn paging_query(
     &self,
@@ -79,23 +42,18 @@ pub trait Connection: Sync + Send {
     offset: Option<usize>,
   ) -> anyhow::Result<RawArrowData> {
     let mut sql = sql.to_string();
-    let dialect = sqlparser::dialect::GenericDialect {};
-    let stmt = Parser::parse_sql(&dialect, &sql).ok().and_then(|t| {
-      if t.len() == 1 {
-        Some(t[0].clone())
-      } else {
-        None
-      }
-    });
+
+    let dialect = self.dialect();
+    let stmt = first_stmt(dialect, &sql);
 
     if let Some(ref _stmt) = stmt {
-      sql = ast::limit_stmt(&dialect, _stmt, limit, offset).unwrap_or(sql);
+      sql = ast::limit_stmt(dialect, _stmt, limit, offset).unwrap_or(sql);
     }
     let mut res = self.query(&sql, 0, 0).await?;
 
     // get total row count
     if let Some(ref _stmt) = stmt {
-      if let Some(count_sql) = ast::count_stmt(&dialect, _stmt) {
+      if let Some(count_sql) = ast::count_stmt(dialect, _stmt) {
         log::info!("count_sql: {count_sql}");
         if let Ok(count) = self.query_count(&count_sql).await {
           res.total = count;
@@ -190,40 +148,4 @@ pub trait Connection: Sync + Send {
   async fn execute(&self, sql: &str) -> anyhow::Result<usize> {
     unimplemented!()
   }
-}
-
-pub async fn _paging_query(
-  d: &dyn Connection,
-  dialect: &dyn sqlparser::dialect::Dialect,
-  sql: &str,
-  limit: Option<usize>,
-  offset: Option<usize>,
-) -> anyhow::Result<RawArrowData> {
-  let mut sql = sql.to_string();
-  let stmt = Parser::parse_sql(dialect, &sql)
-    .ok()
-    .map(|t| {
-      if t.len() == 1 {
-        Some(t[0].clone())
-      } else {
-        None
-      }
-    })
-    .flatten();
-
-  if let Some(ref _stmt) = stmt {
-    sql = ast::limit_stmt(dialect, _stmt, limit, offset).unwrap_or(sql);
-  }
-  let mut res = d.query(&sql, 0, 0).await?;
-
-  // get total row count
-  if let Some(ref _stmt) = stmt {
-    if let Some(count_sql) = ast::count_stmt(dialect, _stmt) {
-      log::info!("count_sql: {count_sql}");
-      if let Ok(count) = d.query_count(&count_sql).await {
-        res.total = count;
-      };
-    }
-  }
-  Ok(res)
 }

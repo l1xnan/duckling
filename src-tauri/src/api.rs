@@ -5,7 +5,7 @@ use arrow::{ipc::writer::StreamWriter, record_batch::RecordBatch};
 use duckdb::Connection;
 use serde::{Deserialize, Serialize};
 
-use crate::dialect::Title;
+use crate::utils::Title;
 
 pub struct RawArrowData {
   /// The total number of rows that were selected.

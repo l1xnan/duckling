@@ -4,8 +4,8 @@ use async_trait::async_trait;
 
 use crate::api;
 use crate::api::RawArrowData;
-use crate::dialect::{Connection, TreeNode};
-use crate::utils::{build_tree, get_file_name, write_csv, Table};
+use crate::dialect::Connection;
+use crate::utils::{build_tree, get_file_name, write_csv, Table, TreeNode};
 
 #[derive(Debug, Default)]
 pub struct DuckDbDialect {
@@ -15,6 +15,10 @@ pub struct DuckDbDialect {
 
 #[async_trait]
 impl Connection for DuckDbDialect {
+  fn dialect(&self) -> &'static str {
+    "duckdb"
+  }
+
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
     let conn = self.connect()?;
     let tables = get_tables(&conn, None)?;
@@ -177,7 +181,7 @@ pub fn get_tables(conn: &duckdb::Connection, schema: Option<&str>) -> anyhow::Re
 async fn test_duckdb() {
   use arrow::util::pretty::print_batches;
 
-  let path = r"D:\Code\yibai-season\data\season.duckdb";
+  let path = r"test.duckdb";
   let d = DuckDbDialect::new(path);
   let res = d.query("", 0, 0).await.unwrap();
   print_batches(&[res.batch]);

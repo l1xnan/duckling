@@ -14,11 +14,11 @@ use futures_util::stream::StreamExt;
 use serde::{Deserialize, Serialize};
 
 use crate::api::RawArrowData;
-use crate::dialect::{Connection, TreeNode};
-use crate::utils::{build_tree, Table};
+use crate::dialect::Connection;
+use crate::utils::{build_tree, Table, TreeNode};
 use crate::utils::{date_to_days, write_csv};
 
-use super::Title;
+use crate::utils::Title;
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct ClickhouseDialect {

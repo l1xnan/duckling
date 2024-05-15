@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use sqlparser::ast::Statement;
 use sqlparser::dialect::Dialect;
 use sqlparser::dialect::GenericDialect;
@@ -18,7 +20,9 @@ pub fn limit_sql(sql: &str, limit: Option<usize>, offset: Option<usize>) -> Stri
   sql
 }
 
-pub fn count_stmt(dialect: &dyn Dialect, stmt: &Statement) -> Option<String> {
+pub fn count_stmt(dialect: &str, stmt: &Statement) -> Option<String> {
+  let dialect = convert_dialect(dialect);
+  let dialect = dialect.deref();
   match stmt {
     Statement::Query(query) => {
       if let Some(ref with) = query.with {
@@ -43,12 +47,26 @@ pub fn count_stmt(dialect: &dyn Dialect, stmt: &Statement) -> Option<String> {
   }
 }
 
+pub fn first_stmt(dialect: &str, sql: &str) -> Option<Statement> {
+  let dialect = convert_dialect(dialect);
+  let dialect = dialect.deref();
+  Parser::parse_sql(dialect, &sql).ok().and_then(|t| {
+    if t.len() == 1 {
+      Some(t[0].clone())
+    } else {
+      None
+    }
+  })
+}
+
 pub fn limit_stmt(
-  dialect: &dyn Dialect,
+  dialect: &str,
   stmt: &Statement,
   limit: Option<usize>,
   offset: Option<usize>,
 ) -> Option<String> {
+  let dialect = convert_dialect(dialect);
+  let dialect = dialect.deref();
   match stmt {
     Statement::Query(query) => {
       if let Some(ref with) = query.with {
@@ -88,6 +106,13 @@ fn parse_order_by_expr(order_by: &str) -> Vec<(String, Option<bool>)> {
     }
   }
   exprs
+}
+
+fn convert_dialect(d: &str) -> Box<dyn sqlparser::dialect::Dialect> {
+  match d {
+    "duckdb" => Box::new(sqlparser::dialect::DuckDbDialect {}),
+    _ => Box::new(sqlparser::dialect::GenericDialect {}),
+  }
 }
 
 #[cfg(test)]

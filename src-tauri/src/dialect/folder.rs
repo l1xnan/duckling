@@ -6,9 +6,9 @@ use async_trait::async_trait;
 use glob::glob;
 
 use crate::api;
+use crate::dialect::Connection;
 use crate::dialect::RawArrowData;
-use crate::dialect::{Connection, TreeNode};
-use crate::utils::write_csv;
+use crate::utils::{write_csv, TreeNode};
 
 #[derive(Debug, Default)]
 pub struct FolderDialect {

@@ -3,8 +3,8 @@ use std::path::PathBuf;
 use async_trait::async_trait;
 
 use crate::api::{self, RawArrowData};
-use crate::dialect::{Connection, TreeNode};
-use crate::utils::get_file_name;
+use crate::dialect::Connection;
+use crate::utils::{get_file_name, TreeNode};
 
 #[derive(Debug, Default)]
 pub struct FileDialect {

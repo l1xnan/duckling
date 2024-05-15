@@ -15,7 +15,8 @@ use crate::dialect::folder::FolderDialect;
 use crate::dialect::mysql::MySqlDialect;
 use crate::dialect::postgres::PostgresDialect;
 use crate::dialect::sqlite::SqliteDialect;
-use crate::dialect::{Connection, TreeNode};
+use crate::dialect::Connection;
+use crate::utils::TreeNode;
 
 pub struct OpenedUrls(pub Mutex<Option<Vec<url::Url>>>);
 

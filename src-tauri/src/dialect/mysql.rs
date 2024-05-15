@@ -10,9 +10,9 @@ use mysql::prelude::*;
 use mysql::*;
 
 use crate::api::RawArrowData;
-use crate::dialect::Title;
-use crate::dialect::{Connection, TreeNode};
+use crate::dialect::Connection;
 use crate::utils::{build_tree, Table};
+use crate::utils::{Title, TreeNode};
 
 #[derive(Debug, Default)]
 pub struct MySqlDialect {

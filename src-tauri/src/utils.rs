@@ -7,7 +7,46 @@ use arrow::record_batch::RecordBatch;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 
-use crate::dialect::TreeNode;
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TreeNode {
+  pub name: String,
+  pub path: String,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub children: Option<Vec<TreeNode>>,
+  #[serde(rename(serialize = "type"))]
+  pub node_type: String,
+  pub size: Option<u64>,
+  pub comment: Option<String>,
+}
+
+impl TreeNode {
+  pub fn new_views(key: &str, children: Option<Vec<TreeNode>>) -> Self {
+    Self {
+      name: "views".to_string(),
+      path: format!("{key}-views"),
+      node_type: "path".to_string(),
+      children,
+      size: None,
+      comment: None,
+    }
+  }
+  pub fn new_tables(key: &str, children: Option<Vec<TreeNode>>) -> Self {
+    Self {
+      name: "tables".to_string(),
+      path: format!("{key}-tables"),
+      node_type: "path".to_string(),
+      children,
+      size: None,
+      comment: None,
+    }
+  }
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct Title {
+  pub name: String,
+  pub r#type: String,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Table {
