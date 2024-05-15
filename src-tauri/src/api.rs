@@ -102,7 +102,7 @@ pub fn query(
   };
   let db = con.map_err(|err| anyhow!("Failed to open database connection: {}", err))?;
 
-  println!("sql: {}", sql);
+  println!("sql: {sql}");
 
   // query
   let mut stmt = db.prepare(sql)?;

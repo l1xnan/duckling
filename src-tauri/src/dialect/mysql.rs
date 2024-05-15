@@ -51,14 +51,13 @@ impl Connection for MySqlDialect {
 
   async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
     let sql = format!(
-      "select * from information_schema.tables where TABLE_SCHEMA='{}' order by TABLE_TYPE, TABLE_NAME",
-      schema
+      "select * from information_schema.tables where TABLE_SCHEMA='{schema}' order by TABLE_TYPE, TABLE_NAME"
     );
     self.query(&sql, 0, 0).await
   }
 
   async fn show_column(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
-    let (db, tbl) = if schema.is_none() && table.contains(".") {
+    let (db, tbl) = if schema.is_none() && table.contains('.') {
       let parts: Vec<&str> = table.splitn(2, '.').collect();
       (parts[0], parts[1])
     } else {
@@ -117,7 +116,7 @@ impl MySqlDialect {
   pub fn get_tables(&self) -> anyhow::Result<Vec<Table>> {
     let mut conn = self.get_conn()?;
 
-    let sql = r#"
+    let sql = r"
     select
       TABLE_SCHEMA as table_schema,
       TABLE_NAME as table_name,
@@ -125,7 +124,7 @@ impl MySqlDialect {
       if(TABLE_TYPE='BASE TABLE', 'table', 'view') as type,
       round(((data_length + IFNULL(index_length, 0)) / 1024 / 1024), 2) AS size
     from information_schema.tables
-    "#;
+    ";
     let tables = conn.query_map(
       sql,
       |(table_schema, table_name, table_type, r#type, size)| Table {
@@ -246,29 +245,29 @@ impl MySqlDialect {
 fn convert_val(unknown_val: Value) {
   match unknown_val {
     val @ Value::NULL => {
-      println!("An empty value: {:?}", from_value::<Option<u8>>(val))
+      println!("An empty value: {:?}", from_value::<Option<u8>>(val));
     }
     val @ Value::Bytes(..) => {
       // It's non-utf8 bytes, since we already tried to convert it to String
-      println!("Bytes: {:?}", from_value::<Vec<u8>>(val))
+      println!("Bytes: {:?}", from_value::<Vec<u8>>(val));
     }
     val @ Value::Int(..) => {
-      println!("A signed integer: {}", from_value::<i64>(val))
+      println!("A signed integer: {}", from_value::<i64>(val));
     }
     val @ Value::UInt(..) => {
-      println!("An unsigned integer: {}", from_value::<u64>(val))
+      println!("An unsigned integer: {}", from_value::<u64>(val));
     }
     Value::Float(..) => unreachable!("already tried"),
     val @ Value::Double(..) => {
-      println!("A double precision float value: {}", from_value::<f64>(val))
+      println!("A double precision float value: {}", from_value::<f64>(val));
     }
     val @ Value::Date(..) => {
       use time::PrimitiveDateTime;
-      println!("A date value: {}", from_value::<PrimitiveDateTime>(val))
+      println!("A date value: {}", from_value::<PrimitiveDateTime>(val));
     }
     val @ Value::Time(..) => {
       use std::time::Duration;
-      println!("A time value: {:?}", from_value::<Duration>(val))
+      println!("A time value: {:?}", from_value::<Duration>(val));
     }
   };
 }
@@ -284,7 +283,7 @@ fn convert_to_str(unknown_val: &Value) -> Option<String> {
 }
 
 fn convert_to_str_arr(values: &[Value]) -> Vec<Option<String>> {
-  values.iter().map(|v| convert_to_str(v)).collect()
+  values.iter().map(convert_to_str).collect()
 }
 
 fn convert_to_i64(unknown_val: &Value) -> Option<i64> {
@@ -306,7 +305,7 @@ fn convert_to_i64(unknown_val: &Value) -> Option<i64> {
 }
 
 fn convert_to_i64_arr(values: &[Value]) -> Vec<Option<i64>> {
-  values.iter().map(|v| convert_to_i64(v)).collect()
+  values.iter().map(convert_to_i64).collect()
 }
 
 fn convert_to_i32(unknown_val: &Value) -> Option<i32> {
@@ -320,7 +319,7 @@ fn convert_to_i32(unknown_val: &Value) -> Option<i32> {
 }
 
 fn convert_to_i32_arr(values: &[Value]) -> Vec<Option<i32>> {
-  values.iter().map(|v| convert_to_i32(v)).collect()
+  values.iter().map(convert_to_i32).collect()
 }
 
 fn convert_to_u64(unknown_val: &Value) -> Option<u64> {
@@ -342,7 +341,7 @@ fn convert_to_u64(unknown_val: &Value) -> Option<u64> {
 }
 
 fn convert_to_u64_arr(values: &[Value]) -> Vec<Option<u64>> {
-  values.iter().map(|v| convert_to_u64(v)).collect()
+  values.iter().map(convert_to_u64).collect()
 }
 
 fn convert_to_f64(unknown_val: &Value) -> Option<f64> {
@@ -364,7 +363,7 @@ fn convert_to_f64(unknown_val: &Value) -> Option<f64> {
 }
 
 fn convert_to_f64_arr(values: &[Value]) -> Vec<Option<f64>> {
-  values.iter().map(|v| convert_to_f64(v)).collect()
+  values.iter().map(convert_to_f64).collect()
 }
 
 #[tokio::test]

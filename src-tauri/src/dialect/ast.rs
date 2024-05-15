@@ -1,18 +1,15 @@
-use std::ops::Deref;
-
 use sqlparser::ast::Statement;
-use sqlparser::dialect::Dialect;
 use sqlparser::dialect::GenericDialect;
 use sqlparser::parser::Parser;
 
 pub fn count_sql(sql: &str) -> String {
-  format!("select count(*) from ({}) ____", sql)
+  format!("select count(*) from ({sql}) ____")
 }
 
 pub fn limit_sql(sql: &str, limit: Option<usize>, offset: Option<usize>) -> String {
-  let mut sql = format!("select * from ({}) ____", sql);
+  let mut sql = format!("select * from ({sql}) ____");
   if let Some(limit) = limit {
-    sql = format!("{sql} limit {}", limit);
+    sql = format!("{sql} limit {limit}");
   }
   if let Some(offset) = offset {
     sql = format!("{sql} offset {offset}");
@@ -22,7 +19,7 @@ pub fn limit_sql(sql: &str, limit: Option<usize>, offset: Option<usize>) -> Stri
 
 pub fn count_stmt(dialect: &str, stmt: &Statement) -> Option<String> {
   let dialect = convert_dialect(dialect);
-  let dialect = dialect.deref();
+  let dialect = &*dialect;
   match stmt {
     Statement::Query(query) => {
       if let Some(ref with) = query.with {
@@ -49,8 +46,8 @@ pub fn count_stmt(dialect: &str, stmt: &Statement) -> Option<String> {
 
 pub fn first_stmt(dialect: &str, sql: &str) -> Option<Statement> {
   let dialect = convert_dialect(dialect);
-  let dialect = dialect.deref();
-  Parser::parse_sql(dialect, &sql).ok().and_then(|t| {
+  let dialect = &*dialect;
+  Parser::parse_sql(dialect, sql).ok().and_then(|t| {
     if t.len() == 1 {
       Some(t[0].clone())
     } else {
@@ -66,7 +63,7 @@ pub fn limit_stmt(
   offset: Option<usize>,
 ) -> Option<String> {
   let dialect = convert_dialect(dialect);
-  let dialect = dialect.deref();
+  let dialect = &*dialect;
   match stmt {
     Statement::Query(query) => {
       if let Some(ref with) = query.with {
@@ -101,7 +98,7 @@ fn parse_order_by_expr(order_by: &str) -> Vec<(String, Option<bool>)> {
   for stmt in &stmts {
     if let Statement::Query(ref tmp) = stmt {
       for expr in &tmp.order_by {
-        exprs.push((expr.expr.to_string(), expr.asc))
+        exprs.push((expr.expr.to_string(), expr.asc));
       }
     }
   }
@@ -118,6 +115,7 @@ fn convert_dialect(d: &str) -> Box<dyn sqlparser::dialect::Dialect> {
 #[cfg(test)]
 mod tests {
   use sqlparser::dialect::GenericDialect;
+  use std::ops::Deref;
 
   use super::*;
 
@@ -129,11 +127,13 @@ mod tests {
     WHERE a > b AND b < 100 
     ORDER BY a DESC, b";
 
-    let dialect = GenericDialect {};
+    let d = "generic";
+    let d = convert_dialect(d);
+    let dialect = d.deref();
 
-    let ast = Parser::parse_sql(&dialect, select_sql).unwrap();
+    let ast = Parser::parse_sql(dialect, select_sql).unwrap();
 
-    assert_eq!(count_stmt(&dialect, &ast[0]).unwrap(), "select count(*) from (SELECT a, b, 123, myfunc(b) FROM table_1 WHERE a > b AND b < 100 ORDER BY a DESC, b) ____");
+    assert_eq!(count_stmt(d, &ast[0]).unwrap(), "select count(*) from (SELECT a, b, 123, myfunc(b) FROM table_1 WHERE a > b AND b < 100 ORDER BY a DESC, b) ____");
 
     let cte_sql = "
     with tmp as (select * from table_1)
@@ -142,9 +142,9 @@ mod tests {
     WHERE a > b AND b < 100 
     ORDER BY a DESC, b";
 
-    let ast = Parser::parse_sql(&dialect, cte_sql).unwrap();
+    let ast = Parser::parse_sql(dialect, cte_sql).unwrap();
 
-    assert_eq!(count_stmt(&dialect, &ast[0]).unwrap(), "WITH tmp AS (SELECT * FROM table_1) SELECT count(*) FROM (SELECT a, b, 123, myfunc(b) FROM tmp WHERE a > b AND b < 100 ORDER BY a DESC, b) AS ____")
+    assert_eq!(count_stmt(d, &ast[0]).unwrap(), "WITH tmp AS (SELECT * FROM table_1) SELECT count(*) FROM (SELECT a, b, 123, myfunc(b) FROM tmp WHERE a > b AND b < 100 ORDER BY a DESC, b) AS ____")
   }
 
   #[test]

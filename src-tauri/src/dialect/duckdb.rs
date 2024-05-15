@@ -71,7 +71,7 @@ impl Connection for DuckDbDialect {
   }
 
   async fn show_column(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
-    let (db, tbl) = if schema.is_none() && table.contains(".") {
+    let (db, tbl) = if schema.is_none() && table.contains('.') {
       let parts: Vec<&str> = table.splitn(2, '.').collect();
       (parts[0], parts[1])
     } else {
@@ -85,7 +85,7 @@ impl Connection for DuckDbDialect {
   }
 
   async fn drop_table(&self, schema: Option<&str>, table: &str) -> anyhow::Result<String> {
-    let (db, tbl) = if schema.is_none() && table.contains(".") {
+    let (db, tbl) = if schema.is_none() && table.contains('.') {
       let parts: Vec<&str> = table.splitn(2, '.').collect();
       (parts[0], parts[1])
     } else {
@@ -93,16 +93,16 @@ impl Connection for DuckDbDialect {
     };
 
     let table_name = if db.is_empty() {
-      format!("{tbl}")
+      tbl.to_string()
     } else {
       format!("{db}.{tbl}")
     };
 
-    let sql = format!("DROP VIEW IF EXISTS {}", table_name);
+    let sql = format!("DROP VIEW IF EXISTS {table_name}");
     log::warn!("drop: {}", &sql);
     // TODO: raw query
     let _ = self.execute(&sql);
-    let sql = format!("DROP TABLE IF EXISTS {}", table_name);
+    let sql = format!("DROP TABLE IF EXISTS {table_name}");
     let _ = self.execute(&sql);
     Ok(String::new())
   }
@@ -147,13 +147,13 @@ impl DuckDbDialect {
 }
 
 pub fn get_tables(conn: &duckdb::Connection, schema: Option<&str>) -> anyhow::Result<Vec<Table>> {
-  let mut sql = r#"
+  let mut sql = r"
   select table_name, table_type, table_schema, if(table_type='VIEW', 'view', 'table') as type
   from information_schema.tables
-  "#
+  "
   .to_string();
   if let Some(schema) = schema {
-    sql += &format!(" where table_schema='{}'", schema)
+    sql += &format!(" where table_schema='{schema}'");
   }
   sql += " order by table_type, table_name";
 

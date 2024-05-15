@@ -76,10 +76,10 @@ pub fn build_tree(tables: Vec<Table>) -> Vec<TreeNode> {
     let db = tree.entry(t.db_name.clone()).or_default();
     let mut keys = vec![];
     if !t.db_name.is_empty() {
-      keys.push(t.db_name.clone())
+      keys.push(t.db_name.clone());
     }
     if let Some(schema) = t.schema {
-      keys.push(schema)
+      keys.push(schema);
     }
     keys.push(t.table_name.clone());
     db.push(TreeNode {

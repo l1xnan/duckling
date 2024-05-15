@@ -90,14 +90,14 @@ impl SqliteDialect {
       let typ = Self::arrow_type(&col);
       let field = Field::new(col.name(), typ, true);
       fields.push(field);
-      println!("{:?} {:?}", col.name(), col.decl_type())
+      println!("{:?} {:?}", col.name(), col.decl_type());
     }
 
     let schema = Schema::new(fields);
     let mut batchs = vec![];
 
     let mut rows = stmt.query([])?;
-    println!("title={:?}", titles);
+    println!("title={titles:?}");
 
     while let Some(row) = rows.next()? {
       let mut arrs = vec![];
@@ -231,7 +231,7 @@ pub fn convert_to_f64(value: &Value) -> Option<f64> {
 
 #[allow(dead_code)]
 pub fn convert_to_strings(values: &[Value]) -> Vec<Option<String>> {
-  values.iter().map(|v| convert_to_string(v)).collect()
+  values.iter().map(convert_to_string).collect()
 }
 
 #[allow(dead_code)]

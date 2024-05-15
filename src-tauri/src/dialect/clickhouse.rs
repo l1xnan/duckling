@@ -51,15 +51,13 @@ impl Connection for ClickhouseDialect {
   }
 
   async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
-    let sql = format!(
-      "select * from system.tables where database='{}' order by engine, name",
-      schema
-    );
+    let sql =
+      format!("select * from system.tables where database='{schema}' order by engine, name");
     self.query(&sql, 0, 0).await
   }
 
   async fn show_column(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
-    let (db, tbl) = if schema.is_none() && table.contains(".") {
+    let (db, tbl) = if schema.is_none() && table.contains('.') {
       let parts: Vec<&str> = table.splitn(2, '.').collect();
       (parts[0], parts[1])
     } else {
@@ -286,7 +284,7 @@ fn convert_type(col_type: &SqlType) -> DataType {
     SqlType::Date => DataType::Date32,
     SqlType::String => DataType::Utf8,
     SqlType::DateTime(_) => DataType::Date64,
-    SqlType::Nullable(t) => convert_type(*t),
+    SqlType::Nullable(t) => convert_type(t),
     SqlType::Decimal(_d1, _d2) => DataType::Utf8,
     SqlType::Array(t) => DataType::List(Arc::new(Field::new("item", convert_type(t), true))),
     _ => DataType::Utf8,
@@ -361,7 +359,7 @@ fn convert_col(
       let mut builder = ListBuilder::new(Int64Builder::new());
 
       for item in col.iter::<Vec<i64>>()? {
-        let i: Vec<_> = item.into_iter().map(|t| Some((*t).clone())).collect();
+        let i: Vec<_> = item.into_iter().map(|t| Some(*t)).collect();
         builder.append_value(i);
       }
 

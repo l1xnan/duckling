@@ -52,17 +52,16 @@ impl Connection for PostgresDialect {
     let sql = format!(
       "
     select * from information_schema.tables
-    where table_schema='{}'
+    where table_schema='{schema}'
     order by table_type, table_name
-    ",
-      schema
+    "
     );
 
     self.query(&sql, 0, 0).await
   }
 
   async fn show_column(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
-    let (_db, tbl) = if schema.is_none() && table.contains(".") {
+    let (_db, tbl) = if schema.is_none() && table.contains('.') {
       let parts: Vec<&str> = table.splitn(2, '.').collect();
       (parts[0], parts[1])
     } else {
@@ -91,9 +90,9 @@ impl PostgresDialect {
 
   async fn get_conn(&self, db: &str) -> anyhow::Result<Client> {
     let db = if db.is_empty() {
-      "".to_string()
+      String::new()
     } else {
-      format!(" dbname={}", db)
+      format!(" dbname={db}")
     };
     let config = self.get_url() + &db;
     connect(&config).await
@@ -161,7 +160,7 @@ impl PostgresDialect {
         name: col.name().to_string(),
         r#type: col.type_().name().to_string(),
       });
-      let typ = col_to_arrow_type(&col);
+      let typ = col_to_arrow_type(col);
       let field = Field::new(col.name(), typ, true);
       fields.push(field);
 
@@ -173,7 +172,7 @@ impl PostgresDialect {
         col.type_().kind()
       );
     }
-    println!("titles: {:?}", titles);
+    println!("titles: {titles:?}");
     let schema = Schema::new(fields);
 
     let mut rows: Vec<RowData> = vec![];
@@ -242,7 +241,7 @@ pub fn pg_cell_to_json_value(
   column_i: usize,
 ) -> Result<JSONValue, Error> {
   let f64_to_json_number = |raw_val: f64| -> Result<JSONValue, Error> {
-    let temp = serde_json::Number::from_f64(raw_val.into()).ok_or(anyhow!("invalid json-float"))?;
+    let temp = serde_json::Number::from_f64(raw_val).ok_or(anyhow!("invalid json-float"))?;
     Ok(JSONValue::Number(temp))
   };
   Ok(match *column.type_() {
@@ -264,10 +263,8 @@ pub fn pg_cell_to_json_value(
       get_basic(row, column, column_i, |a: String| Ok(JSONValue::String(a)))?
     }
     Type::JSON | Type::JSONB => get_basic(row, column, column_i, |a: JSONValue| Ok(a))?,
-    Type::FLOAT4 => get_basic(row, column, column_i, |a: f32| {
-      Ok(f64_to_json_number(a.into())?)
-    })?,
-    Type::FLOAT8 => get_basic(row, column, column_i, |a: f64| Ok(f64_to_json_number(a)?))?,
+    Type::FLOAT4 => get_basic(row, column, column_i, |a: f32| f64_to_json_number(a.into()))?,
+    Type::FLOAT8 => get_basic(row, column, column_i, |a: f64| f64_to_json_number(a))?,
     Type::NUMERIC => {
       let v: Decimal = row.get(column_i);
       JSONValue::String(v.to_string())
@@ -314,10 +311,8 @@ pub fn pg_cell_to_json_value(
       get_array(row, column, column_i, |a: String| Ok(JSONValue::String(a)))?
     }
     Type::JSON_ARRAY | Type::JSONB_ARRAY => get_array(row, column, column_i, |a: JSONValue| Ok(a))?,
-    Type::FLOAT4_ARRAY => get_array(row, column, column_i, |a: f32| {
-      Ok(f64_to_json_number(a.into())?)
-    })?,
-    Type::FLOAT8_ARRAY => get_array(row, column, column_i, |a: f64| Ok(f64_to_json_number(a)?))?,
+    Type::FLOAT4_ARRAY => get_array(row, column, column_i, |a: f32| f64_to_json_number(a.into()))?,
+    Type::FLOAT8_ARRAY => get_array(row, column, column_i, |a: f64| f64_to_json_number(a))?,
     // these types require a custom StringCollector struct as an intermediary (see struct at bottom)
     Type::TS_VECTOR_ARRAY => get_array(row, column, column_i, |a: StringCollector| {
       Ok(JSONValue::String(a.0))
