@@ -94,9 +94,7 @@ export function TabItemContextMenu({
           console.log(open);
         }}
       >
-        <ContextMenuTrigger className="w-full">
-          {children}
-        </ContextMenuTrigger>
+        <ContextMenuTrigger className="w-full">{children}</ContextMenuTrigger>
         <ContextMenuContent className="w-64">
           <ContextMenuItem
             onClick={async () => {
@@ -250,8 +248,9 @@ export function DefaultTab({ tab, onRemove }: TabItemProps) {
           'rounded-lg size-4 invisible',
           'group-hover:visible',
           'group-data-[state=active]:visible',
+          'hover:bg-selection',
         )}
-        onClick={(e) => {
+        onPointerDown={(e) => {
           e.stopPropagation();
           onRemove?.(tab.id);
         }}
@@ -274,7 +273,7 @@ export function DefaultTab1({ tab, onRemove }: TabItemProps) {
           'group-hover:visible',
           'group-data-[state=active]:visible',
         )}
-        onClick={(e) => {
+        onPointerDown={(e) => {
           e.stopPropagation();
           onRemove?.(tab.id);
         }}
