@@ -42,7 +42,13 @@ import {
   XIcon,
 } from 'lucide-react';
 import { shake } from 'radash';
-import { PropsWithChildren, ReactNode, useContext } from 'react';
+import {
+  PropsWithChildren,
+  ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+} from 'react';
 import { useForm } from 'react-hook-form';
 import {
   ScrollMenu,
@@ -150,6 +156,17 @@ export function TabItemContextMenu({
   );
 }
 
+function usePrevious<T>(value: T) {
+  const ref = useRef<T>();
+
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+
+  return ref.current;
+}
+type scrollVisibilityApiType = React.ContextType<typeof VisibilityContext>;
+
 export function PageTabs({
   items,
   activeKey,
@@ -157,10 +174,25 @@ export function PageTabs({
   onRemove,
   renderItem,
 }: PageTabsProps) {
+  // Add item and scroll to it
+  const itemsPrev = usePrevious(items);
+  const apiRef = useRef({} as scrollVisibilityApiType);
+  useEffect(() => {
+    if (items?.length > (itemsPrev?.length ?? 0)) {
+      apiRef.current?.scrollToItem?.(
+        apiRef.current?.getItemElementById(
+          activeKey
+          // items?.at(-1)?.tab?.id as string,
+        ) as Element,
+      );
+    }
+  }, [items, itemsPrev]);
+
   const tabsList = items.map(({ tab }) => {
     const Comp = renderItem;
     return (
       <TabsTrigger
+        id={tab.id}
         key={tab.id}
         value={tab.id}
         className={cn(
@@ -196,6 +228,7 @@ export function PageTabs({
         <div className="w-full relative h-8 overflow-hidden">
           <TabsList className=" p-0 h-8 border-b-1 w-max flex flex-row justify-stretch">
             <ScrollMenu
+              apiRef={apiRef}
               onWheel={onWheel}
               // LeftArrow={LeftArrow}
               // RightArrow={RightArrow}
