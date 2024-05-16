@@ -250,6 +250,7 @@ export function DefaultTab({ tab, onRemove }: TabItemProps) {
           'group-data-[state=active]:visible',
           'hover:bg-selection',
         )}
+        // https://github.com/radix-ui/primitives/issues/1807
         onPointerDown={(e) => {
           e.stopPropagation();
           onRemove?.(tab.id);
