@@ -196,6 +196,10 @@ export const CanvasTable = React.memo(function CanvasTable({
         },
         scrollStyle: {
           width: 8,
+          visible: 'always',
+          scrollSliderCornerRadius: 0,
+          hoverOn: false,
+          barToSide: true,
         },
       }),
     [appTheme, transpose],
