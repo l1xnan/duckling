@@ -257,13 +257,6 @@ export const CanvasTable = React.memo(function CanvasTable({
     },
   );
 
-  // const [popup, _setPopup] = useState<Partial<PosType>>({});
-  // const popupRef = useRef(popup);
-  // const setPopup = (data: Partial<PosType>) => {
-  //   popupRef.current = data;
-  //   _setPopup(data);
-  // };
-
   useEffect(() => {
     const handleBodyClick = (_e: Event) => {
       tableRef.current?.stateManager.hideMenu();
