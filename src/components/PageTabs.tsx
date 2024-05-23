@@ -62,6 +62,7 @@ export interface PageTabsProps {
   items: { tab: TabContextType; children: ReactNode }[];
   activeKey: string;
   fallback?: ReactNode;
+  indicator?: 'top' | 'bottom';
   onRemove?: (key: string) => void;
   onChange: (key: string) => void;
   renderItem?: ({ tab }: { tab: TabContextType }) => JSX.Element;
@@ -170,6 +171,7 @@ type scrollVisibilityApiType = React.ContextType<typeof VisibilityContext>;
 export function PageTabs({
   items,
   activeKey,
+  indicator,
   onChange,
   onRemove,
   renderItem,
@@ -208,8 +210,9 @@ export function PageTabs({
       >
         <div
           className={cn(
-            'h-0.5 w-full bg-[#1976d2] absolute bottom-0 left-0 invisible z-6',
+            'h-0.5 w-full bg-[#1976d2] absolute left-0 invisible z-6',
             'group-data-[state=active]:visible',
+            `${indicator ?? 'bottom'}-0`,
           )}
         />
         {Comp ? (
@@ -227,7 +230,6 @@ export function PageTabs({
       onValueChange={onChange}
     >
       <ScrollArea className="w-full h-8 min-h-8 overflow-hidden">
-        <ScrollBar orientation="horizontal" className="h-1.5" />
         <div className="w-full relative h-8 overflow-hidden">
           <TabsList className=" p-0 h-8 border-b-1 w-max flex flex-row justify-stretch">
             <ScrollMenu
@@ -239,6 +241,7 @@ export function PageTabs({
               {tabsList}
             </ScrollMenu>
           </TabsList>
+          <ScrollBar orientation="horizontal" className="h-1.5" />
         </div>
       </ScrollArea>
       {items.map(({ tab: { id }, children }) => {
@@ -280,7 +283,7 @@ export function DefaultTab({ tab, onRemove }: TabItemProps) {
         variant="ghost"
         size="icon"
         className={cn(
-          'rounded-lg size-4 invisible',
+          'rounded-lg size-4 invisible ml-1',
           'group-hover:visible',
           'group-data-[state=active]:visible',
           'hover:bg-selection',
@@ -291,7 +294,7 @@ export function DefaultTab({ tab, onRemove }: TabItemProps) {
           onRemove?.(tab.id);
         }}
       >
-        <XIcon className="size-4" />
+        <XIcon className="size-5 p-0.5" />
       </Button>
     </div>
   );
@@ -305,16 +308,17 @@ export function DefaultTab1({ tab, onRemove }: TabItemProps) {
         variant="ghost"
         size="icon"
         className={cn(
-          'rounded-lg size-6 invisible',
+          'rounded-lg size-5 invisible ml-1',
           'group-hover:visible',
           'group-data-[state=active]:visible',
+          'hover:bg-selection',
         )}
         onPointerDown={(e) => {
           e.stopPropagation();
           onRemove?.(tab.id);
         }}
       >
-        <XIcon className="size-4" />
+        <XIcon className="size-5 p-0.5" />
       </Button>
     </>
   );

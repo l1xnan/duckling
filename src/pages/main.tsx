@@ -77,6 +77,7 @@ export function Main() {
   return (
     <PageTabs
       items={items}
+      indicator="top"
       onChange={(value) => activateTab(value)}
       activeKey={currentId ?? ''}
       renderItem={({ tab }: { tab: TabContextType }) => (
