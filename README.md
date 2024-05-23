@@ -22,6 +22,8 @@ installation.
 For Windows platform, you can download and [install Webview2 offline](<(https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section)>) if you
 cannot install Webview2 due to network problems.
 
+**Note**: When selecting a path for the software, choose an empty folder or opt to create a new folder. Avoid selecting a non-empty folder, as during uninstallation, if you choose to clear data files, the entire folder will be deleted, even if it does not belong to the software itself.
+
 ## Usage
 
 Open the data folder or `*.duckdb` file.
@@ -30,7 +32,3 @@ Open the data folder or `*.duckdb` file.
 
 ![screenshot](./assets/screenshot.png)
 
-## Development
-
-If `bundled` fails to build, download the libduckdb releases file for platform and version
-in the [duckdb releases](https://github.com/duckdb/duckdb/releases) page(e.g. libduckdb-windows-amd64.zip), unzip to `./src-tauri` folder.

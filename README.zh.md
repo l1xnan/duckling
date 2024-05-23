@@ -20,6 +20,8 @@ Duckling 是使用 Tauri 构建的轻量级桌面应用，用于快速浏览 `pa
 
 对于 Windows 平台依赖 Webview2，如果遇到网络问题无法安装，可以[离线下载](https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section) 安装 Webview2。
 
+**注意**：软件需要路径要选择空白文件夹或者让新建文件夹，不要选择非空文件夹，否则卸载时，如果选择了清空数据文件，整个文件夹会被删除，即时不是软件自己的文件。
+
 ## 使用
 
 打开数据文件夹、`*.duckdb` 文件或者数据库连接。
@@ -27,8 +29,3 @@ Duckling 是使用 Tauri 构建的轻量级桌面应用，用于快速浏览 `pa
 ![screenshot-dark](./assets/screenshot-dark.png)
 
 ![screenshot](./assets/screenshot.png)
-
-## 开发
-
-如果 `bundled` 构建失败，可以在 [duckdb releases](https://github.com/duckdb/duckdb/releases) 页面下载对应平台和版本的 libduckdb
-文件(例如：`libduckdb-windows-amd64.zip`)，解压到到 `./src-tauri` 文件夹。
