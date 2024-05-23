@@ -212,6 +212,10 @@ export function PageTabs({
           className={cn(
             'h-0.5 w-full bg-[#1976d2] absolute left-0 invisible z-6',
             'group-data-[state=active]:visible',
+            {
+              'bottom-0': indicator != 'top',
+              'top-0': indicator == 'top',
+            },
             `${indicator ?? 'bottom'}-0`,
           )}
         />
