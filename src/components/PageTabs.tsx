@@ -21,6 +21,7 @@ import {
   FormLabel,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { docsAtom, favoriteAtom } from '@/stores/app';
@@ -56,7 +57,6 @@ import {
   type publicApiType,
 } from 'react-horizontal-scrolling-menu';
 import 'react-horizontal-scrolling-menu/dist/styles.css';
-import { ScrollArea, ScrollBar } from './ui/scroll-area';
 
 export interface PageTabsProps {
   items: { tab: TabContextType; children: ReactNode }[];
@@ -178,21 +178,23 @@ export function PageTabs({
   const itemsPrev = usePrevious(items);
   const apiRef = useRef({} as scrollVisibilityApiType);
   useEffect(() => {
-    if (items?.length > (itemsPrev?.length ?? 0)) {
+    const item = apiRef.current?.getItemById?.(activeKey);
+    if (!item?.visible) {
       apiRef.current?.scrollToItem?.(
-        apiRef.current?.getItemElementById(
-          activeKey
-          // items?.at(-1)?.tab?.id as string,
-        ) as Element,
+        apiRef.current?.getItemElementById(activeKey) as Element,
       );
     }
-  }, [items, itemsPrev]);
+    if (items?.length > (itemsPrev?.length ?? 0)) {
+    }
+  }, [items, itemsPrev, activeKey]);
 
   const tabsList = items.map(({ tab }) => {
     const Comp = renderItem;
     return (
       <TabsTrigger
         id={tab.id}
+        // @ts-ignore
+        itemId={tab.id}
         key={tab.id}
         value={tab.id}
         className={cn(
@@ -225,6 +227,7 @@ export function PageTabs({
       onValueChange={onChange}
     >
       <ScrollArea className="w-full h-8 min-h-8 overflow-hidden">
+        <ScrollBar orientation="horizontal" className="h-1.5" />
         <div className="w-full relative h-8 overflow-hidden">
           <TabsList className=" p-0 h-8 border-b-1 w-max flex flex-row justify-stretch">
             <ScrollMenu
@@ -237,7 +240,6 @@ export function PageTabs({
             </ScrollMenu>
           </TabsList>
         </div>
-        <ScrollBar orientation="horizontal" className="h-1.5" />
       </ScrollArea>
       {items.map(({ tab: { id }, children }) => {
         return (
