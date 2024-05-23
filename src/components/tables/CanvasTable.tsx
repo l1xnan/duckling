@@ -345,21 +345,29 @@ export const CanvasTable = React.memo(function CanvasTable({
       rightFrozenColCount: rightPinnedCols.length,
       theme,
       transpose,
+      rowSeriesNumber: {
+        title: '',
+        width: 'auto',
+        headerStyle: {},
+        style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
+        dragOrder: false,
+        disableColumnResize: true,
+      },
       columns: [
-        {
-          field: '__index__',
-          title: '',
-          dragHeader: false,
-          disableSelect: true,
-          // disableHover: true,
-          disableHeaderHover: true,
-          disableHeaderSelect: true,
-          disableColumnResize: true,
-          style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
-          fieldFormat: (_r, col, row) => {
-            return transpose ? col : row;
-          },
-        },
+        // {
+        //   field: '__index__',
+        //   title: '',
+        //   dragHeader: false,
+        //   disableSelect: true,
+        //   // disableHover: true,
+        //   disableHeaderHover: true,
+        //   disableHeaderSelect: true,
+        //   disableColumnResize: true,
+        //   style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
+        //   fieldFormat: (_r, col, row) => {
+        //     return transpose ? col : row;
+        //   },
+        // },
         ...__columns,
       ],
       menu: {
