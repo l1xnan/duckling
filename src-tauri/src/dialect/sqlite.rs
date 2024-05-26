@@ -122,17 +122,20 @@ impl SqliteDialect {
   }
 
   fn arrow_type(col: &Column) -> DataType {
+    // https://sqlite.org/datatype3.html#determination_of_column_affinity
     if let Some(decl_type) = col.decl_type() {
       match decl_type {
-        "INTEGER" => DataType::Int64,
-        "REAL" => DataType::Float64,
         "BOOLEAN" => DataType::Boolean,
-        "DATE" => DataType::Utf8,
-        "DATETIME" => DataType::Utf8,
-        "TIME" => DataType::Utf8,
-        decl_type if decl_type.starts_with("NUMERIC") => DataType::Utf8,
-        decl_type if decl_type.starts_with("NVARCHAR") => DataType::Utf8,
-        "BLOB" => DataType::Binary,
+        "DATE" | "DATETIME" | "TIME" => DataType::Utf8,
+        ty if ty.contains("REAL") || ty.contains("DOUBLE") || ty.contains("FLOAT") => {
+          DataType::Float64
+        }
+        // INT, INTEGER
+        ty if ty.contains("INT") => DataType::Int64,
+        ty if ty.starts_with("NUMERIC") => DataType::Utf8,
+        // VARCHAR, NVARCHAR, TEXT, CLOB
+        ty if ty.contains("CHAR") || ty.contains("CLOB") || ty.contains("TEXT") => DataType::Utf8,
+        "BLOB" => DataType::LargeBinary,
         "NULL" => DataType::Null,
         _ => DataType::Utf8,
       }
@@ -174,6 +177,7 @@ impl SqliteDialect {
 }
 
 pub fn convert_arrow(value: &Value, typ: &str) -> ArrayRef {
+  println!("{:?}", value);
   match value {
     Value::Integer(i) => {
       if typ.starts_with("NUMERIC") || typ.is_empty() {
@@ -190,10 +194,11 @@ pub fn convert_arrow(value: &Value, typ: &str) -> ArrayRef {
       }
     }
     Value::Text(s) => Arc::new(StringArray::from(vec![s.clone()])) as ArrayRef,
-    Value::Blob(b) => Arc::new(BinaryArray::from_vec(vec![b])) as ArrayRef,
+    Value::Blob(b) => Arc::new(LargeBinaryArray::from_vec(vec![b])) as ArrayRef,
     Value::Null => match typ {
       "TEXT" | "NUMERIC" => Arc::new(StringArray::from(vec![None::<String>])) as ArrayRef,
       "INTEGER" => Arc::new(Int64Array::from(vec![None::<i64>])) as ArrayRef,
+      "BLOB" => Arc::new(LargeBinaryArray::from_opt_vec(vec![None::<&[u8]>])) as ArrayRef,
       _ => Arc::new(StringArray::from(vec![None::<String>])) as ArrayRef,
     },
   }
