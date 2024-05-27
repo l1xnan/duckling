@@ -125,17 +125,17 @@ impl SqliteDialect {
     // https://sqlite.org/datatype3.html#determination_of_column_affinity
     if let Some(decl_type) = col.decl_type() {
       match decl_type {
-        "BOOLEAN" => DataType::Boolean,
-        "DATE" | "DATETIME" | "TIME" => DataType::Utf8,
-        ty if ty.contains("REAL") || ty.contains("DOUBLE") || ty.contains("FLOAT") => {
-          DataType::Float64
-        }
         // INT, INTEGER
         ty if ty.contains("INT") => DataType::Int64,
-        ty if ty.starts_with("NUMERIC") => DataType::Utf8,
         // VARCHAR, NVARCHAR, TEXT, CLOB
         ty if ty.contains("CHAR") || ty.contains("CLOB") || ty.contains("TEXT") => DataType::Utf8,
-        "BLOB" => DataType::LargeBinary,
+        ty if ty.contains("BLOB") => DataType::LargeBinary,
+        ty if ty.contains("REAL") || ty.contains("DOUB") || ty.contains("FLOA") => {
+          DataType::Float64
+        }
+        ty if ty.contains("NUMERIC") => DataType::Utf8,
+        "DATE" | "DATETIME" | "TIME" => DataType::Utf8,
+        "BOOLEAN" => DataType::Boolean,
         "NULL" => DataType::Null,
         _ => DataType::Utf8,
       }

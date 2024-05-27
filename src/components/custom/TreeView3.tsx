@@ -262,6 +262,7 @@ export const TreeView3 = forwardRef(
     };
     const handleDoubleClickNode = (item: ItemInstance<Node3Type>) => {
       const data = item.getItemData()?.data;
+      console.debug("doubleClick:", data);
 
       if (!data) {
         return;
@@ -287,7 +288,7 @@ export const TreeView3 = forwardRef(
           type: 'table',
         };
 
-        console.log('item', item);
+        console.log('update tab:', item);
         updateTab!(item);
       }
     };

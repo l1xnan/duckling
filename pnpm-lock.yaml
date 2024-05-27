@@ -28,7 +28,7 @@ importers:
         version: 3.13.1
       '@monaco-editor/react':
         specifier: ^4.6.0
-        version: 4.6.0(monaco-editor@0.48.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 4.6.0(monaco-editor@0.49.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mui/icons-material':
         specifier: ^5.15.1
         version: 5.15.1(@mui/material@5.15.14(@emotion/react@11.11.1(@types/react@18.3.1)(react@18.3.1))(@emotion/styled@11.11.0(@emotion/react@11.11.1(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react@18.3.1))(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.1)(react@18.3.1)
@@ -174,8 +174,8 @@ importers:
         specifier: ^0.4.0
         version: 0.4.0(jotai@2.8.1(@types/react@18.3.1)(react@18.3.1))(valtio@1.13.1(@types/react@18.3.1)(react@18.3.1))
       jotai-zustand:
-        specifier: ^0.3.0
-        version: 0.3.0(jotai@2.8.1(@types/react@18.3.1)(react@18.3.1))
+        specifier: ^0.4.0
+        version: 0.4.0(jotai@2.8.1(@types/react@18.3.1)(react@18.3.1))
       keepalive-for-react:
         specifier: ^2.0.2
         version: 2.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -183,8 +183,8 @@ importers:
         specifier: ^0.379.0
         version: 0.379.0(react@18.3.1)
       monaco-editor:
-        specifier: ^0.48.0
-        version: 0.48.0
+        specifier: ^0.49.0
+        version: 0.49.0
       nanoid:
         specifier: ^5.0.7
         version: 5.0.7
@@ -2845,10 +2845,10 @@ packages:
       jotai: '>=1.11.0'
       valtio: '*'
 
-  jotai-zustand@0.3.0:
-    resolution: {integrity: sha512-hwu49XzES51tzKe9qqHS7LTlqesWbmzqhL+m7zEEW6hTOOGfnYiMYMmPb8ueMKCmMe122L3thwMeeblsFtlzPg==}
+  jotai-zustand@0.4.0:
+    resolution: {integrity: sha512-dbG7AgW7ohlofIe0AMq+zck/BG0CU82INuZ756AjgAxX5G/mnGFAbTnRzFjlAD8p4WWFvUcJTDTG0EuEMsIh0Q==}
     peerDependencies:
-      jotai: '>=1.11.0'
+      jotai: '>=2.0.0'
 
   jotai@2.8.1:
     resolution: {integrity: sha512-Gmk5Y3yJL/vN5S0rQ6AaWpXH5Q+HBGHThMHXfylVzXGVuO8YxPRtZf8Y9XYvl+h7ZMQXoHNdFi37vNsJFsiszQ==}
@@ -2996,8 +2996,8 @@ packages:
     resolution: {integrity: sha512-jYofLM5Dam9279rdkWzqHozUo4ybjdZmCsDHePy5V/PbBcVMiSZR97gmAy45aqi8CK1lG2ECd356FU86avfwUQ==}
     engines: {node: '>=16 || 14 >=14.17'}
 
-  monaco-editor@0.48.0:
-    resolution: {integrity: sha512-goSDElNqFfw7iDHMg8WDATkfcyeLTNpBHQpO8incK6p5qZt5G/1j41X0xdGzpIkGojGXM+QiRQyLjnfDVvrpwA==}
+  monaco-editor@0.49.0:
+    resolution: {integrity: sha512-2I8/T3X/hLxB2oPHgqcNYUVdA/ZEFShT7IAujifIPMfKkNbLOqY8XCoyHCXrsdjb36dW9MwoTwBCFpXKMwNwaQ==}
 
   moo@0.5.2:
     resolution: {integrity: sha512-iSAJLHYKnX41mKcJKjqvnAN9sf0LMDTXDEvFv+ffuRR9a1MIuXLjMNL6EsnDHSkKLTWNqQQ5uo61P4EbU4NU+Q==}
@@ -4424,15 +4424,15 @@ snapshots:
 
   '@mobily/ts-belt@3.13.1': {}
 
-  '@monaco-editor/loader@1.4.0(monaco-editor@0.48.0)':
+  '@monaco-editor/loader@1.4.0(monaco-editor@0.49.0)':
     dependencies:
-      monaco-editor: 0.48.0
+      monaco-editor: 0.49.0
       state-local: 1.0.7
 
-  '@monaco-editor/react@4.6.0(monaco-editor@0.48.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@monaco-editor/react@4.6.0(monaco-editor@0.49.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@monaco-editor/loader': 1.4.0(monaco-editor@0.48.0)
-      monaco-editor: 0.48.0
+      '@monaco-editor/loader': 1.4.0(monaco-editor@0.49.0)
+      monaco-editor: 0.49.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
@@ -6637,7 +6637,7 @@ snapshots:
       jotai: 2.8.1(@types/react@18.3.1)(react@18.3.1)
       valtio: 1.13.1(@types/react@18.3.1)(react@18.3.1)
 
-  jotai-zustand@0.3.0(jotai@2.8.1(@types/react@18.3.1)(react@18.3.1)):
+  jotai-zustand@0.4.0(jotai@2.8.1(@types/react@18.3.1)(react@18.3.1)):
     dependencies:
       jotai: 2.8.1(@types/react@18.3.1)(react@18.3.1)
 
@@ -6750,7 +6750,7 @@ snapshots:
 
   minipass@7.0.4: {}
 
-  monaco-editor@0.48.0: {}
+  monaco-editor@0.49.0: {}
 
   moo@0.5.2: {}
 
