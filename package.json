@@ -82,7 +82,7 @@
     "react-horizontal-scrolling-menu": "^7.0.0",
     "react-hotkeys-hook": "^4.5.0",
     "react-resizable-panels": "^2.0.13",
-    "react-router-dom": "^6.22.0",
+    "react-router-dom": "^6.23.1",
     "sonner": "^1.4.41",
     "sql-formatter": "^15.3.0",
     "tailwind-merge": "^2.3.0",
