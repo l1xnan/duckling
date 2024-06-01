@@ -41,7 +41,7 @@
     "@radix-ui/react-toggle": "^1.0.3",
     "@radix-ui/react-tooltip": "^1.0.7",
     "@tabler/icons-react": "^3.5.0",
-    "@tanstack/react-table": "^8.15.3",
+    "@tanstack/react-table": "^8.17.3",
     "@tanstack/react-virtual": "^3.5.0",
     "@tauri-apps/api": "^2.0.0-beta.11",
     "@tauri-apps/plugin-clipboard-manager": "^2.1.0-beta.1",
