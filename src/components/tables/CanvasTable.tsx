@@ -400,6 +400,10 @@ export const CanvasTable = React.memo(function CanvasTable({
         highlightMode: 'cell',
         // disableHeaderHover: true,
       },
+      select: {
+        // headerSelectMode: 'cell',
+        // highlightMode: 'cross',
+      },
       keyboardOptions: {
         moveEditCellOnArrowKeys: true,
         copySelected: true,
