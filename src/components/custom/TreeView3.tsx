@@ -272,14 +272,13 @@ export const TreeView3 = forwardRef(
         return;
       }
 
-      const dbId = data.dbId;
+      const { dbId, path } = data;
 
-      const nodes = tableMap.get(data.dbId)!;
-      const node = nodes.get(data.path as string);
+      const node = tableMap?.get(dbId)?.get(path as string);
 
       const nodeContext = {
         dbId,
-        tableId: data.path as string,
+        tableId: path as string,
       };
 
       const noDataTypes = ['path', 'database', 'root'];

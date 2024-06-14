@@ -14,9 +14,8 @@ import { ConfigDialog } from '@/pages/sidebar/dialog/ConfigDialog';
 import { DatabaseDialog } from '@/pages/sidebar/dialog/DatabaseDialog';
 import {
   DialectType,
-  dbMapAtom,
   selectedNodeAtom,
-  useDBListStore,
+  useDBListStore
 } from '@/stores/dbList';
 import { ChevronsDownUpIcon, ChevronsUpDownIcon } from 'lucide-react';
 
@@ -27,8 +26,9 @@ export function SideToolbar({
   onExpandAll: () => void;
   onCollapseAll: () => void;
 }) {
-  const [dbList, appendDB, updateDB, removeDB] = useDBListStore((s) => [
+  const [dbList, dbMap, appendDB, updateDB, _removeDB] = useDBListStore((s) => [
     s.dbList,
+    s.dbMap,
     s.append,
     s.update,
     s.remove,
@@ -40,8 +40,7 @@ export function SideToolbar({
   }
 
   const selectedNode = useAtomValue(selectedNodeAtom);
-  const dbMap = useAtomValue(dbMapAtom);
-  const db = selectedNode ? dbMap.get(selectedNode?.dbId) : undefined;
+  const db = selectedNode ? dbMap?.get(selectedNode?.dbId) : undefined;
 
   async function handleAppendFolder() {
     const res = await dialog.open({

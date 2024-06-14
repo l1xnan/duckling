@@ -1,11 +1,10 @@
 import { invoke } from '@tauri-apps/api/core';
-import { useAtomValue } from 'jotai';
 import { nanoid } from 'nanoid';
 import { useEffect, useRef, useState } from 'react';
 
 import { getDB } from '@/api';
 import { SideToolbar } from '@/pages/sidebar/SideToolbar';
-import { dbListAtom, useDBListStore } from '@/stores/dbList';
+import { useDBListStore } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 
 import { SearchInput } from '@/components/custom/search';
@@ -42,7 +41,7 @@ function useInitOpenUrl() {
 }
 
 function DBTree() {
-  const dbList = useAtomValue(dbListAtom);
+  const dbList = useDBListStore((s) => s.dbList);
 
   useInitOpenUrl();
 

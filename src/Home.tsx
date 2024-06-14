@@ -8,8 +8,7 @@ import DBTree from '@/pages/sidebar';
 import { activeSideAtom, ASide } from '@/pages/sidebar/aside';
 import { Favorite, History, SqlCode } from '@/pages/sidebar/Favorite';
 import { sizeAtom } from '@/stores/app';
-import { useAtomValue } from 'jotai';
-import { useAtom } from 'jotai/react';
+import { useAtom, useAtomValue } from 'jotai';
 import { BellIcon } from 'lucide-react';
 import { RefObject } from 'react';
 
