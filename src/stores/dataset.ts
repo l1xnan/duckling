@@ -52,6 +52,7 @@ export type DatasetState = {
   sqlWhere?: string;
   beautify?: boolean;
   transpose?: boolean;
+  cross?: boolean;
   showValue?: boolean;
   dialogColumn?: string;
 };
@@ -61,6 +62,7 @@ export type DatasetAction = {
   setOrderBy?: (name: string) => void;
   setPagination?: (p: { page?: number; perPage?: number }) => void;
   setTranspose?: () => void;
+  setCross?: () => void;
   setSQLWhere: (value: string) => void;
   setSQLOrderBy: (value: string) => void;
   setDialogColumn: (value: string) => void;
@@ -99,12 +101,16 @@ export const createDatasetStore = (context: TabContextType) =>
     message: undefined,
     beautify: true,
     transpose: false,
+    cross: false,
 
     // action
     setStore: (res: object) => set((_) => res),
     setBeautify: () => set((s) => ({ beautify: !s.beautify })),
     setTranspose: () => {
       set((s) => ({ transpose: !s.transpose }));
+    },
+    setCross: () => {
+      set((s) => ({ cross: !s.cross }));
     },
 
     setShowValue: () => {

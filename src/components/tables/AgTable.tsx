@@ -18,6 +18,7 @@ export interface TableProps<T = unknown> {
   style?: CSSProperties;
   orderBy?: OrderByType;
   transpose?: boolean;
+  cross?: boolean;
   onSelectedCell?: (value: unknown) => void;
 }
 

@@ -67,9 +67,7 @@ const DARK_THEME: ITableThemeDefine = {
 function getDarkBackgroundColor(args: TYPES.StylePropertyFunctionArg): string {
   const { row, table } = args;
   const index = row - table.frozenRowCount;
-  if (row == table.stateManager.select.cellPos.row) {
-    return '#2F4774';
-  }
+
   if (!(index & 1)) {
     return '#2d3137';
   }
@@ -79,10 +77,6 @@ function getDarkBackgroundColor(args: TYPES.StylePropertyFunctionArg): string {
 function getLightBackgroundColor(args: TYPES.StylePropertyFunctionArg): string {
   const { row, table } = args;
   const index = row - table.frozenRowCount;
-
-  if (row == table.stateManager.select.cellPos.row) {
-    return '#c8daf6';
-  }
 
   if (!(index & 1)) {
     return '#FFF';
@@ -148,8 +142,9 @@ function useTableTheme(transpose?: boolean) {
   };
 
   const theme = useMemo(() => {
-    const baseTheme = isDarkTheme(appTheme) ? themes.DARK : themes.ARCO;
-    const colorTheme = isDarkTheme(appTheme) ? DARK_THEME : LIGHT_THEME;
+    const [baseTheme, colorTheme] = isDarkTheme(appTheme)
+      ? [themes.DARK, DARK_THEME]
+      : [themes.ARCO, LIGHT_THEME];
     return baseTheme.extends(assign(common, colorTheme as Object));
   }, [appTheme, transpose]);
 
@@ -162,6 +157,7 @@ export const CanvasTable = React.memo(function CanvasTable({
   beautify,
   precision,
   transpose,
+  cross,
   style,
   onSelectedCell,
 }: TableProps) {
@@ -387,7 +383,7 @@ export const CanvasTable = React.memo(function CanvasTable({
       },
       select: {
         headerSelectMode: 'cell',
-        highlightMode: 'row',
+        highlightMode: cross ? 'cross' : 'row',
       },
       keyboardOptions: {
         moveEditCellOnArrowKeys: true,
@@ -395,9 +391,17 @@ export const CanvasTable = React.memo(function CanvasTable({
         pasteValueToCell: true,
       },
     }),
-    [data, transpose, appTheme, leftPinnedCols, rightPinnedCols, beautify],
+    [
+      data,
+      transpose,
+      appTheme,
+      leftPinnedCols,
+      rightPinnedCols,
+      beautify,
+      cross,
+    ],
   );
-
+  console.log("cross:", cross);
   return (
     <div
       className="h-full select-text"

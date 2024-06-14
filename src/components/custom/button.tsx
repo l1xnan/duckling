@@ -13,34 +13,42 @@ interface IconButtonProps extends PropsWithChildren<ButtonProps> {
   icon?: ReactElement;
   tooltip?: string;
   tooltipProps?: TooltipContentProps;
+  active?: boolean;
 }
 
 export const TooltipButton = React.forwardRef<
   HTMLButtonElement,
   IconButtonProps
->(({ tooltip, icon, children, className, tooltipProps, ...props }, ref) => {
-  const elem = icon ?? (React.Children.only(children) as ReactElement);
-  const element = React.cloneElement(elem, {
-    className: cn('size-4', elem.props?.className),
-  });
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn('size-6 rounded-lg [&>*]:size-4', className)}
-            ref={ref}
-            {...props}
-          >
-            {element}
-          </Button>
-        </TooltipTrigger>
-        {tooltip ? (
-          <TooltipContent {...(tooltipProps ?? {})}>{tooltip}</TooltipContent>
-        ) : null}
-      </Tooltip>
-    </TooltipProvider>
-  );
-});
+>(
+  (
+    { tooltip, icon, children, className, tooltipProps, active, ...props },
+    ref,
+  ) => {
+    const elem = icon ?? (React.Children.only(children) as ReactElement);
+    const element = React.cloneElement(elem, {
+      className: cn('size-4', elem.props?.className),
+    });
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn('size-6 rounded-lg [&>*]:size-4', className, {
+                'bg-muted': active,
+              })}
+              ref={ref}
+              {...props}
+            >
+              {element}
+            </Button>
+          </TooltipTrigger>
+          {tooltip ? (
+            <TooltipContent {...(tooltipProps ?? {})}>{tooltip}</TooltipContent>
+          ) : null}
+        </Tooltip>
+      </TooltipProvider>
+    );
+  },
+);

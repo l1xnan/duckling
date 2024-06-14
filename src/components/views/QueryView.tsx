@@ -106,6 +106,7 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
               precision={precision}
               beautify={ctx.beautify}
               transpose={ctx.transpose}
+              cross={ctx.cross}
               onSelectedCell={(arg) => {
                 setSelectCell(arg as string);
                 console.log(arg);

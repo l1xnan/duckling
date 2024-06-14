@@ -3,6 +3,7 @@ import { IconDecimal } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import {
   CodeIcon,
+  CrossIcon,
   DownloadIcon,
   EyeIcon,
   Loader2Icon,
@@ -54,6 +55,7 @@ export function TableView({ context }: { context: TabContextType }) {
     beautify,
     orderBy,
     transpose,
+    cross,
     showValue,
   } = usePageStore();
   const currentTab = useTabsStore((s) => s.currentId);
@@ -95,6 +97,7 @@ export function TableView({ context }: { context: TabContextType }) {
                   orderBy={orderBy}
                   precision={precision}
                   transpose={transpose}
+                  cross={cross}
                   onSelectedCell={(arg) => {
                     setSelectCell(arg as string);
                   }}
@@ -140,13 +143,15 @@ function DataViewToolbar() {
     total,
     sql,
     elapsed,
-
+    cross,
+    transpose,
     setShowValue,
 
     refresh,
     setBeautify,
     setPagination,
     setTranspose,
+    setCross,
   } = usePageStore();
 
   const handeChange = (page: number, perPage: number) => {
@@ -184,9 +189,16 @@ function DataViewToolbar() {
       </Stack>
       <Stack>
         <TooltipButton
+          icon={<CrossIcon />}
+          onClick={setCross}
+          tooltip="Cross"
+          active={cross}
+        />
+        <TooltipButton
           icon={<TransposeIcon />}
           onClick={setTranspose}
           tooltip="Transpose"
+          active={transpose}
         />
         {/* TODO */}
 
