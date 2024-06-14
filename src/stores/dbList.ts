@@ -3,6 +3,7 @@ import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
 import { splitAtom } from 'jotai/utils';
 import { create } from 'zustand';
+import computed from 'zustand-computed';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { TreeNode } from '@/types';
@@ -108,64 +109,72 @@ export function flattenTree(tree: TreeNode): Map<string, TreeNode> {
   return result;
 }
 
+const computeState = (s: DBListStore) => ({
+  dbMap: new Map(s.dbList.map((db) => [db.id, db])),
+  tableMap: new Map(s.dbList.map((db) => [db.id, flattenTree(db.data)])),
+});
+
 export const useDBListStore = create<DBListStore>()(
-  persist<DBListStore>(
-    (set, _get) => ({
-      // state
-      dbList: [],
+  computed(
+    persist<DBListStore>(
+      (set) => ({
+        // state
+        dbList: [],
 
-      // action
-      append: (db) => set((state) => ({ dbList: [...state.dbList, db] })),
-      remove: (id) =>
-        set((state) => ({
-          dbList: state.dbList?.filter((item) => !(item.id === id)),
-        })),
-      update: (id, data) =>
-        set((state) => ({
-          dbList: state.dbList.map((item) =>
-            item.id !== id
-              ? item
-              : {
-                  ...item,
-                  data,
-                },
-          ),
-        })),
-      setCwd: (cwd: string, id: string) =>
-        set((state) => ({
-          dbList: state.dbList.map((item) => {
-            return item.id == id
-              ? {
-                  ...item,
-                  config: { ...(item.config ?? {}), cwd } as DialectConfig,
-                }
-              : item;
-          }),
-        })),
-      setDB: (config, id: string) =>
-        set((state) => ({
-          dbList: state.dbList.map((item) =>
-            item.id == id ? { ...item, config } : item,
-          ),
-        })),
+        // action
+        append: (db) => set((state) => ({ dbList: [...state.dbList, db] })),
+        remove: (id) =>
+          set((state) => ({
+            dbList: state.dbList?.filter((item) => !(item.id === id)),
+          })),
+        update: (id, data) =>
+          set((state) => ({
+            dbList: state.dbList.map((item) =>
+              item.id !== id
+                ? item
+                : {
+                    ...item,
+                    data,
+                  },
+            ),
+          })),
+        setCwd: (cwd: string, id: string) =>
+          set((state) => ({
+            dbList: state.dbList.map((item) => {
+              return item.id == id
+                ? {
+                    ...item,
+                    config: { ...(item.config ?? {}), cwd } as DialectConfig,
+                  }
+                : item;
+            }),
+          })),
+        setDB: (config, id: string) =>
+          set((state) => ({
+            dbList: state.dbList.map((item) =>
+              item.id == id ? { ...item, config } : item,
+            ),
+          })),
 
-      rename: (dbId: string, displayName: string) => {
-        set(({ dbList }) => ({
-          dbList: dbList.map((item) => {
-            return item.id == dbId
-              ? {
-                  ...item,
-                  displayName,
-                }
-              : item;
-          }),
-        }));
+        rename: (dbId: string, displayName: string) => {
+          set(({ dbList }) => ({
+            dbList: dbList.map((item) => {
+              return item.id == dbId
+                ? {
+                    ...item,
+                    displayName,
+                  }
+                : item;
+            }),
+          }));
+        },
+      }),
+      {
+        name: 'dbListStore',
+        storage: createJSONStorage(() => localStorage),
       },
-    }),
-    {
-      name: 'dbListStore',
-      storage: createJSONStorage(() => localStorage),
-    },
+    ),
+    computeState,
   ),
 );
 

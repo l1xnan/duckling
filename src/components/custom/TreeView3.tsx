@@ -1,6 +1,6 @@
 import { Tooltip } from '@/components/custom/tooltip';
 import { cn } from '@/lib/utils';
-import { DBType, selectedNodeAtom, tablesAtom } from '@/stores/dbList';
+import { DBType, selectedNodeAtom, useDBListStore } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { NodeElementType } from '@/types';
 import { Node3Type, convertId, convertTreeToMap, filterTree } from '@/utils';
@@ -15,7 +15,7 @@ import {
 } from '@headless-tree/core';
 import { useTree } from '@headless-tree/react';
 import { Virtualizer, useVirtualizer } from '@tanstack/react-virtual';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { ChevronRight } from 'lucide-react';
 import React, {
   forwardRef,
@@ -249,9 +249,13 @@ export const TreeView3 = forwardRef(
       [treeData, search],
     );
     const updateTab = useTabsStore((s) => s.update);
+    const tableMap = useDBListStore((s) => s.tableMap);
 
-    const data = useMemo(() => convertTreeToMap(filterData), [filterData]);
-    const dbTableMap = useAtomValue(tablesAtom);
+    const data = useMemo(
+      () => convertTreeToMap(filterData as NodeElementType),
+      [filterData],
+    );
+
     const [, setSelectedNode] = useAtom(selectedNodeAtom);
 
     console.log('filterData', filterData, data);
@@ -262,15 +266,15 @@ export const TreeView3 = forwardRef(
     };
     const handleDoubleClickNode = (item: ItemInstance<Node3Type>) => {
       const data = item.getItemData()?.data;
-      console.debug("doubleClick:", data);
 
       if (!data) {
+        console.warn('doubleClick data is null!');
         return;
       }
 
       const dbId = data.dbId;
 
-      const nodes = dbTableMap.get(data.dbId)!;
+      const nodes = tableMap.get(data.dbId)!;
       const node = nodes.get(data.path as string);
 
       const nodeContext = {
@@ -290,6 +294,8 @@ export const TreeView3 = forwardRef(
 
         console.log('update tab:', item);
         updateTab!(item);
+      } else {
+        console.warn('doubleClick node is null!');
       }
     };
 
