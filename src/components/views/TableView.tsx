@@ -86,7 +86,7 @@ export function TableView({ context }: { context: TabContextType }) {
         <ResizablePanel defaultSize={80} className="flex flex-col size-full">
           <div className="h-full flex flex-col">
             <InputToolbar />
-            <div className="h-full flex-1">
+            <div className="h-full flex-1 overflow-hidden">
               <Suspense fallback={<Loading />}>
                 {loading ? <Loading /> : null}
                 <TableComponent
