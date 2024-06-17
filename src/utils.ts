@@ -93,10 +93,10 @@ export function convertId(
 ): NodeElementType {
   data.children = data?.children?.map((item) => convertId(item, dbId));
   return {
+    ...data,
     id: `${dbId}:${data.path}`,
     dbId,
     icon: data.type ?? 'file',
-    ...data,
     displayName,
   } as NodeElementType;
 }
