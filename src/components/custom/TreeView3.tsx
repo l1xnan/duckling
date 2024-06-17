@@ -90,8 +90,8 @@ const Node = React.memo(
           >
             {item.isFolder() ? (
               <ChevronRight
-                onClick={() => {
-                  onClick();
+                onClick={(e) => {
+                  onClick?.(e);
                   item.onSelect?.();
                 }}
                 className={cn(
