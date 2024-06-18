@@ -22,7 +22,7 @@ installation.
 For Windows platform, you can download and [install Webview2 offline](<(https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section)>) if you
 cannot install Webview2 due to network problems.
 
-**Note**: When selecting a path for the software, choose an empty folder or opt to create a new folder. Avoid selecting a non-empty folder, as during uninstallation, if you choose to clear data files, the entire folder will be deleted, even if it does not belong to the software itself.
+**Note**: When selecting a path for the software, choose an empty folder or opt to create a new folder. Do not put data files in the installation path. Avoid selecting a non-empty folder, as during uninstallation, if you choose to clear data files, the entire folder will be deleted, even if it does not belong to the software itself.
 
 ## Usage
 
