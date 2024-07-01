@@ -53,7 +53,7 @@ chrono = "^0.4"
 chrono-tz = "^0.8"
 async-trait = "^0.1"
 time = "0.3.34"
-uuid = { version = "1.7.0", features = ["v4"] }
+uuid = { version = "1.9.1", features = ["v4"] }
 tokio = { version = "1.36.0", features = ["macros", "test-util"] }
 sqlparser = { version = "0.47", features = ["json_example"] }
 sqlformat = "0.2.3"
