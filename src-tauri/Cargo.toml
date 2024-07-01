@@ -46,7 +46,7 @@ tauri-plugin-clipboard-manager = "2.1.0-beta"
 tauri-plugin-store = "2.0.0-beta.8"
 
 anyhow = "1.0.75"
-url = "^2.5.0"
+url = "^2.5.2"
 log = "^0.4"
 nanoid = "0.4.0"
 chrono = "^0.4"
