@@ -18,7 +18,7 @@
     "@hookform/resolvers": "^3.6.0",
     "@mobily/ts-belt": "^3.13.1",
     "@monaco-editor/react": "^4.6.0",
-    "@mui/icons-material": "^5.15.1",
+    "@mui/icons-material": "^5.15.21",
     "@mui/material": "^5.15.14",
     "@mui/x-tree-view": "^7.3.0",
     "@radix-ui/react-accordion": "^1.2.0",
