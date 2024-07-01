@@ -61,8 +61,3 @@ export const mainFontFamilyAtom = selectAtom(
 );
 
 export const autoUpdateAtom = selectAtom(settingAtom, (s) => s.auto_update);
-
-export const tableRenderAtom = selectAtom(
-  settingAtom,
-  (s) => s.table_render ?? defaultSettings['table_render'],
-);

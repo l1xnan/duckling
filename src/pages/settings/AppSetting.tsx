@@ -25,13 +25,6 @@ import {
   FormLabel,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import {
   CsvParam,
@@ -147,26 +140,6 @@ function Profile() {
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="table_render"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Table render</FormLabel>
-                <Select onValueChange={field.onChange} {...field}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a render" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="canvas">Canvas</SelectItem>
-                    <SelectItem value="html">HTML</SelectItem>
-                  </SelectContent>
-                </Select>
               </FormItem>
             )}
           />

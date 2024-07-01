@@ -128,3 +128,17 @@ export function convertTreeToMap(
 
   return res;
 }
+
+type RowType = Record<string, unknown>;
+
+export function columnWiths(name: string, row: RowType) {
+  return Math.min(
+    Math.max(
+      getByteLength(name),
+      getByteLength(row?.[name]?.toString() ?? '0'),
+    ) *
+      12 +
+      30,
+    200,
+  );
+}

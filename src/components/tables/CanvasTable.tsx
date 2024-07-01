@@ -13,14 +13,28 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import dayjs from 'dayjs';
 import type { ComponentProps } from 'react';
+import { CSSProperties } from 'react';
 
-import { TableProps } from '@/components/tables/AgTable';
+import { OrderByType, SchemaType } from '@/stores/dataset';
+
 import { useTheme } from '@/hooks/theme-provider';
 import { tableFontFamilyAtom } from '@/stores/setting';
 import { isDarkTheme, isNumberType, uniqueArray } from '@/utils';
 import { assign } from 'radash';
 
 type ITableThemeDefine = ComponentProps<typeof ListTable>['theme'];
+
+export interface TableProps<T = unknown> {
+  data: T[];
+  schema: SchemaType[];
+  beautify?: boolean;
+  precision?: number;
+  style?: CSSProperties;
+  orderBy?: OrderByType;
+  transpose?: boolean;
+  cross?: boolean;
+  onSelectedCell?: (value: unknown) => void;
+}
 
 const LIGHT_THEME: ITableThemeDefine = {
   defaultStyle: {
@@ -145,7 +159,7 @@ function useTableTheme(transpose?: boolean) {
     const [baseTheme, colorTheme] = isDarkTheme(appTheme)
       ? [themes.DARK, DARK_THEME]
       : [themes.ARCO, LIGHT_THEME];
-    return baseTheme.extends(assign(common, colorTheme as Object));
+    return baseTheme.extends(assign(common, colorTheme as object));
   }, [appTheme, transpose]);
 
   return theme;
@@ -401,7 +415,7 @@ export const CanvasTable = React.memo(function CanvasTable({
       cross,
     ],
   );
-  console.log("cross:", cross);
+  console.log('cross:', cross);
   return (
     <div
       className="h-full select-text"

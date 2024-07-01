@@ -13,9 +13,9 @@ import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
-import { AgTable, CanvasTable } from '@/components/tables';
+import { CanvasTable } from '@/components/tables';
 import { cn } from '@/lib/utils';
-import { precisionAtom, tableRenderAtom } from '@/stores/setting';
+import { precisionAtom } from '@/stores/setting';
 import { TabContextType, useTabsStore } from '@/stores/tabs';
 
 import { TransposeIcon } from '@/components/custom/Icons';
@@ -72,8 +72,7 @@ export function TableView({ context }: { context: TabContextType }) {
     }
   }, []);
   const precision = useAtomValue(precisionAtom);
-  const tableRender = useAtomValue(tableRenderAtom);
-  const TableComponent = tableRender === 'canvas' ? CanvasTable : AgTable;
+  const TableComponent = CanvasTable ;
 
   const [selectedCell, setSelectCell] = useState<string | null>();
 
