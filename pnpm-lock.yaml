@@ -93,8 +93,8 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tabler/icons-react':
-        specifier: ^3.7.0
-        version: 3.7.0(react@18.3.1)
+        specifier: ^3.10.0
+        version: 3.10.0(react@18.3.1)
       '@tanstack/react-table':
         specifier: ^8.19.2
         version: 8.19.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -105,32 +105,32 @@ importers:
         specifier: ^2.0.0-beta.13
         version: 2.0.0-beta.13
       '@tauri-apps/plugin-clipboard-manager':
-        specifier: ^2.1.0-beta.3
-        version: 2.1.0-beta.3
+        specifier: ^2.1.0-beta.4
+        version: 2.1.0-beta.4
       '@tauri-apps/plugin-dialog':
-        specifier: ^2.0.0-beta.5
-        version: 2.0.0-beta.5
-      '@tauri-apps/plugin-log':
-        specifier: ^2.0.0-beta.4
-        version: 2.0.0-beta.6
-      '@tauri-apps/plugin-process':
-        specifier: ^2.0.0-beta.5
-        version: 2.0.0-beta.5
-      '@tauri-apps/plugin-shell':
         specifier: ^2.0.0-beta.6
         version: 2.0.0-beta.6
+      '@tauri-apps/plugin-log':
+        specifier: ^2.0.0-beta.7
+        version: 2.0.0-beta.7
+      '@tauri-apps/plugin-process':
+        specifier: ^2.0.0-beta.6
+        version: 2.0.0-beta.6
+      '@tauri-apps/plugin-shell':
+        specifier: ^2.0.0-beta.7
+        version: 2.0.0-beta.7
       '@tauri-apps/plugin-store':
-        specifier: ^2.0.0-beta.5
-        version: 2.0.0-beta.5
+        specifier: ^2.0.0-beta.6
+        version: 2.0.0-beta.6
       '@tauri-apps/plugin-updater':
-        specifier: ^2.0.0-beta.3
-        version: 2.0.0-beta.5
+        specifier: ^2.0.0-beta.6
+        version: 2.0.0-beta.6
       '@visactor/react-vtable':
-        specifier: ^1.4.1
-        version: 1.4.1(react@18.3.1)
+        specifier: ^1.5.0
+        version: 1.5.0(react@18.3.1)
       '@visactor/vtable':
-        specifier: ^1.4.1
-        version: 1.4.1
+        specifier: ^1.5.0
+        version: 1.5.0
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -150,26 +150,26 @@ importers:
         specifier: ^10.0.3
         version: 10.1.1
       jotai:
-        specifier: ^2.8.4
-        version: 2.8.4(@types/react@18.3.3)(react@18.3.1)
+        specifier: ^2.9.0
+        version: 2.9.0(@types/react@18.3.3)(react@18.3.1)
       jotai-devtools:
         specifier: ^0.10.0
         version: 0.10.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@5.0.1)
       jotai-optics:
         specifier: ^0.4.0
-        version: 0.4.0(jotai@2.8.4(@types/react@18.3.3)(react@18.3.1))(optics-ts@2.4.1)
+        version: 0.4.0(jotai@2.9.0(@types/react@18.3.3)(react@18.3.1))(optics-ts@2.4.1)
       jotai-scope:
         specifier: ^0.6.0
-        version: 0.6.0(jotai@2.8.4(@types/react@18.3.3)(react@18.3.1))(react@18.3.1)
+        version: 0.6.0(jotai@2.9.0(@types/react@18.3.3)(react@18.3.1))(react@18.3.1)
       jotai-valtio:
         specifier: ^0.5.0
-        version: 0.5.0(jotai@2.8.4(@types/react@18.3.3)(react@18.3.1))(valtio@1.13.2(@types/react@18.3.3)(react@18.3.1))
+        version: 0.5.0(jotai@2.9.0(@types/react@18.3.3)(react@18.3.1))(valtio@1.13.2(@types/react@18.3.3)(react@18.3.1))
       jotai-zustand:
         specifier: ^0.4.0
-        version: 0.4.0(jotai@2.8.4(@types/react@18.3.3)(react@18.3.1))
+        version: 0.4.0(jotai@2.9.0(@types/react@18.3.3)(react@18.3.1))
       lucide-react:
-        specifier: ^0.399.0
-        version: 0.399.0(react@18.3.1)
+        specifier: ^0.404.0
+        version: 0.404.0(react@18.3.1)
       monaco-editor:
         specifier: ^0.50.0
         version: 0.50.0
@@ -219,8 +219,8 @@ importers:
         specifier: ^15.3.2
         version: 15.3.2
       tailwind-merge:
-        specifier: ^2.3.0
-        version: 2.3.0
+        specifier: ^2.4.0
+        version: 2.4.0
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.3)
@@ -283,8 +283,8 @@ importers:
         specifier: ^3.3.2
         version: 3.3.2
       prettier-plugin-organize-imports:
-        specifier: ^3.2.4
-        version: 3.2.4(prettier@3.3.2)(typescript@5.5.2)
+        specifier: ^4.0.0
+        version: 4.0.0(prettier@3.3.2)(typescript@5.5.2)
       tailwind-scrollbar:
         specifier: ^3.1.0
         version: 3.1.0(tailwindcss@3.4.3)
@@ -1453,24 +1453,28 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@resvg/resvg-js-linux-arm64-musl@2.4.1':
     resolution: {integrity: sha512-6mT0+JBCsermKMdi/O2mMk3m7SqOjwi9TKAwSngRZ/nQoL3Z0Z5zV+572ztgbWr0GODB422uD8e9R9zzz38dRQ==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@resvg/resvg-js-linux-x64-gnu@2.4.1':
     resolution: {integrity: sha512-60KnrscLj6VGhkYOJEmmzPlqqfcw1keDh6U+vMcNDjPhV3B5vRSkpP/D/a8sfokyeh4VEacPSYkWGezvzS2/mg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@resvg/resvg-js-linux-x64-musl@2.4.1':
     resolution: {integrity: sha512-0AMyZSICC1D7ge115cOZQW8Pcad6PjWuZkBFF3FJuSxC6Dgok0MQnLTs2MfMdKBlAcwO9dXsf3bv9tJZj8pATA==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@resvg/resvg-js-win32-arm64-msvc@2.4.1':
     resolution: {integrity: sha512-76XDFOFSa3d0QotmcNyChh2xHwk+JTFiEQBVxMlHpHMeq7hNrQJ1IpE1zcHSQvrckvkdfLboKRrlGB86B10Qjw==}
@@ -1518,46 +1522,55 @@ packages:
     resolution: {integrity: sha512-C/zbRYRXFjWvz9Z4haRxcTdnkPt1BtCkz+7RtBSuNmKzMzp3ZxdM28Mpccn6pt28/UWUCTXa+b0Mx1k3g6NOMA==}
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-arm-musleabihf@4.18.0':
     resolution: {integrity: sha512-l3m9ewPgjQSXrUMHg93vt0hYCGnrMOcUpTz6FLtbwljo2HluS4zTXFy2571YQbisTnfTKPZ01u/ukJdQTLGh9A==}
     cpu: [arm]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-arm64-gnu@4.18.0':
     resolution: {integrity: sha512-rJ5D47d8WD7J+7STKdCUAgmQk49xuFrRi9pZkWoRD1UeSMakbcepWXPF8ycChBoAqs1pb2wzvbY6Q33WmN2ftw==}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-arm64-musl@4.18.0':
     resolution: {integrity: sha512-be6Yx37b24ZwxQ+wOQXXLZqpq4jTckJhtGlWGZs68TgdKXJgw54lUUoFYrg6Zs/kjzAQwEwYbp8JxZVzZLRepQ==}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-powerpc64le-gnu@4.18.0':
     resolution: {integrity: sha512-hNVMQK+qrA9Todu9+wqrXOHxFiD5YmdEi3paj6vP02Kx1hjd2LLYR2eaN7DsEshg09+9uzWi2W18MJDlG0cxJA==}
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-riscv64-gnu@4.18.0':
     resolution: {integrity: sha512-ROCM7i+m1NfdrsmvwSzoxp9HFtmKGHEqu5NNDiZWQtXLA8S5HBCkVvKAxJ8U+CVctHwV2Gb5VUaK7UAkzhDjlg==}
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-s390x-gnu@4.18.0':
     resolution: {integrity: sha512-0UyyRHyDN42QL+NbqevXIIUnKA47A+45WyasO+y2bGJ1mhQrfrtXUpTxCOrfxCR4esV3/RLYyucGVPiUsO8xjg==}
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-x64-gnu@4.18.0':
     resolution: {integrity: sha512-xuglR2rBVHA5UsI8h8UbX4VJ470PtGCf5Vpswh7p2ukaqBGFTnsfzxUBetoWBWymHMxbIG0Cmx7Y9qDZzr648w==}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-x64-musl@4.18.0':
     resolution: {integrity: sha512-LKaqQL9osY/ir2geuLVvRRs+utWUNilzdE90TpyoX0eNqPzWjRm14oMEE+YLve4k/NAqCdPkGYDaDF5Sw+xBfg==}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-win32-arm64-msvc@4.18.0':
     resolution: {integrity: sha512-7J6TkZQFGo9qBKH0pk2cEVSRhJbL6MtfWxth7Y5YmZs57Pi+4x6c2dStAUvaQkHQLnEQv1jzBUW43GvZW8OFqA==}
@@ -1597,24 +1610,28 @@ packages:
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@swc/core-linux-arm64-musl@1.5.24':
     resolution: {integrity: sha512-vd2/hfOBGbrX21FxsFdXCUaffjkHvlZkeE2UMRajdXifwv79jqOHIJg3jXG1F3ZrhCghCzirFts4tAZgcG8XWg==}
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@swc/core-linux-x64-gnu@1.5.24':
     resolution: {integrity: sha512-Zrdzi7NqzQxm2BvAG5KyOSBEggQ7ayrxh599AqqevJmsUXJ8o2nMiWQOBvgCGp7ye+Biz3pvZn1EnRzAp+TpUg==}
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@swc/core-linux-x64-musl@1.5.24':
     resolution: {integrity: sha512-1F8z9NRi52jdZQCGc5sflwYSctL6omxiVmIFVp8TC9nngjQKc00TtX/JC2Eo2HwvgupkFVl5YQJidAck9YtmJw==}
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@swc/core-win32-arm64-msvc@1.5.24':
     resolution: {integrity: sha512-cKpP7KvS6Xr0jFSTBXY53HZX/YfomK5EMQYpCVDOvfsZeYHN20sQSKXfpVLvA/q2igVt1zzy1XJcOhpJcgiKLg==}
@@ -1652,13 +1669,13 @@ packages:
   '@swc/types@0.1.7':
     resolution: {integrity: sha512-scHWahbHF0eyj3JsxG9CFJgFdFNaVQCNAimBlT6PzS3n/HptxqREjsm4OH6AN3lYcffZYSPxXW8ua2BEHp0lJQ==}
 
-  '@tabler/icons-react@3.7.0':
-    resolution: {integrity: sha512-8AU4oO9pgLhHLOSGAJIsRhsTy7w8D7uKBlR0DIFxaILFA1fe2rC4wrNGYUtIFei82y41OuXz9vMk0Oe+IWT3SA==}
+  '@tabler/icons-react@3.10.0':
+    resolution: {integrity: sha512-FTES0wJLIV+M9Ggng0j/6Kn/j43ZuBukR5n6DNV8Npk4woPCDcRjA+2KzKQyvSdwtPMAM6o1e8fQBPDS337Spg==}
     peerDependencies:
       react: '>= 16'
 
-  '@tabler/icons@3.7.0':
-    resolution: {integrity: sha512-lJGIZLSWrPO6VygRUbaVvQjWgL2EaiBMD8e6leCYUQ8ZPO4LIzKMq358C8KlhXJcyNiRz1Io3YWoc/DNTcWqSg==}
+  '@tabler/icons@3.10.0':
+    resolution: {integrity: sha512-jCMO+hDTw8Gn1CNb15zIENLQ9b0UplGXtjMnEUhDoKH+Q4fta8tBLUxZpPpFtpV+q+gzGqfM76xNAoD1GBpmnA==}
 
   '@tanstack/react-table@8.19.2':
     resolution: {integrity: sha512-itoSIAkA/Vsg+bjY23FSemcTyPhc5/1YjYyaMsr9QSH/cdbZnQxHVWrpWn0Sp2BWN71qkzR7e5ye8WuMmwyOjg==}
@@ -1684,6 +1701,10 @@ packages:
     resolution: {integrity: sha512-Np1opKANzRMF3lgJ9gDquBCB9SxlE2lRmNpVx1+L6RyzAmigkuh0ZulT5jMnDA3JLsuSDU135r/s4t/Pmx4atg==}
     engines: {node: '>= 18', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
 
+  '@tauri-apps/api@2.0.0-beta.14':
+    resolution: {integrity: sha512-YLYgHqdwWswr4Y70+hRzaLD6kLIUgHhE3shLXNquPiTaQ9+cX3Q2dB0AFfqsua6NXYFNe7LfkmMzaqEzqv3yQg==}
+    engines: {node: '>= 18.18', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
+
   '@tauri-apps/cli-darwin-arm64@2.0.0-beta.20':
     resolution: {integrity: sha512-oCJOCib7GuYkwkBXx+ekamR8NZZU+2i3MLP+DHpDxK5gS2uhCE+CBkamJkNt6y1x6xdVnwyqZOm5RvN4SRtyIA==}
     engines: {node: '>= 10'}
@@ -1707,24 +1728,28 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@tauri-apps/cli-linux-arm64-musl@2.0.0-beta.20':
     resolution: {integrity: sha512-ojIkv/1uZHhcrgfIN8xgn4BBeo/Xg+bnV0wer6lD78zyxkUMWeEZ+u3mae1ejCJNhhaZOxNaUQ67MvDOiGyr5Q==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@tauri-apps/cli-linux-x64-gnu@2.0.0-beta.20':
     resolution: {integrity: sha512-xBy1FNbHKlc7T6pOmFQQPECxJaI5A9QWX7Kb9N64cNVusoOGlvc3xHYkXMS4PTr7xXOT0yiE1Ww2OwDRJ3lYsg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@tauri-apps/cli-linux-x64-musl@2.0.0-beta.20':
     resolution: {integrity: sha512-+O6zq5jmtUxA1FUAAwF2ywPysy4NRo2Y6G+ESZDkY9XosRwdt5OUjqAsYktZA3AxDMZVei8r9buwTqUwi9ny/g==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@tauri-apps/cli-win32-arm64-msvc@2.0.0-beta.20':
     resolution: {integrity: sha512-RswgMbWyOQcv53CHvIuiuhAh4kKDqaGyZfWD4VlxqX/XhkoF5gsNgr0MxzrY7pmoL+89oVI+fiGVJz4nOQE5vA==}
@@ -1749,26 +1774,26 @@ packages:
     engines: {node: '>= 10'}
     hasBin: true
 
-  '@tauri-apps/plugin-clipboard-manager@2.1.0-beta.3':
-    resolution: {integrity: sha512-j48jTdZWeX5BylIGLYbXtg6ynZAcFKDKK6dguHAbG3zviqNE/XMf2vHOPJeFDZsDE5kVOZZS7nKOj7T2WiCpvw==}
+  '@tauri-apps/plugin-clipboard-manager@2.1.0-beta.4':
+    resolution: {integrity: sha512-iu44K+WmNCbU3l8/sdQq6e0ZE8Uv/HKAj7J68K4Cx0RhOvX+mnjHWAX/A/ok5C4/OCAuYdEvWmi4+Lsdld+njQ==}
 
-  '@tauri-apps/plugin-dialog@2.0.0-beta.5':
-    resolution: {integrity: sha512-jkaBCsx2v6WB6sB77fTMCeijuvT3FlzwschiHnPlD7aU6CHvQgRlpCv/FttPdTq4ih2t6MIlM4oX85hNYgfs6w==}
+  '@tauri-apps/plugin-dialog@2.0.0-beta.6':
+    resolution: {integrity: sha512-Rw8C8t/0y3QExEinp+cAOZi/BDt0c9jifv0bS3WDCwQt9ANdmfCWKamsIhqwemt3MjepkU2RV8bvphzoWlbOGw==}
 
-  '@tauri-apps/plugin-log@2.0.0-beta.6':
-    resolution: {integrity: sha512-AFJj3eC9IKR9cDs3mgNeew1HeMgg1UWC2OlWc2A9q4qRtuJNdJRD0A6yu4ZvfO1AqQBFJ15J/dmeq40lu5dz8w==}
+  '@tauri-apps/plugin-log@2.0.0-beta.7':
+    resolution: {integrity: sha512-rdwvmIWv0alRGvG5mxUvSCeT4ovVp5zRaUhtd2372mPPQgYKpHk2nxlRFiGtpcP/MCv0cwXh+MDsceVJpQLtZQ==}
 
-  '@tauri-apps/plugin-process@2.0.0-beta.5':
-    resolution: {integrity: sha512-UMiBm6TtNYfxRb6GwzA4PalkZGwalHdclI/t0MVG33fNXgX1PaWONR/NZW/k7JE+WpvRAnN/Kf9ur8aEzjVVSQ==}
+  '@tauri-apps/plugin-process@2.0.0-beta.6':
+    resolution: {integrity: sha512-Rem3r8lGe6ZSvncqIV9xpq2hOey7krMoPh5nu7WxbR73LOSkRBUDaYMvZjXu1DrJ3LEyXxo48sp76+9MW2Rp/w==}
 
-  '@tauri-apps/plugin-shell@2.0.0-beta.6':
-    resolution: {integrity: sha512-g3nM9cQQGl7Iv4MvyFuco/aPTiwOI/MixcoKso3VQIg5Aqd64NqR0r+GfsB0qx52txItqzSXwmeaj1eZjO9Q6Q==}
+  '@tauri-apps/plugin-shell@2.0.0-beta.7':
+    resolution: {integrity: sha512-oJxWbEiNRcoMM0PrePjJnjPHEAN1sbYuWaQ1QMtLPdjHsl83RLk+RpFzkL5WvtGknfiKY7T2qEthOID4br+mvg==}
 
-  '@tauri-apps/plugin-store@2.0.0-beta.5':
-    resolution: {integrity: sha512-lF1OxZv0w45G1eRVtvplNhfsthHuJD17Lx+KDZe46WPwaLbGL9KJE+OYx7c2ek5idU2qBXtx33lWVEu6ghxGJA==}
+  '@tauri-apps/plugin-store@2.0.0-beta.6':
+    resolution: {integrity: sha512-EBMGUYeeLoJwFbUMdj0PhS7YGih2jhYr/cCHRXZgAhaXTsXdrE7SyW5QfgcMyZH6y7u1gywiIbMIsnjABVOJ7Q==}
 
-  '@tauri-apps/plugin-updater@2.0.0-beta.5':
-    resolution: {integrity: sha512-h8uNFQDtXaZPFyQcNAB5SxiSIvPbYRlM1fXf/lCcW8bAaMTanyszbHvR2vAYtVa/wIzKAOYriC/MpsJaKLjyhg==}
+  '@tauri-apps/plugin-updater@2.0.0-beta.6':
+    resolution: {integrity: sha512-CKgVNsbpGPp8yIUWitszdQ2DVglRZ8jescxacJ43HkaI7oz26EQPL3VwPjjwIQ1RX166JQcNJuM8grcZd8QjBg==}
 
   '@turf/boolean-clockwise@6.5.0':
     resolution: {integrity: sha512-45+C7LC5RMbRWrxh3Z0Eihsc8db1VGBO5d9BLTOAwU4jR6SgsunTfRWR16X7JUwIDYlCVEmnjcXJNi/kIU3VIw==}
@@ -1899,8 +1924,11 @@ packages:
     resolution: {integrity: sha512-DVJ0UdhucZy+/1GlIy7FX2+CFhCeNAi4VwaEAe7u2UDenQr9/kGqvzx00UlpWibmEVDw4KsPOI7Aqa1+2Vqfmw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@visactor/react-vtable@1.4.1':
-    resolution: {integrity: sha512-96Vx5xXWPb3uGxfN3dFBwd408BdtbPkOkp57GIvEu6MFgjcnoADCx2Ww+7zTrPwSZ3xeA4zTRfdC6Ho1wBacZw==}
+  '@visactor/react-vtable@1.5.0':
+    resolution: {integrity: sha512-p8JTsocLSqt8XfLAZOw5EtgqeIzZT4gDFn7bfZl1vJhWWi8AADemDvk2bnOTwrzy/GI15fBDExBA92EX+X0Rhg==}
+
+  '@visactor/vdataset@0.18.10':
+    resolution: {integrity: sha512-gMscOx38Ncj9Fnk90Zb8QiGK1h/jH9b4kTNoEKlMVQxZ516F+mi3FT3AF7GaNhe5jZS83cOSXtBWxWzVBXlqVg==}
 
   '@visactor/vdataset@0.18.9':
     resolution: {integrity: sha512-qQBOGKbB4W1+0aUQ95y9q4Nu56VAiC01Pijhkje0EUHpO8EIy17tUc0xtjpHE4iO8ym/02c4cGv4FKtuiewIrA==}
@@ -1917,11 +1945,17 @@ packages:
   '@visactor/vscale@0.18.9':
     resolution: {integrity: sha512-rglOQQGhkamtjGtbFxY5pcfqsBXDyYU6NiQuBdVSeYRQvB9YpLLk455HpvQcEEhC+bRopNQsQgQV5276Pd0sfQ==}
 
-  '@visactor/vtable-editors@1.4.1':
-    resolution: {integrity: sha512-e+z6xuV0zIYsN48hBuz5EbJQuSrBK4kJ1aLs1SgZ5b9FJdx9USHYGuthHQkLU4IF7E0RoGJ/ljvqZXc/lIqZTg==}
+  '@visactor/vtable-editors@1.5.0':
+    resolution: {integrity: sha512-S6oOIALkKHXUw3EAmNqs4sSIdLmUy7aUUsZQXIoXsCy2RrZi280jz2Fs5Vg9/DhEYbMjtdsvLnEVmKVP89/POw==}
 
-  '@visactor/vtable@1.4.1':
-    resolution: {integrity: sha512-X5QOc/czPw738zxNZMjUD728EsxmGcoS9unmnqhtHzATyqmA1PsBjrIKkqLSbrePoVy8gR35kLAO26lHMaVYiw==}
+  '@visactor/vtable@1.5.0':
+    resolution: {integrity: sha512-fXMoLdnOehH1vgzU9Wu+4pc5TpRM4CF6ubIqYZ2MMsRn8U8/4YrCpvE1RTpA1AMzGcBo3TIJzxrQU5Maex7njA==}
+
+  '@visactor/vutils-extension@1.11.8':
+    resolution: {integrity: sha512-G2orAPsvNBW4VvRMz1ZaM5R72S2YKmQmpTM9hwJYeFvaqCjxuHgOxyxw3uusqHAmlKgvJGbYAtHSS1pJmsASkQ==}
+
+  '@visactor/vutils@0.18.10':
+    resolution: {integrity: sha512-xWT+TeMS2TixlNuKw0+I7Ka9/pxBTlvfnOTZuky6YS/HqTSNL3/ftThpsZgnQl+uEFuOLGyyCBNvwzh9HDdG5Q==}
 
   '@visactor/vutils@0.18.9':
     resolution: {integrity: sha512-+CPwBATTQUPtXQ0KVXFRz8SCwAY9m5aR9QmtsVqya+mgaay3moFaAPNTbdkLBuZM5ewRYVcv/3fsDxuH+NXfFg==}
@@ -2830,8 +2864,8 @@ packages:
     peerDependencies:
       jotai: '>=2.0.0'
 
-  jotai@2.8.4:
-    resolution: {integrity: sha512-f6jwjhBJcDtpeauT2xH01gnqadKEySwwt1qNBLvAXcnojkmb76EdqRt05Ym8IamfHGAQz2qMKAwftnyjeSoHAA==}
+  jotai@2.9.0:
+    resolution: {integrity: sha512-MioTpMvR78IGfJ+W8EwQj3kwTkb+u0reGnTyg3oJZMWK9rK9v8NBSC9Rhrg9jrrFYA6bGZtzJa96zsuAYF6W3w==}
     engines: {node: '>=12.20.0'}
     peerDependencies:
       '@types/react': '>=17.0.0'
@@ -2883,6 +2917,7 @@ packages:
     resolution: {integrity: sha512-Quz3MvAwHxVYNXsOByL7xI5EB2WYOeFswqaHIA3qOK3isRWTxiplBEocmmru6XmxDB2L7jDNYtYA4FyimoAFEw==}
     engines: {node: '>=8.17.0'}
     hasBin: true
+    bundledDependencies: []
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -2929,8 +2964,8 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  lucide-react@0.399.0:
-    resolution: {integrity: sha512-UyTNa3djBISdzL2UktgCrESXexQXaDQWi/WsDkbw6fBFfHlapajR58WoR+gxQ4laxfEyiHmoFrEIM3V+5XOVQg==}
+  lucide-react@0.404.0:
+    resolution: {integrity: sha512-8iYTmAG5dQWqYUEznRip2M7+KBKr7966bj3dqz0LJ8LUh5/sCIsKaJTEGdNTguLMRHTZy46sdqjrT3CupYqCeQ==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -3186,17 +3221,17 @@ packages:
     resolution: {integrity: sha512-GbK2cP9nraSSUF9N2XwUwqfzlAFlMNYYl+ShE/V+H8a9uNl/oUqB1w2EL54Jh0OlyRSd8RfWYJ3coVS4TROP2w==}
     engines: {node: '>=6.0.0'}
 
-  prettier-plugin-organize-imports@3.2.4:
-    resolution: {integrity: sha512-6m8WBhIp0dfwu0SkgfOxJqh+HpdyfqSSLfKKRZSFbDuEQXDDndb8fTpRWkUrX/uBenkex3MgnVk0J3b3Y5byog==}
+  prettier-plugin-organize-imports@4.0.0:
+    resolution: {integrity: sha512-vnKSdgv9aOlqKeEFGhf9SCBsTyzDSyScy1k7E0R1Uo4L0cTcOV7c1XQaT7jfXIOc/p08WLBfN2QUQA9zDSZMxA==}
     peerDependencies:
-      '@volar/vue-language-plugin-pug': ^1.0.4
-      '@volar/vue-typescript': ^1.0.4
+      '@vue/language-plugin-pug': ^2.0.24
       prettier: '>=2.0'
       typescript: '>=2.9'
+      vue-tsc: ^2.0.24
     peerDependenciesMeta:
-      '@volar/vue-language-plugin-pug':
+      '@vue/language-plugin-pug':
         optional: true
-      '@volar/vue-typescript':
+      vue-tsc:
         optional: true
 
   prettier@3.3.2:
@@ -3655,8 +3690,8 @@ packages:
     engines: {node: '>=12.17'}
     hasBin: true
 
-  tailwind-merge@2.3.0:
-    resolution: {integrity: sha512-vkYrLpIP+lgR0tQCG6AP7zZXCTLc1Lnv/CCRT3BqJ9CZ3ui2++GPaGb1x/ILsINIMSYqqvrpqjUFsMNLlW99EA==}
+  tailwind-merge@2.4.0:
+    resolution: {integrity: sha512-49AwoOQNKdqKPd9CViyH5wJoSKsCDjUlzL8DxuGp3P1FsGY36NJDAa18jLZcaHAUUuTj+JB8IAo8zWgBNvBF7A==}
 
   tailwind-scrollbar@3.1.0:
     resolution: {integrity: sha512-pmrtDIZeHyu2idTejfV59SbaJyvp1VRjYxAjZBH0jnyrPRo6HL1kD5Glz8VPagasqr6oAx6M05+Tuw429Z8jxg==}
@@ -5249,12 +5284,12 @@ snapshots:
     dependencies:
       '@swc/counter': 0.1.3
 
-  '@tabler/icons-react@3.7.0(react@18.3.1)':
+  '@tabler/icons-react@3.10.0(react@18.3.1)':
     dependencies:
-      '@tabler/icons': 3.7.0
+      '@tabler/icons': 3.10.0
       react: 18.3.1
 
-  '@tabler/icons@3.7.0': {}
+  '@tabler/icons@3.10.0': {}
 
   '@tanstack/react-table@8.19.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -5273,6 +5308,8 @@ snapshots:
   '@tanstack/virtual-core@3.8.1': {}
 
   '@tauri-apps/api@2.0.0-beta.13': {}
+
+  '@tauri-apps/api@2.0.0-beta.14': {}
 
   '@tauri-apps/cli-darwin-arm64@2.0.0-beta.20':
     optional: true
@@ -5317,33 +5354,33 @@ snapshots:
       '@tauri-apps/cli-win32-ia32-msvc': 2.0.0-beta.20
       '@tauri-apps/cli-win32-x64-msvc': 2.0.0-beta.20
 
-  '@tauri-apps/plugin-clipboard-manager@2.1.0-beta.3':
+  '@tauri-apps/plugin-clipboard-manager@2.1.0-beta.4':
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.13
+      '@tauri-apps/api': 2.0.0-beta.14
 
-  '@tauri-apps/plugin-dialog@2.0.0-beta.5':
+  '@tauri-apps/plugin-dialog@2.0.0-beta.6':
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.13
+      '@tauri-apps/api': 2.0.0-beta.14
 
-  '@tauri-apps/plugin-log@2.0.0-beta.6':
+  '@tauri-apps/plugin-log@2.0.0-beta.7':
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.13
+      '@tauri-apps/api': 2.0.0-beta.14
 
-  '@tauri-apps/plugin-process@2.0.0-beta.5':
+  '@tauri-apps/plugin-process@2.0.0-beta.6':
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.13
+      '@tauri-apps/api': 2.0.0-beta.14
 
-  '@tauri-apps/plugin-shell@2.0.0-beta.6':
+  '@tauri-apps/plugin-shell@2.0.0-beta.7':
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.13
+      '@tauri-apps/api': 2.0.0-beta.14
 
-  '@tauri-apps/plugin-store@2.0.0-beta.5':
+  '@tauri-apps/plugin-store@2.0.0-beta.6':
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.13
+      '@tauri-apps/api': 2.0.0-beta.14
 
-  '@tauri-apps/plugin-updater@2.0.0-beta.5':
+  '@tauri-apps/plugin-updater@2.0.0-beta.6':
     dependencies:
-      '@tauri-apps/api': 2.0.0-beta.13
+      '@tauri-apps/api': 2.0.0-beta.14
 
   '@turf/boolean-clockwise@6.5.0':
     dependencies:
@@ -5514,14 +5551,34 @@ snapshots:
       '@typescript-eslint/types': 8.0.0-alpha.39
       eslint-visitor-keys: 3.4.3
 
-  '@visactor/react-vtable@1.4.1(react@18.3.1)':
+  '@visactor/react-vtable@1.5.0(react@18.3.1)':
     dependencies:
-      '@visactor/vtable': 1.4.1
+      '@visactor/vtable': 1.5.0
       '@visactor/vutils': 0.18.9
       react-is: 18.3.1
       react-reconciler: 0.29.2(react@18.3.1)
     transitivePeerDependencies:
       - react
+
+  '@visactor/vdataset@0.18.10':
+    dependencies:
+      '@turf/flatten': 6.5.0
+      '@turf/helpers': 6.5.0
+      '@turf/rewind': 6.5.0
+      '@visactor/vutils': 0.18.10
+      d3-dsv: 2.0.0
+      d3-geo: 1.12.1
+      d3-hexbin: 0.2.2
+      d3-hierarchy: 3.1.2
+      eventemitter3: 4.0.7
+      geobuf: 3.0.2
+      geojson-dissolve: 3.1.0
+      path-browserify: 1.0.1
+      pbf: 3.2.1
+      point-at-length: 1.1.0
+      simple-statistics: 7.8.3
+      simplify-geojson: 1.0.5
+      topojson-client: 3.1.0
 
   '@visactor/vdataset@0.18.9':
     dependencies:
@@ -5566,18 +5623,30 @@ snapshots:
     dependencies:
       '@visactor/vutils': 0.18.9
 
-  '@visactor/vtable-editors@1.4.1': {}
+  '@visactor/vtable-editors@1.5.0': {}
 
-  '@visactor/vtable@1.4.1':
+  '@visactor/vtable@1.5.0':
     dependencies:
       '@visactor/vdataset': 0.18.9
       '@visactor/vrender-components': 0.19.13-beta.0
       '@visactor/vrender-core': 0.19.13-beta.0
       '@visactor/vrender-kits': 0.19.13-beta.0
       '@visactor/vscale': 0.18.9
-      '@visactor/vtable-editors': 1.4.1
+      '@visactor/vtable-editors': 1.5.0
       '@visactor/vutils': 0.18.9
+      '@visactor/vutils-extension': 1.11.8
       cssfontparser: 1.2.1
+
+  '@visactor/vutils-extension@1.11.8':
+    dependencies:
+      '@visactor/vdataset': 0.18.10
+      '@visactor/vutils': 0.18.10
+
+  '@visactor/vutils@0.18.10':
+    dependencies:
+      '@turf/helpers': 6.5.0
+      '@turf/invariant': 6.5.0
+      eventemitter3: 4.0.7
 
   '@visactor/vutils@0.18.9':
     dependencies:
@@ -6594,26 +6663,26 @@ snapshots:
       - react-dom
       - redux
 
-  jotai-optics@0.4.0(jotai@2.8.4(@types/react@18.3.3)(react@18.3.1))(optics-ts@2.4.1):
+  jotai-optics@0.4.0(jotai@2.9.0(@types/react@18.3.3)(react@18.3.1))(optics-ts@2.4.1):
     dependencies:
-      jotai: 2.8.4(@types/react@18.3.3)(react@18.3.1)
+      jotai: 2.9.0(@types/react@18.3.3)(react@18.3.1)
       optics-ts: 2.4.1
 
-  jotai-scope@0.6.0(jotai@2.8.4(@types/react@18.3.3)(react@18.3.1))(react@18.3.1):
+  jotai-scope@0.6.0(jotai@2.9.0(@types/react@18.3.3)(react@18.3.1))(react@18.3.1):
     dependencies:
-      jotai: 2.8.4(@types/react@18.3.3)(react@18.3.1)
+      jotai: 2.9.0(@types/react@18.3.3)(react@18.3.1)
       react: 18.3.1
 
-  jotai-valtio@0.5.0(jotai@2.8.4(@types/react@18.3.3)(react@18.3.1))(valtio@1.13.2(@types/react@18.3.3)(react@18.3.1)):
+  jotai-valtio@0.5.0(jotai@2.9.0(@types/react@18.3.3)(react@18.3.1))(valtio@1.13.2(@types/react@18.3.3)(react@18.3.1)):
     dependencies:
-      jotai: 2.8.4(@types/react@18.3.3)(react@18.3.1)
+      jotai: 2.9.0(@types/react@18.3.3)(react@18.3.1)
       valtio: 1.13.2(@types/react@18.3.3)(react@18.3.1)
 
-  jotai-zustand@0.4.0(jotai@2.8.4(@types/react@18.3.3)(react@18.3.1)):
+  jotai-zustand@0.4.0(jotai@2.9.0(@types/react@18.3.3)(react@18.3.1)):
     dependencies:
-      jotai: 2.8.4(@types/react@18.3.3)(react@18.3.1)
+      jotai: 2.9.0(@types/react@18.3.3)(react@18.3.1)
 
-  jotai@2.8.4(@types/react@18.3.3)(react@18.3.1):
+  jotai@2.9.0(@types/react@18.3.3)(react@18.3.1):
     optionalDependencies:
       '@types/react': 18.3.3
       react: 18.3.1
@@ -6684,7 +6753,7 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  lucide-react@0.399.0(react@18.3.1):
+  lucide-react@0.404.0(react@18.3.1):
     dependencies:
       react: 18.3.1
 
@@ -6917,7 +6986,7 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier-plugin-organize-imports@3.2.4(prettier@3.3.2)(typescript@5.5.2):
+  prettier-plugin-organize-imports@4.0.0(prettier@3.3.2)(typescript@5.5.2):
     dependencies:
       prettier: 3.3.2
       typescript: 5.5.2
@@ -7424,9 +7493,7 @@ snapshots:
       typical: 7.1.1
       wordwrapjs: 5.1.0
 
-  tailwind-merge@2.3.0:
-    dependencies:
-      '@babel/runtime': 7.24.6
+  tailwind-merge@2.4.0: {}
 
   tailwind-scrollbar@3.1.0(tailwindcss@3.4.3):
     dependencies:
