@@ -15,9 +15,9 @@ tauri-build = { version = "^2.0.0-beta.17", features = [] }
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-arrow = { version = "51.0.0", features = ["prettyprint", "csv"] }
+arrow = { version = "52.0.0", features = ["prettyprint", "csv"] }
 
-duckdb = { version = "0.10.1", features = [
+duckdb = { version = "1.0.0", features = [
     # "modern-full",
     "bundled"
 ] }
