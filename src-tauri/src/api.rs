@@ -107,19 +107,19 @@ pub fn query(
   // query
   let mut stmt = db.prepare(sql)?;
 
-  // let titles: Vec<_> = stmt
-  //   .column_names()
-  //   .iter()
-  //   .enumerate()
-  //   .map(|(i, name)| Title {
-  //     name: name.clone(),
-  //     r#type: stmt.column_type(i).to_string(),
-  //   })
-  //   .collect();
-
   let frames = stmt.query_arrow(duckdb::params![])?;
   let schema = frames.get_schema();
   let records: Vec<_> = frames.collect();
+
+  let titles: Vec<_> = stmt
+    .column_names()
+    .iter()
+    .enumerate()
+    .map(|(i, name)| Title {
+      name: name.clone(),
+      r#type: stmt.column_type(i).to_string(),
+    })
+    .collect();
 
   let batch = arrow::compute::concat_batches(&schema, &records)?;
   let total = batch.num_rows();
@@ -127,7 +127,7 @@ pub fn query(
   Ok(RawArrowData {
     total,
     batch,
-    titles: None,
+    titles: Some(titles),
     sql: Some(sql.to_string()),
   })
 }
