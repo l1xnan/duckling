@@ -55,7 +55,7 @@
     "@visactor/vtable": "^1.5.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "dayjs": "^1.11.11",
+    "dayjs": "^1.11.12",
     "dedent": "^1.5.3",
     "deepmerge": "^4.3.1",
     "immer": "^10.1.1",
