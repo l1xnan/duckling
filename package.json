@@ -102,7 +102,7 @@
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-prettier": "^5.2.1",
-    "postcss": "^8.4.39",
+    "postcss": "^8.4.40",
     "postcss-nesting": "^12.1.5",
     "prettier": "^3.3.3",
     "prettier-plugin-organize-imports": "^4.0.0",
