@@ -12,7 +12,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@apache-arrow/ts": "^16.1.0",
+    "@apache-arrow/ts": "^17.0.0",
     "@headless-tree/core": "^0.0.8",
     "@headless-tree/react": "^0.0.7",
     "@hookform/resolvers": "^3.9.0",
