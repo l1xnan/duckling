@@ -43,8 +43,8 @@
     "@tabler/icons-react": "^3.11.0",
     "@tanstack/react-table": "^8.19.3",
     "@tanstack/react-virtual": "^3.8.3",
-    "@tauri-apps/api": "2.0.0-beta.15",
-    "@tauri-apps/plugin-clipboard-manager": "2.1.0-beta.6",
+    "@tauri-apps/api": "2.0.0-rc.0",
+    "@tauri-apps/plugin-clipboard-manager": "2.0.0-rc.0",
     "@tauri-apps/plugin-dialog": "2.0.0-rc.0",
     "@tauri-apps/plugin-log": "2.0.0-rc.0",
     "@tauri-apps/plugin-process": "2.0.0-rc.0",
@@ -90,7 +90,7 @@
     "zustand-computed": "^1.4.1"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "2.0.0-beta.20",
+    "@tauri-apps/cli": "2.0.0-rc.1",
     "@types/node": "^22.0.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
