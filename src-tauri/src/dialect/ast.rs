@@ -97,8 +97,10 @@ fn parse_order_by_expr(order_by: &str) -> Vec<(String, Option<bool>)> {
   let mut exprs = vec![];
   for stmt in &stmts {
     if let Statement::Query(ref tmp) = stmt {
-      for expr in &tmp.order_by {
-        exprs.push((expr.expr.to_string(), expr.asc));
+      if let Some(order_by) = &tmp.order_by {
+        for expr in &order_by.exprs {
+          exprs.push((expr.expr.to_string(), expr.asc));
+        }
       }
     }
   }
@@ -133,7 +135,7 @@ mod tests {
 
     let ast = Parser::parse_sql(dialect, select_sql).unwrap();
 
-    assert_eq!(count_stmt(d, &ast[0]).unwrap(), "select count(*) from (SELECT a, b, 123, myfunc(b) FROM table_1 WHERE a > b AND b < 100 ORDER BY a DESC, b) ____");
+    assert_eq!(count_stmt("generic", &ast[0]).unwrap(), "select count(*) from (SELECT a, b, 123, myfunc(b) FROM table_1 WHERE a > b AND b < 100 ORDER BY a DESC, b) ____");
 
     let cte_sql = "
     with tmp as (select * from table_1)
@@ -144,7 +146,7 @@ mod tests {
 
     let ast = Parser::parse_sql(dialect, cte_sql).unwrap();
 
-    assert_eq!(count_stmt(d, &ast[0]).unwrap(), "WITH tmp AS (SELECT * FROM table_1) SELECT count(*) FROM (SELECT a, b, 123, myfunc(b) FROM tmp WHERE a > b AND b < 100 ORDER BY a DESC, b) AS ____")
+    assert_eq!(count_stmt("generic", &ast[0]).unwrap(), "WITH tmp AS (SELECT * FROM table_1) SELECT count(*) FROM (SELECT a, b, 123, myfunc(b) FROM tmp WHERE a > b AND b < 100 ORDER BY a DESC, b) AS ____")
   }
 
   #[test]
