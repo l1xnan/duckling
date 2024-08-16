@@ -231,7 +231,12 @@ export const CanvasTable = React.memo(function CanvasTable({
           if (value === null) {
             return '<null>';
           }
-
+          if (DataType.isDecimal(dataType)) {
+            // return value.toString().split('').toSpliced(-dataType.scale, 0, '.').join('');
+            return value
+              .toString()
+              .replace(new RegExp(`(.{${dataType.scale}})$`), '.$1');
+          }
           if (DataType.isDate(dataType)) {
             return dayjs(value).format('YYYY-MM-DD');
           }
