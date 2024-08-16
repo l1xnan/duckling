@@ -232,10 +232,11 @@ export const CanvasTable = React.memo(function CanvasTable({
             return '<null>';
           }
           if (DataType.isDecimal(dataType)) {
-            // return value.toString().split('').toSpliced(-dataType.scale, 0, '.').join('');
+            const { scale } = dataType;
             return value
               .toString()
-              .replace(new RegExp(`(.{${dataType.scale}})$`), '.$1');
+              .padStart(scale + 1, '0')
+              .replace(new RegExp(`(.{${scale}})$`), '.$1');
           }
           if (DataType.isDate(dataType)) {
             return dayjs(value).format('YYYY-MM-DD');
