@@ -126,8 +126,8 @@ importers:
         specifier: 2.0.0-rc.0
         version: 2.0.0-rc.0
       '@visactor/react-vtable':
-        specifier: ^1.5.6
-        version: 1.5.6(react@18.3.1)
+        specifier: ^1.7.0
+        version: 1.7.0(react@18.3.1)
       '@visactor/vtable':
         specifier: ^1.5.6
         version: 1.5.6
@@ -1472,28 +1472,24 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@resvg/resvg-js-linux-arm64-musl@2.4.1':
     resolution: {integrity: sha512-6mT0+JBCsermKMdi/O2mMk3m7SqOjwi9TKAwSngRZ/nQoL3Z0Z5zV+572ztgbWr0GODB422uD8e9R9zzz38dRQ==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@resvg/resvg-js-linux-x64-gnu@2.4.1':
     resolution: {integrity: sha512-60KnrscLj6VGhkYOJEmmzPlqqfcw1keDh6U+vMcNDjPhV3B5vRSkpP/D/a8sfokyeh4VEacPSYkWGezvzS2/mg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@resvg/resvg-js-linux-x64-musl@2.4.1':
     resolution: {integrity: sha512-0AMyZSICC1D7ge115cOZQW8Pcad6PjWuZkBFF3FJuSxC6Dgok0MQnLTs2MfMdKBlAcwO9dXsf3bv9tJZj8pATA==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@resvg/resvg-js-win32-arm64-msvc@2.4.1':
     resolution: {integrity: sha512-76XDFOFSa3d0QotmcNyChh2xHwk+JTFiEQBVxMlHpHMeq7hNrQJ1IpE1zcHSQvrckvkdfLboKRrlGB86B10Qjw==}
@@ -1541,55 +1537,46 @@ packages:
     resolution: {integrity: sha512-P9bSiAUnSSM7EmyRK+e5wgpqai86QOSv8BwvkGjLwYuOpaeomiZWifEos517CwbG+aZl1T4clSE1YqqH2JRs+g==}
     cpu: [arm]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-arm-musleabihf@4.18.1':
     resolution: {integrity: sha512-5RnjpACoxtS+aWOI1dURKno11d7krfpGDEn19jI8BuWmSBbUC4ytIADfROM1FZrFhQPSoP+KEa3NlEScznBTyQ==}
     cpu: [arm]
     os: [linux]
-    libc: [musl]
 
   '@rollup/rollup-linux-arm64-gnu@4.18.1':
     resolution: {integrity: sha512-8mwmGD668m8WaGbthrEYZ9CBmPug2QPGWxhJxh/vCgBjro5o96gL04WLlg5BA233OCWLqERy4YUzX3bJGXaJgQ==}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-arm64-musl@4.18.1':
     resolution: {integrity: sha512-dJX9u4r4bqInMGOAQoGYdwDP8lQiisWb9et+T84l2WXk41yEej8v2iGKodmdKimT8cTAYt0jFb+UEBxnPkbXEQ==}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@rollup/rollup-linux-powerpc64le-gnu@4.18.1':
     resolution: {integrity: sha512-V72cXdTl4EI0x6FNmho4D502sy7ed+LuVW6Ym8aI6DRQ9hQZdp5sj0a2usYOlqvFBNKQnLQGwmYnujo2HvjCxQ==}
     cpu: [ppc64]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-riscv64-gnu@4.18.1':
     resolution: {integrity: sha512-f+pJih7sxoKmbjghrM2RkWo2WHUW8UbfxIQiWo5yeCaCM0TveMEuAzKJte4QskBp1TIinpnRcxkquY+4WuY/tg==}
     cpu: [riscv64]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-s390x-gnu@4.18.1':
     resolution: {integrity: sha512-qb1hMMT3Fr/Qz1OKovCuUM11MUNLUuHeBC2DPPAWUYYUAOFWaxInaTwTQmc7Fl5La7DShTEpmYwgdt2hG+4TEg==}
     cpu: [s390x]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-x64-gnu@4.18.1':
     resolution: {integrity: sha512-7O5u/p6oKUFYjRbZkL2FLbwsyoJAjyeXHCU3O4ndvzg2OFO2GinFPSJFGbiwFDaCFc+k7gs9CF243PwdPQFh5g==}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-x64-musl@4.18.1':
     resolution: {integrity: sha512-pDLkYITdYrH/9Cv/Vlj8HppDuLMDUBmgsM0+N+xLtFd18aXgM9Nyqupb/Uw+HeidhfYg2lD6CXvz6CjoVOaKjQ==}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@rollup/rollup-win32-arm64-msvc@4.18.1':
     resolution: {integrity: sha512-W2ZNI323O/8pJdBGil1oCauuCzmVd9lDmWBBqxYZcOqWD6aWqJtVBQ1dFrF4dYpZPks6F+xCZHfzG5hYlSHZ6g==}
@@ -1629,28 +1616,24 @@ packages:
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@swc/core-linux-arm64-musl@1.6.13':
     resolution: {integrity: sha512-2OysYSYtdw79prJYuKIiux/Gj0iaGEbpS2QZWCIY4X9sGoETJ5iMg+lY+YCrIxdkkNYd7OhIbXdYFyGs/w5LDg==}
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@swc/core-linux-x64-gnu@1.6.13':
     resolution: {integrity: sha512-PkR4CZYJNk5hcd2+tMWBpnisnmYsUzazI1O5X7VkIGFcGePTqJ/bWlfUIVVExWxvAI33PQFzLbzmN5scyIUyGQ==}
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@swc/core-linux-x64-musl@1.6.13':
     resolution: {integrity: sha512-OdsY7wryTxCKwGQcwW9jwWg3cxaHBkTTHi91+5nm7hFPpmZMz1HivJrWAMwVE7iXFw+M4l6ugB/wCvpYrUAAjA==}
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@swc/core-win32-arm64-msvc@1.6.13':
     resolution: {integrity: sha512-ap6uNmYjwk9M/+bFEuWRNl3hq4VqgQ/Lk+ID/F5WGqczNr0L7vEf+pOsRAn0F6EV+o/nyb3ePt8rLhE/wjHpPg==}
@@ -1743,28 +1726,24 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@tauri-apps/cli-linux-arm64-musl@2.0.0-rc.1':
     resolution: {integrity: sha512-+SJsRTW0PvvD7awEn+tIPJ3s12s6RpKXdOib2mztoKocasrGRfz+EFZuXc42Iwk3xROsrQkiw2UAmcNLkW5NwA==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@tauri-apps/cli-linux-x64-gnu@2.0.0-rc.1':
     resolution: {integrity: sha512-vjPrj2btS97IOp6cU42IrkI49SQZDSg8TPqwOwFqyQeAotCT1i0F38pLZWe1gLyPUowO8XdaaBdwYg6IRDKcZg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@tauri-apps/cli-linux-x64-musl@2.0.0-rc.1':
     resolution: {integrity: sha512-MrE68/u6rMrkM1uM/DR1MNnMXiYebhSPGqqxshJ12SmFdk3yQ/Z73Wzvk8xv78eOExh4lTtEXI22YwaBCf9AEg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@tauri-apps/cli-win32-arm64-msvc@2.0.0-rc.1':
     resolution: {integrity: sha512-SLulbiUjg8BGf/zX+U1PGjB+JpsN2nLRGuW07BYwSDW3s3mp2aagLuOwaTaOPBrDzfIMRYq8KT54A4jfRjEZlg==}
@@ -1942,8 +1921,8 @@ packages:
     resolution: {integrity: sha512-ba0lNI19awqZ5ZNKh6wCModMwoZs457StTebQ0q1NP58zSi2F6MOZRXwfKZy+jB78JNJ/WH8GSh2IQNzXX8Nag==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@visactor/react-vtable@1.5.6':
-    resolution: {integrity: sha512-Yc2eT5dandduwUwnuWM+O59XKB85F45Vx/ysqFS3IGxh1Iq1vEoYkIB92J3pCU/pGLu3tAWp1mPnxoNXhxO49A==}
+  '@visactor/react-vtable@1.7.0':
+    resolution: {integrity: sha512-+TC78mDDkBmHbpt+iAOapiBnwSGs/JL20a0ZOEPqxFHao3GwzUUBSFOJHsamlN92ZjCSoxFRD5/9dW6+JOINBw==}
 
   '@visactor/vdataset@0.18.12':
     resolution: {integrity: sha512-SEOWwdUywizCHwq0tPb+GxjvKVv7a+JLmgT78ldr+YQ5gdNLSaRKHiX5e26g1yjWi6Aq5VN574uMnq3u0WGTGA==}
@@ -1951,26 +1930,47 @@ packages:
   '@visactor/vrender-components@0.19.13-beta.0':
     resolution: {integrity: sha512-LqBEvRXuGSNnHF4oWUg5lMGd/PaWmQU6qog7EMXcgnBl8FkxgYlKrN7tk+K4zx1eviKn92wFPw4cEB3ZSVoLwQ==}
 
+  '@visactor/vrender-components@0.20.2-alpha.1':
+    resolution: {integrity: sha512-WcDrr8qZB80iHuL9JJqxM5TULnwWclYOHdO22BYDWnE/Zw3y2bB/urD6TWqU6+a45cppWe5177bBF9GU7e6HeA==}
+
   '@visactor/vrender-core@0.19.13-beta.0':
     resolution: {integrity: sha512-vgU20sxEAm3I71mJKRzoCwI4mjGdC+NK+UhQ08CaIVbsUJJSnrgKCZvia0Nfz77MEHCZE8YEtogq99phDTuEKg==}
+
+  '@visactor/vrender-core@0.20.2-alpha.1':
+    resolution: {integrity: sha512-bZQAHPJ6tOu67ZHeTQsakXXW/OF16gzE1/SHsVYqM0JTOYl8x3c3YnyWBfBGSsnKm4ZwgQ+XrOr0w9JdQnA79A==}
 
   '@visactor/vrender-kits@0.19.13-beta.0':
     resolution: {integrity: sha512-pR/rhjgCoF+mYssdjmAkMw5/bFRqLiE7S0F5rXYNzpJzMhCWvhhTprA4KjwxzSz1gX0kSqpvIjZJefzbOGhz5w==}
 
+  '@visactor/vrender-kits@0.20.2-alpha.1':
+    resolution: {integrity: sha512-9ZKx0MwaMda6KYklDkB9BbF2Y7BE1HtMWtyNO7h6gr5CDgpinxVs2KH0RHZJKgR+kiIKLbuuPveG0EmFPqtjyg==}
+
   '@visactor/vscale@0.18.12':
     resolution: {integrity: sha512-yF8VsUmCFKvE4Xd2VPBzjMa+mJpuRA8PpWjm7Jhc+USYfHXEKgbLeS1qe1pWwEN4VISJOAIGTV3c9cdKMRtLHQ==}
+
+  '@visactor/vscale@0.18.15':
+    resolution: {integrity: sha512-09dDWc6muJbOMxzp4odCsyLjqAF6u3BOx9kAJJ0tEpKE1AuHL4BTejNe697mJAnXqAo2ynAA+dn+cgWYiW1WQg==}
 
   '@visactor/vtable-editors@1.5.6':
     resolution: {integrity: sha512-oWfjCaSIKn8rDWPynwog7iwWD+1Yq+HYas4aL9L/X/DQyMUJaUSIxXZi2tMOR4QPCMKIVFr1koCrm8jd7L5CHQ==}
 
+  '@visactor/vtable-editors@1.7.0':
+    resolution: {integrity: sha512-2O8EQrbbezaUqg9epi6luapliw4RD2sR9cB75/TRAItSjkqtYuULN998PUq06+PqHDwE3/Pg4svn0+QVBkDmVg==}
+
   '@visactor/vtable@1.5.6':
     resolution: {integrity: sha512-UdMnh5pNwLSMuY8JyVWWvYIDSFSdaXWYj9oCgnzpNbKkRXKls3RxD3AOedWwYc6nMNO26SloA07ZGFsPz/nvZQ==}
+
+  '@visactor/vtable@1.7.0':
+    resolution: {integrity: sha512-Q4fP8rgF+jbTN5yzR0W/nPAd97PvW+xNbG+roix+VGbSp/VDCZC+pjRpPz8C8DRSjMsno+H+gM2f3XVTEqZ2cQ==}
 
   '@visactor/vutils-extension@1.11.10':
     resolution: {integrity: sha512-QBkJ5IhhFuI3VSV5iOF0oLQ26z0Iw75yfaaUi7wiy1rrpcD3Dmq/BUKTPqt5QOaUM+5vKwoXdGnhq+X/bqj/gA==}
 
   '@visactor/vutils@0.18.12':
     resolution: {integrity: sha512-yPidlYp0daHX2bjR6CM8cAm6w3vK4MJhIuDMB41zoeFOeT8eP3kh6eLEU96DDOGxrxKZ/vDdBFJfqlPxZ3q6lw==}
+
+  '@visactor/vutils@0.18.15':
+    resolution: {integrity: sha512-gTw8n14SU4avmqZ6VwpHwqoDfOCq044M2QA43rViNaHBnOQ/ePOPRZHl0heSfGQoMIJSZUD7SowLnn5NJjVXYw==}
 
   '@vitejs/plugin-react-swc@3.7.0':
     resolution: {integrity: sha512-yrknSb3Dci6svCd/qhHqhFPDSw0QtjumcqdKMoNNzmOl5lMXTTiqzjWtG4Qask2HdvvzaNgSunbQGet8/GrKdA==}
@@ -2942,7 +2942,6 @@ packages:
     resolution: {integrity: sha512-Quz3MvAwHxVYNXsOByL7xI5EB2WYOeFswqaHIA3qOK3isRWTxiplBEocmmru6XmxDB2L7jDNYtYA4FyimoAFEw==}
     engines: {node: '>=8.17.0'}
     hasBin: true
-    bundledDependencies: []
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -5627,10 +5626,10 @@ snapshots:
       '@typescript-eslint/types': 8.1.0
       eslint-visitor-keys: 3.4.3
 
-  '@visactor/react-vtable@1.5.6(react@18.3.1)':
+  '@visactor/react-vtable@1.7.0(react@18.3.1)':
     dependencies:
-      '@visactor/vtable': 1.5.6
-      '@visactor/vutils': 0.18.12
+      '@visactor/vtable': 1.7.0
+      '@visactor/vutils': 0.18.15
       react-is: 18.3.1
       react-reconciler: 0.29.2(react@18.3.1)
     transitivePeerDependencies:
@@ -5663,9 +5662,21 @@ snapshots:
       '@visactor/vscale': 0.18.12
       '@visactor/vutils': 0.18.12
 
+  '@visactor/vrender-components@0.20.2-alpha.1':
+    dependencies:
+      '@visactor/vrender-core': 0.20.2-alpha.1
+      '@visactor/vrender-kits': 0.20.2-alpha.1
+      '@visactor/vscale': 0.18.15
+      '@visactor/vutils': 0.18.15
+
   '@visactor/vrender-core@0.19.13-beta.0':
     dependencies:
       '@visactor/vutils': 0.18.12
+      color-convert: 2.0.1
+
+  '@visactor/vrender-core@0.20.2-alpha.1':
+    dependencies:
+      '@visactor/vutils': 0.18.15
       color-convert: 2.0.1
 
   '@visactor/vrender-kits@0.19.13-beta.0':
@@ -5675,11 +5686,24 @@ snapshots:
       '@visactor/vutils': 0.18.12
       roughjs: 4.5.2
 
+  '@visactor/vrender-kits@0.20.2-alpha.1':
+    dependencies:
+      '@resvg/resvg-js': 2.4.1
+      '@visactor/vrender-core': 0.20.2-alpha.1
+      '@visactor/vutils': 0.18.15
+      roughjs: 4.5.2
+
   '@visactor/vscale@0.18.12':
     dependencies:
       '@visactor/vutils': 0.18.12
 
+  '@visactor/vscale@0.18.15':
+    dependencies:
+      '@visactor/vutils': 0.18.15
+
   '@visactor/vtable-editors@1.5.6': {}
+
+  '@visactor/vtable-editors@1.7.0': {}
 
   '@visactor/vtable@1.5.6':
     dependencies:
@@ -5693,12 +5717,30 @@ snapshots:
       '@visactor/vutils-extension': 1.11.10
       cssfontparser: 1.2.1
 
+  '@visactor/vtable@1.7.0':
+    dependencies:
+      '@visactor/vdataset': 0.18.12
+      '@visactor/vrender-components': 0.20.2-alpha.1
+      '@visactor/vrender-core': 0.20.2-alpha.1
+      '@visactor/vrender-kits': 0.20.2-alpha.1
+      '@visactor/vscale': 0.18.12
+      '@visactor/vtable-editors': 1.7.0
+      '@visactor/vutils': 0.18.15
+      '@visactor/vutils-extension': 1.11.10
+      cssfontparser: 1.2.1
+
   '@visactor/vutils-extension@1.11.10':
     dependencies:
       '@visactor/vdataset': 0.18.12
       '@visactor/vutils': 0.18.12
 
   '@visactor/vutils@0.18.12':
+    dependencies:
+      '@turf/helpers': 6.5.0
+      '@turf/invariant': 6.5.0
+      eventemitter3: 4.0.7
+
+  '@visactor/vutils@0.18.15':
     dependencies:
       '@turf/helpers': 6.5.0
       '@turf/invariant': 6.5.0
