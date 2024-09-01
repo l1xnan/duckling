@@ -43,7 +43,7 @@ tauri-plugin-log = "2.0.0-rc"
 tauri-plugin-process = "2.0.0-rc"
 tauri-plugin-window-state = "2.0.0-rc"
 tauri-plugin-clipboard-manager = "2.0.0-rc"
-tauri-plugin-store = "2.0.0-rc"
+tauri-plugin-store = "2.0.0-rc.3"
 
 anyhow = "1"
 url = "^2.5.0"
