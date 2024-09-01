@@ -87,7 +87,7 @@
     "use-resize-observer": "^9.1.0",
     "zod": "^3.23.8",
     "zustand": "^4.5.4",
-    "zustand-computed": "^1.4.1"
+    "zustand-computed": "^2.0.0"
   },
   "devDependencies": {
     "@tauri-apps/cli": "2.0.0-rc.1",
