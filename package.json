@@ -62,7 +62,7 @@
     "jotai": "^2.9.3",
     "jotai-devtools": "^0.10.1",
     "jotai-optics": "^0.4.0",
-    "jotai-scope": "^0.7.1",
+    "jotai-scope": "^0.7.2",
     "jotai-valtio": "^0.5.0",
     "jotai-zustand": "^0.4.0",
     "lucide-react": "^0.427.0",
