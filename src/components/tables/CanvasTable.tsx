@@ -1,6 +1,6 @@
 import { DataType } from '@apache-arrow/ts';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
-import { ListTable, VTable } from '@visactor/react-vtable';
+import { ListTable } from '@visactor/react-vtable';
 import {
   ColumnDefine,
   ListTable as ListTableAPI,
@@ -301,7 +301,7 @@ export const CanvasTable = React.memo(function CanvasTable({
         content: `${name}: ${type}`,
         referencePosition: {
           rect,
-          placement: VTable.TYPES.Placement.bottom,
+          placement: TYPES.Placement.bottom,
         },
         className: 'defineTooltip',
         style: {
