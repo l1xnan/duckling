@@ -3,7 +3,7 @@ import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
 import { splitAtom } from 'jotai/utils';
 import { create } from 'zustand';
-import computed from 'zustand-computed';
+import { createComputed } from 'zustand-computed';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { TreeNode } from '@/types';
@@ -109,10 +109,10 @@ export function flattenTree(tree: TreeNode): Map<string, TreeNode> {
   return result;
 }
 
-const computeState = (s: DBListStore) => ({
+const computed = createComputed((s: DBListStore) => ({
   dbMap: new Map(s.dbList.map((db) => [db.id, db])),
   tableMap: new Map(s.dbList.map((db) => [db.id, flattenTree(db.data)])),
-});
+}));
 
 export const useDBListStore = create<DBListStore>()(
   computed(
@@ -174,7 +174,6 @@ export const useDBListStore = create<DBListStore>()(
         storage: createJSONStorage(() => localStorage),
       },
     ),
-    computeState,
   ),
 );
 
