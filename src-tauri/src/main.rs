@@ -6,9 +6,9 @@ use std::env;
 use cmd::OpenedUrls;
 use std::sync::Mutex;
 use tauri::menu::{CheckMenuItem, MenuBuilder, MenuItem, SubmenuBuilder};
-use tauri::Manager;
 use tauri::Emitter;
-use tauri_plugin_dialog::DialogExt;
+use tauri::Manager;
+use tauri_plugin_dialog::{DialogExt, FilePath};
 use tauri_plugin_log::{Target, TargetKind};
 
 mod api;
@@ -49,7 +49,9 @@ fn handle_menu(app: &mut tauri::App) -> tauri::Result<()> {
     } else if id == "open-directory" {
       let path = app.dialog().file().blocking_pick_folder();
       if let Some(dir) = path {
-        let _ = app.emit("open-directory", dir);
+        if let FilePath::Path(d) = dir {
+          let _ = app.emit("open-directory", d);
+        }
       }
     }
   });
