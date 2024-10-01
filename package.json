@@ -43,7 +43,7 @@
     "@tabler/icons-react": "^3.16.0",
     "@tanstack/react-table": "^8.20.5",
     "@tanstack/react-virtual": "^3.10.7",
-    "@tauri-apps/api": "^2.0.0-rc.1",
+    "@tauri-apps/api": "^2.0.0-rc.6",
     "@tauri-apps/plugin-clipboard-manager": "^2.0.0-rc.1",
     "@tauri-apps/plugin-dialog": "^2.0.0-rc.1",
     "@tauri-apps/plugin-log": "^2.0.0-rc.1",
