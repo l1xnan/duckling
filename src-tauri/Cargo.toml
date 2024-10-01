@@ -50,7 +50,7 @@ url = "^2.5.0"
 log = "^0.4"
 nanoid = "0.4.0"
 chrono = "^0.4"
-chrono-tz = "^0.8"
+chrono-tz = "^0.10"
 async-trait = "^0.1"
 time = "0.3.34"
 uuid = { version = "1.7.0", features = ["v4"] }
