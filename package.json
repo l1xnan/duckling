@@ -44,7 +44,7 @@
     "@tanstack/react-table": "^8.20.5",
     "@tanstack/react-virtual": "^3.10.7",
     "@tauri-apps/api": "^2.0.0-rc.1",
-    "@tauri-apps/plugin-clipboard-manager": "^2.0.0-rc.1",
+    "@tauri-apps/plugin-clipboard-manager": "^2.0.0-rc.2",
     "@tauri-apps/plugin-dialog": "^2.0.0-rc.1",
     "@tauri-apps/plugin-log": "^2.0.0-rc.1",
     "@tauri-apps/plugin-process": "^2.0.0-rc.1",
