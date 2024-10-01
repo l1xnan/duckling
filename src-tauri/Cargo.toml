@@ -41,7 +41,7 @@ tauri-plugin-shell = "2.0.0-rc"
 tauri-plugin-dialog = "2.0.0-rc"
 tauri-plugin-log = "2.0.0-rc"
 tauri-plugin-process = "2.0.0-rc"
-tauri-plugin-window-state = "2.0.0-rc"
+tauri-plugin-window-state = "2.0.0-rc.5"
 tauri-plugin-clipboard-manager = "2.0.0-rc"
 tauri-plugin-store = "2.0.0-rc"
 
