@@ -10,7 +10,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "^2.0.0-rc", features = [] }
+tauri-build = { version = "^2.0.0", features = [] }
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
@@ -30,20 +30,20 @@ clickhouse-rs = { git = "https://github.com/mel-mel-king/clickhouse-rs.git", bra
 rusqlite = { version = "0.32.1", features = ["bundled", "column_decltype", "modern_sqlite"] }
 mysql = { version = "25.0.0" }
 tokio-postgres = { version = "0.7.10", features = ["with-serde_json-1", "array-impls", "with-chrono-0_4"] }
-tauri = { version = "^2.0.0-rc", features = [
+tauri = { version = "^2.0.0", features = [
     "devtools",
     "image-ico",
     "image-png",
     "tray-icon",
 ] }
 # tauri plugin
-tauri-plugin-shell = "2.0.0-rc"
-tauri-plugin-dialog = "2.0.0-rc"
-tauri-plugin-log = "2.0.0-rc"
-tauri-plugin-process = "2.0.0-rc"
-tauri-plugin-window-state = "2.0.0-rc"
-tauri-plugin-clipboard-manager = "2.0.0-rc"
-tauri-plugin-store = "2.0.0-rc"
+tauri-plugin-shell = "^2.0.0"
+tauri-plugin-dialog = "^2.0.0"
+tauri-plugin-log = "^2.0.0"
+tauri-plugin-process = "^2.0.0"
+tauri-plugin-window-state = "^2.0.0"
+tauri-plugin-clipboard-manager = "^2.0.0"
+tauri-plugin-store = "^2.0.0"
 
 anyhow = "1"
 url = "^2.5.0"
@@ -60,9 +60,19 @@ sqlformat = "0.2.4"
 glob = "*"
 
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
-tauri-plugin-updater = "2.0.0-rc"
+tauri-plugin-updater = "2.0.0"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
 # DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]
+
+[profile.dev]
+incremental = true # Compile your binary in smaller steps.
+
+[profile.release]
+codegen-units = 1 # Allows LLVM to perform better optimization.
+lto = true # Enables link-time-optimizations.
+opt-level = "s" # Prioritizes small binary size. Use `3` if you prefer speed.
+panic = "abort" # Higher performance by disabling panic handlers.
+strip = true # Ensures debug symbols are removed.
