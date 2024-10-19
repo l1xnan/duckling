@@ -18,6 +18,7 @@ import {
   useDBListStore
 } from '@/stores/dbList';
 import { ChevronsDownUpIcon, ChevronsUpDownIcon } from 'lucide-react';
+import { useShallow } from 'zustand/shallow';
 
 export function SideToolbar({
   onExpandAll,
@@ -26,13 +27,13 @@ export function SideToolbar({
   onExpandAll: () => void;
   onCollapseAll: () => void;
 }) {
-  const [dbList, dbMap, appendDB, updateDB, _removeDB] = useDBListStore((s) => [
+  const [dbList, dbMap, appendDB, updateDB, _removeDB] = useDBListStore(useShallow((s) => [
     s.dbList,
     s.dbMap,
     s.append,
     s.update,
     s.remove,
-  ]);
+  ]));
 
   async function handleGetDB(path: string, dialect: DialectType) {
     const data = await getDB({ path, dialect });

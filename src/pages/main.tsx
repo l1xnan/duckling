@@ -14,6 +14,7 @@ import {
   TableContextType,
   useTabsStore,
 } from '@/stores/tabs';
+import { useShallow } from 'zustand/shallow';
 
 import { SearchView } from '@/components/views/SchemaView';
 import { PageProvider } from '@/hooks/context';
@@ -60,14 +61,14 @@ function TabContent({ id, tab }: { id: string; tab: TabContextType }) {
 
 export function Main() {
   const { activateTab, removeTab, removeOtherTab, tabObj, ids, currentId } =
-    useTabsStore((s) => ({
+    useTabsStore(useShallow((s) => ({
       activateTab: s.active,
       removeTab: s.remove,
       removeOtherTab: s.removeOther,
       tabObj: s.tabs,
       currentId: s.currentId,
       ids: s.ids,
-    }));
+    })));
 
   const items = ids.map((id) => {
     const tab = tabObj[id];

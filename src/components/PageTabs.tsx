@@ -4,6 +4,7 @@ import { Tooltip } from '@/components/custom/tooltip';
 import { useDialog } from '@/components/custom/use-dialog';
 
 import ErrorBoundary from '@/components/ErrorBoundary';
+import { useShallow } from 'zustand/shallow';
 
 import { Button, ButtonProps } from '@/components/ui/button';
 import {
@@ -84,9 +85,9 @@ export function TabItemContextMenu({
   const setFavorite = useSetAtom(favoriteAtom);
   const setDocs = useSetAtom(docsAtom);
 
-  const { removeTab } = useTabsStore((state) => ({
+  const { removeTab } = useTabsStore(useShallow((state) => ({
     removeTab: state.remove,
-  }));
+  })));
 
   const handleDeleteTab = (tab: TabContextType) => {
     removeTab(tab.id, true);
