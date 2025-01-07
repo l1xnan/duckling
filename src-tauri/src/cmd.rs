@@ -8,12 +8,12 @@ use tauri::State;
 
 use crate::api;
 use crate::api::ArrowResponse;
-use crate::dialect::clickhouse::ClickhouseDialect;
-use crate::dialect::duckdb::DuckDbDialect;
-use crate::dialect::file::FileDialect;
-use crate::dialect::folder::FolderDialect;
-use crate::dialect::mysql::MySqlDialect;
-use crate::dialect::postgres::PostgresDialect;
+use crate::dialect::clickhouse::ClickhouseConnection;
+use crate::dialect::duckdb::DuckDbConnection;
+use crate::dialect::file::FileConnection;
+use crate::dialect::folder::FolderConnection;
+use crate::dialect::mysql::MySqlConnection;
+use crate::dialect::postgres::PostgresConnection;
 use crate::dialect::sqlite::SqliteDialect;
 use crate::dialect::Connection;
 use crate::utils::TreeNode;
@@ -57,35 +57,35 @@ pub async fn get_dialect(
   }: DialectPayload,
 ) -> Option<Box<dyn Connection>> {
   match dialect.as_str() {
-    "folder" => Some(Box::new(FolderDialect {
+    "folder" => Some(Box::new(FolderConnection {
       path: path.unwrap(),
       cwd,
     })),
-    "file" => Some(Box::new(FileDialect {
+    "file" => Some(Box::new(FileConnection {
       path: path.unwrap(),
     })),
-    "duckdb" => Some(Box::new(DuckDbDialect {
+    "duckdb" => Some(Box::new(DuckDbConnection {
       path: path.unwrap(),
       cwd,
     })),
     "sqlite" => Some(Box::new(SqliteDialect {
       path: path.unwrap(),
     })),
-    "clickhouse" => Some(Box::new(ClickhouseDialect {
+    "clickhouse" => Some(Box::new(ClickhouseConnection {
       host: host.unwrap(),
       port: port.unwrap(),
       username: username.unwrap_or_default(),
       password: password.unwrap_or_default(),
       database,
     })),
-    "mysql" => Some(Box::new(MySqlDialect {
+    "mysql" => Some(Box::new(MySqlConnection {
       host: host.unwrap(),
       port: port.unwrap(),
       username: username.unwrap_or_default(),
       password: password.unwrap_or_default(),
       database,
     })),
-    "postgres" => Some(Box::new(PostgresDialect {
+    "postgres" => Some(Box::new(PostgresConnection {
       host: host.unwrap(),
       port: port.unwrap(),
       username: username.unwrap_or_default(),
