@@ -1,19 +1,26 @@
+mod arrow_type;
+
 use std::convert::From;
 use std::sync::Arc;
 
 use arrow::array::*;
-use arrow::datatypes::{DataType, Field, Schema};
+use arrow::datatypes::{Field, Schema};
 use async_trait::async_trait;
 use rusqlite::types::Value;
-use rusqlite::Column;
+use rusqlite::Statement;
 
 use crate::api::RawArrowData;
+use crate::dialect::sqlite::arrow_type::{db_result_to_arrow, db_to_arrow_type};
 use crate::dialect::Connection;
 use crate::utils::{build_tree, get_file_name, Table, Title, TreeNode};
 
 #[derive(Debug, Default)]
 pub struct SqliteConnection {
   pub path: String,
+}
+
+pub struct SQLiteStatement<'conn> {
+  pub stmt: rusqlite::Statement<'conn>,
 }
 
 #[async_trait]
@@ -75,43 +82,45 @@ impl SqliteConnection {
   }
 
   #[allow(clippy::unused_async)]
-  async fn _query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
+  async fn _query_arrow(
+    &self,
+    sql: &str,
+    _limit: usize,
+    _offset: usize,
+  ) -> anyhow::Result<RawArrowData> {
     let conn = self.connect()?;
     let mut stmt = conn.prepare(sql)?;
 
-    let mut fields = vec![];
+    let (titles, schema) = Self::get_arrow_schema(&mut stmt);
     let k = stmt.column_count();
-    let mut titles = vec![];
-    for col in stmt.columns() {
-      titles.push(Title {
-        name: col.name().to_string(),
-        r#type: col.decl_type().unwrap_or_default().to_string(),
-      });
-      let typ = Self::arrow_type(&col);
-      let field = Field::new(col.name(), typ, true);
-      fields.push(field);
-      println!("{:?} {:?}", col.name(), col.decl_type());
-    }
-
-    let schema = Schema::new(fields);
     let mut batchs = vec![];
 
-    let mut rows = stmt.query([])?;
+    let mut rows_iter = stmt.query([])?;
     println!("title={titles:?}");
 
-    while let Some(row) = rows.next()? {
+    while let Some(row) = rows_iter.next()? {
       let mut arrs = vec![];
 
       for i in 0..k {
-        let val = row.get::<_, Value>(i).unwrap();
+        let val = row.get::<_, Value>(i).unwrap_or(Value::Null);
         let r = convert_arrow(&val, &titles.get(i).unwrap().r#type);
         arrs.push(r);
       }
-      let batch = RecordBatch::try_new(Arc::new(schema.clone()), arrs)?;
+      let batch = RecordBatch::try_new(schema.clone(), arrs)?;
       batchs.push(batch);
     }
 
-    let batch = arrow::compute::concat_batches(&Arc::new(schema), &batchs)?;
+    let mut rows: Vec<Vec<Value>> = vec![];
+    while let Some(row_ref) = rows_iter.next()? {
+      let mut row = Vec::with_capacity(k);
+      for col_index in 0..k {
+        let value = row_ref.get::<_, Value>(col_index).unwrap_or(Value::Null);
+        row.push(value);
+      }
+      rows.push(row);
+    }
+
+    let batch = arrow::compute::concat_batches(&schema, &batchs)?;
 
     Ok(RawArrowData {
       total: batch.num_rows(),
@@ -121,27 +130,37 @@ impl SqliteConnection {
     })
   }
 
-  fn arrow_type(col: &Column) -> DataType {
-    // https://sqlite.org/datatype3.html#determination_of_column_affinity
-    if let Some(decl_type) = col.decl_type() {
-      match decl_type {
-        // INT, INTEGER
-        ty if ty.contains("INT") => DataType::Int64,
-        // VARCHAR, NVARCHAR, TEXT, CLOB
-        ty if ty.contains("CHAR") || ty.contains("CLOB") || ty.contains("TEXT") => DataType::Utf8,
-        ty if ty.contains("BLOB") => DataType::LargeBinary,
-        ty if ty.contains("REAL") || ty.contains("DOUB") || ty.contains("FLOA") => {
-          DataType::Float64
-        }
-        ty if ty.contains("NUMERIC") => DataType::Utf8,
-        "DATE" | "DATETIME" | "TIME" => DataType::Utf8,
-        "BOOLEAN" => DataType::Boolean,
-        "NULL" => DataType::Null,
-        _ => DataType::Utf8,
-      }
-    } else {
-      DataType::Utf8
+  #[allow(clippy::unused_async)]
+  async fn _query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
+    let conn = self.connect()?;
+    let mut stmt = conn.prepare(sql)?;
+    let batch = db_result_to_arrow(&mut stmt)?;
+    let (titles, schema) = Self::get_arrow_schema(&mut stmt);
+
+    Ok(RawArrowData {
+      total: batch.num_rows(),
+      batch,
+      titles: Some(titles),
+      sql: Some(sql.to_string()),
+    })
+  }
+
+  fn get_arrow_schema(stmt: &mut Statement) -> (Vec<Title>, Arc<Schema>) {
+    let mut fields = vec![];
+    let mut titles = vec![];
+    for col in stmt.columns() {
+      titles.push(Title {
+        name: col.name().to_string(),
+        r#type: col.decl_type().unwrap_or_default().to_string(),
+      });
+      let typ = db_to_arrow_type(col.decl_type());
+      let field = Field::new(col.name(), typ, true);
+      fields.push(field);
+      println!("{:?} {:?}", col.name(), col.decl_type());
     }
+
+    let schema = Schema::new(fields);
+    (titles, Arc::new(schema))
   }
 
   #[allow(clippy::unused_async)]

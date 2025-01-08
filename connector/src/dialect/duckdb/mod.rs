@@ -178,7 +178,7 @@ async fn test_duckdb() {
   use arrow::util::pretty::print_batches;
 
   let path = r"test.duckdb";
-  let d = DuckDbDialect::new(path);
+  let d = DuckDbConnection::new(path);
   let res = d.query("", 0, 0).await.unwrap();
   print_batches(&[res.batch]);
 }
