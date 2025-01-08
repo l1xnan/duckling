@@ -6,17 +6,17 @@ use serde::Serialize;
 use sqlformat::{FormatOptions, QueryParams};
 use tauri::State;
 
-use crate::api;
-use crate::api::ArrowResponse;
-use crate::dialect::clickhouse::ClickhouseConnection;
-use crate::dialect::duckdb::DuckDbConnection;
-use crate::dialect::file::FileConnection;
-use crate::dialect::folder::FolderConnection;
-use crate::dialect::mysql::MySqlConnection;
-use crate::dialect::postgres::PostgresConnection;
-use crate::dialect::sqlite::SqliteConnection;
-use crate::dialect::Connection;
-use crate::utils::TreeNode;
+use connector::api;
+use connector::api::ArrowResponse;
+use connector::dialect::clickhouse::ClickhouseConnection;
+use connector::dialect::duckdb::DuckDbConnection;
+use connector::dialect::file::FileConnection;
+use connector::dialect::folder::FolderConnection;
+use connector::dialect::mysql::MySqlConnection;
+use connector::dialect::postgres::PostgresConnection;
+use connector::dialect::sqlite::SqliteConnection;
+use connector::dialect::Connection;
+use connector::utils::TreeNode;
 
 pub struct OpenedUrls(pub Mutex<Option<Vec<url::Url>>>);
 
