@@ -12,12 +12,12 @@ use crate::dialect::Connection;
 use crate::utils::{build_tree, get_file_name, Table, Title, TreeNode};
 
 #[derive(Debug, Default)]
-pub struct SqliteDialect {
+pub struct SqliteConnection {
   pub path: String,
 }
 
 #[async_trait]
-impl Connection for SqliteDialect {
+impl Connection for SqliteConnection {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
     let tables = self.get_tables().await?;
     let tree = build_tree(tables);
@@ -65,7 +65,7 @@ impl Connection for SqliteDialect {
   }
 }
 
-impl SqliteDialect {
+impl SqliteConnection {
   async fn get_schema(&self) -> Vec<Table> {
     unimplemented!()
   }
@@ -252,7 +252,7 @@ pub fn convert_to_f64s(values: &[Value]) -> Vec<Option<f64>> {
 #[tokio::test]
 async fn test_tables() {
   use arrow::util::pretty::print_batches;
-  let d = SqliteDialect {
+  let d = SqliteConnection {
     path: String::from(r""),
   };
   let res = d.query("", 0, 0).await.unwrap();
