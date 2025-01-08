@@ -14,7 +14,7 @@ use crate::dialect::file::FileConnection;
 use crate::dialect::folder::FolderConnection;
 use crate::dialect::mysql::MySqlConnection;
 use crate::dialect::postgres::PostgresConnection;
-use crate::dialect::sqlite::SqliteDialect;
+use crate::dialect::sqlite::SqliteConnection;
 use crate::dialect::Connection;
 use crate::utils::TreeNode;
 
@@ -68,7 +68,7 @@ pub async fn get_dialect(
       path: path.unwrap(),
       cwd,
     })),
-    "sqlite" => Some(Box::new(SqliteDialect {
+    "sqlite" => Some(Box::new(SqliteConnection {
       path: path.unwrap(),
     })),
     "clickhouse" => Some(Box::new(ClickhouseConnection {
