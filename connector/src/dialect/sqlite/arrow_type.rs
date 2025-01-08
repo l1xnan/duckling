@@ -4,7 +4,8 @@ use arrow::array::{
 };
 use arrow::datatypes::{DataType, Field, Schema};
 use arrow::record_batch::RecordBatch;
-use rusqlite::{Connection, Statement};
+use itertools::izip;
+use rusqlite::{types::Value, Connection, Statement};
 use std::sync::Arc;
 
 pub fn db_to_arrow_type(decl_type: Option<&str>) -> DataType {
@@ -47,12 +48,10 @@ pub fn db_result_to_arrow(stmt: &mut Statement) -> anyhow::Result<RecordBatch> {
     .map(|col| db_to_arrow_type(col.decl_type()))
     .collect();
 
-  let fields: Vec<Field> = stmt
-    .column_names()
-    .into_iter()
-    .zip(data_types.iter())
-    .map(|(name, data_type)| Field::new(name, data_type.clone(), false))
+  let fields: Vec<Field> = izip!(stmt.column_names(), data_types.clone())
+    .map(|(name, data_type)| Field::new(name, data_type.clone(), true))
     .collect();
+
   let schema = Arc::new(Schema::new(fields));
 
   let mut builders: Vec<Box<dyn ArrayBuilder>> = data_types.iter().map(make_builder).collect();
@@ -60,6 +59,7 @@ pub fn db_result_to_arrow(stmt: &mut Statement) -> anyhow::Result<RecordBatch> {
   let mut rows = stmt.query([])?;
   while let Some(row) = rows.next()? {
     for (idx, data_type) in data_types.iter().enumerate() {
+      let val = row.get::<_, Value>(idx).unwrap_or(Value::Null);
       match data_type {
         DataType::Int64 => {
           let value = row.get::<usize, Option<i64>>(idx).unwrap_or(None);
@@ -78,7 +78,7 @@ pub fn db_result_to_arrow(stmt: &mut Statement) -> anyhow::Result<RecordBatch> {
             .append_option(value);
         }
         DataType::Utf8 => {
-          let value = row.get::<usize, Option<String>>(idx).unwrap_or(None);
+          let value = convert_to_string(&val);
           builders[idx]
             .as_any_mut()
             .downcast_mut::<StringBuilder>()
@@ -111,6 +111,17 @@ pub fn db_result_to_arrow(stmt: &mut Statement) -> anyhow::Result<RecordBatch> {
   }
 
   Ok(RecordBatch::try_new(schema, columns)?)
+}
+
+#[allow(dead_code)]
+pub fn convert_to_string(value: &Value) -> Option<String> {
+  match value {
+    Value::Integer(i) => Some(i.to_string()),
+    Value::Real(f) => Some(f.to_string()),
+    Value::Text(s) => Some(s.clone()),
+    Value::Blob(b) => String::from_utf8(b.clone()).ok(),
+    Value::Null => None::<String>,
+  }
 }
 
 fn test() {

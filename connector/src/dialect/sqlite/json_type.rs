@@ -1,3 +1,4 @@
+use itertools::izip;
 use rusqlite::{types, Statement};
 use serde_json::{json, Value};
 use std::collections::HashMap;
@@ -31,13 +32,7 @@ fn db_result_to_json(stmt: &mut Statement) -> anyhow::Result<Value> {
   let names = stmt.column_names();
   let res: Vec<HashMap<&str, Value>> = result
     .into_iter()
-    .map(|values| {
-      names
-        .clone()
-        .into_iter()
-        .zip(values.into_iter())
-        .collect::<HashMap<_, _>>()
-    })
+    .map(|values| izip!(names.clone(), values).collect())
     .collect();
   Ok(json!(res))
 }
