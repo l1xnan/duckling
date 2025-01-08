@@ -1,4 +1,5 @@
 mod arrow_type;
+mod json_type;
 
 use std::convert::From;
 use std::sync::Arc;

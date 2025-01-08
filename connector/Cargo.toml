@@ -30,3 +30,4 @@ sqlparser = { version = "0.53", features = ["json_example"] }
 sqlformat = "0.2.4"
 log = "^0.4"
 glob = "*"
+itertools = "*"
