@@ -218,7 +218,7 @@ export const CanvasTable = React.memo(function CanvasTable({
         sort: true,
         style: (arg) => {
           const style: Record<string, string> = {};
-          if (isNumberType(dataType)) {
+          if (isNumberType(dataType) || type?.toLowerCase()?.includes('decimal')) {
             style['textAlign'] = 'right';
           }
           if (arg.dataValue === null || arg.dataValue === undefined) {
