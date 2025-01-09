@@ -209,7 +209,7 @@ export const CanvasTable = React.memo(function CanvasTable({
   ];
 
   const __columns: ColumnDefine[] = __titles.map(
-    ({ key, name, dataType }, _) => {
+    ({ key, name, dataType, type }, _) => {
       return {
         field: name,
         fieldKey: key,
@@ -238,10 +238,11 @@ export const CanvasTable = React.memo(function CanvasTable({
               .padStart(scale + 1, '0')
               .replace(new RegExp(`(.{${scale}})$`), '.$1');
           }
-          if (DataType.isDate(dataType)) {
+          if (DataType.isDate(dataType) && type?.toLowerCase()?.includes('datetime')) {
+            return dayjs(value).format('YYYY-MM-DD HH:mm:ss');
+          } else if (DataType.isDate(dataType)) {
             return dayjs(value).format('YYYY-MM-DD');
-          }
-          if (DataType.isTimestamp(dataType)) {
+          } else if (DataType.isTimestamp(dataType)) {
             return dayjs(value).format('YYYY-MM-DD HH:mm:ss');
           }
 
