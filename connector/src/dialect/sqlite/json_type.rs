@@ -1,38 +1,34 @@
-use itertools::izip;
+use crate::types::JSONRowMap;
 use rusqlite::{types, Statement};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 
-fn db_result_to_json(stmt: &mut Statement) -> anyhow::Result<Value> {
-  let k = stmt.column_count();
-  let mut result: Vec<Vec<Value>> = Vec::new();
-  {
-    let mut rows = stmt.query([])?;
-    while let Some(row) = rows.next()? {
-      // let mut row_json: HashMap<&str, Value> = HashMap::new();
-      let mut json_row: Vec<Value> = vec![];
-      for index in 0..k {
-        let json_value: Value = if let Ok(value) = row.get(index) {
-          match value {
-            types::Value::Integer(num) => json!(num),
-            types::Value::Text(text) => json!(text),
-            types::Value::Real(num) => json!(num),
-            types::Value::Null => json!(null),
-            _ => json!(null),
-          }
-        } else {
-          json!(null)
-        };
-        json_row.push(json_value);
-      }
-      result.push(json_row);
-    }
-  }
-
-  let names = stmt.column_names();
-  let res: Vec<HashMap<&str, Value>> = result
+pub fn db_result_to_json(stmt: &mut Statement) -> anyhow::Result<Vec<JSONRowMap>> {
+  let names: Vec<String> = stmt
+    .column_names()
     .into_iter()
-    .map(|values| izip!(names.clone(), values).collect())
+    .map(|s| s.to_string())
     .collect();
-  Ok(json!(res))
+  let mut result: Vec<JSONRowMap> = Vec::new();
+
+  let mut rows = stmt.query([])?;
+  while let Some(row) = rows.next()? {
+    let mut row_json: HashMap<String, Value> = HashMap::new();
+    for (idx, name) in names.clone().into_iter().enumerate() {
+      let json_value: Value = if let Ok(value) = row.get(idx) {
+        match value {
+          types::Value::Integer(num) => json!(num),
+          types::Value::Text(text) => json!(text),
+          types::Value::Real(num) => json!(num),
+          types::Value::Null => json!(null),
+          _ => json!(null),
+        }
+      } else {
+        json!(null)
+      };
+      row_json.insert(name.to_string(), json_value);
+    }
+    result.push(row_json);
+  }
+  Ok(result)
 }

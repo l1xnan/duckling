@@ -12,8 +12,9 @@ use rusqlite::Statement;
 
 use crate::api::RawArrowData;
 use crate::dialect::sqlite::arrow_type::{db_result_to_arrow, db_to_arrow_type};
+use crate::dialect::sqlite::json_type::db_result_to_json;
 use crate::dialect::Connection;
-use crate::utils::{build_tree, get_file_name, Table, Title, TreeNode};
+use crate::utils::{build_tree, get_file_name, json_to_arrow, Table, Title, TreeNode};
 
 #[derive(Debug, Default)]
 pub struct SqliteConnection {
@@ -138,6 +139,25 @@ impl SqliteConnection {
     let batch = db_result_to_arrow(&mut stmt)?;
     let (titles, schema) = Self::get_arrow_schema(&mut stmt);
 
+    Ok(RawArrowData {
+      total: batch.num_rows(),
+      batch,
+      titles: Some(titles),
+      sql: Some(sql.to_string()),
+    })
+  }
+  #[allow(clippy::unused_async)]
+  async fn _query_json(
+    &self,
+    sql: &str,
+    _limit: usize,
+    _offset: usize,
+  ) -> anyhow::Result<RawArrowData> {
+    let conn = self.connect()?;
+    let mut stmt = conn.prepare(sql)?;
+    let (titles, schema) = Self::get_arrow_schema(&mut stmt);
+    let batch = db_result_to_json(&mut stmt)?;
+    let batch = json_to_arrow(&batch, schema)?;
     Ok(RawArrowData {
       total: batch.num_rows(),
       batch,
