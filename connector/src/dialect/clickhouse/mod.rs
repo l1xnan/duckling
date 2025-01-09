@@ -1,3 +1,5 @@
+mod type_arrow;
+
 use std::str;
 use std::sync::Arc;
 
@@ -170,7 +172,7 @@ impl ClickhouseConnection {
     Ok(())
   }
 
-  async fn fetch_all(&self, sql: &str) -> anyhow::Result<RawArrowData> {
+  async fn _fetch_all(&self, sql: &str) -> anyhow::Result<RawArrowData> {
     let pool = Pool::new(self.get_url());
     let mut client = pool.get_handle().await?;
     let mut stream = client.query(sql).stream_blocks();
@@ -199,6 +201,26 @@ impl ClickhouseConnection {
     let b = batchs[0].clone();
     let schema = b.schema();
     let batch = arrow::compute::concat_batches(&schema, &batchs)?;
+    Ok(RawArrowData {
+      total: batch.num_rows(),
+      batch,
+      titles: Some(titles),
+      sql: Some(sql.to_string()),
+    })
+  }
+  async fn fetch_all(&self, sql: &str) -> anyhow::Result<RawArrowData> {
+    let pool = Pool::new(self.get_url());
+    let mut client = pool.get_handle().await?;
+    let block = client.query(sql).fetch_all().await?;
+    let titles = block
+      .columns()
+      .iter()
+      .map(|c| Title {
+        name: c.name().to_string(),
+        r#type: c.sql_type().to_string().into(),
+      })
+      .collect();
+    let batch = type_arrow::block_to_arrow(&block)?;
     Ok(RawArrowData {
       total: batch.num_rows(),
       batch,
@@ -477,6 +499,4 @@ async fn query_stream(url: &str, sql: &str) -> anyhow::Result<()> {
 }
 
 #[tokio::test]
-async fn test_duckdb() {
-  use arrow::util::pretty::print_batches;
-}
+async fn test_clickhouse() {}
