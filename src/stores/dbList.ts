@@ -9,6 +9,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { TreeNode } from '@/types';
 
 import { atomStore } from '.';
+import indexDBStorage from './indexdb';
 
 export type NodeContextType = {
   id?: string;
@@ -171,7 +172,7 @@ export const useDBListStore = create<DBListStore>()(
       }),
       {
         name: 'dbListStore',
-        storage: createJSONStorage(() => localStorage),
+        storage: createJSONStorage(() => indexDBStorage),
       },
     ),
   ),
