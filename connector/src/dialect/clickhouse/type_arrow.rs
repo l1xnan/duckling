@@ -109,12 +109,22 @@ pub fn convert_col(col: &Column<Complex>, col_type: &SqlType) -> anyhow::Result<
       SqlType::Int64 => generate_list_array!(col, types::Int64Type, i64),
       SqlType::Float32 => generate_list_array!(col, types::Float32Type, f32),
       SqlType::Float64 => generate_list_array!(col, types::Float64Type, f64),
-      _ => Arc::new(ListArray::from_iter_primitive::<types::UInt8Type, _, _>(
-        col
-          .iter::<Vec<u8>>()?
-          .map(|x| Some(x.into_iter().map(|y| Some(*y)).collect::<Vec<_>>()))
-          .collect::<Vec<_>>(),
-      )),
+      _ => {
+        let mut builder = ListBuilder::new(StringBuilder::new());
+        let arr = col
+          .iter::<Vec<&[u8]>>()?
+          .map(|x| {
+            Some(
+              x.into_iter()
+                .map(|y| std::str::from_utf8(y).ok())
+                .collect::<Vec<_>>(),
+            )
+          })
+          .collect::<Vec<_>>();
+        builder.extend(arr);
+        let arr = builder.finish();
+        Arc::new(arr)
+      }
     },
     _ => {
       let strings: Vec<_> = if nullable {

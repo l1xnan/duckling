@@ -62,7 +62,7 @@ impl Connection for ClickhouseConnection {
 
   async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
     let sql =
-      format!("select * from system.tables where database='{schema}' order by engine, name");
+      format!("select * except(uuid) from system.tables where database='{schema}' order by engine, name");
     self.query(&sql, 0, 0).await
   }
 

@@ -173,6 +173,7 @@ export const useDBListStore = create<DBListStore>()(
       {
         name: 'dbListStore',
         storage: createJSONStorage(() => indexDBStorage),
+        partialize: (state) => ({ dbList: state.dbList } as DBListStore),
       },
     ),
   ),
