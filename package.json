@@ -79,7 +79,7 @@
     "react-hook-form": "^7.53.1",
     "react-horizontal-scrolling-menu": "^8.1.0",
     "react-hotkeys-hook": "^4.5.1",
-    "react-resizable-panels": "^2.1.4",
+    "react-resizable-panels": "^2.1.6",
     "react-router-dom": "^6.27.0",
     "sonner": "^1.5.0",
     "sql-formatter": "^15.4.4",
