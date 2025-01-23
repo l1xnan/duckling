@@ -37,7 +37,8 @@ pub(crate) fn block_to_arrow(block: &Block<Complex>) -> anyhow::Result<RecordBat
   let mut fields = vec![];
   let mut data = vec![];
   for col in block.columns() {
-    let (field, arr) = convert_col(col, &col.sql_type())?;
+    let field = Field::new(col.name(), convert_type(&col.sql_type()), true);
+    let arr = convert_col(col, &col.sql_type())?;
     fields.push(field);
     data.push(arr);
   }
@@ -47,14 +48,13 @@ pub(crate) fn block_to_arrow(block: &Block<Complex>) -> anyhow::Result<RecordBat
   Ok(batch)
 }
 
-pub fn convert_col(col: &Column<Complex>, col_type: &SqlType) -> anyhow::Result<(Field, ArrayRef)> {
+pub fn convert_col(col: &Column<Complex>, col_type: &SqlType) -> anyhow::Result<ArrayRef> {
   let nullable = matches!(col_type, SqlType::Nullable(_));
   let typ = if let SqlType::Nullable(t) = col_type {
     *t
   } else {
     col_type
   };
-  let field = Field::new(col.name(), convert_type(typ), nullable);
   let arr: ArrayRef = match typ {
     SqlType::UInt8 => generate_array!(col, UInt8Array, u8, nullable),
     SqlType::UInt16 => generate_array!(col, UInt16Array, u16, nullable),
@@ -93,14 +93,22 @@ pub fn convert_col(col: &Column<Complex>, col_type: &SqlType) -> anyhow::Result<
       StringArray::from(
         col
           .iter::<Option<Decimal>>()?
-          .map(|t| t.map(|i| format!("{i}")))
+          .map(|t| {
+            t.map(|i| {
+              println!("{:?}", i.clone());
+              format!("{i}")
+            })
+          })
           .collect::<Vec<_>>(),
       )
     } else {
       StringArray::from(
         col
           .iter::<Decimal>()?
-          .map(|t| format!("{t}"))
+          .map(|t| {
+            println!("{:?}", t.clone());
+            format!("{t}")
+          })
           .collect::<Vec<_>>(),
       )
     }),
@@ -126,6 +134,9 @@ pub fn convert_col(col: &Column<Complex>, col_type: &SqlType) -> anyhow::Result<
         Arc::new(arr)
       }
     },
+    SqlType::Map(t1, t2) => {
+      let map = col.iter::<Vec<_>>()?.map();
+    }
     _ => {
       let strings: Vec<_> = if nullable {
         col
@@ -141,7 +152,7 @@ pub fn convert_col(col: &Column<Complex>, col_type: &SqlType) -> anyhow::Result<
       Arc::new(StringArray::from(strings))
     }
   };
-  Ok((field, arr))
+  Ok(arr)
 }
 
 fn convert_type(col_type: &SqlType) -> DataType {
@@ -160,13 +171,9 @@ fn convert_type(col_type: &SqlType) -> DataType {
     SqlType::Date => DataType::Date32,
     SqlType::String => DataType::Utf8,
     SqlType::DateTime(_) => DataType::Date64,
-    SqlType::Nullable(t) => crate::dialect::clickhouse::convert_type(t),
+    SqlType::Nullable(t) => convert_type(t),
     SqlType::Decimal(_d1, _d2) => DataType::Utf8,
-    SqlType::Array(t) => DataType::List(Arc::new(Field::new(
-      "item",
-      crate::dialect::clickhouse::convert_type(t),
-      true,
-    ))),
+    SqlType::Array(t) => DataType::List(Arc::new(Field::new("item", convert_type(t), true))),
     _ => DataType::Utf8,
   }
 }
