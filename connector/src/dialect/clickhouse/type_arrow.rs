@@ -134,9 +134,9 @@ pub fn convert_col(col: &Column<Complex>, col_type: &SqlType) -> anyhow::Result<
         Arc::new(arr)
       }
     },
-    SqlType::Map(t1, t2) => {
-      let map = col.iter::<Vec<_>>()?.map();
-    }
+    // SqlType::Map(t1, t2) => {
+    //   let map = col.iter::<Vec<_>>()?.map();
+    // }
     _ => {
       let strings: Vec<_> = if nullable {
         col
