@@ -2,6 +2,12 @@
 
 @plugin 'tailwindcss-animate';
 
+@plugin 'tailwind-scrollbar' {
+  nocompatible: true;
+  preferredStrategy: "pseudoelements";
+}
+@plugin 'tailwindcss/plugin';
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {
@@ -55,7 +61,7 @@
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
 
-  --selection: hsl(var(--selection));
+  --color-selection: hsl(var(--selection));
 
   @keyframes accordion-down {
     from {
