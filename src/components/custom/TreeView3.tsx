@@ -135,7 +135,7 @@ const Inner = forwardRef<Virtualizer<HTMLDivElement, Element>, any>(
     return (
       <div
         ref={parentRef}
-        className="h-full overflow-x-hidden overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 dark:scrollbar-track-[#2b2d30] dark:scrollbar-thumb-[#4d4e51]"
+        className="h-full overflow-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 dark:scrollbar-track-[#2b2d30] dark:scrollbar-thumb-[#4d4e51]"
       >
         <div
           ref={tree.registerElement}
