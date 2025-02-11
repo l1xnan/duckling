@@ -15,7 +15,7 @@ use crate::utils::{build_tree, Table};
 use crate::utils::{Title, TreeNode};
 
 #[derive(Debug, Default)]
-pub struct MySqlDialect {
+pub struct MySqlConnection {
   pub host: String,
   pub port: String,
   pub username: String,
@@ -24,7 +24,7 @@ pub struct MySqlDialect {
 }
 
 #[async_trait]
-impl Connection for MySqlDialect {
+impl Connection for MySqlConnection {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
     let tables = self.get_tables()?;
     Ok(TreeNode {
@@ -81,7 +81,7 @@ impl Connection for MySqlDialect {
   }
 }
 
-impl MySqlDialect {
+impl MySqlConnection {
   fn new(host: &str, port: &str, username: &str, password: &str) -> Self {
     Self {
       host: host.to_string(),

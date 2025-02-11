@@ -7,18 +7,18 @@ use crate::dialect::Connection;
 use crate::utils::{get_file_name, TreeNode};
 
 #[derive(Debug, Default)]
-pub struct FileDialect {
+pub struct FileConnection {
   pub path: String,
 }
 
-impl FileDialect {
+impl FileConnection {
   fn connect(&self) -> anyhow::Result<duckdb::Connection> {
     Ok(duckdb::Connection::open_in_memory()?)
   }
 }
 
 #[async_trait]
-impl Connection for FileDialect {
+impl Connection for FileConnection {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
     let path = PathBuf::from(self.path.as_str());
 

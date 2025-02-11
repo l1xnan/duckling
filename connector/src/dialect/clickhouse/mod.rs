@@ -1,3 +1,5 @@
+mod type_arrow;
+
 use std::str;
 use std::sync::Arc;
 
@@ -21,7 +23,7 @@ use crate::utils::{date_to_days, write_csv};
 use crate::utils::Title;
 
 #[derive(Debug, Default, Serialize, Deserialize)]
-pub struct ClickhouseDialect {
+pub struct ClickhouseConnection {
   pub host: String,
   pub port: String,
   pub username: String,
@@ -30,7 +32,7 @@ pub struct ClickhouseDialect {
 }
 
 #[async_trait]
-impl Connection for ClickhouseDialect {
+impl Connection for ClickhouseConnection {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
     let tables = self.get_tables().await?;
     Ok(TreeNode {
@@ -46,13 +48,21 @@ impl Connection for ClickhouseDialect {
   async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     self.fetch_all(sql).await
   }
-  async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
-    self._table_row_count(table, r#where).await
+  #[allow(clippy::unused_async)]
+  async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
+    let mut client = self.client().await?;
+    let block = client.query(sql).fetch_all().await?;
+    if let Some(row) = block.rows().next() {
+      let total = row.get::<u32, _>(0)?;
+      Ok(total as usize)
+    } else {
+      Err(anyhow::anyhow!("null"))
+    }
   }
 
   async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
     let sql =
-      format!("select * from system.tables where database='{schema}' order by engine, name");
+      format!("select * except(uuid) from system.tables where database='{schema}' order by engine, name");
     self.query(&sql, 0, 0).await
   }
 
@@ -68,20 +78,12 @@ impl Connection for ClickhouseDialect {
     self.query(&sql, 0, 0).await
   }
 
-  #[allow(clippy::unused_async)]
-  async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
-    let mut client = self.client().await?;
-    let block = client.query(sql).fetch_all().await?;
-    if let Some(row) = block.rows().next() {
-      let total = row.get::<u32, _>(0)?;
-      Ok(total as usize)
-    } else {
-      Err(anyhow::anyhow!("null"))
-    }
+  async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
+    self._table_row_count(table, r#where).await
   }
 }
 
-impl ClickhouseDialect {
+impl ClickhouseConnection {
   pub fn new(host: &str, port: &str, username: &str, password: &str) -> Self {
     Self {
       host: host.to_string(),
@@ -170,7 +172,7 @@ impl ClickhouseDialect {
     Ok(())
   }
 
-  async fn fetch_all(&self, sql: &str) -> anyhow::Result<RawArrowData> {
+  async fn _fetch_all(&self, sql: &str) -> anyhow::Result<RawArrowData> {
     let pool = Pool::new(self.get_url());
     let mut client = pool.get_handle().await?;
     let mut stream = client.query(sql).stream_blocks();
@@ -199,6 +201,26 @@ impl ClickhouseDialect {
     let b = batchs[0].clone();
     let schema = b.schema();
     let batch = arrow::compute::concat_batches(&schema, &batchs)?;
+    Ok(RawArrowData {
+      total: batch.num_rows(),
+      batch,
+      titles: Some(titles),
+      sql: Some(sql.to_string()),
+    })
+  }
+  async fn fetch_all(&self, sql: &str) -> anyhow::Result<RawArrowData> {
+    let pool = Pool::new(self.get_url());
+    let mut client = pool.get_handle().await?;
+    let block = client.query(sql).fetch_all().await?;
+    let titles = block
+      .columns()
+      .iter()
+      .map(|c| Title {
+        name: c.name().to_string(),
+        r#type: c.sql_type().to_string().into(),
+      })
+      .collect();
+    let batch = type_arrow::block_to_arrow(&block)?;
     Ok(RawArrowData {
       total: batch.num_rows(),
       batch,
@@ -477,6 +499,4 @@ async fn query_stream(url: &str, sql: &str) -> anyhow::Result<()> {
 }
 
 #[tokio::test]
-async fn test_duckdb() {
-  use arrow::util::pretty::print_batches;
-}
+async fn test_clickhouse() {}

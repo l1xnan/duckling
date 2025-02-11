@@ -6,17 +6,17 @@ use serde::Serialize;
 use sqlformat::{FormatOptions, QueryParams};
 use tauri::State;
 
-use crate::api;
-use crate::api::ArrowResponse;
-use crate::dialect::clickhouse::ClickhouseDialect;
-use crate::dialect::duckdb::DuckDbDialect;
-use crate::dialect::file::FileDialect;
-use crate::dialect::folder::FolderDialect;
-use crate::dialect::mysql::MySqlDialect;
-use crate::dialect::postgres::PostgresDialect;
-use crate::dialect::sqlite::SqliteDialect;
-use crate::dialect::Connection;
-use crate::utils::TreeNode;
+use connector::api;
+use connector::api::ArrowResponse;
+use connector::dialect::clickhouse::ClickhouseConnection;
+use connector::dialect::duckdb::DuckDbConnection;
+use connector::dialect::file::FileConnection;
+use connector::dialect::folder::FolderConnection;
+use connector::dialect::mysql::MySqlConnection;
+use connector::dialect::postgres::PostgresConnection;
+use connector::dialect::sqlite::SqliteConnection;
+use connector::dialect::Connection;
+use connector::utils::TreeNode;
 
 pub struct OpenedUrls(pub Mutex<Option<Vec<url::Url>>>);
 
@@ -57,35 +57,35 @@ pub async fn get_dialect(
   }: DialectPayload,
 ) -> Option<Box<dyn Connection>> {
   match dialect.as_str() {
-    "folder" => Some(Box::new(FolderDialect {
+    "folder" => Some(Box::new(FolderConnection {
       path: path.unwrap(),
       cwd,
     })),
-    "file" => Some(Box::new(FileDialect {
+    "file" => Some(Box::new(FileConnection {
       path: path.unwrap(),
     })),
-    "duckdb" => Some(Box::new(DuckDbDialect {
+    "duckdb" => Some(Box::new(DuckDbConnection {
       path: path.unwrap(),
       cwd,
     })),
-    "sqlite" => Some(Box::new(SqliteDialect {
+    "sqlite" => Some(Box::new(SqliteConnection {
       path: path.unwrap(),
     })),
-    "clickhouse" => Some(Box::new(ClickhouseDialect {
+    "clickhouse" => Some(Box::new(ClickhouseConnection {
       host: host.unwrap(),
       port: port.unwrap(),
       username: username.unwrap_or_default(),
       password: password.unwrap_or_default(),
       database,
     })),
-    "mysql" => Some(Box::new(MySqlDialect {
+    "mysql" => Some(Box::new(MySqlConnection {
       host: host.unwrap(),
       port: port.unwrap(),
       username: username.unwrap_or_default(),
       password: password.unwrap_or_default(),
       database,
     })),
-    "postgres" => Some(Box::new(PostgresDialect {
+    "postgres" => Some(Box::new(PostgresConnection {
       host: host.unwrap(),
       port: port.unwrap(),
       username: username.unwrap_or_default(),

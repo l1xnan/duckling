@@ -11,11 +11,11 @@ import {
 import { useAtomValue } from 'jotai';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
+import { OrderByType, SchemaType } from '@/stores/dataset';
+import { downloadCsv, exportVTableToCsv } from '@visactor/vtable-export';
 import dayjs from 'dayjs';
 import type { ComponentProps } from 'react';
 import { CSSProperties } from 'react';
-
-import { OrderByType, SchemaType } from '@/stores/dataset';
 
 import { useTheme } from '@/hooks/theme-provider';
 import { tableFontFamilyAtom } from '@/stores/setting';
@@ -127,12 +127,15 @@ function useTableTheme(transpose?: boolean) {
       fontSize: 12,
       padding: [8, 12, 6, 12],
       borderLineWidth: ({ row, table }) => {
-        // @ts-ignore
-        const transpose = table.transpose;
+        const transpose = (table as ListTableAPI).transpose;
         if (transpose && row == 0) {
           return [0, 0, 0, 1];
         }
         return transpose ? [1, 0, 1, 1] : [0, 1, 1, 1];
+      },
+      select: {
+        inlineRowBgColor: 'rgb(0,207,245)',
+        inlineColumnBgColor: 'rgb(0,207,245)',
       },
     },
     frameStyle: {
@@ -198,7 +201,7 @@ export const CanvasTable = React.memo(function CanvasTable({
   const [leftPinnedCols, setLeftPinnedCols] = useState<string[]>([]);
   const [rightPinnedCols, setRightPinnedCols] = useState<string[]>([]);
 
-  const tableRef = useRef<ListTableAPI>();
+  const tableRef = useRef<ListTableAPI>(null);
 
   const pinnedSet = new Set([...leftPinnedCols, ...rightPinnedCols]);
 
@@ -209,7 +212,7 @@ export const CanvasTable = React.memo(function CanvasTable({
   ];
 
   const __columns: ColumnDefine[] = __titles.map(
-    ({ key, name, dataType }, _) => {
+    ({ key, name, dataType, type }, _) => {
       return {
         field: name,
         fieldKey: key,
@@ -218,7 +221,10 @@ export const CanvasTable = React.memo(function CanvasTable({
         sort: true,
         style: (arg) => {
           const style: Record<string, string> = {};
-          if (isNumberType(dataType)) {
+          if (
+            isNumberType(dataType) ||
+            type?.toLowerCase()?.includes('decimal')
+          ) {
             style['textAlign'] = 'right';
           }
           if (arg.dataValue === null || arg.dataValue === undefined) {
@@ -238,10 +244,14 @@ export const CanvasTable = React.memo(function CanvasTable({
               .padStart(scale + 1, '0')
               .replace(new RegExp(`(.{${scale}})$`), '.$1');
           }
-          if (DataType.isDate(dataType)) {
+          if (
+            DataType.isDate(dataType) &&
+            type?.toLowerCase()?.includes('datetime')
+          ) {
+            return dayjs(value).format('YYYY-MM-DD HH:mm:ss');
+          } else if (DataType.isDate(dataType)) {
             return dayjs(value).format('YYYY-MM-DD');
-          }
-          if (DataType.isTimestamp(dataType)) {
+          } else if (DataType.isTimestamp(dataType)) {
             return dayjs(value).format('YYYY-MM-DD HH:mm:ss');
           }
 
@@ -275,6 +285,15 @@ export const CanvasTable = React.memo(function CanvasTable({
       // document.removeEventListener('mousedown', handleBodyClick);
     };
   }, []);
+
+  const exportToCsv = (name: string) => {
+    // TODO: test
+    const table = tableRef.current;
+    if (table) {
+      const csv = exportVTableToCsv(table);
+      downloadCsv(csv, name);
+    }
+  };
 
   const handleMouseEnterCell: ComponentProps<
     typeof ListTable
@@ -346,6 +365,7 @@ export const CanvasTable = React.memo(function CanvasTable({
       showFrozenIcon: true,
       frozenColCount: 1 + leftPinnedCols.length,
       rightFrozenColCount: rightPinnedCols.length,
+      frozenRowCount: 0,
       theme,
       transpose,
       rowSeriesNumber: {
@@ -422,6 +442,7 @@ export const CanvasTable = React.memo(function CanvasTable({
     ],
   );
   console.log('cross:', cross);
+
   return (
     <div
       className="h-full select-text"
@@ -452,7 +473,7 @@ export const CanvasTable = React.memo(function CanvasTable({
 });
 
 export function SimpleTable({ data }: { data: unknown[] }) {
-  const tableRef = useRef<ListTableAPI>();
+  const tableRef = useRef<ListTableAPI>(null);
   const theme = useTableTheme();
 
   const option: ListTableConstructorOptions = React.useMemo(

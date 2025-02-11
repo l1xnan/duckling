@@ -3,6 +3,8 @@ use std::fs::File;
 use std::path::Path;
 
 use arrow::csv::WriterBuilder;
+use arrow::datatypes::SchemaRef;
+use arrow::json::ReaderBuilder;
 use arrow::record_batch::RecordBatch;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
@@ -132,4 +134,11 @@ pub fn write_csv(file: &str, batch: &RecordBatch) {
 pub fn date_to_days(t: &NaiveDate) -> i32 {
   t.signed_duration_since(NaiveDate::from_ymd_opt(1970, 1, 1).unwrap())
     .num_days() as i32
+}
+
+pub fn json_to_arrow<S: Serialize>(rows: &[S], schema: SchemaRef) -> anyhow::Result<RecordBatch> {
+  let mut decoder = ReaderBuilder::new(schema).build_decoder()?;
+  decoder.serialize(&rows)?;
+  let batch = decoder.flush()?.unwrap();
+  Ok(batch)
 }

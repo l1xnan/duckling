@@ -55,7 +55,7 @@ body .vtable__bubble-tooltip-element__content {
   background-color: hsl(var(--popover));
 }
 
-body {
+/* body {
   scrollbar-color: #6b6b6b #2b2b2b;
   &::-webkit-scrollbar,
   & *::-webkit-scrollbar {
@@ -91,7 +91,7 @@ body {
   & *::-webkit-scrollbar-corner {
     background-color: #2b2b2b;
   }
-}
+} */
 
 :root {
   --ag-grid-size: 4px;

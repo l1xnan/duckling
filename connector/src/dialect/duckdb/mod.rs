@@ -8,17 +8,13 @@ use crate::dialect::Connection;
 use crate::utils::{build_tree, get_file_name, write_csv, Table, TreeNode};
 
 #[derive(Debug, Default)]
-pub struct DuckDbDialect {
+pub struct DuckDbConnection {
   pub path: String,
   pub cwd: Option<String>,
 }
 
 #[async_trait]
-impl Connection for DuckDbDialect {
-  fn dialect(&self) -> &'static str {
-    "duckdb"
-  }
-
+impl Connection for DuckDbConnection {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
     let conn = self.connect()?;
     let tables = get_tables(&conn, None)?;
@@ -32,42 +28,27 @@ impl Connection for DuckDbDialect {
     })
   }
 
-  fn normalize(&self, name: &str) -> String {
-    if name.contains(' ') {
-      format!("\"{name}\"")
-    } else {
-      name.to_string()
-    }
-  }
-
-  async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
-    let sql = format!(
-      "
-    select * from information_schema.tables
-    where table_schema='{schema}'
-    order by table_type, table_name
-    "
-    );
-
-    self.query(&sql, 0, 0).await
-  }
-
   async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     api::query(&self.path, sql, 0, 0, self.cwd.clone())
   }
 
-  async fn export(&self, sql: &str, file: &str) {
-    let data = api::fetch_all(&self.path, sql, self.cwd.clone());
-    if let Ok(batch) = data {
-      write_csv(file, &batch);
-    }
+  #[allow(clippy::unused_async)]
+  async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
+    let conn = self.connect()?;
+    let total = conn.query_row(sql, [], |row| row.get::<_, usize>(0))?;
+    Ok(total)
   }
 
-  async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
-    let conn = self.connect()?;
-    let sql = self._table_count_sql(table, r#where);
-    let total = conn.query_row(&sql, [], |row| row.get::<_, usize>(0))?;
-    Ok(total)
+  fn dialect(&self) -> &'static str {
+    "duckdb"
+  }
+
+  async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
+    let sql = format!(
+      "select * from information_schema.tables where table_schema='{schema}' order by table_type, table_name"
+    );
+
+    self.query(&sql, 0, 0).await
   }
 
   async fn show_column(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
@@ -107,11 +88,26 @@ impl Connection for DuckDbDialect {
     Ok(String::new())
   }
 
-  #[allow(clippy::unused_async)]
-  async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
+  async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     let conn = self.connect()?;
-    let total = conn.query_row(sql, [], |row| row.get::<_, usize>(0))?;
+    let sql = self._table_count_sql(table, r#where);
+    let total = conn.query_row(&sql, [], |row| row.get::<_, usize>(0))?;
     Ok(total)
+  }
+
+  fn normalize(&self, name: &str) -> String {
+    if name.contains(' ') {
+      format!("\"{name}\"")
+    } else {
+      name.to_string()
+    }
+  }
+
+  async fn export(&self, sql: &str, file: &str) {
+    let data = api::fetch_all(&self.path, sql, self.cwd.clone());
+    if let Ok(batch) = data {
+      write_csv(file, &batch);
+    }
   }
 
   async fn execute(&self, sql: &str) -> anyhow::Result<usize> {
@@ -129,7 +125,7 @@ impl Connection for DuckDbDialect {
   }
 }
 
-impl DuckDbDialect {
+impl DuckDbConnection {
   fn connect(&self) -> anyhow::Result<duckdb::Connection> {
     Ok(duckdb::Connection::open(&self.path)?)
   }
@@ -182,7 +178,7 @@ async fn test_duckdb() {
   use arrow::util::pretty::print_batches;
 
   let path = r"test.duckdb";
-  let d = DuckDbDialect::new(path);
+  let d = DuckDbConnection::new(path);
   let res = d.query("", 0, 0).await.unwrap();
   print_batches(&[res.batch]);
 }

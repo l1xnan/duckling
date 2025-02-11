@@ -15,11 +15,11 @@ use tokio_postgres::{Client, Column, NoTls, Row};
 
 use crate::api::RawArrowData;
 use crate::dialect::Connection;
-use crate::utils::{build_tree, Table};
+use crate::utils::{build_tree, json_to_arrow, Table};
 use crate::utils::{Title, TreeNode};
 
 #[derive(Debug, Default)]
-pub struct PostgresDialect {
+pub struct PostgresConnection {
   pub host: String,
   pub port: String,
   pub username: String,
@@ -28,7 +28,7 @@ pub struct PostgresDialect {
 }
 
 #[async_trait]
-impl Connection for PostgresDialect {
+impl Connection for PostgresConnection {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
     let tables = self.get_all_tables().await?;
     Ok(TreeNode {
@@ -80,7 +80,7 @@ impl Connection for PostgresDialect {
   }
 }
 
-impl PostgresDialect {
+impl PostgresConnection {
   fn get_url(&self) -> String {
     format!(
       "host={} port={} user={} password={}",
@@ -173,7 +173,7 @@ impl PostgresDialect {
       );
     }
     println!("titles: {titles:?}");
-    let schema = Schema::new(fields);
+    let schema = Arc::new(Schema::new(fields));
 
     let mut rows: Vec<RowData> = vec![];
     for row in conn.query(&stmt, &[]).await? {
@@ -181,11 +181,7 @@ impl PostgresDialect {
       rows.push(r);
     }
 
-    let mut decoder = ReaderBuilder::new(Arc::new(schema))
-      .build_decoder()
-      .unwrap();
-    decoder.serialize(&rows)?;
-    let batch = decoder.flush()?.unwrap();
+    let batch = json_to_arrow(&rows, schema)?;
 
     Ok(RawArrowData {
       total: batch.num_rows(),

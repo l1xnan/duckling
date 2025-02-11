@@ -26,3 +26,4 @@ dist-ssr
 libduckdb
 duckdb.dll
 .tauri
+target

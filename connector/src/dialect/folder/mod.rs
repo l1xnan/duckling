@@ -11,13 +11,13 @@ use crate::dialect::RawArrowData;
 use crate::utils::{write_csv, TreeNode};
 
 #[derive(Debug, Default)]
-pub struct FolderDialect {
+pub struct FolderConnection {
   pub path: String,
   pub cwd: Option<String>,
 }
 
 #[async_trait]
-impl Connection for FolderDialect {
+impl Connection for FolderConnection {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
     directory_tree(self.path.as_str()).ok_or_else(|| anyhow::anyhow!("null"))
   }
@@ -154,7 +154,7 @@ fn exist_glob(pattern: &str) -> bool {
   false
 }
 
-impl FolderDialect {
+impl FolderConnection {
   fn new(path: &str) -> Self {
     Self {
       path: String::from(path),
@@ -237,7 +237,7 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
 #[tokio::test]
 async fn test_table() {
   use arrow::util::pretty::print_batches;
-  let _d = FolderDialect::new(r"D:\Code\duckdb\data\parquet-testing");
+  let _d = FolderConnection::new(r"D:\Code\duckdb\data\parquet-testing");
   let res = _d
     .find("123", r"D:/Code/duckdb/data/parquet-testing/decimal")
     .await

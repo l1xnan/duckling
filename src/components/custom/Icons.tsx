@@ -1,4 +1,3 @@
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import {
   IconBorderOuter,
   IconDatabase,
@@ -9,7 +8,7 @@ import {
   IconFolderOpen,
   IconTable,
 } from '@tabler/icons-react';
-import { FolderArchive } from 'lucide-react';
+import { DatabaseIcon, FolderArchive } from 'lucide-react';
 import * as React from 'react';
 export { default as PlayArrowIcon } from '@mui/icons-material/PlayArrow';
 export { default as PlaylistAddIcon } from '@mui/icons-material/PlaylistAdd';
@@ -236,7 +235,7 @@ export const getTypeIcon = (type: string, expanded?: boolean) => {
     return <PostgresIcon />;
   }
   if (type == 'database') {
-    return <AccountTreeIcon />;
+    return <DatabaseIcon />;
   }
   if (type == 'table') {
     return <IconTable />;
