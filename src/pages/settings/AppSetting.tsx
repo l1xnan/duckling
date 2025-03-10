@@ -185,12 +185,6 @@ const UpdateForm = () => {
     console.log(update);
     setUpdate(update);
     if (update?.version != update?.currentVersion) {
-      toast('Discover new version', {
-        action: {
-          label: 'Update',
-          onClick: handleUpdater,
-        },
-      });
     } else {
       toast.success("It's the latest version");
     }
@@ -198,6 +192,7 @@ const UpdateForm = () => {
   };
 
   const handleUpdater = async () => {
+    setLoading(true);
     await update?.downloadAndInstall((e) => {
       if (e.event == 'Started') {
         setSize(e.data.contentLength);
@@ -207,6 +202,7 @@ const UpdateForm = () => {
         }
       }
     });
+    setLoading(false);
     await relaunch();
   };
 
@@ -220,21 +216,46 @@ const UpdateForm = () => {
           className=" h-full flex flex-col"
         >
           <div className="flex-1 space-y-4">
-            <FormField
-              control={form.control}
-              name="proxy"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Proxy</FormLabel>
+            <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+              <div className="space-y-0.5">
+                <FormLabel>Current version: {version}</FormLabel>
+                {/* <FormDescription>Tauri: {tauriVersion}</FormDescription> */}
+                {update?.version && (
                   <FormDescription>
-                    use a proxy server for updater
+                    Discover new version: {update?.version}
                   </FormDescription>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+                )}
+              </div>
+              <div>
+                {update?.version ? (
+                  <Button
+                    disabled={loading}
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      await handleUpdater();
+                    }}
+                  >
+                    {loading ? (
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                    ) : null}
+                    Click to update
+                  </Button>
+                ) : (
+                  <Button
+                    disabled={loading}
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      await handleCheck();
+                    }}
+                  >
+                    {loading ? (
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                    ) : null}
+                    Check for updates
+                  </Button>
+                )}
+              </div>
+            </div>
             <FormField
               control={form.control}
               name="auto_update"
@@ -256,26 +277,21 @@ const UpdateForm = () => {
                 </FormItem>
               )}
             />
-            <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-              <div className="space-y-0.5">
-                <FormLabel>Current version: {version}</FormLabel>
-                <FormDescription>Tauri: {tauriVersion}</FormDescription>
-              </div>
-              <div>
-                <Button
-                  disabled={loading}
-                  onClick={async (e) => {
-                    e.preventDefault();
-                    await handleCheck();
-                  }}
-                >
-                  {loading ? (
-                    <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                  ) : null}
-                  Check for updates
-                </Button>
-              </div>
-            </div>
+            <FormField
+              control={form.control}
+              name="proxy"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Proxy</FormLabel>
+                  <FormDescription>
+                    use a proxy server for updater
+                  </FormDescription>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="debug"

@@ -86,7 +86,7 @@ jobs:
         uses: swatinem/rust-cache@v2
         with:
           cache-on-failure: true
-          workspaces: './src-tauri -> target'
+          # workspaces: './src-tauri -> target'
           key: ${{ runner.os }}
 
       - name: install dependencies (ubuntu only)
