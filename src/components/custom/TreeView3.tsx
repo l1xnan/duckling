@@ -1,10 +1,16 @@
 import { Tooltip } from '@/components/custom/tooltip';
 import { cn } from '@/lib/utils';
-import { DBType, NodeContextType, selectedNodeAtom } from '@/stores/dbList';
+import {
+  DBType,
+  NodeContextType,
+  dbMapAtom,
+  selectedNodeAtom,
+} from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { NodeElementType } from '@/types';
 import { Node3Type, convertId, convertTreeToMap, filterTree } from '@/utils';
 import {
+  FeatureImplementation,
   ItemInstance,
   TreeInstance,
   expandAllFeature,
@@ -15,9 +21,14 @@ import {
 } from '@headless-tree/core';
 import { useTree } from '@headless-tree/react';
 import { Virtualizer, useVirtualizer } from '@tanstack/react-virtual';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { ChevronRight } from 'lucide-react';
+
+import { ConnectionContextMenu } from '@/pages/sidebar/context-menu/ConnectionContextMenu';
+import { SchemaContextMenu } from '@/pages/sidebar/context-menu/SchemaContextMenu';
+import { TableContextMenu } from '@/pages/sidebar/context-menu/TableContextMenu';
 import React, {
+  PropsWithChildren,
   forwardRef,
   useEffect,
   useImperativeHandle,
@@ -26,13 +37,40 @@ import React, {
   useState,
 } from 'react';
 import { getTypeIcon } from './Icons';
-import { ContextNode } from './TreeView2';
 
 declare module '@headless-tree/core' {
   export interface ItemInstance<T> {
     onDoubleClick?: () => void;
     onSelect?: () => void;
   }
+}
+
+export function ContextNode({
+  children,
+  data,
+  isRoot,
+}: PropsWithChildren<{ data: NodeElementType; isRoot: boolean }>) {
+  const dbMap = useAtomValue(dbMapAtom);
+  const db = dbMap.get(data?.dbId);
+  if (!db) {
+    return children;
+  }
+
+  const isDummy = data.type == 'path' && db.dialect != 'folder';
+
+  return isRoot ? (
+    <ConnectionContextMenu db={db}>{children}</ConnectionContextMenu>
+  ) : data.type == 'database' ? (
+    <SchemaContextMenu db={db} node={data}>
+      {children}
+    </SchemaContextMenu>
+  ) : !isDummy ? (
+    <TableContextMenu db={db} node={data}>
+      {children}
+    </TableContextMenu>
+  ) : (
+    children
+  );
 }
 
 const Node = React.memo(
@@ -57,17 +95,17 @@ const Node = React.memo(
 
     return (
       <div style={style} className="w-full" ref={item.registerElement}>
-        <ContextNode node={{ ...node, level }}>
+        <ContextNode data={node?.data} isRoot={level == 0}>
           <div
             key={item.getId()}
             onDoubleClick={(e) => {
               onClick(e);
-              item.onDoubleClick?.();
-              item.onSelect?.();
+              props.onDoubleClick?.();
+              props.onSelect?.();
             }}
             onClick={() => {
               tree.setSelectedItems([item.getItemMeta().itemId]);
-              item.onSelect?.();
+              props.onSelect?.();
             }}
             {...rowAttrs}
             {...props}
@@ -118,51 +156,52 @@ const Node = React.memo(
   },
 );
 
-const Inner = forwardRef<Virtualizer<HTMLDivElement, Element>, any>(
-  ({ tree }: { tree: TreeInstance<Node3Type> }, ref) => {
-    const parentRef = useRef<HTMLDivElement | null>(null);
+const Inner = forwardRef<
+  Virtualizer<HTMLDivElement, Element>,
+  { tree: TreeInstance<Node3Type> }
+>(({ tree }, ref) => {
+  const parentRef = useRef<HTMLDivElement | null>(null);
 
-    const virtualizer = useVirtualizer({
-      count: tree.getItems().length,
-      getScrollElement: () => parentRef.current,
-      estimateSize: () => 22,
-      overscan: 50,
-    });
+  const virtualizer = useVirtualizer({
+    count: tree.getItems().length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 22,
+    overscan: 50,
+  });
 
-    useImperativeHandle(ref, () => virtualizer);
-    const totalSize = virtualizer.getTotalSize();
+  useImperativeHandle(ref, () => virtualizer);
+  const totalSize = virtualizer.getTotalSize();
 
-    return (
+  return (
+    <div
+      ref={parentRef}
+      className="h-full overflow-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 dark:scrollbar-track-[#2b2d30] dark:scrollbar-thumb-[#4d4e51]"
+    >
       <div
-        ref={parentRef}
-        className="h-full overflow-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 dark:scrollbar-track-[#2b2d30] dark:scrollbar-thumb-[#4d4e51]"
+        ref={tree.registerElement}
+        className="tree w-full relative"
+        style={{ height: `${totalSize}px` }}
       >
-        <div
-          ref={tree.registerElement}
-          className="tree w-full relative"
-          style={{ height: `${totalSize}px` }}
-        >
-          {virtualizer.getVirtualItems().map((virtualItem) => {
-            const item = tree.getItems()[virtualItem.index];
-            const style = {
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              transform: `translateY(${virtualItem.start}px)`,
-              height: '22px',
-              // paddingLeft: `${item.getItemMeta().level * 16}px`,
-            } as React.CSSProperties;
+        {virtualizer.getVirtualItems().map((virtualItem) => {
+          const item = tree.getItems()[virtualItem.index];
+          const style = {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            transform: `translateY(${virtualItem.start}px)`,
+            height: '22px',
+            // paddingLeft: `${item.getItemMeta().level * 16}px`,
+          } as React.CSSProperties;
 
-            return (
-              <Node key={item.getId()} tree={tree} item={item} style={style} />
-            );
-          })}
-        </div>
+          return (
+            <Node key={item.getId()} tree={tree} item={item} style={style} />
+          );
+        })}
       </div>
-    );
-  },
-);
+    </div>
+  );
+});
 
 const ROOT = '__root__';
 
@@ -181,6 +220,32 @@ export const TreeView = forwardRef(
       null,
     );
     const [state, setState] = useState({});
+
+    const customClickBehavior: FeatureImplementation = {
+      itemInstance: {
+        getProps: ({ tree, item, prev }) => ({
+          ...prev?.(),
+          onDoubleClick: (_e: MouseEvent) => {
+            onDoubleClickNode(item);
+            item.primaryAction();
+
+            if (!item.isFolder()) {
+              return;
+            }
+
+            if (item.isExpanded()) {
+              item.collapse();
+            } else {
+              item.expand();
+            }
+          },
+          onSelect: (_e: MouseEvent) => {
+            onSelectNode(item);
+          },
+        }),
+      },
+    };
+
     const tree = useTree<Node3Type>({
       state,
       setState,
@@ -200,17 +265,7 @@ export const TreeView = forwardRef(
         hotkeysCoreFeature,
         searchFeature,
         expandAllFeature,
-        {
-          createItemInstance: (prev, item) => ({
-            ...prev,
-            onDoubleClick: () => {
-              onDoubleClickNode(item);
-            },
-            onSelect: () => {
-              onSelectNode(item);
-            },
-          }),
-        },
+        customClickBehavior,
       ],
     });
 
