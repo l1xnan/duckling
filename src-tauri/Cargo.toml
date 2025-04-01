@@ -26,7 +26,7 @@ tauri-plugin-shell = "^2.0.0"
 tauri-plugin-dialog = "^2.0.0"
 tauri-plugin-log = "^2.0.0"
 tauri-plugin-process = "^2.0.0"
-tauri-plugin-window-state = "^2.0.0"
+tauri-plugin-window-state = "^2.2.1"
 tauri-plugin-clipboard-manager = "^2.0.0"
 tauri-plugin-store = "^2.0.0"
 
