@@ -15,7 +15,7 @@
     "@apache-arrow/ts": "^19.0.1",
     "@headless-tree/core": "^0.0.15",
     "@headless-tree/react": "^0.0.15",
-    "@hookform/resolvers": "^4.1.3",
+    "@hookform/resolvers": "^5.0.0",
     "@mobily/ts-belt": "^3.13.1",
     "@monaco-editor/react": "^4.7.0",
     "@mui/icons-material": "^6.3.1",
