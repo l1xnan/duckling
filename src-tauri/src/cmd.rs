@@ -8,6 +8,7 @@ use tauri::State;
 
 use connector::api;
 use connector::api::ArrowResponse;
+use connector::dialect::Connection;
 use connector::dialect::clickhouse::ClickhouseConnection;
 use connector::dialect::duckdb::DuckDbConnection;
 use connector::dialect::file::FileConnection;
@@ -15,7 +16,6 @@ use connector::dialect::folder::FolderConnection;
 use connector::dialect::mysql::MySqlConnection;
 use connector::dialect::postgres::PostgresConnection;
 use connector::dialect::sqlite::SqliteConnection;
-use connector::dialect::Connection;
 use connector::utils::TreeNode;
 
 pub struct OpenedUrls(pub Mutex<Option<Vec<url::Url>>>);
@@ -248,7 +248,7 @@ pub async fn drop_table(
 pub async fn format_sql(sql: &str) -> Result<String, String> {
   let params = QueryParams::default();
   let options = FormatOptions::default();
-  Ok(sqlformat::format(sql, &params, options))
+  Ok(sqlformat::format(sql, &params, &options))
 }
 
 #[tauri::command]

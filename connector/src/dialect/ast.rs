@@ -1,4 +1,4 @@
-use sqlparser::ast::Statement;
+use sqlparser::ast::{OrderByKind, OrderByOptions, Statement};
 use sqlparser::dialect::GenericDialect;
 use sqlparser::parser::Parser;
 
@@ -98,8 +98,13 @@ fn parse_order_by_expr(order_by: &str) -> Vec<(String, Option<bool>)> {
   for stmt in &stmts {
     if let Statement::Query(tmp) = stmt {
       if let Some(order_by) = &tmp.order_by {
-        for expr in &order_by.exprs {
-          exprs.push((expr.expr.to_string(), expr.asc));
+        match &order_by.kind {
+          OrderByKind::Expressions(_exprs) => {
+            for expr in _exprs {
+              exprs.push((expr.expr.to_string(), expr.options.asc));
+            }
+          }
+          _ => {}
         }
       }
     }

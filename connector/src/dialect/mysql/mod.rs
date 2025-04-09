@@ -11,7 +11,7 @@ use mysql::*;
 
 use crate::api::RawArrowData;
 use crate::dialect::Connection;
-use crate::utils::{build_tree, Table};
+use crate::utils::{Table, build_tree};
 use crate::utils::{Title, TreeNode};
 
 #[derive(Debug, Default)]
@@ -240,36 +240,6 @@ impl MySqlConnection {
       .query_first::<usize, _>(&sql)?
       .ok_or_else(|| anyhow!("No value found"))
   }
-}
-
-fn convert_val(unknown_val: Value) {
-  match unknown_val {
-    val @ Value::NULL => {
-      println!("An empty value: {:?}", from_value::<Option<u8>>(val));
-    }
-    val @ Value::Bytes(..) => {
-      // It's non-utf8 bytes, since we already tried to convert it to String
-      println!("Bytes: {:?}", from_value::<Vec<u8>>(val));
-    }
-    val @ Value::Int(..) => {
-      println!("A signed integer: {}", from_value::<i64>(val));
-    }
-    val @ Value::UInt(..) => {
-      println!("An unsigned integer: {}", from_value::<u64>(val));
-    }
-    Value::Float(..) => unreachable!("already tried"),
-    val @ Value::Double(..) => {
-      println!("A double precision float value: {}", from_value::<f64>(val));
-    }
-    val @ Value::Date(..) => {
-      use time::PrimitiveDateTime;
-      println!("A date value: {}", from_value::<PrimitiveDateTime>(val));
-    }
-    val @ Value::Time(..) => {
-      use std::time::Duration;
-      println!("A time value: {:?}", from_value::<Duration>(val));
-    }
-  };
 }
 
 fn convert_to_str(unknown_val: &Value) -> Option<String> {
