@@ -744,9 +744,9 @@ checksum = "37b2a672a2cb129a2e41c10b1224bb368f9f37a2b16b612598138befd7b37eb5"
 
 [[package]]
 name = "cc"
-version = "1.2.18"
+version = "1.2.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "525046617d8376e3db1deffb079e91cef90a89fc3ca5c185bbf8c9ecdd15cd5c"
+checksum = "8e3a13707ac958681c13b39b458c073d0d9bc8a22cb1b2f4c8e55eb72c13f362"
 dependencies = [
  "jobserver",
  "libc",
@@ -1371,8 +1371,8 @@ dependencies = [
 
 [[package]]
 name = "duckdb"
-version = "1.2.1"
-source = "git+https://github.com/l1xnan/duckdb-rs.git#792e67fb87ec3e9aacd6157be2135db06a4da00b"
+version = "1.2.2"
+source = "git+https://github.com/l1xnan/duckdb-rs.git#afa0399a026eb59537e9c690b9dca331e5f18d4b"
 dependencies = [
  "arrow",
  "calamine",
@@ -2812,8 +2812,8 @@ checksum = "c19937216e9d3aa9956d9bb8dfc0b0c8beb6058fc4f7a4dc4d850edf86a237d6"
 
 [[package]]
 name = "libduckdb-sys"
-version = "1.2.1"
-source = "git+https://github.com/l1xnan/duckdb-rs.git#792e67fb87ec3e9aacd6157be2135db06a4da00b"
+version = "1.2.2"
+source = "git+https://github.com/l1xnan/duckdb-rs.git#afa0399a026eb59537e9c690b9dca331e5f18d4b"
 dependencies = [
  "autocfg",
  "cc",
@@ -2882,9 +2882,9 @@ checksum = "d26c52dbd32dccf2d10cac7725f8eae5296885fb5703b261f7d0a0739ec807ab"
 
 [[package]]
 name = "linux-raw-sys"
-version = "0.9.3"
+version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe7db12097d22ec582439daf8618b8fdd1a7bef6270e9af3b1ebcd30893cf413"
+checksum = "cd945864f07fe9f5371a27ad7b52a172b4b499999f1d97574c9fa68373937e12"
 
 [[package]]
 name = "litemap"
@@ -4570,15 +4570,15 @@ dependencies = [
  "bitflags 2.9.0",
  "errno",
  "libc",
- "linux-raw-sys 0.9.3",
+ "linux-raw-sys 0.9.4",
  "windows-sys 0.59.0",
 ]
 
 [[package]]
 name = "rustls"
-version = "0.23.25"
+version = "0.23.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "822ee9188ac4ec04a2f0531e55d035fb2de73f18b41a63c70c2712503b6fb13c"
+checksum = "df51b5869f3a441595eac5e8ff14d486ff285f7b8c0df8770e49c3b56351f0f0"
 dependencies = [
  "once_cell",
  "ring",
