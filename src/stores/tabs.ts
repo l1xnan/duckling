@@ -298,6 +298,8 @@ export function getParams(
     tableName = `read_csv(${params.join(', ')})`;
   } else if (tableName.endsWith('.parquet')) {
     tableName = `read_parquet('${tableName}', union_by_name=true)`;
+  } else if (tableName.endsWith('.xlsx')) {
+    tableName = `read_xlsx('${tableName}', ignore_errors=true, all_varchar=true)`;
   }
 
   return {

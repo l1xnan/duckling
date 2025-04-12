@@ -114,6 +114,8 @@ impl Connection for FolderConnection {
       format!("select * from read_parquet('{table}', union_by_name=true, filename=true)")
     } else if ext == "csv" {
       format!("select * from read_csv('{table}', union_by_name=true, filename=true)")
+    } else if ext == "xlsx" {
+      format!("select * from read_xlsx('{table}', ignore_errors=true)")
     } else {
       String::new()
     };
@@ -173,7 +175,7 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
   let name = path.file_name().unwrap().to_string_lossy().to_string();
 
   // TODO: support xlsx
-  let support_types = ["csv", "parquet"];
+  let support_types = ["csv", "parquet", "xlsx"];
 
   let mut node_type = String::from("path");
   let mut size = None;

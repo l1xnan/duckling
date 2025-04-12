@@ -1,4 +1,4 @@
-use sqlparser::ast::{OrderByKind, OrderByOptions, Statement};
+use sqlparser::ast::{OrderByKind, Statement};
 use sqlparser::dialect::GenericDialect;
 use sqlparser::parser::Parser;
 
