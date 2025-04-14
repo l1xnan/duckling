@@ -9,9 +9,9 @@ body {
 }
 
 body .vtable__menu-element {
-  background-color: hsl(var(--popover));
+  background-color: var(--popover);
   border-width: 1px;
-  border-color: hsl(var(--border));
+  border-color: var(--border);
   --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color),
     0 2px 4px -2px var(--tw-shadow-color);
@@ -20,11 +20,11 @@ body .vtable__menu-element {
 }
 
 body .vtable__menu-element--normal {
-  color: hsl(var(--popover-foreground));
+  color: var(--popover-foreground);
 }
 
 body .vtable__menu-element__item:hover {
-  background-color: hsl(var(--accent));
+  background-color: var(--accent);
 }
 
 body .vtable__menu-element__item {
@@ -41,9 +41,9 @@ body .vtable__menu-element__item {
 }
 
 body .vtable__bubble-tooltip-element {
-  color: hsl(var(--popover-foreground));
-  background-color: hsl(var(--popover));
-  border: 1px solid hsl(var(--border));
+  color: var(--popover-foreground);
+  background-color: var(--popover);
+  border: 1px solid var(--border);
   box-sizing: border-box;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgb(27 31 35 / 8%);
@@ -51,8 +51,8 @@ body .vtable__bubble-tooltip-element {
 }
 
 body .vtable__bubble-tooltip-element__content {
-  color: hsl(var(--popover-foreground));
-  background-color: hsl(var(--popover));
+  color: var(--popover-foreground);
+  background-color: var(--popover);
 }
 
 /* body {
@@ -92,35 +92,3 @@ body .vtable__bubble-tooltip-element__content {
     background-color: #2b2b2b;
   }
 } */
-
-:root {
-  --ag-grid-size: 4px;
-  --ag-row-height: 25px;
-  --ag-list-item-height: 30px;
-  --ag-font-size: 10px;
-  --ag-font-family: var(--table-font-family);
-  --ag-border-color: #ebecf0;
-  --ag-cell-horizontal-border: 1px solid #ebecf0;
-}
-.ag-root-wrapper {
-  border: none;
-}
-.ag-header-cell {
-  border: 1px solid #ebecf0;
-}
-.ag-header-cell-resize {
-  opacity: 0;
-}
-.ag-cell {
-  border-bottom: none;
-  border-top: none;
-}
-
-.dark {
-  --ag-border-color: #313438;
-  --ag-cell-horizontal-border: 1px solid #313438;
-}
-
-.dark .ag-header-cell {
-  border: 1px solid #313438;
-}
