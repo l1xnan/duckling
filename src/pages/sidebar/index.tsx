@@ -8,7 +8,7 @@ import { useDBListStore } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 
 import { SearchInput } from '@/components/custom/search';
-import { TreeView3 } from '@/components/custom/TreeView3';
+import { TreeView3 } from '@/components/custom/TreeView';
 import { TreeInstance } from '@headless-tree/core';
 
 function useInitOpenUrl() {
