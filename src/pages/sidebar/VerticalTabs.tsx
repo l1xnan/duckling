@@ -20,9 +20,7 @@ export function Node({
       )}
       onClick={onClick}
     >
-      <div className="px-1 truncate font-mono text-gray-800">
-        {tab.displayName}
-      </div>
+      <div className="px-1 truncate font-mono">{tab.displayName}</div>
       <Button
         variant="ghost"
         size="icon"
