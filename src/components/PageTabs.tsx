@@ -85,9 +85,11 @@ export function TabItemContextMenu({
   const setFavorite = useSetAtom(favoriteAtom);
   const setDocs = useSetAtom(docsAtom);
 
-  const { removeTab } = useTabsStore(useShallow((state) => ({
-    removeTab: state.remove,
-  })));
+  const { removeTab } = useTabsStore(
+    useShallow((state) => ({
+      removeTab: state.remove,
+    })),
+  );
 
   const handleDeleteTab = (tab: TabContextType) => {
     removeTab(tab.id, true);
@@ -159,15 +161,15 @@ export function TabItemContextMenu({
 }
 
 function usePrevious<T>(value: T) {
-  const ref = useRef<T>();
+  const ref = useRef<T>(null);
 
   useEffect(() => {
     ref.current = value;
   }, [value]);
 
-  return ref.current;
+  return ref?.current;
 }
-type scrollVisibilityApiType = React.ContextType<typeof VisibilityContext>;
+type ScrollVisibilityApiType = React.ContextType<typeof VisibilityContext>;
 
 export function PageTabs({
   items,
@@ -179,7 +181,7 @@ export function PageTabs({
 }: PageTabsProps) {
   // Add item and scroll to it
   const itemsPrev = usePrevious(items);
-  const apiRef = useRef({} as scrollVisibilityApiType);
+  const apiRef = useRef({} as ScrollVisibilityApiType);
   useEffect(() => {
     const item = apiRef.current?.getItemById?.(activeKey);
     if (!item?.visible) {
@@ -223,7 +225,7 @@ export function PageTabs({
         {Comp ? (
           <Comp tab={tab} />
         ) : (
-          <DefaultTab1 tab={tab} onRemove={onRemove as (s: string) => void} />
+          <SimpleTab tab={tab} onRemove={onRemove as (s: string) => void} />
         )}
       </TabsTrigger>
     );
@@ -278,10 +280,10 @@ export function DefaultTab({ tab, onRemove }: TabItemProps) {
   return (
     <div className="flex items-center justify-between">
       <Tooltip title={`${tab.type}: ${tab.displayName}`}>
-        <>
+        <div className="flex">
           <Comp className="size-4 mr-1" />
           <div className="max-w-52 truncate">{tab.displayName}</div>
-        </>
+        </div>
       </Tooltip>
       <Button
         asChild
@@ -305,7 +307,7 @@ export function DefaultTab({ tab, onRemove }: TabItemProps) {
   );
 }
 
-export function DefaultTab1({ tab, onRemove }: TabItemProps) {
+export function SimpleTab({ tab, onRemove }: TabItemProps) {
   return (
     <>
       <span>{tab.displayName}</span>

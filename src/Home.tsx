@@ -11,6 +11,7 @@ import { sizeAtom } from '@/stores/app';
 import { useAtom, useAtomValue } from 'jotai';
 import { BellIcon } from 'lucide-react';
 import { RefObject } from 'react';
+import { VerticalTabs } from './pages/sidebar/VerticalTabs';
 
 function Home() {
   const [size, setSize] = useAtom(sizeAtom);
@@ -42,6 +43,9 @@ function Home() {
             </Hidden>
             <Hidden display={activeAside == 'code'}>
               <SqlCode />
+            </Hidden>
+            <Hidden display={activeAside == 'tabs'}>
+              <VerticalTabs />
             </Hidden>
           </Sidebar>
           <div className={classes.controls}>

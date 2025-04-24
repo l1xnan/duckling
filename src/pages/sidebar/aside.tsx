@@ -4,6 +4,7 @@ import {
   FolderHeart,
   HelpCircleIcon,
   HistoryIcon,
+  LayoutPanelLeftIcon,
   LucideIcon,
 } from 'lucide-react';
 
@@ -68,6 +69,7 @@ export function ASide() {
         <SideButton id="favorite" label="Favorite" icon={FolderHeart} />
         <SideButton id="code" label="Code" icon={Code2} />
         <SideButton id="history" label="History" icon={HistoryIcon} />
+        <SideButton id="tabs" label="Tabs" icon={LayoutPanelLeftIcon} />
       </nav>
       <nav className="mt-auto grid gap-1 p-0 [&>*]:place-self-center">
         <SideButton

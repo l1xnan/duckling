@@ -17,7 +17,7 @@ export const ItemLabel = React.forwardRef(
     return (
       <Button
         variant="ghost"
-        className="w-full flex flex-row items-center justify-start p-0 pt-0.5 pb-0.5 text-sm h-6"
+        className="w-full flex flex-row items-center justify-start p-0 pt-0.5 pb-0.5 text-sm h-6 min-w-0"
         ref={ref as React.Ref<HTMLButtonElement>}
         onClick={onClick}
       >
