@@ -10,8 +10,6 @@ import {
 } from '@tabler/icons-react';
 import { DatabaseIcon, FolderArchive } from 'lucide-react';
 import * as React from 'react';
-export { default as PlayArrowIcon } from '@mui/icons-material/PlayArrow';
-export { default as PlaylistAddIcon } from '@mui/icons-material/PlaylistAdd';
 
 export interface IconProps extends React.SVGAttributes<SVGElement> {
   children?: never;

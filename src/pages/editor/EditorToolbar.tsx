@@ -7,14 +7,14 @@ import {
 
 import { Stack, ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
 
-import { PlayArrowIcon, PlaylistAddIcon } from '@/components/custom/Icons';
+import { ListPlusIcon, PlayIcon } from 'lucide-react';
+
 import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { DBType, useDBListStore } from '@/stores/dbList';
-import { TabContextType } from '@/stores/tabs';
 import { TooltipContentProps } from '@radix-ui/react-tooltip';
 import { IconInfinity, IconInfinityOff } from '@tabler/icons-react';
 
@@ -48,14 +48,14 @@ export function EditorToolbar({
             tooltip="Run (Ctrl+Enter)"
             onClick={() => onClick()}
           >
-            <PlayArrowIcon fontSize="inherit" />
+            <PlayIcon fontSize="inherit" />
           </TooltipButton>
           <TooltipButton
             className="text-green-900"
             tooltip="Run in the new TAB"
             onClick={() => onClick('new')}
           >
-            <PlaylistAddIcon fontSize="inherit" />
+            <ListPlusIcon fontSize="inherit" />
           </TooltipButton>
 
           <TooltipButton
