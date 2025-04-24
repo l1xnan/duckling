@@ -94,7 +94,7 @@ const Node = React.memo(
     const level = item.getItemMeta().level;
 
     return (
-      <div style={style} className="w-full" ref={item.registerElement}>
+      <div style={style} className="w-full h-6" ref={item.registerElement}>
         <ContextNode data={node?.data} isRoot={level == 0}>
           <div
             key={item.getId()}
@@ -123,7 +123,7 @@ const Node = React.memo(
               'hover:bg-accent',
               'aria-selected:bg-selection',
               'aria-selected:hover:bg-selection',
-              'h-[22px]',
+              'h-6',
             )}
           >
             {item.isFolder() ? (
@@ -190,7 +190,6 @@ const Inner = forwardRef<
             left: 0,
             width: '100%',
             transform: `translateY(${virtualItem.start}px)`,
-            height: '22px',
             // paddingLeft: `${item.getItemMeta().level * 16}px`,
           } as React.CSSProperties;
 

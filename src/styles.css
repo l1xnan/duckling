@@ -28,7 +28,7 @@ body .vtable__menu-element__item:hover {
 }
 
 body .vtable__menu-element__item {
-  height: 22px;
+  height: calc(var(--spacing) * 6);
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
   font-size: 0.75rem;
