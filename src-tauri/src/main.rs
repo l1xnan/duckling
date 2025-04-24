@@ -3,11 +3,12 @@
 
 use std::env;
 
-use cmd::OpenedUrls;
+use cmd::OpenedFiles;
+use std::path::PathBuf;
 use std::sync::Mutex;
-use tauri::menu::{CheckMenuItem, MenuBuilder, MenuItem, SubmenuBuilder};
 use tauri::Emitter;
-use tauri::Manager;
+use tauri::menu::{CheckMenuItem, MenuBuilder, MenuItem, SubmenuBuilder};
+use tauri::{AppHandle, Manager};
 use tauri_plugin_dialog::{DialogExt, FilePath};
 use tauri_plugin_log::{Target, TargetKind};
 
@@ -55,32 +56,45 @@ fn handle_menu(app: &mut tauri::App) -> tauri::Result<()> {
   Ok(())
 }
 
-fn handle_open_url(app: &mut tauri::App) {
+fn handle_open_files(app: &mut tauri::App) {
   #[cfg(any(windows, target_os = "linux"))]
-  {
-    // NOTICE: `args` may include URL protocol (`your-app-protocol://`) or arguments (`--`) if app supports them.
-    let mut urls = Vec::new();
-    for arg in env::args().skip(1) {
-      if let Ok(url) = url::Url::parse(&arg) {
-        urls.push(url);
-      }
+  let mut files = Vec::new();
+
+  // NOTICE: `args` may include URL protocol (`your-app-protocol://`)
+  // or arguments (`--`) if your app supports them.
+  // files may aslo be passed as `file://path/to/file`
+  for maybe_file in std::env::args().skip(1) {
+    log::info!("maybe_file: {:?}", maybe_file);
+
+    // skip flags like -f or --flag
+    if maybe_file.starts_with('-') {
+      continue;
     }
 
-    app.state::<OpenedUrls>().0.lock().unwrap().replace(urls);
+    // handle `file://` path urls and skip other urls
+    if let Ok(url) = url::Url::parse(&maybe_file) {
+      if let Ok(path) = url.to_file_path() {
+        files.push(path);
+        continue;
+      }
+    }
+    files.push(PathBuf::from(maybe_file));
 
-    let opened_urls = if let Some(urls) = &*app.state::<OpenedUrls>().0.lock().unwrap() {
-      urls
-        .iter()
-        .map(|u| u.as_str().replace('\\', "/"))
-        .collect::<Vec<_>>()
-        .join(", ")
-    } else {
-      String::new()
-    };
-
-    log::info!("opened_urls: {}", opened_urls);
+    log::info!("opened_paths: {:?}", files.clone());
+    let _ = handle_file_associations(app.handle().clone(), files.clone());
   }
 }
+
+fn handle_file_associations(app: AppHandle, files: Vec<PathBuf>) {
+  let files = files
+    .into_iter()
+    .map(|f| f.to_string_lossy().to_string())
+    .collect::<Vec<_>>();
+
+  log::info!("opened_files: {:?}", files.clone());
+  app.state::<OpenedFiles>().0.lock().unwrap().replace(files);
+}
+
 fn handle_updater(app: &mut tauri::App) -> tauri::Result<()> {
   #[cfg(desktop)]
   app
@@ -91,7 +105,7 @@ fn handle_updater(app: &mut tauri::App) -> tauri::Result<()> {
 
 fn main() {
   tauri::Builder::default()
-    .manage(OpenedUrls(Mutex::default()))
+    .manage(OpenedFiles(Mutex::default()))
     .plugin(tauri_plugin_clipboard_manager::init())
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_shell::init())
@@ -109,7 +123,7 @@ fn main() {
     )
     .setup(|app| {
       let _ = handle_menu(app);
-      handle_open_url(app);
+      let _ = handle_open_files(app);
       let _ = handle_updater(app);
 
       Ok(())
@@ -118,7 +132,7 @@ fn main() {
       cmd::query,
       cmd::paging_query,
       cmd::query_table,
-      cmd::opened_urls,
+      cmd::opened_files,
       cmd::get_db,
       cmd::export,
       cmd::table_row_count,
@@ -135,16 +149,11 @@ fn main() {
       |app, event| {
         #[cfg(any(target_os = "macos", target_os = "ios"))]
         if let tauri::RunEvent::Opened { urls } = event {
-          if let Some(w) = app.get_webview_window("main") {
-            let urls = urls
-              .iter()
-              .map(|u| u.as_str())
-              .collect::<Vec<_>>()
-              .join(",");
-            let _ = w.eval(&format!("window.onFileOpen(`{urls}`)"));
-          }
-
-          app.state::<OpenedUrls>().0.lock().unwrap().replace(urls);
+          let files = urls
+            .into_iter()
+            .filter_map(|url| url.to_file_path().ok())
+            .collect::<Vec<_>>();
+          handle_file_associations(app.clone(), files);
         }
       },
     );

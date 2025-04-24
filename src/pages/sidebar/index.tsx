@@ -11,31 +11,34 @@ import { SearchInput } from '@/components/custom/search';
 import { TreeView3 } from '@/components/custom/TreeView';
 import { TreeInstance } from '@headless-tree/core';
 
-function useInitOpenUrl() {
+function useInitOpenFiles() {
   const updateTab = useTabsStore((s) => s.update);
   const appendDB = useDBListStore((s) => s.append);
 
-  async function openUrl() {
-    const path: string = await invoke('opened_urls');
-    console.warn('opened_urls', path);
-    if (path?.endsWith('.parquet')) {
-      const item: TableContextType = {
-        id: nanoid(),
-        dbId: ':memory:',
-        tableId: path,
-        displayName: path.replaceAll('\\', '/').split('/').at(-1) ?? path,
-        type: 'file',
-      };
-      updateTab!(item);
-    } else if (path?.endsWith('.duckdb')) {
-      const data = await getDB({ path, dialect: 'duckdb' });
-      appendDB(data);
+  async function openFiles() {
+    const files: string = await invoke('opened_files');
+    console.warn('opened_files', files);
+    for (const file of files){
+
+      if (file?.endsWith('.parquet')) {
+        const item: TableContextType = {
+          id: nanoid(),
+          dbId: ':memory:',
+          tableId: file,
+          displayName: file.replaceAll('\\', '/').split('/').at(-1) ?? file,
+          type: 'file',
+        };
+        updateTab!(item);
+      } else if (file?.endsWith('.duckdb')) {
+        const data = await getDB({ path: file, dialect: 'duckdb' });
+        appendDB(data);
+      }
     }
   }
 
   useEffect(() => {
     (async () => {
-      await openUrl();
+      await openFiles();
     })();
   }, []);
 }
@@ -43,7 +46,7 @@ function useInitOpenUrl() {
 function DBTree() {
   const dbList = useDBListStore((s) => s.dbList);
 
-  useInitOpenUrl();
+  useInitOpenFiles();
 
   const [search, setSearch] = useState('');
 

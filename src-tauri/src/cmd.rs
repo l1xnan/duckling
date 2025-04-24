@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use std::sync::Mutex;
 use std::time::Instant;
 
@@ -18,7 +19,7 @@ use connector::dialect::postgres::PostgresConnection;
 use connector::dialect::sqlite::SqliteConnection;
 use connector::utils::TreeNode;
 
-pub struct OpenedUrls(pub Mutex<Option<Vec<url::Url>>>);
+pub struct OpenedFiles(pub Mutex<Option<Vec<String>>>);
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct DialectPayload {
@@ -184,17 +185,12 @@ pub async fn export(sql: String, file: String, dialect: DialectPayload) -> Resul
 }
 
 #[tauri::command]
-pub async fn opened_urls(state: State<'_, OpenedUrls>) -> Result<String, String> {
-  let opened_urls = if let Some(urls) = &*state.0.lock().unwrap() {
-    urls
-      .iter()
-      .map(|u| u.as_str().replace('\\', "\\\\"))
-      .collect::<Vec<_>>()
-      .join(", ")
+pub async fn opened_files(state: State<'_, OpenedFiles>) -> Result<Vec<String>, String> {
+  Ok(if let Some(files) = &*state.0.lock().unwrap() {
+    files.to_vec()
   } else {
-    String::new()
-  };
-  Ok(opened_urls)
+    vec![]
+  })
 }
 
 #[tauri::command]
