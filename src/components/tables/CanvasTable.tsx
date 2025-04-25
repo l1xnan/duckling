@@ -332,7 +332,8 @@ export const CanvasTable = React.memo(function CanvasTable({
   const handleDropdownMenuClick: ComponentProps<
     typeof ListTable
   >['onDropdownMenuClick'] = async (e) => {
-    const transpose = tableRef.current?.transpose;
+    const table = tableRef.current;
+    const transpose = table?.transpose;
     if ((!transpose && e.row == 0) || (transpose && e.col == 0)) {
       if (e.menuKey == 'copy-field') {
         await writeText((e?.field as string) ?? '');
@@ -347,8 +348,13 @@ export const CanvasTable = React.memo(function CanvasTable({
         setRightPinnedCols([]);
       }
     } else {
-      if (e.menuKey == 'copy') {
-        await writeText((e?.field as string) ?? '');
+      if (e.menuKey == 'copy-as-csv') {
+        const rows =
+          table?.getSelectedCellInfos()?.map((row) => {
+            return row.map((item) => item.dataValue).join(',');
+          }) ?? [];
+
+        await writeText(rows.join('\n'));
       }
     }
   };
@@ -415,7 +421,12 @@ export const CanvasTable = React.memo(function CanvasTable({
               },
             ];
           }
-          return [];
+          return [
+            {
+              menuKey: 'copy-as-csv',
+              text: 'Copy as CSV',
+            },
+          ];
         },
       },
       hover: {
@@ -460,6 +471,7 @@ export const CanvasTable = React.memo(function CanvasTable({
         onMouseDownCell={(arg) => {
           const table = tableRef.current;
           if (table) {
+            console.log(arg);
             const value = table.getCellRawValue(arg.col, arg.row);
             onSelectedCell?.(value);
           }
