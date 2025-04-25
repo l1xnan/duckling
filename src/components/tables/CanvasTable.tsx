@@ -374,14 +374,16 @@ export const CanvasTable = React.memo(function CanvasTable({
       frozenRowCount: 0,
       theme,
       transpose,
-      rowSeriesNumber: {
-        title: '',
-        width: 'auto',
-        headerStyle: {},
-        style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
-        dragOrder: false,
-        disableColumnResize: true,
-      },
+      rowSeriesNumber: !transpose
+        ? {
+            title: '',
+            width: 'auto',
+            headerStyle: {},
+            style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
+            dragOrder: false,
+            disableColumnResize: true,
+          }
+        : undefined,
       columns: [
         // {
         //   field: '__index__',
