@@ -72,9 +72,13 @@ export function TableView({ context }: { context: TabContextType }) {
     }
   }, []);
   const precision = useAtomValue(precisionAtom);
-  const TableComponent = CanvasTable ;
+  const TableComponent = CanvasTable;
 
-  const [selectedCell, setSelectCell] = useState<string | null>();
+  const [selectedCell, setSelectCell] = useState<{
+    value?: string;
+    col: number;
+    row: number;
+  } | null>();
 
   const theme = useTheme();
 
@@ -98,7 +102,7 @@ export function TableView({ context }: { context: TabContextType }) {
                   transpose={transpose}
                   cross={cross}
                   onSelectedCell={(arg) => {
-                    setSelectCell(arg as string);
+                    setSelectCell(arg);
                   }}
                 />
               </Suspense>
@@ -118,7 +122,7 @@ export function TableView({ context }: { context: TabContextType }) {
             ) : (
               <MonacoEditor
                 theme={isDarkTheme(theme) ? 'vs-dark' : 'light'}
-                value={selectedCell?.toString()}
+                value={selectedCell?.value?.toString() ?? ''}
                 options={{
                   minimap: {
                     enabled: false,

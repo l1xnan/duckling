@@ -470,12 +470,11 @@ export const CanvasTable = React.memo(function CanvasTable({
         onContextMenuCell={(arg) => {
           console.log('context', arg);
         }}
-        onMouseDownCell={(arg) => {
+        onMouseDownCell={({ col, row }) => {
           const table = tableRef.current;
           if (table) {
-            console.log(arg);
-            const value = table.getCellRawValue(arg.col, arg.row);
-            onSelectedCell?.(value);
+            const value = table.getCellRawValue(col, row);
+            onSelectedCell?.({ col, row, value });
           }
         }}
         onDropdownMenuClick={handleDropdownMenuClick}
