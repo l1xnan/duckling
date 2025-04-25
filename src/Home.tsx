@@ -11,10 +11,12 @@ import { sizeAtom } from '@/stores/app';
 import { useAtom, useAtomValue } from 'jotai';
 import { BellIcon } from 'lucide-react';
 import { RefObject } from 'react';
+import { cn } from './lib/utils';
 import { VerticalTabs } from './pages/sidebar/VerticalTabs';
 
 function Home() {
   const [size, setSize] = useAtom(sizeAtom);
+  const [activeSide] = useAtom(activeSideAtom);
 
   const [targetRefLeft, sizeLeft, actionLeft] = useResize(
     size,
@@ -28,7 +30,10 @@ function Home() {
         <ASide />
         <div
           ref={targetRefLeft as RefObject<HTMLDivElement>}
-          className="h-full pl-9 top-0 absolute flex flex-row overflow-hidden"
+          className={cn(
+            'h-full pl-9 top-0 absolute flex flex-row overflow-hidden',
+            !activeSide ? 'hidden' : null,
+          )}
           style={{ width: sizeLeft }}
         >
           <Sidebar>
@@ -52,7 +57,10 @@ function Home() {
             <div className={classes.resizeVertical} onMouseDown={actionLeft} />
           </div>
         </div>
-        <Content style={{ marginLeft: sizeLeft }}>
+        <Content
+          className={!activeSide ? 'ml-9' : ''}
+          style={!activeSide ? undefined : { marginLeft: sizeLeft }}
+        >
           <Main />
         </Content>
       </div>

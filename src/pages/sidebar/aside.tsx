@@ -22,7 +22,7 @@ import { atom } from 'jotai';
 import { useAtom } from 'jotai/react';
 import AppSettingDialog from '../settings/AppSetting';
 
-export const activeSideAtom = atom('database');
+export const activeSideAtom = atom<string | null>('database');
 
 interface SideButtonProps {
   id: string;
@@ -34,7 +34,11 @@ interface SideButtonProps {
 const SideButton = ({ id, icon: Comp, label, onClick }: SideButtonProps) => {
   const [activeSide, setActiveSide] = useAtom(activeSideAtom);
   const handleClick = () => {
-    setActiveSide(id);
+    if (activeSide == id) {
+      setActiveSide(null);
+    } else {
+      setActiveSide(id);
+    }
   };
   return (
     <TooltipProvider>
