@@ -26,6 +26,7 @@ export interface ArrowResponse {
   elapsed: number;
   message: string;
 }
+export type Direction = 'horizontal' | 'vertical';
 
 export type DatasetState = {
   // current tab context(database, table, etc)
@@ -55,6 +56,7 @@ export type DatasetState = {
   cross?: boolean;
   showValue?: boolean;
   dialogColumn?: string;
+  direction: Direction;
 };
 
 export type DatasetAction = {
@@ -69,6 +71,7 @@ export type DatasetAction = {
   refresh: (stmt?: string) => Promise<ResultType | undefined>;
   setBeautify: () => void;
   setShowValue: () => void;
+  setDirection: () => void;
 };
 
 export type OrderByType = {
@@ -101,6 +104,7 @@ export const createDatasetStore = (context: TabContextType) =>
     message: undefined,
     beautify: true,
     transpose: false,
+    direction: 'horizontal',
     cross: false,
 
     // action
@@ -108,6 +112,11 @@ export const createDatasetStore = (context: TabContextType) =>
     setBeautify: () => set((s) => ({ beautify: !s.beautify })),
     setTranspose: () => {
       set((s) => ({ transpose: !s.transpose }));
+    },
+    setDirection: () => {
+      set((s) => ({
+        direction: s.direction == 'horizontal' ? 'vertical' : 'horizontal',
+      }));
     },
     setCross: () => {
       set((s) => ({ cross: !s.cross }));

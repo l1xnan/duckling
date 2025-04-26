@@ -1,4 +1,4 @@
-import { Children, LegacyRef, PropsWithChildren } from 'react';
+import { Children, PropsWithChildren, Ref } from 'react';
 
 import { useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
@@ -23,7 +23,7 @@ export default function VerticalContainer({
       </div>
       {bottom ? (
         <div
-          ref={targetRefTop as LegacyRef<HTMLDivElement>}
+          ref={targetRefTop as Ref<HTMLDivElement>}
           className={classes.rightBottom}
           style={{ height: sizeTop, width: '100%', minHeight: 32 }}
         >

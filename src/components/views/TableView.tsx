@@ -1,13 +1,18 @@
 import MonacoEditor from '@monaco-editor/react';
 import { IconDecimal } from '@tabler/icons-react';
+import { DataFrame } from 'danfojs';
 import { useAtomValue } from 'jotai';
 import {
   CodeIcon,
   CrossIcon,
   DownloadIcon,
   EyeIcon,
+  LetterTextIcon,
   Loader2Icon,
+  PanelBottomIcon,
+  PanelRightIcon,
   RefreshCw,
+  XIcon,
 } from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -34,6 +39,9 @@ import {
 import { usePageStore } from '@/hooks/context';
 import { useTheme } from '@/hooks/theme-provider';
 import { isDarkTheme } from '@/utils';
+import { TabsList } from '@radix-ui/react-tabs';
+import { Table, TableBody, TableCell, TableRow } from '../ui/table';
+import { Tabs, TabsContent, TabsTrigger } from '../ui/tabs';
 
 export const Loading = ({ className }: { className?: string }) => {
   return (
@@ -44,6 +52,13 @@ export const Loading = ({ className }: { className?: string }) => {
       )}
     />
   );
+};
+
+export type SelectedCellType = {
+  value?: string | number;
+  field?: string;
+  col: number;
+  row: number;
 };
 
 export function TableView({ context }: { context: TabContextType }) {
@@ -57,6 +72,7 @@ export function TableView({ context }: { context: TabContextType }) {
     transpose,
     cross,
     showValue,
+    direction,
   } = usePageStore();
   const currentTab = useTabsStore((s) => s.currentId);
 
@@ -72,27 +88,23 @@ export function TableView({ context }: { context: TabContextType }) {
     }
   }, []);
   const precision = useAtomValue(precisionAtom);
-  const TableComponent = CanvasTable;
 
-  const [selectedCell, setSelectCell] = useState<{
-    value?: string;
-    col: number;
-    row: number;
-  } | null>();
-
-  const theme = useTheme();
+  const [selectedCell, setSelectCell] = useState<SelectedCellType | null>();
+  const [selectedCellInfos, setSelectedCellInfos] = useState<
+    SelectedCellType[][] | null
+  >();
 
   return (
     <div className="h-full flex flex-col">
       <DataViewToolbar />
-      <ResizablePanelGroup direction="horizontal">
+      <ResizablePanelGroup direction={direction}>
         <ResizablePanel defaultSize={80} className="flex flex-col size-full">
           <div className="h-full flex flex-col">
             <InputToolbar />
             <div className="h-full flex-1 overflow-hidden">
               <Suspense fallback={<Loading />}>
                 {loading ? <Loading /> : null}
-                <TableComponent
+                <CanvasTable
                   style={loading ? { display: 'none' } : undefined}
                   data={data ?? []}
                   schema={tableSchema ?? []}
@@ -101,8 +113,11 @@ export function TableView({ context }: { context: TabContextType }) {
                   precision={precision}
                   transpose={transpose}
                   cross={cross}
-                  onSelectedCell={(arg) => {
+                  onSelectedCell={(arg: SelectedCellType | null) => {
                     setSelectCell(arg);
+                  }}
+                  onSelectedCellInfos={(cells) => {
+                    setSelectedCellInfos(cells);
                   }}
                 />
               </Suspense>
@@ -115,26 +130,182 @@ export function TableView({ context }: { context: TabContextType }) {
             defaultSize={20}
             className="flex flex-row items-start"
           >
-            {selectedCell === null ? (
-              <pre className="size-full flex items-center justify-center">
-                not selected
-              </pre>
-            ) : (
-              <MonacoEditor
-                theme={isDarkTheme(theme) ? 'vs-dark' : 'light'}
-                value={selectedCell?.value?.toString() ?? ''}
-                options={{
-                  minimap: {
-                    enabled: false,
-                  },
-                  wordWrap: 'on',
-                }}
+            <div className="flex size-full">
+              <ValueViewer
+                selectedCell={selectedCell}
+                selectedCellInfos={selectedCellInfos}
               />
-            )}
+            </div>
           </ResizablePanel>
         ) : null}
       </ResizablePanelGroup>
     </div>
+  );
+}
+
+function ValueViewer({
+  selectedCell,
+  selectedCellInfos,
+}: {
+  selectedCell?: SelectedCellType | null;
+  selectedCellInfos?: SelectedCellType[][] | null;
+}) {
+  const theme = useTheme();
+  const { setShowValue, setDirection, direction } = usePageStore();
+
+  const data =
+    selectedCellInfos?.map((row) => {
+      return Object.fromEntries(row.map(({ field, value }) => [field, value]));
+    }) ?? [];
+  const df = new DataFrame(data);
+  console.log(df);
+
+  const indicators = [
+    {
+      indicator: 'AVG',
+      fn: () => 0, // df.mean({ axis: 0 }).mean(),
+    },
+    {
+      indicator: 'MAX',
+      fn: () => 0, // df.max({ axis: 0 }).max(),
+    },
+    {
+      indicator: 'MIN',
+      fn: () => 0, // df.min({ axis: 0 }).min(),
+    },
+    {
+      indicator: 'SUM',
+      fn: () => df.sum({ axis: 0 }).sum(),
+    },
+    {
+      indicator: 'MEDIAN',
+      fn: () => 0,
+    },
+    {
+      indicator: 'COUNT',
+      fn: () => df.shape[0] * df.shape[1],
+    },
+    {
+      indicator: 'SHAPE',
+      fn: () => `${df.shape[0]}×${df.shape[1]}`,
+    },
+  ] as {
+    indicator: string;
+    fn: () => number | string;
+  }[];
+  return (
+    <Tabs defaultValue="value" className="size-full">
+      <div className="flex flex-row items-center justify-between">
+        <TabsList>
+          <TabsTrigger
+            value="value"
+            className={cn(
+              'h-8 text-xs relative wm-200 pl-3 pr-1.5 rounded-none border-r',
+              'group',
+              'data-[state=active]:bg-muted',
+              'data-[state=active]:text-foreground',
+              'data-[state=active]:shadow-none',
+              'data-[state=active]:rounded-none',
+            )}
+          >
+            Value
+            <div
+              className={cn(
+                'h-0.5 w-full bg-[#1976d2] absolute left-0 invisible z-6',
+                'group-data-[state=active]:visible',
+                'bottom-0',
+              )}
+            />
+          </TabsTrigger>
+          <TabsTrigger
+            value="calculate"
+            className={cn(
+              'h-8 text-xs relative wm-200 pl-3 pr-1.5 rounded-none border-r',
+              'group',
+              'data-[state=active]:bg-muted',
+              'data-[state=active]:text-foreground',
+              'data-[state=active]:shadow-none',
+              'data-[state=active]:rounded-none',
+            )}
+          >
+            Calculate
+            <div
+              className={cn(
+                'h-0.5 w-full bg-[#1976d2] absolute left-0 invisible z-6',
+                'group-data-[state=active]:visible',
+                'bottom-0',
+              )}
+            />
+          </TabsTrigger>
+        </TabsList>
+        <div className="flex flex-row items-center">
+          <TooltipButton
+            icon={<LetterTextIcon className="size-5" />}
+            onClick={() => {}}
+            tooltip="Format"
+          />
+
+          {direction == 'horizontal' ? (
+            <TooltipButton
+              icon={<PanelBottomIcon className="size-5" />}
+              onClick={() => {
+                setDirection();
+              }}
+              tooltip="Move to the bottom"
+            />
+          ) : (
+            <TooltipButton
+              icon={<PanelRightIcon className="size-5" />}
+              onClick={() => {
+                setDirection();
+              }}
+              tooltip="Move to the top"
+            />
+          )}
+
+          <TooltipButton
+            icon={<XIcon className="size-5" />}
+            onClick={() => {
+              setShowValue();
+            }}
+            tooltip="Close"
+          />
+        </div>
+      </div>
+      <TabsContent value="value" className="size-full">
+        {selectedCell === null ? (
+          <pre className="size-full flex items-center justify-center">
+            not selected
+          </pre>
+        ) : (
+          <MonacoEditor
+            theme={isDarkTheme(theme) ? 'vs-dark' : 'light'}
+            value={selectedCell?.value?.toString() ?? ''}
+            options={{
+              minimap: {
+                enabled: false,
+              },
+              lineNumbers: 'off',
+              wordWrap: 'on',
+            }}
+          />
+        )}
+      </TabsContent>
+      <TabsContent value="calculate" className="size-full">
+        <Table className="text-xs">
+          <TableBody>
+            {indicators.map(({ indicator, fn }) => {
+              return (
+                <TableRow key={indicator}>
+                  <TableCell className="p-1 w-20 pl-4">{indicator}</TableCell>
+                  <TableCell className="p-1">{fn()}</TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TabsContent>
+    </Tabs>
   );
 }
 

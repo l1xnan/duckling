@@ -21,6 +21,7 @@ import { useTheme } from '@/hooks/theme-provider';
 import { tableFontFamilyAtom } from '@/stores/setting';
 import { isDarkTheme, isNumberType, uniqueArray } from '@/utils';
 import { assign } from 'radash';
+import { SelectedCellType } from '../views/TableView';
 
 type ITableThemeDefine = ComponentProps<typeof ListTable>['theme'];
 
@@ -33,7 +34,8 @@ export interface TableProps<T = unknown> {
   orderBy?: OrderByType;
   transpose?: boolean;
   cross?: boolean;
-  onSelectedCell?: (value: unknown) => void;
+  onSelectedCell?: (value: SelectedCellType | null) => void;
+  onSelectedCellInfos?: (cells: SelectedCellType[][] | null) => void;
 }
 
 const LIGHT_THEME: ITableThemeDefine = {
@@ -177,6 +179,7 @@ export const CanvasTable = React.memo(function CanvasTable({
   cross,
   style,
   onSelectedCell,
+  onSelectedCellInfos,
 }: TableProps) {
   const titleMap = new Map();
 
@@ -358,6 +361,12 @@ export const CanvasTable = React.memo(function CanvasTable({
       }
     }
   };
+
+  const handleDragSelectEnd: ComponentProps<
+    typeof ListTable
+  >['onDragSelectEnd'] = (e) => {
+    onSelectedCellInfos?.(e.cells as SelectedCellType[][]);
+  };
   const theme = useTableTheme(transpose);
   const appTheme = useTheme();
 
@@ -479,6 +488,7 @@ export const CanvasTable = React.memo(function CanvasTable({
         }}
         onDropdownMenuClick={handleDropdownMenuClick}
         onMouseEnterCell={handleMouseEnterCell}
+        onDragSelectEnd={handleDragSelectEnd}
         option={option}
       />
     </div>

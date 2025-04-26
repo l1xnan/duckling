@@ -1,7 +1,13 @@
-import { PrimitiveAtom, useSetAtom } from "jotai";
-import { focusAtom } from "jotai-optics";
-import * as O from "optics-ts";
-import { MouseEventHandler, MutableRefObject, useCallback, useRef, useState } from "react";
+import { PrimitiveAtom, useSetAtom } from 'jotai';
+import { focusAtom } from 'jotai-optics';
+import * as O from 'optics-ts';
+import {
+  MouseEventHandler,
+  RefObject,
+  useCallback,
+  useRef,
+  useState,
+} from 'react';
 
 type ResizeType = 'top' | 'bottom' | 'right' | 'left';
 
@@ -9,12 +15,8 @@ export const useResize = (
   initialSize: number,
   type: ResizeType,
   cb?: (size: number) => void,
-): [
-  MutableRefObject<HTMLElement | null>,
-  number,
-  MouseEventHandler<HTMLElement>,
-] => {
-  const targetRef: MutableRefObject<HTMLElement | null> = useRef(null);
+): [RefObject<HTMLElement | null>, number, MouseEventHandler<HTMLElement>] => {
+  const targetRef: RefObject<HTMLElement | null> = useRef(null);
   const [size, setSize] = useState(initialSize);
 
   const callback = (size: number) => {
@@ -81,11 +83,15 @@ export const useResize = (
 
   return [targetRef, size, onMouseDownHandler];
 };
-export function useFocusAtom<T, K extends keyof T>(anAtom: PrimitiveAtom<T>, key: K) {
+
+export function useFocusAtom<T, K extends keyof T>(
+  anAtom: PrimitiveAtom<T>,
+  key: K,
+) {
   return useSetAtom(
     focusAtom(
       anAtom,
-      useCallback((optic: O.OpticFor_<T>) => optic.prop(key), [])
-    )
+      useCallback((optic: O.OpticFor_<T>) => optic.prop(key), []),
+    ),
   );
 }
