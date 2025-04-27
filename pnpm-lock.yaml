@@ -147,6 +147,9 @@ importers:
       deepmerge:
         specifier: ^4.3.1
         version: 4.3.1
+      dt-sql-parser:
+        specifier: ^4.1.1
+        version: 4.1.1(antlr4ng-cli@1.0.7)
       es-toolkit:
         specifier: ^1.36.0
         version: 1.36.0
@@ -177,6 +180,9 @@ importers:
       monaco-editor:
         specifier: ^0.52.2
         version: 0.52.2
+      monaco-sql-languages:
+        specifier: ^0.13.1
+        version: 0.13.1(antlr4ng-cli@1.0.7)(monaco-editor@0.52.2)
       nanoid:
         specifier: ^5.1.5
         version: 5.1.5
@@ -1949,6 +1955,19 @@ packages:
     resolution: {integrity: sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==}
     engines: {node: '>=8'}
 
+  antlr4-c3@3.3.7:
+    resolution: {integrity: sha512-F3ndE38wwA6z6AjUbL3heSdEGl4TxulGDPf9xB0/IY4dbRHWBh6XNaqFwur8vHKQk9FS5yNABHeg2wqlqIYO0w==}
+
+  antlr4ng-cli@1.0.7:
+    resolution: {integrity: sha512-qN2FsDBmLvsQcA5CWTrPz8I8gNXeS1fgXBBhI78VyxBSBV/EJgqy8ks6IDTC9jyugpl40csCQ4sL5K4i2YZ/2w==}
+    deprecated: 'This package is deprecated and will no longer be updated. Please use the new antlr-ng package instead: https://github.com/mike-lischke/antlr-ng'
+    hasBin: true
+
+  antlr4ng@2.0.11:
+    resolution: {integrity: sha512-9jM91VVtHSqHkAHQsXHaoaiewFETMvUTI1/tXvwTiFw4f7zke3IGlwEyoKN9NS0FqIwDKFvUNW2e1cKPniTkVQ==}
+    peerDependencies:
+      antlr4ng-cli: 1.0.7
+
   apache-arrow@19.0.1:
     resolution: {integrity: sha512-APmMLzS4qbTivLrPdQXexGM4JRr+0g62QDaobzEvip/FdQIrv2qLy0mD5Qdmw4buydtVJgbFeKR8f59I6PPGDg==}
     hasBin: true
@@ -2223,6 +2242,10 @@ packages:
 
   discontinuous-range@1.0.0:
     resolution: {integrity: sha512-c68LpLbO+7kP/b1Hr1qs8/BJ09F5khZGTxqxZuhzxpmwJKOgRFHJWIb9/KmqnqHhLdO55aOxFH/EGBvUQbL/RQ==}
+
+  dt-sql-parser@4.1.1:
+    resolution: {integrity: sha512-9f4m+CxIzhIrFqW8g95bCRQd+B+WeiC+RgDinBL5hwxa9OXrC6iIbaUtmiMDLO3GDBONn9ybgc+kQzv+G7EKcg==}
+    engines: {node: '>=18'}
 
   duplexer2@0.1.4:
     resolution: {integrity: sha512-asLFVfWWtJ90ZyOUHMqk7/S2w2guQKxUI2itj3d92ADHhxUSbCMGi1f1cBcJ7xM1To+pE/Khbwo1yuNbMEPKeA==}
@@ -2827,6 +2850,12 @@ packages:
 
   monaco-editor@0.52.2:
     resolution: {integrity: sha512-GEQWEZmfkOGLdd3XK8ryrfWz3AIP8YymVXiPHEdewrUq7mh0qrKrfHLNCXcbB6sTnMLnOZ3ztSiKcciFUkIJwQ==}
+
+  monaco-sql-languages@0.13.1:
+    resolution: {integrity: sha512-lmcNOxfQMZFJmQpG0stscyANx1BY8rhUTtaGcEudTRuF3M8ogb0CLh2hzEPc1bpQitAeTirUjBWzt+fA92E6yw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      monaco-editor: '>=0.31.0'
 
   moo@0.5.2:
     resolution: {integrity: sha512-iSAJLHYKnX41mKcJKjqvnAN9sf0LMDTXDEvFv+ffuRR9a1MIuXLjMNL6EsnDHSkKLTWNqQQ5uo61P4EbU4NU+Q==}
@@ -5199,6 +5228,18 @@ snapshots:
     dependencies:
       color-convert: 2.0.1
 
+  antlr4-c3@3.3.7(antlr4ng-cli@1.0.7):
+    dependencies:
+      antlr4ng: 2.0.11(antlr4ng-cli@1.0.7)
+    transitivePeerDependencies:
+      - antlr4ng-cli
+
+  antlr4ng-cli@1.0.7: {}
+
+  antlr4ng@2.0.11(antlr4ng-cli@1.0.7):
+    dependencies:
+      antlr4ng-cli: 1.0.7
+
   apache-arrow@19.0.1:
     dependencies:
       '@swc/helpers': 0.5.17
@@ -5493,6 +5534,13 @@ snapshots:
   diff-match-patch@1.0.5: {}
 
   discontinuous-range@1.0.0: {}
+
+  dt-sql-parser@4.1.1(antlr4ng-cli@1.0.7):
+    dependencies:
+      antlr4-c3: 3.3.7(antlr4ng-cli@1.0.7)
+      antlr4ng: 2.0.11(antlr4ng-cli@1.0.7)
+    transitivePeerDependencies:
+      - antlr4ng-cli
 
   duplexer2@0.1.4:
     dependencies:
@@ -6062,6 +6110,13 @@ snapshots:
       minimist: 1.2.8
 
   monaco-editor@0.52.2: {}
+
+  monaco-sql-languages@0.13.1(antlr4ng-cli@1.0.7)(monaco-editor@0.52.2):
+    dependencies:
+      dt-sql-parser: 4.1.1(antlr4ng-cli@1.0.7)
+      monaco-editor: 0.52.2
+    transitivePeerDependencies:
+      - antlr4ng-cli
 
   moo@0.5.2: {}
 
