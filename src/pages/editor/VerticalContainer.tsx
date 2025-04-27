@@ -13,12 +13,12 @@ export default function VerticalContainer({
 }: PropsWithChildren<VerticalContainerProps>) {
   const [targetRefTop, _sizeTop, actionTop] = useResize(bottom ?? 0, 'bottom');
 
-  const sizeTop = _sizeTop == 0 ? bottom ?? 0 : _sizeTop;
+  const sizeTop = _sizeTop == 0 ? (bottom ?? 0) : _sizeTop;
   const childrenArray = Children.toArray(children);
 
   return (
     <div className="flex flex-col relative h-full overflow-hidden">
-      <div style={{ height: `calc(100% - ${sizeTop}px)` }}>
+      <div style={{ height: `calc(100% - ${bottom ? sizeTop : 0}px)` }}>
         {childrenArray[0]}
       </div>
       {bottom ? (
