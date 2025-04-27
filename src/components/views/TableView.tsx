@@ -1,55 +1,21 @@
-import { DataFrame } from '@/utils/dataframe';
-import MonacoEditor from '@monaco-editor/react';
-import { IconDecimal } from '@tabler/icons-react';
-
 import { useAtomValue } from 'jotai';
-import {
-  CodeIcon,
-  CrossIcon,
-  DownloadIcon,
-  EyeIcon,
-  LetterTextIcon,
-  Loader2Icon,
-  PanelBottomIcon,
-  PanelRightIcon,
-  RefreshCw,
-  XIcon,
-} from 'lucide-react';
+import { Loader2Icon } from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Stack, ToolbarContainer } from '@/components/Toolbar';
 import { CanvasTable } from '@/components/tables';
 import { cn } from '@/lib/utils';
 import { precisionAtom } from '@/stores/setting';
 import { TabContextType, useTabsStore } from '@/stores/tabs';
 
-import { TransposeIcon } from '@/components/custom/Icons';
-import { TooltipButton } from '@/components/custom/button';
-import { Pagination } from '@/components/custom/pagination';
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from '@/components/ui/hover-card';
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
 import { usePageStore } from '@/hooks/context';
-import { useTheme } from '@/hooks/theme-provider';
-import { isDarkTheme } from '@/utils';
-import { TabsList } from '@radix-ui/react-tabs';
-import ErrorBoundary from '../ErrorBoundary';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from '../ui/table';
-import { Tabs, TabsContent, TabsTrigger } from '../ui/tabs';
+import { DataViewToolbar } from './DataViewToolbar';
+import { ValueViewer } from './ValueViewer';
 
 export const Loading = ({ className }: { className?: string }) => {
   return (
@@ -101,10 +67,38 @@ export function TableView({ context }: { context: TabContextType }) {
   const [selectedCellInfos, setSelectedCellInfos] = useState<
     SelectedCellType[][] | null
   >();
+  const { setShowValue, setDirection } = usePageStore();
+
+  const {
+    page,
+    perPage,
+    total,
+    sql,
+    elapsed,
+    setBeautify,
+    setPagination,
+    setTranspose,
+    setCross,
+  } = usePageStore();
 
   return (
     <div className="h-full flex flex-col">
-      <DataViewToolbar />
+      <DataViewToolbar
+        length={data.length}
+        page={page}
+        perPage={perPage}
+        total={total}
+        sql={sql}
+        elapsed={elapsed}
+        cross={cross}
+        transpose={transpose}
+        setShowValue={setShowValue}
+        refresh={refresh}
+        setBeautify={setBeautify}
+        setPagination={setPagination}
+        setTranspose={setTranspose}
+        setCross={setCross}
+      />
       <ResizablePanelGroup direction={direction}>
         <ResizablePanel defaultSize={80} className="flex flex-col size-full">
           <div className="h-full flex flex-col">
@@ -142,6 +136,9 @@ export function TableView({ context }: { context: TabContextType }) {
               <ValueViewer
                 selectedCell={selectedCell}
                 selectedCellInfos={selectedCellInfos}
+                setShowValue={setShowValue}
+                setDirection={setDirection}
+                direction={direction}
               />
             </div>
           </ResizablePanel>
@@ -149,265 +146,6 @@ export function TableView({ context }: { context: TabContextType }) {
       </ResizablePanelGroup>
     </div>
   );
-}
-
-function ValueViewer({
-  selectedCell,
-  selectedCellInfos,
-}: {
-  selectedCell?: SelectedCellType | null;
-  selectedCellInfos?: SelectedCellType[][] | null;
-}) {
-  const theme = useTheme();
-  const { setShowValue, setDirection, direction } = usePageStore();
-
-  return (
-    <Tabs defaultValue="value" className="size-full">
-      <div className="flex flex-row items-center justify-between">
-        <TabsList>
-          <TabsTrigger
-            value="value"
-            className={cn(
-              'h-8 text-xs relative wm-200 pl-3 pr-1.5 rounded-none border-r',
-              'group',
-              'data-[state=active]:bg-muted',
-              'data-[state=active]:text-foreground',
-              'data-[state=active]:shadow-none',
-              'data-[state=active]:rounded-none',
-            )}
-          >
-            Value
-            <div
-              className={cn(
-                'h-0.5 w-full bg-[#1976d2] absolute left-0 invisible z-6',
-                'group-data-[state=active]:visible',
-                'bottom-0',
-              )}
-            />
-          </TabsTrigger>
-          <TabsTrigger
-            value="calculate"
-            className={cn(
-              'h-8 text-xs relative wm-200 pl-3 pr-1.5 rounded-none border-r',
-              'group',
-              'data-[state=active]:bg-muted',
-              'data-[state=active]:text-foreground',
-              'data-[state=active]:shadow-none',
-              'data-[state=active]:rounded-none',
-            )}
-          >
-            Calculate
-            <div
-              className={cn(
-                'h-0.5 w-full bg-[#1976d2] absolute left-0 invisible z-6',
-                'group-data-[state=active]:visible',
-                'bottom-0',
-              )}
-            />
-          </TabsTrigger>
-        </TabsList>
-        <div className="flex flex-row items-center">
-          <TooltipButton
-            icon={<LetterTextIcon className="size-5" />}
-            onClick={() => {}}
-            tooltip="Format"
-          />
-
-          {direction == 'horizontal' ? (
-            <TooltipButton
-              icon={<PanelBottomIcon className="size-5" />}
-              onClick={() => {
-                setDirection();
-              }}
-              tooltip="Move to the bottom"
-            />
-          ) : (
-            <TooltipButton
-              icon={<PanelRightIcon className="size-5" />}
-              onClick={() => {
-                setDirection();
-              }}
-              tooltip="Move to the top"
-            />
-          )}
-
-          <TooltipButton
-            icon={<XIcon className="size-5" />}
-            onClick={() => {
-              setShowValue();
-            }}
-            tooltip="Close"
-          />
-        </div>
-      </div>
-      <TabsContent value="value" className="size-full">
-        {selectedCell === null ? (
-          <pre className="size-full flex items-center justify-center">
-            not selected
-          </pre>
-        ) : (
-          <MonacoEditor
-            theme={isDarkTheme(theme) ? 'vs-dark' : 'light'}
-            value={selectedCell?.value?.toString() ?? ''}
-            options={{
-              minimap: {
-                enabled: false,
-              },
-              lineNumbers: 'off',
-              wordWrap: 'on',
-            }}
-          />
-        )}
-      </TabsContent>
-      <TabsContent value="calculate" className="size-full">
-        <ErrorBoundary fallback={<p>Something went wrong</p>}>
-          <CalcViewer cells={selectedCellInfos} />
-        </ErrorBoundary>
-      </TabsContent>
-    </Tabs>
-  );
-}
-
-function CalcViewer({ cells }: { cells?: SelectedCellType[][] | null }) {
-  const data =
-    cells?.map((row) => {
-      return Object.fromEntries(row.map(({ field, value }) => [field, value]));
-    }) ?? [];
-  const df = new DataFrame(data);
-
-  console.log(data);
-
-  const statsArr = df.statsAll();
-  return (
-    <Table className="text-xs font-mono">
-      <TableHeader>
-        <TableRow>
-          <TableCell className="p-1 w-20 pl-4">Field</TableCell>
-          {df.inds.map((k) => {
-            return (
-              <TableCell key={k} className="p-1 w-10">
-                {k.toUpperCase()}
-              </TableCell>
-            );
-          })}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {statsArr.map((row, i) => {
-          return (
-            <TableRow key={i}>
-              <TableCell className="p-1 w-20 pl-4">
-                {row?.['field'] as string}
-              </TableCell>
-              {df.inds.map((k) => {
-                return (
-                  <TableCell key={k} className="p-1 w-10">
-                    {row?.[k] as string}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
-  );
-}
-
-function DataViewToolbar() {
-  const {
-    data,
-    page,
-    perPage,
-    total,
-    sql,
-    elapsed,
-    cross,
-    transpose,
-    setShowValue,
-
-    refresh,
-    setBeautify,
-    setPagination,
-    setTranspose,
-    setCross,
-  } = usePageStore();
-
-  const handeChange = (page: number, perPage: number) => {
-    setPagination?.({ page, perPage });
-  };
-
-  return (
-    <ToolbarContainer>
-      <Stack>
-        <Pagination
-          current={page}
-          count={data.length}
-          total={total}
-          pageSize={perPage}
-          onChange={handeChange}
-        />
-
-        <TooltipButton
-          icon={<IconDecimal className="size-5" />}
-          onClick={setBeautify}
-          tooltip="Float precision"
-        />
-        {/*<Separator orientation="vertical" />*/}
-
-        <TooltipButton
-          icon={<RefreshCw />}
-          onClick={async () => {
-            await refresh();
-          }}
-          tooltip="Refresh"
-        />
-        <div className="text-xs ml-6">
-          elapsed time: {elapsedRender(elapsed)}
-        </div>
-      </Stack>
-      <Stack>
-        <TooltipButton
-          icon={<CrossIcon />}
-          onClick={setCross}
-          tooltip="Cross"
-          active={cross}
-        />
-        <TooltipButton
-          icon={<TransposeIcon />}
-          onClick={setTranspose}
-          tooltip="Transpose"
-          active={transpose}
-        />
-        {/* TODO */}
-
-        <HoverCard>
-          <HoverCardTrigger>
-            <TooltipButton disabled={!sql} icon={<CodeIcon />} />
-          </HoverCardTrigger>
-          <HoverCardContent className="font-mono select-all text-xs">
-            {sql}
-          </HoverCardContent>
-        </HoverCard>
-
-        <TooltipButton
-          icon={<EyeIcon />}
-          onClick={setShowValue}
-          tooltip="Value Viewer"
-        />
-        <TooltipButton
-          disabled
-          icon={<DownloadIcon />}
-          tooltip="Export to CSV"
-          onClick={() => {}}
-        />
-      </Stack>
-    </ToolbarContainer>
-  );
-}
-
-export function elapsedRender(elapsed?: number) {
-  return elapsed ? `${elapsed}ms` : 'NA';
 }
 
 export function InputToolbar() {

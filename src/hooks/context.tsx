@@ -17,7 +17,7 @@ export const PageProvider = ({
 }: PropsWithChildren<{
   context: TabContextType;
 }>) => {
-  const storeRef = useRef<StoreApi<DatasetState & DatasetAction>>();
+  const storeRef = useRef<StoreApi<DatasetState & DatasetAction>>(null);
   if (!storeRef.current) {
     storeRef.current = createDatasetStore(context);
   }

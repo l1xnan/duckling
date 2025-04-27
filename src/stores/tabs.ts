@@ -20,7 +20,7 @@ import {
 } from '@/api';
 import { atomStore } from '@/stores';
 
-import { SchemaType } from './dataset';
+import { Direction, SchemaType } from './dataset';
 import { PostgresDialectType, dbMapAtom, tablesAtom } from './dbList';
 import { settingAtom } from './setting';
 
@@ -56,9 +56,10 @@ export type QueryContextType = QueryParamType & {
   message?: string;
   beautify?: boolean;
   transpose?: boolean;
+  direction: Direction;
   hasLimit?: boolean;
   showValue?: boolean;
-
+  cross: boolean;
   target?: 'export';
 };
 export type EditorContextType = {

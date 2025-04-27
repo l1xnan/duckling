@@ -1,35 +1,20 @@
-import MonacoEditor from '@monaco-editor/react';
-
-import { IconDecimal } from '@tabler/icons-react';
-import * as dialog from '@tauri-apps/plugin-dialog';
 import { PrimitiveAtom, useAtom, useAtomValue } from 'jotai';
-import { CodeIcon, DownloadIcon, EyeIcon, RefreshCw } from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
 
-import { Stack, ToolbarContainer } from '@/components/Toolbar';
-import { TransposeIcon } from '@/components/custom/Icons';
-import { Pagination } from '@/components/custom/pagination';
 import { CanvasTable } from '@/components/tables/CanvasTable';
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from '@/components/ui/hover-card';
-import { Separator } from '@/components/ui/separator';
-import { Loading } from '@/components/views/TableView';
-import { useTheme } from '@/hooks/theme-provider';
+import { Loading, SelectedCellType } from '@/components/views/TableView';
 import { atomStore } from '@/stores';
 import { precisionAtom } from '@/stores/setting';
 import { QueryContextType, executeSQL, exportData } from '@/stores/tabs';
-import { isDarkTheme } from '@/utils';
 
-import { TooltipButton } from '@/components/custom/button';
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
 import { useFocusAtom } from '@/hooks';
+import { DataViewToolbar } from './DataViewToolbar';
+import { ValueViewer } from './ValueViewer';
 
 type QueryContextAtom = PrimitiveAtom<QueryContextType>;
 
@@ -73,28 +58,74 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
 
   const precision = useAtomValue(precisionAtom);
 
-  
-  const TableComponent = CanvasTable;
-  const [selectedCell, setSelectCell] = useState<string | null>(null);
+  const [selectedCell, setSelectCell] = useState<SelectedCellType | null>(null);
+  const [selectedCellInfos, setSelectedCellInfos] = useState<
+    SelectedCellType[][] | null
+  >();
+  const setShowValue = useFocusAtom(context, 'showValue');
+  const setDirection = useFocusAtom(context, 'direction');
+  const handleRefresh = async () => {
+    await handleQuery(ctx);
+  };
 
-  const theme = useTheme();
+  const setBeautify = useFocusAtom(context, 'beautify');
+  const setPage = useFocusAtom(context, 'page');
+  const setPerPage = useFocusAtom(context, 'perPage');
+  const setTranspose = useFocusAtom(context, 'transpose');
+  const setCross = useFocusAtom(context, 'cross');
+  const setPagination = async ({
+    page,
+    perPage,
+  }: {
+    page?: number;
+    perPage?: number;
+  }) => {
+    setPage(page as number);
+    setPerPage(perPage as number);
+    await handleRefresh();
+  };
+
+  const handleShowValue = () => {
+    setShowValue(!ctx.showValue);
+  };
+
+  const handleBeautify = () => {
+    setBeautify((prev) => !prev);
+  };
+
+  const handleTranspose = () => {
+    setTranspose((v) => !v);
+  };
+  const handleCross = () => {
+    setCross((v) => !v);
+  };
 
   return (
     <div className="h-full flex flex-col">
-      <PageSizeToolbar
-        query={handleQuery}
-        exportData={handleExport}
-        ctx={context}
+      <DataViewToolbar
+        length={ctx.data?.length ?? 0}
+        page={ctx.page}
+        perPage={ctx.perPage}
+        total={ctx.total}
+        sql={ctx.sql}
+        elapsed={ctx.elapsed}
+        cross={ctx.cross}
+        transpose={ctx.transpose}
+        setShowValue={handleShowValue}
+        refresh={handleRefresh}
+        setBeautify={handleBeautify}
+        setPagination={setPagination}
+        setTranspose={handleTranspose}
+        setCross={handleCross}
       />
-
-      <ResizablePanelGroup direction="horizontal">
+      <ResizablePanelGroup direction={ctx.direction}>
         <ResizablePanel defaultSize={80}>
           <Suspense fallback={<Loading />}>
             {loading ? <Loading /> : null}
             {!ctx.data?.length && error ? (
               <div className="font-mono text-sm select-text">{error}</div>
             ) : null}
-            <TableComponent
+            <CanvasTable
               style={
                 loading || (!ctx.data?.length && error)
                   ? { display: 'none' }
@@ -107,8 +138,10 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
               transpose={ctx.transpose}
               cross={ctx.cross}
               onSelectedCell={(arg) => {
-                setSelectCell(arg as string);
-                console.log(arg);
+                setSelectCell(arg);
+              }}
+              onSelectedCellInfos={(cells) => {
+                setSelectedCellInfos(cells);
               }}
             />
           </Suspense>
@@ -119,126 +152,22 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
             defaultSize={20}
             className="flex flex-row items-start"
           >
-            {selectedCell === null ? (
-              <pre className="size-full flex items-center justify-center">
-                not selected
-              </pre>
-            ) : (
-              <MonacoEditor
-                theme={isDarkTheme(theme) ? 'vs-dark' : 'light'}
-                value={selectedCell?.toString()}
-                options={{
-                  minimap: {
-                    enabled: false,
-                  },
-                  wordWrap: 'on',
+            <div className="flex size-full">
+              <ValueViewer
+                selectedCell={selectedCell}
+                selectedCellInfos={selectedCellInfos}
+                setShowValue={handleShowValue}
+                setDirection={() => {
+                  setDirection(
+                    ctx.direction == 'horizontal' ? 'vertical' : 'horizontal',
+                  );
                 }}
+                direction={ctx.direction}
               />
-            )}
+            </div>
           </ResizablePanel>
         ) : null}
       </ResizablePanelGroup>
     </div>
-  );
-}
-
-interface PageSizeToolbarProps {
-  query: (ctx?: QueryContextType) => Promise<void>;
-  exportData: (file: string) => Promise<void>;
-  ctx: QueryContextAtom;
-}
-
-function PageSizeToolbar({ query, ctx, exportData }: PageSizeToolbarProps) {
-  const setPage = useFocusAtom(ctx, 'page');
-  const setPerPage = useFocusAtom(ctx, 'perPage');
-  const setTranspose = useFocusAtom(ctx, 'transpose');
-  const setBeautify = useFocusAtom(ctx, 'beautify');
-  const setShowValue = useFocusAtom(ctx, 'showValue');
-
-  const context = useAtomValue(ctx);
-  const { page, perPage, total, data } = context;
-
-  const handleBeautify = () => {
-    setBeautify((prev) => !prev);
-  };
-
-  const handleRefresh = async () => {
-    await query(context);
-  };
-
-  const handeChange = async (page: number, perPage: number) => {
-    setPage(page);
-    setPerPage(perPage);
-    await query();
-  };
-  const handleTranspose = () => {
-    setTranspose((v) => !v);
-  };
-
-  const count = data?.length ?? 0;
-  const handleExport = async () => {
-    const file = await dialog.save({
-      title: 'Export',
-      defaultPath: `xxx-${new Date().getTime()}.csv`,
-      filters: [{ name: 'CSV', extensions: ['csv'] }],
-    });
-    if (file) {
-      exportData(file);
-    }
-  };
-  return (
-    <ToolbarContainer>
-      <Stack>
-        <Pagination
-          current={page}
-          count={count}
-          total={total}
-          pageSize={perPage}
-          onChange={handeChange}
-        />
-        <TooltipButton
-          icon={<IconDecimal className="size-5" />}
-          onClick={handleBeautify}
-          tooltip="Float precision"
-        />
-        <Separator orientation="vertical" />
-        <TooltipButton
-          icon={<RefreshCw />}
-          onClick={handleRefresh}
-          tooltip="Refresh"
-        />
-        <div className="text-xs ml-6">elapsed time: {context.elapsed}ms</div>
-      </Stack>
-      <Stack>
-        <TooltipButton
-          icon={<EyeIcon />}
-          onClick={() => {
-            setShowValue((prev) => !prev);
-          }}
-          tooltip="Value Viewer"
-        />
-        <HoverCard>
-          <HoverCardTrigger>
-            <TooltipButton disabled={!context.sql} icon={<CodeIcon />} />
-          </HoverCardTrigger>
-          <HoverCardContent className="font-mono select-all">
-            {context.sql}
-          </HoverCardContent>
-        </HoverCard>
-
-        <TooltipButton
-          disabled
-          icon={<DownloadIcon />}
-          tooltip="Export to CSV"
-          onClick={handleExport}
-        />
-
-        <TooltipButton
-          icon={<TransposeIcon fontSize="small" />}
-          onClick={handleTranspose}
-          tooltip="Transpose"
-        />
-      </Stack>
-    </ToolbarContainer>
   );
 }
