@@ -200,7 +200,7 @@ const MonacoEditor = forwardRef<
     });
     registerCompletion(monaco, props.tableSchema ?? []);
   };
-  
+
   const handleMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
     props.onMount?.(editor, monaco);
@@ -259,6 +259,7 @@ const MonacoEditor = forwardRef<
     <Editor
       theme={isDarkTheme(theme) ? 'vs-dark' : 'light'}
       defaultLanguage="sql"
+      language={props.language ?? 'sql'}
       height="100%"
       options={{
         minimap: {

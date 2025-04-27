@@ -12,6 +12,7 @@ import {
 } from '@/stores/setting';
 
 import { Toaster } from '@/components/ui/sonner';
+import '@/sql/languageSetup';
 import { atomStore } from '@/stores';
 import 'jotai-devtools/styles.css';
 import Home from './Home';

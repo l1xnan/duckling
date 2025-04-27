@@ -15,12 +15,12 @@ import {
   useTabsStore,
 } from '@/stores/tabs';
 
+import VerticalContainer from '@/components/VerticalContainer';
 import { docsAtom, runsAtom } from '@/stores/app';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { EditorToolbar } from './EditorToolbar';
 import MonacoEditor, { EditorRef } from './MonacoEditor';
 import { QueryTabs } from './QueryTabs';
-import VerticalContainer from './VerticalContainer';
 
 function createStore(item: Partial<QueryContextType>) {
   return {
@@ -144,6 +144,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
           <MonacoEditor
             ref={ref}
             value={stmt}
+            language='sql'
             onChange={handleChange}
             tableSchema={tableSchema}
             onRun={handleClick}
