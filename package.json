@@ -54,10 +54,10 @@
     "apache-arrow": "^19.0.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "danfojs": "^1.2.0",
     "dayjs": "^1.11.13",
     "dedent": "^1.5.3",
     "deepmerge": "^4.3.1",
+    "es-toolkit": "^1.36.0",
     "idb-keyval": "^6.2.1",
     "immer": "^10.1.1",
     "jotai": "^2.12.3",
@@ -114,6 +114,9 @@
     "overrides": {
       "react-is": "19.1.0",
       "react-reconciler": "0.32.0"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "core-js"
+    ]
   }
 }

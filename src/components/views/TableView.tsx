@@ -1,6 +1,7 @@
+import { DataFrame } from '@/utils/dataframe';
 import MonacoEditor from '@monaco-editor/react';
 import { IconDecimal } from '@tabler/icons-react';
-import { DataFrame } from 'danfojs';
+
 import { useAtomValue } from 'jotai';
 import {
   CodeIcon,
@@ -40,7 +41,14 @@ import { usePageStore } from '@/hooks/context';
 import { useTheme } from '@/hooks/theme-provider';
 import { isDarkTheme } from '@/utils';
 import { TabsList } from '@radix-ui/react-tabs';
-import { Table, TableBody, TableCell, TableRow } from '../ui/table';
+import ErrorBoundary from '../ErrorBoundary';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from '../ui/table';
 import { Tabs, TabsContent, TabsTrigger } from '../ui/tabs';
 
 export const Loading = ({ className }: { className?: string }) => {
@@ -153,46 +161,6 @@ function ValueViewer({
   const theme = useTheme();
   const { setShowValue, setDirection, direction } = usePageStore();
 
-  const data =
-    selectedCellInfos?.map((row) => {
-      return Object.fromEntries(row.map(({ field, value }) => [field, value]));
-    }) ?? [];
-  const df = new DataFrame(data);
-  console.log(df);
-
-  const indicators = [
-    {
-      indicator: 'AVG',
-      fn: () => 0, // df.mean({ axis: 0 }).mean(),
-    },
-    {
-      indicator: 'MAX',
-      fn: () => 0, // df.max({ axis: 0 }).max(),
-    },
-    {
-      indicator: 'MIN',
-      fn: () => 0, // df.min({ axis: 0 }).min(),
-    },
-    {
-      indicator: 'SUM',
-      fn: () => df.sum({ axis: 0 }).sum(),
-    },
-    {
-      indicator: 'MEDIAN',
-      fn: () => 0,
-    },
-    {
-      indicator: 'COUNT',
-      fn: () => df.shape[0] * df.shape[1],
-    },
-    {
-      indicator: 'SHAPE',
-      fn: () => `${df.shape[0]}×${df.shape[1]}`,
-    },
-  ] as {
-    indicator: string;
-    fn: () => number | string;
-  }[];
   return (
     <Tabs defaultValue="value" className="size-full">
       <div className="flex flex-row items-center justify-between">
@@ -292,20 +260,57 @@ function ValueViewer({
         )}
       </TabsContent>
       <TabsContent value="calculate" className="size-full">
-        <Table className="text-xs">
-          <TableBody>
-            {indicators.map(({ indicator, fn }) => {
-              return (
-                <TableRow key={indicator}>
-                  <TableCell className="p-1 w-20 pl-4">{indicator}</TableCell>
-                  <TableCell className="p-1">{fn()}</TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+        <ErrorBoundary fallback={<p>Something went wrong</p>}>
+          <CalcViewer cells={selectedCellInfos} />
+        </ErrorBoundary>
       </TabsContent>
     </Tabs>
+  );
+}
+
+function CalcViewer({ cells }: { cells?: SelectedCellType[][] | null }) {
+  const data =
+    cells?.map((row) => {
+      return Object.fromEntries(row.map(({ field, value }) => [field, value]));
+    }) ?? [];
+  const df = new DataFrame(data);
+
+  console.log(data);
+
+  const statsArr = df.statsAll();
+  return (
+    <Table className="text-xs font-mono">
+      <TableHeader>
+        <TableRow>
+          <TableCell className="p-1 w-20 pl-4">Field</TableCell>
+          {df.inds.map((k) => {
+            return (
+              <TableCell key={k} className="p-1 w-10">
+                {k.toUpperCase()}
+              </TableCell>
+            );
+          })}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {statsArr.map((row, i) => {
+          return (
+            <TableRow key={i}>
+              <TableCell className="p-1 w-20 pl-4">
+                {row?.['field'] as string}
+              </TableCell>
+              {df.inds.map((k) => {
+                return (
+                  <TableCell key={k} className="p-1 w-10">
+                    {row?.[k] as string}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    </Table>
   );
 }
 
