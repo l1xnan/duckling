@@ -198,8 +198,7 @@ export function PageTabs({
     return (
       <TabsTrigger
         id={tab.id}
-        // @ts-ignore
-        itemId={tab.id}
+        itemID={tab.id}
         key={tab.id}
         value={tab.id}
         className={cn(

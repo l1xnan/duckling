@@ -1,7 +1,7 @@
 import { relaunch } from '@tauri-apps/plugin-process';
 import { check } from '@tauri-apps/plugin-updater';
 import { Provider, useAtomValue } from 'jotai';
-import { DevTools } from 'jotai-devtools';
+import { DevTools, DevToolsProps } from 'jotai-devtools';
 import { useEffect } from 'react';
 
 import {
@@ -14,9 +14,17 @@ import {
 import { Toaster } from '@/components/ui/sonner';
 import '@/sql/languageSetup';
 import { atomStore } from '@/stores';
-import 'jotai-devtools/styles.css';
+import css from 'jotai-devtools/styles.css?inline';
 import Home from './Home';
 import { ThemeProvider } from './hooks/theme-provider';
+
+const JotaiDevTools = (props: DevToolsProps) =>
+  process.env.NODE_ENV !== 'production' ? (
+    <>
+      <style>{css}</style>
+      <DevTools {...props} />
+    </>
+  ) : null;
 
 function App() {
   const proxy = useSettingStore((state) => state.proxy);
@@ -50,7 +58,7 @@ function App() {
   return (
     <Provider store={atomStore}>
       <ThemeProvider>
-        <DevTools position="bottom-right" />
+        <JotaiDevTools position="bottom-right" />
         <Home />
         <Toaster richColors />
       </ThemeProvider>
