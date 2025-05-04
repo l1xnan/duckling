@@ -2,7 +2,7 @@ import { OnChange } from '@monaco-editor/react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { nanoid } from 'nanoid';
-import { useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { DBType, schemaMapAtom } from '@/stores/dbList';
 import {
@@ -51,7 +51,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
 
   const schemaMap = useAtomValue(schemaMapAtom);
 
-  const tableSchema = useMemo(() => schemaMap.get(dbId) ?? [], [dbId]);
+  const tableSchema = schemaMap.get(dbId);
   const ref = useRef<EditorRef | null>(null);
 
   const handleChange: OnChange = (value, _event) => {
@@ -144,7 +144,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
           <MonacoEditor
             ref={ref}
             value={stmt}
-            language='sql'
+            language="sql"
             onChange={handleChange}
             tableSchema={tableSchema}
             onRun={handleClick}

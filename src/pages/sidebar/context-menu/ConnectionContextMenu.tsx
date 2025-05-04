@@ -51,8 +51,8 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
 
   const handleRefresh = async () => {
     if (db.config) {
-      const { data } = await getDB(db.config);
-      updateDB(db.id, data);
+      const { data, columns } = await getDB(db.config);
+      updateDB(db.id, { data, columns });
     }
   };
 

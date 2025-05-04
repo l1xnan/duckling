@@ -1,9 +1,11 @@
+/// <reference types="vitest/config" />
 import path from 'path';
 
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import jotaiDebugLabel from 'jotai/babel/plugin-debug-label';
 import jotaiReactRefresh from 'jotai/babel/plugin-react-refresh';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 import { defineConfig } from 'vite';
 // https://vitejs.dev/config/
@@ -16,11 +18,24 @@ export default defineConfig({
         plugins: [jotaiDebugLabel, jotaiReactRefresh],
       },
     }),
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'node_modules/web-tree-sitter/tree-sitter.wasm',
+          dest: '',
+        },
+      ],
+    }),
   ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+  },
+  test: {
+    // Vitest configuration options
+    globals: true, // Use global APIs like describe, it, expect
+    environment: 'node', // Important for tree-sitter which needs Node APIs
   },
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //
@@ -37,10 +52,28 @@ export default defineConfig({
   build: {
     // Tauri uses Chromium on Windows and WebKit on macOS and Linux
     target:
-      process.env.TAURI_ENV_PLATFORM == 'windows' ? 'chrome105' : 'safari13',
+      process.env.TAURI_ENV_PLATFORM == 'windows' ? 'chrome105' : 'safari15',
     // don't minify for debug builds
     minify: !process.env.TAURI_ENV_DEBUG ? 'esbuild' : false,
     // produce sourcemaps for debug builds
     sourcemap: !!process.env.TAURI_ENV_DEBUG,
+    rollupOptions: {
+      output: {
+        // 动态覆盖 WASM 文件规则
+        assetFileNames: (assetInfo) => {
+          const isWasm = assetInfo.name?.endsWith('.wasm');
+          return isWasm
+            ? 'assets/[name].[ext]' // WASM 无哈希
+            : 'assets/[name]-[hash].[ext]'; // 其他文件带哈希
+        },
+        manualChunks: {
+          // 将 web-tree-sitter 单独打包为一个 chunk
+          'web-tree-sitter': ['web-tree-sitter'],
+        },
+      },
+    },
+  },
+  worker: {
+    format: 'es',
   },
 });

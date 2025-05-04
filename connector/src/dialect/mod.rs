@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use std::collections::HashMap;
 
 use crate::api::RawArrowData;
 use crate::dialect::ast::first_stmt;
@@ -95,6 +96,10 @@ pub trait Connection: Sync + Send {
   }
 
   async fn show_column(&self, _schema: Option<&str>, _table: &str) -> anyhow::Result<RawArrowData> {
+    unimplemented!()
+  }
+
+  async fn all_columns(&self) -> anyhow::Result<HashMap<String, Vec<String>>> {
     unimplemented!()
   }
 

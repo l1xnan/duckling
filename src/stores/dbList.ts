@@ -76,7 +76,7 @@ export type DBType = {
   displayName: string;
   // tree node
   data: TreeNode;
-
+  columns: Record<string, string[]>;
   config?: DialectConfig;
 };
 
@@ -86,7 +86,7 @@ type DBListState = {
 
 type DBListAction = {
   append: (db: DBType) => void;
-  update: (id: string, data: TreeNode) => void;
+  update: (id: string, db: Partial<DBType>) => void;
   // remove db by db id
   remove: (id: string) => void;
   rename: (id: string, displayName: string) => void;
@@ -128,15 +128,10 @@ export const useDBListStore = create<DBListStore>()(
           set((state) => ({
             dbList: state.dbList?.filter((item) => !(item.id === id)),
           })),
-        update: (id, data) =>
+        update: (id, db) =>
           set((state) => ({
             dbList: state.dbList.map((item) =>
-              item.id !== id
-                ? item
-                : {
-                    ...item,
-                    data,
-                  },
+              item.id !== id ? item : { ...item, ...db },
             ),
           })),
         setCwd: (cwd: string, id: string) =>
@@ -173,7 +168,7 @@ export const useDBListStore = create<DBListStore>()(
       {
         name: 'dbListStore',
         storage: createJSONStorage(() => indexDBStorage),
-        partialize: (state) => ({ dbList: state.dbList } as DBListStore),
+        partialize: (state) => ({ dbList: state.dbList }) as DBListStore,
       },
     ),
   ),
@@ -186,16 +181,7 @@ export const dbMapAtom = atom(
 );
 
 export const schemaMapAtom = atom(
-  (get) =>
-    new Map(
-      get(dbListAtom).map((db) => [
-        db.id,
-        Array.from(flattenTree(db.data).keys()).map((key) => ({
-          table_name: key,
-          column_name: key, // TODO
-        })),
-      ]),
-    ),
+  (get) => new Map(get(dbListAtom).map((db) => [db.id, db.columns ?? []])),
 );
 
 export const tablesAtom = atom(

@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::collections::HashMap;
 use std::sync::Mutex;
 use std::time::Instant;
 
@@ -9,7 +9,6 @@ use tauri::State;
 
 use connector::api;
 use connector::api::ArrowResponse;
-use connector::dialect::Connection;
 use connector::dialect::clickhouse::ClickhouseConnection;
 use connector::dialect::duckdb::DuckDbConnection;
 use connector::dialect::file::FileConnection;
@@ -17,6 +16,7 @@ use connector::dialect::folder::FolderConnection;
 use connector::dialect::mysql::MySqlConnection;
 use connector::dialect::postgres::PostgresConnection;
 use connector::dialect::sqlite::SqliteConnection;
+use connector::dialect::Connection;
 use connector::utils::TreeNode;
 
 pub struct OpenedFiles(pub Mutex<Option<Vec<String>>>);
@@ -259,4 +259,14 @@ pub async fn find(
   let res = d.find(value, path).await;
 
   Ok(api::convert(res, None))
+}
+
+#[tauri::command]
+pub async fn all_columns(dialect: DialectPayload) -> Result<HashMap<String, Vec<String>>, String> {
+  let d = get_dialect(dialect.clone())
+    .await
+    .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
+  let s = d.all_columns().await;
+  let columns = s.map_err(|e| format!("not support dialect {}", e.to_string()));
+  columns
 }

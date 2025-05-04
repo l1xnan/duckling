@@ -12,11 +12,7 @@ import { TooltipButton } from '@/components/custom/button';
 import { useDialog } from '@/components/custom/use-dialog';
 import { ConfigDialog } from '@/pages/sidebar/dialog/ConfigDialog';
 import { DatabaseDialog } from '@/pages/sidebar/dialog/DatabaseDialog';
-import {
-  DialectType,
-  selectedNodeAtom,
-  useDBListStore
-} from '@/stores/dbList';
+import { DialectType, selectedNodeAtom, useDBListStore } from '@/stores/dbList';
 import { ChevronsDownUpIcon, ChevronsUpDownIcon } from 'lucide-react';
 import { useShallow } from 'zustand/shallow';
 
@@ -27,13 +23,9 @@ export function SideToolbar({
   onExpandAll: () => void;
   onCollapseAll: () => void;
 }) {
-  const [dbList, dbMap, appendDB, updateDB, _removeDB] = useDBListStore(useShallow((s) => [
-    s.dbList,
-    s.dbMap,
-    s.append,
-    s.update,
-    s.remove,
-  ]));
+  const [dbList, dbMap, appendDB, updateDB, _removeDB] = useDBListStore(
+    useShallow((s) => [s.dbList, s.dbMap, s.append, s.update, s.remove]),
+  );
 
   async function handleGetDB(path: string, dialect: DialectType) {
     const data = await getDB({ path, dialect });
@@ -58,10 +50,10 @@ export function SideToolbar({
 
       dbList.forEach(async (db) => {
         if (db.id == root) {
-          const { data } = await getDB(
+          const { data, columns } = await getDB(
             db.config ?? { path: db.data.path, dialect: 'folder' },
           );
-          updateDB(root, data);
+          updateDB(root, { data, columns });
         }
       });
     }

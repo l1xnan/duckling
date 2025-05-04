@@ -1,6 +1,7 @@
 mod arrow_type;
 mod json_type;
 
+use std::collections::HashMap;
 use std::convert::From;
 use std::sync::Arc;
 
@@ -60,6 +61,11 @@ impl Connection for SqliteConnection {
   async fn show_column(&self, _schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
     let sql = format!("select * from pragma_table_info('{table}')");
     self.query(&sql, 0, 0).await
+  }
+
+  async fn all_columns(&self) -> anyhow::Result<HashMap<String, Vec<String>>> {
+    let columns = self._all_columns().await?;
+    Ok(columns)
   }
 
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
@@ -145,6 +151,39 @@ impl SqliteConnection {
       titles: Some(titles),
       sql: Some(sql.to_string()),
     })
+  }
+  #[allow(clippy::unused_async)]
+  async fn _all_columns(&self) -> anyhow::Result<HashMap<String, Vec<String>>> {
+    let table_names = self._all_table_names().await?;
+    let conn = self.connect()?;
+
+    let mut tables = HashMap::new();
+    for table_name in table_names {
+      let sql = format!("select name from pragma_table_info('{table_name}')");
+      let mut stmt = conn.prepare(&sql)?;
+      let rows = stmt.query_map([], |row| row.get(0))?;
+      let mut columns: Vec<String> = Vec::new();
+      for name_result in rows {
+        columns.push(name_result?);
+      }
+      tables.insert(table_name, columns);
+    }
+    Ok(tables)
+  }
+
+  async fn _all_table_names(&self) -> anyhow::Result<Vec<String>> {
+    let sql = "
+      SELECT name FROM sqlite_master
+      WHERE type IN ('table', 'view') and name NOT IN ('sqlite_sequence', 'sqlite_stat1')
+      ";
+    let conn = self.connect()?;
+    let mut stmt = conn.prepare(sql)?;
+    let rows = stmt.query_map([], |row| row.get(0))?;
+    let mut table_names: Vec<String> = Vec::new();
+    for name_result in rows {
+      table_names.push(name_result?);
+    }
+    Ok(table_names)
   }
   #[allow(clippy::unused_async)]
   async fn _query_json(

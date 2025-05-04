@@ -113,12 +113,17 @@ export async function exportCsv(
 
 export async function getDB(option: DialectConfig): Promise<DBType> {
   const tree: TreeNode = await invoke('get_db', { dialect: option });
-  console.log('tree:', tree);
+  const columns: Record<string, string[]> = await invoke('all_columns', {
+    dialect: option,
+  });
+
+  console.log('tree:', tree, columns);
   return {
     id: nanoid(),
     dialect: option.dialect,
     data: tree,
     config: option,
+    columns,
     displayName: tree.name,
   };
 }

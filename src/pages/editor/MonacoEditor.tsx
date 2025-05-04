@@ -1,4 +1,3 @@
-import * as B from '@mobily/ts-belt';
 import Editor, {
   BeforeMount,
   EditorProps,
@@ -14,12 +13,12 @@ import {
   useRef,
 } from 'react';
 
-import { isDarkTheme } from '@/utils';
-
 import { formatSQL } from '@/api';
 import { useTheme } from '@/hooks/theme-provider';
+import { isDarkTheme } from '@/utils';
 import type monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { format } from 'sql-formatter';
+import { monacoRegisterProvider, parseSqlAndFindTableNameAndAliases } from './completion';
 
 interface MonacoEditorProps extends EditorProps {}
 
@@ -31,36 +30,8 @@ export interface EditorRef {
 
 type OnMountParams = Parameters<OnMount>;
 
-function parseSqlAndFindTableNameAndAliases(sql: string) {
-  const regex =
-    /\b(?:FROM|JOIN)\s+([^\s.]+(?:\.[^\s.]+)?)\s*(?:AS)?\s*([^\s,]+)?/gi;
-  const tables = [];
-
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    const match = regex.exec(sql);
-    if (!match) {
-      break;
-    }
-    const table_name = match[1];
-    if (!/\(/.test(table_name)) {
-      // exclude function calls
-      let alias = match[2] as string | null;
-      if (alias && /on|where|inner|left|right|join/.test(alias)) {
-        alias = null;
-      }
-      tables.push({
-        table_name,
-        alias: alias || table_name,
-      });
-    }
-  }
-
-  return tables;
-}
-
 // https://codesandbox.io/p/sandbox/monaco-sql-sfot6x
-function registerCompletion(monaco: Monaco, tableSchema: TableSchemaType[]) {
+function registerCompletion(monaco: Monaco, tableSchema: TableSchemaType) {
   monaco.languages.registerCompletionItemProvider('*', {
     provideCompletionItems: (model, position, _context, _cancelationToken) => {
       const word = model.getWordUntilPosition(position);
@@ -71,11 +42,7 @@ function registerCompletion(monaco: Monaco, tableSchema: TableSchemaType[]) {
         startColumn: word.startColumn,
         endColumn: word.endColumn,
       };
-      const schemaTableNames = B.pipe(
-        tableSchema,
-        B.A.map((d) => d.table_name),
-        B.A.uniq,
-      );
+      const schemaTableNames = Object.keys(tableSchema);
 
       const schemaTableNamesSet = new Set(schemaTableNames);
       const suggestions: monaco.languages.CompletionItem[] = [];
@@ -129,24 +96,17 @@ function registerCompletion(monaco: Monaco, tableSchema: TableSchemaType[]) {
         }
         if (table_name) {
           suggestions.push(
-            ...tableSchema
-              .filter((d) => d.table_name === table_name)
-              .map(({ column_name }) => ({
-                label: column_name,
-                kind: monaco.languages.CompletionItemKind.Field,
-                insertText: column_name,
-                range,
-              })),
+            ...tableSchema?.[table_name]?.map((column_name) => ({
+              label: column_name,
+              kind: monaco.languages.CompletionItemKind.Field,
+              insertText: column_name,
+              range,
+            })),
           );
         }
       }
 
-      return {
-        suggestions: B.pipe(
-          suggestions,
-          B.A.uniqBy((s) => s.insertText),
-        ) as monaco.languages.CompletionItem[],
-      };
+      return { suggestions };
     },
   });
 
@@ -180,17 +140,18 @@ function registerCompletion(monaco: Monaco, tableSchema: TableSchemaType[]) {
   });
 }
 
-export type TableSchemaType = { table_name: string; column_name: string };
+export type TableSchemaType = Record<string, string[]>;
 
 const MonacoEditor = forwardRef<
   EditorRef,
   MonacoEditorProps & {
-    tableSchema?: TableSchemaType[];
+    tableSchema?: TableSchemaType;
     onRun: () => void;
   }
 >(function MonacoEditor(props, ref: ForwardedRef<EditorRef>) {
   const editorRef = useRef<OnMountParams[0] | null>(null);
   const monaco = useMonaco();
+
   const handleBeforeMount: BeforeMount = (monaco) => {
     monaco.editor.defineTheme('dark', {
       base: 'vs-dark',
@@ -198,7 +159,6 @@ const MonacoEditor = forwardRef<
       rules: [],
       colors: {},
     });
-    registerCompletion(monaco, props.tableSchema ?? []);
   };
 
   const handleMount: OnMount = (editor, monaco) => {
@@ -223,11 +183,21 @@ const MonacoEditor = forwardRef<
         props.onRun?.();
       },
     });
+
     return () => {
       disposable1?.dispose();
       disposable2?.dispose();
     };
   }, [props.onRun, monaco]);
+
+  useEffect(() => {
+    if (!monaco) {
+      return;
+    }
+
+    monacoRegisterProvider(monaco, props.tableSchema);
+    // registerCompletion(monaco, props.tableSchema ?? {});
+  }, [monaco, props.tableSchema]);
 
   useImperativeHandle(ref, () => ({
     editor: () => editorRef.current,
