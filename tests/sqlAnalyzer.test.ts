@@ -1,41 +1,55 @@
 // tests/sqlAnalyzer.test.js
-/// <reference path="../types/tree-sitter.d.ts" />
-import { describe, it } from 'vitest';
+import _Parser, { Language, Query } from 'tree-sitter';
+import { beforeAll, describe, it } from 'vitest';
+
+import { analyzeContext } from '@/ast/analyze';
 import SQL from '@l1xnan/tree-sitter-sql';
-import Parser, { Query } from 'tree-sitter';
 
-import { get_tables, } from '@/ast/analyze';
-
-export function initParser() {
-  const parser = new Parser();
-  parser.setLanguage(SQL);
-  parser.query = (source) => new Query(SQL, source);
-  return parser;
-}
-
-
-export function analyzeContext(sql, position) {
-  const parser = initParser();
-  const tree = parser.parse(sql);
-  const rootNode = tree.rootNode;
-  let leafNode = rootNode.descendantForIndex(position, position);
-  while (leafNode) {
-    if (leafNode.type == 'from') {
-      return {
-        type: 'from',
-      };
-    }
-    if (leafNode.type == 'select') {
-      const tables = get_tables(parser, leafNode.nextSibling);
-      return {
-        type: 'select',
-        tables,
-      };
-    }
-    leafNode = leafNode.parent;
+export class Parser extends _Parser {
+  constructor() {
+    super();
   }
-  // Analyze the context at the given position
+  query(source: string) {
+    return new Query(SQL as Language, source);
+  }
 }
+
+// --- Test Data ---
+
+// --- Test Suite ---
+describe('analyzeSqlAtPosition', () => {
+  let parser: Parser;
+  beforeAll(async () => {
+    // const { default: SQL } = await import('@l1xnan/tree-sitter-sql');
+    parser = new Parser();
+    parser.setLanguage(SQL);
+  });
+
+  // Basic check - Vitest will ensure async tests are handled
+  it('select * from _', async (ctx) => {
+    const sql = ctx.task.name;
+    const tree = parser.parse(sql);
+    const rootNode = tree.rootNode;
+    const position = sql.indexOf('_');
+    console.log('tree:');
+    console.log(rootNode.toString());
+    console.log('position:', position);
+    const sqlContext = analyzeContext(parser, sql, position);
+    console.log('sqlContext:', sqlContext);
+  });
+  it('select _ from tbl as t', async (ctx) => {});
+  it('select _ from tbl0, tbl1 as t1, tbl2 t2', async (ctx) => {
+    const sql = ctx.task.name;
+    const tree = parser.parse(sql);
+
+    const rootNode = tree.rootNode;
+    console.log(rootNode.toString());
+    console.log(formatNodeTree(rootNode));
+    const position = sql.indexOf('_');
+    const sqlContext = analyzeContext(parser, sql, position);
+    console.log('sqlContext:', sqlContext);
+  });
+});
 
 /**
  * 递归地将 SyntaxNode 及其子节点格式化为带缩进的字符串。
@@ -89,35 +103,3 @@ function formatNodeTree(
   // 启动递归，初始缩进为0，无前缀
   return _recursiveToString(node, 0, '');
 }
-
-// --- Test Data ---
-
-// --- Test Suite ---
-describe('analyzeSqlAtPosition', () => {
-  const parser = initParser();
-
-  // Basic check - Vitest will ensure async tests are handled
-  it('select * from _', async (ctx) => {
-    const sql = ctx.task.name;
-    const tree = parser.parse(sql);
-    const rootNode = tree.rootNode;
-    const position = sql.indexOf('_');
-    console.log('tree:');
-    console.log(rootNode.toString());
-    console.log('position:', position);
-    const sqlContext = analyzeContext(sql, position);
-    console.log('sqlContext:', sqlContext);
-  });
-  it('select _ from tbl as t', async (ctx) => { });
-  it('select _ from tbl0, tbl1 as t1, tbl2 t2', async (ctx) => {
-    const sql = ctx.task.name;
-    const tree = parser.parse(sql);
-
-    const rootNode = tree.rootNode;
-    console.log(rootNode.toString());
-    console.log(formatNodeTree(rootNode));
-    const position = sql.indexOf('_');
-    const sqlContext = analyzeContext(sql, position);
-    console.log('sqlContext:', sqlContext);
-  });
-});
