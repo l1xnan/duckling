@@ -1,8 +1,9 @@
 // tests/sqlAnalyzer.test.js
-import _Parser, { Language, Query } from 'tree-sitter';
-import { beforeAll, describe, it } from 'vitest';
+import _Parser, { Language, Query, SyntaxNode, Tree } from 'tree-sitter';
+import { beforeAll, beforeEach, describe, it } from 'vitest';
 
-import { analyzeContext } from '@/ast/analyze';
+import { Parser as ParserType } from '@/ast';
+import { analyzeContext, formatPosition } from '@/ast/analyze';
 import SQL from '@l1xnan/tree-sitter-sql';
 
 export class Parser extends _Parser {
@@ -16,37 +17,100 @@ export class Parser extends _Parser {
 
 // --- Test Data ---
 
+type CurrentContext = {
+  sql: string;
+  tree: Tree;
+  rootNode: SyntaxNode;
+  position: number;
+};
+
 // --- Test Suite ---
-describe('analyzeSqlAtPosition', () => {
+describe('analyzeSqlContext', () => {
   let parser: Parser;
   beforeAll(async () => {
     // const { default: SQL } = await import('@l1xnan/tree-sitter-sql');
     parser = new Parser();
-    parser.setLanguage(SQL);
+    parser.setLanguage(SQL as Language);
   });
 
-  // Basic check - Vitest will ensure async tests are handled
-  it('select * from _', async (ctx) => {
+  let current: CurrentContext;
+
+  beforeEach((ctx) => {
     const sql = ctx.task.name;
     const tree = parser.parse(sql);
     const rootNode = tree.rootNode;
     const position = sql.indexOf('_');
-    console.log('tree:');
-    console.log(rootNode.toString());
-    console.log('position:', position);
-    const sqlContext = analyzeContext(parser, sql, position);
+    console.log('root:\n', rootNode.toString());
+    console.log('root:\n', formatNodeTree(rootNode, { includeText: true }));
+    current = {
+      sql,
+      tree,
+      rootNode,
+      position,
+    };
+  });
+  // Basic check - Vitest will ensure async tests are handled
+  it('select from _', async () => {
+    const { sql, position } = current;
+    const sqlContext = analyzeContext(
+      parser as unknown as ParserType,
+      sql,
+      position,
+    );
     console.log('sqlContext:', sqlContext);
   });
-  it('select _ from tbl as t', async (ctx) => {});
-  it('select _ from tbl0, tbl1 as t1, tbl2 t2', async (ctx) => {
-    const sql = ctx.task.name;
-    const tree = parser.parse(sql);
-
-    const rootNode = tree.rootNode;
-    console.log(rootNode.toString());
-    console.log(formatNodeTree(rootNode));
-    const position = sql.indexOf('_');
-    const sqlContext = analyzeContext(parser, sql, position);
+  it('select * from _', async () => {
+    const { sql, position } = current;
+    const sqlContext = analyzeContext(
+      parser as unknown as ParserType,
+      sql,
+      position,
+    );
+    console.log('sqlContext:', sqlContext);
+  });
+  it('select _ from tbl0, tbl1 as t1, tbl2 t2', async () => {
+    const { sql, position } = current;
+    const sqlContext = analyzeContext(
+      parser as unknown as ParserType,
+      sql,
+      position,
+    );
+    console.log('sqlContext:', sqlContext);
+  });
+  it('select t1._ from tbl0, tbl1 as t1, tbl2 t2', async () => {
+    const { sql, position } = current;
+    const sqlContext = analyzeContext(
+      parser as unknown as ParserType,
+      sql,
+      position,
+    );
+    console.log('sqlContext:', sqlContext);
+  });
+  it('select * from tbl0 join _', async () => {
+    const { sql, position } = current;
+    const sqlContext = analyzeContext(
+      parser as unknown as ParserType,
+      sql,
+      position,
+    );
+    console.log('sqlContext:', sqlContext);
+  });
+  it('select * from tbl0 join tbl1 as t1 on _', async () => {
+    const { sql, position } = current;
+    const sqlContext = analyzeContext(
+      parser as unknown as ParserType,
+      sql,
+      position,
+    );
+    console.log('sqlContext:', sqlContext);
+  });
+  it('select * from tbl0 join tbl1 as t1 on t1._', async () => {
+    const { sql, position } = current;
+    const sqlContext = analyzeContext(
+      parser as unknown as ParserType,
+      sql,
+      position,
+    );
     console.log('sqlContext:', sqlContext);
   });
 });
@@ -71,8 +135,8 @@ function formatNodeTree(
   // 内部递归函数
   function _recursiveToString(currentNode, indentLevel, prefix) {
     const indent = '  '.repeat(indentLevel); // 每层缩进2个空格
-    const start = `[${currentNode.startPosition.row}, ${currentNode.startPosition.column}]`;
-    const end = `[${currentNode.endPosition.row}, ${currentNode.endPosition.column}]`;
+
+    const position = formatPosition(currentNode);
 
     let textSuffix = '';
     if (includeText) {
@@ -83,7 +147,7 @@ function formatNodeTree(
       textSuffix = `  "${text}"`; // 在末尾添加文本预览
     }
     // 格式化当前节点行: 缩进 + 前缀(字段名) + 类型 + 范围 [+ 文本]
-    let result = `${indent}${prefix}${currentNode.type} ${start} - ${end}${textSuffix}\n`;
+    let result = `${indent}${prefix}${currentNode.type} ${position}${textSuffix}\n`;
 
     // 选择要遍历的子节点：命名节点或所有节点
     const children = includeAnonymous

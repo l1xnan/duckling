@@ -1,11 +1,13 @@
 import { Monaco } from '@monaco-editor/react';
 
 import { formatSQL } from '@/api';
-import parser from '@/ast';
+import { Parser } from '@/ast';
 import { analyzeContext, insertUnderscore } from '@/ast/analyze';
 import type monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { format } from 'sql-formatter';
 import { TableSchemaType } from './MonacoEditor';
+
+const parser = await Parser.load();
 
 export function parseSqlAndFindTableNameAndAliases(sql: string) {
   const regex =
@@ -69,17 +71,17 @@ export function monacoRegisterProvider(
 
       const sql = insertUnderscore(code, offset);
       const ctx = analyzeContext(parser, sql, offset);
-      if (ctx?.type === 'from') {
+      if (ctx?.scope === 'table') {
         suggestions.push(
           ...Object.keys(tableSchema ?? {})?.map((table_name) => ({
             label: table_name,
-            kind: monaco.languages.CompletionItemKind.Field,
+            kind: monaco.languages.CompletionItemKind.Class,
             insertText: table_name,
             range,
           })),
         );
         console.log('from suggestions', suggestions);
-      } else if (ctx?.type === 'select') {
+      } else if (ctx?.scope === 'column') {
         const columns: string[] = [];
         ctx.tables?.forEach((table) => {
           columns.push(...(tableSchema?.[table.table ?? ''] ?? []));
@@ -94,6 +96,12 @@ export function monacoRegisterProvider(
           })),
         );
         console.log('select suggestions', suggestions);
+      } else if (ctx?.scope === 'keyword') {
+        const kind = monaco.languages.CompletionItemKind.Keyword;
+      } else if (ctx?.scope === 'function') {
+        const kind = monaco.languages.CompletionItemKind.Function;
+      } else if (ctx?.scope === 'database') {
+        const kind = monaco.languages.CompletionItemKind.Module;
       }
 
       return { suggestions };
