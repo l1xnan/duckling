@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { precisionAtom } from '@/stores/setting';
 import { TabContextType, useTabsStore } from '@/stores/tabs';
 
+import SingleLineEditor from '@/components/editor/SingleLineEditor';
 import {
   ResizableHandle,
   ResizablePanel,
@@ -149,48 +150,40 @@ export function TableView({ context }: { context: TabContextType }) {
 }
 
 export function InputToolbar() {
-  const { setSQLWhere, setSQLOrderBy } = usePageStore();
+  const { setSQLWhere, setSQLOrderBy, refresh, sqlWhere, sqlOrderBy } =
+    usePageStore();
 
-  const [stmt, setStmt] = useState({
-    where: '',
-    orderBy: '',
-  });
-
+  const handleEnterDown = async (_value: string) => {
+    refresh();
+  };
   return (
     <div className="flex flex-row items-center h-8 min-h-8 bg-background/40 border-b font-mono">
       <ResizablePanelGroup direction="horizontal">
         <ResizablePanel defaultSize={50} className="flex flex-row items-center">
-          <div className="mx-1.5 text-muted-foreground text-sm">WHERE</div>
-          <input
-            className="flex-1 h-full border-none p-0 outline-none bg-transparent text-sm"
-            value={stmt.where}
-            onKeyDown={async (e) => {
-              if (e.key === 'Enter') {
-                setSQLOrderBy(stmt.orderBy);
-                setSQLWhere(stmt.where);
-              }
-            }}
-            onChange={(e) => {
-              setStmt((v) => ({ ...v, where: e.target.value }));
-            }}
-          />
+          <div className="mx-2 min-w-fit text-muted-foreground text-sm">
+            WHERE
+          </div>
+          <div className="w-full">
+            <SingleLineEditor
+              className="text-sm"
+              initialValue={sqlWhere}
+              onChange={setSQLWhere}
+              onEnterDown={handleEnterDown}
+            />
+          </div>
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel defaultSize={50} className="flex flex-row items-center">
-          <div className="mx-1.5 text-muted-foreground text-sm">ORDER BY</div>
-          <input
-            className="flex-1 h-full border-none p-0 outline-none bg-transparent text-sm"
-            value={stmt.orderBy}
-            onKeyDown={async (e) => {
-              if (e.key === 'Enter') {
-                setSQLOrderBy(stmt.orderBy);
-                setSQLWhere(stmt.where);
-              }
-            }}
-            onChange={(e) => {
-              setStmt((v) => ({ ...v, orderBy: e.target.value }));
-            }}
-          />
+          <div className="mx-2 min-w-fit text-muted-foreground text-sm">
+            ORDER BY
+          </div>
+          <div className="w-full">
+            <SingleLineEditor
+              initialValue={sqlOrderBy}
+              onChange={setSQLOrderBy}
+              onEnterDown={handleEnterDown}
+            />
+          </div>
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

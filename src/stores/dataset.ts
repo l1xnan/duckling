@@ -133,8 +133,8 @@ export const createDatasetStore = (context: TabContextType) =>
 
     setSQLWhere: (value: string) => {
       set((_) => ({ sqlWhere: value }));
-      get().refresh();
     },
+
     setSQLOrderBy: (value: string) => {
       set((_) => ({ sqlOrderBy: value }));
     },
