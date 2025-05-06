@@ -14,11 +14,15 @@ import {
 } from 'react';
 
 import { formatSQL } from '@/api';
+import { useRegister } from '@/components/editor/useRegister';
 import { useTheme } from '@/hooks/theme-provider';
 import { isDarkTheme } from '@/utils';
 import type monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { format } from 'sql-formatter';
-import { monacoRegisterProvider, parseSqlAndFindTableNameAndAliases } from './completion';
+import {
+  monacoRegisterProvider,
+  parseSqlAndFindTableNameAndAliases,
+} from './completion';
 
 interface MonacoEditorProps extends EditorProps {}
 
@@ -151,7 +155,9 @@ const MonacoEditor = forwardRef<
 >(function MonacoEditor(props, ref: ForwardedRef<EditorRef>) {
   const editorRef = useRef<OnMountParams[0] | null>(null);
   const monaco = useMonaco();
-
+  const { handleEditorDidMount } = useRegister({
+    tableSchema: props.tableSchema,
+  });
   const handleBeforeMount: BeforeMount = (monaco) => {
     monaco.editor.defineTheme('dark', {
       base: 'vs-dark',
@@ -163,6 +169,7 @@ const MonacoEditor = forwardRef<
 
   const handleMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
+    handleEditorDidMount?.(editor, monaco);
     props.onMount?.(editor, monaco);
   };
 

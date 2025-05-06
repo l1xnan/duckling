@@ -1,7 +1,7 @@
 import { useTheme } from '@/hooks/theme-provider';
 import { isDarkTheme } from '@/utils';
-import Editor, { OnMount } from '@monaco-editor/react';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'; // 导入 monaco 类型
+import Editor, { OnMount, useMonaco } from '@monaco-editor/react';
+import * as monaco from 'monaco-editor';
 
 import {
   ForwardedRef,
@@ -11,11 +11,27 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useRegister } from './useRegister';
+const sqlWhereKeywords = [
+  'AND',
+  'OR',
+  'NOT',
+  'NULL',
+  'IS',
+  'LIKE',
+  'IN',
+  'BETWEEN',
+  'EXISTS',
+  'TRUE',
+  'FALSE',
+];
+const sqlComparisonOperators = ['=', '>', '<', '>=', '<=', '<>', '!='];
 
 interface SingleLineEditorProps {
   initialValue?: string;
   language?: string;
   className?: string;
+  columnNames?: string[];
   onEnterDown?: (value: string) => void; // 当 Enter 被按下时触发 (可选)
   onChange?: (value: string) => void; // 值变化时触发 (可选)
 }
@@ -27,10 +43,13 @@ export interface EditorRef {
   getValue: () => string | undefined;
   editor: () => OnMountParams[0] | null;
 }
+
 const SingleLineMonacoEditor = memo<SingleLineEditorProps>(
   forwardRef((props, ref: ForwardedRef<EditorRef>) => {
     const editorRef = useRef<any>(null);
     const [value, setValue] = useState(props.initialValue ?? '');
+    const theme = useTheme();
+    const monaco = useMonaco();
 
     useImperativeHandle(ref, () => ({
       editor: () => editorRef.current,
@@ -56,11 +75,20 @@ const SingleLineMonacoEditor = memo<SingleLineEditorProps>(
         return editor.getValue();
       },
     }));
-    const theme = useTheme();
+
+    const { handleEditorDidMount } = useRegister({
+      tableSchema: {
+        tables: { '': props.columnNames },
+        keywords: sqlWhereKeywords,
+        operators: sqlComparisonOperators,
+        functions: [],
+      },
+    });
 
     // --- 阻止 Enter 键换行 ---
-    const handleEditorDidMount: OnMount = (editor, mon) => {
+    const handleEditorMount: OnMount = (editor, mon) => {
       editorRef.current = editor;
+      handleEditorDidMount?.(editor, mon);
 
       // 监听键盘事件
       editor.onKeyDown((e: monaco.IKeyboardEvent) => {
@@ -121,7 +149,7 @@ const SingleLineMonacoEditor = memo<SingleLineEditorProps>(
         language={'sql'}
         value={value}
         className={props.className}
-        onMount={handleEditorDidMount}
+        onMount={handleEditorMount}
         onChange={handleEditorChange}
         height={`${20 + 3 * 2}px`}
         options={{
@@ -137,6 +165,7 @@ const SingleLineMonacoEditor = memo<SingleLineEditorProps>(
             horizontal: 'hidden',
             handleMouseWheel: false, // 可选：禁用鼠标滚轮滚动
           },
+          fixedOverflowWidgets: true, // 关键选项
           lineNumbers: 'off',
           glyphMargin: false, // 关闭字形边距
           folding: false, // 关闭代码折叠
@@ -150,13 +179,12 @@ const SingleLineMonacoEditor = memo<SingleLineEditorProps>(
           wordWrap: 'off', // 强制不换行
           wrappingIndent: 'none', // 关闭自动换行缩进
           contextmenu: false, // 可选：禁用右键菜单
-          padding: { top: 3, bottom: 3 }, // 可选：调整内边距，使其更紧凑
-          quickSuggestions: false, // 可选: 禁用快速建议
-          suggestOnTriggerCharacters: false, // 可选: 禁用触发字符建议
-          wordBasedSuggestions: 'off', // 可选: 禁用基于单词的建议
-          hover: { enabled: false }, // 可选: 禁用悬停提示
-          occurrencesHighlight: 'off', // 可选: 禁用相同内容高亮
-          selectionHighlight: false, // 可选: 禁用选择内容高亮
+          // quickSuggestions: false, // 可选: 禁用快速建议
+          // suggestOnTriggerCharacters: false, // 可选: 禁用触发字符建议
+          // wordBasedSuggestions: 'off', // 可选: 禁用基于单词的建议
+          // hover: { enabled: false }, // 可选: 禁用悬停提示
+          // occurrencesHighlight: 'off', // 可选: 禁用相同内容高亮
+          // selectionHighlight: false, // 可选: 禁用选择内容高亮
         }}
       />
     );

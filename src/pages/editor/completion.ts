@@ -3,7 +3,9 @@ import { Monaco } from '@monaco-editor/react';
 import { formatSQL } from '@/api';
 import { Parser } from '@/ast';
 import { analyzeContext, insertUnderscore } from '@/ast/analyze';
-import type monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { completionRegistry } from '@/components/editor/monacoConfig';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { Position } from 'monaco-editor/esm/vs/editor/editor.api';
 import { format } from 'sql-formatter';
 import { TableSchemaType } from './MonacoEditor';
 
@@ -136,4 +138,70 @@ export function monacoRegisterProvider(
       ];
     },
   });
+}
+
+export function handleProvideCompletionItems(
+  model: monaco.editor.ITextModel,
+  position: Position,
+) {
+  const modelUri = model.uri.toString();
+  const tableSchema = completionRegistry.get(modelUri);
+
+  const word = model.getWordUntilPosition(position);
+  const code = model.getValue();
+  const offset = model.getOffsetAt(position);
+  console.log(
+    'code',
+    `"${code}"`,
+    word,
+    'position:',
+    position,
+    'offset:',
+    offset,
+  );
+
+  const suggestions: monaco.languages.CompletionItem[] = [];
+  const range = {
+    startLineNumber: position.lineNumber,
+    endLineNumber: position.lineNumber,
+    startColumn: word.startColumn,
+    endColumn: word.endColumn,
+  };
+
+  const sql = insertUnderscore(code, offset);
+  const ctx = analyzeContext(parser, sql, offset);
+  if (ctx?.scope === 'table') {
+    suggestions.push(
+      ...Object.keys(tableSchema ?? {})?.map((table_name) => ({
+        label: table_name,
+        kind: monaco.languages.CompletionItemKind.Class,
+        insertText: table_name,
+        range,
+      })),
+    );
+    console.log('from suggestions', suggestions);
+  } else if (ctx?.scope === 'column') {
+    const columns: string[] = [];
+    ctx.tables?.forEach((table) => {
+      columns.push(...(tableSchema?.[table.table ?? ''] ?? []));
+    });
+
+    suggestions.push(
+      ...columns.map((table_name) => ({
+        label: table_name,
+        kind: monaco.languages.CompletionItemKind.Field,
+        insertText: table_name,
+        range,
+      })),
+    );
+    console.log('select suggestions', suggestions);
+  } else if (ctx?.scope === 'keyword') {
+    const kind = monaco.languages.CompletionItemKind.Keyword;
+  } else if (ctx?.scope === 'function') {
+    const kind = monaco.languages.CompletionItemKind.Function;
+  } else if (ctx?.scope === 'database') {
+    const kind = monaco.languages.CompletionItemKind.Module;
+  }
+
+  return { suggestions };
 }
