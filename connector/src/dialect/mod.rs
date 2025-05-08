@@ -100,7 +100,8 @@ pub trait Connection: Sync + Send {
   }
 
   async fn all_columns(&self) -> anyhow::Result<HashMap<String, Vec<String>>> {
-    unimplemented!()
+    let tmp = HashMap::<String, Vec<String>>::new();
+    Ok(tmp)
   }
 
   async fn drop_table(&self, _schema: Option<&str>, _table: &str) -> anyhow::Result<String> {
