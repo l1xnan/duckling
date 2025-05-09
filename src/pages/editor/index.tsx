@@ -15,11 +15,11 @@ import {
   useTabsStore,
 } from '@/stores/tabs';
 
+import MonacoEditor, { EditorRef } from '@/components/editor/MonacoEditor';
 import VerticalContainer from '@/components/VerticalContainer';
 import { docsAtom, runsAtom } from '@/stores/app';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { EditorToolbar } from './EditorToolbar';
-import MonacoEditor, { EditorRef } from './MonacoEditor';
 import { QueryTabs } from './QueryTabs';
 
 function createStore(item: Partial<QueryContextType>) {
@@ -147,7 +147,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
             language="sql"
             onChange={handleChange}
             completeMeta={{
-              tables: tableSchema
+              tables: tableSchema,
             }}
             onRun={handleClick}
           />
