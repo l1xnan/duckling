@@ -7,7 +7,7 @@ import { completionRegistry } from '@/components/editor/monacoConfig';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { Position } from 'monaco-editor/esm/vs/editor/editor.api';
 import { format } from 'sql-formatter';
-import { TableSchemaType } from './MonacoEditor';
+import { CompleteMetaType } from './MonacoEditor';
 
 const parser = await Parser.load();
 
@@ -40,7 +40,7 @@ export function parseSqlAndFindTableNameAndAliases(sql: string) {
 }
 export function monacoRegisterProvider(
   monaco?: Monaco,
-  tableSchema?: TableSchemaType | null,
+  completeContext?: CompleteMetaType | null,
 ) {
   if (!monaco) {
     return;
@@ -50,9 +50,11 @@ export function monacoRegisterProvider(
     triggerCharacters: ['.', ' ', '(', '\n'], // Trigger completion on dot, space, and parenthesis
     provideCompletionItems: (model, position, _context, _cancelationToken) => {
       const word = model.getWordUntilPosition(position);
-      const code = model.getValue();
+      let code = model.getValue();
       const offset = model.getOffsetAt(position);
 
+      const { prefixCode, meta } = completeContext ?? {};
+      code = prefixCode + code;
       console.log(
         'code',
         `"${code}"`,
@@ -75,7 +77,7 @@ export function monacoRegisterProvider(
       const ctx = analyzeContext(parser, sql, offset);
       if (ctx?.scope === 'table') {
         suggestions.push(
-          ...Object.keys(tableSchema ?? {})?.map((table_name) => ({
+          ...Object.keys(completeContext ?? {})?.map((table_name) => ({
             label: table_name,
             kind: monaco.languages.CompletionItemKind.Class,
             insertText: table_name,
@@ -86,7 +88,7 @@ export function monacoRegisterProvider(
       } else if (ctx?.scope === 'column') {
         const columns: string[] = [];
         ctx.tables?.forEach((table) => {
-          columns.push(...(tableSchema?.[table.table ?? ''] ?? []));
+          columns.push(...(meta?.[table.table ?? ''] ?? []));
         });
 
         suggestions.push(
@@ -145,10 +147,13 @@ export function handleProvideCompletionItems(
   position: Position,
 ) {
   const modelUri = model.uri.toString();
-  const tableSchema = completionRegistry.get(modelUri);
+  const completeMeta = completionRegistry.get(modelUri);
+  const { prefixCode, tables: tableSchema } = completeMeta ?? {};
 
+  console.log('completeMeta:', completeMeta);
   const word = model.getWordUntilPosition(position);
   const code = model.getValue();
+
   const offset = model.getOffsetAt(position);
   console.log(
     'code',
@@ -160,6 +165,12 @@ export function handleProvideCompletionItems(
     offset,
   );
 
+  const sql = prefixCode
+    ? prefixCode + code + '_'
+    : insertUnderscore(code, offset);
+    
+  console.log('sql:', sql);
+
   const suggestions: monaco.languages.CompletionItem[] = [];
   const range = {
     startLineNumber: position.lineNumber,
@@ -168,7 +179,6 @@ export function handleProvideCompletionItems(
     endColumn: word.endColumn,
   };
 
-  const sql = insertUnderscore(code, offset);
   const ctx = analyzeContext(parser, sql, offset);
   if (ctx?.scope === 'table') {
     suggestions.push(

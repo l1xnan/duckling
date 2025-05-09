@@ -1,37 +1,23 @@
 import { useTheme } from '@/hooks/theme-provider';
 import { isDarkTheme } from '@/utils';
-import Editor, { OnMount, useMonaco } from '@monaco-editor/react';
+import Editor, { OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 
+import { nanoid } from 'nanoid';
 import {
-  ForwardedRef,
   forwardRef,
-  memo,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from 'react';
 import { useRegister } from './useRegister';
-const sqlWhereKeywords = [
-  'AND',
-  'OR',
-  'NOT',
-  'NULL',
-  'IS',
-  'LIKE',
-  'IN',
-  'BETWEEN',
-  'EXISTS',
-  'TRUE',
-  'FALSE',
-];
-const sqlComparisonOperators = ['=', '>', '<', '>=', '<=', '<>', '!='];
 
 interface SingleLineEditorProps {
   initialValue?: string;
   language?: string;
   className?: string;
-  columnNames?: string[];
+  completeMeta?: any;
   onEnterDown?: (value: string) => void; // 当 Enter 被按下时触发 (可选)
   onChange?: (value: string) => void; // 值变化时触发 (可选)
 }
@@ -44,12 +30,11 @@ export interface EditorRef {
   editor: () => OnMountParams[0] | null;
 }
 
-const SingleLineMonacoEditor = memo<SingleLineEditorProps>(
-  forwardRef((props, ref: ForwardedRef<EditorRef>) => {
+const SingleLineMonacoEditor = forwardRef<EditorRef, SingleLineEditorProps>(
+  ({ completeMeta, initialValue, ...props }, ref) => {
     const editorRef = useRef<any>(null);
-    const [value, setValue] = useState(props.initialValue ?? '');
+    const [value, setValue] = useState(initialValue ?? '');
     const theme = useTheme();
-    const monaco = useMonaco();
 
     useImperativeHandle(ref, () => ({
       editor: () => editorRef.current,
@@ -76,13 +61,10 @@ const SingleLineMonacoEditor = memo<SingleLineEditorProps>(
       },
     }));
 
+    const instanceId = useMemo(() => nanoid(), []);
     const { handleEditorDidMount } = useRegister({
-      tableSchema: {
-        tables: { '': props.columnNames },
-        keywords: sqlWhereKeywords,
-        operators: sqlComparisonOperators,
-        functions: [],
-      },
+      instanceId,
+      completeMeta,
     });
 
     // --- 阻止 Enter 键换行 ---
@@ -93,7 +75,6 @@ const SingleLineMonacoEditor = memo<SingleLineEditorProps>(
       // 监听键盘事件
       editor.onKeyDown((e: monaco.IKeyboardEvent) => {
         // 检查是否是 Enter 键 (并且没有按 Shift, Alt, Ctrl, Meta)
-        console.log(e);
         if (
           e.keyCode === mon.KeyCode.Enter &&
           !e.shiftKey &&
@@ -113,12 +94,6 @@ const SingleLineMonacoEditor = memo<SingleLineEditorProps>(
           // editor.trigger('keyboard', 'type', { text: '' }); // 触发一个空输入可能导致失去焦点，或者直接操作 DOM
           // editor.getDomNode()?.blur();
         }
-        // 可选: 阻止 Tab 键的默认行为 (插入 Tab 字符或移动焦点)
-        // if (e.keyCode === mon.KeyCode.Tab) {
-        //   e.preventDefault();
-        //   e.stopPropagation();
-        //   // 你可以在这里实现自定义的 Tab 行为，比如移动到下一个控件
-        // }
       });
     };
 
@@ -165,6 +140,7 @@ const SingleLineMonacoEditor = memo<SingleLineEditorProps>(
             horizontal: 'hidden',
             handleMouseWheel: false, // 可选：禁用鼠标滚轮滚动
           },
+          wordBasedSuggestions: 'off', // 禁用基于单词的建议
           fixedOverflowWidgets: true, // 关键选项
           lineNumbers: 'off',
           glyphMargin: false, // 关闭字形边距
@@ -188,7 +164,6 @@ const SingleLineMonacoEditor = memo<SingleLineEditorProps>(
         }}
       />
     );
-  }),
+  },
 );
-
 export default SingleLineMonacoEditor;

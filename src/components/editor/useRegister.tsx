@@ -5,13 +5,28 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   registerUriBasedCompletionProvider,
   removeCompletionsForUri,
-  setCompletionsForUri,
+  setCompletionsForUri
 } from './monacoConfig'; // Adjust path
+
+export const sqlWhereKeywords = [
+  'AND',
+  'OR',
+  'NOT',
+  'NULL',
+  'IS',
+  'LIKE',
+  'IN',
+  'BETWEEN',
+  'EXISTS',
+  'TRUE',
+  'FALSE',
+];
+export const sqlComparisonOperators = ['=', '>', '<', '>=', '<=', '<>', '!='];
 
 export function useRegister({
   instanceId = nanoid(),
   language = 'sql',
-  tableSchema = {},
+  completeMeta = {},
 }) {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(null);
   const monaco = useMonaco();
@@ -42,8 +57,8 @@ export function useRegister({
   const completionSource = useMemo(() => {
     if (!monaco) return null; // Need monaco to create items/functions
 
-    return tableSchema;
-  }, [monaco, tableSchema, instanceId]);
+    return completeMeta;
+  }, [monaco, completeMeta, instanceId]);
 
   // 3. Editor Mount: Get Model URI and register completion source
   const handleEditorDidMount = useCallback(
@@ -51,14 +66,14 @@ export function useRegister({
       editorRef.current = editor;
       const model = editor.getModel();
 
-      if (model && tableSchema) {
+      if (model && completeMeta) {
         const currentModelUri = model.uri.toString();
         modelUriRef.current = currentModelUri; // Store URI for cleanup
 
         console.log(
           `[${instanceId}] Editor mounted. Model URI: ${currentModelUri}. Setting completion source.`,
         );
-        setCompletionsForUri(currentModelUri, tableSchema);
+        setCompletionsForUri(currentModelUri, completeMeta);
 
         // Optional: Log model content changes for debugging context
         // model.onDidChangeContent(e => {
@@ -70,7 +85,7 @@ export function useRegister({
         );
       }
     },
-    [instanceId, tableSchema],
+    [instanceId, completeMeta],
   ); // Re-run if completionSource changes (due to props)
 
   // 4. Cleanup: Remove completion source for this URI on unmount

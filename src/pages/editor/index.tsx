@@ -146,7 +146,9 @@ export default function Editor({ context }: { context: EditorContextType }) {
             value={stmt}
             language="sql"
             onChange={handleChange}
-            tableSchema={tableSchema}
+            completeMeta={{
+              tables: tableSchema
+            }}
             onRun={handleClick}
           />
         </div>

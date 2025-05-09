@@ -6,15 +6,20 @@ import { toast } from 'sonner';
 import { CanvasTable } from '@/components/tables';
 import { cn } from '@/lib/utils';
 import { precisionAtom } from '@/stores/setting';
-import { TabContextType, useTabsStore } from '@/stores/tabs';
+import { TabContextType, TableContextType, useTabsStore } from '@/stores/tabs';
 
 import SingleLineEditor from '@/components/editor/SingleLineEditor';
+import {
+  sqlComparisonOperators,
+  sqlWhereKeywords,
+} from '@/components/editor/useRegister';
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
 import { usePageStore } from '@/hooks/context';
+import { schemaMapAtom } from '@/stores/dbList';
 import { DataViewToolbar } from './DataViewToolbar';
 import { ValueViewer } from './ValueViewer';
 
@@ -103,7 +108,7 @@ export function TableView({ context }: { context: TabContextType }) {
       <ResizablePanelGroup direction={direction}>
         <ResizablePanel defaultSize={80} className="flex flex-col size-full">
           <div className="h-full flex flex-col">
-            <InputToolbar />
+            <InputToolbar context={context as TableContextType} />
             <div className="h-full flex-1 overflow-hidden">
               <Suspense fallback={<Loading />}>
                 {loading ? <Loading /> : null}
@@ -149,13 +154,25 @@ export function TableView({ context }: { context: TabContextType }) {
   );
 }
 
-export function InputToolbar() {
+export function InputToolbar({ context }: { context: TableContextType }) {
   const { setSQLWhere, setSQLOrderBy, refresh, sqlWhere, sqlOrderBy } =
     usePageStore();
+
+  const schemaMap = useAtomValue(schemaMapAtom);
+  const { dbId, tableId } = context;
+  const tableSchema = schemaMap.get(dbId);
 
   const handleEnterDown = async (_value: string) => {
     refresh();
   };
+
+  const completeMeta = {
+    tables: tableSchema,
+    keywords: sqlWhereKeywords,
+    operators: sqlComparisonOperators,
+    functions: [],
+  };
+
   return (
     <div className="flex flex-row items-center h-8 min-h-8 bg-background/40 border-b font-mono">
       <ResizablePanelGroup direction="horizontal">
@@ -169,6 +186,10 @@ export function InputToolbar() {
               initialValue={sqlWhere}
               onChange={setSQLWhere}
               onEnterDown={handleEnterDown}
+              completeMeta={{
+                ...completeMeta,
+                prefixCode: `select * from ${tableId} where `,
+              }}
             />
           </div>
         </ResizablePanel>
@@ -182,6 +203,10 @@ export function InputToolbar() {
               initialValue={sqlOrderBy}
               onChange={setSQLOrderBy}
               onEnterDown={handleEnterDown}
+              completeMeta={{
+                ...completeMeta,
+                prefixCode: `select * from ${tableId} order by `,
+              }}
             />
           </div>
         </ResizablePanel>

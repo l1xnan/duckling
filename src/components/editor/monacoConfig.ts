@@ -1,11 +1,11 @@
 // monacoConfig.js
 import { handleProvideCompletionItems } from '@/pages/editor/completion';
-import { TableSchemaType } from '@/pages/editor/MonacoEditor';
+import { CompleteMetaType } from '@/pages/editor/MonacoEditor';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 // Central Registry: Map<modelUri: string, completionFunction | completionItems[]>
 // Using a function allows for more dynamic completions based on position/context
-export const completionRegistry = new Map<string, TableSchemaType>();
+export const completionRegistry = new Map<string, CompleteMetaType>();
 
 let globalProviderDisposable: Record<string, monaco.IDisposable> = {};
 
@@ -47,16 +47,16 @@ export function registerUriBasedCompletionProvider(languageId: string) {
 // Accepts either a static array or a function for dynamic calculation
 export function setCompletionsForUri(
   modelUri: string,
-  tableSchema: TableSchemaType,
+  completeMeta: CompleteMetaType,
 ) {
   if (!modelUri) {
     console.error('Cannot set completions for a null or undefined URI.');
     return;
   }
   console.log(
-    `Setting completion source for URI: ${modelUri}. Type: ${typeof tableSchema}`,
+    `Setting completion source for URI: ${modelUri}. Type: ${typeof completeMeta}`,
   );
-  completionRegistry.set(modelUri, tableSchema);
+  completionRegistry.set(modelUri, completeMeta);
 }
 
 // Function for components to clean up when they unmount or context changes

@@ -10,6 +10,7 @@ import {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
 } from 'react';
 
@@ -18,11 +19,9 @@ import { useRegister } from '@/components/editor/useRegister';
 import { useTheme } from '@/hooks/theme-provider';
 import { isDarkTheme } from '@/utils';
 import type monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { nanoid } from 'nanoid';
 import { format } from 'sql-formatter';
-import {
-  monacoRegisterProvider,
-  parseSqlAndFindTableNameAndAliases,
-} from './completion';
+import { parseSqlAndFindTableNameAndAliases } from './completion';
 
 interface MonacoEditorProps extends EditorProps {}
 
@@ -35,7 +34,7 @@ export interface EditorRef {
 type OnMountParams = Parameters<OnMount>;
 
 // https://codesandbox.io/p/sandbox/monaco-sql-sfot6x
-function registerCompletion(monaco: Monaco, tableSchema: TableSchemaType) {
+function registerCompletion(monaco: Monaco, tableSchema: CompleteMetaType) {
   monaco.languages.registerCompletionItemProvider('*', {
     provideCompletionItems: (model, position, _context, _cancelationToken) => {
       const word = model.getWordUntilPosition(position);
@@ -144,20 +143,30 @@ function registerCompletion(monaco: Monaco, tableSchema: TableSchemaType) {
   });
 }
 
-export type TableSchemaType = Record<string, string[]>;
+export type CompleteMetaType =
+  | {
+      prefixCode?: string;
+      tables?: Record<string, string[]>;
+    }
+  | Record<string, string[]>;
 
 const MonacoEditor = forwardRef<
   EditorRef,
   MonacoEditorProps & {
-    tableSchema?: TableSchemaType;
+    completeMeta?: CompleteMetaType;
     onRun: () => void;
   }
->(function MonacoEditor(props, ref: ForwardedRef<EditorRef>) {
+>(function MonacoEditor(
+  { completeMeta, ...props },
+  ref: ForwardedRef<EditorRef>,
+) {
   const editorRef = useRef<OnMountParams[0] | null>(null);
   const monaco = useMonaco();
-  const { handleEditorDidMount } = useRegister({
-    tableSchema: props.tableSchema,
-  });
+
+  const instanceId = useMemo(() => nanoid(), []);
+
+  const { handleEditorDidMount } = useRegister({ instanceId, completeMeta });
+
   const handleBeforeMount: BeforeMount = (monaco) => {
     monaco.editor.defineTheme('dark', {
       base: 'vs-dark',
@@ -196,15 +205,6 @@ const MonacoEditor = forwardRef<
       disposable2?.dispose();
     };
   }, [props.onRun, monaco]);
-
-  useEffect(() => {
-    if (!monaco) {
-      return;
-    }
-
-    monacoRegisterProvider(monaco, props.tableSchema);
-    // registerCompletion(monaco, props.tableSchema ?? {});
-  }, [monaco, props.tableSchema]);
 
   useImperativeHandle(ref, () => ({
     editor: () => editorRef.current,
