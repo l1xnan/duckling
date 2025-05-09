@@ -1,7 +1,6 @@
 import Editor, {
   BeforeMount,
   EditorProps,
-  Monaco,
   OnMount,
   useMonaco,
 } from '@monaco-editor/react';
@@ -14,14 +13,10 @@ import {
   useRef,
 } from 'react';
 
-import { formatSQL } from '@/api';
 import { useRegister } from '@/components/editor/useRegister';
 import { useTheme } from '@/hooks/theme-provider';
 import { isDarkTheme } from '@/utils';
-import type monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { nanoid } from 'nanoid';
-import { format } from 'sql-formatter';
-import { parseSqlAndFindTableNameAndAliases } from './completion';
 
 interface MonacoEditorProps extends EditorProps {}
 
@@ -32,116 +27,6 @@ export interface EditorRef {
 }
 
 type OnMountParams = Parameters<OnMount>;
-
-// https://codesandbox.io/p/sandbox/monaco-sql-sfot6x
-function registerCompletion(monaco: Monaco, tableSchema: CompleteMetaType) {
-  monaco.languages.registerCompletionItemProvider('*', {
-    provideCompletionItems: (model, position, _context, _cancelationToken) => {
-      const word = model.getWordUntilPosition(position);
-
-      const range = {
-        startLineNumber: position.lineNumber,
-        endLineNumber: position.lineNumber,
-        startColumn: word.startColumn,
-        endColumn: word.endColumn,
-      };
-      const schemaTableNames = Object.keys(tableSchema);
-
-      const schemaTableNamesSet = new Set(schemaTableNames);
-      const suggestions: monaco.languages.CompletionItem[] = [];
-
-      const fullQueryText = model.getValue();
-
-      const tableNamesAndAliases = new Map(
-        parseSqlAndFindTableNameAndAliases(fullQueryText).map(
-          ({ table_name, alias }) => [alias, table_name],
-        ),
-      );
-
-      const thisLine = model.getValueInRange({
-        startLineNumber: position.lineNumber,
-        startColumn: 1,
-        endLineNumber: position.lineNumber,
-        endColumn: position.column,
-      });
-      const thisToken = thisLine.trim().split(' ').slice(-1)?.[0] || '';
-
-      const lastTokenBeforeSpace = /\s?(\w+)\s+\w+$/.exec(thisLine.trim())?.[1];
-      const lastTokenBeforeDot = /(\w+)\.\w*$/.exec(thisToken)?.[1];
-
-      console.log(
-        tableNamesAndAliases,
-        thisToken,
-        lastTokenBeforeSpace,
-        lastTokenBeforeDot,
-      );
-
-      if (
-        lastTokenBeforeSpace &&
-        /from|join|update|into/.test(lastTokenBeforeSpace)
-      ) {
-        suggestions.push(
-          ...schemaTableNames.map((table_name) => ({
-            label: table_name,
-            kind: monaco.languages.CompletionItemKind.Field,
-            insertText: table_name,
-            range,
-          })),
-        );
-      }
-
-      if (lastTokenBeforeDot) {
-        let table_name = null as string | null;
-        if (schemaTableNamesSet.has(lastTokenBeforeDot)) {
-          table_name = lastTokenBeforeDot;
-        } else if (tableNamesAndAliases.get(lastTokenBeforeDot)) {
-          table_name = tableNamesAndAliases.get(lastTokenBeforeDot) as string;
-        }
-        if (table_name) {
-          suggestions.push(
-            ...tableSchema?.[table_name]?.map((column_name) => ({
-              label: column_name,
-              kind: monaco.languages.CompletionItemKind.Field,
-              insertText: column_name,
-              range,
-            })),
-          );
-        }
-      }
-
-      return { suggestions };
-    },
-  });
-
-  monaco.languages.registerDocumentFormattingEditProvider('sql', {
-    async provideDocumentFormattingEdits(model, _options) {
-      const formatted = await formatSQL(model.getValue());
-      return [
-        {
-          range: model.getFullModelRange(),
-          text: formatted,
-        },
-      ];
-    },
-  });
-
-  // define a range formatting provider
-  // select some codes and right click those codes
-  // you contextmenu will have an "Format Selection" action
-  monaco.languages.registerDocumentRangeFormattingEditProvider('sql', {
-    async provideDocumentRangeFormattingEdits(model, range, _options) {
-      const formatted = format(model.getValueInRange(range), {
-        tabWidth: 2,
-      });
-      return [
-        {
-          range: range,
-          text: formatted,
-        },
-      ];
-    },
-  });
-}
 
 export type CompleteMetaType = {
   prefixCode?: string;
