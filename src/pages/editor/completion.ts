@@ -1,13 +1,8 @@
-import { Monaco } from '@monaco-editor/react';
-
-import { formatSQL } from '@/api';
 import { Parser } from '@/ast';
 import { analyzeContext, insertUnderscore } from '@/ast/analyze';
 import { completionRegistry } from '@/components/editor/monacoConfig';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { Position } from 'monaco-editor/esm/vs/editor/editor.api';
-import { format } from 'sql-formatter';
-import { CompleteMetaType } from './MonacoEditor';
 
 const parser = await Parser.load();
 
@@ -38,109 +33,6 @@ export function parseSqlAndFindTableNameAndAliases(sql: string) {
 
   return tables;
 }
-export function monacoRegisterProvider(
-  monaco?: Monaco,
-  completeContext?: CompleteMetaType | null,
-) {
-  if (!monaco) {
-    return;
-  }
-
-  monaco.languages.registerCompletionItemProvider('*', {
-    triggerCharacters: ['.', ' ', '(', '\n'], // Trigger completion on dot, space, and parenthesis
-    provideCompletionItems: (model, position, _context, _cancelationToken) => {
-      const word = model.getWordUntilPosition(position);
-      let code = model.getValue();
-      const offset = model.getOffsetAt(position);
-
-      const { prefixCode, meta } = completeContext ?? {};
-      code = prefixCode + code;
-      console.log(
-        'code',
-        `"${code}"`,
-        word,
-        'position:',
-        position,
-        'offset:',
-        offset,
-      );
-
-      const suggestions: monaco.languages.CompletionItem[] = [];
-      const range = {
-        startLineNumber: position.lineNumber,
-        endLineNumber: position.lineNumber,
-        startColumn: word.startColumn,
-        endColumn: word.endColumn,
-      };
-
-      const sql = insertUnderscore(code, offset);
-      const ctx = analyzeContext(parser, sql, offset);
-      if (ctx?.scope === 'table') {
-        suggestions.push(
-          ...Object.keys(completeContext ?? {})?.map((table_name) => ({
-            label: table_name,
-            kind: monaco.languages.CompletionItemKind.Class,
-            insertText: table_name,
-            range,
-          })),
-        );
-        console.log('from suggestions', suggestions);
-      } else if (ctx?.scope === 'column') {
-        const columns: string[] = [];
-        ctx.tables?.forEach((table) => {
-          columns.push(...(meta?.[table.table ?? ''] ?? []));
-        });
-
-        suggestions.push(
-          ...columns.map((table_name) => ({
-            label: table_name,
-            kind: monaco.languages.CompletionItemKind.Field,
-            insertText: table_name,
-            range,
-          })),
-        );
-        console.log('select suggestions', suggestions);
-      } else if (ctx?.scope === 'keyword') {
-        const kind = monaco.languages.CompletionItemKind.Keyword;
-      } else if (ctx?.scope === 'function') {
-        const kind = monaco.languages.CompletionItemKind.Function;
-      } else if (ctx?.scope === 'database') {
-        const kind = monaco.languages.CompletionItemKind.Module;
-      }
-
-      return { suggestions };
-    },
-  });
-
-  monaco.languages.registerDocumentFormattingEditProvider('sql', {
-    async provideDocumentFormattingEdits(model, _options) {
-      const formatted = await formatSQL(model.getValue());
-      return [
-        {
-          range: model.getFullModelRange(),
-          text: formatted,
-        },
-      ];
-    },
-  });
-
-  // define a range formatting provider
-  // select some codes and right click those codes
-  // you contextmenu will have an "Format Selection" action
-  monaco.languages.registerDocumentRangeFormattingEditProvider('sql', {
-    async provideDocumentRangeFormattingEdits(model, range, _options) {
-      const formatted = format(model.getValueInRange(range), {
-        tabWidth: 2,
-      });
-      return [
-        {
-          range: range,
-          text: formatted,
-        },
-      ];
-    },
-  });
-}
 
 export function handleProvideCompletionItems(
   model: monaco.editor.ITextModel,
@@ -168,7 +60,7 @@ export function handleProvideCompletionItems(
   const sql = prefixCode
     ? prefixCode + code + '_'
     : insertUnderscore(code, offset);
-    
+
   console.log('sql:', sql);
 
   const suggestions: monaco.languages.CompletionItem[] = [];
@@ -185,7 +77,7 @@ export function handleProvideCompletionItems(
       ...Object.keys(tableSchema ?? {})?.map((table_name) => ({
         label: table_name,
         kind: monaco.languages.CompletionItemKind.Class,
-        insertText: table_name,
+        insertText: /\s/.test(table_name) ? `\`${table_name}\`` : table_name,
         range,
       })),
     );
@@ -197,12 +89,14 @@ export function handleProvideCompletionItems(
     });
 
     suggestions.push(
-      ...columns.map((table_name) => ({
-        label: table_name,
-        kind: monaco.languages.CompletionItemKind.Field,
-        insertText: table_name,
-        range,
-      })),
+      ...columns.map((column_name) => {
+        return {
+          label: column_name,
+          kind: monaco.languages.CompletionItemKind.Field,
+          insertText: /\s/.test(column_name) ? `\`${column_name}\`` : column_name,
+          range,
+        };
+      }),
     );
     console.log('select suggestions', suggestions);
   } else if (ctx?.scope === 'keyword') {

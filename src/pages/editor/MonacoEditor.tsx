@@ -143,12 +143,13 @@ function registerCompletion(monaco: Monaco, tableSchema: CompleteMetaType) {
   });
 }
 
-export type CompleteMetaType =
-  | {
-      prefixCode?: string;
-      tables?: Record<string, string[]>;
-    }
-  | Record<string, string[]>;
+export type CompleteMetaType = {
+  prefixCode?: string;
+  tables?: Record<string, string[]>;
+  keywords?: string[];
+  functions?: string[];
+  operators?: string[];
+};
 
 const MonacoEditor = forwardRef<
   EditorRef,
