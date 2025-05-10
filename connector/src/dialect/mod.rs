@@ -7,6 +7,7 @@ use crate::utils::TreeNode;
 
 pub mod ast;
 pub mod clickhouse;
+pub mod clickhouse1;
 pub mod duckdb;
 pub mod file;
 pub mod folder;
@@ -113,7 +114,7 @@ pub trait Connection: Sync + Send {
   }
 
   fn _table_count_sql(&self, table: &str, where_: &str) -> String {
-    let mut sql = format!("select count(*) from {table}");
+    let mut sql = format!("select count(*) as num from {table}");
     if !where_.trim().is_empty() {
       sql = format!("{sql} where {where_}");
     }
