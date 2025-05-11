@@ -1,11 +1,10 @@
-use std::env::{current_dir, set_current_dir};
-
-use async_trait::async_trait;
-
 use crate::api;
 use crate::api::RawArrowData;
 use crate::dialect::Connection;
 use crate::utils::{build_tree, get_file_name, write_csv, Table, TreeNode};
+use async_trait::async_trait;
+use std::collections::HashMap;
+use std::env::{current_dir, set_current_dir};
 
 #[derive(Debug, Default)]
 pub struct DuckDbConnection {
@@ -88,6 +87,11 @@ impl Connection for DuckDbConnection {
     Ok(String::new())
   }
 
+  async fn all_columns(&self) -> anyhow::Result<HashMap<String, Vec<String>>> {
+    let columns = self._all_columns()?;
+    Ok(columns)
+  }
+
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     let conn = self.connect()?;
     let sql = self._table_count_sql(table, r#where);
@@ -139,6 +143,31 @@ impl DuckDbConnection {
 
   fn set_cwd(&mut self, cwd: Option<String>) {
     self.cwd = cwd;
+  }
+
+  fn _all_columns(&self) -> anyhow::Result<HashMap<String, Vec<String>>> {
+    let sql =
+      "select table_catalog, table_schema, table_name, column_name from information_schema.columns";
+    let conn = self.connect()?;
+    let mut stmt = conn.prepare(sql)?;
+
+    let rows = stmt.query_map([], |row| {
+      // 提取 table_name 和 column_name
+      Ok((
+        row.get::<_, String>(2)?, // table_name
+        row.get::<_, String>(3)?, // column_name
+      ))
+    })?;
+
+    let mut table_columns: HashMap<String, Vec<String>> = HashMap::new();
+    for row in rows {
+      let (table_name, column_name) = row?;
+      table_columns
+        .entry(table_name)
+        .or_default()
+        .push(column_name);
+    }
+    Ok(table_columns)
   }
 }
 
