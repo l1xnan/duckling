@@ -6,8 +6,8 @@ use crate::dialect::ast::first_stmt;
 use crate::utils::TreeNode;
 
 pub mod ast;
+pub mod clickhouse_tcp;
 pub mod clickhouse;
-pub mod clickhouse1;
 pub mod duckdb;
 pub mod file;
 pub mod folder;

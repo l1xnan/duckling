@@ -24,6 +24,7 @@ export type DialectType =
   | 'file'
   | 'duckdb'
   | 'clickhouse'
+  | 'clickhouse_tcp'
   | 'sqlite'
   | 'postgres'
   | 'mysql';

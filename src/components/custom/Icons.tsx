@@ -217,6 +217,9 @@ export const getTypeIcon = (type: string, expanded?: boolean) => {
   if (type == 'root') {
     return <IconDatabase />;
   }
+  if (type == 'clickhouse_tcp') {
+    return <ClickhouseIcon />;
+  }
   if (type == 'clickhouse') {
     return <ClickhouseIcon />;
   }

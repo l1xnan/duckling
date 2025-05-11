@@ -9,7 +9,8 @@ use tauri::State;
 
 use connector::api;
 use connector::api::ArrowResponse;
-use connector::dialect::clickhouse1::ClickhouseConnection;
+use connector::dialect::clickhouse::ClickhouseConnection;
+use connector::dialect::clickhouse_tcp::ClickhouseConnection as ClickhouseTcpConnection;
 use connector::dialect::duckdb::DuckDbConnection;
 use connector::dialect::file::FileConnection;
 use connector::dialect::folder::FolderConnection;
@@ -37,7 +38,7 @@ pub struct DialectPayload {
 pub fn get_ast_dialect(dialect: &str) -> Box<dyn sqlparser::dialect::Dialect> {
   match dialect {
     "folder" | "file" | "duckdb" => Box::new(sqlparser::dialect::DuckDbDialect {}),
-    "clickhouse" => Box::new(sqlparser::dialect::ClickHouseDialect {}),
+    "clickhouse_tcp" => Box::new(sqlparser::dialect::ClickHouseDialect {}),
     "mysql" => Box::new(sqlparser::dialect::MySqlDialect {}),
     "postgres" => Box::new(sqlparser::dialect::PostgreSqlDialect {}),
     _ => Box::new(sqlparser::dialect::GenericDialect {}),
@@ -73,6 +74,13 @@ pub async fn get_dialect(
       path: path.unwrap(),
     })),
     "clickhouse" => Some(Box::new(ClickhouseConnection {
+      host: host.unwrap(),
+      port: port.unwrap_or_default(),
+      username: username.unwrap_or_default(),
+      password: password.unwrap_or_default(),
+      database,
+    })),    
+    "clickhouse_tcp" => Some(Box::new(ClickhouseTcpConnection {
       host: host.unwrap(),
       port: port.unwrap_or_default(),
       username: username.unwrap_or_default(),

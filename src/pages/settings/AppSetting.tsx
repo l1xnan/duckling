@@ -165,7 +165,7 @@ const UpdateForm = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [version, setVersion] = useState<string>();
-  const [tauriVersion, setTauriVersion] = useState<string>();
+  const [_tauriVersion, setTauriVersion] = useState<string>();
   const onSubmit = (data: SettingState) => {
     setSettings((s) => ({ ...s, ...data }));
   };
