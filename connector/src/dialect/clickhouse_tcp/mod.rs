@@ -6,18 +6,18 @@ use std::sync::Arc;
 use arrow::array::*;
 use arrow::datatypes::*;
 use async_trait::async_trait;
-use chrono::naive::NaiveDate;
 use chrono::DateTime;
+use chrono::naive::NaiveDate;
 use chrono_tz::Tz;
-use clickhouse_rs::types::{Decimal, FromSql, SqlType};
 use clickhouse_rs::ClientHandle;
-use clickhouse_rs::{types::column::Column, Block, Pool, Simple};
+use clickhouse_rs::types::{Decimal, FromSql, SqlType};
+use clickhouse_rs::{Block, Pool, Simple, types::column::Column};
 use futures_util::stream::StreamExt;
 use serde::{Deserialize, Serialize};
 
 use crate::api::RawArrowData;
 use crate::dialect::Connection;
-use crate::utils::{build_tree, Table, TreeNode};
+use crate::utils::{Table, TreeNode, build_tree};
 use crate::utils::{date_to_days, write_csv};
 
 use crate::utils::Title;
@@ -61,8 +61,9 @@ impl Connection for ClickhouseConnection {
   }
 
   async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
-    let sql =
-      format!("select * except(uuid) from system.tables where database='{schema}' order by engine, name");
+    let sql = format!(
+      "select * except(uuid) from system.tables where database='{schema}' order by engine, name"
+    );
     self.query(&sql, 0, 0).await
   }
 
@@ -168,7 +169,7 @@ impl ClickhouseConnection {
     let b = batchs[0].clone();
     let schema = b.schema();
     let batch = arrow::compute::concat_batches(&schema, &batchs)?;
-    write_csv(file, &batch);
+    write_csv(file, &batch)?;
     Ok(())
   }
 

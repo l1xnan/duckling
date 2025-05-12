@@ -275,6 +275,6 @@ pub async fn all_columns(dialect: DialectPayload) -> Result<HashMap<String, Vec<
     .await
     .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
   let s = d.all_columns().await;
-  let columns = s.map_err(|e| format!("not support dialect {}", e.to_string()));
-  columns
+  
+  s.map_err(|e| format!("not support dialect {}", e))
 }

@@ -43,7 +43,7 @@ impl Connection for ClickhouseConnection {
     self.fetch_all(sql).await
   }
   #[allow(clippy::unused_async)]
-  async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
+  async fn query_count(&self, _sql: &str) -> anyhow::Result<usize> {
     Ok(0)
   }
 
@@ -192,7 +192,7 @@ impl ClickhouseConnection {
   }
 
   async fn _fetch_all(&self, sql: &str) -> anyhow::Result<JSONColumnsWithMetadataResponse> {
-    let mut client = self.client().await?;
+    let client = self.client().await?;
     // https://clickhouse.com/docs/interfaces/formats/JSONStrings
     let mut cursor = client.query(sql).fetch_bytes("JSONStrings")?;
     let bytes = cursor.collect().await?;
@@ -231,7 +231,7 @@ impl ClickhouseConnection {
 
 pub fn json_to_arrow<S: Serialize>(rows: &[S], schema: SchemaRef) -> anyhow::Result<RecordBatch> {
   let mut decoder = ReaderBuilder::new(schema).build_decoder()?;
-  decoder.serialize(&rows)?;
+  decoder.serialize(rows)?;
   let batch = decoder.flush()?.unwrap();
   Ok(batch)
 }

@@ -107,7 +107,7 @@ pub fn db_result_to_arrow(stmt: &mut Statement) -> anyhow::Result<RecordBatch> {
   }
   let mut columns: Vec<ArrayRef> = Vec::new();
   for mut builder in builders {
-    columns.push(builder.finish().into());
+    columns.push(builder.finish());
   }
 
   Ok(RecordBatch::try_new(schema, columns)?)

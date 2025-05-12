@@ -4,6 +4,7 @@ use std::path::Path;
 
 use arrow::csv::WriterBuilder;
 use arrow::datatypes::SchemaRef;
+use arrow::ipc::writer::StreamWriter;
 use arrow::json::ReaderBuilder;
 use arrow::record_batch::RecordBatch;
 use chrono::NaiveDate;
@@ -136,7 +137,13 @@ pub fn date_to_days(t: &NaiveDate) -> i32 {
 
 pub fn json_to_arrow<S: Serialize>(rows: &[S], schema: SchemaRef) -> anyhow::Result<RecordBatch> {
   let mut decoder = ReaderBuilder::new(schema).build_decoder()?;
-  decoder.serialize(&rows)?;
+  decoder.serialize(rows)?;
   let batch = decoder.flush()?.unwrap();
   Ok(batch)
+}
+
+pub fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::ArrowError> {
+  let mut writer = StreamWriter::try_new(Vec::new(), &record.schema())?;
+  writer.write(record)?;
+  writer.into_inner()
 }

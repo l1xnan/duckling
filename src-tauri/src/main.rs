@@ -46,10 +46,8 @@ fn handle_menu(app: &mut tauri::App) -> tauri::Result<()> {
       println!("toggle triggered!");
     } else if id == "open-directory" {
       let path = app.dialog().file().blocking_pick_folder();
-      if let Some(dir) = path {
-        if let FilePath::Path(d) = dir {
-          let _ = app.emit("open-directory", d);
-        }
+      if let Some(FilePath::Path(d)) = path {
+        let _ = app.emit("open-directory", d);
       }
     }
   });
@@ -81,7 +79,7 @@ fn handle_open_files(app: &mut tauri::App) {
     files.push(PathBuf::from(maybe_file));
 
     log::info!("opened_paths: {:?}", files.clone());
-    let _ = handle_file_associations(app.handle().clone(), files.clone());
+    handle_file_associations(app.handle().clone(), files.clone());
   }
 }
 
@@ -123,7 +121,7 @@ fn main() {
     )
     .setup(|app| {
       let _ = handle_menu(app);
-      let _ = handle_open_files(app);
+      handle_open_files(app);
       let _ = handle_updater(app);
 
       Ok(())

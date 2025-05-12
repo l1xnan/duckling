@@ -98,13 +98,10 @@ fn parse_order_by_expr(order_by: &str) -> Vec<(String, Option<bool>)> {
   for stmt in &stmts {
     if let Statement::Query(tmp) = stmt {
       if let Some(order_by) = &tmp.order_by {
-        match &order_by.kind {
-          OrderByKind::Expressions(_exprs) => {
-            for expr in _exprs {
-              exprs.push((expr.expr.to_string(), expr.options.asc));
-            }
+        if let OrderByKind::Expressions(_exprs) = &order_by.kind {
+          for expr in _exprs {
+            exprs.push((expr.expr.to_string(), expr.options.asc));
           }
-          _ => {}
         }
       }
     }
@@ -121,7 +118,7 @@ fn convert_dialect(d: &str) -> Box<dyn sqlparser::dialect::Dialect> {
 
 #[cfg(test)]
 mod tests {
-  use sqlparser::dialect::GenericDialect;
+  
   use std::ops::Deref;
 
   use super::*;
@@ -164,7 +161,7 @@ mod tests {
   fn test_order_by_expr() {
     let exprs = parse_order_by_expr("a DESC, b, c + 1 ASC");
     println!("{:?}", exprs);
-    assert_eq!(exprs[0].1.unwrap(), false);
+    assert!(!exprs[0].1.unwrap());
     assert_eq!(exprs[2].0, "c + 1");
 
     // let serialized = serde_json::to_string_pretty(&stmts).unwrap();

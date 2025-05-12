@@ -2,7 +2,6 @@ use crate::api::RawArrowData;
 use crate::utils::{Table, Title, TreeNode, build_tree, get_file_name};
 use arrow::array::RecordBatch;
 use std::collections::HashMap;
-use std::env::set_current_dir;
 
 #[derive(Debug)]
 pub struct DuckDbSyncConnection {
@@ -25,10 +24,7 @@ impl DuckDbSyncConnection {
     Ok(Self { path, inner, cwd })
   }
 
-  fn connect(&self) -> anyhow::Result<duckdb::Connection> {
-    Ok(duckdb::Connection::open(&self.path)?)
-  }
-  fn set_cwd(&mut self, cwd: Option<String>) -> duckdb::Result<()> {
+  pub(crate) fn set_cwd(&mut self, cwd: Option<String>) -> duckdb::Result<()> {
     self.cwd = cwd.clone();
     self.inner.execute(
       format!("SET file_search_path='{}'", cwd.unwrap_or_default()).as_str(),
@@ -41,7 +37,7 @@ impl DuckDbSyncConnection {
     let sql = format!(
       "select * from information_schema.tables where table_schema='{schema}' order by table_type, table_name"
     );
-    Ok(self.query_arrow(&sql)?)
+    self.query_arrow(&sql)
   }
   pub fn all_columns(&self) -> anyhow::Result<HashMap<String, Vec<String>>> {
     let sql =
@@ -143,6 +139,36 @@ impl DuckDbSyncConnection {
     Ok(batch)
   }
 }
+
+pub fn query(conn: &duckdb::Connection, sql: &str) -> anyhow::Result<RawArrowData> {
+  println!("sql: {sql}");
+
+  let mut stmt = conn.prepare(sql)?;
+  let frames = stmt.query_arrow([])?;
+  let schema = frames.get_schema();
+  let records: Vec<_> = frames.collect();
+
+  let titles: Vec<_> = stmt
+    .column_names()
+    .iter()
+    .enumerate()
+    .map(|(i, name)| Title {
+      name: name.clone(),
+      r#type: stmt.column_type(i).to_string(),
+    })
+    .collect();
+
+  let batch = arrow::compute::concat_batches(&schema, &records)?;
+  let total = batch.num_rows();
+
+  Ok(RawArrowData {
+    total,
+    batch,
+    titles: Some(titles),
+    sql: Some(sql.to_string()),
+  })
+}
+
 #[test]
 fn test_duckdb_cwd() {
   let cwd = Some("/path/to".to_string());

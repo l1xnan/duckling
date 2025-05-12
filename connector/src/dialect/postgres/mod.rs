@@ -2,7 +2,6 @@ use std::fmt::Debug;
 use std::sync::Arc;
 
 use anyhow::{Context, anyhow};
-use arrow::array::*;
 use arrow::datatypes::{ArrowNativeType, DataType, Field, Schema};
 
 use async_trait::async_trait;

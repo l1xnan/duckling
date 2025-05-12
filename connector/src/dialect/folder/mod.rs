@@ -8,6 +8,7 @@ use glob::glob;
 use crate::api;
 use crate::dialect::Connection;
 use crate::dialect::RawArrowData;
+use crate::dialect::duckdb::duckdb_sync;
 use crate::utils::{TreeNode, write_csv};
 
 #[derive(Debug, Default)]
@@ -19,27 +20,19 @@ pub struct FolderConnection {
 #[async_trait]
 impl Connection for FolderConnection {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
-    directory_tree(self.path.as_str()).ok_or_else(|| anyhow::anyhow!("null"))
+    directory_tree(&self.path).ok_or_else(|| anyhow::anyhow!("null"))
   }
 
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
-    api::query(":memory:", sql, limit, offset, self.cwd.clone())
-  }
-
-  async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     let conn = self.connect()?;
-    let sql = self._table_count_sql(table, r#where);
-    let total = conn.query_row(&sql, [], |row| row.get::<_, u32>(0))?;
-    let total = total.to_string().parse()?;
-    Ok(total)
+    duckdb_sync::query(&conn, sql)
   }
 
-  async fn export(&self, sql: &str, file: &str) -> anyhow::Result<()> {
-    let data = api::fetch_all(":memory:", sql, self.cwd.clone());
-    if let Ok(batch) = data {
-      write_csv(file, &batch);
-    }
-    Ok(())
+  #[allow(clippy::unused_async)]
+  async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
+    let conn = self.connect()?;
+    let total = conn.query_row(sql, [], |row| row.get::<_, usize>(0))?;
+    Ok(total)
   }
 
   async fn show_column(&self, _schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
@@ -69,6 +62,7 @@ impl Connection for FolderConnection {
     log::info!("show columns: {}", &sql);
     self.query(&sql, 0, 0).await
   }
+
   async fn drop_table(&self, _schema: Option<&str>, table: &str) -> anyhow::Result<String> {
     let path = Path::new(table);
     if path.is_dir() {
@@ -78,17 +72,25 @@ impl Connection for FolderConnection {
     }
     Ok(String::new())
   }
-
-  #[allow(clippy::unused_async)]
-  async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
+  async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     let conn = self.connect()?;
-    let total = conn.query_row(sql, [], |row| row.get::<_, usize>(0))?;
+    let sql = self._table_count_sql(table, r#where);
+    let total = conn.query_row(&sql, [], |row| row.get::<_, u32>(0))?;
+    let total = total.to_string().parse()?;
     Ok(total)
   }
 
   fn normalize(&self, name: &str) -> String {
     name.to_string()
   }
+
+  async fn export(&self, sql: &str, file: &str) -> anyhow::Result<()> {
+    let conn = self.connect()?;
+    let batch = duckdb_sync::query(&conn, sql)?.batch;
+    write_csv(file, &batch)?;
+    Ok(())
+  }
+
   #[allow(clippy::unused_async)]
   async fn find(&self, value: &str, table: &str) -> anyhow::Result<RawArrowData> {
     let path = Path::new(table);
@@ -145,18 +147,6 @@ impl Connection for FolderConnection {
   }
 }
 
-fn exist_glob(pattern: &str) -> bool {
-  if let Ok(ref mut items) = glob(pattern) {
-    if let Some(item) = items.next() {
-      return match item {
-        Ok(_path) => true,
-        Err(_e) => false,
-      };
-    }
-  }
-  false
-}
-
 impl FolderConnection {
   fn new(path: &str) -> Self {
     Self {
@@ -166,16 +156,21 @@ impl FolderConnection {
   }
 
   fn connect(&self) -> anyhow::Result<duckdb::Connection> {
-    Ok(duckdb::Connection::open_in_memory()?)
+    let conn = duckdb::Connection::open_in_memory()?;
+    conn.execute(&format!("SET file_search_path='{}'", self.path.clone()), [])?;
+    Ok(conn)
   }
 }
 
 pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
   let path = path.as_ref();
   let is_dir = path.is_dir();
-  let name = path.file_name().unwrap().to_string_lossy().to_string();
+  let name = path
+    .file_name()
+    .unwrap_or_default()
+    .to_string_lossy()
+    .to_string();
 
-  // TODO: support xlsx
   let support_types = ["csv", "parquet", "xlsx"];
 
   let mut node_type = String::from("path");
@@ -207,12 +202,10 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
   if is_dir {
     if let Ok(entries) = fs::read_dir(path) {
       let mut child_nodes = Vec::new();
-      for entry in entries {
-        if let Ok(entry) = entry {
-          let child_path = entry.path();
-          if let Some(child_node) = directory_tree(&child_path) {
-            child_nodes.push(child_node);
-          }
+      for entry in entries.flatten() {
+        let child_path = entry.path();
+        if let Some(child_node) = directory_tree(&child_path) {
+          child_nodes.push(child_node);
         }
       }
 
@@ -235,6 +228,15 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
     size,
     comment: None,
   })
+}
+
+fn exist_glob(pattern: &str) -> bool {
+  if let Ok(ref mut items) = glob(pattern) {
+    if let Some(Ok(_)) = items.next() {
+      return true;
+    }
+  }
+  false
 }
 
 #[tokio::test]

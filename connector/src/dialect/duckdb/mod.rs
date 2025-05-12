@@ -1,4 +1,3 @@
-use crate::api;
 use crate::api::RawArrowData;
 use crate::dialect::Connection;
 use crate::dialect::duckdb::duckdb_sync::DuckDbSyncConnection;
