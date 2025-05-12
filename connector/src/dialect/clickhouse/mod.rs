@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
 use std::str;
@@ -5,7 +6,7 @@ use std::sync::Arc;
 
 use crate::api::RawArrowData;
 use crate::dialect::Connection;
-use crate::utils::{build_tree, Table, TreeNode};
+use crate::utils::{Table, TreeNode, build_tree};
 use arrow::array::*;
 use arrow::datatypes::*;
 use arrow::json::ReaderBuilder;
@@ -65,6 +66,10 @@ impl Connection for ClickhouseConnection {
     self.query(&sql, 0, 0).await
   }
 
+  async fn all_columns(&self) -> anyhow::Result<HashMap<String, Vec<String>>> {
+    Ok(self._all_columns().await?)
+  }
+
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     self._table_row_count(table, r#where).await
   }
@@ -77,6 +82,13 @@ struct TableRow {
   table_type: String,
   r#type: String,
   total_bytes: Option<u64>,
+}
+
+#[derive(Row, Serialize, Deserialize)]
+struct ColumnRow {
+  database: String,
+  table: String,
+  name: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -149,6 +161,19 @@ impl ClickhouseConnection {
     Ok(tables)
   }
 
+  async fn _all_columns(&self) -> anyhow::Result<HashMap<String, Vec<String>>> {
+    let sql = "select database, table, name from system.columns";
+    let client = self.client().await?;
+    let rows = client.query(sql).fetch_all::<ColumnRow>().await?;
+    let mut table_columns: HashMap<String, Vec<String>> = HashMap::new();
+    for row in rows {
+      table_columns
+        .entry(format!("{}.{}", row.database, row.table))
+        .or_default()
+        .push(row.name);
+    }
+    Ok(table_columns)
+  }
   async fn _table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     let conn = self.client().await?;
     let sql = self._table_count_sql(table, r#where);
@@ -161,7 +186,7 @@ impl ClickhouseConnection {
     let mut cursor = client.query(sql).fetch_bytes("CSV")?;
     let mut file = File::create(file)?;
     while let Some(bytes) = cursor.next().await? {
-      file.write(&bytes)?;
+      file.write_all(&bytes)?;
     }
     Ok(())
   }

@@ -1,10 +1,9 @@
 use std::fmt::Debug;
 use std::sync::Arc;
 
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use arrow::array::*;
 use arrow::datatypes::{ArrowNativeType, DataType, Field, Schema};
-use arrow::json::ReaderBuilder;
 
 use async_trait::async_trait;
 use futures_util::FutureExt;
@@ -15,7 +14,7 @@ use tokio_postgres::{Client, Column, NoTls, Row};
 
 use crate::api::RawArrowData;
 use crate::dialect::Connection;
-use crate::utils::{build_tree, json_to_arrow, Table};
+use crate::utils::{Table, build_tree, json_to_arrow};
 use crate::utils::{Title, TreeNode};
 
 #[derive(Debug, Default)]

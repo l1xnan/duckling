@@ -38,15 +38,15 @@ impl Connection for MySqlConnection {
   }
 
   async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
-    self._query(sql).await
+    self._query(sql)
   }
 
   async fn query_all(&self, sql: &str) -> anyhow::Result<RawArrowData> {
-    self._query(sql).await
+    self._query(sql)
   }
 
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
-    self._table_row_count(table, r#where).await
+    self._table_row_count(table, r#where)
   }
 
   async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
@@ -110,7 +110,7 @@ impl MySqlConnection {
     Ok(pool.get_conn()?)
   }
 
-  async fn get_schema(&self) -> Vec<Table> {
+  fn get_schema(&self) -> Vec<Table> {
     vec![]
   }
   pub fn get_tables(&self) -> anyhow::Result<Vec<Table>> {
@@ -139,7 +139,7 @@ impl MySqlConnection {
     Ok(tables)
   }
 
-  async fn _query(&self, sql: &str) -> anyhow::Result<RawArrowData> {
+  fn _query(&self, sql: &str) -> anyhow::Result<RawArrowData> {
     let mut conn = self.get_conn()?;
 
     let mut result = conn.query_iter(sql)?;
@@ -182,12 +182,10 @@ impl MySqlConnection {
     }
     let mut tables: Vec<Vec<Value>> = (0..k).map(|_| vec![]).collect();
     while let Some(result_set) = result.iter() {
-      for row in result_set {
-        if let Ok(r) = row {
-          for (i, _col) in r.columns_ref().iter().enumerate() {
-            let val = r.get::<Value, _>(i).unwrap();
-            tables[i].push(val);
-          }
+      for row in result_set.flatten() {
+        for (i, _col) in row.columns_ref().iter().enumerate() {
+          let val = row.get::<Value, _>(i).unwrap();
+          tables[i].push(val);
         }
       }
     }
@@ -224,7 +222,7 @@ impl MySqlConnection {
     })
   }
 
-  async fn _table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
+  fn _table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
     let mut conn = self.get_conn()?;
     let mut sql = format!("select count(*) from {table}");
     if !cond.is_empty() {
@@ -234,7 +232,7 @@ impl MySqlConnection {
       .query_first::<usize, _>(&sql)?
       .ok_or_else(|| anyhow!("No value found"))
   }
-  async fn _sql_row_count(&self, sql: &str) -> anyhow::Result<usize> {
+  fn _sql_row_count(&self, sql: &str) -> anyhow::Result<usize> {
     let mut conn = self.get_conn()?;
     conn
       .query_first::<usize, _>(&sql)?
