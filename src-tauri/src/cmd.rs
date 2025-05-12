@@ -9,6 +9,7 @@ use tauri::State;
 
 use connector::api;
 use connector::api::ArrowResponse;
+use connector::dialect::Connection;
 use connector::dialect::clickhouse::ClickhouseConnection;
 use connector::dialect::clickhouse_tcp::ClickhouseConnection as ClickhouseTcpConnection;
 use connector::dialect::duckdb::DuckDbConnection;
@@ -17,7 +18,6 @@ use connector::dialect::folder::FolderConnection;
 use connector::dialect::mysql::MySqlConnection;
 use connector::dialect::postgres::PostgresConnection;
 use connector::dialect::sqlite::SqliteConnection;
-use connector::dialect::Connection;
 use connector::utils::TreeNode;
 
 pub struct OpenedFiles(pub Mutex<Option<Vec<String>>>);
@@ -79,7 +79,7 @@ pub async fn get_dialect(
       username: username.unwrap_or_default(),
       password: password.unwrap_or_default(),
       database,
-    })),    
+    })),
     "clickhouse_tcp" => Some(Box::new(ClickhouseTcpConnection {
       host: host.unwrap(),
       port: port.unwrap_or_default(),
@@ -185,7 +185,7 @@ pub async fn table_row_count(
 #[tauri::command]
 pub async fn export(sql: String, file: String, dialect: DialectPayload) -> Result<(), String> {
   if let Some(d) = get_dialect(dialect).await {
-    d.export(&sql, &file).await;
+    let _ = d.export(&sql, &file).await;
     Ok(())
   } else {
     Err("not support dialect".to_string())

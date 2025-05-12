@@ -121,14 +121,12 @@ pub fn build_tree(tables: Vec<Table>) -> Vec<TreeNode> {
   databases
 }
 
-pub fn write_csv(file: &str, batch: &RecordBatch) {
-  let file = File::create(file).unwrap();
-
-  // create a builder that doesn't write headers
+pub fn write_csv(file: &str, batch: &RecordBatch) -> anyhow::Result<()> {
+  let file = File::create(file)?;
   let builder = WriterBuilder::new().with_header(true);
   let mut writer = builder.build(file);
-
-  writer.write(batch).unwrap();
+  writer.write(batch)?;
+  Ok(())
 }
 
 pub fn date_to_days(t: &NaiveDate) -> i32 {

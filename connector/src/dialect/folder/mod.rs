@@ -8,7 +8,7 @@ use glob::glob;
 use crate::api;
 use crate::dialect::Connection;
 use crate::dialect::RawArrowData;
-use crate::utils::{write_csv, TreeNode};
+use crate::utils::{TreeNode, write_csv};
 
 #[derive(Debug, Default)]
 pub struct FolderConnection {
@@ -34,11 +34,12 @@ impl Connection for FolderConnection {
     Ok(total)
   }
 
-  async fn export(&self, sql: &str, file: &str) {
+  async fn export(&self, sql: &str, file: &str) -> anyhow::Result<()> {
     let data = api::fetch_all(":memory:", sql, self.cwd.clone());
     if let Ok(batch) = data {
       write_csv(file, &batch);
     }
+    Ok(())
   }
 
   async fn show_column(&self, _schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
@@ -130,8 +131,8 @@ impl Connection for FolderConnection {
         if let Some(arr) = col.as_any().downcast_ref::<StringArray>() {
           for c in arr.into_iter().flatten() {
             let like = format!(
-                "select filename, '{c}' as col from ({sql}) where CAST(\"{c}\" AS VARCHAR) like '%{value}%'"
-              );
+              "select filename, '{c}' as col from ({sql}) where CAST(\"{c}\" AS VARCHAR) like '%{value}%'"
+            );
             likes.push(like);
           }
         }
@@ -244,5 +245,5 @@ async fn test_table() {
     .find("123", r"D:/Code/duckdb/data/parquet-testing/decimal")
     .await
     .unwrap();
-  print_batches(&[res.batch]);
+  let _ = print_batches(&[res.batch]);
 }

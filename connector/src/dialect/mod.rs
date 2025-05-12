@@ -6,8 +6,8 @@ use crate::dialect::ast::first_stmt;
 use crate::utils::TreeNode;
 
 pub mod ast;
-pub mod clickhouse_tcp;
 pub mod clickhouse;
+pub mod clickhouse_tcp;
 pub mod duckdb;
 pub mod file;
 pub mod folder;
@@ -141,7 +141,7 @@ pub trait Connection: Sync + Send {
     sql
   }
 
-  async fn export(&self, _sql: &str, _file: &str) {
+  async fn export(&self, _sql: &str, _file: &str) -> anyhow::Result<()> {
     unimplemented!()
   }
 

@@ -30,6 +30,17 @@ pub struct ArrowResponse {
   pub elapsed: Option<u128>,
 }
 
+impl RawArrowData {
+  pub fn from_batch(batch: RecordBatch) -> Self {
+    Self {
+      total: batch.num_rows(),
+      titles: None,
+      sql: None,
+      batch,
+    }
+  }
+}
+
 pub fn convert(res: anyhow::Result<RawArrowData>, elapsed: Option<u128>) -> ArrowResponse {
   match res {
     Ok(raw) => match serialize_preview(&raw.batch) {
