@@ -1,6 +1,5 @@
 use crate::utils;
 use crate::utils::{RawArrowData, Title};
-use arrow::record_batch::RecordBatch;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Serialize, Deserialize)]
