@@ -121,6 +121,10 @@ impl Connection for FolderConnection {
     } else {
       String::new()
     };
+
+    if sql.is_empty() {
+      return Err(anyhow::anyhow!("file does not exist"));
+    }
     log::info!("show columns: {}", &sql);
 
     let describe = format!("SELECT * FROM (DESCRIBE {sql})");
