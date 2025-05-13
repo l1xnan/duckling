@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use async_trait::async_trait;
 
-use crate::api::RawArrowData;
+use crate::utils::RawArrowData;
 use crate::dialect::Connection;
 use crate::dialect::duckdb::duckdb_sync;
 use crate::utils::{TreeNode, get_file_name};

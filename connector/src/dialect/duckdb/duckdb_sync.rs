@@ -1,4 +1,4 @@
-use crate::api::RawArrowData;
+use crate::utils::RawArrowData;
 use crate::utils::{Table, Title, TreeNode, build_tree, get_file_name};
 use arrow::array::RecordBatch;
 use std::collections::HashMap;

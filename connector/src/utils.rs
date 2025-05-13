@@ -61,6 +61,25 @@ pub struct Table {
   pub size: Option<u64>,
 }
 
+pub struct RawArrowData {
+  /// The total number of rows that were selected.
+  pub total: usize,
+  pub batch: RecordBatch,
+  pub titles: Option<Vec<Title>>,
+  pub sql: Option<String>,
+}
+
+impl RawArrowData {
+  pub fn from_batch(batch: RecordBatch) -> Self {
+    Self {
+      total: batch.num_rows(),
+      titles: None,
+      sql: None,
+      batch,
+    }
+  }
+}
+
 pub fn get_file_name<P: AsRef<Path>>(path: P) -> String {
   path
     .as_ref()

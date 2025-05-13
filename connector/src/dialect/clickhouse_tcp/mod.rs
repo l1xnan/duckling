@@ -15,7 +15,7 @@ use clickhouse_rs::{Block, Pool, Simple, types::column::Column};
 use futures_util::stream::StreamExt;
 use serde::{Deserialize, Serialize};
 
-use crate::api::RawArrowData;
+use crate::utils::RawArrowData;
 use crate::dialect::Connection;
 use crate::utils::{Table, TreeNode, build_tree};
 use crate::utils::{date_to_days, write_csv};

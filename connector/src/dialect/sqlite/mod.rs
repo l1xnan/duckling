@@ -11,7 +11,7 @@ use async_trait::async_trait;
 use rusqlite::types::Value;
 use rusqlite::Statement;
 
-use crate::api::RawArrowData;
+use crate::utils::RawArrowData;
 use crate::dialect::sqlite::arrow_type::{db_result_to_arrow, db_to_arrow_type};
 use crate::dialect::sqlite::json_type::db_result_to_json;
 use crate::dialect::Connection;

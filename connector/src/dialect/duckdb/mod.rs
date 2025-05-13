@@ -1,4 +1,4 @@
-use crate::api::RawArrowData;
+use crate::utils::RawArrowData;
 use crate::dialect::Connection;
 use crate::dialect::duckdb::duckdb_sync::DuckDbSyncConnection;
 use crate::utils::{TreeNode, write_csv};

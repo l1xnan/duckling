@@ -4,7 +4,7 @@ use std::io::Write;
 use std::str;
 use std::sync::Arc;
 
-use crate::api::RawArrowData;
+use crate::utils::RawArrowData;
 use crate::dialect::Connection;
 use crate::utils::{Table, TreeNode, build_tree};
 use arrow::array::*;

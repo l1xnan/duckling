@@ -9,7 +9,7 @@ use mysql::consts::ColumnType::*;
 use mysql::prelude::*;
 use mysql::*;
 
-use crate::api::RawArrowData;
+use crate::utils::RawArrowData;
 use crate::dialect::Connection;
 use crate::utils::{Table, build_tree};
 use crate::utils::{Title, TreeNode};

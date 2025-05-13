@@ -5,11 +5,10 @@ use arrow::array::{Array, StringArray};
 use async_trait::async_trait;
 use glob::glob;
 
-use crate::api;
-use crate::dialect::Connection;
-use crate::dialect::RawArrowData;
 use crate::dialect::duckdb::duckdb_sync;
-use crate::utils::{TreeNode, write_csv};
+use crate::dialect::Connection;
+use crate::utils::RawArrowData;
+use crate::utils::{write_csv, TreeNode};
 
 #[derive(Debug, Default)]
 pub struct FolderConnection {

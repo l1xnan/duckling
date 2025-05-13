@@ -1,15 +1,7 @@
 use crate::utils;
-use crate::utils::Title;
+use crate::utils::{RawArrowData, Title};
 use arrow::record_batch::RecordBatch;
 use serde::{Deserialize, Serialize};
-
-pub struct RawArrowData {
-  /// The total number of rows that were selected.
-  pub total: usize,
-  pub batch: RecordBatch,
-  pub titles: Option<Vec<Title>>,
-  pub sql: Option<String>,
-}
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct ArrowResponse {
@@ -24,17 +16,6 @@ pub struct ArrowResponse {
   pub code: i32,
   pub message: String,
   pub elapsed: Option<u128>,
-}
-
-impl RawArrowData {
-  pub fn from_batch(batch: RecordBatch) -> Self {
-    Self {
-      total: batch.num_rows(),
-      titles: None,
-      sql: None,
-      batch,
-    }
-  }
 }
 
 pub fn convert(res: anyhow::Result<RawArrowData>, elapsed: Option<u128>) -> ArrowResponse {
