@@ -1,12 +1,16 @@
 import eslint from '@eslint/js';
 import prettierConfig from 'eslint-config-prettier';
-import tseslint from 'typescript-eslint';
+import * as pluginImportX from 'eslint-plugin-import-x';
+import tseslint, { configs } from 'typescript-eslint';
 
 export default tseslint.config(
   eslint.configs.recommended,
+  configs.recommended,
   prettierConfig,
-  ...tseslint.configs.recommended,
+  pluginImportX.flatConfigs.recommended,
+  pluginImportX.flatConfigs.typescript,
   {
+    ignores: ['eslint.config.mjs'],
     rules: {
       'no-unused-vars': 'off',
       'import/no-named-as-default-member': 'off',
@@ -19,16 +23,6 @@ export default tseslint.config(
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
           caughtErrorsIgnorePattern: '^_',
-        },
-      ],
-      'sort-imports': [
-        'error',
-        {
-          ignoreCase: false,
-          ignoreDeclarationSort: false,
-          ignoreMemberSort: false,
-          memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
-          allowSeparatedGroups: false,
         },
       ],
     },
