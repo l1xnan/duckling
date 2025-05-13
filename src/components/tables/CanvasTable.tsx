@@ -149,7 +149,7 @@ function useTableTheme(transpose?: boolean) {
       shadowOffsetY: 0,
     },
     scrollStyle: {
-      width: 8,
+      width: 10,
       visible: 'always',
       scrollSliderCornerRadius: 0,
       hoverOn: false,
