@@ -13,6 +13,7 @@ use tauri_plugin_dialog::{DialogExt, FilePath};
 use tauri_plugin_log::{Target, TargetKind};
 
 mod cmd;
+mod api;
 
 fn handle_menu(app: &mut tauri::App) -> tauri::Result<()> {
   let handle = app.handle();

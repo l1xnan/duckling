@@ -7,9 +7,7 @@ use serde::Serialize;
 use sqlformat::{FormatOptions, QueryParams};
 use tauri::State;
 
-use connector::api;
-use connector::api::ArrowResponse;
-use connector::dialect::Connection;
+use crate::api::ArrowResponse;
 use connector::dialect::clickhouse::ClickhouseConnection;
 use connector::dialect::clickhouse_tcp::ClickhouseConnection as ClickhouseTcpConnection;
 use connector::dialect::duckdb::DuckDbConnection;
@@ -18,6 +16,7 @@ use connector::dialect::folder::FolderConnection;
 use connector::dialect::mysql::MySqlConnection;
 use connector::dialect::postgres::PostgresConnection;
 use connector::dialect::sqlite::SqliteConnection;
+use connector::dialect::Connection;
 use connector::utils::TreeNode;
 
 pub struct OpenedFiles(pub Mutex<Option<Vec<String>>>);
@@ -117,7 +116,7 @@ pub async fn query(
     let start = Instant::now();
     let res = d.query(&sql, limit, offset).await;
     let duration = start.elapsed().as_millis();
-    Ok(api::convert(res, Some(duration)))
+    Ok(ArrowResponse::from_raw_data(res, Some(duration)))
   } else {
     Err("not support dialect".to_string())
   }
@@ -134,7 +133,7 @@ pub async fn paging_query(
     let start = Instant::now();
     let res = d.paging_query(&sql, Some(limit), Some(offset)).await;
     let duration = start.elapsed().as_millis();
-    Ok(api::convert(res, Some(duration)))
+    Ok(ArrowResponse::from_raw_data(res, Some(duration)))
   } else {
     Err("not support dialect".to_string())
   }
@@ -164,7 +163,7 @@ pub async fn query_table(
     )
     .await;
   let duration = start.elapsed().as_millis();
-  Ok(api::convert(res, Some(duration)))
+  Ok(ArrowResponse::from_raw_data(res, Some(duration)))
 }
 
 #[tauri::command]
@@ -217,7 +216,7 @@ pub async fn show_schema(schema: &str, dialect: DialectPayload) -> Result<ArrowR
     .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
   let res = d.show_schema(schema).await;
 
-  Ok(api::convert(res, None))
+  Ok(ArrowResponse::from_raw_data(res, None))
 }
 
 #[tauri::command]
@@ -231,7 +230,7 @@ pub async fn show_column(
     .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
   let res = d.show_column(schema, table).await;
 
-  Ok(api::convert(res, None))
+  Ok(ArrowResponse::from_raw_data(res, None))
 }
 
 #[tauri::command]
@@ -266,7 +265,7 @@ pub async fn find(
     .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
   let res = d.find(value, path).await;
 
-  Ok(api::convert(res, None))
+  Ok(ArrowResponse::from_raw_data(res, None))
 }
 
 #[tauri::command]
@@ -275,6 +274,6 @@ pub async fn all_columns(dialect: DialectPayload) -> Result<HashMap<String, Vec<
     .await
     .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
   let s = d.all_columns().await;
-  
+
   s.map_err(|e| format!("not support dialect {}", e))
 }
