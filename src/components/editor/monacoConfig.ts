@@ -1,13 +1,13 @@
 // monacoConfig.js
 import { handleProvideCompletionItems } from '@/pages/editor/completion';
-import { CompleteMetaType } from '@/pages/editor/MonacoEditor';
+import { CompleteMetaType } from './MonacoEditor';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 // Central Registry: Map<modelUri: string, completionFunction | completionItems[]>
 // Using a function allows for more dynamic completions based on position/context
 export const completionRegistry = new Map<string, CompleteMetaType>();
 
-let globalProviderDisposable: Record<string, monaco.IDisposable> = {};
+const globalProviderDisposable: Record<string, monaco.IDisposable> = {};
 
 // Function to register the single global provider for a given language
 // We make it accept languageId so it can be reused (e.g., 'sql', 'javascript')

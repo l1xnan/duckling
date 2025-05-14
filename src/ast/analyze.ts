@@ -8,9 +8,9 @@ type TableType = {
 
 export function get_tables(
   parser: Parser,
-  from_caluse: Node | null,
+  from_clause: Node | null,
 ): TableType[] {
-  if (!from_caluse) {
+  if (!from_clause) {
     return [];
   }
   const source = `
@@ -23,7 +23,7 @@ export function get_tables(
     )
   `;
   const query = parser.query(source);
-  const captures = query.captures(from_caluse);
+  const captures = query.captures(from_clause);
   let currentRelation: TableType = {};
   const results = [];
   for (const { name, node } of captures) {
@@ -53,7 +53,7 @@ export function analyzeContext(parser: Parser, sql: string, position: number) {
   if (!rootNode) {
     return null;
   }
-  let _node = rootNode.descendantForIndex(position, position);
+  const _node = rootNode.descendantForIndex(position, position);
   let leafNode = _node;
   console.log('leafNode:', leafNode?.toString(), formatPosition(leafNode));
 

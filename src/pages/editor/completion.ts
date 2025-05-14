@@ -11,7 +11,6 @@ export function parseSqlAndFindTableNameAndAliases(sql: string) {
     /\b(?:FROM|JOIN)\s+([^\s.]+(?:\.[^\s.]+)?)\s*(?:AS)?\s*([^\s,]+)?/gi;
   const tables = [];
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const match = regex.exec(sql);
     if (!match) {
@@ -71,21 +70,30 @@ export function handleProvideCompletionItems(
     endColumn: word.endColumn,
   };
 
+  const normalize = (name: string) => (/\s/.test(name) ? `\`${name}\`` : name);
   const ctx = analyzeContext(parser, sql, offset);
   if (ctx?.scope === 'table') {
-    suggestions.push(
-      ...Object.keys(tableSchema ?? {})?.map((table_name) => ({
-        label: table_name,
-        kind: monaco.languages.CompletionItemKind.Class,
-        insertText: /\s/.test(table_name) ? `\`${table_name}\`` : table_name,
-        range,
-      })),
-    );
+    Object.entries(tableSchema ?? {}).forEach(([db, tables]) => {
+      Object.keys(tables).forEach((tbl) => {
+        const label =
+          db.length == 0
+            ? normalize(tbl)
+            : `${normalize(db)}.${normalize(tbl)}`;
+        suggestions.push({
+          label: label,
+          kind: monaco.languages.CompletionItemKind.Class,
+          insertText: label,
+          range,
+        });
+      });
+    });
+
     console.log('from suggestions', suggestions);
   } else if (ctx?.scope === 'column') {
     const columns: string[] = [];
     ctx.tables?.forEach((table) => {
-      columns.push(...(tableSchema?.[table.table ?? ''] ?? []));
+      const _columns = (tableSchema?.[""]?.[table.table ?? ''] ?? [])
+      columns.push(..._columns);
     });
 
     suggestions.push(
@@ -93,7 +101,9 @@ export function handleProvideCompletionItems(
         return {
           label: column_name,
           kind: monaco.languages.CompletionItemKind.Field,
-          insertText: /\s/.test(column_name) ? `\`${column_name}\`` : column_name,
+          insertText: /\s/.test(column_name)
+            ? `\`${column_name}\``
+            : column_name,
           range,
         };
       }),

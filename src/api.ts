@@ -111,19 +111,40 @@ export async function exportCsv(
   return convert(res);
 }
 
+export type MetadataType = {
+  database: string;
+  table: string;
+  column: string;
+};
+
+const convertMeta = (data: MetadataType[]) => {
+  return data.reduce(
+    (acc, { database, table, column }) => {
+      // 初始化 database 层级
+      acc[database] ??= {}; // 使用逻辑空赋值简化代码
+      // 初始化 table 层级
+      acc[database][table] ??= [];
+      // 添加 column 到数组
+      acc[database][table].push(column);
+      return acc;
+    },
+    {} as Record<string, Record<string, string[]>>,
+  );
+};
+
 export async function getDB(option: DialectConfig): Promise<DBType> {
   const tree: TreeNode = await invoke('get_db', { dialect: option });
-  const columns: Record<string, string[]> = await invoke('all_columns', {
+  const meta: MetadataType[] = await invoke('all_columns', {
     dialect: option,
   });
 
-  console.log('tree:', tree, columns);
+  console.log('tree:', tree, meta);
   return {
     id: nanoid(),
     dialect: option.dialect,
     data: tree,
     config: option,
-    columns,
+    meta: convertMeta(meta),
     displayName: tree.name,
   };
 }

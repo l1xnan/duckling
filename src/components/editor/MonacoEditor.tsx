@@ -18,7 +18,6 @@ import { useTheme } from '@/hooks/theme-provider';
 import { isDarkTheme } from '@/utils';
 import { nanoid } from 'nanoid';
 
-interface MonacoEditorProps extends EditorProps {}
 
 export interface EditorRef {
   getSelectionText: () => string | undefined;
@@ -30,7 +29,7 @@ type OnMountParams = Parameters<OnMount>;
 
 export type CompleteMetaType = {
   prefixCode?: string;
-  tables?: Record<string, string[]>;
+  tables?: Record<string, Record<string, string[]>>;
   keywords?: string[];
   functions?: string[];
   operators?: string[];
@@ -38,7 +37,7 @@ export type CompleteMetaType = {
 
 const MonacoEditor = forwardRef<
   EditorRef,
-  MonacoEditorProps & {
+  EditorProps & {
     completeMeta?: CompleteMetaType;
     onRun: () => void;
   }

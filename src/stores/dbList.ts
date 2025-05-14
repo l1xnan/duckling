@@ -77,7 +77,7 @@ export type DBType = {
   displayName: string;
   // tree node
   data: TreeNode;
-  columns: Record<string, string[]>;
+  meta: Record<string, Record<string, string[]>>;
   config?: DialectConfig;
 };
 
@@ -182,7 +182,7 @@ export const dbMapAtom = atom(
 );
 
 export const schemaMapAtom = atom(
-  (get) => new Map(get(dbListAtom).map((db) => [db.id, db.columns ?? []])),
+  (get) => new Map(get(dbListAtom).map((db) => [db.id, db.meta ?? []])),
 );
 
 export const tablesAtom = atom(

@@ -165,7 +165,7 @@ export function InputToolbar({ context }: { context: TableContextType }) {
   const tableSchema = schemaMap.get(dbId);
 
   const handleEnterDown = async (_value: string) => {
-    refresh();
+    await refresh();
   };
 
   const completeMeta = {
