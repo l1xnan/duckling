@@ -1,5 +1,5 @@
 import { ContextMenuItem } from '@/components/custom/context-menu';
-import Dialog from '@/components/custom/Dialog';
+import { Dialog } from '@/components/custom/Dialog';
 import { Tooltip } from '@/components/custom/tooltip';
 import { useDialog } from '@/components/custom/use-dialog';
 
@@ -183,50 +183,33 @@ export function PageTabs({
   const itemsPrev = usePrevious(items);
   const apiRef = useRef({} as ScrollVisibilityApiType);
   useEffect(() => {
-    const item = apiRef.current?.getItemById?.(activeKey);
-    if (!item?.visible) {
-      apiRef.current?.scrollToItem?.(
-        apiRef.current?.getItemElementById(activeKey) as Element,
-      );
+    if (!apiRef.current) {
+      return () => {};
     }
     if (items?.length > (itemsPrev?.length ?? 0)) {
+      const id = setTimeout(() => {
+        const item = apiRef.current.getItemById(activeKey);
+        apiRef.current.scrollToItem(item, 'auto', 'end');
+      }, 100);
+      return () => clearTimeout(id);
     }
-  }, [items, itemsPrev, activeKey]);
+    const item = apiRef.current.getItemById(activeKey);
+    if (!item?.visible) {
+      apiRef.current.scrollToItem(item);
+    }
+    return () => {};
+  }, [items, itemsPrev, activeKey, apiRef.current]);
 
   const tabsList = items.map(({ tab }) => {
-    const Comp = renderItem;
     return (
-      <TabsTrigger
-        id={tab.id}
-        itemID={tab.id}
+      <TabMenuItem
         key={tab.id}
-        value={tab.id}
-        className={cn(
-          'h-8 text-xs relative wm-200 pl-3 pr-1.5 rounded-none border-r',
-          'group',
-          'data-[state=active]:bg-muted',
-          'data-[state=active]:text-foreground',
-          'data-[state=active]:shadow-none',
-          'data-[state=active]:rounded-none',
-        )}
-      >
-        <div
-          className={cn(
-            'h-0.5 w-full bg-[#1976d2] absolute left-0 invisible z-6',
-            'group-data-[state=active]:visible',
-            {
-              'bottom-0': indicator != 'top',
-              'top-0': indicator == 'top',
-            },
-            `${indicator ?? 'bottom'}-0`,
-          )}
-        />
-        {Comp ? (
-          <Comp tab={tab} />
-        ) : (
-          <SimpleTab tab={tab} onRemove={onRemove as (s: string) => void} />
-        )}
-      </TabsTrigger>
+        itemId={tab.id}
+        renderItem={renderItem}
+        tab={tab}
+        indicator={indicator}
+        onRemove={onRemove}
+      />
     );
   });
   return (
@@ -272,6 +255,57 @@ export function PageTabs({
 export interface TabItemProps {
   tab: TabContextType;
   onRemove: (id: string) => void;
+}
+
+type TabItemMenuProps = {
+  itemId: string;
+  renderItem: (({ tab }: { tab: TabContextType }) => JSX.Element) | undefined;
+  tab: TabContextType;
+  indicator: string | undefined;
+  onRemove: ((key: string) => void) | undefined;
+};
+
+function TabMenuItem({
+  itemId,
+  renderItem,
+  tab,
+  indicator,
+  onRemove,
+}: TabItemMenuProps) {
+  const Comp = renderItem;
+  return (
+    <TabsTrigger
+      id={tab.id}
+      key={tab.id}
+      value={tab.id}
+      data-cy={itemId}
+      className={cn(
+        'h-8 text-xs relative wm-200 pl-3 pr-1.5 rounded-none border-r',
+        'group',
+        'data-[state=active]:bg-muted',
+        'data-[state=active]:text-foreground',
+        'data-[state=active]:shadow-none',
+        'data-[state=active]:rounded-none',
+      )}
+    >
+      <div
+        className={cn(
+          'h-0.5 w-full bg-[#1976d2] absolute left-0 invisible z-6',
+          'group-data-[state=active]:visible',
+          {
+            'bottom-0': indicator != 'top',
+            'top-0': indicator == 'top',
+          },
+          `${indicator ?? 'bottom'}-0`,
+        )}
+      />
+      {Comp ? (
+        <Comp tab={tab} />
+      ) : (
+        <SimpleTab tab={tab} onRemove={onRemove as (s: string) => void} />
+      )}
+    </TabsTrigger>
+  );
 }
 
 export function DefaultTab({ tab, onRemove }: TabItemProps) {
