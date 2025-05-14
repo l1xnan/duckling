@@ -3,11 +3,11 @@ import { IconDecimal } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
 
 import {
-    CodeIcon,
-    CrossIcon,
-    DownloadIcon,
-    EyeIcon,
-    RefreshCw,
+  CodeIcon,
+  CrossIcon,
+  DownloadIcon,
+  EyeIcon,
+  RefreshCw,
 } from 'lucide-react';
 
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
@@ -16,9 +16,9 @@ import { TransposeIcon } from '@/components/custom/Icons';
 import { TooltipButton } from '@/components/custom/button';
 import { Pagination } from '@/components/custom/pagination';
 import {
-    HoverCard,
-    HoverCardContent,
-    HoverCardTrigger,
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
 } from '@/components/ui/hover-card';
 
 export interface DataViewToolbarProps {

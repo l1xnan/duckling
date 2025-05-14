@@ -17,10 +17,10 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils.ts';
+import AppSettingDialog from '@/pages/settings/AppSetting';
 import { open } from '@tauri-apps/plugin-shell';
 import { atom } from 'jotai';
 import { useAtom } from 'jotai/react';
-import AppSettingDialog from '../settings/AppSetting';
 
 export const activeSideAtom = atom<string | null>('database');
 

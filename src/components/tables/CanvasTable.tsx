@@ -9,13 +9,12 @@ import {
   themes,
 } from '@visactor/vtable';
 import { useAtomValue } from 'jotai';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 
 import { OrderByType, SchemaType } from '@/stores/dataset';
 import { downloadCsv, exportVTableToCsv } from '@visactor/vtable-export';
 import dayjs from 'dayjs';
 import type { ComponentProps } from 'react';
-import { CSSProperties } from 'react';
 
 import { useTheme } from '@/hooks/theme-provider';
 import { tableFontFamilyAtom } from '@/stores/setting';
@@ -463,8 +462,6 @@ export const CanvasTable = React.memo(function CanvasTable({
       cross,
     ],
   );
-  console.log('cross:', cross);
-
   return (
     <div
       className="h-full select-text"

@@ -109,7 +109,7 @@ export function TableView({ context }: { context: TabContextType }) {
         <ResizablePanel defaultSize={80} className="flex flex-col size-full">
           <div className="h-full flex flex-col">
             <InputToolbar context={context as TableContextType} />
-            <div className="h-full flex-1 overflow-hidden">
+            <div className="h-full flex-1 overflow-hidden mb-px">
               <Suspense fallback={<Loading />}>
                 {loading ? <Loading /> : null}
                 <CanvasTable
@@ -132,22 +132,24 @@ export function TableView({ context }: { context: TabContextType }) {
             </div>
           </div>
         </ResizablePanel>
-        <ResizableHandle />
         {showValue ? (
-          <ResizablePanel
-            defaultSize={20}
-            className="flex flex-row items-start"
-          >
-            <div className="flex size-full">
-              <ValueViewer
-                selectedCell={selectedCell}
-                selectedCellInfos={selectedCellInfos}
-                setShowValue={setShowValue}
-                setDirection={setDirection}
-                direction={direction}
-              />
-            </div>
-          </ResizablePanel>
+          <>
+            <ResizableHandle hitAreaMargins={{ coarse: 0, fine: 2 }} />
+            <ResizablePanel
+              defaultSize={20}
+              className="flex flex-row items-start"
+            >
+              <div className="flex size-full">
+                <ValueViewer
+                  selectedCell={selectedCell}
+                  selectedCellInfos={selectedCellInfos}
+                  setShowValue={setShowValue}
+                  setDirection={setDirection}
+                  direction={direction}
+                />
+              </div>
+            </ResizablePanel>
+          </>
         ) : null}
       </ResizablePanelGroup>
     </div>
