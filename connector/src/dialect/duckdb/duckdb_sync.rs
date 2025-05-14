@@ -1,5 +1,5 @@
-use crate::utils::RawArrowData;
-use crate::utils::{Table, Title, TreeNode, build_tree, get_file_name};
+use crate::utils::{build_tree, get_file_name, Table, Title, TreeNode};
+use crate::utils::{Metadata, RawArrowData};
 use arrow::array::RecordBatch;
 use std::collections::HashMap;
 
@@ -39,27 +39,29 @@ impl DuckDbSyncConnection {
     );
     self.query_arrow(&sql)
   }
-  pub fn all_columns(&self) -> anyhow::Result<HashMap<String, Vec<String>>> {
+  pub fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
     let sql =
       "select table_catalog, table_schema, table_name, column_name from information_schema.columns";
     let mut stmt = self.inner.prepare(sql)?;
 
     let rows = stmt.query_map([], |row| {
       Ok((
+        row.get::<_, String>(0)?, // database
         row.get::<_, String>(2)?, // table_name
         row.get::<_, String>(3)?, // column_name
       ))
     })?;
 
-    let mut table_columns: HashMap<String, Vec<String>> = HashMap::new();
+    let mut metadata = Vec::new();
     for row in rows {
-      let (table_name, column_name) = row?;
-      table_columns
-        .entry(table_name)
-        .or_default()
-        .push(column_name);
+      let (database, table, column) = row?;
+      metadata.push(Metadata {
+        database,
+        table,
+        column,
+      });
     }
-    Ok(table_columns)
+    Ok(metadata)
   }
 
   pub fn drop_table(&self, table: &str) -> anyhow::Result<()> {

@@ -1,4 +1,4 @@
-use crate::utils::RawArrowData;
+use crate::utils::{Metadata, RawArrowData};
 use crate::dialect::Connection;
 use crate::dialect::duckdb::duckdb_sync::DuckDbSyncConnection;
 use crate::utils::{TreeNode, write_csv};
@@ -62,7 +62,7 @@ impl Connection for DuckDbConnection {
     self.query(&sql, 0, 0).await
   }
 
-  async fn all_columns(&self) -> anyhow::Result<HashMap<String, Vec<String>>> {
+  async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
     Ok(self.connect()?.all_columns()?)
   }
 

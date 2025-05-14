@@ -4,12 +4,9 @@ use std::io::Write;
 use std::str;
 use std::sync::Arc;
 
-use crate::utils::RawArrowData;
 use crate::dialect::Connection;
-use crate::utils::{Table, TreeNode, build_tree};
-use arrow::array::*;
+use crate::utils::{build_tree, json_to_arrow, Metadata, RawArrowData, Table, TreeNode};
 use arrow::datatypes::*;
-use arrow::json::ReaderBuilder;
 use async_trait::async_trait;
 use clickhouse::{Client, Row};
 use serde::{Deserialize, Serialize};
@@ -66,7 +63,7 @@ impl Connection for ClickhouseConnection {
     self.query(&sql, 0, 0).await
   }
 
-  async fn all_columns(&self) -> anyhow::Result<HashMap<String, Vec<String>>> {
+  async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
     Ok(self._all_columns().await?)
   }
 
@@ -82,13 +79,6 @@ struct TableRow {
   table_type: String,
   r#type: String,
   total_bytes: Option<u64>,
-}
-
-#[derive(Row, Serialize, Deserialize)]
-struct ColumnRow {
-  database: String,
-  table: String,
-  name: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -161,18 +151,22 @@ impl ClickhouseConnection {
     Ok(tables)
   }
 
-  async fn _all_columns(&self) -> anyhow::Result<HashMap<String, Vec<String>>> {
-    let sql = "select database, table, name from system.columns";
+  async fn _all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
+    let sql = "select database, table, name as column from system.columns";
     let client = self.client().await?;
-    let rows = client.query(sql).fetch_all::<ColumnRow>().await?;
-    let mut table_columns: HashMap<String, Vec<String>> = HashMap::new();
-    for row in rows {
-      table_columns
-        .entry(format!("{}.{}", row.database, row.table))
-        .or_default()
-        .push(row.name);
+    let rows = client
+      .query(sql)
+      .fetch_all::<(String, String, String)>()
+      .await?;
+    let mut metadata = Vec::new();
+    for (database, table, column) in rows {
+      metadata.push(Metadata {
+        database,
+        table,
+        column,
+      });
     }
-    Ok(table_columns)
+    Ok(metadata)
   }
   async fn _table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     let conn = self.client().await?;
@@ -227,13 +221,6 @@ impl ClickhouseConnection {
       sql: Some(sql.to_string()),
     })
   }
-}
-
-pub fn json_to_arrow<S: Serialize>(rows: &[S], schema: SchemaRef) -> anyhow::Result<RecordBatch> {
-  let mut decoder = ReaderBuilder::new(schema).build_decoder()?;
-  decoder.serialize(rows)?;
-  let batch = decoder.flush()?.unwrap();
-  Ok(batch)
 }
 
 #[tokio::test]

@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::sync::Mutex;
 use std::time::Instant;
 
@@ -17,7 +16,7 @@ use connector::dialect::mysql::MySqlConnection;
 use connector::dialect::postgres::PostgresConnection;
 use connector::dialect::sqlite::SqliteConnection;
 use connector::dialect::Connection;
-use connector::utils::TreeNode;
+use connector::utils::{Metadata, TreeNode};
 
 pub struct OpenedFiles(pub Mutex<Option<Vec<String>>>);
 
@@ -269,7 +268,7 @@ pub async fn find(
 }
 
 #[tauri::command]
-pub async fn all_columns(dialect: DialectPayload) -> Result<HashMap<String, Vec<String>>, String> {
+pub async fn all_columns(dialect: DialectPayload) -> Result<Vec<Metadata>, String> {
   let d = get_dialect(dialect.clone())
     .await
     .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;

@@ -1,7 +1,6 @@
 mod arrow_type;
 mod json_type;
 
-use std::collections::HashMap;
 use std::convert::From;
 use std::sync::Arc;
 
@@ -11,11 +10,11 @@ use async_trait::async_trait;
 use rusqlite::types::Value;
 use rusqlite::Statement;
 
-use crate::utils::RawArrowData;
 use crate::dialect::sqlite::arrow_type::{db_result_to_arrow, db_to_arrow_type};
 use crate::dialect::sqlite::json_type::db_result_to_json;
 use crate::dialect::Connection;
 use crate::utils::{build_tree, get_file_name, json_to_arrow, Table, Title, TreeNode};
+use crate::utils::{Metadata, RawArrowData};
 
 #[derive(Debug, Default)]
 pub struct SqliteConnection {
@@ -29,7 +28,7 @@ pub struct SQLiteStatement<'conn> {
 #[async_trait]
 impl Connection for SqliteConnection {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
-    let tables = self.get_tables().await?;
+    let tables = self.get_tables()?;
     let tree = build_tree(tables);
     let children = if tree.is_empty() {
       &None
@@ -47,7 +46,7 @@ impl Connection for SqliteConnection {
   }
 
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
-    self._query(sql, limit, offset).await
+    self._query(sql, limit, offset)
   }
 
   async fn show_schema(&self, _schema: &str) -> anyhow::Result<RawArrowData> {
@@ -63,8 +62,8 @@ impl Connection for SqliteConnection {
     self.query(&sql, 0, 0).await
   }
 
-  async fn all_columns(&self) -> anyhow::Result<HashMap<String, Vec<String>>> {
-    let columns = self._all_columns().await?;
+  async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
+    let columns = self._all_columns()?;
     Ok(columns)
   }
 
@@ -89,8 +88,7 @@ impl SqliteConnection {
     Ok(rusqlite::Connection::open(&self.path)?)
   }
 
-  #[allow(clippy::unused_async)]
-  async fn _query_arrow(
+  fn _query_arrow(
     &self,
     sql: &str,
     _limit: usize,
@@ -104,7 +102,6 @@ impl SqliteConnection {
     let mut batchs = vec![];
 
     let mut rows_iter = stmt.query([])?;
-    println!("title={titles:?}");
 
     while let Some(row) = rows_iter.next()? {
       let mut arrs = vec![];
@@ -139,7 +136,7 @@ impl SqliteConnection {
   }
 
   #[allow(clippy::unused_async)]
-  async fn _query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
+  fn _query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     let conn = self.connect()?;
     let mut stmt = conn.prepare(sql)?;
     let batch = db_result_to_arrow(&mut stmt)?;
@@ -152,26 +149,27 @@ impl SqliteConnection {
       sql: Some(sql.to_string()),
     })
   }
-  #[allow(clippy::unused_async)]
-  async fn _all_columns(&self) -> anyhow::Result<HashMap<String, Vec<String>>> {
-    let table_names = self._all_table_names().await?;
+  fn _all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
+    let table_names = self._all_table_names()?;
     let conn = self.connect()?;
 
-    let mut tables = HashMap::new();
+    let mut metadata = Vec::new();
     for table_name in table_names {
       let sql = format!("select name from pragma_table_info('{table_name}')");
       let mut stmt = conn.prepare(&sql)?;
       let rows = stmt.query_map([], |row| row.get(0))?;
-      let mut columns: Vec<String> = Vec::new();
       for name_result in rows {
-        columns.push(name_result?);
+        metadata.push(Metadata {
+          database: String::new(),
+          table: table_name.clone(),
+          column: name_result?,
+        });
       }
-      tables.insert(table_name, columns);
     }
-    Ok(tables)
+    Ok(metadata)
   }
 
-  async fn _all_table_names(&self) -> anyhow::Result<Vec<String>> {
+  fn _all_table_names(&self) -> anyhow::Result<Vec<String>> {
     let sql = "
       SELECT name FROM sqlite_master
       WHERE type IN ('table', 'view') and name NOT IN ('sqlite_sequence', 'sqlite_stat1')
@@ -185,8 +183,7 @@ impl SqliteConnection {
     }
     Ok(table_names)
   }
-  #[allow(clippy::unused_async)]
-  async fn _query_json(
+  fn _query_json(
     &self,
     sql: &str,
     _limit: usize,
@@ -232,7 +229,7 @@ impl SqliteConnection {
   }
 
   #[allow(clippy::unused_async)]
-  async fn get_tables(&self) -> anyhow::Result<Vec<Table>> {
+  fn get_tables(&self) -> anyhow::Result<Vec<Table>> {
     let conn = self.connect()?;
     let sql = "
       SELECT tbl_name, name, type

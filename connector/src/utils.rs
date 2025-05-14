@@ -51,6 +51,13 @@ pub struct Title {
   pub r#type: String,
 }
 
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct Metadata {
+  pub database: String,
+  pub table: String,
+  pub column: String,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Table {
   pub table_name: String,

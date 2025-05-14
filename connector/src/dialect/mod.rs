@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use std::collections::HashMap;
 
-use crate::utils::RawArrowData;
+use crate::utils::{Metadata, RawArrowData};
 use crate::dialect::ast::first_stmt;
 use crate::utils::TreeNode;
 
@@ -100,9 +100,8 @@ pub trait Connection: Sync + Send {
     unimplemented!()
   }
 
-  async fn all_columns(&self) -> anyhow::Result<HashMap<String, Vec<String>>> {
-    let tmp = HashMap::<String, Vec<String>>::new();
-    Ok(tmp)
+  async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
+    Ok(vec![])
   }
 
   async fn drop_table(&self, _schema: Option<&str>, _table: &str) -> anyhow::Result<String> {
