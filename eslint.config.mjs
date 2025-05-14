@@ -10,7 +10,7 @@ export default tseslint.config(
   pluginImportX.flatConfigs.recommended,
   pluginImportX.flatConfigs.typescript,
   {
-    ignores: ['eslint.config.mjs'],
+    ignores: ['eslint.config.mjs', 'src/components/ui/**/*'],
     rules: {
       'no-unused-vars': 'off',
       'import/no-named-as-default-member': 'off',
