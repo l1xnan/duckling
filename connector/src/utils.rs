@@ -55,7 +55,7 @@ pub struct Title {
 pub struct Metadata {
   pub database: String,
   pub table: String,
-  pub column: String,
+  pub columns: Vec<(String, String)>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

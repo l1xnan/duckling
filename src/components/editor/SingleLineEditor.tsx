@@ -1,23 +1,18 @@
+import { CompleteMetaType } from '@/ast/analyze';
 import { useTheme } from '@/hooks/theme-provider';
 import { isDarkTheme } from '@/utils';
 import Editor, { OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 
 import { nanoid } from 'nanoid';
-import {
-  forwardRef,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useRegister } from './useRegister';
 
 interface SingleLineEditorProps {
   initialValue?: string;
   language?: string;
   className?: string;
-  completeMeta?: any;
+  completeMeta?: CompleteMetaType;
   onEnterDown?: (value: string) => void; // 当 Enter 被按下时触发 (可选)
   onChange?: (value: string) => void; // 值变化时触发 (可选)
 }

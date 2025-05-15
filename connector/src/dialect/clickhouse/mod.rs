@@ -1,11 +1,10 @@
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
-use std::str;
 use std::sync::Arc;
 
 use crate::dialect::Connection;
-use crate::utils::{build_tree, json_to_arrow, Metadata, RawArrowData, Table, TreeNode};
+use crate::utils::{Metadata, RawArrowData, Table, TreeNode, build_tree, json_to_arrow};
 use arrow::datatypes::*;
 use async_trait::async_trait;
 use clickhouse::{Client, Row};
@@ -81,6 +80,12 @@ struct TableRow {
   total_bytes: Option<u64>,
 }
 
+#[derive(Row, Serialize, Deserialize)]
+struct MetaRow {
+  database: String,
+  table: String,
+  columns: Vec<(String, String)>,
+}
 #[derive(Debug, Deserialize)]
 struct Statistics {
   bytes_read: u64,
@@ -152,18 +157,23 @@ impl ClickhouseConnection {
   }
 
   async fn _all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
-    let sql = "select database, table, name as column from system.columns";
     let client = self.client().await?;
-    let rows = client
-      .query(sql)
-      .fetch_all::<(String, String, String)>()
-      .await?;
+    let sql = "
+    select database, table, groupArray((name, type)) as columns from system.columns
+    group by database, table
+    ";
+    let rows = client.query(sql).fetch_all::<MetaRow>().await?;
     let mut metadata = Vec::new();
-    for (database, table, column) in rows {
+    for MetaRow {
+      database,
+      table,
+      columns,
+    } in rows.into_iter()
+    {
       metadata.push(Metadata {
         database,
         table,
-        column,
+        columns: columns.clone(),
       });
     }
     Ok(metadata)
@@ -240,4 +250,12 @@ async fn test_tables() {
   let conn = ClickhouseConnection::new("https://play.clickhouse.com", "", "play", "");
   let res = conn.get_tables().await;
   println!("{:?}", res);
+}
+
+#[tokio::test]
+async fn test_columns() {
+  let conn = ClickhouseConnection::new("https://play.clickhouse.com", "", "play", "");
+  let res = conn.all_columns().await;
+  println!("column count: {:?}", res);
+  println!("column count: {:?}", res.map(|v| v.len()));
 }

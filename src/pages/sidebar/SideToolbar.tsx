@@ -17,9 +17,9 @@ import { ChevronsDownUpIcon, ChevronsUpDownIcon } from 'lucide-react';
 import { useShallow } from 'zustand/shallow';
 
 export function SideToolbar({
-  onExpandAll,
-  onCollapseAll,
-}: {
+                              onExpandAll,
+                              onCollapseAll,
+                            }: {
   onExpandAll: () => void;
   onCollapseAll: () => void;
 }) {
@@ -48,14 +48,14 @@ export function SideToolbar({
     if (selectedNode) {
       const root = selectedNode.dbId;
 
-      dbList.forEach(async (db) => {
+      for (const db of dbList) {
         if (db.id == root) {
-          const { data, columns } = await getDB(
+          const { data, meta } = await getDB(
             db.config ?? { path: db.data.path, dialect: 'folder' },
           );
-          updateDB(root, { data, columns });
+          updateDB(root, { data, meta });
         }
-      });
+      }
     }
   }
 

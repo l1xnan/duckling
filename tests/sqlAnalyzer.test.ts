@@ -11,6 +11,7 @@ export class Parser extends _Parser {
   constructor() {
     super();
   }
+
   query(source: string) {
     return new Query(SQL as Language, source);
   }
@@ -109,6 +110,36 @@ describe('analyzeSqlContext', () => {
     console.log('sqlContext:', sqlContext);
   });
   it('select * from tbl0 join tbl1 as t1 on t1._', async () => {
+    const { sql, position } = current;
+    const sqlContext = analyzeContext(
+      parser as unknown as ParserType,
+      sql,
+      position,
+    );
+    console.log('sqlContext:', sqlContext);
+  });
+
+  it('select * from db1._', async () => {
+    const { sql, position } = current;
+    const sqlContext = analyzeContext(
+      parser as unknown as ParserType,
+      sql,
+      position,
+    );
+    console.log('sqlContext:', sqlContext);
+  });
+
+  it('select * from db1.schema1.tbl1 as t1, db2.tbl2, tbl3 where _', async () => {
+    const { sql, position } = current;
+    const sqlContext = analyzeContext(
+      parser as unknown as ParserType,
+      sql,
+      position,
+    );
+    console.log('sqlContext:', sqlContext);
+  });
+
+  it('select * from tbl1, db2.tbl2 where a=1 and _', async () => {
     const { sql, position } = current;
     const sqlContext = analyzeContext(
       parser as unknown as ParserType,

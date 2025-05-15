@@ -114,21 +114,22 @@ export async function exportCsv(
 export type MetadataType = {
   database: string;
   table: string;
-  column: string;
+  columns: [string, string][];
 };
 
 const convertMeta = (data: MetadataType[]) => {
   return data.reduce(
-    (acc, { database, table, column }) => {
+    (acc, { database, table, columns }) => {
       // 初始化 database 层级
       acc[database] ??= {}; // 使用逻辑空赋值简化代码
       // 初始化 table 层级
       acc[database][table] ??= [];
       // 添加 column 到数组
-      acc[database][table].push(column);
+      const _columns = columns.map(([name, type]) => ({ name, type }));
+      acc[database][table].push(..._columns);
       return acc;
     },
-    {} as Record<string, Record<string, string[]>>,
+    {} as Record<string, Record<string, { name: string, type: string }[]>>,
   );
 };
 

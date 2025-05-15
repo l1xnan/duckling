@@ -77,7 +77,7 @@ export type DBType = {
   displayName: string;
   // tree node
   data: TreeNode;
-  meta: Record<string, Record<string, string[]>>;
+  meta: Record<string, Record<string, { name: string, type: string }[]>>;
   config?: DialectConfig;
 };
 
@@ -140,9 +140,9 @@ export const useDBListStore = create<DBListStore>()(
             dbList: state.dbList.map((item) => {
               return item.id == id
                 ? {
-                    ...item,
-                    config: { ...(item.config ?? {}), cwd } as DialectConfig,
-                  }
+                  ...item,
+                  config: { ...(item.config ?? {}), cwd } as DialectConfig,
+                }
                 : item;
             }),
           })),
@@ -158,9 +158,9 @@ export const useDBListStore = create<DBListStore>()(
             dbList: dbList.map((item) => {
               return item.id == dbId
                 ? {
-                    ...item,
-                    displayName,
-                  }
+                  ...item,
+                  displayName,
+                }
                 : item;
             }),
           }));
@@ -198,4 +198,5 @@ export const renameAtom = atom<DBType | null>(null);
 // db setting
 export const configAtom = atom<DBType | null>(null);
 
-atomStore.sub(dbListAtom, () => {});
+atomStore.sub(dbListAtom, () => {
+});

@@ -7,14 +7,15 @@ use std::sync::Arc;
 use arrow::array::*;
 use arrow::datatypes::{Field, Schema};
 use async_trait::async_trait;
-use rusqlite::types::Value;
 use rusqlite::Statement;
+use rusqlite::fallible_iterator::FallibleIterator;
+use rusqlite::types::Value;
 
+use crate::dialect::Connection;
 use crate::dialect::sqlite::arrow_type::{db_result_to_arrow, db_to_arrow_type};
 use crate::dialect::sqlite::json_type::db_result_to_json;
-use crate::dialect::Connection;
-use crate::utils::{build_tree, get_file_name, json_to_arrow, Table, Title, TreeNode};
 use crate::utils::{Metadata, RawArrowData};
+use crate::utils::{Table, Title, TreeNode, build_tree, get_file_name, json_to_arrow};
 
 #[derive(Debug, Default)]
 pub struct SqliteConnection {
@@ -88,12 +89,7 @@ impl SqliteConnection {
     Ok(rusqlite::Connection::open(&self.path)?)
   }
 
-  fn _query_arrow(
-    &self,
-    sql: &str,
-    _limit: usize,
-    _offset: usize,
-  ) -> anyhow::Result<RawArrowData> {
+  fn _query_arrow(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     let conn = self.connect()?;
     let mut stmt = conn.prepare(sql)?;
 
@@ -155,16 +151,21 @@ impl SqliteConnection {
 
     let mut metadata = Vec::new();
     for table_name in table_names {
-      let sql = format!("select name from pragma_table_info('{table_name}')");
+      let sql = format!("select name, type from pragma_table_info('{table_name}')");
       let mut stmt = conn.prepare(&sql)?;
-      let rows = stmt.query_map([], |row| row.get(0))?;
-      for name_result in rows {
-        metadata.push(Metadata {
-          database: String::new(),
-          table: table_name.clone(),
-          column: name_result?,
-        });
-      }
+      let rows = stmt.query_map([], |row| {
+        Ok((
+          row.get::<_, String>(0)?, // column_name
+          row.get::<_, String>(1)?, // column_type
+        ))
+      })?;
+
+      let columns = rows.flatten().collect();
+      metadata.push(Metadata {
+        database: String::new(),
+        table: table_name.clone(),
+        columns,
+      });
     }
     Ok(metadata)
   }
@@ -183,12 +184,7 @@ impl SqliteConnection {
     }
     Ok(table_names)
   }
-  fn _query_json(
-    &self,
-    sql: &str,
-    _limit: usize,
-    _offset: usize,
-  ) -> anyhow::Result<RawArrowData> {
+  fn _query_json(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     let conn = self.connect()?;
     let mut stmt = conn.prepare(sql)?;
     let (titles, schema) = Self::get_arrow_schema(&mut stmt);

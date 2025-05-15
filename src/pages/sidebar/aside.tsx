@@ -16,7 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils.ts';
+import { cn } from '@/lib/utils';
 import AppSettingDialog from '@/pages/settings/AppSetting';
 import { open } from '@tauri-apps/plugin-shell';
 import { atom } from 'jotai';

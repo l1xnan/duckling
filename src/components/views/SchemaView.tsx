@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 
 import { find, showColumns, showSchema } from '@/api';
 import { Loading } from '@/components/views/TableView';
-import { DialectConfig } from '@/stores/dbList.ts';
+import { DialectConfig } from '@/stores/dbList';
 import {
   SchemaContextType,
   TableContextType,
@@ -19,8 +19,8 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 
 export function DatabaseSchemaView({
-  context,
-}: {
+                                     context,
+                                   }: {
   context: SchemaContextType;
 }) {
   const currentTab = useAtomValue(activeTabAtom);

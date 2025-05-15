@@ -1,5 +1,5 @@
 import { Input, InputProps } from '@/components/ui/input';
-import { cn } from '@/lib/utils.ts';
+import { cn } from '@/lib/utils';
 import { Search } from 'lucide-react';
 import React from 'react';
 

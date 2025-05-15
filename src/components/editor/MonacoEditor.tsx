@@ -13,11 +13,11 @@ import {
   useRef,
 } from 'react';
 
+import { CompleteMetaType } from '@/ast/analyze';
 import { useRegister } from '@/components/editor/useRegister';
 import { useTheme } from '@/hooks/theme-provider';
 import { isDarkTheme } from '@/utils';
 import { nanoid } from 'nanoid';
-
 
 export interface EditorRef {
   getSelectionText: () => string | undefined;
@@ -27,20 +27,12 @@ export interface EditorRef {
 
 type OnMountParams = Parameters<OnMount>;
 
-export type CompleteMetaType = {
-  prefixCode?: string;
-  tables?: Record<string, Record<string, string[]>>;
-  keywords?: string[];
-  functions?: string[];
-  operators?: string[];
-};
-
 const MonacoEditor = forwardRef<
   EditorRef,
   EditorProps & {
-    completeMeta?: CompleteMetaType;
-    onRun: () => void;
-  }
+  completeMeta?: CompleteMetaType;
+  onRun: () => void;
+}
 >(function MonacoEditor(
   { completeMeta, ...props },
   ref: ForwardedRef<EditorRef>,
