@@ -1,6 +1,6 @@
 import { Code, RefreshCcw, Settings } from 'lucide-react';
 import { nanoid } from 'nanoid';
-import { PropsWithChildren, useState } from 'react';
+import React, { PropsWithChildren, useState } from 'react';
 
 import { getDB } from '@/api';
 import { ContextMenuItem } from '@/components/custom/context-menu';
@@ -16,7 +16,7 @@ import { ConfigDialog } from '@/pages/sidebar/dialog/ConfigDialog';
 import { RenameDialog } from '@/pages/sidebar/dialog/RenameDialog';
 import { DBType, useDBListStore } from '@/stores/dbList';
 import { useTabsStore } from '@/stores/tabs';
-import React from 'react';
+
 import { useHotkeys } from 'react-hotkeys-hook';
 
 export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
@@ -51,8 +51,8 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
 
   const handleRefresh = async () => {
     if (db.config) {
-      const { data, columns } = await getDB(db.config);
-      updateDB(db.id, { data, columns });
+      const { data, meta, defaultDatabase } = await getDB(db.config);
+      updateDB(db.id, { data, meta, defaultDatabase });
     }
   };
 

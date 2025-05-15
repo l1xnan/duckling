@@ -49,8 +49,8 @@ export function TableContextMenu({
 
   const handleRefresh = async () => {
     if (db.config) {
-      const { data, columns } = await getDB(db.config);
-      updateDB(db.id, { data, columns });
+      const { data, meta, defaultDatabase } = await getDB(db.config);
+      updateDB(db.id, { data, meta, defaultDatabase });
     }
   };
 

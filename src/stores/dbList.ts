@@ -79,6 +79,8 @@ export type DBType = {
   data: TreeNode;
   meta: Record<string, Record<string, { name: string, type: string }[]>>;
   config?: DialectConfig;
+  defaultDatabase?: string;
+  defaultSchema?: string;
 };
 
 type DBListState = {

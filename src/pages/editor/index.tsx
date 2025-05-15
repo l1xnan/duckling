@@ -148,6 +148,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
             onChange={handleChange}
             completeMeta={{
               tables: tableSchema,
+              defaultDatabase: db?.defaultDatabase,
             }}
             onRun={handleClick}
           />

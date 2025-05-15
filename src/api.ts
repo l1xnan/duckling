@@ -129,7 +129,7 @@ const convertMeta = (data: MetadataType[]) => {
       acc[database][table].push(..._columns);
       return acc;
     },
-    {} as Record<string, Record<string, { name: string, type: string }[]>>,
+    {} as Record<string, Record<string, { name: string; type: string }[]>>,
   );
 };
 
@@ -139,6 +139,11 @@ export async function getDB(option: DialectConfig): Promise<DBType> {
     dialect: option,
   });
 
+  let defaultDatabase = '';
+  if ([...new Set(meta.map((m) => m.database))].length == 1) {
+    defaultDatabase = meta[0].database;
+  }
+
   console.log('tree:', tree, meta);
   return {
     id: nanoid(),
@@ -147,6 +152,7 @@ export async function getDB(option: DialectConfig): Promise<DBType> {
     config: option,
     meta: convertMeta(meta),
     displayName: tree.name,
+    defaultDatabase,
   };
 }
 

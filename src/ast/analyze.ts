@@ -37,8 +37,9 @@ export enum ContextType {
 }
 
 export type CompleteMetaType = {
+  defaultDatabase?: string;
   prefixCode?: string;
-  tables?: Record<string, Record<string, { name: string, type: string }[]>>;
+  tables?: Record<string, Record<string, { name: string; type: string }[]>>;
   keywords?: string[];
   functions?: string[];
   operators?: string[];
@@ -208,7 +209,7 @@ export function analyzeContext(
 }
 
 export function makeSuggestions(ctx: SqlContext, meta: CompleteMetaType) {
-  const { tables: tableSchema } = meta;
+  const { tables: tableSchema, defaultDatabase } = meta;
   if (!tableSchema) {
     return [];
   }
@@ -233,12 +234,16 @@ export function makeSuggestions(ctx: SqlContext, meta: CompleteMetaType) {
   } else if (ctx?.type === ContextType.COLUMN) {
     const columns: { name: string; type: string }[] = [];
     ctx.tablesInScope?.forEach((table) => {
-      if (table.name) {
-        columns.push(...tableSchema['']?.[table.name ?? ''] ?? []);
-      }
-
       if (table.schema && table.name) {
-        columns.push(...tableSchema[table.schema]?.[table.name] ?? []);
+        columns.push(...(tableSchema[table.schema]?.[table.name] ?? []));
+      }
+      if (table.database && table.name) {
+        columns.push(...(tableSchema[table.database]?.[table.name] ?? []));
+      }
+      if (table.name) {
+        columns.push(
+          ...(tableSchema[defaultDatabase ?? '']?.[table.name] ?? []),
+        );
       }
     });
 
