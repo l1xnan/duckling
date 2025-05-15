@@ -226,6 +226,7 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
   Some(TreeNode {
     name,
     path: path.display().to_string().replace('\\', "/"),
+    schema: None,
     children,
     node_type,
     size,

@@ -27,6 +27,7 @@ impl Connection for FileConnection {
       path: self.path.clone(),
       name: get_file_name(&self.path),
       node_type: path.extension().unwrap().to_string_lossy().to_string(),
+      schema: None,
       children: None,
       size: None,
       comment: None,

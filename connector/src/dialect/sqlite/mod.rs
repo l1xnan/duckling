@@ -41,6 +41,7 @@ impl Connection for SqliteConnection {
       path: self.path.clone(),
       node_type: "root".to_string(),
       children: children.clone(),
+      schema: None,
       size: None,
       comment: None,
     })

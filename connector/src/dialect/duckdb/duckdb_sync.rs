@@ -93,7 +93,7 @@ impl DuckDbSyncConnection {
 
   pub fn get_tables(&self) -> anyhow::Result<Vec<Table>> {
     let sql = r"
-    select table_name, table_type, table_schema, if(table_type='VIEW', 'view', 'table') as type
+    select table_catalog, table_schema, table_name, table_type, if(table_type='VIEW', 'view', 'table') as type
     from information_schema.tables order by table_type, table_name";
 
     let mut stmt = self.inner.prepare(sql)?;
@@ -101,12 +101,12 @@ impl DuckDbSyncConnection {
     let tables = stmt
       .query_map([], |row| {
         Ok(Table {
-          table_name: row.get(0)?,
-          table_type: row.get(1)?,
-          db_name: row.get(2)?,
-          r#type: row.get(3)?,
+          db_name: row.get(0)?,
+          schema: row.get(1)?,
+          table_name: row.get(2)?,
+          table_type: row.get(3)?,
+          r#type: row.get(4)?,
           size: None,
-          schema: None,
         })
       })?
       .flatten()
@@ -120,6 +120,7 @@ impl DuckDbSyncConnection {
       name: get_file_name(&self.path),
       path: self.path.clone(),
       node_type: "root".to_string(),
+      schema: None,
       children: Some(build_tree(tables)),
       size: None,
       comment: None,

@@ -33,6 +33,7 @@ impl Connection for PostgresConnection {
       name: self.host.clone(),
       path: self.host.clone(),
       node_type: "root".to_string(),
+      schema: None,
       children: Some(build_tree(tables)),
       size: None,
       comment: None,

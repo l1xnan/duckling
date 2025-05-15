@@ -18,6 +18,7 @@ pub struct TreeNode {
   pub children: Option<Vec<TreeNode>>,
   #[serde(rename(serialize = "type"))]
   pub node_type: String,
+  pub schema: Option<String>,
   pub size: Option<u64>,
   pub comment: Option<String>,
 }
@@ -30,6 +31,7 @@ impl TreeNode {
       node_type: "path".to_string(),
       children,
       size: None,
+      schema: None,
       comment: None,
     }
   }
@@ -40,6 +42,7 @@ impl TreeNode {
       node_type: "path".to_string(),
       children,
       size: None,
+      schema: None,
       comment: None,
     }
   }
@@ -107,14 +110,16 @@ pub fn build_tree(tables: Vec<Table>) -> Vec<TreeNode> {
     if !t.db_name.is_empty() {
       keys.push(t.db_name.clone());
     }
-    if let Some(schema) = t.schema {
+    if let Some(schema) = t.schema.clone() {
       keys.push(schema);
     }
     keys.push(t.table_name.clone());
+    let path = keys.join(".");
     db.push(TreeNode {
       name: t.table_name,
-      path: keys.join("."),
-      node_type: t.r#type.clone(),
+      path,
+      node_type: t.r#type,
+      schema: t.schema,
       children: None,
       size: t.size,
       comment: None,
@@ -136,6 +141,7 @@ pub fn build_tree(tables: Vec<Table>) -> Vec<TreeNode> {
       name: key.to_string(),
       path: key.to_string(),
       node_type: "database".to_string(),
+      schema: None,
       children: Some(vec![
         TreeNode::new_tables(key, Some(tables_children)),
         TreeNode::new_views(key, Some(views_children)),

@@ -1,6 +1,6 @@
 // monacoConfig.js
-import { handleProvideCompletionItems } from '@/pages/editor/completion';
-import { CompleteMetaType } from './MonacoEditor';
+import { CompleteMetaType } from '@/ast/analyze';
+import { handleProvideCompletionItems } from '@/components/editor/completion';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 // Central Registry: Map<modelUri: string, completionFunction | completionItems[]>
