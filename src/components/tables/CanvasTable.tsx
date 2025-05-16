@@ -9,7 +9,13 @@ import {
   themes,
 } from '@visactor/vtable';
 import { useAtomValue } from 'jotai';
-import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  CSSProperties,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { OrderByType, SchemaType } from '@/stores/dataset';
 import { downloadCsv, exportVTableToCsv } from '@visactor/vtable-export';
@@ -246,15 +252,20 @@ export const CanvasTable = React.memo(function CanvasTable({
               .padStart(scale + 1, '0')
               .replace(new RegExp(`(.{${scale}})$`), '.$1');
           }
+
+          const templte = 'YYYY-MM-DD HH:mm:ss'
           if (
             DataType.isDate(dataType) &&
             type?.toLowerCase()?.includes('datetime')
           ) {
-            return dayjs(value).format('YYYY-MM-DD HH:mm:ss');
+            return dayjs(value).format(templte);
           } else if (DataType.isDate(dataType)) {
             return dayjs(value).format('YYYY-MM-DD');
           } else if (DataType.isTimestamp(dataType)) {
-            return dayjs(value).format('YYYY-MM-DD HH:mm:ss');
+            if (!dataType.timezone) {
+              return dayjs(value).utc().format(templte);
+            }
+            return dayjs(value).format(templte);
           }
 
           if (beautify && DataType.isFloat(dataType) && precision) {

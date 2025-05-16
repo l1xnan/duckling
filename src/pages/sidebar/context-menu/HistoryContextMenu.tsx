@@ -1,5 +1,5 @@
-import { runsAtom } from '@/stores/app.ts';
-import { QueryContextType } from '@/stores/tabs.ts';
+import { runsAtom } from '@/stores/app';
+import { QueryContextType } from '@/stores/tabs';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useSetAtom } from 'jotai';
 import { PropsWithChildren } from 'react';
