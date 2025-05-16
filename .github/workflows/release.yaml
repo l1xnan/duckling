@@ -74,6 +74,9 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
+        run: pnpm install -g tree-sitter-cli
+
+      - name: Install dependencies
         run: pnpm install
 
       - name: install Rust stable
