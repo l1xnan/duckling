@@ -56,7 +56,6 @@ fn handle_menu(app: &mut tauri::App) -> tauri::Result<()> {
 }
 
 fn handle_open_files(app: &mut tauri::App) {
-  #[cfg(any(windows, target_os = "linux"))]
   let mut files = Vec::new();
 
   // NOTICE: `args` may include URL protocol (`your-app-protocol://`)
@@ -122,7 +121,10 @@ fn main() {
     )
     .setup(|app| {
       let _ = handle_menu(app);
+      
+      #[cfg(any(windows, target_os = "linux"))]
       handle_open_files(app);
+      
       let _ = handle_updater(app);
 
       Ok(())
