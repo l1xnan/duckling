@@ -388,7 +388,7 @@ export const CanvasTable = React.memo(function CanvasTable({
       defaultRowHeight: 24,
       widthMode: 'autoWidth',
       showFrozenIcon: true,
-      frozenColCount: transpose ? 2 : 1 + leftPinnedCols.length,
+      frozenColCount: transpose ? 1 : 1 + leftPinnedCols.length,
       rightFrozenColCount: rightPinnedCols.length,
       frozenRowCount: 0,
       theme,
