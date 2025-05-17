@@ -1,5 +1,10 @@
 import { Parser } from '@/ast';
-import { analyzeContext, ContextType as SqlContextType, insertUnderscore, makeSuggestions } from '@/ast/analyze';
+import {
+  analyzeContext,
+  insertUnderscore,
+  makeSuggestions,
+  ContextType as SqlContextType,
+} from '@/ast/analyze';
 import { completionRegistry } from '@/components/editor/monacoConfig';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { Position } from 'monaco-editor/esm/vs/editor/editor.api';
@@ -39,24 +44,18 @@ export function handleProvideCompletionItems(
 ) {
   const modelUri = model.uri.toString();
   const completeMeta = completionRegistry.get(modelUri);
-  const { prefixCode } = completeMeta ?? {};
+  const { prefixCode = '' } = completeMeta ?? {};
 
   console.log('completeMeta:', completeMeta);
   const word = model.getWordUntilPosition(position);
   const code = model.getValue();
 
   let offset = model.getOffsetAt(position);
-  console.log(
-    `code: "${code}", word: "${word}", position: ${position}, offset: ${offset}`,
-  );
+  console.log(`code: "${code}", offset: ${offset}`);
+  console.log(`word: `,word, `position:`, position);
 
-  let sql;
-  if (prefixCode) {
-    sql = prefixCode + code + '_';
-    offset += prefixCode.length;
-  } else {
-    sql = insertUnderscore(code, offset);
-  }
+  const sql = prefixCode + insertUnderscore(code, offset);
+  offset += prefixCode.length;
 
   console.log('sql:', sql);
 

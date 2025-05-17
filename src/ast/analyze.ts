@@ -198,13 +198,29 @@ export function analyzeContext(
       if (sql[position - 1] == '.') {
         const _table = _node?.previousNamedSibling?.text;
         return {
-          stmt: 'select',
+          stmt: 'where',
           type: ContextType.COLUMN,
           tablesInScope: filterTable(_table, tables),
         };
       }
       return {
         stmt: 'where',
+        type: ContextType.COLUMN,
+        tablesInScope: tables,
+      };
+    }
+    if (leafNode.type == 'order_by') {
+      const tables = get_tables(parser, leafNode.parent);
+      if (sql[position - 1] == '.') {
+        const _table = _node?.previousNamedSibling?.text;
+        return {
+          stmt: 'order_by',
+          type: ContextType.COLUMN,
+          tablesInScope: filterTable(_table, tables),
+        };
+      }
+      return {
+        stmt: 'order_by',
         type: ContextType.COLUMN,
         tablesInScope: tables,
       };
