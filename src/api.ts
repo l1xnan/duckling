@@ -5,6 +5,7 @@ import { nanoid } from 'nanoid';
 import { ArrowResponse, SchemaType } from '@/stores/dataset';
 import { DBType, DialectConfig } from '@/stores/dbList';
 
+import { uniqBy } from 'es-toolkit';
 import { TreeNode } from './types';
 
 export type TitleType = {
@@ -133,24 +134,24 @@ const convertMeta = (data: MetadataType[]) => {
   );
 };
 
-export async function getDB(option: DialectConfig): Promise<DBType> {
-  const tree: TreeNode = await invoke('get_db', { dialect: option });
-  const meta: MetadataType[] = await invoke('all_columns', {
-    dialect: option,
+export async function getDB(dialect: DialectConfig): Promise<DBType> {
+  const tree: TreeNode = await invoke('get_db', { dialect });
+  const colMeta: MetadataType[] = await invoke('all_columns', {
+    dialect,
   });
 
   let defaultDatabase = '';
-  if ([...new Set(meta.map((m) => m.database))].length == 1) {
-    defaultDatabase = meta[0].database;
+  if (uniqBy(colMeta, (item) => item.database).length == 1) {
+    defaultDatabase = colMeta[0].database;
   }
-
-  console.log('tree:', tree, meta);
+  const meta = convertMeta(colMeta);
+  console.log('tree:', tree, colMeta, meta);
   return {
     id: nanoid(),
-    dialect: option.dialect,
+    dialect: dialect.dialect,
     data: tree,
-    config: option,
-    meta: convertMeta(meta),
+    config: dialect,
+    meta,
     displayName: tree.name,
     defaultDatabase,
   };

@@ -1,5 +1,6 @@
 use std::fs;
 use std::path::Path;
+use walkdir::{DirEntry, WalkDir};
 
 use arrow::array::{Array, StringArray};
 use async_trait::async_trait;
@@ -7,7 +8,7 @@ use glob::glob;
 
 use crate::dialect::duckdb::duckdb_sync;
 use crate::dialect::Connection;
-use crate::utils::RawArrowData;
+use crate::utils::{Metadata, RawArrowData};
 use crate::utils::{write_csv, TreeNode};
 
 #[derive(Debug, Default)]
@@ -32,6 +33,10 @@ impl Connection for FolderConnection {
     let conn = self.connect()?;
     let total = conn.query_row(sql, [], |row| row.get::<_, usize>(0))?;
     Ok(total)
+  }
+
+  async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
+    self._all_columns()
   }
 
   async fn show_column(&self, _schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
@@ -162,6 +167,37 @@ impl FolderConnection {
     let conn = duckdb::Connection::open_in_memory()?;
     conn.execute(&format!("SET file_search_path='{}'", self.path.clone()), [])?;
     Ok(conn)
+  }
+
+
+  fn _all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
+    let extensions = ["csv", "parquet", "xlsx"]; 
+    // 遍历目录并过滤文件
+    let files: Vec<_> = WalkDir::new(self.path.clone())
+        .into_iter()
+        .filter_map(|e| e.ok()) // 过滤无效路径[7](@ref)
+        .filter(|entry| {
+            let path = entry.path();
+            // 排除目录，仅保留文件
+            path.is_file() && 
+            // 提取扩展名并匹配目标类型
+            path.extension()
+                .and_then(|ext| ext.to_str())
+                .map(|ext| extensions.contains(&ext.to_lowercase().as_str()))
+                .unwrap_or(false)
+        })
+        .collect();
+    
+    let mut data = vec![];
+    for file in files {
+      let path = file.path().strip_prefix(&self.path)?.display().to_string().replace('\\', "/");
+        data.push(Metadata{
+          database: String::new(),
+          table: format!("./{}", path),
+          columns: vec![],
+        });
+    }
+    Ok(data)
   }
 }
 

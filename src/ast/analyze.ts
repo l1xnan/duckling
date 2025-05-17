@@ -82,7 +82,8 @@ export function get_tables(
         database: (identifier)? @database
         schema: (identifier)? @schema
         name: (identifier)? @name
-      ) @table
+      )? @table
+      (table_path)? @path
       (_)*
       alias: (identifier)? @alias_name
     ) @relation
@@ -161,6 +162,13 @@ export function analyzeContext(
           stmt: 'from',
           type: ContextType.TABLE,
           database: _db,
+        };
+      }
+      if (_node?.text.startsWith(`'`)) {
+        return {
+          stmt: 'from',
+          type: ContextType.TABLE,
+          // extra: 'path',
         };
       }
       return {

@@ -27,7 +27,7 @@ export function registerUriBasedCompletionProvider(languageId: string) {
   const disposable = monaco.languages.registerCompletionItemProvider(
     languageId,
     {
-      triggerCharacters: ['.', ' ', '(', "'", '"', '\n'], // Add trigger characters as needed
+      triggerCharacters: ['.', ' ', '(', "'", '"', '`', '\n'], // Add trigger characters as needed
       provideCompletionItems: (model, position, _context, _token) => {
         return handleProvideCompletionItems(model, position);
       },
