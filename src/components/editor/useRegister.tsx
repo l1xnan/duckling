@@ -1,11 +1,11 @@
 import { Monaco, useMonaco } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { nanoid } from 'nanoid';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import {
   registerUriBasedCompletionProvider,
   removeCompletionsForUri,
-  setCompletionsForUri
+  setCompletionsForUri,
 } from './monacoConfig'; // Adjust path
 
 export const sqlWhereKeywords = [
@@ -51,16 +51,7 @@ export function useRegister({
     // }
   }, [monaco, language, instanceId]);
 
-  // 2. Create the completion source (function or array) for *this* instance
-  // Use useMemo to avoid recreating the function on every render unless dependencies change
-  // TODO:
-  const completionSource = useMemo(() => {
-    if (!monaco) return null; // Need monaco to create items/functions
-
-    return completeMeta;
-  }, [monaco, completeMeta, instanceId]);
-
-  // 3. Editor Mount: Get Model URI and register completion source
+  // 2. Editor Mount: Get Model URI and register completion source
   const handleEditorDidMount = useCallback(
     (editor: monaco.editor.IStandaloneCodeEditor, _monaco: Monaco) => {
       editorRef.current = editor;
@@ -88,7 +79,7 @@ export function useRegister({
     [instanceId, completeMeta],
   ); // Re-run if completionSource changes (due to props)
 
-  // 4. Cleanup: Remove completion source for this URI on unmount
+  // 3. Cleanup: Remove completion source for this URI on unmount
   useEffect(() => {
     // Return the cleanup function
     return () => {
@@ -102,17 +93,6 @@ export function useRegister({
       editorRef.current = null; // Clean up editor ref
     };
   }, [instanceId]); // Empty array ensures this runs only once on unmount
-
-  // 5. Update: If completion source changes while mounted, update the registry
-  useEffect(() => {
-    // Ensure we only update if the editor is mounted and the URI/source are valid
-    if (editorRef.current && modelUriRef.current && completionSource) {
-      console.log(
-        `[${instanceId}] Completion source changed. Updating registry for URI: ${modelUriRef.current}`,
-      );
-      setCompletionsForUri(modelUriRef.current, completionSource);
-    }
-  }, [completionSource]); // Dependency on the memoized completionSource
 
   return {
     handleEditorDidMount,

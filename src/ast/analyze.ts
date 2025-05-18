@@ -225,6 +225,22 @@ export function analyzeContext(
         tablesInScope: tables,
       };
     }
+    if (leafNode.type == 'group_by') {
+      const tables = get_tables(parser, leafNode.parent);
+      if (sql[position - 1] == '.') {
+        const _table = _node?.previousNamedSibling?.text;
+        return {
+          stmt: 'group_by',
+          type: ContextType.COLUMN,
+          tablesInScope: filterTable(_table, tables),
+        };
+      }
+      return {
+        stmt: 'group_by',
+        type: ContextType.COLUMN,
+        tablesInScope: tables,
+      };
+    }
 
     leafNode = leafNode.parent;
   }

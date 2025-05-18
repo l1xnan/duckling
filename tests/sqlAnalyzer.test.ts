@@ -178,4 +178,14 @@ describe('analyzeSqlContext', () => {
     );
     console.log('sqlContext:', sqlContext);
   });
+
+  it(`select * from tbl1 where a=1 group by _`, async () => {
+    const { sql, position } = current;
+    const sqlContext = analyzeContext(
+      parser as unknown as ParserType,
+      sql,
+      position,
+    );
+    console.log('sqlContext:', sqlContext);
+  });
 });

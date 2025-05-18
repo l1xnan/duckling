@@ -1,11 +1,17 @@
 import { CompleteMetaType } from '@/ast/analyze';
 import { useTheme } from '@/hooks/theme-provider';
 import { isDarkTheme } from '@/utils';
-import Editor, { OnMount } from '@monaco-editor/react';
+import { Editor, OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 
 import { nanoid } from 'nanoid';
-import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useRegister } from './useRegister';
 
 interface SingleLineEditorProps {
