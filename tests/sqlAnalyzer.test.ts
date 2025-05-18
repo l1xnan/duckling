@@ -188,4 +188,13 @@ describe('analyzeSqlContext', () => {
     );
     console.log('sqlContext:', sqlContext);
   });
+  it(`with a as (select * from _)`, async () => {
+    const { sql, position } = current;
+    const sqlContext = analyzeContext(
+      parser as unknown as ParserType,
+      sql,
+      position,
+    );
+    console.log('sqlContext:', sqlContext);
+  });
 });
