@@ -253,7 +253,7 @@ export const CanvasTable = React.memo(function CanvasTable({
               .replace(new RegExp(`(.{${scale}})$`), '.$1');
           }
 
-          const templte = 'YYYY-MM-DD HH:mm:ss'
+          const templte = 'YYYY-MM-DD HH:mm:ss';
           if (
             DataType.isDate(dataType) &&
             type?.toLowerCase()?.includes('datetime')
@@ -361,7 +361,9 @@ export const CanvasTable = React.memo(function CanvasTable({
         setRightPinnedCols([]);
       }
     } else {
-      if (e.menuKey == 'copy-as-csv') {
+      if (e.menuKey == 'copy') {
+        await writeText(table?.getCopyValue() ?? '');
+      } else if (e.menuKey == 'copy-as-csv') {
         const rows =
           table?.getSelectedCellInfos()?.map((row) => {
             return row.map((item) => item.dataValue).join(',');
@@ -443,6 +445,10 @@ export const CanvasTable = React.memo(function CanvasTable({
             ];
           }
           return [
+            {
+              menuKey: 'copy',
+              text: 'Copy',
+            },
             {
               menuKey: 'copy-as-csv',
               text: 'Copy as CSV',
