@@ -1,6 +1,7 @@
 import eslint from '@eslint/js';
 import prettierConfig from 'eslint-config-prettier';
 import * as pluginImportX from 'eslint-plugin-import-x';
+import { configs as reactHooksConfigs } from 'eslint-plugin-react-hooks';
 import { globalIgnores } from 'eslint/config';
 import tseslint, { configs } from 'typescript-eslint';
 
@@ -11,6 +12,8 @@ export default tseslint.config(
   prettierConfig,
   pluginImportX.flatConfigs.recommended,
   pluginImportX.flatConfigs.typescript,
+  reactHooksConfigs['recommended-latest'],
+
   {
     ignores: ['eslint.config.mjs', 'src/components/ui/**/*'],
     rules: {

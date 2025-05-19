@@ -2,6 +2,7 @@ import { createStore } from 'zustand';
 
 import { ResultType, TitleType } from '@/api';
 
+import { DataType } from '@apache-arrow/ts';
 import {
   QueryParamType,
   TabContextType,
@@ -11,7 +12,7 @@ import {
 
 export type SchemaType = {
   name: string;
-  dataType: string;
+  dataType: DataType;
   nullable: boolean;
   metadata: unknown;
   type?: string;
