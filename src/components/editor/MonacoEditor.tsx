@@ -1,13 +1,12 @@
-import Editor, {
+import {
   BeforeMount,
+  Editor,
   EditorProps,
   OnMount,
-  useMonaco,
 } from '@monaco-editor/react';
 import {
   ForwardedRef,
   forwardRef,
-  useEffect,
   useImperativeHandle,
   useMemo,
   useRef,
@@ -30,15 +29,14 @@ type OnMountParams = Parameters<OnMount>;
 const MonacoEditor = forwardRef<
   EditorRef,
   EditorProps & {
-  completeMeta?: CompleteMetaType;
-  onRun: () => void;
-}
+    completeMeta?: CompleteMetaType;
+    onRun: () => void;
+  }
 >(function MonacoEditor(
   { completeMeta, ...props },
   ref: ForwardedRef<EditorRef>,
 ) {
   const editorRef = useRef<OnMountParams[0] | null>(null);
-  const monaco = useMonaco();
 
   const instanceId = useMemo(() => nanoid(), []);
 
@@ -54,14 +52,13 @@ const MonacoEditor = forwardRef<
   };
 
   const handleMount: OnMount = (editor, monaco) => {
-    editorRef.current = editor;
-    handleEditorDidMount?.(editor, monaco);
     props.onMount?.(editor, monaco);
-  };
+    handleEditorDidMount?.(editor, monaco);
 
-  useEffect(() => {
-    const disposable1 = monaco?.editor.addEditorAction({
-      id: 'editor.run',
+    editorRef.current = editor;
+
+    const action = editor.addAction({
+      id: `${instanceId}.run}`,
       label: 'Run',
       contextMenuGroupId: 'navigation',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
@@ -70,18 +67,10 @@ const MonacoEditor = forwardRef<
       },
     });
 
-    const disposable2 = monaco?.editor.addCommand({
-      id: 'editor.run',
-      run: () => {
-        props.onRun?.();
-      },
-    });
-
     return () => {
-      disposable1?.dispose();
-      disposable2?.dispose();
+      action.dispose();
     };
-  }, [props.onRun, monaco]);
+  };
 
   useImperativeHandle(ref, () => ({
     editor: () => editorRef.current,
