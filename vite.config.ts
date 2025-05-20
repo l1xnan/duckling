@@ -72,6 +72,12 @@ export default defineConfig({
           'web-tree-sitter': ['web-tree-sitter'],
         },
       },
+      external: (id) => {
+        if (id.startsWith('@shikijs/langs')) {
+          return !id.includes('json') && !id.includes('sql');
+        }
+        return false;
+      },
     },
   },
   worker: {
