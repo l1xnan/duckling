@@ -4,18 +4,11 @@ import {
   EditorProps,
   OnMount,
 } from '@monaco-editor/react';
-import {
-  ForwardedRef,
-  forwardRef,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-} from 'react';
+import { ForwardedRef, forwardRef, useImperativeHandle } from 'react';
 
 import { CompleteMetaType } from '@/ast/analyze';
 import { useRegister } from '@/components/editor/useRegister';
 import { useEditorTheme } from '@/stores/setting';
-import { nanoid } from 'nanoid';
 
 export interface EditorRef {
   getSelectionText: () => string | undefined;
@@ -35,21 +28,17 @@ const MonacoEditor = forwardRef<
   { completeMeta, ...props },
   ref: ForwardedRef<EditorRef>,
 ) {
-  const editorRef = useRef<OnMountParams[0] | null>(null);
-
-  const instanceId = useMemo(() => nanoid(), []);
-
-  const { handleEditorDidMount } = useRegister({ instanceId, completeMeta });
+  const { handleEditorDidMount, editorRef, instanceId } = useRegister({
+    completeMeta,
+  });
 
   const handleBeforeMount: BeforeMount = (_monaco) => {};
 
   const handleMount: OnMount = (editor, monaco) => {
     props.onMount?.(editor, monaco);
-    handleEditorDidMount?.(editor, monaco);
+    handleEditorDidMount(editor, monaco);
 
-    editorRef.current = editor;
-
-    const action = editor.addAction({
+    editor.addAction({
       id: `${instanceId}.run}`,
       label: 'Run',
       contextMenuGroupId: 'navigation',
@@ -58,10 +47,6 @@ const MonacoEditor = forwardRef<
         props.onRun?.();
       },
     });
-
-    return () => {
-      action.dispose();
-    };
   };
 
   useImperativeHandle(ref, () => ({
@@ -81,11 +66,7 @@ const MonacoEditor = forwardRef<
     },
 
     getValue: () => {
-      const editor = editorRef.current;
-      if (!editor) {
-        return;
-      }
-      return editor.getValue();
+      return editorRef.current?.getValue();
     },
   }));
 

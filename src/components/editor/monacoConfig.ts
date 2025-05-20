@@ -14,10 +14,9 @@ const globalProviderDisposable: Record<string, monaco.IDisposable> = {};
 export function registerUriBasedCompletionProvider(languageId: string) {
   // Dispose previous provider for this languageId if re-registering (optional, usually run once)
   if (globalProviderDisposable[languageId]) {
-    console.warn(
-      `Disposing existing provider for ${languageId} before re-registering.`,
-    );
-    globalProviderDisposable[languageId].dispose();
+    // console.warn(`Disposing existing provider for ${languageId} before re-registering.`);
+    // globalProviderDisposable[languageId].dispose();
+    return;
   }
 
   console.log(

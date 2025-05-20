@@ -3,14 +3,7 @@ import { Editor, OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 import { useEditorTheme } from '@/stores/setting';
-import { nanoid } from 'nanoid';
-import {
-  forwardRef,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 import { useRegister } from './useRegister';
 
 interface SingleLineEditorProps {
@@ -32,9 +25,10 @@ export interface EditorRef {
 
 const SingleLineMonacoEditor = forwardRef<EditorRef, SingleLineEditorProps>(
   ({ completeMeta, initialValue, ...props }, ref) => {
-    const editorRef = useRef<any>(null);
     const [value, setValue] = useState(initialValue ?? '');
-
+    const { handleEditorDidMount, editorRef } = useRegister({
+      completeMeta,
+    });
     useImperativeHandle(ref, () => ({
       editor: () => editorRef.current,
 
@@ -127,7 +121,13 @@ const SingleLineMonacoEditor = forwardRef<EditorRef, SingleLineEditorProps>(
         onMount={handleEditorMount}
         onChange={handleEditorChange}
         height={`${20 + 3 * 2}px`}
-        options={{
+        options={options}
+      />
+    );
+  },
+);
+
+const options: monaco.editor.IStandaloneEditorConstructionOptions = {
           fontSize: 13,
           lineHeight: 20,
           padding: { bottom: 3, top: 3 }, // 内边距
@@ -161,9 +161,6 @@ const SingleLineMonacoEditor = forwardRef<EditorRef, SingleLineEditorProps>(
           // hover: { enabled: false }, // 可选: 禁用悬停提示
           // occurrencesHighlight: 'off', // 可选: 禁用相同内容高亮
           // selectionHighlight: false, // 可选: 禁用选择内容高亮
-        }}
-      />
-    );
-  },
-);
+};
+
 export default SingleLineMonacoEditor;
