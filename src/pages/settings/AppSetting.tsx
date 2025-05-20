@@ -193,6 +193,10 @@ function Profile() {
                       ))}
                   </SelectContent>
                 </Select>
+                <FormDescription>
+                  Reference: {' '}
+                  <a href="https://textmate-grammars-themes.netlify.app/" target="_blank">Shiki TextMate Grammar & Theme Playground</a>.
+                </FormDescription>
               </FormItem>
             )}
           />
