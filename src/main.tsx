@@ -9,12 +9,8 @@ import App from './App';
 import './app/globals.css';
 import './styles.css';
 
-import '@/hooks/theme';
-
-import { loader } from '@monaco-editor/react';
-import * as monaco from 'monaco-editor';
-
-loader.config({ monaco });
+import '@/init-monaco';
+import '@/init-theme';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

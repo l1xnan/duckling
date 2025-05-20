@@ -1,6 +1,6 @@
 import { CompleteMetaType } from '@/ast/analyze';
 import { Editor, OnMount } from '@monaco-editor/react';
-import * as monaco from 'monaco-editor';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 import { useEditorTheme } from '@/stores/setting';
 import { nanoid } from 'nanoid';

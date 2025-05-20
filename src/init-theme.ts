@@ -1,6 +1,6 @@
+import * as monaco from '@/init-monaco';
 import { editorThemes } from '@/stores/setting';
 import { shikiToMonaco } from '@shikijs/monaco';
-import * as monaco from 'monaco-editor';
 import { createHighlighter } from 'shiki';
 
 // 创建一个可复用的语法高亮器
