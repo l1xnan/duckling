@@ -54,34 +54,35 @@ const SingleLineMonacoEditor = forwardRef<EditorRef, SingleLineEditorProps>(
       },
     }));
 
-    const instanceId = useMemo(() => nanoid(), []);
-    const { handleEditorDidMount } = useRegister({
-      instanceId,
-      completeMeta,
-    });
+    const handleEditorMount: OnMount = (editor, monaco) => {
+      handleEditorDidMount?.(editor, monaco);
 
-    // --- 阻止 Enter 键换行 ---
-    const handleEditorMount: OnMount = (editor, mon) => {
-      editorRef.current = editor;
-      handleEditorDidMount?.(editor, mon);
-
-      // 监听键盘事件
       editor.onKeyDown((e: monaco.IKeyboardEvent) => {
         // 检查是否是 Enter 键 (并且没有按 Shift, Alt, Ctrl, Meta)
         if (
-          e.keyCode === mon.KeyCode.Enter &&
+          e.keyCode === monaco.KeyCode.Enter &&
           !e.shiftKey &&
           !e.altKey &&
           !e.ctrlKey &&
           !e.metaKey
         ) {
-          // 阻止默认行为 (插入新行)
-          e.preventDefault();
-          e.stopPropagation();
+          const suggestController = editor.getContribution<
+            monaco.editor.IEditorContribution & {
+              model: { state: number };
+            }
+          >('editor.contrib.suggestController');
 
-          // 如果提供了 onEnterDown 回调，则调用它
-          props.onChange?.(editor.getValue());
-          props.onEnterDown?.(editor.getValue());
+          // const visible = editor._contextKeyService.getContextKeyValue('suggestWidgetVisible');
+          // const visible = suggestController?.widget.value._ctxSuggestWidgetVisible.get('suggestWidgetVisible')
+
+          if (suggestController?.model.state === 0) {
+            // 阻止默认行为 (插入新行)
+            e.preventDefault();
+            e.stopPropagation();
+
+            props.onChange?.(editor.getValue());
+            props.onEnterDown?.(editor.getValue());
+          }
 
           // 可选: 让编辑器失去焦点
           // editor.trigger('keyboard', 'type', { text: '' }); // 触发一个空输入可能导致失去焦点，或者直接操作 DOM
@@ -128,39 +129,39 @@ const SingleLineMonacoEditor = forwardRef<EditorRef, SingleLineEditorProps>(
 );
 
 const options: monaco.editor.IStandaloneEditorConstructionOptions = {
-          fontSize: 13,
-          lineHeight: 20,
-          padding: { bottom: 3, top: 3 }, // 内边距
-          minimap: {
-            enabled: false,
-          },
-          scrollbar: {
-            // 禁用滚动条
-            vertical: 'hidden',
-            horizontal: 'hidden',
-            handleMouseWheel: false, // 可选：禁用鼠标滚轮滚动
-          },
-          wordBasedSuggestions: 'off', // 禁用基于单词的建议
-          fixedOverflowWidgets: true, // 关键选项
-          lineNumbers: 'off',
-          glyphMargin: false, // 关闭字形边距
-          folding: false, // 关闭代码折叠
-          lineDecorationsWidth: 0, // 行装饰宽度设为0
-          lineNumbersMinChars: 0, // 行号最小字符数设为0
-          overviewRulerLanes: 0, // 关闭概览标尺
-          overviewRulerBorder: false, // 关闭概览标尺边框
-          renderLineHighlight: 'none', // 不渲染当前行高亮
-          hideCursorInOverviewRuler: true, // 隐藏概览标尺中的光标
-          scrollBeyondLastLine: false, // 不允许滚动超过最后一行
-          wordWrap: 'off', // 强制不换行
-          wrappingIndent: 'none', // 关闭自动换行缩进
-          contextmenu: false, // 可选：禁用右键菜单
-          // quickSuggestions: false, // 可选: 禁用快速建议
-          // suggestOnTriggerCharacters: false, // 可选: 禁用触发字符建议
-          // wordBasedSuggestions: 'off', // 可选: 禁用基于单词的建议
-          // hover: { enabled: false }, // 可选: 禁用悬停提示
-          // occurrencesHighlight: 'off', // 可选: 禁用相同内容高亮
-          // selectionHighlight: false, // 可选: 禁用选择内容高亮
+  fontSize: 13,
+  lineHeight: 20,
+  padding: { bottom: 3, top: 3 }, // 内边距
+  minimap: {
+    enabled: false,
+  },
+  scrollbar: {
+    // 禁用滚动条
+    vertical: 'hidden',
+    horizontal: 'hidden',
+    handleMouseWheel: false, // 可选：禁用鼠标滚轮滚动
+  },
+  wordBasedSuggestions: 'off', // 禁用基于单词的建议
+  fixedOverflowWidgets: true, // 关键选项
+  lineNumbers: 'off',
+  glyphMargin: false, // 关闭字形边距
+  folding: false, // 关闭代码折叠
+  lineDecorationsWidth: 0, // 行装饰宽度设为0
+  lineNumbersMinChars: 0, // 行号最小字符数设为0
+  overviewRulerLanes: 0, // 关闭概览标尺
+  overviewRulerBorder: false, // 关闭概览标尺边框
+  renderLineHighlight: 'none', // 不渲染当前行高亮
+  hideCursorInOverviewRuler: true, // 隐藏概览标尺中的光标
+  scrollBeyondLastLine: false, // 不允许滚动超过最后一行
+  wordWrap: 'off', // 强制不换行
+  wrappingIndent: 'none', // 关闭自动换行缩进
+  contextmenu: false, // 可选：禁用右键菜单
+  // quickSuggestions: false, // 可选: 禁用快速建议
+  // suggestOnTriggerCharacters: false, // 可选: 禁用触发字符建议
+  // wordBasedSuggestions: 'off', // 可选: 禁用基于单词的建议
+  // hover: { enabled: false }, // 可选: 禁用悬停提示
+  // occurrencesHighlight: 'off', // 可选: 禁用相同内容高亮
+  // selectionHighlight: false, // 可选: 禁用选择内容高亮
 };
 
 export default SingleLineMonacoEditor;
