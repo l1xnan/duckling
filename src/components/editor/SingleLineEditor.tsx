@@ -1,9 +1,8 @@
 import { CompleteMetaType } from '@/ast/analyze';
-import { useTheme } from '@/hooks/theme-provider';
-import { isDarkTheme } from '@/utils';
 import { Editor, OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 
+import { useEditorTheme } from '@/stores/setting';
 import { nanoid } from 'nanoid';
 import {
   forwardRef,
@@ -35,7 +34,6 @@ const SingleLineMonacoEditor = forwardRef<EditorRef, SingleLineEditorProps>(
   ({ completeMeta, initialValue, ...props }, ref) => {
     const editorRef = useRef<any>(null);
     const [value, setValue] = useState(initialValue ?? '');
-    const theme = useTheme();
 
     useImperativeHandle(ref, () => ({
       editor: () => editorRef.current,
@@ -119,9 +117,10 @@ const SingleLineMonacoEditor = forwardRef<EditorRef, SingleLineEditorProps>(
       }
     };
 
+    const theme = useEditorTheme();
     return (
       <Editor
-        theme={isDarkTheme(theme) ? 'vs-dark' : 'light'}
+        theme={theme}
         language={'sql'}
         value={value}
         className={props.className}

@@ -30,6 +30,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@tabler/icons-react': '@tabler/icons-react/dist/esm/icons/index.mjs',
     },
   },
   test: {

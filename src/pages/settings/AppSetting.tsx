@@ -12,7 +12,7 @@ import { PropsWithChildren, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import Dialog from '@/components/custom/Dialog';
+import { Dialog } from '@/components/custom/Dialog';
 import { SidebarNav } from '@/components/custom/siderbar-nav';
 import { Button } from '@/components/ui/button';
 import { DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -25,10 +25,18 @@ import {
   FormLabel,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import {
   CsvParam,
   SettingState,
+  editorThemes,
   settingAtom,
   useSettingStore,
 } from '@/stores/setting';
@@ -131,6 +139,63 @@ function Profile() {
               </FormItem>
             )}
           />
+
+          <FormField
+            control={form.control}
+            name="editor_theme.light"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Editor Light Theme</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select editor theme" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {editorThemes
+                      .filter((t) => t.type == 'light')
+                      .map(({ name, id }) => (
+                        <SelectItem key={id} value={id}>
+                          {name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="editor_theme.dark"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Editor Dark Theme</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select editor theme" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {editorThemes
+                      .filter((t) => t.type == 'dark')
+                      .map(({ name, id }) => (
+                        <SelectItem key={id} value={id}>
+                          {name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="precision"
@@ -185,6 +250,7 @@ const UpdateForm = () => {
     console.log(update);
     setUpdate(update);
     if (update?.version != update?.currentVersion) {
+      //
     } else {
       toast.success("It's the latest version");
     }

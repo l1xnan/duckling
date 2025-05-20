@@ -14,8 +14,7 @@ import {
 
 import { CompleteMetaType } from '@/ast/analyze';
 import { useRegister } from '@/components/editor/useRegister';
-import { useTheme } from '@/hooks/theme-provider';
-import { isDarkTheme } from '@/utils';
+import { useEditorTheme } from '@/stores/setting';
 import { nanoid } from 'nanoid';
 
 export interface EditorRef {
@@ -42,14 +41,7 @@ const MonacoEditor = forwardRef<
 
   const { handleEditorDidMount } = useRegister({ instanceId, completeMeta });
 
-  const handleBeforeMount: BeforeMount = (monaco) => {
-    monaco.editor.defineTheme('dark', {
-      base: 'vs-dark',
-      inherit: true,
-      rules: [],
-      colors: {},
-    });
-  };
+  const handleBeforeMount: BeforeMount = (_monaco) => {};
 
   const handleMount: OnMount = (editor, monaco) => {
     props.onMount?.(editor, monaco);
@@ -96,11 +88,12 @@ const MonacoEditor = forwardRef<
       return editor.getValue();
     },
   }));
-  const theme = useTheme();
+
+  const theme = useEditorTheme();
 
   return (
     <Editor
-      theme={isDarkTheme(theme) ? 'vs-dark' : 'light'}
+      theme={theme}
       defaultLanguage="sql"
       language={props.language ?? 'sql'}
       height="100%"

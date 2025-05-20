@@ -2,26 +2,25 @@ import { DataFrame } from '@/utils/dataframe';
 import MonacoEditor from '@monaco-editor/react';
 
 import {
-    LetterTextIcon,
-    PanelBottomIcon,
-    PanelRightIcon,
-    XIcon,
+  LetterTextIcon,
+  PanelBottomIcon,
+  PanelRightIcon,
+  XIcon,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
 import { TooltipButton } from '@/components/custom/button';
-import { useTheme } from '@/hooks/theme-provider';
 import { Direction } from '@/stores/dataset';
-import { isDarkTheme } from '@/utils';
+import { useEditorTheme } from '@/stores/setting';
 import { TabsList } from '@radix-ui/react-tabs';
 import ErrorBoundary from '../ErrorBoundary';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
 } from '../ui/table';
 import { Tabs, TabsContent, TabsTrigger } from '../ui/tabs';
 import { SelectedCellType } from './TableView';
@@ -39,7 +38,7 @@ export function ValueViewer({
   setDirection: () => void;
   direction: Direction;
 }) {
-  const theme = useTheme();
+  const theme = useEditorTheme();
 
   return (
     <Tabs defaultValue="value" className="size-full">
@@ -113,7 +112,7 @@ export function ValueViewer({
           </pre>
         ) : (
           <MonacoEditor
-            theme={isDarkTheme(theme) ? 'vs-dark' : 'light'}
+            theme={theme}
             value={selectedCell?.value?.toString() ?? ''}
             options={{
               minimap: {
