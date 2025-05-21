@@ -44,21 +44,20 @@ export function useRegister({ language = 'sql', completeMeta = {} }) {
     (editor: monaco.editor.IStandaloneCodeEditor, _monaco: Monaco) => {
       editorRef.current = editor;
       const model = editor.getModel();
-
-      if (model && completeMeta) {
+      if (model) {
         const currentModelUri = model.uri.toString();
         modelUriRef.current = currentModelUri; // Store URI for cleanup
-
-        setCompletionsForUri(currentModelUri, completeMeta);
-
-        // Optional: Log model content changes for debugging context
-        // model.onDidChangeContent(e => {
-        //     console.log(`[${instanceId}] Model content changed for ${currentModelUri}`);
-        // });
       }
     },
-    [completeMeta],
+    [],
   );
+
+  const currentModelUri = modelUriRef.current;
+  useEffect(() => {
+    if (currentModelUri) {
+      setCompletionsForUri(currentModelUri, completeMeta);
+    }
+  }, [completeMeta, currentModelUri]);
 
   // 3. Cleanup: Remove completion source for this URI on unmount
   useEffect(() => {
