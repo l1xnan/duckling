@@ -24,15 +24,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { DialectConfig, useDBListStore } from '@/stores/dbList';
-
+import { nanoid } from 'nanoid';
 
 type DatabaseFormProps = {
   form: UseFormReturn<DialectConfig>;
   handleSubmit: (values: DialectConfig) => Promise<void>;
   isNew?: boolean;
-}
+};
 
-export function DatabaseForm({ form, handleSubmit, isNew=true }:DatabaseFormProps) {
+export function DatabaseForm({
+  form,
+  handleSubmit,
+  isNew = true,
+}: DatabaseFormProps) {
   const watchDialect = form.watch('dialect');
 
   return (
@@ -194,11 +198,24 @@ export function DatabaseDialog() {
   const [open, setOpen] = useState(false);
   const form = useForm<DialectConfig>();
   const appendDB = useDBListStore((state) => state.append);
+  const updateDB = useDBListStore((state) => state.update);
 
   async function handleSubmit(values: DialectConfig) {
-    const data = await getDB({ ...values });
-    appendDB(data);
+    const initData = {
+      id: nanoid(),
+      dialect: values.dialect,
+      config: values,
+      displayName: values.path ?? values.host,
+      data: {},
+    };
+    appendDB(initData);
     setOpen(false);
+    try {
+      const data = await getDB({ ...values });
+      updateDB(initData.id, { ...data, id: initData.id });
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
   }
 
   return (
