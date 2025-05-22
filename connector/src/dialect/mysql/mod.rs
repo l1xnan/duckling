@@ -123,7 +123,7 @@ impl MySqlConnection {
       TABLE_NAME as table_name,
       TABLE_TYPE as table_type,
       if(TABLE_TYPE='BASE TABLE', 'table', 'view') as type,
-      round(((data_length + IFNULL(index_length, 0)) / 1024 / 1024), 2) AS size
+      CAST(round(((data_length + IFNULL(index_length, 0)) / 1024 / 1024)) AS UNSIGNED)  AS size
     from information_schema.tables
     ";
     let tables = conn.query_map(
