@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 
-import Dialog from '@/components/custom/Dialog';
+import { Dialog } from '@/components/custom/Dialog';
 import { Button } from '@/components/ui/button';
 import { DialogClose, DialogFooter } from '@/components/ui/dialog';
 import { DatabaseForm } from '@/pages/sidebar/dialog/DatabaseDialog.tsx';
@@ -12,7 +12,7 @@ export function ConfigDialog({
   ctx: db,
   ...props
 }: DialogProps & { ctx?: DBType }) {
-  const updateDB = useDBListStore((state) => state.setDB);
+  const updateDBConfig = useDBListStore((state) => state.setDB);
 
   const form = useForm<DialectConfig>({
     defaultValues: db?.config,
@@ -20,10 +20,10 @@ export function ConfigDialog({
 
   useEffect(() => {
     form.reset();
-  }, [db?.id]);
+  }, [db?.id, form]);
 
   async function handleSubmit(values: DialectConfig) {
-    updateDB(values, db!.id);
+    updateDBConfig(db!.id, values);
     props.onOpenChange?.(false);
   }
 

@@ -1,8 +1,8 @@
+import { ThemeProviderState } from '@/hooks/theme-provider';
+import { OrderByType, StmtType } from '@/stores/dataset';
+import { NodeElementType, TreeNode } from '@/types';
 import { DataType } from '@apache-arrow/ts';
 import { isEmpty } from 'radash';
-import { ThemeProviderState } from './hooks/theme-provider';
-import { OrderByType, StmtType } from './stores/dataset';
-import { NodeElementType, TreeNode } from './types';
 
 export const isDarkTheme = (s: ThemeProviderState) => s.theme === 'dark';
 

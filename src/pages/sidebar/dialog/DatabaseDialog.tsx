@@ -2,7 +2,6 @@ import { IconDatabasePlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 
-import { getDB } from '@/api';
 import { Dialog } from '@/components/custom/Dialog';
 import { TooltipButton } from '@/components/custom/button';
 import { Button } from '@/components/ui/button';
@@ -24,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { DialectConfig, useDBListStore } from '@/stores/dbList';
+import { TreeNode } from '@/types';
 import { nanoid } from 'nanoid';
 
 type DatabaseFormProps = {
@@ -198,24 +198,20 @@ export function DatabaseDialog() {
   const [open, setOpen] = useState(false);
   const form = useForm<DialectConfig>();
   const appendDB = useDBListStore((state) => state.append);
-  const updateDB = useDBListStore((state) => state.update);
+  const updateDB = useDBListStore((state) => state.updateByConfig);
 
   async function handleSubmit(values: DialectConfig) {
     const initData = {
       id: nanoid(),
       dialect: values.dialect,
       config: values,
-      displayName: values.path ?? values.host,
-      data: {},
+      displayName: (values as any).path ?? (values as any).host,
+      data: {} as TreeNode,
+      loading: true,
     };
     appendDB(initData);
     setOpen(false);
-    try {
-      const data = await getDB({ ...values });
-      updateDB(initData.id, { ...data, id: initData.id });
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
+    updateDB(initData.id, values);
   }
 
   return (

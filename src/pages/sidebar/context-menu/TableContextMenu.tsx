@@ -1,4 +1,4 @@
-import { dropTable, getDB } from '@/api';
+import { dropTable } from '@/api';
 import { ContextMenuItem } from '@/components/custom/context-menu';
 import { useDialog } from '@/components/custom/use-dialog';
 
@@ -35,7 +35,7 @@ export function TableContextMenu({
   db,
 }: PropsWithChildren<{ node: NodeElementType; db: DBType }>) {
   const updateTab = useTabsStore((state) => state.update);
-  const updateDB = useDBListStore((state) => state.update);
+  const updateDB = useDBListStore((state) => state.updateByConfig);
 
   const alertDialog = useDialog();
   const searchDialog = useDialog();
@@ -49,8 +49,7 @@ export function TableContextMenu({
 
   const handleRefresh = async () => {
     if (db.config) {
-      const { data, meta, defaultDatabase } = await getDB(db.config);
-      updateDB(db.id, { data, meta, defaultDatabase });
+      updateDB(db.id, db.config)
     }
   };
 

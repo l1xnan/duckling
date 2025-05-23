@@ -13,5 +13,6 @@ export interface NodeElementType {
   displayName?: string;
   icon: string;
   type: string;
+  loading?: boolean;
   children?: NodeElementType[];
 }

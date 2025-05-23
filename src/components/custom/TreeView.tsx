@@ -93,9 +93,10 @@ const Node = React.memo(
     const { displayName, path, name, icon } = node?.data ?? {};
     const level = item.getItemMeta().level;
 
+    const isRoot = level === 0;
     return (
       <div style={style} className="w-full h-6" ref={item.registerElement}>
-        <ContextNode data={node?.data} isRoot={level == 0}>
+        <ContextNode data={node?.data} isRoot={isRoot}>
           <div
             key={item.getId()}
             onDoubleClick={(e) => {
@@ -142,10 +143,14 @@ const Node = React.memo(
             ) : (
               <div className="size-4 min-w-4"></div>
             )}
-            <div className="flex items-center [&_svg]:size-4">
+            <div
+              className={cn(
+                'relative flex items-center [&_svg]:size-4',
+                isRoot && node.data.loading ? 'animate-spin duration-2000' : '',
+              )}
+            >
               {getTypeIcon(icon)}
             </div>
-
             <Tooltip title={path}>
               <div className="truncate font-mono">{displayName ?? name}</div>
             </Tooltip>
@@ -297,9 +302,11 @@ export const TreeView3 = forwardRef(
         id: ROOT,
         children: dbList.map((db) => ({
           ...convertId(db.data, db.id, db.displayName),
+          loading: db.loading,
           icon: db.dialect,
         })),
       };
+
       return convertTreeToMap(
         filterTree(_treeData as NodeElementType, search) as NodeElementType,
       );
@@ -337,12 +344,11 @@ export const TreeView3 = forwardRef(
         };
 
         console.log('update tab:', item);
-        updateTab!(item);
+        updateTab(item);
       } else {
         console.warn('doubleClick node is null!');
       }
     };
-
     return (
       <TreeView
         data={treeData}

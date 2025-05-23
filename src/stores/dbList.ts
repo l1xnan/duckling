@@ -8,8 +8,9 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { TreeNode } from '@/types';
 
+import { getDB } from '@/api';
 import { atomStore } from '.';
-import indexDBStorage from './indexdb';
+import { indexDBStorage } from './indexdb';
 
 export type NodeContextType = {
   id?: string;
@@ -77,10 +78,11 @@ export type DBType = {
   displayName: string;
   // tree node
   data: TreeNode;
-  meta: Record<string, Record<string, { name: string, type: string }[]>>;
+  meta?: Record<string, Record<string, { name: string; type: string }[]>>;
   config?: DialectConfig;
   defaultDatabase?: string;
   defaultSchema?: string;
+  loading?: boolean;
 };
 
 type DBListState = {
@@ -94,7 +96,8 @@ type DBListAction = {
   remove: (id: string) => void;
   rename: (id: string, displayName: string) => void;
   setCwd: (cwd: string, id: string) => void;
-  setDB: (config: DialectConfig, id: string) => void;
+  setDB: (id: string, config: DialectConfig) => void;
+  updateByConfig: (id: string, config: DialectConfig) => Promise<void>;
 };
 
 type DBListStore = DBListState & DBListAction;
@@ -121,7 +124,7 @@ const computed = createComputed((s: DBListStore) => ({
 export const useDBListStore = create<DBListStore>()(
   computed(
     persist<DBListStore>(
-      (set) => ({
+      (set, get) => ({
         // state
         dbList: [],
 
@@ -131,24 +134,38 @@ export const useDBListStore = create<DBListStore>()(
           set((state) => ({
             dbList: state.dbList?.filter((item) => !(item.id === id)),
           })),
-        update: (id, db) =>
+        update: (id, { id: _id, ...db }) =>
           set((state) => ({
             dbList: state.dbList.map((item) =>
               item.id !== id ? item : { ...item, ...db },
             ),
           })),
+
+        updateByConfig: async (id: string, config: DialectConfig) => {
+          const updateDB = get().update;
+          try {
+            updateDB(id, { loading: true });
+            const { data, meta, defaultDatabase } = await getDB(config);
+            updateDB(id, { data, meta, defaultDatabase, loading: false });
+          } catch (error) {
+            console.log(error);
+          } finally {
+            updateDB(id, { loading: false });
+          }
+        },
+
         setCwd: (cwd: string, id: string) =>
           set((state) => ({
             dbList: state.dbList.map((item) => {
               return item.id == id
                 ? {
-                  ...item,
-                  config: { ...(item.config ?? {}), cwd } as DialectConfig,
-                }
+                    ...item,
+                    config: { ...(item.config ?? {}), cwd } as DialectConfig,
+                  }
                 : item;
             }),
           })),
-        setDB: (config, id: string) =>
+        setDB: (id: string, config) =>
           set((state) => ({
             dbList: state.dbList.map((item) =>
               item.id == id ? { ...item, config } : item,
@@ -160,9 +177,9 @@ export const useDBListStore = create<DBListStore>()(
             dbList: dbList.map((item) => {
               return item.id == dbId
                 ? {
-                  ...item,
-                  displayName,
-                }
+                    ...item,
+                    displayName,
+                  }
                 : item;
             }),
           }));
@@ -200,5 +217,4 @@ export const renameAtom = atom<DBType | null>(null);
 // db setting
 export const configAtom = atom<DBType | null>(null);
 
-atomStore.sub(dbListAtom, () => {
-});
+atomStore.sub(dbListAtom, () => {});

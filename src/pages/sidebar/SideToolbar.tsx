@@ -24,7 +24,7 @@ export function SideToolbar({
   onCollapseAll: () => void;
 }) {
   const [dbList, dbMap, appendDB, updateDB, _removeDB] = useDBListStore(
-    useShallow((s) => [s.dbList, s.dbMap, s.append, s.update, s.remove]),
+    useShallow((s) => [s.dbList, s.dbMap, s.append, s.updateByConfig, s.remove]),
   );
 
   async function handleGetDB(path: string, dialect: DialectType) {
@@ -50,10 +50,10 @@ export function SideToolbar({
 
       for (const db of dbList) {
         if (db.id == root) {
-          const { data, meta, defaultDatabase } = await getDB(
+          updateDB(
+            root,
             db.config ?? { path: db.data.path, dialect: 'folder' },
           );
-          updateDB(root, { data, meta, defaultDatabase });
         }
       }
     }

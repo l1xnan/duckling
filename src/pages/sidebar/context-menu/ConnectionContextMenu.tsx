@@ -2,7 +2,6 @@ import { Code, RefreshCcw, Settings } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import React, { PropsWithChildren, useState } from 'react';
 
-import { getDB } from '@/api';
 import { ContextMenuItem } from '@/components/custom/context-menu';
 import { useDialog } from '@/components/custom/use-dialog';
 import {
@@ -25,7 +24,7 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
 }: PropsWithChildren<{ db: DBType }>) {
   const updateTab = useTabsStore((state) => state.update);
   const removeDB = useDBListStore((state) => state.remove);
-  const updateDB = useDBListStore((state) => state.update);
+  const updateDB = useDBListStore((state) => state.updateByConfig);
 
   const dialog = useDialog();
   const configDialog = useDialog();
@@ -51,8 +50,7 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
 
   const handleRefresh = async () => {
     if (db.config) {
-      const { data, meta, defaultDatabase } = await getDB(db.config);
-      updateDB(db.id, { data, meta, defaultDatabase });
+      updateDB(db.id, db.config);
     }
   };
 
