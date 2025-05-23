@@ -146,7 +146,7 @@ const Node = React.memo(
             <div
               className={cn(
                 'relative flex items-center [&_svg]:size-4',
-                isRoot && node.data.loading ? 'animate-spin duration-2000' : '',
+                isRoot && node?.data?.loading ? 'animate-spin duration-2000' : '',
               )}
             >
               {getTypeIcon(icon)}
