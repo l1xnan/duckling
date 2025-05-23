@@ -1,6 +1,3 @@
-use std::fmt::Debug;
-use std::sync::Arc;
-
 use anyhow::anyhow;
 use arrow::array::*;
 use arrow::datatypes::{DataType, Field, Schema};
@@ -8,9 +5,12 @@ use async_trait::async_trait;
 use mysql::consts::ColumnType::*;
 use mysql::prelude::*;
 use mysql::*;
+use std::collections::HashMap;
+use std::fmt::Debug;
+use std::sync::Arc;
 
-use crate::utils::RawArrowData;
 use crate::dialect::Connection;
+use crate::utils::{Metadata, RawArrowData};
 use crate::utils::{Table, build_tree};
 use crate::utils::{Title, TreeNode};
 
@@ -36,6 +36,10 @@ impl Connection for MySqlConnection {
       size: None,
       comment: None,
     })
+  }
+
+  async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
+    Ok(self._all_columns()?)
   }
 
   async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
@@ -138,6 +142,42 @@ impl MySqlConnection {
       },
     )?;
     Ok(tables)
+  }
+
+  fn _all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
+    let mut conn = self.get_conn()?;
+    let sql = "
+    SELECT
+        table_schema,
+        table_name,
+        column_name,
+        column_type
+    FROM information_schema.columns
+    -- WHERE table_schema NOT IN ('mysql', 'performance_schema', 'information_schema', 'sys') -- 排除系统库
+    ORDER BY table_schema, table_name, ordinal_position;
+    ";
+
+    let rows: Vec<(String, String, String, String)> = conn.query(sql)?;
+
+    // 使用 HashMap 按数据库和表名分组列信息
+    let mut groups: HashMap<(String, String), Vec<(String, String)>> = HashMap::new();
+    for (db, table, col, dtype) in rows {
+      groups
+        .entry((db, table))
+        .or_insert_with(Vec::new)
+        .push((col, dtype));
+    }
+    // 转换为最终结构
+    let metadata_list: Vec<Metadata> = groups
+      .into_iter()
+      .map(|((database, table), columns)| Metadata {
+        database,
+        table,
+        columns,
+      })
+      .collect();
+
+    Ok(metadata_list)
   }
 
   fn _query(&self, sql: &str) -> anyhow::Result<RawArrowData> {
