@@ -130,7 +130,7 @@ export function getFieldNameOfNode(node: Node | null): string | null {
   const parent = node.parent;
   for (let i = 0; i < parent.childCount; i++) {
     // Node.equals() 比较节点内容和位置，比比较 id 更可靠
-    if (parent.child(i) == node) {
+    if (parent.child(i)?.id == node.id) {
       return parent.fieldNameForChild(i);
     }
   }
@@ -148,12 +148,16 @@ export function analyzeContext(
     return null;
   }
   const _node = rootNode.descendantForIndex(position, position);
-  let leafNode = _node;
-  console.log('leafNode:', leafNode?.toString(), formatPosition(leafNode));
   const fieldName = getFieldNameOfNode(_node);
+  console.log(
+    `fieldName: ${fieldName}, `,
+    `leafNode: ${_node?.toString()}, `,
+    formatPosition(_node),
+  );
   if (fieldName == 'alias') {
     return null;
   }
+  let leafNode = _node;
   while (leafNode) {
     if (leafNode.type == 'join_condition') {
       const stmtNode = findParentNode(leafNode);
