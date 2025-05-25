@@ -123,6 +123,20 @@ export function insertUnderscore(text: string, offset: number): string {
   return text.slice(0, offset) + '_' + text.slice(offset);
 }
 
+export function getFieldNameOfNode(node: Node | null): string | null {
+  if (!node || !node.parent) {
+    return null;
+  }
+  const parent = node.parent;
+  for (let i = 0; i < parent.childCount; i++) {
+    // Node.equals() 比较节点内容和位置，比比较 id 更可靠
+    if (parent.child(i) == node) {
+      return parent.fieldNameForChild(i);
+    }
+  }
+  return null; // 如果未找到或不是命名字段
+}
+
 export function analyzeContext(
   parser: Parser,
   sql: string,
@@ -136,7 +150,10 @@ export function analyzeContext(
   const _node = rootNode.descendantForIndex(position, position);
   let leafNode = _node;
   console.log('leafNode:', leafNode?.toString(), formatPosition(leafNode));
-
+  const fieldName = getFieldNameOfNode(_node);
+  if (fieldName == 'alias') {
+    return null;
+  }
   while (leafNode) {
     if (leafNode.type == 'join_condition') {
       const stmtNode = findParentNode(leafNode);
