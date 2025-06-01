@@ -104,7 +104,7 @@
     "autoprefixer": "^10.4.21",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
-    "eslint-import-resolver-typescript": "^4.3.5",
+    "eslint-import-resolver-typescript": "^4.4.2",
     "eslint-plugin-import-x": "^4.12.2",
     "eslint-plugin-prettier": "^5.4.0",
     "eslint-plugin-react-hooks": "^5.2.0",
