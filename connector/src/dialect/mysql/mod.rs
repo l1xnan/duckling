@@ -1,18 +1,20 @@
+mod type_json;
+
+use crate::dialect::Connection;
+use crate::utils::{Metadata, RawArrowData};
+use crate::utils::{Table, build_tree};
+use crate::utils::{Title, TreeNode};
 use anyhow::anyhow;
 use arrow::array::*;
 use arrow::datatypes::{DataType, Field, Schema};
 use async_trait::async_trait;
+use mysql::consts::ColumnType;
 use mysql::consts::ColumnType::*;
 use mysql::prelude::*;
 use mysql::*;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::sync::Arc;
-
-use crate::dialect::Connection;
-use crate::utils::{Metadata, RawArrowData};
-use crate::utils::{Table, build_tree};
-use crate::utils::{Title, TreeNode};
 
 #[derive(Debug, Default)]
 pub struct MySqlConnection {
@@ -263,6 +265,57 @@ impl MySqlConnection {
     })
   }
 
+  fn get_titles(
+    columns: &[Column],
+    fields: &mut Vec<Field>,
+    titles: &mut Vec<Title>,
+    types: &mut Vec<ColumnType>,
+  ) {
+    for (i, col) in columns.iter().enumerate() {
+      let type_ = format!("{:?}", col.column_type());
+      let type_ = type_.strip_suffix("MYSQL_TYPE_").unwrap_or(type_.as_str());
+      println!("{i}: {:?}, {:?}", col.name_str(), type_);
+      titles.push(Title {
+        name: col.name_str().to_string(),
+        r#type: type_.to_string(),
+      });
+      types.push(col.column_type());
+      let typ = match col.column_type() {
+        MYSQL_TYPE_TINY | MYSQL_TYPE_INT24 | MYSQL_TYPE_SHORT | MYSQL_TYPE_LONG
+        | MYSQL_TYPE_LONGLONG => DataType::Int64,
+        MYSQL_TYPE_DECIMAL
+        | MYSQL_TYPE_NEWDECIMAL
+        | MYSQL_TYPE_FLOAT
+        | MYSQL_TYPE_YEAR
+        | MYSQL_TYPE_DOUBLE => DataType::Float64,
+        MYSQL_TYPE_DATETIME => DataType::Utf8,
+        MYSQL_TYPE_DATE => DataType::Utf8,
+        MYSQL_TYPE_BLOB => DataType::Utf8,
+        MYSQL_TYPE_STRING | MYSQL_TYPE_VAR_STRING | MYSQL_TYPE_VARCHAR => DataType::Utf8,
+        _ => DataType::Binary,
+      };
+      let field = Field::new(col.name_str(), typ, true);
+      fields.push(field);
+    }
+  }
+  fn _query_json(&self, sql: &str) -> anyhow::Result<()> {
+    let mut conn = self.get_conn()?;
+
+    let mut result = conn.query_iter(sql)?;
+    let columns = result.columns();
+    let columns = columns.as_ref();
+    let k = columns.len();
+
+    let mut fields = vec![];
+    let mut titles = vec![];
+    let mut types = vec![];
+    Self::get_titles(columns, &mut fields, &mut titles, &mut types);
+    let mut tables: Vec<Vec<Value>> = (0..k).map(|_| vec![]).collect();
+
+    let json_rows = type_json::fetch_dynamic_query_to_json(&mut result).unwrap();
+
+    Ok(())
+  }
   fn _table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
     let mut conn = self.get_conn()?;
     let mut sql = format!("select count(*) from {table}");
