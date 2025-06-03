@@ -1,7 +1,7 @@
 use mysql::consts::ColumnType;
 // Import the ColumnType enum
-use mysql::{QueryResult, SetColumns, Text, Value as MysqlValue};
-use serde_json::{Map, Number, Value as JsonValue, json};
+use mysql::{QueryResult, Text, Value as MysqlValue};
+use serde_json::{json, Map, Number, Value as JsonValue};
 // For Arc<[Column]>
 
 pub fn mysql_value_to_json_value_detailed(
