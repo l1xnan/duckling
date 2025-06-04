@@ -1,5 +1,6 @@
 use anyhow::{Context, anyhow};
 use rust_decimal::Decimal;
+use serde::{Deserialize, Serialize};
 use serde_json::{Map, json};
 use tokio_postgres::types::{FromSql, Type};
 use tokio_postgres::{Column, Row};
@@ -42,22 +43,21 @@ pub fn pg_cell_to_json_value(
     // for postgres types: https://www.postgresql.org/docs/7.4/datatype.html#DATATYPE-TABLE
 
     // single types
-    Type::BOOL => get_basic(row, column, column_i, |a: bool| Ok(json!(a)))?,
-    Type::INT2 => get_basic(row, column, column_i, |a: i16| Ok(json!(a)))?,
-    Type::INT4 => get_basic(row, column, column_i, |a: i32| Ok(json!(a)))?,
-    Type::INT8 => get_basic(row, column, column_i, |a: i64| Ok(json!(a)))?,
-    Type::TEXT | Type::VARCHAR => get_basic(row, column, column_i, |a: String| Ok(json!(a)))?,
-    Type::JSON | Type::JSONB => get_basic(row, column, column_i, |a: JSONValue| Ok(a))?,
-    Type::FLOAT4 => get_basic(row, column, column_i, |a: f32| Ok(json!(a)))?,
-    Type::FLOAT8 => get_basic(row, column, column_i, |a: f64| Ok(json!(a)))?,
+    Type::BOOL => try_convert::<bool>(row, column_i)?,
+    Type::INT2 => try_convert::<i16>(row, column_i)?,
+    Type::INT4 => try_convert::<i32>(row, column_i)?,
+    Type::INT8 => try_convert::<i64>(row, column_i)?,
+    Type::TEXT | Type::VARCHAR => try_convert::<String>(row, column_i)?,
+    Type::FLOAT4 => try_convert::<f32>(row, column_i)?,
+    Type::FLOAT8 => try_convert::<f64>(row, column_i)?,
     Type::NUMERIC => try_convert::<Decimal>(row, column_i)?,
-    // these types require a custom StringCollector struct as an intermediary (see struct at bottom)
-    Type::TS_VECTOR => get_basic(row, column, column_i, |a: StringCollector| Ok(json!(a.0)))?,
+    Type::TS_VECTOR => try_convert::<StringCollector>(row, column_i)?,
+    Type::JSON | Type::JSONB => get_basic(row, column, column_i, |a: JSONValue| Ok(a))?,
     Type::DATE => {
       let date: chrono::NaiveDate = row.get(column_i);
       json!(date.to_string())
     }
-    Type::TIME => get_basic(row, column, column_i, |a: StringCollector| Ok(json!(a.0)))?,
+    Type::TIME => try_convert::<StringCollector>(row, column_i)?,
     Type::BYTEA => {
       let mut arr = vec![];
       let v: &[u8] = row.get(column_i);
@@ -150,6 +150,7 @@ fn get_array<'a, T: FromSql<'a>>(
 }
 
 // you can remove this section if not using TS_VECTOR (or other types requiring an intermediary `FromSQL` struct)
+#[derive(Serialize, Deserialize, Debug)]
 struct StringCollector(String);
 
 impl FromSql<'_> for StringCollector {
@@ -165,7 +166,7 @@ impl FromSql<'_> for StringCollector {
   }
 }
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 struct GenericEnum(String);
 
 impl FromSql<'_> for GenericEnum {
