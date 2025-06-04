@@ -2,17 +2,17 @@ mod type_arrow;
 mod type_json;
 
 use crate::dialect::Connection;
-use crate::utils::{build_tree, Table};
+use crate::types::JSONValue;
 use crate::utils::{Metadata, RawArrowData};
+use crate::utils::{Table, build_tree};
 use crate::utils::{Title, TreeNode};
 use anyhow::anyhow;
 use arrow::array::*;
-use arrow::datatypes::{DataType, Field, Schema};
+use arrow::datatypes::Schema;
 use async_trait::async_trait;
-use mysql::consts::ColumnType;
-use mysql::consts::ColumnType::*;
 use mysql::prelude::*;
 use mysql::*;
+use serde_json::json;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::sync::Arc;
@@ -42,20 +42,22 @@ impl Connection for MySqlConnection {
     })
   }
 
-  async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
-    Ok(self._all_columns()?)
-  }
-
   async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     self._query(sql)
   }
 
-  async fn query_all(&self, sql: &str) -> anyhow::Result<RawArrowData> {
-    self._query(sql)
+  #[allow(clippy::unused_async)]
+  async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
+    let mut conn = self.get_conn()?;
+    if let Some(total) = conn.query_first::<usize, _>(sql)? {
+      Ok(total)
+    } else {
+      Err(anyhow::anyhow!("null"))
+    }
   }
 
-  async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
-    self._table_row_count(table, r#where)
+  async fn query_all(&self, sql: &str) -> anyhow::Result<RawArrowData> {
+    self._query(sql)
   }
 
   async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
@@ -79,14 +81,12 @@ impl Connection for MySqlConnection {
     self.query(&sql, 0, 0).await
   }
 
-  #[allow(clippy::unused_async)]
-  async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
-    let mut conn = self.get_conn()?;
-    if let Some(total) = conn.query_first::<usize, _>(sql)? {
-      Ok(total)
-    } else {
-      Err(anyhow::anyhow!("null"))
-    }
+  async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
+    Ok(self._all_columns()?)
+  }
+
+  async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
+    self._table_row_count(table, r#where)
   }
 }
 
@@ -192,7 +192,7 @@ impl MySqlConnection {
     let columns = columns.as_ref();
     let k = columns.len();
 
-    let (fields, types) = self.get_fields(columns);
+    let (fields, types) = get_fields(columns);
     let titles = self.get_titles(columns);
     let mut tables: Vec<Vec<Value>> = (0..k).map(|_| vec![]).collect();
     while let Some(result_set) = result.iter() {
@@ -216,30 +216,6 @@ impl MySqlConnection {
     })
   }
 
-  fn get_fields(&self, columns: &[Column]) -> (Vec<Field>, Vec<ColumnType>) {
-    let mut fields = vec![];
-    let mut types = vec![];
-    for (i, col) in columns.iter().enumerate() {
-      types.push(col.column_type());
-      let typ = match col.column_type() {
-        MYSQL_TYPE_TINY | MYSQL_TYPE_INT24 | MYSQL_TYPE_SHORT | MYSQL_TYPE_LONG
-        | MYSQL_TYPE_LONGLONG => DataType::Int64,
-        MYSQL_TYPE_DECIMAL
-        | MYSQL_TYPE_NEWDECIMAL
-        | MYSQL_TYPE_FLOAT
-        | MYSQL_TYPE_YEAR
-        | MYSQL_TYPE_DOUBLE => DataType::Float64,
-        MYSQL_TYPE_DATETIME => DataType::Utf8,
-        MYSQL_TYPE_DATE => DataType::Utf8,
-        MYSQL_TYPE_BLOB => DataType::Utf8,
-        MYSQL_TYPE_STRING | MYSQL_TYPE_VAR_STRING | MYSQL_TYPE_VARCHAR => DataType::Utf8,
-        _ => DataType::Binary,
-      };
-      let field = Field::new(col.name_str(), typ, true);
-      fields.push(field);
-    }
-    (fields, types)
-  }
   fn get_titles(&self, columns: &[Column]) -> Vec<Title> {
     let mut titles = vec![];
     for (i, col) in columns.iter().enumerate() {
@@ -251,22 +227,34 @@ impl MySqlConnection {
         r#type: type_.to_string(),
       });
     }
-    titles
-  }
-  fn _query_json(&self, sql: &str) -> anyhow::Result<()> {
-    let mut conn = self.get_conn()?;
 
+    columns
+      .iter()
+      .enumerate()
+      .map(|(i, col)| {
+        let type_ = format!("{:?}", col.column_type());
+        let type_ = type_.strip_suffix("MYSQL_TYPE_").unwrap_or(type_.as_str());
+        println!("{i}: {:?}, {:?}", col.name_str(), type_);
+        Title {
+          name: col.name_str().to_string(),
+          r#type: type_.to_string(),
+        }
+      })
+      .collect()
+  }
+
+  fn _query_json(&self, sql: &str) -> anyhow::Result<JSONValue> {
+    let mut conn = self.get_conn()?;
     let mut result = conn.query_iter(sql)?;
     let columns = result.columns();
     let columns = columns.as_ref();
-    let k = columns.len();
-
     let titles = self.get_titles(columns);
-    let mut tables: Vec<Vec<Value>> = (0..k).map(|_| vec![]).collect();
-
-    let json_rows = type_json::fetch_dynamic_query_to_json(&mut result).unwrap();
-
-    Ok(())
+    let data = type_json::fetch_dynamic_query_to_json(&mut result)?;
+    let result = json! ({
+      "titles": titles,
+      "data": data
+    });
+    Ok(result)
   }
   fn _table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
     let mut conn = self.get_conn()?;

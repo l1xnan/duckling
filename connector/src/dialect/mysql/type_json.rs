@@ -1,7 +1,7 @@
 use mysql::consts::ColumnType;
 // Import the ColumnType enum
 use mysql::{QueryResult, Text, Value as MysqlValue};
-use serde_json::{json, Map, Number, Value as JsonValue};
+use serde_json::{Map, Number, Value as JsonValue, json};
 // For Arc<[Column]>
 
 pub fn mysql_value_to_json_value_detailed(
@@ -171,7 +171,7 @@ pub fn mysql_value_to_json_value_detailed(
 
 pub(crate) fn fetch_dynamic_query_to_json(
   result_set: &mut QueryResult<Text>,
-) -> Result<JsonValue, Box<dyn std::error::Error>> {
+) -> anyhow::Result<JsonValue> {
   let mut json_rows: Vec<JsonValue> = Vec::new();
   while let Some(result_set) = result_set.iter() {
     for row in result_set {
