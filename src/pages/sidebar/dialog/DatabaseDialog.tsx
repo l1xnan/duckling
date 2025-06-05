@@ -1,4 +1,5 @@
 import { IconDatabasePlus } from '@tabler/icons-react';
+import * as dialog from '@tauri-apps/plugin-dialog';
 import { useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 
@@ -104,9 +105,7 @@ export function DatabaseForm({
                   render={({ field }) => (
                     <FormItem className="flex items-center w-[37.5%]">
                       {/* <FormLabel className="w-1/3 ml-2 text-right mt-2"> */}
-                      <FormLabel className="ml-4">
-                        Port
-                      </FormLabel>
+                      <FormLabel className="ml-4">Port</FormLabel>
                       <FormControl className="w-2/3">
                         <Input {...field} />
                       </FormControl>
@@ -165,7 +164,25 @@ export function DatabaseForm({
                   <FormItem className="flex items-center w-[62.5%]">
                     <FormLabel className="w-1/5 mr-2 mt-2">Path</FormLabel>
                     <FormControl className="w-4/5">
-                      <Input {...field} />
+                      <div className="flex w-full max-w-sm items-center gap-1">
+                        <Input {...field} />
+                        <Button
+                          variant="outline"
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            const file = await dialog.open({
+                              multiple: false,
+                              directory:
+                                watchDialect == 'folder',
+                            });
+                            if (file) {
+                              form.setValue('path', file);
+                            }
+                          }}
+                        >
+                          Open
+                        </Button>
+                      </div>
                     </FormControl>
                   </FormItem>
                 )}
