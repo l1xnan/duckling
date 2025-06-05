@@ -103,7 +103,8 @@ export function DatabaseForm({
                   name="port"
                   render={({ field }) => (
                     <FormItem className="flex items-center w-[37.5%]">
-                      <FormLabel className="w-1/3 mr-2 text-right mt-2">
+                      {/* <FormLabel className="w-1/3 ml-2 text-right mt-2"> */}
+                      <FormLabel className="ml-4">
                         Port
                       </FormLabel>
                       <FormControl className="w-2/3">
