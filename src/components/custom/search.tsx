@@ -1,9 +1,9 @@
-import { Input, InputProps } from '@/components/ui/input';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { Search } from 'lucide-react';
 import React from 'react';
 
-export const SearchInput = React.forwardRef<HTMLInputElement, InputProps>(
+export const SearchInput = React.forwardRef<HTMLInputElement, React.ComponentProps<typeof Input>>(
   ({ className, ...props }, ref) => {
     return (
       <div

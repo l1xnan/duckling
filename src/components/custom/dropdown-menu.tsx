@@ -26,7 +26,7 @@ export function DropdownMenu({ content, children }: DropdownProps) {
           <PaginationItem>
             <PaginationLink className="w-full px-2" size={'sm'}>
               {content}
-              <ChevronDownIcon size={16}/>
+              <ChevronDownIcon size={16} />
             </PaginationLink>
           </PaginationItem>
         </PaginationContent>

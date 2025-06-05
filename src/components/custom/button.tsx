@@ -1,4 +1,4 @@
-import { Button, ButtonProps } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import {
   Tooltip,
   TooltipContent,
@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { TooltipContentProps } from '@radix-ui/react-tooltip';
 import React, { PropsWithChildren, ReactElement } from 'react';
 
-interface IconButtonProps extends PropsWithChildren<ButtonProps> {
+interface IconButtonProps extends PropsWithChildren<React.ComponentProps<typeof Button>> {
   icon?: ReactElement;
   tooltip?: string;
   tooltipProps?: TooltipContentProps;
