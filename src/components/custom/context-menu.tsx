@@ -22,10 +22,10 @@ export function ContextMenuItem({
   return (
     <UIContextMenuItem
       className="py-1 text-xs"
-      inset={!IconComponent}
       {...props}
+      inset={!IconComponent ? true : undefined}
     >
-      {IconComponent ? <IconComponent size={14} className="mr-2.5" /> : null}
+      {IconComponent ? <IconComponent size={14}  /> : null}
       {props.children}
       {shortcut ? <ContextMenuShortcut>{shortcut}</ContextMenuShortcut> : null}
     </UIContextMenuItem>
