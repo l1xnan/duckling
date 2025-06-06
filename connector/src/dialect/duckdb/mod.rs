@@ -105,6 +105,14 @@ impl Connection for DuckDbConnection {
     write_csv(file, &batch)?;
     Ok(())
   }
+
+  fn validator(&self, id: &str) -> bool {
+    if id.is_empty() { return false; }
+    let mut chars = id.chars();
+    let first = chars.next().unwrap();
+    if !(first.is_ascii_alphabetic() || first == '_') { return false; }
+    chars.all(|c| c.is_ascii_alphanumeric() || c == '_')
+  }
 }
 
 impl DuckDbConnection {

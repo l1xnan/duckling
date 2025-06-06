@@ -1,9 +1,9 @@
-use async_trait::async_trait;
-use std::collections::HashMap;
-
-use crate::utils::{Metadata, RawArrowData};
 use crate::dialect::ast::first_stmt;
-use crate::utils::TreeNode;
+use crate::utils::{quote, TreeNode};
+use crate::utils::{Metadata, RawArrowData};
+use async_trait::async_trait;
+use itertools::Itertools;
+use std::collections::HashMap;
 
 pub mod ast;
 pub mod clickhouse;
@@ -129,7 +129,11 @@ pub trait Connection: Sync + Send {
   }
 
   fn _table_query_sql(&self, table: &str, where_: &str, order_by: &str) -> String {
-    let table = self.normalize(table);
+    let table = table
+      .split(".")
+      .into_iter()
+      .map(|item| self.quote(item))
+      .join(".");
     let mut sql = format!("select * from {table}");
     if !where_.trim().is_empty() {
       sql = format!("{sql} where {where_}");
@@ -149,5 +153,36 @@ pub trait Connection: Sync + Send {
   }
   async fn execute(&self, sql: &str) -> anyhow::Result<usize> {
     unimplemented!()
+  }
+
+  fn validator(&self, _id: &str) -> bool {
+    true
+  }
+  fn start_quote(&self) -> &'static str {
+    "`"
+  }
+  fn end_quote(&self) -> &'static str {
+    "`"
+  }
+  fn quote(&self, identifier: &str) -> String {
+    let start_quote = self.start_quote();
+    let end_quote = self.end_quote();
+    // 1. 检查是否已经正确引用
+    if identifier.starts_with(start_quote) && identifier.ends_with(end_quote) {
+      return identifier.to_string();
+    }
+
+    // 2. 使用配置的验证器判断是否需要引用
+    if self.validator(identifier) {
+      return identifier.to_string();
+    }
+
+    // 3. 执行引用和转义
+    // 转义规则：将标识符中的 "结束引用符" 替换为两个 "结束引用符"
+    // 例如： my"table -> "my""table"  或  my]table -> [my]]table]
+    let escaped = identifier.replace(end_quote, &format!("{}{}", end_quote, end_quote));
+
+    // 4. 用开始和结束引用符包裹
+    format!("{}{}{}", start_quote, escaped, end_quote)
   }
 }

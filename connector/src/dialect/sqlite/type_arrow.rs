@@ -1,12 +1,10 @@
-use arrow::array::{
-  ArrayBuilder, ArrayRef, BooleanBuilder, Float64Builder, Int64Builder, LargeBinaryBuilder,
-  StringBuilder,
-};
+use arrow::array::{ArrayBuilder, ArrayRef, BooleanBuilder, Float64Array, Float64Builder, Int64Array, Int64Builder, LargeBinaryArray, LargeBinaryBuilder, StringArray, StringBuilder};
 use arrow::datatypes::{DataType, Field, Schema};
 use arrow::record_batch::RecordBatch;
 use itertools::izip;
 use rusqlite::{types::Value, Connection, Statement};
 use std::sync::Arc;
+use crate::dialect::sqlite;
 
 pub fn db_to_arrow_type(decl_type: Option<&str>) -> DataType {
   // https://sqlite.org/datatype3.html#determination_of_column_affinity
@@ -124,6 +122,8 @@ pub fn convert_to_string(value: &Value) -> Option<String> {
   }
 }
 
+
+
 fn test() {
   let conn = Connection::open("test.db").unwrap();
   let sql = "SELECT * FROM your_table";
@@ -132,4 +132,66 @@ fn test() {
     Ok(record_batch) => println!("RecordBatch: {:?}", record_batch),
     Err(e) => println!("error: {}", e),
   }
+}
+
+pub fn convert_arrow(value: &Value, typ: &str) -> ArrayRef {
+  println!("{:?}", value);
+  match value {
+    Value::Integer(i) => {
+      if typ.starts_with("NUMERIC") || typ.is_empty() {
+        Arc::new(StringArray::from(vec![i.to_string()])) as ArrayRef
+      } else {
+        Arc::new(Int64Array::from(vec![(*i)])) as ArrayRef
+      }
+    }
+    Value::Real(f) => {
+      if typ.starts_with("NUMERIC") || typ.is_empty() {
+        Arc::new(StringArray::from(vec![f.to_string()])) as ArrayRef
+      } else {
+        Arc::new(Float64Array::from(vec![(*f)])) as ArrayRef
+      }
+    }
+    Value::Text(s) => Arc::new(StringArray::from(vec![s.clone()])) as ArrayRef,
+    Value::Blob(b) => Arc::new(LargeBinaryArray::from_vec(vec![b])) as ArrayRef,
+    Value::Null => match typ {
+      "TEXT" | "NUMERIC" => Arc::new(StringArray::from(vec![None::<String>])) as ArrayRef,
+      "INTEGER" => Arc::new(Int64Array::from(vec![None::<i64>])) as ArrayRef,
+      "BLOB" => Arc::new(LargeBinaryArray::from_opt_vec(vec![None::<&[u8]>])) as ArrayRef,
+      _ => Arc::new(StringArray::from(vec![None::<String>])) as ArrayRef,
+    },
+  }
+}
+
+#[allow(dead_code)]
+pub fn convert_to_i64(value: &Value) -> Option<i64> {
+  match value {
+    Value::Integer(i) => Some(*i),
+    Value::Real(f) => Some(*f as i64),
+    Value::Text(s) => s.parse::<i64>().ok(),
+    _ => None::<i64>,
+  }
+}
+
+pub fn convert_to_f64(value: &Value) -> Option<f64> {
+  match value {
+    Value::Integer(i) => i.to_string().parse::<f64>().ok(),
+    Value::Real(f) => Some(*f),
+    Value::Text(s) => s.parse::<f64>().ok(),
+    _ => None::<f64>,
+  }
+}
+
+#[allow(dead_code)]
+pub fn convert_to_strings(values: &[Value]) -> Vec<Option<String>> {
+  values.iter().map(convert_to_string).collect()
+}
+
+#[allow(dead_code)]
+pub fn convert_to_i64s(values: &[Value]) -> Vec<Option<i64>> {
+  values.iter().map(convert_to_i64).collect()
+}
+
+#[allow(dead_code)]
+pub fn convert_to_f64s(values: &[Value]) -> Vec<Option<f64>> {
+  values.iter().map(convert_to_f64).collect()
 }

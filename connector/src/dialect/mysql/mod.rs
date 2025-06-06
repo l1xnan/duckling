@@ -88,6 +88,15 @@ impl Connection for MySqlConnection {
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     self._table_row_count(table, r#where)
   }
+  fn validator(&self, id: &str) -> bool {
+    // MySQL 规则: 字母, 数字, _, $; 不以数字开头
+    if id.is_empty() { return false; }
+    let mut chars = id.chars();
+    let first = chars.next().unwrap(); // is_empty check ensures this is safe
+    if first.is_ascii_digit() { return false; }
+    if !(first.is_ascii_alphabetic() || first == '_' || first == '$') { return false; }
+    chars.all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '$')
+  }
 }
 
 impl MySqlConnection {
@@ -272,6 +281,8 @@ impl MySqlConnection {
       .query_first::<usize, _>(&sql)?
       .ok_or_else(|| anyhow!("No value found"))
   }
+
+
 }
 
 #[tokio::test]

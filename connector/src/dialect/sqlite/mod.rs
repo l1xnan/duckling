@@ -1,5 +1,5 @@
-mod arrow_type;
-mod json_type;
+mod type_arrow;
+mod type_json;
 
 use std::convert::From;
 use std::sync::Arc;
@@ -7,15 +7,15 @@ use std::sync::Arc;
 use arrow::array::*;
 use arrow::datatypes::{Field, Schema};
 use async_trait::async_trait;
-use rusqlite::Statement;
 use rusqlite::fallible_iterator::FallibleIterator;
 use rusqlite::types::Value;
+use rusqlite::Statement;
 
+use crate::dialect::sqlite::type_arrow::{db_result_to_arrow, db_to_arrow_type};
+use crate::dialect::sqlite::type_json::db_result_to_json;
 use crate::dialect::Connection;
-use crate::dialect::sqlite::arrow_type::{db_result_to_arrow, db_to_arrow_type};
-use crate::dialect::sqlite::json_type::db_result_to_json;
+use crate::utils::{build_tree, get_file_name, json_to_arrow, Table, Title, TreeNode};
 use crate::utils::{Metadata, RawArrowData};
-use crate::utils::{Table, Title, TreeNode, build_tree, get_file_name, json_to_arrow};
 
 #[derive(Debug, Default)]
 pub struct SqliteConnection {
@@ -23,7 +23,7 @@ pub struct SqliteConnection {
 }
 
 pub struct SQLiteStatement<'conn> {
-  pub stmt: rusqlite::Statement<'conn>,
+  pub stmt: Statement<'conn>,
 }
 
 #[async_trait]
@@ -79,9 +79,17 @@ impl Connection for SqliteConnection {
     let total = conn.query_row(sql, [], |row| row.get::<_, usize>(0))?;
     Ok(total)
   }
+  fn validator(&self, id: &str) -> bool {
+    if id.is_empty() { return false; }
+    let mut chars = id.chars();
+    let first = chars.next().unwrap();
+    if !(first.is_ascii_alphabetic() || first == '_') { return false; }
+    chars.all(|c| c.is_ascii_alphanumeric() || c == '_')
+  }
 }
 
 impl SqliteConnection {
+
   async fn get_schema(&self) -> Vec<Table> {
     unimplemented!()
   }
@@ -105,7 +113,7 @@ impl SqliteConnection {
 
       for i in 0..k {
         let val = row.get::<_, Value>(i).unwrap_or(Value::Null);
-        let r = convert_arrow(&val, &titles.get(i).unwrap().r#type);
+        let r = type_arrow::convert_arrow(&val, &titles.get(i).unwrap().r#type);
         arrs.push(r);
       }
       let batch = RecordBatch::try_new(schema.clone(), arrs)?;
@@ -247,79 +255,8 @@ impl SqliteConnection {
     }
     Ok(tables)
   }
-}
 
-pub fn convert_arrow(value: &Value, typ: &str) -> ArrayRef {
-  println!("{:?}", value);
-  match value {
-    Value::Integer(i) => {
-      if typ.starts_with("NUMERIC") || typ.is_empty() {
-        Arc::new(StringArray::from(vec![i.to_string()])) as ArrayRef
-      } else {
-        Arc::new(Int64Array::from(vec![(*i)])) as ArrayRef
-      }
-    }
-    Value::Real(f) => {
-      if typ.starts_with("NUMERIC") || typ.is_empty() {
-        Arc::new(StringArray::from(vec![f.to_string()])) as ArrayRef
-      } else {
-        Arc::new(Float64Array::from(vec![(*f)])) as ArrayRef
-      }
-    }
-    Value::Text(s) => Arc::new(StringArray::from(vec![s.clone()])) as ArrayRef,
-    Value::Blob(b) => Arc::new(LargeBinaryArray::from_vec(vec![b])) as ArrayRef,
-    Value::Null => match typ {
-      "TEXT" | "NUMERIC" => Arc::new(StringArray::from(vec![None::<String>])) as ArrayRef,
-      "INTEGER" => Arc::new(Int64Array::from(vec![None::<i64>])) as ArrayRef,
-      "BLOB" => Arc::new(LargeBinaryArray::from_opt_vec(vec![None::<&[u8]>])) as ArrayRef,
-      _ => Arc::new(StringArray::from(vec![None::<String>])) as ArrayRef,
-    },
-  }
-}
 
-#[allow(dead_code)]
-pub fn convert_to_string(value: &Value) -> Option<String> {
-  match value {
-    Value::Integer(i) => Some(i.to_string()),
-    Value::Real(f) => Some(f.to_string()),
-    Value::Text(s) => Some(s.clone()),
-    Value::Blob(b) => String::from_utf8(b.clone()).ok(),
-    Value::Null => None::<String>,
-  }
-}
-
-#[allow(dead_code)]
-pub fn convert_to_i64(value: &Value) -> Option<i64> {
-  match value {
-    Value::Integer(i) => Some(*i),
-    Value::Real(f) => Some(*f as i64),
-    Value::Text(s) => s.parse::<i64>().ok(),
-    _ => None::<i64>,
-  }
-}
-
-pub fn convert_to_f64(value: &Value) -> Option<f64> {
-  match value {
-    Value::Integer(i) => i.to_string().parse::<f64>().ok(),
-    Value::Real(f) => Some(*f),
-    Value::Text(s) => s.parse::<f64>().ok(),
-    _ => None::<f64>,
-  }
-}
-
-#[allow(dead_code)]
-pub fn convert_to_strings(values: &[Value]) -> Vec<Option<String>> {
-  values.iter().map(convert_to_string).collect()
-}
-
-#[allow(dead_code)]
-pub fn convert_to_i64s(values: &[Value]) -> Vec<Option<i64>> {
-  values.iter().map(convert_to_i64).collect()
-}
-
-#[allow(dead_code)]
-pub fn convert_to_f64s(values: &[Value]) -> Vec<Option<f64>> {
-  values.iter().map(convert_to_f64).collect()
 }
 
 #[tokio::test]
