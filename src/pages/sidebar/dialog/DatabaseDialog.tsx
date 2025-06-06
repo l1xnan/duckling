@@ -180,7 +180,7 @@ export function DatabaseForm({
                             }
                           }}
                         >
-                          Open
+                          Select
                         </Button>
                       </div>
                     </FormControl>

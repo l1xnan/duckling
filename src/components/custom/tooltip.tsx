@@ -1,6 +1,6 @@
+import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import { TooltipProviderProps } from '@radix-ui/react-tooltip';
 import { PropsWithChildren, ReactNode } from 'react';
-import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
 import {
   Tooltip as ITooltip,
@@ -21,7 +21,7 @@ export function Tooltip({
           <TooltipContent
             side="bottom"
             align="start"
-            className="bg-popover text-popover-foreground border"
+            // className="bg-popover text-popover-foreground border"
           >
             {title}
           </TooltipContent>
