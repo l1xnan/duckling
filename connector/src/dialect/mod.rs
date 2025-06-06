@@ -1,5 +1,5 @@
 use crate::dialect::ast::first_stmt;
-use crate::utils::{quote, TreeNode};
+use crate::utils::TreeNode;
 use crate::utils::{Metadata, RawArrowData};
 use async_trait::async_trait;
 use itertools::Itertools;
