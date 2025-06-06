@@ -13,8 +13,8 @@ importers:
   .:
     dependencies:
       '@apache-arrow/ts':
-        specifier: ^19.0.1
-        version: 19.0.1
+        specifier: ^20.0.0
+        version: 20.0.0
       '@headless-tree/core':
         specifier: ^1.0.1
         version: 1.0.1
@@ -26,7 +26,7 @@ importers:
         version: 5.0.1(react-hook-form@7.57.0(react@19.1.0))
       '@l1xnan/tree-sitter-sql':
         specifier: ^0.4.5
-        version: 0.4.4(tree-sitter@0.25.0)
+        version: 0.4.5(tree-sitter@0.25.0)
       '@monaco-editor/react':
         specifier: ^4.7.0
         version: 4.7.0(monaco-editor@0.52.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -130,8 +130,8 @@ importers:
         specifier: ^1.18.3
         version: 1.18.4
       apache-arrow:
-        specifier: ^19.0.1
-        version: 19.0.1
+        specifier: ^20.0.0
+        version: 20.0.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -313,9 +313,6 @@ importers:
       tailwindcss:
         specifier: ^4.1.7
         version: 4.1.8
-      tree-sitter:
-        specifier: ^0.25.0
-        version: 0.25.0
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -342,8 +339,8 @@ packages:
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
 
-  '@apache-arrow/ts@19.0.1':
-    resolution: {integrity: sha512-8mOG3rwW5Q3u6dez1xyQhtsw2h/M9fKRznN+ZupYSjiS559MUV6k51fdhL0zjaEB/VPueLu2JEMv/BAg27ttYQ==}
+  '@apache-arrow/ts@20.0.0':
+    resolution: {integrity: sha512-Fa6PKZgqQC4Qg6dnC1q2qtzLn951/CmHRSwXAwOdZumMruOz5PZgvSt/wceocDFmamb6V29za3MsjRncgIILUA==}
     hasBin: true
 
   '@babel/code-frame@7.27.1':
@@ -737,10 +734,10 @@ packages:
   '@juggle/resize-observer@3.4.0':
     resolution: {integrity: sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==}
 
-  '@l1xnan/tree-sitter-sql@0.4.4':
-    resolution: {integrity: sha512-1/5u+YOi+cDlLqP9b3OLPOw3pHmaR3oABgL63Mda9z67ZEibBvRkWvVN7mh6tYT/4wHUVO9ZQQ0UOIOf3tSbhg==}
+  '@l1xnan/tree-sitter-sql@0.4.5':
+    resolution: {integrity: sha512-7K5jIfKIjiI94vPMg3nmpmp0xbLZOUqHzZi0rwchNIFXbmI1qm0dNcFRKCJPMis1A7p0TnKd0IzXh0x/FxFM2w==}
     peerDependencies:
-      tree-sitter: ^0.22.4
+      tree-sitter: ^0.25.0
       tree_sitter: '*'
     peerDependenciesMeta:
       tree_sitter:
@@ -1963,8 +1960,8 @@ packages:
   '@types/node@14.18.63':
     resolution: {integrity: sha512-fAtCfv4jJg+ExtXhvCkCqUKZ+4ok/JQk01qDKhL5BDDoS3AxKXhV5/MAVUZyQnSEd2GT92fkgZl0pz0Q0AzcIQ==}
 
-  '@types/node@20.17.57':
-    resolution: {integrity: sha512-f3T4y6VU4fVQDKVqJV4Uppy8c1p/sVvS3peyqxyWnzkqXFJLRU7Y1Bl7rMS1Qe9z0v4M6McY0Fp9yBsgHJUsWQ==}
+  '@types/node@20.17.58':
+    resolution: {integrity: sha512-UvxetCgGwZ9HmsgGZ2tpStt6CiFU1bu28ftHWpDyfthsCt7OHXas0C7j0VgO3gBq8UHKI785wXmtcQVhLekcRg==}
 
   '@types/node@22.15.29':
     resolution: {integrity: sha512-LNdjOkUDlU1RZb8e1kOIUpN1qQUlzGkEtbVNo53vbrwDg5om6oduhm4SiUaPW5ASTXhAiP0jInWG8Qx9fVlOeQ==}
@@ -2270,8 +2267,8 @@ packages:
     resolution: {integrity: sha512-KMReFUr0B4t+D+OBkjR3KYqvocp2XaSzO55UcB6mgQMd3KbcE+mWTyvVV7D/zsdEbNnV6acZUutkiHQXvTr1Rw==}
     engines: {node: '>= 8'}
 
-  apache-arrow@19.0.1:
-    resolution: {integrity: sha512-APmMLzS4qbTivLrPdQXexGM4JRr+0g62QDaobzEvip/FdQIrv2qLy0mD5Qdmw4buydtVJgbFeKR8f59I6PPGDg==}
+  apache-arrow@20.0.0:
+    resolution: {integrity: sha512-JUeK0jFRUd7rbmrhhzR3O2KXjLaZ4YYYFOptyUfxOsMIoZCPi6bZR58gVi/xi3HTBMPseXm9PXyQ2V916930pA==}
     hasBin: true
 
   archiver-utils@2.1.0:
@@ -2919,8 +2916,8 @@ packages:
     resolution: {integrity: sha512-f7ccFPK3SXFHpx15UIGyRJ/FJQctuKZ0zVuN3frBo4HnK3cay9VEW0R6yPYFHC0AgqhukPzKjq22t5DmAyqGyw==}
     engines: {node: '>=16'}
 
-  flatbuffers@24.12.23:
-    resolution: {integrity: sha512-dLVCAISd5mhls514keQzmEG6QHmUUsNuWsb4tFafIUwvvgDjXhtfAYSKOzt5SWOy+qByV5pbsDZ+Vb7HUOBEdA==}
+  flatbuffers@25.2.10:
+    resolution: {integrity: sha512-7JlN9ZvLDG1McO3kbX0k4v+SUAg48L1rIwEvN6ZQl/eCtgJz9UylTMzE9wrmYrcorgxm3CX/3T/w5VAub99UUw==}
 
   flatted@3.3.3:
     resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
@@ -4564,15 +4561,15 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
 
-  '@apache-arrow/ts@19.0.1':
+  '@apache-arrow/ts@20.0.0':
     dependencies:
       '@swc/helpers': 0.5.17
       '@types/command-line-args': 5.2.3
       '@types/command-line-usage': 5.0.4
-      '@types/node': 20.17.57
+      '@types/node': 20.17.58
       command-line-args: 6.0.1
       command-line-usage: 7.0.3
-      flatbuffers: 24.12.23
+      flatbuffers: 25.2.10
       json-bignum: 0.0.3
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -4937,7 +4934,7 @@ snapshots:
 
   '@juggle/resize-observer@3.4.0': {}
 
-  '@l1xnan/tree-sitter-sql@0.4.4(tree-sitter@0.25.0)':
+  '@l1xnan/tree-sitter-sql@0.4.5(tree-sitter@0.25.0)':
     dependencies:
       node-addon-api: 8.3.1
       node-gyp-build: 4.8.4
@@ -6092,7 +6089,7 @@ snapshots:
 
   '@types/node@14.18.63': {}
 
-  '@types/node@20.17.57':
+  '@types/node@20.17.58':
     dependencies:
       undici-types: 6.19.8
 
@@ -6482,15 +6479,15 @@ snapshots:
       normalize-path: 3.0.0
       picomatch: 2.3.1
 
-  apache-arrow@19.0.1:
+  apache-arrow@20.0.0:
     dependencies:
       '@swc/helpers': 0.5.17
       '@types/command-line-args': 5.2.3
       '@types/command-line-usage': 5.0.4
-      '@types/node': 20.17.57
+      '@types/node': 20.17.58
       command-line-args: 6.0.1
       command-line-usage: 7.0.3
-      flatbuffers: 24.12.23
+      flatbuffers: 25.2.10
       json-bignum: 0.0.3
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -7178,7 +7175,7 @@ snapshots:
       flatted: 3.3.3
       keyv: 4.5.4
 
-  flatbuffers@24.12.23: {}
+  flatbuffers@25.2.10: {}
 
   flatted@3.3.3: {}
 

@@ -13,7 +13,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@apache-arrow/ts": "^19.0.1",
+    "@apache-arrow/ts": "^20.0.0",
     "@headless-tree/core": "^1.0.1",
     "@headless-tree/react": "^1.0.1",
     "@hookform/resolvers": "^5.0.1",
@@ -52,7 +52,7 @@
     "@visactor/react-vtable": "^1.18.3",
     "@visactor/vtable": "^1.18.4",
     "@visactor/vtable-export": "^1.18.3",
-    "apache-arrow": "^19.0.1",
+    "apache-arrow": "^20.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
@@ -115,7 +115,6 @@
     "shiki": "^3.5.0",
     "tailwind-scrollbar": "^4.0.2",
     "tailwindcss": "^4.1.7",
-    "tree-sitter": "^0.25.0",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.33.1",
     "vite": "^6.3.5",
@@ -129,8 +128,7 @@
     "onlyBuiltDependencies": [
       "@swc/core",
       "core-js",
-      "esbuild",
-      "tree-sitter"
+      "esbuild"
     ],
     "ignoredBuiltDependencies": [
       "@l1xnan/tree-sitter-sql"

@@ -19,6 +19,7 @@ export default tseslint.config(
     rules: {
       'no-unused-vars': 'off',
       'import/no-named-as-default-member': 'off',
+      'import-x/no-named-as-default-member': 'off',
       'import/default': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',

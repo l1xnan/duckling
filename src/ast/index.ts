@@ -27,10 +27,10 @@ export class Parser extends _Parser {
     });
   }
 
-  static async load() {
+  static async load(lang?: string) {
     await Parser.init();
     const parser = new Parser();
-    Sql = await Language.load(SQLLanguageWASM);
+    Sql = await Language.load(lang ?? SQLLanguageWASM);
     parser.setLanguage(Sql);
     return parser;
   }
