@@ -181,9 +181,14 @@ pub async fn table_row_count(
 }
 
 #[tauri::command]
-pub async fn export(sql: String, file: String, dialect: DialectPayload) -> Result<(), String> {
+pub async fn export(
+  sql: String,
+  file: String,
+  format: &str,
+  dialect: DialectPayload,
+) -> Result<(), String> {
   if let Some(d) = get_dialect(dialect).await {
-    let _ = d.export(&sql, &file).await;
+    let _ = d.export(&sql, &file, format).await;
     Ok(())
   } else {
     Err("not support dialect".to_string())

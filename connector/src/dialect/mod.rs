@@ -1,9 +1,8 @@
 use crate::dialect::ast::first_stmt;
-use crate::utils::TreeNode;
+use crate::utils::{batch_write, TreeNode};
 use crate::utils::{Metadata, RawArrowData};
 use async_trait::async_trait;
 use itertools::Itertools;
-use std::collections::HashMap;
 
 pub mod ast;
 pub mod clickhouse;
@@ -144,8 +143,10 @@ pub trait Connection: Sync + Send {
     sql
   }
 
-  async fn export(&self, _sql: &str, _file: &str) -> anyhow::Result<()> {
-    unimplemented!()
+  async fn export(&self, sql: &str, file: &str, format: &str) -> anyhow::Result<()> {
+    let batch = self.query(sql, 0, 0).await?.batch;
+    batch_write(&file, &batch, format)?;
+    Ok(())
   }
 
   async fn find(&self, value: &str, path: &str) -> anyhow::Result<RawArrowData> {
@@ -155,6 +156,7 @@ pub trait Connection: Sync + Send {
     unimplemented!()
   }
 
+  /// check if the identifier is valid
   fn validator(&self, _id: &str) -> bool {
     true
   }

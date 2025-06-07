@@ -1,14 +1,15 @@
-use std::collections::BTreeMap;
-use std::fs::File;
-use std::path::Path;
-
 use arrow::csv::WriterBuilder;
 use arrow::datatypes::SchemaRef;
 use arrow::ipc::writer::StreamWriter;
 use arrow::json::ReaderBuilder;
 use arrow::record_batch::RecordBatch;
 use chrono::NaiveDate;
+use parquet::basic::{Compression, ZstdLevel};
+use parquet::{arrow::ArrowWriter, file::properties::WriterProperties};
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
+use std::fs::File;
+use std::path::Path;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TreeNode {
@@ -159,6 +160,28 @@ pub fn write_csv(file: &str, batch: &RecordBatch) -> anyhow::Result<()> {
   let builder = WriterBuilder::new().with_header(true);
   let mut writer = builder.build(file);
   writer.write(batch)?;
+  Ok(())
+}
+pub fn write_parquet(file: &str, batch: &RecordBatch) -> anyhow::Result<()> {
+  let file = File::create(file)?;
+  // WriterProperties can be used to set Parquet file options
+  let props = WriterProperties::builder()
+    .set_compression(Compression::ZSTD(ZstdLevel::try_new(22)?))
+    .build();
+  let mut writer = ArrowWriter::try_new(file, batch.schema(), Some(props))?;
+  writer.write(&batch).expect("Writing batch");
+  // writer must be closed to write footer
+  writer.close()?;
+
+  Ok(())
+}
+
+pub fn batch_write(file: &str, batch: &RecordBatch, format: &str) -> anyhow::Result<()> {
+  if (format == "csv") {
+    write_csv(file, batch)?;
+  } else if format == "parquet" {
+    write_parquet(file, batch)?;
+  }
   Ok(())
 }
 

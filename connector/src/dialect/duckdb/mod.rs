@@ -1,9 +1,7 @@
-use crate::utils::{Metadata, RawArrowData};
-use crate::dialect::Connection;
 use crate::dialect::duckdb::duckdb_sync::DuckDbSyncConnection;
-use crate::utils::{TreeNode, write_csv};
+use crate::dialect::Connection;
+use crate::utils::{Metadata, RawArrowData, TreeNode};
 use async_trait::async_trait;
-use std::collections::HashMap;
 
 pub mod duckdb_sync;
 
@@ -100,17 +98,20 @@ impl Connection for DuckDbConnection {
     }
   }
 
-  async fn export(&self, sql: &str, file: &str) -> anyhow::Result<()> {
-    let batch = self.connect()?.query_arrow(sql)?;
-    write_csv(file, &batch)?;
+  async fn export(&self, sql: &str, file: &str, format: &str) -> anyhow::Result<()> {
+    self.connect()?.export(sql, file, format)?;
     Ok(())
   }
 
   fn validator(&self, id: &str) -> bool {
-    if id.is_empty() { return false; }
+    if id.is_empty() {
+      return false;
+    }
     let mut chars = id.chars();
     let first = chars.next().unwrap();
-    if !(first.is_ascii_alphabetic() || first == '_') { return false; }
+    if !(first.is_ascii_alphabetic() || first == '_') {
+      return false;
+    }
     chars.all(|c| c.is_ascii_alphanumeric() || c == '_')
   }
 }

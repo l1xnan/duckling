@@ -7,8 +7,7 @@ use std::sync::Arc;
 use arrow::datatypes::{ArrowNativeType, Field, Schema};
 
 use crate::dialect::Connection;
-use crate::utils::RawArrowData;
-use crate::utils::{Table, build_tree, json_to_arrow};
+use crate::utils::{build_tree, json_to_arrow, RawArrowData, Table};
 use crate::utils::{Title, TreeNode};
 use async_trait::async_trait;
 use futures_util::FutureExt;

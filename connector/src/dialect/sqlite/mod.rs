@@ -51,6 +51,13 @@ impl Connection for SqliteConnection {
     self._query(sql, limit, offset)
   }
 
+  #[allow(clippy::unused_async)]
+  async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
+    let conn = self.connect()?;
+    let total = conn.query_row(sql, [], |row| row.get::<_, usize>(0))?;
+    Ok(total)
+  }
+
   async fn show_schema(&self, _schema: &str) -> anyhow::Result<RawArrowData> {
     let sql = "
       SELECT * FROM sqlite_master
@@ -72,24 +79,20 @@ impl Connection for SqliteConnection {
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     self._table_row_count(table, r#where).await
   }
-
-  #[allow(clippy::unused_async)]
-  async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
-    let conn = self.connect()?;
-    let total = conn.query_row(sql, [], |row| row.get::<_, usize>(0))?;
-    Ok(total)
-  }
   fn validator(&self, id: &str) -> bool {
-    if id.is_empty() { return false; }
+    if id.is_empty() {
+      return false;
+    }
     let mut chars = id.chars();
     let first = chars.next().unwrap();
-    if !(first.is_ascii_alphabetic() || first == '_') { return false; }
+    if !(first.is_ascii_alphabetic() || first == '_') {
+      return false;
+    }
     chars.all(|c| c.is_ascii_alphanumeric() || c == '_')
   }
 }
 
 impl SqliteConnection {
-
   async fn get_schema(&self) -> Vec<Table> {
     unimplemented!()
   }
@@ -255,8 +258,6 @@ impl SqliteConnection {
     }
     Ok(tables)
   }
-
-
 }
 
 #[tokio::test]

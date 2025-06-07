@@ -8,8 +8,7 @@ use glob::glob;
 
 use crate::dialect::duckdb::duckdb_sync;
 use crate::dialect::Connection;
-use crate::utils::{Metadata, RawArrowData};
-use crate::utils::{write_csv, TreeNode};
+use crate::utils::{Metadata, RawArrowData, TreeNode};
 
 #[derive(Debug, Default)]
 pub struct FolderConnection {
@@ -88,10 +87,11 @@ impl Connection for FolderConnection {
     name.to_string()
   }
 
-  async fn export(&self, sql: &str, file: &str) -> anyhow::Result<()> {
+  async fn export(&self, sql: &str, file: &str, format: &str) -> anyhow::Result<()> {
     let conn = self.connect()?;
-    let batch = duckdb_sync::query(&conn, sql)?.batch;
-    write_csv(file, &batch)?;
+
+    let _ = duckdb_sync::export(&conn, sql, file, format)?;
+
     Ok(())
   }
 
@@ -169,33 +169,37 @@ impl FolderConnection {
     Ok(conn)
   }
 
-
   fn _all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
-    let extensions = ["csv", "parquet", "xlsx"]; 
+    let extensions = ["csv", "parquet", "xlsx"];
     // 遍历目录并过滤文件
     let files: Vec<_> = WalkDir::new(self.path.clone())
-        .into_iter()
-        .filter_map(|e| e.ok()) // 过滤无效路径[7](@ref)
-        .filter(|entry| {
-            let path = entry.path();
-            // 排除目录，仅保留文件
-            path.is_file() && 
-            // 提取扩展名并匹配目标类型
-            path.extension()
-                .and_then(|ext| ext.to_str())
-                .map(|ext| extensions.contains(&ext.to_lowercase().as_str()))
-                .unwrap_or(false)
-        })
-        .collect();
-    
+      .into_iter()
+      .filter_map(|e| e.ok()) // 过滤无效路径[7](@ref)
+      .filter(|entry| {
+        let path = entry.path();
+        // 排除目录，仅保留文件
+        path.is_file()
+          && path // 提取扩展名并匹配目标类型
+            .extension()
+            .and_then(|ext| ext.to_str())
+            .map(|ext| extensions.contains(&ext.to_lowercase().as_str()))
+            .unwrap_or(false)
+      })
+      .collect();
+
     let mut data = vec![];
     for file in files {
-      let path = file.path().strip_prefix(&self.path)?.display().to_string().replace('\\', "/");
-        data.push(Metadata{
-          database: String::new(),
-          table: format!("./{}", path),
-          columns: vec![],
-        });
+      let path = file
+        .path()
+        .strip_prefix(&self.path)?
+        .display()
+        .to_string()
+        .replace('\\', "/");
+      data.push(Metadata {
+        database: String::new(),
+        table: format!("./{}", path),
+        columns: vec![],
+      });
     }
     Ok(data)
   }

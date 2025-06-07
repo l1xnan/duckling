@@ -3,8 +3,7 @@ mod type_json;
 
 use crate::dialect::Connection;
 use crate::types::JSONValue;
-use crate::utils::{Metadata, RawArrowData};
-use crate::utils::{Table, build_tree};
+use crate::utils::{build_tree, Metadata, RawArrowData, Table};
 use crate::utils::{Title, TreeNode};
 use anyhow::anyhow;
 use arrow::array::*;
@@ -90,11 +89,17 @@ impl Connection for MySqlConnection {
   }
   fn validator(&self, id: &str) -> bool {
     // MySQL 规则: 字母, 数字, _, $; 不以数字开头
-    if id.is_empty() { return false; }
+    if id.is_empty() {
+      return false;
+    }
     let mut chars = id.chars();
     let first = chars.next().unwrap(); // is_empty check ensures this is safe
-    if first.is_ascii_digit() { return false; }
-    if !(first.is_ascii_alphabetic() || first == '_' || first == '$') { return false; }
+    if first.is_ascii_digit() {
+      return false;
+    }
+    if !(first.is_ascii_alphabetic() || first == '_' || first == '$') {
+      return false;
+    }
     chars.all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '$')
   }
 }
@@ -281,8 +286,6 @@ impl MySqlConnection {
       .query_first::<usize, _>(&sql)?
       .ok_or_else(|| anyhow!("No value found"))
   }
-
-
 }
 
 #[tokio::test]

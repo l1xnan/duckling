@@ -1,10 +1,9 @@
-use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
 use std::sync::Arc;
 
 use crate::dialect::Connection;
-use crate::utils::{Metadata, RawArrowData, Table, TreeNode, build_tree, json_to_arrow};
+use crate::utils::{build_tree, json_to_arrow, Metadata, RawArrowData, Table, TreeNode};
 use arrow::datatypes::*;
 use async_trait::async_trait;
 use clickhouse::{Client, Row};
