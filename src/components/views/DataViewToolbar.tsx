@@ -1,4 +1,3 @@
-import { exportData } from '@/stores/tabs';
 import { IconDecimal } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
 
@@ -12,6 +11,7 @@ import {
 
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
 
+import { exportCsv } from '@/api';
 import { TransposeIcon } from '@/components/custom/Icons';
 import { TooltipButton } from '@/components/custom/button';
 import { Pagination } from '@/components/custom/pagination';
@@ -20,8 +20,10 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
+import { toast } from 'sonner';
 
 export interface DataViewToolbarProps {
+  dbId: string;
   length: number;
   page: number;
   perPage: number;
@@ -43,6 +45,7 @@ export function elapsedRender(elapsed?: number) {
 }
 
 export function DataViewToolbar({
+  dbId,
   length,
   page,
   perPage,
@@ -64,8 +67,9 @@ export function DataViewToolbar({
       defaultPath: `xxx-${new Date().getTime()}.csv`,
       filters: [{ name: 'CSV', extensions: ['csv'] }],
     });
-    if (file) {
-      exportData({ file });
+    if (file && sql) {
+      await exportCsv({ file, format: 'csv', dbId, sql });
+      toast.success('success!');
     }
   };
 
@@ -130,10 +134,9 @@ export function DataViewToolbar({
           tooltip="Value Viewer"
         />
         <TooltipButton
-          disabled
           icon={<DownloadIcon />}
           tooltip="Export to CSV"
-          onClick={() => {}}
+          onClick={handleExport}
         />
       </Stack>
     </ToolbarContainer>

@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid';
 
 import { ArrowResponse, SchemaType } from '@/stores/dataset';
 import { DBType, DialectConfig } from '@/stores/dbList';
-
+import { getDatabase } from '@/stores/tabs';
 import { uniqBy } from 'es-toolkit';
 import { TreeNode } from './types';
 
@@ -103,13 +103,19 @@ export async function queryTable(
 }
 
 export async function exportCsv(
-  params: QueryParams & { file: string },
+  params: QueryParams & {
+    file: string;
+    format: 'csv' | 'parquet';
+    dbId?: string;
+  },
 ): Promise<ResultType> {
+  const db = getDatabase(params.dbId ?? '');
   console.debug('params:', params);
-  const res = await invoke<ArrowResponse>('export', params);
+  const res = await invoke<ArrowResponse>('export', {
+    ...params,
+    dialect: db?.config,
+  });
   console.log(res);
-
-  return convert(res);
 }
 
 export type MetadataType = {

@@ -66,7 +66,7 @@ export function TableView({ context }: { context: TabContextType }) {
         }
       })();
     }
-  }, []);
+  }, [context.id, currentTab, refresh]);
   const precision = useAtomValue(precisionAtom);
 
   const [selectedCell, setSelectCell] = useState<SelectedCellType | null>();
@@ -90,6 +90,7 @@ export function TableView({ context }: { context: TabContextType }) {
   return (
     <div className="h-full flex flex-col">
       <DataViewToolbar
+        dbId={context.dbId}
         length={data.length}
         page={page}
         perPage={perPage}
