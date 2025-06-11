@@ -7,15 +7,15 @@ use std::sync::Arc;
 use arrow::array::*;
 use arrow::datatypes::{Field, Schema};
 use async_trait::async_trait;
+use rusqlite::Statement;
 use rusqlite::fallible_iterator::FallibleIterator;
 use rusqlite::types::Value;
-use rusqlite::Statement;
 
+use crate::dialect::Connection;
 use crate::dialect::sqlite::type_arrow::{db_result_to_arrow, db_to_arrow_type};
 use crate::dialect::sqlite::type_json::db_result_to_json;
-use crate::dialect::Connection;
-use crate::utils::{build_tree, get_file_name, json_to_arrow, Table, Title, TreeNode};
 use crate::utils::{Metadata, RawArrowData};
+use crate::utils::{Table, Title, TreeNode, build_tree, get_file_name, json_to_arrow};
 
 #[derive(Debug, Default)]
 pub struct SqliteConnection {
@@ -79,6 +79,15 @@ impl Connection for SqliteConnection {
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     self._table_row_count(table, r#where).await
   }
+
+  fn start_quote(&self) -> &'static str {
+    "\""
+  }
+
+  fn end_quote(&self) -> &'static str {
+    "\""
+  }
+
   fn validator(&self, id: &str) -> bool {
     if id.is_empty() {
       return false;

@@ -3,7 +3,7 @@ mod type_json;
 
 use crate::dialect::Connection;
 use crate::types::JSONValue;
-use crate::utils::{build_tree, Metadata, RawArrowData, Table};
+use crate::utils::{Metadata, RawArrowData, Table, build_tree};
 use crate::utils::{Title, TreeNode};
 use anyhow::anyhow;
 use arrow::array::*;
@@ -87,6 +87,15 @@ impl Connection for MySqlConnection {
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     self._table_row_count(table, r#where)
   }
+
+  fn start_quote(&self) -> &'static str {
+    "`"
+  }
+
+  fn end_quote(&self) -> &'static str {
+    "`"
+  }
+
   fn validator(&self, id: &str) -> bool {
     // MySQL 规则: 字母, 数字, _, $; 不以数字开头
     if id.is_empty() {

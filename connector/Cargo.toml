@@ -34,3 +34,4 @@ glob = "*"
 itertools = "*"
 clickhouse = { version = "0.13.2", features = ["rustls-tls"] }
 walkdir = "2"
+regex = "*"

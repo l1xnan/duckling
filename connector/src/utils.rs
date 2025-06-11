@@ -177,7 +177,7 @@ pub fn write_parquet(file: &str, batch: &RecordBatch) -> anyhow::Result<()> {
 }
 
 pub fn batch_write(file: &str, batch: &RecordBatch, format: &str) -> anyhow::Result<()> {
-  if (format == "csv") {
+  if format == "csv" {
     write_csv(file, batch)?;
   } else if format == "parquet" {
     write_parquet(file, batch)?;

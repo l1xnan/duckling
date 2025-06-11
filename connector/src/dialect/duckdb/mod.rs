@@ -1,7 +1,8 @@
-use crate::dialect::duckdb::duckdb_sync::DuckDbSyncConnection;
 use crate::dialect::Connection;
+use crate::dialect::duckdb::duckdb_sync::DuckDbSyncConnection;
 use crate::utils::{Metadata, RawArrowData, TreeNode};
 use async_trait::async_trait;
+use regex::Regex;
 
 pub mod duckdb_sync;
 
@@ -102,11 +103,27 @@ impl Connection for DuckDbConnection {
     self.connect()?.export(sql, file, format)?;
     Ok(())
   }
-
+  fn start_quote(&self) -> &'static str {
+    "\""
+  }
+  fn end_quote(&self) -> &'static str {
+    "\""
+  }
   fn validator(&self, id: &str) -> bool {
     if id.is_empty() {
       return false;
     }
+
+    if id.starts_with("'") && id.ends_with("'") {
+      return true;
+    }
+
+    if let Ok(res) = Regex::new(r"^[a-zA-Z_][a-zA-Z0-9_]*\([^)]*\)$") {
+      if res.is_match(id) {
+        return true;
+      }
+    }
+
     let mut chars = id.chars();
     let first = chars.next().unwrap();
     if !(first.is_ascii_alphabetic() || first == '_') {
@@ -128,5 +145,14 @@ impl DuckDbConnection {
 #[tokio::test]
 async fn test_duckdb() {
   use arrow::util::pretty::print_batches;
-  let _ = print_batches(&[]);
+  let conn = DuckDbSyncConnection::new(
+    Some("D:/data_obs/product_nice_l1/deepseek.db".to_string()),
+    None,
+  )
+  .unwrap();
+  // let res = conn.query("select * from read_csv('D:/data_obs/sys_env.csv', auto_detect=true, union_by_name=true) limit 500");
+  let res = conn.query("SELECT extension_name, installed, description FROM duckdb_extensions()");
+  println!("{:?}", res);
+  let (_, batch) = res.unwrap();
+  let _ = print_batches(&[batch]);
 }

@@ -7,7 +7,7 @@ use std::sync::Arc;
 use arrow::datatypes::{ArrowNativeType, Field, Schema};
 
 use crate::dialect::Connection;
-use crate::utils::{build_tree, json_to_arrow, RawArrowData, Table};
+use crate::utils::{RawArrowData, Table, build_tree, json_to_arrow};
 use crate::utils::{Title, TreeNode};
 use async_trait::async_trait;
 use futures_util::FutureExt;
@@ -74,6 +74,14 @@ impl Connection for PostgresConnection {
 
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     self._table_row_count(table, r#where).await
+  }
+
+  fn start_quote(&self) -> &'static str {
+    "\""
+  }
+
+  fn end_quote(&self) -> &'static str {
+    "\""
   }
 }
 
