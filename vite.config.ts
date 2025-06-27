@@ -64,9 +64,6 @@ export default defineConfig({
         // 动态覆盖 WASM 文件规则
         assetFileNames: (assetInfo) => {
           const isWasm = assetInfo.names?.[0]?.endsWith('.wasm');
-          if (isWasm) {
-            console.warn(assetInfo);
-          }
           return isWasm
             ? 'assets/[name].[ext]' // WASM 无哈希
             : 'assets/[name]-[hash].[ext]'; // 其他文件带哈希
@@ -75,11 +72,11 @@ export default defineConfig({
           // 将 web-tree-sitter 单独打包为一个 chunk
           'web-tree-sitter': ['web-tree-sitter'],
         },
-        advancedChunks: {
-          groups: [
-            { name: 'web-tree-sitter', test: /node_modules\/web-tree-sitter/ },
-          ],
-        },
+        // advancedChunks: {
+        //   groups: [
+        //     { name: 'web-tree-sitter', test: /node_modules\/web-tree-sitter/ },
+        //   ],
+        // },
       },
       external: (id) => {
         if (id.startsWith('@shikijs/langs')) {
