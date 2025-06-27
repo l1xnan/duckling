@@ -29,3 +29,7 @@ Duckling 是使用 Tauri 构建的轻量级桌面应用，用于快速浏览 `pa
 ![screenshot-dark](./assets/screenshot-dark.png)
 
 ![screenshot](./assets/screenshot.png)
+
+## Q&A
+
+在 Windows 上，DuckDB 需要 [Microsoft Visual C++ Redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170) 包作为构建时和**运行时**依赖项。如果 duckdb 相关功能异常，可能就是此依赖项的问题，需要自行下载安装修复。详见 [《构建 DuckDB》](https://duckdb.org/docs/stable/dev/building/windows)。
