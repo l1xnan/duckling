@@ -96,13 +96,12 @@ fn parse_order_by_expr(order_by: &str) -> Vec<(String, Option<bool>)> {
 
   let mut exprs = vec![];
   for stmt in &stmts {
-    if let Statement::Query(tmp) = stmt {
-      if let Some(order_by) = &tmp.order_by {
-        if let OrderByKind::Expressions(_exprs) = &order_by.kind {
-          for expr in _exprs {
-            exprs.push((expr.expr.to_string(), expr.options.asc));
-          }
-        }
+    if let Statement::Query(tmp) = stmt
+      && let Some(order_by) = &tmp.order_by
+      && let OrderByKind::Expressions(_exprs) = &order_by.kind
+    {
+      for expr in _exprs {
+        exprs.push((expr.expr.to_string(), expr.options.asc));
       }
     }
   }
@@ -118,7 +117,7 @@ fn convert_dialect(d: &str) -> Box<dyn sqlparser::dialect::Dialect> {
 
 #[cfg(test)]
 mod tests {
-  
+
   use std::ops::Deref;
 
   use super::*;
@@ -126,9 +125,9 @@ mod tests {
   #[test]
   fn test_sql() {
     let select_sql = "
-    SELECT a, b, 123, myfunc(b) 
-    FROM table_1 
-    WHERE a > b AND b < 100 
+    SELECT a, b, 123, myfunc(b)
+    FROM table_1
+    WHERE a > b AND b < 100
     ORDER BY a DESC, b";
 
     let d = "generic";
@@ -144,9 +143,9 @@ mod tests {
 
     let cte_sql = "
     with tmp as (select * from table_1)
-    SELECT a, b, 123, myfunc(b) 
-    FROM tmp 
-    WHERE a > b AND b < 100 
+    SELECT a, b, 123, myfunc(b)
+    FROM tmp
+    WHERE a > b AND b < 100
     ORDER BY a DESC, b";
 
     let ast = Parser::parse_sql(dialect, cte_sql).unwrap();

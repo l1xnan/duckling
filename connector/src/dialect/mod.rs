@@ -1,6 +1,6 @@
 use crate::dialect::ast::first_stmt;
-use crate::utils::{batch_write, TreeNode};
 use crate::utils::{Metadata, RawArrowData};
+use crate::utils::{TreeNode, batch_write};
 use async_trait::async_trait;
 use itertools::Itertools;
 
@@ -49,13 +49,13 @@ pub trait Connection: Sync + Send {
     let mut res = self.query(&sql, 0, 0).await?;
 
     // get total row count
-    if let Some(ref _stmt) = stmt {
-      if let Some(count_sql) = ast::count_stmt(dialect, _stmt) {
-        log::info!("count_sql: {count_sql}");
-        if let Ok(count) = self.query_count(&count_sql).await {
-          res.total = count;
-        };
-      }
+    if let Some(ref _stmt) = stmt
+      && let Some(count_sql) = ast::count_stmt(dialect, _stmt)
+    {
+      log::info!("count_sql: {count_sql}");
+      if let Ok(count) = self.query_count(&count_sql).await {
+        res.total = count;
+      };
     }
     Ok(res)
   }

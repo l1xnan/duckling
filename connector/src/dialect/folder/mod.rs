@@ -6,8 +6,8 @@ use arrow::array::{Array, StringArray};
 use async_trait::async_trait;
 use glob::glob;
 
-use crate::dialect::duckdb::duckdb_sync;
 use crate::dialect::Connection;
+use crate::dialect::duckdb::duckdb_sync;
 use crate::utils::{Metadata, RawArrowData, TreeNode};
 
 #[derive(Debug, Default)]
@@ -136,16 +136,15 @@ impl Connection for FolderConnection {
     let res = self.query(&describe, 0, 0).await;
 
     let mut likes = vec![];
-    if let Ok(r) = res {
-      if let Some(col) = r.batch.column_by_name("column_name") {
-        if let Some(arr) = col.as_any().downcast_ref::<StringArray>() {
-          for c in arr.into_iter().flatten() {
-            let like = format!(
-              "select filename, '{c}' as col from ({sql}) where CAST(\"{c}\" AS VARCHAR) like '%{value}%'"
-            );
-            likes.push(like);
-          }
-        }
+    if let Ok(r) = res
+      && let Some(col) = r.batch.column_by_name("column_name")
+      && let Some(arr) = col.as_any().downcast_ref::<StringArray>()
+    {
+      for c in arr.into_iter().flatten() {
+        let like = format!(
+          "select filename, '{c}' as col from ({sql}) where CAST(\"{c}\" AS VARCHAR) like '%{value}%'"
+        );
+        likes.push(like);
       }
     }
     let detail = likes.join("\n union all \n");
@@ -275,10 +274,10 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
 }
 
 fn exist_glob(pattern: &str) -> bool {
-  if let Ok(ref mut items) = glob(pattern) {
-    if let Some(Ok(_)) = items.next() {
-      return true;
-    }
+  if let Ok(ref mut items) = glob(pattern)
+    && let Some(Ok(_)) = items.next()
+  {
+    return true;
   }
   false
 }
