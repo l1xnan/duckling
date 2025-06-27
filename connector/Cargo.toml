@@ -10,14 +10,22 @@ parquet = "55"
 arrow = { version = "^55", features = ["prettyprint", "csv"] }
 duckdb = { version = "1.3.1", git = "https://github.com/l1xnan/duckdb-rs.git", features = [
     "extensions-full",
-    "bundled"
+    "bundled",
 ] }
 futures-util = "0.3"
 rust_decimal = { version = "1", features = ["db-tokio-postgres"] }
 clickhouse-rs = { git = "https://github.com/l1xnan/clickhouse-rs.git", branch = "async-await" }
-rusqlite = { version = "^0.35.0", features = ["bundled", "column_decltype", "modern_sqlite"] }
+rusqlite = { version = "^0.36.0", features = [
+    "bundled",
+    "column_decltype",
+    "modern_sqlite",
+] }
 mysql = { version = "26.0.0" }
-tokio-postgres = { version = "0.7.10", features = ["with-serde_json-1", "array-impls", "with-chrono-0_4"] }
+tokio-postgres = { version = "0.7.10", features = [
+    "with-serde_json-1",
+    "array-impls",
+    "with-chrono-0_4",
+] }
 anyhow = "1"
 url = "^2.5.0"
 nanoid = "0.4.0"
@@ -27,7 +35,7 @@ async-trait = "^0.1"
 time = "0.3.34"
 uuid = { version = "1.7.0", features = ["v4"] }
 tokio = { version = "1.36.0", features = ["macros", "test-util"] }
-sqlparser = { version = "0.55", features = ["json_example"] }
+sqlparser = { version = "0.57", features = ["json_example"] }
 sqlformat = "0.3"
 log = "^0.4"
 glob = "*"

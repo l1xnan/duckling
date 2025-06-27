@@ -12,8 +12,8 @@ use tauri::{AppHandle, Manager};
 use tauri_plugin_dialog::{DialogExt, FilePath};
 use tauri_plugin_log::{Target, TargetKind};
 
-mod cmd;
 mod api;
+mod cmd;
 
 fn handle_menu(app: &mut tauri::App) -> tauri::Result<()> {
   let handle = app.handle();
@@ -70,11 +70,11 @@ fn handle_open_files(app: &mut tauri::App) {
     }
 
     // handle `file://` path urls and skip other urls
-    if let Ok(url) = url::Url::parse(&maybe_file) {
-      if let Ok(path) = url.to_file_path() {
-        files.push(path);
-        continue;
-      }
+    if let Ok(url) = url::Url::parse(&maybe_file)
+      && let Ok(path) = url.to_file_path()
+    {
+      files.push(path);
+      continue;
     }
     files.push(PathBuf::from(maybe_file));
 
@@ -121,10 +121,10 @@ fn main() {
     )
     .setup(|app| {
       let _ = handle_menu(app);
-      
+
       #[cfg(any(windows, target_os = "linux"))]
       handle_open_files(app);
-      
+
       let _ = handle_updater(app);
 
       Ok(())
