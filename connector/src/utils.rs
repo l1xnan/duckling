@@ -1,11 +1,17 @@
+use anyhow::{Result, anyhow};
+use arrow::array::*;
 use arrow::csv::WriterBuilder;
 use arrow::datatypes::SchemaRef;
+use arrow::datatypes::*;
 use arrow::ipc::writer::StreamWriter;
 use arrow::json::ReaderBuilder;
 use arrow::record_batch::RecordBatch;
+use arrow::util::display::FormatOptions;
 use chrono::NaiveDate;
+use chrono::{Datelike, NaiveDateTime, Timelike};
 use parquet::basic::{Compression, ZstdLevel};
 use parquet::{arrow::ArrowWriter, file::properties::WriterProperties};
+use rust_xlsxwriter::{Workbook, XlsxError};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fs::File;
@@ -176,11 +182,62 @@ pub fn write_parquet(file: &str, batch: &RecordBatch) -> anyhow::Result<()> {
   Ok(())
 }
 
+pub fn write_xlsx(file: &str, batch: &RecordBatch) -> Result<()> {
+  // 1. 创建一个新的 Excel 工作簿和工作表
+  let mut workbook = Workbook::new();
+  let worksheet = workbook.add_worksheet();
+  let schema = batch.schema();
+
+  // 2. 逐列处理
+  for (col_idx, (field, column_array)) in schema.fields().iter().zip(batch.columns()).enumerate() {
+    // Excel 列索引是 u16 类型
+    let xlsx_col = col_idx as u16;
+
+    // 写入表头
+    worksheet.write_string(0, xlsx_col, field.name())?;
+
+    // 核心逻辑：将整个 Arrow Array 转换为 Vec<T>，然后使用 write_column 一次性写入。
+    // 我们从第 1 行开始写入数据（第 0 行是表头）。
+    let start_row = 1;
+
+    match column_array.data_type() {
+      DataType::Boolean => {
+        let array = column_array
+          .as_any()
+          .downcast_ref::<BooleanArray>()
+          .unwrap();
+        // .iter() 产生 Iterator<Item = Option<bool>>，正是 write_column 所需的
+        worksheet.write_column(start_row, xlsx_col, array.iter())?;
+      }
+      // --- 回退机制 ---
+      _ => {
+        let options = FormatOptions::default();
+        let formatter =
+          arrow::util::display::ArrayFormatter::try_new(column_array.as_ref(), &options)?;
+        let data: Vec<String> = (0..column_array.len())
+          .map(|i| formatter.value(i).to_string())
+          .collect();
+        worksheet.write_column(start_row, xlsx_col, &data)?;
+      }
+    }
+  }
+
+  // 3. 保存工作簿
+  workbook
+    .save(file)
+    .map_err(|e| anyhow!("Failed to save XLSX file: {}", e))?;
+
+  println!("Successfully wrote data to {}", file);
+  Ok(())
+}
+
 pub fn batch_write(file: &str, batch: &RecordBatch, format: &str) -> anyhow::Result<()> {
   if format == "csv" {
     write_csv(file, batch)?;
   } else if format == "parquet" {
     write_parquet(file, batch)?;
+  } else if format == "xlsx" {
+    write_xlsx(file, batch)?
   }
   Ok(())
 }
