@@ -7,6 +7,7 @@ use sqlformat::{FormatOptions, QueryParams};
 use tauri::State;
 
 use crate::api::ArrowResponse;
+use connector::dialect::Connection;
 use connector::dialect::clickhouse::ClickhouseConnection;
 use connector::dialect::clickhouse_tcp::ClickhouseConnection as ClickhouseTcpConnection;
 use connector::dialect::duckdb::DuckDbConnection;
@@ -15,7 +16,6 @@ use connector::dialect::folder::FolderConnection;
 use connector::dialect::mysql::MySqlConnection;
 use connector::dialect::postgres::PostgresConnection;
 use connector::dialect::sqlite::SqliteConnection;
-use connector::dialect::Connection;
 use connector::utils::{Metadata, TreeNode};
 
 pub struct OpenedFiles(pub Mutex<Option<Vec<String>>>);
@@ -184,11 +184,16 @@ pub async fn table_row_count(
 pub async fn export(
   sql: String,
   file: String,
-  format: &str,
+  format: Option<String>,
   dialect: DialectPayload,
 ) -> Result<(), String> {
   if let Some(d) = get_dialect(dialect).await {
-    let _ = d.export(&sql, &file, format).await;
+    let format = if let Some(format) = format {
+      format
+    } else {
+      file.split('.').next_back().unwrap_or("csv").to_string()
+    };
+    let _ = d.export(&sql, &file, &format).await;
     Ok(())
   } else {
     Err("not support dialect".to_string())

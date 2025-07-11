@@ -65,10 +65,13 @@ export function DataViewToolbar({
     const file = await dialog.save({
       title: 'Export',
       defaultPath: `xxx-${new Date().getTime()}.csv`,
-      filters: [{ name: 'CSV', extensions: ['csv'] }],
+      filters: [{ name: 'CSV', extensions: ['csv'] }, { name: 'Parquet', extensions: ['parquet'] }, {
+        name: 'XLSX',
+        extensions: ['xlsx'],
+      }],
     });
     if (file && sql) {
-      await exportCsv({ file, format: 'csv', dbId, sql });
+      await exportCsv({ file, dbId, sql });
       toast.success('success!');
     }
   };

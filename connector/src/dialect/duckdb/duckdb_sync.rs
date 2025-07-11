@@ -1,5 +1,5 @@
-use crate::utils::{build_tree, get_file_name, Table, Title, TreeNode};
 use crate::utils::{Metadata, RawArrowData};
+use crate::utils::{Table, Title, TreeNode, build_tree, get_file_name};
 use arrow::array::RecordBatch;
 use std::collections::HashMap;
 
@@ -195,7 +195,11 @@ pub fn export(
   file: &str,
   format: &str,
 ) -> anyhow::Result<()> {
-  let sql = format!("COPY ({sql}) TO '{file}' (FORMAT {format})");
+  let sql = if format == "xlsx" {
+    format!("INSTALL excel; LOAD excel; COPY ({sql}) TO '{file}' (FORMAT xlsx, HEADER true)")
+  } else {
+    format!("COPY ({sql}) TO '{file}' (FORMAT {format})")
+  };
   let _ = conn.execute(&sql, [])?;
   Ok(())
 }

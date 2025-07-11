@@ -105,7 +105,7 @@ export async function queryTable(
 export async function exportCsv(
   params: QueryParams & {
     file: string;
-    format: 'csv' | 'parquet';
+    format?: 'csv' | 'parquet' | 'xlsx';
     dbId?: string;
   },
 ): Promise<ResultType> {
