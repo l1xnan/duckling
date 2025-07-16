@@ -20,9 +20,11 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
+import { TabContextType } from '@/stores/tabs';
 import { toast } from 'sonner';
 
 export interface DataViewToolbarProps {
+  context?: TabContextType,
   dbId: string;
   length: number;
   page: number;
@@ -45,6 +47,7 @@ export function elapsedRender(elapsed?: number) {
 }
 
 export function DataViewToolbar({
+  context,
   dbId,
   length,
   page,
@@ -62,9 +65,11 @@ export function DataViewToolbar({
   setCross,
 }: DataViewToolbarProps) {
   const handleExport = async () => {
+    console.log("context:", context)
+    const filename = context?.displayName ?? `xxx-${new Date().getTime()}.csv`
     const file = await dialog.save({
       title: 'Export',
-      defaultPath: `xxx-${new Date().getTime()}.csv`,
+      defaultPath: filename,
       filters: [{ name: 'CSV', extensions: ['csv'] }, { name: 'Parquet', extensions: ['parquet'] }, {
         name: 'XLSX',
         extensions: ['xlsx'],

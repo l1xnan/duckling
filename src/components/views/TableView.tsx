@@ -90,6 +90,7 @@ export function TableView({ context }: { context: TabContextType }) {
   return (
     <div className="h-full flex flex-col">
       <DataViewToolbar
+        context={context as TableContextType}
         dbId={context.dbId}
         length={data.length}
         page={page}

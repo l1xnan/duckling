@@ -103,6 +103,7 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
   return (
     <div className="h-full flex flex-col">
       <DataViewToolbar
+        dbId={ctx.dbId}
         length={ctx.data?.length ?? 0}
         page={ctx.page}
         perPage={ctx.perPage}
