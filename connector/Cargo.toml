@@ -15,7 +15,7 @@ duckdb = { version = "1.3.2", git = "https://github.com/l1xnan/duckdb-rs.git", f
 futures-util = "0.3"
 rust_decimal = { version = "1", features = ["db-tokio-postgres"] }
 clickhouse-rs = { git = "https://github.com/l1xnan/clickhouse-rs.git", branch = "async-await" }
-rusqlite = { version = "^0.36.0", features = [
+rusqlite = { version = "^0.37.0", features = [
     "bundled",
     "column_decltype",
     "modern_sqlite",
