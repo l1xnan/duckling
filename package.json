@@ -64,7 +64,7 @@
     "jotai": "^2.12.5",
     "jotai-devtools": "^0.12.0",
     "jotai-optics": "^0.4.0",
-    "jotai-scope": "^0.8.3",
+    "jotai-scope": "^0.9.3",
     "jotai-zustand": "^0.6.0",
     "lucide-react": "^0.525.0",
     "monaco-editor": "^0.52.2",
