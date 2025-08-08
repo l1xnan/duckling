@@ -164,4 +164,36 @@ const options: monaco.editor.IStandaloneEditorConstructionOptions = {
   // selectionHighlight: false, // 可选: 禁用选择内容高亮
 };
 
+export function SQLCodeViewer({
+  className,
+  sql,
+}: {
+  sql: string;
+  className?: string;
+}) {
+  const theme = useEditorTheme();
+  return (
+    <Editor
+      theme={theme}
+      language={'sql'}
+      value={sql}
+      className={className ?? 'text-sm'}
+      height="100%"
+      width={'100%'}
+      options={{
+        ...options,
+        wordWrap: 'on', // 换行
+        scrollBeyondLastLine: false,
+        automaticLayout: true,
+        scrollbar: {
+          vertical: 'auto',
+          horizontal: 'auto',
+          verticalScrollbarSize: 6, // 竖条宽度
+          horizontalScrollbarSize: 6, // 横条高度
+        },
+      }}
+    />
+  );
+}
+
 export default SingleLineMonacoEditor;
