@@ -15,7 +15,7 @@ export function Node({
   return (
     <div
       className={cn(
-        'flex items-center justify-between h-6 min-w-0 hover:bg-accent',
+        'group flex items-center justify-between h-6 pr-1 min-w-0 hover:bg-accent',
         activate ? 'bg-accent' : null,
       )}
       onClick={onClick}
@@ -24,7 +24,7 @@ export function Node({
       <Button
         variant="ghost"
         size="icon"
-        className={cn('rounded-lg size-5 visible ml-1', 'hover:bg-selection')}
+        className={cn('hidden group-hover:block rounded-lg size-5 ml-1', 'hover:bg-selection')}
         onPointerDown={(e) => {
           e.stopPropagation();
           onRemove?.(tab.id);

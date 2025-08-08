@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { HistoryContextMenu } from '@/pages/sidebar/context-menu/HistoryContextMenu';
 import { favoriteAtom, runsAtom } from '@/stores/app';
 import { QueryContextType, TabContextType, useTabsStore } from '@/stores/tabs';
@@ -37,18 +38,16 @@ export function Container({
   title,
 }: PropsWithChildren<{ title: string }>) {
   return (
-    <div className="grid h-full w-full">
-      <div className="hidden border-r md:block">
-        <div className="flex h-full flex-col gap-2">
-          <div className="flex h-8 items-center border-b px-2">
-            <a className="flex items-center gap-2 font-semibold">
-              <span className="text-sm">{title}</span>
-            </a>
-          </div>
-          <div className="flex-1">
-            <nav className="grid items-start px-1 text-sm">{children}</nav>
-          </div>
-        </div>
+    <div className="flex flex-col h-full">
+      <div className="flex h-8 items-center border-b px-2">
+        <a className="flex items-center font-semibold">
+          <span className="text-sm">{title}</span>
+        </a>
+      </div>
+      <div className="flex-1 min-h-0">
+        <ScrollArea className="size-full">
+          <div className="p-0 text-sm">{children}</div>
+        </ScrollArea>
       </div>
     </div>
   );
