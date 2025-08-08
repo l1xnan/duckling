@@ -204,6 +204,12 @@ export async function find(
   return convert(res as ArrowResponse);
 }
 
+export async function openPath(path: string): Promise<string> {
+  const res = await invoke<string>('open_path', { path });
+  console.log('open path:', path);
+  return res;
+}
+
 export class Connection {
   db: unknown;
 

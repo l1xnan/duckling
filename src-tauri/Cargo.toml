@@ -36,6 +36,7 @@ sqlparser = { version = "0.57", features = ["json_example"] }
 sqlformat = "0.3.5"
 connector = { path = "../connector" }
 anyhow = "1.0.98"
+open = "5"
 
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
 tauri-plugin-updater = "^2"

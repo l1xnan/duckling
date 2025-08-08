@@ -1,4 +1,4 @@
-import { dropTable } from '@/api';
+import { dropTable, openPath } from '@/api';
 import { ContextMenuItem } from '@/components/custom/context-menu';
 import { useDialog } from '@/components/custom/use-dialog';
 
@@ -49,7 +49,7 @@ export function TableContextMenu({
 
   const handleRefresh = async () => {
     if (db.config) {
-      updateDB(db.id, db.config)
+      updateDB(db.id, db.config);
     }
   };
 
@@ -110,6 +110,11 @@ export function TableContextMenu({
     updateTab!(item);
   };
 
+  const handkeOpenPath = async (e: Event) => {
+    e.stopPropagation();
+    console.log('openPath', node.path);
+    openPath(node.path);
+  };
   const handleShowColumn = async (e: Event) => {
     e.stopPropagation();
     const item: TableContextType = {
@@ -157,6 +162,9 @@ export function TableContextMenu({
               </ContextMenuItem>
               <ContextMenuSeparator />
               <ContextMenuItem onSelect={handleSearch}>Search</ContextMenuItem>
+              <ContextMenuItem onSelect={handkeOpenPath}>
+                Open Path
+              </ContextMenuItem>
             </>
           ) : null}
 

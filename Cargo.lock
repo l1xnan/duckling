@@ -763,6 +763,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "calamine"
+version = "0.30.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a9aeb09f84576a634da713630e11e431a744b91f1f8114c2ff0760189783a8a1"
+dependencies = [
+ "atoi_simd",
+ "byteorder",
+ "codepage",
+ "encoding_rs",
+ "fast-float2",
+ "log",
+ "quick-xml 0.37.5",
+ "serde",
+ "zip",
+]
+
+[[package]]
 name = "camino"
 version = "1.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1061,6 +1078,7 @@ dependencies = [
  "anyhow",
  "arrow",
  "async-trait",
+ "calamine 0.30.0",
  "chrono",
  "chrono-tz",
  "clickhouse",
@@ -1528,7 +1546,7 @@ version = "1.3.2"
 source = "git+https://github.com/l1xnan/duckdb-rs.git#db7da2c0457727ed09374b674c5310e0d31d498d"
 dependencies = [
  "arrow",
- "calamine",
+ "calamine 0.28.0",
  "cast",
  "fallible-iterator 0.3.0",
  "fallible-streaming-iterator",
@@ -1548,6 +1566,7 @@ dependencies = [
  "anyhow",
  "connector",
  "log",
+ "open",
  "serde",
  "serde_json",
  "sqlformat",

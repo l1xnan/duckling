@@ -1,3 +1,5 @@
+use std::path::Path;
+use std::process::Command;
 use std::sync::Mutex;
 use std::time::Instant;
 
@@ -285,4 +287,43 @@ pub async fn all_columns(dialect: DialectPayload) -> Result<Vec<Metadata>, Strin
   let s = d.all_columns().await;
 
   s.map_err(|e| format!("not support dialect {}", e))
+}
+
+#[tauri::command]
+pub async fn open_path(path: &str) -> Result<(), String> {
+  let _path = Path::new(path);
+
+  // 确保路径存在
+  if !_path.exists() {
+    return Err(format!("the path does not exist: {}", path).into());
+  }
+
+  if _path.is_file() && _path.exists() {
+    #[cfg(target_os = "windows")]
+    {
+      let cmd = format!("/select,{}", path.replace("/", "\\"));
+      log::info!("command: {}", cmd);
+      Command::new("explorer")
+        .arg(cmd)
+        .status()
+        .expect("Failed to open file explorer");
+      return Ok(());
+    }
+  }
+
+  // 如果是文件，就取父目录；否则直接使用原路径
+  let to_open = if _path.is_file() {
+    _path
+      .parent()
+      .ok_or_else(|| format!("unable to obtain the parent directory: {}", path))
+      .expect("Failed to get parent directory")
+  } else {
+    _path
+  };
+
+  match open::that(to_open) {
+    Ok(()) => log::info!("Opened '{}' successfully.", path),
+    Err(err) => log::warn!("An error occurred when opening '{}': {}", path, err),
+  }
+  Ok(())
 }

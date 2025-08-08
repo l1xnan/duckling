@@ -143,6 +143,7 @@ fn main() {
       cmd::format_sql,
       cmd::find,
       cmd::all_columns,
+      cmd::open_path,
     ])
     .build(tauri::generate_context!())
     .expect("error while running tauri application")
