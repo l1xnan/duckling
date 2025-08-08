@@ -1,3 +1,4 @@
+use calamine::{Reader, Xlsx, open_workbook};
 use std::fs;
 use std::path::Path;
 use walkdir::{DirEntry, WalkDir};
@@ -280,6 +281,11 @@ fn exist_glob(pattern: &str) -> bool {
     return true;
   }
   false
+}
+
+fn sheet_names<P: AsRef<Path>>(path: P) -> Result<Vec<String>, calamine::Error> {
+  let mut workbook: Xlsx<_> = open_workbook(path)?; // 只读元数据，不解析数据
+  Ok(workbook.sheet_names())
 }
 
 #[tokio::test]

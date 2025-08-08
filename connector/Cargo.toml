@@ -44,3 +44,4 @@ clickhouse = { version = "0.13.2", features = ["rustls-tls"] }
 rust_xlsxwriter = "^0.89.1"
 walkdir = "2"
 regex = "*"
+calamine = "^0.30.0"
