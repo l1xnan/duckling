@@ -199,7 +199,7 @@ pub fn export(
   let sql = if format == "xlsx" {
     format!("INSTALL excel; LOAD excel; COPY ({sql}) TO '{file}' (FORMAT xlsx, HEADER true)")
   } else if format == "parquet" {
-    format!("COPY ({sql}) TO '{file}' (FORMAT {format}), compression ZSTD")
+    format!("COPY ({sql}) TO '{file}' (FORMAT {format}, compression ZSTD)")
   } else {
     format!("COPY ({sql}) TO '{file}' (FORMAT {format})")
   };
