@@ -1,6 +1,10 @@
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { IconDecimal } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
-
 import {
   CodeIcon,
   CrossIcon,
@@ -15,16 +19,12 @@ import { exportCsv } from '@/api';
 import { TransposeIcon } from '@/components/custom/Icons';
 import { TooltipButton } from '@/components/custom/button';
 import { Pagination } from '@/components/custom/pagination';
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from '@/components/ui/hover-card';
+import { SQLCodeViewer } from '@/components/editor/SingleLineEditor';
 import { TabContextType } from '@/stores/tabs';
 import { toast } from 'sonner';
 
 export interface DataViewToolbarProps {
-  context?: TabContextType,
+  context?: TabContextType;
   dbId: string;
   length: number;
   page: number;
@@ -65,15 +65,19 @@ export function DataViewToolbar({
   setCross,
 }: DataViewToolbarProps) {
   const handleExport = async () => {
-    console.log("context:", context)
-    const filename = context?.displayName ?? `xxx-${new Date().getTime()}.csv`
+    console.log('context:', context);
+    const filename = context?.displayName ?? `xxx-${new Date().getTime()}.csv`;
     const file = await dialog.save({
       title: 'Export',
       defaultPath: filename,
-      filters: [{ name: 'CSV', extensions: ['csv'] }, { name: 'Parquet', extensions: ['parquet'] }, {
-        name: 'XLSX',
-        extensions: ['xlsx'],
-      }],
+      filters: [
+        { name: 'CSV', extensions: ['csv'] },
+        { name: 'Parquet', extensions: ['parquet'] },
+        {
+          name: 'XLSX',
+          extensions: ['xlsx'],
+        },
+      ],
     });
     if (file && sql) {
       await exportCsv({ file, dbId, sql });
@@ -125,16 +129,15 @@ export function DataViewToolbar({
           tooltip="Transpose"
           active={transpose}
         />
-        {/* TODO */}
 
-        <HoverCard>
-          <HoverCardTrigger>
+        <Popover>
+          <PopoverTrigger>
             <TooltipButton disabled={!sql} icon={<CodeIcon />} />
-          </HoverCardTrigger>
-          <HoverCardContent className="font-mono select-all text-xs">
-            {sql}
-          </HoverCardContent>
-        </HoverCard>
+          </PopoverTrigger>
+          <PopoverContent className='h-[100px] pr-2'>
+            <SQLCodeViewer className="text-sm" sql={sql ?? ''} />
+          </PopoverContent>
+        </Popover>
 
         <TooltipButton
           icon={<EyeIcon />}
