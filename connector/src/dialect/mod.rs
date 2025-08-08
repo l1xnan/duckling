@@ -72,23 +72,24 @@ pub trait Connection: Sync + Send {
     where_: &str,
     order_by: &str,
   ) -> anyhow::Result<RawArrowData> {
-    let mut sql = self._table_query_sql(table, where_, order_by);
+    let sql = self._table_query_sql(table, where_, order_by);
+    let mut limit_sql = self._table_query_sql(table, where_, order_by);
 
     if limit != 0 {
-      sql = format!("{sql} limit {limit}");
+      limit_sql = format!("{limit_sql} limit {limit}");
     }
     if offset != 0 {
-      sql = format!("{sql} offset {offset}");
+      limit_sql = format!("{limit_sql} offset {offset}");
     }
-    println!("query table {}: {}", table, sql);
-    let res = self.query(&sql, 0, 0).await;
+    log::warn!("query table {}, sql: {}, limit_sql: {}", &table, &sql, &limit_sql);
+    let res = self.query(&limit_sql, 0, 0).await;
 
     let total = self
       .table_row_count(table, where_)
       .await
       .unwrap_or_default();
 
-    res.map(|r| RawArrowData { total, ..r })
+    res.map(|r| RawArrowData { total, sql: Some(sql), ..r })
   }
 
   async fn show_schema(&self, _schema: &str) -> anyhow::Result<RawArrowData> {

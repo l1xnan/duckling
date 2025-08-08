@@ -1,6 +1,7 @@
 use crate::utils::{Metadata, RawArrowData};
 use crate::utils::{Table, Title, TreeNode, build_tree, get_file_name};
 use arrow::array::RecordBatch;
+use log::log;
 use std::collections::HashMap;
 
 #[derive(Debug)]
@@ -197,9 +198,12 @@ pub fn export(
 ) -> anyhow::Result<()> {
   let sql = if format == "xlsx" {
     format!("INSTALL excel; LOAD excel; COPY ({sql}) TO '{file}' (FORMAT xlsx, HEADER true)")
+  } else if format == "parquet" {
+    format!("COPY ({sql}) TO '{file}' (FORMAT {format}), compression ZSTD")
   } else {
     format!("COPY ({sql}) TO '{file}' (FORMAT {format})")
   };
+  log::warn!("export sql: {}", &sql);
   let _ = conn.execute(&sql, [])?;
   Ok(())
 }
