@@ -17,8 +17,8 @@ import { Stack, ToolbarContainer } from '@/components/Toolbar';
 
 import { exportCsv } from '@/api';
 import { TransposeIcon } from '@/components/custom/Icons';
-import { TooltipButton } from '@/components/custom/button';
 import { Pagination } from '@/components/custom/pagination';
+import { TooltipButton } from '@/components/custom/tooltip';
 import { SQLCodeViewer } from '@/components/editor/SingleLineEditor';
 import { TabContextType } from '@/stores/tabs';
 import { toast } from 'sonner';
@@ -134,7 +134,7 @@ export function DataViewToolbar({
           <PopoverTrigger>
             <TooltipButton disabled={!sql} icon={<CodeIcon />} />
           </PopoverTrigger>
-          <PopoverContent className='h-[100px] pr-2'>
+          <PopoverContent className="h-[100px] pr-2">
             <SQLCodeViewer className="text-sm" sql={sql ?? ''} />
           </PopoverContent>
         </Popover>

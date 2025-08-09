@@ -1,4 +1,4 @@
-import { Tooltip } from '@/components/custom/tooltip';
+import { DelayedTooltip } from '@/components/custom/tooltip';
 import { cn } from '@/lib/utils';
 import {
   DBType,
@@ -146,14 +146,16 @@ const Node = React.memo(
             <div
               className={cn(
                 'relative flex items-center [&_svg]:size-4',
-                isRoot && node?.data?.loading ? 'animate-spin duration-2000' : '',
+                isRoot && node?.data?.loading
+                  ? 'animate-spin duration-2000'
+                  : '',
               )}
             >
               {getTypeIcon(icon)}
             </div>
-            <Tooltip title={path}>
+            <DelayedTooltip content={path}>
               <div className="truncate font-mono">{displayName ?? name}</div>
-            </Tooltip>
+            </DelayedTooltip>
           </div>
         </ContextNode>
       </div>
