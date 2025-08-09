@@ -22,6 +22,7 @@ import { TooltipButton } from '@/components/custom/tooltip';
 import { SQLCodeViewer } from '@/components/editor/SingleLineEditor';
 import { TabContextType } from '@/stores/tabs';
 import { toast } from 'sonner';
+import { useState } from 'react';
 
 export interface DataViewToolbarProps {
   context?: TabContextType;
@@ -64,6 +65,7 @@ export function DataViewToolbar({
   setTranspose,
   setCross,
 }: DataViewToolbarProps) {
+  const [loading, setLoading] = useState(false);
   const handleExport = async () => {
     console.log('context:', context);
     const filename = context?.displayName ?? `xxx-${new Date().getTime()}.csv`;
@@ -80,7 +82,13 @@ export function DataViewToolbar({
       ],
     });
     if (file && sql) {
-      await exportCsv({ file, dbId, sql });
+      setLoading(true);
+      try {
+        await exportCsv({ file, dbId, sql });
+      } catch (error) {
+        console.error(error);
+      }
+      setLoading(false);
       toast.success('success!');
     }
   };
@@ -145,7 +153,11 @@ export function DataViewToolbar({
           tooltip="Value Viewer"
         />
         <TooltipButton
-          icon={<DownloadIcon />}
+          icon={
+            <DownloadIcon
+              className={loading ? 'animate-spin duration-2000' : ''}
+            />
+          }
           tooltip="Export to CSV"
           onClick={handleExport}
         />
