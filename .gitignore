@@ -27,3 +27,4 @@ libduckdb
 duckdb.dll
 .tauri
 target
+.env
