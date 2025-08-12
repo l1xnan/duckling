@@ -38,15 +38,16 @@ pub trait Connection: Sync + Send {
     limit: Option<usize>,
     offset: Option<usize>,
   ) -> anyhow::Result<RawArrowData> {
-    let mut sql = sql.to_string();
-
+    
     let dialect = self.dialect();
-    let stmt = first_stmt(dialect, &sql);
-
-    if let Some(ref _stmt) = stmt {
-      sql = ast::limit_stmt(dialect, _stmt, limit, offset).unwrap_or(sql);
-    }
-    let mut res = self.query(&sql, 0, 0).await?;
+    let stmt = first_stmt(dialect, sql);
+    
+    let limit_sql = if let Some(ref _stmt) = stmt {
+      ast::limit_stmt(dialect, _stmt, limit, offset).unwrap_or(sql.to_string())
+    } else {
+      sql.to_string()
+    };
+    let mut res = self.query(&limit_sql, 0, 0).await?;
 
     // get total row count
     if let Some(ref _stmt) = stmt
@@ -57,6 +58,7 @@ pub trait Connection: Sync + Send {
         res.total = count;
       };
     }
+    res.sql = Some(sql.to_string());
     Ok(res)
   }
 
@@ -81,7 +83,12 @@ pub trait Connection: Sync + Send {
     if offset != 0 {
       limit_sql = format!("{limit_sql} offset {offset}");
     }
-    log::warn!("query table {}, sql: {}, limit_sql: {}", &table, &sql, &limit_sql);
+    log::warn!(
+      "query table {}, sql: {}, limit_sql: {}",
+      &table,
+      &sql,
+      &limit_sql
+    );
     let res = self.query(&limit_sql, 0, 0).await;
 
     let total = self
@@ -89,7 +96,11 @@ pub trait Connection: Sync + Send {
       .await
       .unwrap_or_default();
 
-    res.map(|r| RawArrowData { total, sql: Some(sql), ..r })
+    res.map(|r| RawArrowData {
+      total,
+      sql: Some(sql),
+      ..r
+    })
   }
 
   async fn show_schema(&self, _schema: &str) -> anyhow::Result<RawArrowData> {
