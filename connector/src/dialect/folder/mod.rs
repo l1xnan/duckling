@@ -155,6 +155,8 @@ impl Connection for FolderConnection {
   }
 }
 
+static EXTENSIONS: &[&'static str] = &["csv", "parquet", "xlsx", "json", "jsonl"];
+
 impl FolderConnection {
   fn new(path: &str) -> Self {
     Self {
@@ -170,7 +172,6 @@ impl FolderConnection {
   }
 
   fn _all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
-    let extensions = ["csv", "parquet", "xlsx"];
     // 遍历目录并过滤文件
     let files: Vec<_> = WalkDir::new(self.path.clone())
       .into_iter()
@@ -182,7 +183,7 @@ impl FolderConnection {
           && path // 提取扩展名并匹配目标类型
             .extension()
             .and_then(|ext| ext.to_str())
-            .map(|ext| extensions.contains(&ext.to_lowercase().as_str()))
+            .map(|ext| EXTENSIONS.contains(&ext.to_lowercase().as_str()))
             .unwrap_or(false)
       })
       .collect();
@@ -214,8 +215,6 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
     .to_string_lossy()
     .to_string();
 
-  let support_types = ["csv", "parquet", "xlsx"];
-
   let mut node_type = String::from("path");
   let mut size = None;
 
@@ -224,7 +223,7 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
 
     if let Some(file_ext) = path.extension() {
       let file_ext = file_ext.to_string_lossy().to_string();
-      if !support_types.contains(&file_ext.as_str()) {
+      if !EXTENSIONS.contains(&file_ext.as_str()) {
         return None;
       }
 

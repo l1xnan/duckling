@@ -301,6 +301,10 @@ export function getParams(
     tableName = `read_parquet('${tableName}', union_by_name=true)`;
   } else if (tableName.endsWith('.xlsx')) {
     tableName = `read_xlsx('${tableName}', ignore_errors=true, all_varchar=true)`;
+  } else if (tableName.endsWith('.json')) {
+    tableName = `read_json('${tableName}', union_by_name=true)`;
+  } else if (tableName.endsWith('.jsonl')) {
+    tableName = `read_json('${tableName}', union_by_name=true)`;
   }
 
   return {
