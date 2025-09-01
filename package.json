@@ -50,7 +50,7 @@
     "@tauri-apps/plugin-shell": "^2.3.0",
     "@tauri-apps/plugin-store": "^2.4.0",
     "@tauri-apps/plugin-updater": "^2.9.0",
-    "@visactor/react-vtable": "^1.19.7",
+    "@visactor/react-vtable": "^1.19.8",
     "@visactor/vtable": "^1.19.7",
     "@visactor/vtable-export": "^1.19.7",
     "apache-arrow": "^21.0.0",
