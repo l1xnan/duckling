@@ -8,7 +8,7 @@ import { useDBListStore } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 
 import { SearchInput } from '@/components/custom/search';
-import { TreeView3 } from '@/components/custom/TreeView';
+import { TreeView } from '@/components/custom/TreeView';
 import { TreeInstance } from '@headless-tree/core';
 
 function useInitOpenFiles() {
@@ -18,8 +18,7 @@ function useInitOpenFiles() {
   async function openFiles() {
     const files: string = await invoke('opened_files');
     console.warn('opened_files', files);
-    for (const file of files){
-
+    for (const file of files) {
       if (file?.endsWith('.parquet')) {
         const item: TableContextType = {
           id: nanoid(),
@@ -43,7 +42,7 @@ function useInitOpenFiles() {
   }, []);
 }
 
-function DBTree() {
+export function DBTree() {
   const dbList = useDBListStore((s) => s.dbList);
 
   useInitOpenFiles();
@@ -73,9 +72,7 @@ function DBTree() {
           }}
         />
       </div>
-      <TreeView3 dbList={dbList} search={search} ref={treeRef} />
+      <TreeView dbList={dbList} search={search} ref={treeRef} />
     </div>
   );
 }
-
-export default DBTree;

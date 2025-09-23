@@ -73,22 +73,24 @@ export function ContextNode({
   );
 }
 
-const Node = React.memo(
-  ({
-    tree,
-    item,
-    style,
-  }: {
+interface NodeProps {
     tree: TreeInstance<Node3Type>;
     item: ItemInstance<Node3Type>;
     style: React.CSSProperties;
-  }) => {
+}
+const Node = ({ tree, item, style }: NodeProps) => {
+  try {
+    item.getItemData();
+  } catch (error) {
+    console.warn('error:', item.getId(), item.getItemMeta());
+    console.warn(error);
+    return null;
+  }
     const { onClick, ...props } = item.getProps();
     const rowAttrs: React.HTMLAttributes<any> = {
       role: 'treeitem',
       'aria-expanded': item.isExpanded(),
     };
-
     const node = item.getItemData();
     const { displayName, path, name, icon } = node?.data ?? {};
     const level = item.getItemMeta().level;
@@ -146,9 +148,7 @@ const Node = React.memo(
             <div
               className={cn(
                 'relative flex items-center [&_svg]:size-4',
-                isRoot && node?.data?.loading
-                  ? 'animate-spin duration-2000'
-                  : '',
+              isRoot && node?.data?.loading ? 'animate-spin duration-2000' : '',
               )}
             >
               {getTypeIcon(icon)}
@@ -160,8 +160,7 @@ const Node = React.memo(
         </ContextNode>
       </div>
     );
-  },
-);
+};
 
 const Inner = forwardRef<
   Virtualizer<HTMLDivElement, Element>,
@@ -211,20 +210,20 @@ const Inner = forwardRef<
 
 const ROOT = '__root__';
 
-interface TreeViewProps {
+interface TreeViewInnerProps {
   data: Record<string, Node3Type>;
   onSelectNode: (item: ItemInstance<Node3Type>) => void;
   onDoubleClickNode: (item: ItemInstance<Node3Type>) => void;
+  ref?: React.Ref<unknown>;
 }
 
-export const TreeView = forwardRef(
-  (
-    { data, onSelectNode, onDoubleClickNode }: TreeViewProps,
-    ref: React.Ref<unknown> | undefined,
-  ) => {
-    const virtualizer = useRef<Virtualizer<HTMLDivElement, Element> | null>(
-      null,
-    );
+export function TreeViewInner({
+  data,
+  onSelectNode,
+  onDoubleClickNode,
+  ref,
+}: TreeViewInnerProps) {
+  const virtualizer = useRef<Virtualizer<HTMLDivElement, Element> | null>(null);
     const [state, setState] = useState({});
 
     const customClickBehavior: FeatureImplementation = {
@@ -280,22 +279,16 @@ export const TreeView = forwardRef(
     }, [data]);
 
     useImperativeHandle(ref, () => tree);
-
     return <Inner tree={tree} ref={virtualizer} />;
-  },
-);
+}
 
-export const TreeView3 = forwardRef(
-  (
-    {
-      dbList,
-      search,
-    }: {
+interface TreeViewProps {
       dbList: DBType[];
       search?: string;
-    },
-    ref,
-  ) => {
+  ref?: React.Ref<unknown>;
+}
+
+export function TreeView({ dbList, search, ref }: TreeViewProps) {
     const updateTab = useTabsStore((s) => s.update);
     const [, setSelectedNode] = useAtom(selectedNodeAtom);
 
@@ -352,12 +345,11 @@ export const TreeView3 = forwardRef(
       }
     };
     return (
-      <TreeView
+    <TreeViewInner
         data={treeData}
         ref={ref}
         onSelectNode={handleSelectNode}
         onDoubleClickNode={handleDoubleClickNode}
       />
     );
-  },
-);
+}

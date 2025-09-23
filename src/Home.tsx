@@ -4,7 +4,7 @@ import { Content, Sidebar } from '@/components/Layout';
 import { useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
 import { Main } from '@/pages/main';
-import DBTree from '@/pages/sidebar';
+import { DBTree } from '@/pages/sidebar';
 import { activeSideAtom, ASide } from '@/pages/sidebar/aside';
 import { Favorite, History, SqlCode } from '@/pages/sidebar/Favorite';
 import { sizeAtom } from '@/stores/app';
