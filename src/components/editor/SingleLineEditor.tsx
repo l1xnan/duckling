@@ -3,7 +3,7 @@ import { Editor, OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 import { useEditorTheme } from '@/stores/setting';
-import { forwardRef, useImperativeHandle, useState } from 'react';
+import { useImperativeHandle, useState } from 'react';
 import { useRegister } from './useRegister';
 
 interface SingleLineEditorProps {
@@ -13,6 +13,8 @@ interface SingleLineEditorProps {
   completeMeta?: CompleteMetaType;
   onEnterDown?: (value: string) => void; // 当 Enter 被按下时触发 (可选)
   onChange?: (value: string) => void; // 值变化时触发 (可选)
+
+  ref: React.Ref<EditorRef>;
 }
 
 type OnMountParams = Parameters<OnMount>;
@@ -23,110 +25,113 @@ export interface EditorRef {
   editor: () => OnMountParams[0] | null;
 }
 
-const SingleLineMonacoEditor = forwardRef<EditorRef, SingleLineEditorProps>(
-  ({ completeMeta, initialValue, ...props }, ref) => {
-    const [value, setValue] = useState(initialValue ?? '');
-    const { handleEditorDidMount, editorRef } = useRegister({
-      completeMeta,
-    });
-    useImperativeHandle(ref, () => ({
-      editor: () => editorRef.current,
+export function SingleLineEditor({
+  completeMeta,
+  initialValue,
+  ref,
+  ...props
+}: SingleLineEditorProps) {
+  const [value, setValue] = useState(initialValue ?? '');
+  const { handleEditorDidMount, editorRef } = useRegister({
+    completeMeta,
+  });
+  useImperativeHandle(ref, () => ({
+    editor: () => editorRef.current,
 
-      getSelectionText: () => {
-        const editor = editorRef.current;
-        if (!editor) {
-          return;
-        }
-
-        const selection = editor.getSelection();
-        if (selection) {
-          return editor.getModel()?.getValueInRange(selection);
-        }
+    getSelectionText: () => {
+      const editor = editorRef.current;
+      if (!editor) {
         return;
-      },
-
-      getValue: () => {
-        const editor = editorRef.current;
-        if (!editor) {
-          return;
-        }
-        return editor.getValue();
-      },
-    }));
-
-    const handleEditorMount: OnMount = (editor, monaco) => {
-      handleEditorDidMount?.(editor, monaco);
-
-      editor.onKeyDown((e: monaco.IKeyboardEvent) => {
-        // 检查是否是 Enter 键 (并且没有按 Shift, Alt, Ctrl, Meta)
-        if (
-          e.keyCode === monaco.KeyCode.Enter &&
-          !e.shiftKey &&
-          !e.altKey &&
-          !e.ctrlKey &&
-          !e.metaKey
-        ) {
-          const suggestController = editor.getContribution<
-            monaco.editor.IEditorContribution & {
-              model: { state: number };
-            }
-          >('editor.contrib.suggestController');
-
-          // const visible = editor._contextKeyService.getContextKeyValue('suggestWidgetVisible');
-          // const visible = suggestController?.widget.value._ctxSuggestWidgetVisible.get('suggestWidgetVisible')
-
-          if (suggestController?.model.state === 0) {
-            // 阻止默认行为 (插入新行)
-            e.preventDefault();
-            e.stopPropagation();
-
-            props.onChange?.(editor.getValue());
-            props.onEnterDown?.(editor.getValue());
-          }
-
-          // 可选: 让编辑器失去焦点
-          // editor.trigger('keyboard', 'type', { text: '' }); // 触发一个空输入可能导致失去焦点，或者直接操作 DOM
-          // editor.getDomNode()?.blur();
-        }
-      });
-    };
-
-    const handleEditorChange = (
-      newValue: string | undefined,
-      _ev: monaco.editor.IModelContentChangedEvent,
-    ) => {
-      const val = newValue || '';
-      // Monaco有时会在空编辑器中保留一个换行符，需要清理
-      const singleLineValue = val.replace(/[\r\n]+/g, '');
-      setValue(singleLineValue);
-      props.onChange?.(singleLineValue);
-      // 如果值被外部修改导致包含换行符，强制设置回去
-      if (val !== singleLineValue && editorRef.current) {
-        // 记录当前光标位置
-        const currentPosition = editorRef.current.getPosition();
-        editorRef.current.setValue(singleLineValue);
-        // 尝试恢复光标位置
-        if (currentPosition) {
-          editorRef.current.setPosition(currentPosition);
-        }
       }
-    };
 
-    const theme = useEditorTheme();
-    return (
-      <Editor
-        theme={theme}
-        language={'sql'}
-        value={value}
-        className={props.className}
-        onMount={handleEditorMount}
-        onChange={handleEditorChange}
-        height={`${20 + 3 * 2}px`}
-        options={options}
-      />
-    );
-  },
-);
+      const selection = editor.getSelection();
+      if (selection) {
+        return editor.getModel()?.getValueInRange(selection);
+      }
+      return;
+    },
+
+    getValue: () => {
+      const editor = editorRef.current;
+      if (!editor) {
+        return;
+      }
+      return editor.getValue();
+    },
+  }));
+
+  const handleEditorMount: OnMount = (editor, monaco) => {
+    handleEditorDidMount?.(editor, monaco);
+
+    editor.onKeyDown((e: monaco.IKeyboardEvent) => {
+      // 检查是否是 Enter 键 (并且没有按 Shift, Alt, Ctrl, Meta)
+      if (
+        e.keyCode === monaco.KeyCode.Enter &&
+        !e.shiftKey &&
+        !e.altKey &&
+        !e.ctrlKey &&
+        !e.metaKey
+      ) {
+        const suggestController = editor.getContribution<
+          monaco.editor.IEditorContribution & {
+            model: { state: number };
+          }
+        >('editor.contrib.suggestController');
+
+        // const visible = editor._contextKeyService.getContextKeyValue('suggestWidgetVisible');
+        // const visible = suggestController?.widget.value._ctxSuggestWidgetVisible.get('suggestWidgetVisible')
+
+        if (suggestController?.model.state === 0) {
+          // 阻止默认行为 (插入新行)
+          e.preventDefault();
+          e.stopPropagation();
+
+          props.onChange?.(editor.getValue());
+          props.onEnterDown?.(editor.getValue());
+        }
+
+        // 可选: 让编辑器失去焦点
+        // editor.trigger('keyboard', 'type', { text: '' }); // 触发一个空输入可能导致失去焦点，或者直接操作 DOM
+        // editor.getDomNode()?.blur();
+      }
+    });
+  };
+
+  const handleEditorChange = (
+    newValue: string | undefined,
+    _ev: monaco.editor.IModelContentChangedEvent,
+  ) => {
+    const val = newValue || '';
+    // Monaco有时会在空编辑器中保留一个换行符，需要清理
+    const singleLineValue = val.replace(/[\r\n]+/g, '');
+    setValue(singleLineValue);
+    props.onChange?.(singleLineValue);
+    // 如果值被外部修改导致包含换行符，强制设置回去
+    if (val !== singleLineValue && editorRef.current) {
+      // 记录当前光标位置
+      const currentPosition = editorRef.current.getPosition();
+      editorRef.current.setValue(singleLineValue);
+      // 尝试恢复光标位置
+      if (currentPosition) {
+        editorRef.current.setPosition(currentPosition);
+      }
+    }
+  };
+
+  const theme = useEditorTheme();
+  return (
+    <Editor
+      theme={theme}
+      language={'sql'}
+      value={value}
+      className={props.className}
+      onMount={handleEditorMount}
+      onChange={handleEditorChange}
+      height={`${20 + 3 * 2}px`}
+      options={options}
+    />
+  );
+}
 
 const options: monaco.editor.IStandaloneEditorConstructionOptions = {
   fontSize: 13,
@@ -164,13 +169,12 @@ const options: monaco.editor.IStandaloneEditorConstructionOptions = {
   // selectionHighlight: false, // 可选: 禁用选择内容高亮
 };
 
-export function SQLCodeViewer({
-  className,
-  sql,
-}: {
-  sql: string;
+interface SQLCodeViewerProps {
   className?: string;
-}) {
+  sql: string;
+}
+
+export function SQLCodeViewer({ className, sql }: SQLCodeViewerProps) {
   const theme = useEditorTheme();
   return (
     <Editor
@@ -195,5 +199,3 @@ export function SQLCodeViewer({
     />
   );
 }
-
-export default SingleLineMonacoEditor;

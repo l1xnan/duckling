@@ -16,8 +16,8 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Button } from '../ui/button';
 
 export function Tooltip({
   children,
@@ -105,11 +105,19 @@ interface IconButtonProps
   tooltip?: string;
   tooltipProps?: TooltipPrimitive.TooltipContentProps;
   active?: boolean;
+
+  ref?: React.Ref<HTMLButtonElement>;
 }
-export const TooltipButton = React.forwardRef<
-  HTMLButtonElement,
-  IconButtonProps
->(({ tooltip, icon, children, className, active, ...props }, ref) => {
+
+export function TooltipButton({
+  tooltip,
+  icon,
+  children,
+  className,
+  active,
+  ref,
+  ...props
+}: IconButtonProps) {
   return (
     <DelayedTooltip content={tooltip}>
       <Button
@@ -125,4 +133,4 @@ export const TooltipButton = React.forwardRef<
       </Button>
     </DelayedTooltip>
   );
-});
+}
