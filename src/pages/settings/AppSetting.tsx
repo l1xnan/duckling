@@ -1,5 +1,4 @@
 import { DialogClose } from '@radix-ui/react-dialog';
-import { ReloadIcon } from '@radix-ui/react-icons';
 import { getTauriVersion, getVersion } from '@tauri-apps/api/app';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { relaunch } from '@tauri-apps/plugin-process';
@@ -26,12 +25,20 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemTitle,
+} from '@/components/ui/item';
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import {
   CsvParam,
@@ -194,8 +201,14 @@ function Profile() {
                   </SelectContent>
                 </Select>
                 <FormDescription>
-                  Reference: {' '}
-                  <a href="https://textmate-grammars-themes.netlify.app/" target="_blank">Shiki TextMate Grammar & Theme Playground</a>.
+                  Reference:{' '}
+                  <a
+                    href="https://textmate-grammars-themes.netlify.app/"
+                    target="_blank"
+                  >
+                    Shiki TextMate Grammar & Theme Playground
+                  </a>
+                  .
                 </FormDescription>
               </FormItem>
             )}
@@ -286,8 +299,8 @@ const UpdateForm = () => {
           className=" h-full flex flex-col"
         >
           <div className="flex-1 space-y-4">
-            <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-              <div className="space-y-0.5">
+            <Item variant="outline" className="shadow-sm">
+              <ItemContent>
                 <FormLabel>Current version: {version}</FormLabel>
                 {/* <FormDescription>Tauri: {tauriVersion}</FormDescription> */}
                 {update?.version && (
@@ -295,8 +308,8 @@ const UpdateForm = () => {
                     Discover new version: {update?.version}
                   </FormDescription>
                 )}
-              </div>
-              <div>
+              </ItemContent>
+              <ItemActions>
                 {update?.version ? (
                   <Button
                     disabled={loading}
@@ -305,9 +318,7 @@ const UpdateForm = () => {
                       await handleUpdater();
                     }}
                   >
-                    {loading ? (
-                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                    ) : null}
+                    {loading ? <Spinner /> : null}
                     Click to update
                   </Button>
                 ) : (
@@ -318,32 +329,36 @@ const UpdateForm = () => {
                       await handleCheck();
                     }}
                   >
-                    {loading ? (
-                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                    ) : null}
+                    {loading ? <Spinner /> : null}
                     Check for updates
                   </Button>
                 )}
-              </div>
-            </div>
+              </ItemActions>
+            </Item>
             <FormField
               control={form.control}
               name="auto_update"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                  <div className="space-y-0.5">
-                    <FormLabel>Automatic updates</FormLabel>
-                    <FormDescription>
-                      Turn this off to prevent the app from checking for
-                      updates.
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
+                <FormItem>
+                  <Item variant="outline" className="shadow-sm">
+                    <ItemContent>
+                      <div className="space-y-0.5">
+                        <ItemTitle>Automatic updates</ItemTitle>
+                        <ItemDescription>
+                          Turn this off to prevent the app from checking for
+                          updates.
+                        </ItemDescription>
+                      </div>
+                    </ItemContent>
+                    <ItemActions>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </ItemActions>
+                  </Item>
                 </FormItem>
               )}
             />
