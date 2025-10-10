@@ -6,6 +6,7 @@ import { useForm, UseFormReturn } from 'react-hook-form';
 import { Dialog } from '@/components/custom/Dialog';
 import { TooltipButton } from '@/components/custom/button';
 import { Button } from '@/components/ui/button';
+import { ButtonGroup } from '@/components/ui/button-group';
 import { DialogClose, DialogFooter } from '@/components/ui/dialog';
 import {
   Form,
@@ -164,16 +165,18 @@ export function DatabaseForm({
                   <FormItem className="flex items-center w-[62.5%]">
                     <FormLabel className="w-1/5 mr-2 mt-2">Path</FormLabel>
                     <FormControl className="w-4/5">
-                      <div className="flex w-full max-w-sm items-center gap-1">
-                        <Input {...field} />
+                      {/* <div className="flex w-full max-w-sm items-center gap-1"> */}
+                      {/* </div> */}
+                      <ButtonGroup>
+                        <Input placeholder="Search..." {...field} />
                         <Button
+                          aria-label="Select"
                           variant="outline"
                           onClick={async (e) => {
                             e.preventDefault();
                             const file = await dialog.open({
                               multiple: false,
-                              directory:
-                                watchDialect == 'folder',
+                              directory: watchDialect == 'folder',
                             });
                             if (file) {
                               form.setValue('path', file);
@@ -182,7 +185,7 @@ export function DatabaseForm({
                         >
                           Select
                         </Button>
-                      </div>
+                      </ButtonGroup>
                     </FormControl>
                   </FormItem>
                 )}

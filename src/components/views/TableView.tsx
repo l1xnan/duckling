@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { precisionAtom } from '@/stores/setting';
 import { TabContextType, TableContextType, useTabsStore } from '@/stores/tabs';
 
-import SingleLineEditor from '@/components/editor/SingleLineEditor';
+import { SingleLineEditor } from '@/components/editor/SingleLineEditor';
 import {
   sqlComparisonOperators,
   sqlWhereKeywords,
