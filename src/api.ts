@@ -1,4 +1,4 @@
-import { Table, tableFromIPC } from '@apache-arrow/ts';
+import { Data, Table, tableFromIPC } from '@apache-arrow/ts';
 import { invoke } from '@tauri-apps/api/core';
 import { nanoid } from 'nanoid';
 
@@ -23,6 +23,21 @@ export type ResultType<T = unknown> = {
   message: string;
 };
 
+function bigIntReplacer(_key: string, value: any) {
+  if (typeof value === 'bigint') {
+    return value.toString(); // 将 BigInt 转换为字符串
+  }
+  return value;
+}
+
+export function arrowToJSON(value: Data, space = 2) {
+  try {
+    return JSON.stringify(value, bigIntReplacer, space);
+  } catch {
+    return value.toString();
+  }
+}
+
 export function convertArrow(arrowData: Array<number>, titles?: TitleType[]) {
   const table: Table = tableFromIPC(Uint8Array.from(arrowData));
   const tableSchema: SchemaType[] = table.schema.fields.map((field, i) => {
@@ -36,8 +51,8 @@ export function convertArrow(arrowData: Array<number>, titles?: TitleType[]) {
   });
 
   const data = table.toArray().map((item) => item.toJSON());
-
-  console.table([...data.slice(0, 10)]);
+  
+  console.table(data.slice(0, 10));
   console.table(tableSchema);
   return {
     data,

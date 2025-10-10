@@ -10,20 +10,71 @@ import {
 
 import { cn } from '@/lib/utils';
 
+import { arrowToJSON } from '@/api';
 import { TooltipButton } from '@/components/custom/button';
-import { Direction } from '@/stores/dataset';
-import { useEditorTheme } from '@/stores/setting';
-import { TabsList } from '@radix-ui/react-tabs';
-import ErrorBoundary from '../ErrorBoundary';
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+} from '@/components/custom/dropdown-menu';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import { DropdownMenuContent } from '@/components/ui/dropdown-menu';
 import {
   Table,
   TableBody,
   TableCell,
   TableHeader,
   TableRow,
-} from '../ui/table';
-import { Tabs, TabsContent, TabsTrigger } from '../ui/tabs';
+} from '@/components/ui/table';
+import { Tabs, TabsContent, TabsTrigger } from '@/components/ui/tabs';
+import { Direction } from '@/stores/dataset';
+import { useEditorTheme } from '@/stores/setting';
+import { Data, Vector } from '@apache-arrow/ts';
+import { TabsList } from '@radix-ui/react-tabs';
+import { editor } from 'monaco-editor';
+import { useRef, useState } from 'react';
 import { SelectedCellType } from './TableView';
+
+interface FormatTypeDropdownProps {
+  type: string;
+  setType: (type: string) => void;
+}
+
+export function FormatTypeDropdown({ type, setType }: FormatTypeDropdownProps) {
+  return (
+    <DropdownMenu content={type}>
+      <DropdownMenuContent className="w-32">
+        {['Raw', 'JSON'].map((item) => (
+          <DropdownMenuItem
+            key={item}
+            onSelect={() => {
+              setType(item);
+            }}
+          >
+            {item}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+interface ValueViewerProps {
+  selectedCell?: SelectedCellType | null;
+  selectedCellInfos?: SelectedCellType[][] | null;
+  setShowValue: () => void;
+  setDirection: () => void;
+  direction: Direction;
+}
+
+function displayValue(value: Data, type: string) {
+  if (type === 'JSON') {
+    return arrowToJSON(value);
+  }
+  if (value instanceof Vector) {
+    return arrowToJSON(value, 0);
+  }
+  return value.toString();
+}
 
 export function ValueViewer({
   selectedCell,
@@ -31,15 +82,24 @@ export function ValueViewer({
   setShowValue,
   setDirection,
   direction,
-}: {
-  selectedCell?: SelectedCellType | null;
-  selectedCellInfos?: SelectedCellType[][] | null;
-  setShowValue: () => void;
-  setDirection: () => void;
-  direction: Direction;
-}) {
+}: ValueViewerProps) {
   const theme = useEditorTheme();
 
+  const [type, setType] = useState('Raw');
+  const editorRef = useRef<editor.IStandaloneCodeEditor>(null);
+
+  const handleFormat = () => {
+    if (!editorRef.current) return;
+
+    try {
+      // 触发 Monaco 内置的格式化命令
+      editorRef.current?.getAction('editor.action.formatDocument')?.run();
+    } catch (error) {
+      console.error('格式化失败:', error);
+    }
+  };
+
+  const value = displayValue(selectedCell?.value as Data, type);
   return (
     <Tabs defaultValue="value" className="size-full">
       <div className="flex flex-row items-center justify-between">
@@ -72,9 +132,11 @@ export function ValueViewer({
           ))}
         </TabsList>
         <div className="flex flex-row items-center">
+          <FormatTypeDropdown type={type} setType={setType} />
           <TooltipButton
             icon={<LetterTextIcon className="size-5" />}
-            onClick={() => {}}
+            disabled={type !== 'JSON'}
+            onClick={handleFormat}
             tooltip="Format"
           />
 
@@ -113,13 +175,18 @@ export function ValueViewer({
         ) : (
           <MonacoEditor
             theme={theme}
-            value={selectedCell?.value?.toString() ?? ''}
+            language={type === 'JSON' ? 'json' : 'plaintext'}
+            value={value}
+            onMount={(editor) => {
+              editorRef.current = editor;
+            }}
             options={{
               minimap: {
                 enabled: false,
               },
               lineNumbers: 'off',
               wordWrap: 'on',
+              tabSize: 2,
             }}
           />
         )}

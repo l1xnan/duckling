@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/resizable';
 import { usePageStore } from '@/hooks/context';
 import { schemaMapAtom } from '@/stores/dbList';
+import { Data as ArrowDataType } from '@apache-arrow/ts';
 import { DataViewToolbar } from './DataViewToolbar';
 import { ValueViewer } from './ValueViewer';
 
@@ -35,7 +36,7 @@ export const Loading = ({ className }: { className?: string }) => {
 };
 
 export type SelectedCellType = {
-  value?: string | number;
+  value?: string | number | ArrowDataType;
   field?: string;
   col: number;
   row: number;
