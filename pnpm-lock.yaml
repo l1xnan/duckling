@@ -132,6 +132,9 @@ importers:
       '@visactor/vtable-export':
         specifier: ^1.20.3
         version: 1.20.3
+      '@visactor/vtable-plugins':
+        specifier: ^1.20.3
+        version: 1.20.3(@visactor/vtable@1.20.3)
       apache-arrow:
         specifier: ^21.1.0
         version: 21.1.0
@@ -2165,6 +2168,15 @@ packages:
   '@visactor/vtable-export@1.20.3':
     resolution: {integrity: sha512-Kl+5YeEMvVQt4xR56dy4N1keHOWRGs0qfHILw2IvTvrSbX5ItUNGS1A4p0vt0VHy4G8CKWgvVPfTpGwz6cIzRw==}
 
+  '@visactor/vtable-plugins@1.20.3':
+    resolution: {integrity: sha512-sck/X1d3LGkpMGwF9FPLmgfSwV7tXRa7Ymdnht2K8V+EBCBukJETgF/V4CYOofvVz/gfpfvLytBgQliHUxJ8Tg==}
+    peerDependencies:
+      '@visactor/vtable': 1.20.3
+      '@visactor/vtable-gantt': 1.20.3
+    peerDependenciesMeta:
+      '@visactor/vtable-gantt':
+        optional: true
+
   '@visactor/vtable@1.20.3':
     resolution: {integrity: sha512-ovx8c1HlvnNLe1M4PSBgoNizuB8xRfJR+R9LmqAtIPWCNUY9hbMv7Owuu+Q6nbT8SR1hvrmpbS1CIqop5nDj7Q==}
 
@@ -2315,6 +2327,9 @@ packages:
   big-integer@1.6.52:
     resolution: {integrity: sha512-QxD8cf2eVqJOOz63z6JIN9BzvVs/dlySa5HGSBH5xtR8dPteIRQnBxxKqkNTiT6jbDTF6jAfrd4oMcND9RGbQg==}
     engines: {node: '>=0.6'}
+
+  big.js@6.2.2:
+    resolution: {integrity: sha512-y/ie+Faknx7sZA5MfGA2xKlu0GDv8RWrXGsmlteyJQ2lvoKv9GBK/fpRMc2qlSoBAgNxrixICFCBefIq8WCQpQ==}
 
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
@@ -6066,6 +6081,16 @@ snapshots:
       exceljs: 4.4.0
       file-saver: 2.0.5
 
+  '@visactor/vtable-plugins@1.20.3(@visactor/vtable@1.20.3)':
+    dependencies:
+      '@types/file-saver': 2.0.7
+      '@visactor/vtable': 1.20.3
+      '@visactor/vutils': 0.19.7
+      big.js: 6.2.2
+      exceljs: 4.4.0
+      file-saver: 2.0.5
+      lodash: 4.17.21
+
   '@visactor/vtable@1.20.3':
     dependencies:
       '@visactor/vdataset': 0.18.18
@@ -6285,6 +6310,8 @@ snapshots:
   baseline-browser-mapping@2.8.16: {}
 
   big-integer@1.6.52: {}
+
+  big.js@6.2.2: {}
 
   binary-extensions@2.3.0: {}
 

@@ -7,6 +7,7 @@ import {
   ListTableConstructorOptions,
   TYPES,
 } from '@visactor/vtable';
+
 import { useAtomValue } from 'jotai';
 import {
   CSSProperties,
@@ -26,6 +27,7 @@ import { SelectedCellType } from '@/components/views/TableView';
 import { useTheme } from '@/hooks/theme-provider';
 import { tableFontFamilyAtom } from '@/stores/setting';
 import { isDarkTheme, isNumberType, uniqueArray } from '@/utils';
+import { HighlightHeaderWhenSelectCellPlugin } from '@visactor/vtable-plugins';
 import { makeTableTheme } from './theme';
 
 export interface TableProps<T = unknown> {
@@ -52,6 +54,11 @@ function useTableTheme() {
     [isDark, tableFontFamily],
   );
 }
+
+const highlightPlugin = new HighlightHeaderWhenSelectCellPlugin({
+  colHighlight: true,
+  rowHighlight: true,
+});
 
 const CanvasTable_ = memo(function CanvasTable({
   data,
@@ -251,7 +258,7 @@ const CanvasTable_ = memo(function CanvasTable({
         setLeftPinnedCols([]);
         setRightPinnedCols([]);
       } else if (e.menuKey == 'hidden-column') {
-        setHiddenColumns(e.field as string, true );
+        setHiddenColumns(e.field as string, true);
       }
     } else {
       if (e.menuKey == 'copy') {
@@ -364,6 +371,7 @@ const CanvasTable_ = memo(function CanvasTable({
         copySelected: true,
         pasteValueToCell: true,
       },
+      plugins: [highlightPlugin],
     };
   }, [
     data,
@@ -462,6 +470,7 @@ export function SimpleTable({ data }: { data: unknown[] }) {
         copySelected: true,
         pasteValueToCell: true,
       },
+      plugins: [highlightPlugin],
     }),
     [data],
   );
