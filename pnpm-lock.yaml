@@ -23,7 +23,7 @@ importers:
         version: 1.5.0(@headless-tree/core@1.5.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@hookform/resolvers':
         specifier: ^5.2.2
-        version: 5.2.2(react-hook-form@7.64.0(react@19.2.0))
+        version: 5.2.2(react-hook-form@7.65.0(react@19.2.0))
       '@l1xnan/tree-sitter-sql':
         specifier: ^0.4.5
         version: 0.4.5(tree-sitter@0.25.0)
@@ -124,14 +124,14 @@ importers:
         specifier: ^2.9.0
         version: 2.9.0
       '@visactor/react-vtable':
-        specifier: ^1.20.2
-        version: 1.20.2(react@19.2.0)
+        specifier: ^1.20.3
+        version: 1.20.3(react@19.2.0)
       '@visactor/vtable':
-        specifier: ^1.20.2
-        version: 1.20.2
+        specifier: ^1.20.3
+        version: 1.20.3
       '@visactor/vtable-export':
-        specifier: ^1.20.2
-        version: 1.20.2
+        specifier: ^1.20.3
+        version: 1.20.3
       apache-arrow:
         specifier: ^21.1.0
         version: 21.1.0
@@ -199,8 +199,8 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
       react-hook-form:
-        specifier: ^7.64.0
-        version: 7.64.0(react@19.2.0)
+        specifier: ^7.65.0
+        version: 7.65.0(react@19.2.0)
       react-horizontal-scrolling-menu:
         specifier: ^8.2.0
         version: 8.2.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -2135,8 +2135,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@visactor/react-vtable@1.20.2':
-    resolution: {integrity: sha512-vHgE7R5QDvSy6BcSiLwFs7dcIbBRPdGxvp1qIK3dPzdP0HqpAfEQb4JkBCmtfK3VCr1GQxoxCYA0Fhi+91XTzA==}
+  '@visactor/react-vtable@1.20.3':
+    resolution: {integrity: sha512-9+jY9F6qih8JCmQQXJ8qfn4FLf3uWYtD65FDSMCZuNc0ZI+eIrHSI7En2VS82FVyVU0mccj9MHNHOEUAJal+Pw==}
 
   '@visactor/vdataset@0.18.18':
     resolution: {integrity: sha512-lye23zpineMKV42JmuJaOY3fgl7aWhyDIwK9dWooqZzP14AFukPoK7ZvUeuKZihLrHxqtCg2VWEjovnh9O1RUg==}
@@ -2159,14 +2159,14 @@ packages:
   '@visactor/vscale@1.0.6':
     resolution: {integrity: sha512-E6ySrzOIyL85luy5dKPpKzaCjf/hkLFF/mAn37Lv8XJWhyxWjYO29GM7cIlqDNCKAY0qsONPnfmgdGX+Hoe5vg==}
 
-  '@visactor/vtable-editors@1.20.2':
-    resolution: {integrity: sha512-Sma/bANQ2L5oeaD+2ZSTE/kG0dJ1IPEJNNTHEW89nz6pO/GGPZFcJNVoxMBl4vVh7OIY3WJ8FKDW/XePO7CbPw==}
+  '@visactor/vtable-editors@1.20.3':
+    resolution: {integrity: sha512-raiqy3uZF983H2z1lZXZ+kUiH4v9z7kkpgUZkfJ54BgroN4YGUzS5tISiE4qTXZHsw7pGswp93UB/1uhu3NNaw==}
 
-  '@visactor/vtable-export@1.20.2':
-    resolution: {integrity: sha512-yqQaOIgJ+KnuRkM2dc+odIP49tU5ygbxmH5a8R7fnkBhAqTQtKMWUTuFvlAe6ElTgNoiaJYY3YP5QlE+/NDVqA==}
+  '@visactor/vtable-export@1.20.3':
+    resolution: {integrity: sha512-Kl+5YeEMvVQt4xR56dy4N1keHOWRGs0qfHILw2IvTvrSbX5ItUNGS1A4p0vt0VHy4G8CKWgvVPfTpGwz6cIzRw==}
 
-  '@visactor/vtable@1.20.2':
-    resolution: {integrity: sha512-NH5EKEV3we6Y2fwOfcsd23y0536/3KXSJ7ikilR3HNHhti9ytbTlWVwUZTZlyuWr9XadK+hE3KLLsWeTnlWhxw==}
+  '@visactor/vtable@1.20.3':
+    resolution: {integrity: sha512-ovx8c1HlvnNLe1M4PSBgoNizuB8xRfJR+R9LmqAtIPWCNUY9hbMv7Owuu+Q6nbT8SR1hvrmpbS1CIqop5nDj7Q==}
 
   '@visactor/vutils-extension@1.11.14':
     resolution: {integrity: sha512-vfViZphXJBH0NwCHIoe8S1/+tDtykEKIfsLMIHprh7Azv7fVSB1eotG00SAegK75E18ARQGNXF1DxixUFiXSIQ==}
@@ -2308,8 +2308,8 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  baseline-browser-mapping@2.8.15:
-    resolution: {integrity: sha512-qsJ8/X+UypqxHXN75M7dF88jNK37dLBRW7LeUzCPz+TNs37G8cfWy9nWzS+LS//g600zrt2le9KuXt0rWfDz5Q==}
+  baseline-browser-mapping@2.8.16:
+    resolution: {integrity: sha512-OMu3BGQ4E7P1ErFsIPpbJh0qvDudM/UuJeHgkAvfWe+0HFJCXh+t/l8L6fVLR55RI/UbKrVLnAXZSVwd9ysWYw==}
     hasBin: true
 
   big-integer@1.6.52:
@@ -3582,8 +3582,8 @@ packages:
     peerDependencies:
       react: '>=16.13.1'
 
-  react-hook-form@7.64.0:
-    resolution: {integrity: sha512-fnN+vvTiMLnRqKNTVhDysdrUay0kUUAymQnFIznmgDvapjveUWOOPqMNzPg+A+0yf9DuE2h6xzBjN1s+Qx8wcg==}
+  react-hook-form@7.65.0:
+    resolution: {integrity: sha512-xtOzDz063WcXvGWaHgLNrNzlsdFgtUWcb32E6WFaGTd7kPZG3EeDusjdZfUsPwKCKVXy1ZlntifaHZ4l8pAsmw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
@@ -4657,10 +4657,10 @@ snapshots:
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
 
-  '@hookform/resolvers@5.2.2(react-hook-form@7.64.0(react@19.2.0))':
+  '@hookform/resolvers@5.2.2(react-hook-form@7.65.0(react@19.2.0))':
     dependencies:
       '@standard-schema/utils': 0.3.0
-      react-hook-form: 7.64.0(react@19.2.0)
+      react-hook-form: 7.65.0(react@19.2.0)
 
   '@humanfs/core@0.19.1': {}
 
@@ -5992,9 +5992,9 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
-  '@visactor/react-vtable@1.20.2(react@19.2.0)':
+  '@visactor/react-vtable@1.20.3(react@19.2.0)':
     dependencies:
-      '@visactor/vtable': 1.20.2
+      '@visactor/vtable': 1.20.3
       '@visactor/vutils': 0.19.7
       react-is: 19.1.0
       react-reconciler: 0.32.0(react@19.2.0)
@@ -6056,17 +6056,17 @@ snapshots:
     dependencies:
       '@visactor/vutils': 1.0.6
 
-  '@visactor/vtable-editors@1.20.2': {}
+  '@visactor/vtable-editors@1.20.3': {}
 
-  '@visactor/vtable-export@1.20.2':
+  '@visactor/vtable-export@1.20.3':
     dependencies:
       '@types/file-saver': 2.0.7
-      '@visactor/vtable': 1.20.2
+      '@visactor/vtable': 1.20.3
       '@visactor/vutils': 0.19.7
       exceljs: 4.4.0
       file-saver: 2.0.5
 
-  '@visactor/vtable@1.20.2':
+  '@visactor/vtable@1.20.3':
     dependencies:
       '@visactor/vdataset': 0.18.18
       '@visactor/vrender-animate': 1.0.18-alpha.0
@@ -6074,7 +6074,7 @@ snapshots:
       '@visactor/vrender-core': 1.0.18-alpha.0
       '@visactor/vrender-kits': 1.0.18-alpha.0
       '@visactor/vscale': 0.18.18
-      '@visactor/vtable-editors': 1.20.2
+      '@visactor/vtable-editors': 1.20.3
       '@visactor/vutils': 0.19.7
       '@visactor/vutils-extension': 1.11.14
       cssfontparser: 1.2.1
@@ -6282,7 +6282,7 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  baseline-browser-mapping@2.8.15: {}
+  baseline-browser-mapping@2.8.16: {}
 
   big-integer@1.6.52: {}
 
@@ -6316,7 +6316,7 @@ snapshots:
 
   browserslist@4.26.3:
     dependencies:
-      baseline-browser-mapping: 2.8.15
+      baseline-browser-mapping: 2.8.16
       caniuse-lite: 1.0.30001749
       electron-to-chromium: 1.5.234
       node-releases: 2.0.23
@@ -7508,7 +7508,7 @@ snapshots:
       '@babel/runtime': 7.28.4
       react: 19.2.0
 
-  react-hook-form@7.64.0(react@19.2.0):
+  react-hook-form@7.65.0(react@19.2.0):
     dependencies:
       react: 19.2.0
 

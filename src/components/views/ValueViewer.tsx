@@ -67,6 +67,9 @@ interface ValueViewerProps {
 }
 
 function displayValue(value: Data, type: string) {
+  if (value === null || value === undefined) {
+    return value;
+  }
   if (type === 'JSON') {
     return arrowToJSON(value);
   }

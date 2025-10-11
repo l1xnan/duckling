@@ -73,6 +73,7 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
   const setPerPage = useFocusAtom(context, 'perPage');
   const setTranspose = useFocusAtom(context, 'transpose');
   const setCross = useFocusAtom(context, 'cross');
+  const setHiddenColumns = useFocusAtom(context, 'hiddenColumns');
   const setPagination = async ({
     page,
     perPage,
@@ -100,6 +101,10 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
     setCross((v) => !v);
   };
 
+  const handleHiddenColumns = (key: string, value: boolean) => {
+    setHiddenColumns({ ...ctx.hiddenColumns, [key]: value });
+  };
+
   return (
     <div className="h-full flex flex-col">
       <DataViewToolbar
@@ -112,6 +117,9 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
         elapsed={ctx.elapsed}
         cross={ctx.cross}
         transpose={ctx.transpose}
+        columns={ctx.tableSchema}
+        hiddenColumns={ctx.hiddenColumns}
+        setHiddenColumns={handleHiddenColumns}
         setShowValue={handleShowValue}
         refresh={handleRefresh}
         setBeautify={handleBeautify}
@@ -134,6 +142,8 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
               }
               data={ctx.data ?? []}
               schema={ctx.tableSchema ?? []}
+              hiddenColumns={ctx.hiddenColumns}
+              setHiddenColumns={handleHiddenColumns}
               precision={precision}
               beautify={ctx.beautify}
               transpose={ctx.transpose}

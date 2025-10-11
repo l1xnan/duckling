@@ -7,6 +7,7 @@ import { IconDecimal } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
 import {
   CodeIcon,
+  Columns3CogIcon,
   CrossIcon,
   DownloadIcon,
   EyeIcon,
@@ -20,9 +21,12 @@ import { TransposeIcon } from '@/components/custom/Icons';
 import { Pagination } from '@/components/custom/pagination';
 import { TooltipButton } from '@/components/custom/tooltip';
 import { SQLCodeViewer } from '@/components/editor/SingleLineEditor';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { SchemaType } from '@/stores/dataset';
 import { TabContextType } from '@/stores/tabs';
-import { toast } from 'sonner';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 export interface DataViewToolbarProps {
   context?: TabContextType;
@@ -35,12 +39,16 @@ export interface DataViewToolbarProps {
   elapsed?: number;
   cross?: boolean;
   transpose?: boolean;
+  columns?: SchemaType[];
+  hiddenColumns?: Record<string, boolean>;
   setShowValue: () => void;
   refresh: () => void;
   setBeautify: () => void;
   setPagination?: (p: { page?: number; perPage?: number }) => void;
   setTranspose?: () => void;
   setCross?: () => void;
+
+  setHiddenColumns?: (column: string, hidden: boolean) => void;
 }
 
 export function elapsedRender(elapsed?: number) {
@@ -58,6 +66,9 @@ export function DataViewToolbar({
   elapsed,
   cross,
   transpose,
+  columns,
+  hiddenColumns,
+  setHiddenColumns,
   setShowValue,
   refresh,
   setBeautify,
@@ -125,6 +136,31 @@ export function DataViewToolbar({
         </div>
       </Stack>
       <Stack>
+        <Popover>
+          <PopoverTrigger asChild>
+            <TooltipButton icon={<Columns3CogIcon />} tooltip="Hidden Column" />
+          </PopoverTrigger>
+          <PopoverContent>
+            <div className="flex flex-col gap-2">
+              <h4>Data Columns</h4>
+              {columns?.map((column) => {
+                return (
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      id={column.name}
+                      checked={!hiddenColumns?.[column.name]}
+                      onCheckedChange={(value) => {
+                        setHiddenColumns?.(column.name, !value);
+                      }}
+                    />
+                    <Label htmlFor={column.name}>{column.name}</Label>
+                  </div>
+                );
+              })}
+            </div>
+          </PopoverContent>
+        </Popover>
+
         <TooltipButton
           icon={<CrossIcon />}
           onClick={setCross}
@@ -158,7 +194,7 @@ export function DataViewToolbar({
               className={loading ? 'animate-spin duration-2000' : ''}
             />
           }
-          tooltip="Export to CSV"
+          tooltip="Export data"
           onClick={handleExport}
         />
       </Stack>

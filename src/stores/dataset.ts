@@ -58,6 +58,7 @@ export type DatasetState = {
   showValue?: boolean;
   dialogColumn?: string;
   direction: Direction;
+  hiddenColumns: Record<string, boolean>;
 };
 
 export type DatasetAction = {
@@ -69,6 +70,7 @@ export type DatasetAction = {
   setSQLWhere: (value: string) => void;
   setSQLOrderBy: (value: string) => void;
   setDialogColumn: (value: string) => void;
+  setHiddenColumns: (key: string, value: boolean) => void;
   refresh: (stmt?: string) => Promise<ResultType | undefined>;
   setBeautify: () => void;
   setShowValue: () => void;
@@ -107,6 +109,7 @@ export const createDatasetStore = (context: TabContextType) =>
     transpose: false,
     direction: 'horizontal',
     cross: false,
+    hiddenColumns: {},
 
     // action
     setStore: (res: object) => set((_) => res),
@@ -140,6 +143,8 @@ export const createDatasetStore = (context: TabContextType) =>
       set((_) => ({ sqlOrderBy: value }));
     },
     setDialogColumn: (dialogColumn: string) => set((_) => ({ dialogColumn })),
+    setHiddenColumns: (key: string, value: boolean) =>
+      set(({ hiddenColumns }) => ({hiddenColumns: { ...hiddenColumns, [key]: value }})),
 
     setOrderBy: (_name: string) => {},
 

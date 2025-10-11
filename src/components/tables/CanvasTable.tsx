@@ -37,6 +37,8 @@ export interface TableProps<T = unknown> {
   orderBy?: OrderByType;
   transpose?: boolean;
   cross?: boolean;
+  hiddenColumns: Record<string, boolean>;
+  setHiddenColumns: (col: string, hidden: boolean) => void;
   onSelectedCell?: (value: SelectedCellType | null) => void;
   onSelectedCellInfos?: (cells: SelectedCellType[][] | null) => void;
 }
@@ -59,6 +61,8 @@ const CanvasTable_ = memo(function CanvasTable({
   transpose,
   cross,
   style,
+  setHiddenColumns,
+  hiddenColumns,
   onSelectedCell,
   onSelectedCellInfos,
 }: TableProps) {
@@ -85,6 +89,7 @@ const CanvasTable_ = memo(function CanvasTable({
     };
   }, []);
 
+  console.log('hiddenColumns in CanvasTable:', hiddenColumns);
   const _titles = useMemo(
     () =>
       schema.map(({ name, dataType, type }) => {
@@ -95,7 +100,7 @@ const CanvasTable_ = memo(function CanvasTable({
           dataType,
         };
       }),
-    [schema],
+    [schema, hiddenColumns],
   );
 
   const [titleMap, types] = useMemo(
@@ -121,6 +126,7 @@ const CanvasTable_ = memo(function CanvasTable({
         fieldKey: key,
         title: name,
         dragHeader: true,
+        hide: hiddenColumns?.[name],
         sort: true,
         style: (arg) => {
           const style: Record<string, string> = {};
@@ -174,7 +180,15 @@ const CanvasTable_ = memo(function CanvasTable({
         },
       } as ColumnDefine;
     });
-  }, [leftPinnedCols, rightPinnedCols, _titles, titleMap, beautify, precision]);
+  }, [
+    leftPinnedCols,
+    rightPinnedCols,
+    _titles,
+    titleMap,
+    beautify,
+    precision,
+    hiddenColumns,
+  ]);
 
   const exportToCsv = (name: string) => {
     // TODO: test
@@ -236,6 +250,8 @@ const CanvasTable_ = memo(function CanvasTable({
       } else if (e.menuKey == 'pin-to-clear') {
         setLeftPinnedCols([]);
         setRightPinnedCols([]);
+      } else if (e.menuKey == 'hidden-column') {
+        setHiddenColumns(e.field as string, true );
       }
     } else {
       if (e.menuKey == 'copy') {
@@ -317,6 +333,10 @@ const CanvasTable_ = memo(function CanvasTable({
               {
                 menuKey: 'pin-to-clear',
                 text: 'Clear pinned',
+              },
+              {
+                menuKey: 'hidden-column',
+                text: 'Hidden column',
               },
             ];
           }

@@ -53,6 +53,7 @@ export type QueryContextType = QueryParamType & {
   sql?: string;
   titles?: TitleType[];
   tableSchema?: SchemaType[];
+  hiddenColumns: Record<string, boolean>;
   message?: string;
   beautify?: boolean;
   transpose?: boolean;

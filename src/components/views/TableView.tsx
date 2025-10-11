@@ -82,9 +82,11 @@ export function TableView({ context }: { context: TabContextType }) {
     total,
     sql,
     elapsed,
+    hiddenColumns,
     setBeautify,
     setPagination,
     setTranspose,
+    setHiddenColumns,
     setCross,
   } = usePageStore();
 
@@ -101,6 +103,9 @@ export function TableView({ context }: { context: TabContextType }) {
         elapsed={elapsed}
         cross={cross}
         transpose={transpose}
+        columns={tableSchema}
+        hiddenColumns={hiddenColumns}
+        setHiddenColumns={setHiddenColumns}
         setShowValue={setShowValue}
         refresh={refresh}
         setBeautify={setBeautify}
@@ -119,6 +124,8 @@ export function TableView({ context }: { context: TabContextType }) {
                   style={loading ? { display: 'none' } : undefined}
                   data={data ?? []}
                   schema={tableSchema ?? []}
+                  hiddenColumns={hiddenColumns}
+                  setHiddenColumns={setHiddenColumns}
                   beautify={beautify}
                   orderBy={orderBy}
                   precision={precision}
