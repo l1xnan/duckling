@@ -27,7 +27,7 @@ import { SelectedCellType } from '@/components/views/TableView';
 import { useTheme } from '@/hooks/theme-provider';
 import { tableFontFamilyAtom } from '@/stores/setting';
 import { isDarkTheme, isNumberType, uniqueArray } from '@/utils';
-import { HighlightHeaderWhenSelectCellPlugin } from '@visactor/vtable-plugins';
+import { HighlightHeaderWhenSelectCellPlugin } from './highlight-header-when-select-cell';
 import { makeTableTheme } from './theme';
 
 export interface TableProps<T = unknown> {
@@ -55,9 +55,19 @@ function useTableTheme() {
   );
 }
 
-const highlightPlugin = new HighlightHeaderWhenSelectCellPlugin({
-  colHighlight: true,
-  rowHighlight: true,
+const rowSeriesNumber = ({ transpose }: any) => ({
+  field: '__index__',
+  title: '',
+  dragHeader: false,
+  disableSelect: true,
+  // disableHover: true,
+  disableHeaderHover: true,
+  disableHeaderSelect: true,
+  disableColumnResize: true,
+  style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
+  fieldFormat: (_r: any, col: number, row: number) => {
+    return transpose ? col : row;
+  },
 });
 
 const CanvasTable_ = memo(function CanvasTable({
@@ -96,7 +106,6 @@ const CanvasTable_ = memo(function CanvasTable({
     };
   }, []);
 
-  console.log('hiddenColumns in CanvasTable:', hiddenColumns);
   const _titles = useMemo(
     () =>
       schema.map(({ name, dataType, type }) => {
@@ -281,6 +290,15 @@ const CanvasTable_ = memo(function CanvasTable({
   };
   const theme = useTableTheme();
 
+  const highlightPlugin = useMemo(
+    () =>
+      new HighlightHeaderWhenSelectCellPlugin({
+        colHighlight: true,
+        rowHighlight: true,
+      }),
+    [],
+  );
+
   const option: ListTableConstructorOptions = useMemo(() => {
     return {
       records: data,
@@ -289,38 +307,20 @@ const CanvasTable_ = memo(function CanvasTable({
       defaultRowHeight: 24,
       widthMode: 'autoWidth',
       showFrozenIcon: true,
-      frozenColCount: transpose ? 1 : 1 + leftPinnedCols.length,
+      frozenColCount: transpose ? 2 : 1 + leftPinnedCols.length,
       rightFrozenColCount: rightPinnedCols.length,
       frozenRowCount: 0,
       theme,
       transpose,
-      rowSeriesNumber: !transpose
-        ? {
-            title: '',
-            width: 'auto',
-            headerStyle: {},
-            style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
-            dragOrder: false,
-            disableColumnResize: true,
-          }
-        : undefined,
-      columns: [
-        // {
-        //   field: '__index__',
-        //   title: '',
-        //   dragHeader: false,
-        //   disableSelect: true,
-        //   // disableHover: true,
-        //   disableHeaderHover: true,
-        //   disableHeaderSelect: true,
-        //   disableColumnResize: true,
-        //   style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
-        //   fieldFormat: (_r, col, row) => {
-        //     return transpose ? col : row;
-        //   },
-        // },
-        ...__columns,
-      ],
+      rowSeriesNumber: {
+        title: '',
+        width: 'auto',
+        headerStyle: {},
+        style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
+        dragOrder: false,
+        disableColumnResize: true,
+      },
+      columns: [...__columns],
       menu: {
         contextMenuItems: (_field, row, col) => {
           if ((!transpose && row == 0) || (transpose && col == 0)) {
@@ -470,7 +470,7 @@ export function SimpleTable({ data }: { data: unknown[] }) {
         copySelected: true,
         pasteValueToCell: true,
       },
-      plugins: [highlightPlugin],
+      plugins: [],
     }),
     [data],
   );
