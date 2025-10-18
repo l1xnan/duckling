@@ -1,8 +1,11 @@
 use crate::utils::{Metadata, RawArrowData};
 use crate::utils::{Table, Title, TreeNode, build_tree, get_file_name};
 use arrow::array::RecordBatch;
+use arrow::datatypes::DataType;
+use arrow::datatypes::FieldRef;
 use log::log;
 use std::collections::HashMap;
+use std::fmt;
 
 #[derive(Debug)]
 pub struct DuckDbSyncConnection {
@@ -161,6 +164,62 @@ impl DuckDbSyncConnection {
   }
 }
 
+pub struct MyDataType(pub DataType);
+
+impl MyDataType {
+  fn fmt_field_ref(f: &mut fmt::Formatter<'_>, field: &FieldRef) -> fmt::Result {
+    write!(
+      f,
+      "{}: {}",
+      field.name(),
+      MyDataType(field.data_type().clone())
+    )
+  }
+  fn fmt_field_ref_type(f: &mut fmt::Formatter<'_>, field: &FieldRef) -> fmt::Result {
+    write!(f, "{}", MyDataType(field.data_type().clone()))
+  }
+}
+
+impl fmt::Display for MyDataType {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match &self.0 {
+      DataType::Struct(fields) => {
+        write!(f, "Struct<{{")?;
+        for (i, field) in fields.iter().enumerate() {
+          if i > 0 {
+            write!(f, ", ")?;
+          }
+          Self::fmt_field_ref(f, field)?;
+        }
+        write!(f, "}}>")
+      }
+
+      DataType::List(field) => {
+        write!(f, "List<")?;
+        Self::fmt_field_ref_type(f, field)?;
+        write!(f, ">")
+      }
+
+      DataType::LargeList(field) => {
+        write!(f, "LargeList<")?;
+        Self::fmt_field_ref_type(f, field)?;
+        write!(f, ">")
+      }
+
+      DataType::Map(field, sorted) => {
+        write!(f, "Map<")?;
+        Self::fmt_field_ref(f, field)?;
+        write!(f, ">(sorted={})", sorted)
+      }
+
+      DataType::Utf8 => write!(f, "String"),
+      DataType::LargeUtf8 => write!(f, "String"),
+      // 其余类型保持默认 Debug 输出
+      _ => write!(f, "{:?}", self.0),
+    }
+  }
+}
+
 pub fn query(conn: &duckdb::Connection, sql: &str) -> anyhow::Result<RawArrowData> {
   println!("sql: {sql}");
 
@@ -175,7 +234,7 @@ pub fn query(conn: &duckdb::Connection, sql: &str) -> anyhow::Result<RawArrowDat
     .enumerate()
     .map(|(i, name)| Title {
       name: name.clone(),
-      r#type: stmt.column_type(i).to_string(),
+      r#type: MyDataType(stmt.column_type(i)).to_string(),
     })
     .collect();
 
