@@ -9,14 +9,7 @@ import {
 } from '@visactor/vtable';
 
 import { useAtomValue } from 'jotai';
-import {
-  CSSProperties,
-  memo,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { CSSProperties, memo, useMemo, useRef, useState } from 'react';
 
 import { OrderByType, SchemaType } from '@/stores/dataset';
 import { downloadCsv, exportVTableToCsv } from '@visactor/vtable-export';
@@ -35,6 +28,8 @@ import { IVTablePlugin } from '@visactor/vtable/es/plugins';
 import { FieldDef } from '@visactor/vtable/es/ts-types';
 import { HighlightHeaderWhenSelectCellPlugin } from './highlight-header-when-select-cell';
 import { makeTableTheme } from './theme';
+
+export type ListTableProps = ComponentProps<typeof ListTable>;
 
 export interface TableProps<T = unknown> {
   data: T[];
@@ -179,30 +174,9 @@ const handleColumnStyle = (
   return style;
 };
 
-function useTableEvent(tableRef: React.RefObject<ListTableAPI | null>) {
-  useEffect(() => {
-    const handleBodyClick = (_e: Event) => {
-      tableRef.current?.stateManager.hideMenu();
-    };
-
-    document.addEventListener('click', handleBodyClick);
-    document.addEventListener('dblclick', handleBodyClick);
-    document.addEventListener('contextmenu', handleBodyClick);
-    // document.addEventListener('mousedown', handleBodyClick);
-
-    return () => {
-      document.removeEventListener('click', handleBodyClick);
-      document.removeEventListener('dblclick', handleBodyClick);
-      document.removeEventListener('contextmenu', handleBodyClick);
-      // document.removeEventListener('mousedown', handleBodyClick);
-    };
-  }, []);
-}
-
 function useTitles(schema: SchemaType[]) {
   const [_titles, titleMap, types] = useMemo(() => {
     const _titles = schema.map(({ name, dataType, type }) => {
-      console.log('dataType:', type, dataType);
       return {
         key: name,
         name,
@@ -234,8 +208,6 @@ const CanvasTable_ = memo(function CanvasTable({
   onSelectedCellInfos,
 }: TableProps) {
   const tableRef = useRef<ListTableAPI>(null);
-  useTableEvent(tableRef);
-  const [plugins, setPlugins] = useState<IVTablePlugin[]>([]);
 
   const [leftPinnedCols, setLeftPinnedCols] = useState<string[]>([]);
   const [rightPinnedCols, setRightPinnedCols] = useState<string[]>([]);
@@ -289,9 +261,7 @@ const CanvasTable_ = memo(function CanvasTable({
     }
   };
 
-  const handleMouseEnterCell: ComponentProps<
-    typeof ListTable
-  >['onMouseEnterCell'] = (args) => {
+  const handleMouseEnterCell: ListTableProps['onMouseEnterCell'] = (args) => {
     const table = tableRef.current;
     if (!table) {
       return;
@@ -323,9 +293,10 @@ const CanvasTable_ = memo(function CanvasTable({
       });
     }
   };
-  const handleDropdownMenuClick: ComponentProps<
-    typeof ListTable
-  >['onDropdownMenuClick'] = async (e) => {
+
+  const handleDropdownMenuClick: ListTableProps['onDropdownMenuClick'] = async (
+    e,
+  ) => {
     const table = tableRef.current;
     const transpose = table?.transpose;
     if ((!transpose && e.row == 0) || (transpose && e.col == 0)) {
@@ -357,9 +328,7 @@ const CanvasTable_ = memo(function CanvasTable({
     }
   };
 
-  const handleDragSelectEnd: ComponentProps<
-    typeof ListTable
-  >['onDragSelectEnd'] = (e) => {
+  const handleDragSelectEnd: ListTableProps['onDragSelectEnd'] = (e) => {
     onSelectedCellInfos?.(e.cells as SelectedCellType[][]);
   };
   const theme = useTableTheme();
@@ -444,7 +413,9 @@ const CanvasTable_ = memo(function CanvasTable({
         }
       },
     });
-  }, []);
+  }, [setHiddenColumns]);
+
+  const [plugins, setPlugins] = useState<IVTablePlugin[]>([highlightPlugin]);
 
   const option: ListTableConstructorOptions = useMemo(() => {
     console.log('plugins:', plugins);
@@ -482,9 +453,10 @@ const CanvasTable_ = memo(function CanvasTable({
         copySelected: true,
         pasteValueToCell: true,
       },
-      plugins: [highlightPlugin, contextMenuPlugin],
+      plugins: plugins.length > 0 ? plugins : [],
     };
   }, [
+    plugins,
     data,
     transpose,
     leftPinnedCols.length,
@@ -492,17 +464,10 @@ const CanvasTable_ = memo(function CanvasTable({
     theme,
     __columns,
     cross,
-    plugins,
   ]);
+
   return (
-    <div
-      className="h-full select-text"
-      style={style}
-      onContextMenu={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-      }}
-    >
+    <div className="h-full select-text" style={style}>
       <ListTable
         ref={tableRef}
         option={option}
@@ -593,7 +558,7 @@ export function SimpleTable({ data }: { data: unknown[] }) {
       },
       plugins: [],
     }),
-    [data],
+    [data, theme],
   );
 
   return (
