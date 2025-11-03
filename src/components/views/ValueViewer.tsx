@@ -43,7 +43,7 @@ export function FormatTypeDropdown({ type, setType }: FormatTypeDropdownProps) {
   return (
     <DropdownMenu content={type}>
       <DropdownMenuContent className="w-32">
-        {['Raw', 'JSON'].map((item) => (
+        {['Raw', 'JSON', "Raw(JSON)"].map((item) => (
           <DropdownMenuItem
             key={item}
             onSelect={() => {
@@ -72,6 +72,9 @@ function displayValue(value: Data, type: string) {
   }
   if (type === 'JSON') {
     return arrowToJSON(value);
+  }
+  if (type === 'Raw(JSON)') {
+    return value.toString();
   }
   if (value instanceof Vector) {
     return arrowToJSON(value, 0);
@@ -138,7 +141,7 @@ export function ValueViewer({
           <FormatTypeDropdown type={type} setType={setType} />
           <TooltipButton
             icon={<LetterTextIcon className="size-5" />}
-            disabled={type !== 'JSON'}
+            disabled={!type.includes('JSON')}
             onClick={handleFormat}
             tooltip="Format"
           />
@@ -178,7 +181,7 @@ export function ValueViewer({
         ) : (
           <MonacoEditor
             theme={theme}
-            language={type === 'JSON' ? 'json' : 'plaintext'}
+            language={type.includes('JSON') ? 'json' : 'plaintext'}
             value={value}
             onMount={(editor) => {
               editorRef.current = editor;

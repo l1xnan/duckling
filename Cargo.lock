@@ -1083,8 +1083,8 @@ dependencies = [
  "rust_xlsxwriter",
  "serde",
  "serde_json",
- "sqlformat 0.3.5",
- "sqlparser 0.57.0",
+ "sqlformat",
+ "sqlparser",
  "time",
  "tokio",
  "tokio-postgres",
@@ -1590,8 +1590,8 @@ dependencies = [
  "open",
  "serde",
  "serde_json",
- "sqlformat 0.5.0",
- "sqlparser 0.59.0",
+ "sqlformat",
+ "sqlparser",
  "tauri",
  "tauri-build",
  "tauri-plugin-clipboard-manager",
@@ -5513,34 +5513,12 @@ dependencies = [
 
 [[package]]
 name = "sqlformat"
-version = "0.3.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a0d7b3e8a3b6f2ee93ac391a0f757c13790caa0147892e3545cd549dd5b54bc0"
-dependencies = [
- "unicode_categories",
- "winnow 0.6.26",
-]
-
-[[package]]
-name = "sqlformat"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0705994df478b895f05b8e290e0d46e53187b26f8d889d37b2a0881234922d94"
 dependencies = [
  "unicode_categories",
  "winnow 0.7.13",
-]
-
-[[package]]
-name = "sqlparser"
-version = "0.57.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "07c5f081b292a3d19637f0b32a79e28ff14a9fd23ef47bd7fce08ff5de221eca"
-dependencies = [
- "log",
- "recursive",
- "serde",
- "serde_json",
 ]
 
 [[package]]
@@ -7654,15 +7632,6 @@ name = "winnow"
 version = "0.5.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f593a95398737aeed53e489c785df13f3618e41dbcd6718c6addbf1395aa6876"
-dependencies = [
- "memchr",
-]
-
-[[package]]
-name = "winnow"
-version = "0.6.26"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e90edd2ac1aa278a5c4599b1d89cf03074b610800f866d4026dc199d7929a28"
 dependencies = [
  "memchr",
 ]
