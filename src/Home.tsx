@@ -1,4 +1,3 @@
-import { Hidden } from '@/components/custom/hidden';
 
 import { Content, Sidebar } from '@/components/Layout';
 import { useResize } from '@/hooks';
@@ -10,7 +9,7 @@ import { Favorite, History, SqlCode } from '@/pages/sidebar/Favorite';
 import { sizeAtom } from '@/stores/app';
 import { useAtom, useAtomValue } from 'jotai';
 import { BellIcon } from 'lucide-react';
-import { RefObject } from 'react';
+import { Activity, RefObject } from 'react';
 import { cn } from './lib/utils';
 import { VerticalTabs } from './pages/sidebar/VerticalTabs';
 
@@ -37,21 +36,24 @@ function Home() {
           style={{ width: sizeLeft }}
         >
           <Sidebar>
-            <Hidden display={activeAside == 'database'}>
+            {/* <Hidden display={activeAside == 'database'}>
               <DBTree />
-            </Hidden>
-            <Hidden display={activeAside == 'favorite'}>
+            </Hidden> */}
+            <Activity mode={activeAside === 'database' ? 'visible' : 'hidden'}>
+              <DBTree />
+            </Activity>
+            <Activity mode={activeAside == 'favorite' ? 'visible' : 'hidden'}>
               <Favorite />
-            </Hidden>
-            <Hidden display={activeAside == 'history'}>
+            </Activity>
+            <Activity mode={activeAside == 'history' ? 'visible' : 'hidden'}>
               <History />
-            </Hidden>
-            <Hidden display={activeAside == 'code'}>
+            </Activity>
+            <Activity mode={activeAside == 'code' ? 'visible' : 'hidden'}>
               <SqlCode />
-            </Hidden>
-            <Hidden display={activeAside == 'tabs'}>
+            </Activity>
+            <Activity mode={activeAside === 'tabs' ? 'visible' : 'hidden'}>
               <VerticalTabs />
-            </Hidden>
+            </Activity>
           </Sidebar>
           <div className={classes.controls}>
             <div className={classes.resizeVertical} onMouseDown={actionLeft} />
