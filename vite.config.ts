@@ -3,7 +3,6 @@ import path from 'path';
 
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-// import react from '@vitejs/plugin-react-oxc';
 import jotaiDebugLabel from 'jotai/babel/plugin-debug-label';
 import jotaiReactRefresh from 'jotai/babel/plugin-react-refresh';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
@@ -68,15 +67,15 @@ export default defineConfig({
             ? 'assets/[name].[ext]' // WASM 无哈希
             : 'assets/[name]-[hash].[ext]'; // 其他文件带哈希
         },
-        manualChunks: {
-          // 将 web-tree-sitter 单独打包为一个 chunk
-          'web-tree-sitter': ['web-tree-sitter'],
-        },
-        // advancedChunks: {
-        //   groups: [
-        //     { name: 'web-tree-sitter', test: /node_modules\/web-tree-sitter/ },
-        //   ],
+        // manualChunks: {
+        //   'web-tree-sitter': ['web-tree-sitter'],
         // },
+        advancedChunks: {
+          groups: [
+            // 将 web-tree-sitter 单独打包为一个 chunk
+            { name: 'web-tree-sitter', test: /node_modules\/web-tree-sitter/ },
+          ],
+        },
       },
       external: (id) => {
         if (id.startsWith('@shikijs/langs')) {
