@@ -1,15 +1,14 @@
+import { derive } from 'derive-zustand';
 import { atom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
 import { splitAtom } from 'jotai/utils';
-import { create } from 'zustand';
-import { createComputed } from 'zustand-computed';
+import { create, useStore } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { TreeNode } from '@/types';
 
 import { getDB } from '@/api';
-import { atomStore } from '.';
 import { indexDBStorage } from './indexdb';
 
 export type NodeContextType = {
@@ -96,6 +95,7 @@ type DBListAction = {
   remove: (id: string) => void;
   rename: (id: string, displayName: string) => void;
   setCwd: (cwd: string, id: string) => void;
+  getDB: (id: string) => DBType | undefined;
   setDB: (id: string, config: DialectConfig) => void;
   updateByConfig: (id: string, config: DialectConfig) => Promise<void>;
 };
@@ -116,83 +116,97 @@ export function flattenTree(tree: TreeNode): Map<string, TreeNode> {
   return result;
 }
 
-const computed = createComputed((s: DBListStore) => ({
-  dbMap: new Map(s.dbList.map((db) => [db.id, db])),
-  tableMap: new Map(s.dbList.map((db) => [db.id, flattenTree(db.data)])),
-}));
-
 export const useDBListStore = create<DBListStore>()(
-  computed(
-    persist<DBListStore>(
-      (set, get) => ({
-        // state
-        dbList: [],
+  // computed(
+  persist<DBListStore>(
+    (set, get) => ({
+      // state
+      dbList: [],
 
-        // action
-        append: (db) => set((state) => ({ dbList: [...state.dbList, db] })),
-        remove: (id) =>
-          set((state) => ({
-            dbList: state.dbList?.filter((item) => !(item.id === id)),
-          })),
-        update: (id, { id: _id, ...db }) =>
-          set((state) => ({
-            dbList: state.dbList.map((item) =>
-              item.id !== id ? item : { ...item, ...db },
-            ),
-          })),
+      // action
+      append: (db) => set((state) => ({ dbList: [...state.dbList, db] })),
+      remove: (id) =>
+        set((state) => ({
+          dbList: state.dbList?.filter((item) => !(item.id === id)),
+        })),
+      update: (id, { id: _id, ...db }) =>
+        set((state) => ({
+          dbList: state.dbList.map((item) =>
+            item.id !== id ? item : { ...item, ...db },
+          ),
+        })),
 
-        updateByConfig: async (id: string, config: DialectConfig) => {
-          const updateDB = get().update;
-          try {
-            updateDB(id, { loading: true });
-            const { data, meta, defaultDatabase } = await getDB(config);
-            updateDB(id, { data, meta, defaultDatabase, loading: false });
-          } catch (error) {
-            console.log(error);
-          } finally {
-            updateDB(id, { loading: false });
-          }
-        },
-
-        setCwd: (cwd: string, id: string) =>
-          set((state) => ({
-            dbList: state.dbList.map((item) => {
-              return item.id == id
-                ? {
-                    ...item,
-                    config: { ...(item.config ?? {}), cwd } as DialectConfig,
-                  }
-                : item;
-            }),
-          })),
-        setDB: (id: string, config) =>
-          set((state) => ({
-            dbList: state.dbList.map((item) =>
-              item.id == id ? { ...item, config } : item,
-            ),
-          })),
-
-        rename: (dbId: string, displayName: string) => {
-          set(({ dbList }) => ({
-            dbList: dbList.map((item) => {
-              return item.id == dbId
-                ? {
-                    ...item,
-                    displayName,
-                  }
-                : item;
-            }),
-          }));
-        },
-      }),
-      {
-        name: 'dbListStore',
-        storage: createJSONStorage(() => indexDBStorage),
-        partialize: (state) => ({ dbList: state.dbList }) as DBListStore,
+      updateByConfig: async (id: string, config: DialectConfig) => {
+        const updateDB = get().update;
+        try {
+          updateDB(id, { loading: true });
+          const { data, meta, defaultDatabase } = await getDB(config);
+          updateDB(id, { data, meta, defaultDatabase, loading: false });
+        } catch (error) {
+          console.log(error);
+        } finally {
+          updateDB(id, { loading: false });
+        }
       },
-    ),
+
+      setCwd: (cwd: string, id: string) =>
+        set((state) => ({
+          dbList: state.dbList.map((item) => {
+            return item.id == id
+              ? {
+                  ...item,
+                  config: { ...item.config, cwd } as DialectConfig,
+                }
+              : item;
+          }),
+        })),
+
+      getDB: (id: string) => {
+        const db = get().dbList.find((item) => item.id === id);
+        return db;
+      },
+      setDB: (id: string, config) =>
+        set((state) => ({
+          dbList: state.dbList.map((item) =>
+            item.id == id ? { ...item, config } : item,
+          ),
+        })),
+
+      rename: (dbId: string, displayName: string) => {
+        set(({ dbList }) => ({
+          dbList: dbList.map((item) => {
+            return item.id == dbId
+              ? {
+                  ...item,
+                  displayName,
+                }
+              : item;
+          }),
+        }));
+      },
+    }),
+    {
+      name: 'dbListStore',
+      storage: createJSONStorage(() => indexDBStorage),
+      partialize: (state) => ({ dbList: state.dbList }) as DBListStore,
+    },
   ),
+  // ),
 );
+
+const dbMapStore = derive<Map<string, DBType>>((get) => {
+  const dbList = get(useDBListStore).dbList;
+  return new Map(dbList.map((db) => [db.id, db]));
+});
+
+export const useDbMapStore = () => useStore(dbMapStore);
+
+const tableMapStore = derive<Map<string, Map<string, TreeNode>>>((get) => {
+  const dbList = get(useDBListStore).dbList;
+  return new Map(dbList.map((db) => [db.id, flattenTree(db.data)]));
+});
+
+export const useTableMapStore = () => useStore(tableMapStore);
 
 const storeAtom = atomWithStore(useDBListStore);
 export const dbListAtom = focusAtom(storeAtom, (o) => o.prop('dbList'));
@@ -211,10 +225,3 @@ export const tablesAtom = atom(
 export const dbAtomsAtom = splitAtom(dbListAtom);
 
 export const selectedNodeAtom = atom<NodeContextType | null>(null);
-
-// db rename
-export const renameAtom = atom<DBType | null>(null);
-// db setting
-export const configAtom = atom<DBType | null>(null);
-
-atomStore.sub(dbListAtom, () => {});

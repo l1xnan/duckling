@@ -3,8 +3,8 @@ import { cn } from '@/lib/utils';
 import {
   DBType,
   NodeContextType,
-  dbMapAtom,
   selectedNodeAtom,
+  useDBListStore,
 } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { NodeElementType } from '@/types';
@@ -21,7 +21,7 @@ import {
 } from '@headless-tree/core';
 import { useTree } from '@headless-tree/react';
 import { Virtualizer, useVirtualizer } from '@tanstack/react-virtual';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { ChevronRight } from 'lucide-react';
 
 import { ConnectionContextMenu } from '@/pages/sidebar/context-menu/ConnectionContextMenu';
@@ -50,8 +50,8 @@ export function ContextNode({
   data,
   isRoot,
 }: PropsWithChildren<{ data: NodeElementType; isRoot: boolean }>) {
-  const dbMap = useAtomValue(dbMapAtom);
-  const db = dbMap.get(data?.dbId);
+  const getDB = useDBListStore((s) => s.getDB);
+  const db = getDB(data?.dbId);
   if (!db) {
     return children;
   }

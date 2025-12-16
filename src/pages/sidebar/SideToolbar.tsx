@@ -12,7 +12,12 @@ import { TooltipButton } from '@/components/custom/button';
 import { useDialog } from '@/components/custom/use-dialog';
 import { ConfigDialog } from '@/pages/sidebar/dialog/ConfigDialog';
 import { DatabaseDialog } from '@/pages/sidebar/dialog/DatabaseDialog';
-import { DialectType, selectedNodeAtom, useDBListStore } from '@/stores/dbList';
+import {
+  DialectType,
+  selectedNodeAtom,
+  useDBListStore,
+  useDbMapStore,
+} from '@/stores/dbList';
 import { ChevronsDownUpIcon, ChevronsUpDownIcon } from 'lucide-react';
 import { useShallow } from 'zustand/shallow';
 
@@ -23,10 +28,10 @@ export function SideToolbar({
   onExpandAll: () => void;
   onCollapseAll: () => void;
 }) {
-  const [dbList, dbMap, appendDB, updateDB, _removeDB] = useDBListStore(
-    useShallow((s) => [s.dbList, s.dbMap, s.append, s.updateByConfig, s.remove]),
+  const [dbList, appendDB, updateDB, _removeDB] = useDBListStore(
+    useShallow((s) => [s.dbList, s.append, s.updateByConfig, s.remove]),
   );
-
+  const dbMap = useDbMapStore();
   async function handleGetDB(path: string, dialect: DialectType) {
     const data = await getDB({ path, dialect });
     appendDB(data);

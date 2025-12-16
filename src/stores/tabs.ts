@@ -9,19 +9,23 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import {
-  QueryParams,
-  QueryTableParams,
-  ResultType,
-  TitleType,
   exportCsv,
   pagingQuery,
   query,
+  QueryParams,
   queryTable,
+  QueryTableParams,
+  ResultType,
+  TitleType,
 } from '@/api';
 import { atomStore } from '@/stores';
 
 import { Direction, SchemaType } from './dataset';
-import { PostgresDialectType, dbMapAtom, tablesAtom } from './dbList';
+import {
+  dbMapAtom,
+  PostgresDialectType,
+  tablesAtom
+} from './dbList';
 import { settingAtom } from './setting';
 
 export type QueryParamType = {
