@@ -8,7 +8,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 parquet = "56"
 arrow = { version = "^56", features = ["prettyprint", "csv"] }
-duckdb = { version = "1.4.3", features = [
+duckdb = { version = "1.4.4", features = [
     "extensions-full",
     "bundled",
 ] }
@@ -20,7 +20,7 @@ rusqlite = { version = "^0.37.0", features = [
     "column_decltype",
     "modern_sqlite",
 ] }
-mysql = { version = "26.0.0" }
+mysql = { version = "27.0.0" }
 tokio-postgres = { version = "0.7.10", features = [
     "with-serde_json-1",
     "array-impls",
@@ -40,8 +40,8 @@ sqlformat = "^0.5"
 log = "^0.4"
 glob = "*"
 itertools = "*"
-clickhouse = { version = "0.14.0", features = ["rustls-tls"] }
+clickhouse = { version = "0.14.2", features = ["rustls-tls"] }
 rust_xlsxwriter = "^0.90.2"
 walkdir = "2"
 regex = "*"
-calamine = "^0.31.0"
+calamine = "^0.33.0"
