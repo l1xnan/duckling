@@ -6,13 +6,14 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { TooltipContentProps } from '@radix-ui/react-tooltip';
 import React, { PropsWithChildren, ReactElement } from 'react';
 
-interface IconButtonProps extends PropsWithChildren<React.ComponentProps<typeof Button>> {
+interface IconButtonProps extends PropsWithChildren<
+  React.ComponentProps<typeof Button>
+> {
   icon?: ReactElement;
   tooltip?: string;
-  tooltipProps?: TooltipContentProps;
+  tooltipProps?: React.ComponentProps<typeof TooltipContent>;
   active?: boolean;
 }
 

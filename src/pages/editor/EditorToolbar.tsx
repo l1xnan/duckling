@@ -14,9 +14,10 @@ import {
   DropdownMenuGroup,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { TooltipContent } from '@/components/ui/tooltip';
 import { DBType, useDBListStore } from '@/stores/dbList';
-import { TooltipContentProps } from '@radix-ui/react-tooltip';
 import { IconInfinity, IconInfinityOff } from '@tabler/icons-react';
+import React from 'react';
 
 const tooltipProps = {
   side: 'bottom',
@@ -24,7 +25,7 @@ const tooltipProps = {
   sideOffset: 5,
   alignOffset: 5,
   className: 'font-mono text-xs',
-} as TooltipContentProps;
+} as React.ComponentProps<typeof TooltipContent>;
 
 export function EditorToolbar({
   onClick,

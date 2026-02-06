@@ -1,5 +1,4 @@
-import * as TooltipPrimitive from '@radix-ui/react-tooltip';
-import { TooltipProviderProps } from '@radix-ui/react-tooltip';
+import { Tooltip as TooltipPrimitive } from 'radix-ui';
 import React, {
   PropsWithChildren,
   ReactElement,
@@ -22,7 +21,9 @@ import { cn } from '@/lib/utils';
 export function Tooltip({
   children,
   title,
-}: PropsWithChildren<{ title: ReactNode } & TooltipProviderProps>) {
+}: PropsWithChildren<
+  { title: ReactNode } & React.ComponentProps<typeof TooltipPrimitive.Provider>
+>) {
   return (
     <TooltipProvider
       delayDuration={1500}
@@ -99,8 +100,9 @@ export function DelayedTooltip({
   );
 }
 
-interface IconButtonProps
-  extends PropsWithChildren<React.ComponentProps<typeof Button>> {
+interface IconButtonProps extends PropsWithChildren<
+  React.ComponentProps<typeof Button>
+> {
   icon?: ReactElement;
   tooltip?: string;
   tooltipProps?: TooltipPrimitive.TooltipContentProps;

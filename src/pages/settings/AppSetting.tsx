@@ -1,4 +1,3 @@
-import { DialogClose } from '@radix-ui/react-dialog';
 import { getTauriVersion, getVersion } from '@tauri-apps/api/app';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { relaunch } from '@tauri-apps/plugin-process';
@@ -14,7 +13,11 @@ import { toast } from 'sonner';
 import { Dialog } from '@/components/custom/Dialog';
 import { SidebarNav } from '@/components/custom/siderbar-nav';
 import { Button } from '@/components/ui/button';
-import { DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import {
+  DialogClose,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,

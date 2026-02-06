@@ -8,7 +8,6 @@ import { DialogClose, DialogFooter } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { SearchContextType, useTabsStore } from '@/stores/tabs';
 import { NodeElementType } from '@/types';
-import { DialogProps } from '@radix-ui/react-alert-dialog';
 import { nanoid } from 'nanoid';
 
 type SearchType = {
@@ -20,7 +19,9 @@ export const searchAtom = atom<SearchType>({
   open: false,
 });
 
-export function SearchDialog(props: DialogProps & { ctx: NodeElementType }) {
+export function SearchDialog(
+  props: React.ComponentProps<typeof Dialog> & { ctx: NodeElementType },
+) {
   const ctx = props.ctx;
   const updateTab = useTabsStore((state) => state.update);
 

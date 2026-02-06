@@ -12,8 +12,9 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { DBType, useDBListStore } from '@/stores/dbList';
-import { DialogProps } from '@radix-ui/react-dialog';
 import React, { useEffect } from 'react';
+
+type DialogProps = React.ComponentProps<typeof Dialog>;
 
 // rename db
 export const RenameDialog = React.memo(function RenameDialog(

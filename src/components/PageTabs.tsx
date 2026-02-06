@@ -32,7 +32,6 @@ import {
   useTabsAtom,
   useTabsStore,
 } from '@/stores/tabs';
-import { DialogProps } from '@radix-ui/react-dialog';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useAtom, useSetAtom } from 'jotai';
 import {
@@ -368,7 +367,7 @@ function RenameDialog({
   id,
   open,
   onOpenChange,
-}: DialogProps & { id: string }) {
+}: React.ComponentProps<typeof Dialog> & { id: string }) {
   if (!id) {
     return null;
   }

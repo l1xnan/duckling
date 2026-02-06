@@ -25,11 +25,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Direction } from '@/stores/dataset';
 import { useEditorTheme } from '@/stores/setting';
 import { Data, Vector } from '@apache-arrow/ts';
-import { TabsList } from '@radix-ui/react-tabs';
 import { editor } from 'monaco-editor';
 import { useRef, useState } from 'react';
 import { SelectedCellType } from './TableView';
@@ -43,7 +42,7 @@ export function FormatTypeDropdown({ type, setType }: FormatTypeDropdownProps) {
   return (
     <DropdownMenu content={type}>
       <DropdownMenuContent className="w-32">
-        {['Raw', 'JSON', "Raw(JSON)"].map((item) => (
+        {['Raw', 'JSON', 'Raw(JSON)'].map((item) => (
           <DropdownMenuItem
             key={item}
             onSelect={() => {

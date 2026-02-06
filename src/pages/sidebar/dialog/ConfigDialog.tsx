@@ -5,13 +5,12 @@ import { Button } from '@/components/ui/button';
 import { DialogClose, DialogFooter } from '@/components/ui/dialog';
 import { DatabaseForm } from '@/pages/sidebar/dialog/DatabaseDialog.tsx';
 import { DBType, DialectConfig, useDBListStore } from '@/stores/dbList';
-import { DialogProps } from '@radix-ui/react-dialog';
 import { useEffect } from 'react';
 
 export function ConfigDialog({
   ctx: db,
   ...props
-}: DialogProps & { ctx?: DBType }) {
+}: React.ComponentProps<typeof Dialog> & { ctx?: DBType }) {
   const updateDBConfig = useDBListStore((state) => state.setDB);
 
   const form = useForm<DialectConfig>({
