@@ -1,14 +1,13 @@
-import { DataFrame } from '@/utils/dataframe';
+import { Data, Vector } from '@apache-arrow/ts';
 import MonacoEditor from '@monaco-editor/react';
-
 import {
   LetterTextIcon,
   PanelBottomIcon,
   PanelRightIcon,
   XIcon,
 } from 'lucide-react';
-
-import { cn } from '@/lib/utils';
+import { editor } from 'monaco-editor';
+import { useRef, useState } from 'react';
 
 import { arrowToJSON } from '@/api';
 import { TooltipButton } from '@/components/custom/button';
@@ -26,11 +25,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 import { Direction } from '@/stores/dataset';
 import { useEditorTheme } from '@/stores/setting';
-import { Data, Vector } from '@apache-arrow/ts';
-import { editor } from 'monaco-editor';
-import { useRef, useState } from 'react';
+import { DataFrame } from '@/utils/dataframe';
+
 import { SelectedCellType } from './TableView';
 
 interface FormatTypeDropdownProps {
@@ -106,9 +105,9 @@ export function ValueViewer({
 
   const value = displayValue(selectedCell?.value as Data, type);
   return (
-    <Tabs defaultValue="value" className="size-full">
+    <Tabs defaultValue="value" className="size-full flex flex-col">
       <div className="flex flex-row items-center justify-between">
-        <TabsList>
+        <TabsList variant="line">
           {[
             { key: 'value', label: 'Value' },
             { key: 'calculate', label: 'Calculate' },
@@ -117,22 +116,10 @@ export function ValueViewer({
               key={key}
               value={key}
               className={cn(
-                'h-8 text-xs relative wm-200 pl-3 pr-1.5 rounded-none border-r',
-                'group',
-                'data-[state=active]:bg-muted',
-                'data-[state=active]:text-foreground',
-                'data-[state=active]:shadow-none',
-                'data-[state=active]:rounded-none',
+                'group-data-[orientation=horizontal]/tabs:after:bottom-[-1px]',
               )}
             >
               {label}
-              <div
-                className={cn(
-                  'h-0.5 w-full bg-[#1976d2] absolute left-0 invisible z-6',
-                  'group-data-[state=active]:visible',
-                  'bottom-0',
-                )}
-              />
             </TabsTrigger>
           ))}
         </TabsList>
