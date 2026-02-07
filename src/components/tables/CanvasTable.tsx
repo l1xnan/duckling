@@ -431,14 +431,16 @@ const CanvasTable_ = memo(function CanvasTable({
       frozenRowCount: 0,
       theme,
       transpose,
-      rowSeriesNumber: {
+      rowSeriesNumber: !transpose
+        ? {
         title: '',
         width: 'auto',
         headerStyle: {},
         style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
         dragOrder: false,
         disableColumnResize: true,
-      },
+          }
+        : undefined,
       columns: [...__columns],
       menu: {},
       hover: {
