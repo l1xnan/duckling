@@ -7,25 +7,23 @@ import {
   ListTableConstructorOptions,
   TYPES,
 } from '@visactor/vtable';
-
-import { useAtomValue } from 'jotai';
-import { CSSProperties, memo, useMemo, useRef, useState } from 'react';
-
-import { OrderByType, SchemaType } from '@/stores/dataset';
-import { downloadCsv, exportVTableToCsv } from '@visactor/vtable-export';
-import dayjs from 'dayjs';
-import type { ComponentProps } from 'react';
-
-import { SelectedCellType } from '@/components/views/TableView';
-import { useTheme } from '@/hooks/theme-provider';
-import { tableFontFamilyAtom } from '@/stores/setting';
-import { isDarkTheme, isNumberType, uniqueArray } from '@/utils';
 import {
   ContextMenuPlugin,
   MenuClickEventArgs,
 } from '@visactor/vtable-plugins';
 import { IVTablePlugin } from '@visactor/vtable/es/plugins';
 import { FieldDef } from '@visactor/vtable/es/ts-types';
+import dayjs from 'dayjs';
+import { useAtomValue } from 'jotai';
+import { CSSProperties, memo, useMemo, useRef, useState } from 'react';
+import type { ComponentProps } from 'react';
+
+import { SelectedCellType } from '@/components/views/TableView';
+import { useTheme } from '@/hooks/theme-provider';
+import { OrderByType, SchemaType } from '@/stores/dataset';
+import { tableFontFamilyAtom } from '@/stores/setting';
+import { isDarkTheme, isNumberType, uniqueArray } from '@/utils';
+
 import { HighlightHeaderWhenSelectCellPlugin } from './highlight-header-when-select-cell';
 import { makeTableTheme } from './theme';
 
@@ -252,15 +250,6 @@ const CanvasTable_ = memo(function CanvasTable({
     hiddenColumns,
   ]);
 
-  const exportToCsv = (name: string) => {
-    // TODO: test
-    const table = tableRef.current;
-    if (table) {
-      const csv = exportVTableToCsv(table);
-      downloadCsv(csv, name);
-    }
-  };
-
   const handleMouseEnterCell: ListTableProps['onMouseEnterCell'] = (args) => {
     const table = tableRef.current;
     if (!table) {
@@ -433,12 +422,12 @@ const CanvasTable_ = memo(function CanvasTable({
       transpose,
       rowSeriesNumber: !transpose
         ? {
-        title: '',
-        width: 'auto',
-        headerStyle: {},
-        style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
-        dragOrder: false,
-        disableColumnResize: true,
+            title: '',
+            width: 'auto',
+            headerStyle: {},
+            style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
+            dragOrder: false,
+            disableColumnResize: true,
           }
         : undefined,
       columns: [...__columns],
