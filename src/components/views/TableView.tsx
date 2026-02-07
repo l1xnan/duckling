@@ -113,7 +113,7 @@ export function TableView({ context }: { context: TabContextType }) {
         setTranspose={setTranspose}
         setCross={setCross}
       />
-      <ResizablePanelGroup direction={direction}>
+      <ResizablePanelGroup orientation={direction}>
         <ResizablePanel defaultSize={80} className="flex flex-col size-full">
           <div className="h-full flex flex-col">
             <InputToolbar context={context as TableContextType} />
