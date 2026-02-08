@@ -1,3 +1,6 @@
+import { useAtom, useAtomValue } from 'jotai';
+import { BellIcon } from 'lucide-react';
+import { Activity, RefObject } from 'react';
 
 import { Content, Sidebar } from '@/components/Layout';
 import { useResize } from '@/hooks';
@@ -7,9 +10,7 @@ import { DBTree } from '@/pages/sidebar';
 import { activeSideAtom, ASide } from '@/pages/sidebar/aside';
 import { Favorite, History, SqlCode } from '@/pages/sidebar/Favorite';
 import { sizeAtom } from '@/stores/app';
-import { useAtom, useAtomValue } from 'jotai';
-import { BellIcon } from 'lucide-react';
-import { Activity, RefObject } from 'react';
+
 import { cn } from './lib/utils';
 import { VerticalTabs } from './pages/sidebar/VerticalTabs';
 

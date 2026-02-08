@@ -1,8 +1,8 @@
+import { DataType } from '@apache-arrow/ts';
 import { createStore } from 'zustand';
 
 import { ResultType, TitleType } from '@/api';
 
-import { DataType } from '@apache-arrow/ts';
 import {
   QueryParamType,
   TabContextType,
@@ -144,7 +144,9 @@ export const createDatasetStore = (context: TabContextType) =>
     },
     setDialogColumn: (dialogColumn: string) => set((_) => ({ dialogColumn })),
     setHiddenColumns: (key: string, value: boolean) =>
-      set(({ hiddenColumns }) => ({hiddenColumns: { ...hiddenColumns, [key]: value }})),
+      set(({ hiddenColumns }) => ({
+        hiddenColumns: { ...hiddenColumns, [key]: value },
+      })),
 
     setOrderBy: (_name: string) => {},
 

@@ -2,8 +2,11 @@ import { relaunch } from '@tauri-apps/plugin-process';
 import { check } from '@tauri-apps/plugin-updater';
 import { Provider, useAtomValue } from 'jotai';
 import { DevTools, DevToolsProps } from 'jotai-devtools';
+import css from 'jotai-devtools/styles.css?inline';
 import { useEffect } from 'react';
 
+import { Toaster } from '@/components/ui/sonner';
+import { atomStore } from '@/stores';
 import {
   autoUpdateAtom,
   mainFontFamilyAtom,
@@ -11,10 +14,6 @@ import {
   useSettingStore,
 } from '@/stores/setting';
 
-import { Toaster } from '@/components/ui/sonner';
-// import '@/sql/languageSetup';
-import { atomStore } from '@/stores';
-import css from 'jotai-devtools/styles.css?inline';
 import Home from './Home';
 import { ThemeProvider } from './hooks/theme-provider';
 
@@ -38,13 +37,12 @@ function App() {
 
     rootElement.style.setProperty('--table-font-family', tableFontFamily);
     rootElement.style.setProperty('--main-font-family', mainFontFamily);
-  }, [tableFontFamily]);
+  }, [tableFontFamily, mainFontFamily]);
 
   useEffect(() => {
     if (autoUpdate) {
       (async () => {
         const update = await check({ proxy });
-        console.log(update);
         if (update?.version != update?.currentVersion) {
           await update?.downloadAndInstall(async (e) => {
             console.log(e);
@@ -60,6 +58,7 @@ function App() {
       <ThemeProvider>
         <JotaiDevTools position="bottom-right" />
         <Home />
+
         <Toaster richColors />
       </ThemeProvider>
     </Provider>

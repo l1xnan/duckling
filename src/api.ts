@@ -1,11 +1,12 @@
 import { Data, Table, tableFromIPC } from '@apache-arrow/ts';
 import { invoke } from '@tauri-apps/api/core';
+import { uniqBy } from 'es-toolkit';
 import { nanoid } from 'nanoid';
 
 import { ArrowResponse, SchemaType } from '@/stores/dataset';
 import { DBType, DialectConfig } from '@/stores/dbList';
 import { getDatabase } from '@/stores/tabs';
-import { uniqBy } from 'es-toolkit';
+
 import { TreeNode } from './types';
 
 export type TitleType = {
@@ -51,7 +52,7 @@ export function convertArrow(arrowData: Array<number>, titles?: TitleType[]) {
   });
 
   const data = table.toArray().map((item) => item.toJSON());
-  
+
   console.table(data.slice(0, 10));
   console.table(tableSchema);
   return {
