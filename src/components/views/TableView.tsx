@@ -1,4 +1,5 @@
 import { Data as ArrowDataType } from '@apache-arrow/ts';
+import { toMerged } from 'es-toolkit/object';
 import { useAtomValue } from 'jotai';
 import { Loader2Icon } from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
@@ -17,6 +18,7 @@ import {
 } from '@/components/ui/resizable';
 import { usePageStore } from '@/hooks/context';
 import { cn } from '@/lib/utils';
+import { SchemaType } from '@/stores/dataset';
 import { schemaMapAtom } from '@/stores/dbList';
 import { precisionAtom } from '@/stores/setting';
 import { TabContextType, TableContextType, useTabsStore } from '@/stores/tabs';
@@ -116,7 +118,10 @@ export function TableView({ context }: { context: TabContextType }) {
       <ResizablePanelGroup orientation={direction}>
         <ResizablePanel defaultSize={80} className="size-full">
           <div className="h-full flex flex-col">
-            <InputToolbar context={context as TableContextType} />
+            <InputToolbar
+              context={context as TableContextType}
+              schema={tableSchema ?? []}
+            />
             <div className="h-full flex-1 overflow-hidden mb-px">
               <Suspense fallback={<Loading />}>
                 {loading ? <Loading /> : null}
@@ -163,7 +168,13 @@ export function TableView({ context }: { context: TabContextType }) {
   );
 }
 
-export function InputToolbar({ context }: { context: TableContextType }) {
+export function InputToolbar({
+  context,
+  schema,
+}: {
+  context: TableContextType;
+  schema: SchemaType[];
+}) {
   const { setSQLWhere, setSQLOrderBy, refresh, sqlWhere, sqlOrderBy } =
     usePageStore();
 
@@ -175,8 +186,17 @@ export function InputToolbar({ context }: { context: TableContextType }) {
     await refresh();
   };
 
+  const tmpTableName = '__tmp__';
+  const current = {
+    '': {
+      [tmpTableName]: schema.map(({ name, type }) => ({ name, type })),
+    },
+  };
+
+  console.log('tableId:', tableId);
+
   const completeMeta = {
-    tables: tableSchema,
+    tables: toMerged(tableSchema ?? {}, current),
     keywords: sqlWhereKeywords,
     operators: sqlComparisonOperators,
     functions: [],
@@ -184,7 +204,7 @@ export function InputToolbar({ context }: { context: TableContextType }) {
 
   return (
     <div className="flex flex-row items-center h-8 min-h-8 bg-background/40 border-b font-mono">
-      <ResizablePanelGroup direction="horizontal">
+      <ResizablePanelGroup orientation="horizontal">
         <ResizablePanel defaultSize={50} className="flex flex-row items-center">
           <div className="mx-2 min-w-fit text-muted-foreground text-sm">
             WHERE
@@ -197,7 +217,7 @@ export function InputToolbar({ context }: { context: TableContextType }) {
               onEnterDown={handleEnterDown}
               completeMeta={{
                 ...completeMeta,
-                prefixCode: `select * from ${tableId} where `,
+                prefixCode: `select * from ${tmpTableName} where `,
               }}
             />
           </div>
@@ -214,7 +234,7 @@ export function InputToolbar({ context }: { context: TableContextType }) {
               onEnterDown={handleEnterDown}
               completeMeta={{
                 ...completeMeta,
-                prefixCode: `select * from ${tableId} order by `,
+                prefixCode: `select * from ${tmpTableName} order by `,
               }}
             />
           </div>

@@ -1,9 +1,10 @@
-import { CompleteMetaType } from '@/ast/analyze';
 import { Editor, OnMount } from '@monaco-editor/react';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-
-import { useEditorTheme } from '@/stores/setting';
+import type { editor, IKeyboardEvent } from 'monaco-editor';
 import { useImperativeHandle, useState } from 'react';
+
+import { CompleteMetaType } from '@/ast/analyze';
+import { useEditorTheme } from '@/stores/setting';
+
 import { useRegister } from './useRegister';
 
 interface SingleLineEditorProps {
@@ -14,7 +15,7 @@ interface SingleLineEditorProps {
   onEnterDown?: (value: string) => void; // 当 Enter 被按下时触发 (可选)
   onChange?: (value: string) => void; // 值变化时触发 (可选)
 
-  ref: React.Ref<EditorRef>;
+  ref?: React.Ref<EditorRef>;
 }
 
 type OnMountParams = Parameters<OnMount>;
@@ -63,7 +64,7 @@ export function SingleLineEditor({
   const handleEditorMount: OnMount = (editor, monaco) => {
     handleEditorDidMount?.(editor, monaco);
 
-    editor.onKeyDown((e: monaco.IKeyboardEvent) => {
+    editor.onKeyDown((e: IKeyboardEvent) => {
       // 检查是否是 Enter 键 (并且没有按 Shift, Alt, Ctrl, Meta)
       if (
         e.keyCode === monaco.KeyCode.Enter &&
@@ -73,7 +74,7 @@ export function SingleLineEditor({
         !e.metaKey
       ) {
         const suggestController = editor.getContribution<
-          monaco.editor.IEditorContribution & {
+          editor.IEditorContribution & {
             model: { state: number };
           }
         >('editor.contrib.suggestController');
@@ -99,7 +100,7 @@ export function SingleLineEditor({
 
   const handleEditorChange = (
     newValue: string | undefined,
-    _ev: monaco.editor.IModelContentChangedEvent,
+    _ev: editor.IModelContentChangedEvent,
   ) => {
     const val = newValue || '';
     // Monaco有时会在空编辑器中保留一个换行符，需要清理
@@ -133,7 +134,7 @@ export function SingleLineEditor({
   );
 }
 
-const options: monaco.editor.IStandaloneEditorConstructionOptions = {
+const options: editor.IStandaloneEditorConstructionOptions = {
   fontSize: 13,
   lineHeight: 20,
   padding: { bottom: 3, top: 3 }, // 内边距
