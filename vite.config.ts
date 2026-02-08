@@ -70,7 +70,7 @@ export default defineConfig({
         // manualChunks: {
         //   'web-tree-sitter': ['web-tree-sitter'],
         // },
-        advancedChunks: {
+        codeSplitting: {
           groups: [
             // 将 web-tree-sitter 单独打包为一个 chunk
             { name: 'web-tree-sitter', test: /node_modules\/web-tree-sitter/ },
