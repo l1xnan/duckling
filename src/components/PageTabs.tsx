@@ -289,7 +289,9 @@ function TabMenuItem({
     >
       <div
         className={cn(
-          'h-0.5 w-full bg-[#1976d2] absolute left-0 invisible z-6',
+          'h-0.5 w-full absolute left-0 invisible z-6',
+          // 'bg-[#1976d2]',
+          'bg-foreground',
           'group-data-[state=active]:visible',
           {
             'bottom-0': indicator != 'top',
