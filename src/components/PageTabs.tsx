@@ -1,11 +1,37 @@
+import 'react-horizontal-scrolling-menu/dist/styles.css';
+
+import { writeText } from '@tauri-apps/plugin-clipboard-manager';
+import { useAtom, useSetAtom } from 'jotai';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  Code2Icon,
+  SearchIcon,
+  TableIcon,
+  XIcon,
+} from 'lucide-react';
+import { shake } from 'radash';
+import {
+  JSX,
+  PropsWithChildren,
+  ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+} from 'react';
+import { useForm } from 'react-hook-form';
+import {
+  ScrollMenu,
+  VisibilityContext,
+  type publicApiType,
+} from 'react-horizontal-scrolling-menu';
+import { useShallow } from 'zustand/shallow';
+
 import { ContextMenuItem } from '@/components/custom/context-menu';
 import { Dialog } from '@/components/custom/Dialog';
 import { Tooltip } from '@/components/custom/tooltip';
 import { useDialog } from '@/components/custom/use-dialog';
-
 import ErrorBoundary from '@/components/ErrorBoundary';
-import { useShallow } from 'zustand/shallow';
-
 import { Button } from '@/components/ui/button';
 import {
   ContextMenu,
@@ -32,31 +58,6 @@ import {
   useTabsAtom,
   useTabsStore,
 } from '@/stores/tabs';
-import { writeText } from '@tauri-apps/plugin-clipboard-manager';
-import { useAtom, useSetAtom } from 'jotai';
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  Code2Icon,
-  SearchIcon,
-  TableIcon,
-  XIcon,
-} from 'lucide-react';
-import { shake } from 'radash';
-import {
-  PropsWithChildren,
-  ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-} from 'react';
-import { useForm } from 'react-hook-form';
-import {
-  ScrollMenu,
-  VisibilityContext,
-  type publicApiType,
-} from 'react-horizontal-scrolling-menu';
-import 'react-horizontal-scrolling-menu/dist/styles.css';
 
 export interface PageTabsProps {
   items: { tab: TabContextType; children: ReactNode }[];
@@ -68,8 +69,17 @@ export interface PageTabsProps {
   renderItem?: ({ tab }: { tab: TabContextType }) => JSX.Element;
 }
 
-export const tabTypeIcon = (type: string) =>
-  type == 'search' ? SearchIcon : type == 'editor' ? Code2Icon : TableIcon;
+export const TabTypeIcon = ({
+  type,
+  ...props
+}: { type: string } & React.ComponentProps<typeof SearchIcon>) =>
+  type == 'search' ? (
+    <SearchIcon {...props} />
+  ) : type == 'editor' ? (
+    <Code2Icon {...props} />
+  ) : (
+    <TableIcon {...props} />
+  );
 
 export function TabItemContextMenu({
   tab,
@@ -154,7 +164,7 @@ export function TabItemContextMenu({
           ) : null}
         </ContextMenuContent>
       </ContextMenu>
-      <RenameDialog {...dialog.props} id={tab.id} />
+      {tab.id ? <RenameDialog {...dialog.props} id={tab.id} /> : null}
     </>
   );
 }
@@ -168,6 +178,7 @@ function usePrevious<T>(value: T) {
 
   return ref?.current;
 }
+
 type ScrollVisibilityApiType = React.ContextType<typeof VisibilityContext>;
 
 export function PageTabs({
@@ -213,13 +224,16 @@ export function PageTabs({
   });
   return (
     <Tabs
-      className="w-full h-full flex flex-col justify-start items-start gap-0"
+      className="size-full justify-start items-start gap-0"
       value={activeKey}
       onValueChange={onChange}
     >
       <ScrollArea className="w-full h-8 min-h-8 overflow-hidden">
         <div className="w-full relative h-8 overflow-hidden">
-          <TabsList className=" p-0 h-8 border-b-1 w-max flex flex-row justify-stretch">
+          <TabsList
+            variant="line"
+            className=" p-0 h-8 border-b w-max flex flex-row justify-stretch"
+          >
             <ScrollMenu
               apiRef={apiRef}
               onWheel={onWheel}
@@ -309,18 +323,16 @@ function TabMenuItem({
   );
 }
 
-export function DefaultTab({ tab, onRemove }: TabItemProps) {
-  const Comp = tabTypeIcon(tab.type);
+export function CloseableItem({ tab, onRemove }: TabItemProps) {
   return (
     <div className="flex items-center justify-between">
       <Tooltip title={`${tab.type}: ${tab.displayName}`}>
         <div className="flex">
-          <Comp className="size-4 mr-1" />
+          <TabTypeIcon type={tab.type} className="size-4 mr-1" />
           <div className="max-w-52 truncate">{tab.displayName}</div>
         </div>
       </Tooltip>
       <Button
-        // asChild
         variant="ghost"
         size="icon"
         className={cn(
@@ -369,10 +381,9 @@ function RenameDialog({
   id,
   open,
   onOpenChange,
-}: React.ComponentProps<typeof Dialog> & { id: string }) {
-  if (!id) {
-    return null;
-  }
+}: Pick<React.ComponentProps<typeof Dialog>, 'open' | 'onOpenChange'> & {
+  id: string;
+}) {
   const tabAtom = useTabsAtom(tabObjAtom, id);
   const [tab, setTab] = useAtom(tabAtom);
 
