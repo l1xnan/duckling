@@ -6,9 +6,9 @@ import { splitAtom } from 'jotai/utils';
 import { create, useStore } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import { getDB } from '@/api';
 import { TreeNode } from '@/types';
 
-import { getDB } from '@/api';
 import { indexDBStorage } from './indexdb';
 
 export type NodeContextType = {
@@ -215,7 +215,7 @@ export const dbMapAtom = atom(
 );
 
 export const schemaMapAtom = atom(
-  (get) => new Map(get(dbListAtom).map((db) => [db.id, db.meta ?? []])),
+  (get) => new Map(get(dbListAtom).map((db) => [db.id, db.meta ?? {}])),
 );
 
 export const tablesAtom = atom(

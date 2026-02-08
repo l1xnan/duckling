@@ -14,6 +14,14 @@ import { sizeAtom } from '@/stores/app';
 import { cn } from './lib/utils';
 import { VerticalTabs } from './pages/sidebar/VerticalTabs';
 
+const ACTIVITIES = [
+  { id: 'database', component: DBTree },
+  { id: 'favorite', component: Favorite },
+  { id: 'history', component: History },
+  { id: 'code', component: SqlCode },
+  { id: 'tabs', component: VerticalTabs },
+] as const;
+
 function Home() {
   const [size, setSize] = useAtom(sizeAtom);
   const [activeSide] = useAtom(activeSideAtom);
@@ -23,7 +31,7 @@ function Home() {
     'left',
     setSize,
   );
-  const activeAside = useAtomValue(activeSideAtom);
+
   return (
     <div className="h-screen max-h-screen p-0 m-0 flex flex-col">
       <div className="h-full p-0 m-0 flex-1 relative overflow-hidden">
@@ -37,24 +45,14 @@ function Home() {
           style={{ width: sizeLeft }}
         >
           <Sidebar>
-            {/* <Hidden display={activeAside == 'database'}>
-              <DBTree />
-            </Hidden> */}
-            <Activity mode={activeAside === 'database' ? 'visible' : 'hidden'}>
-              <DBTree />
-            </Activity>
-            <Activity mode={activeAside == 'favorite' ? 'visible' : 'hidden'}>
-              <Favorite />
-            </Activity>
-            <Activity mode={activeAside == 'history' ? 'visible' : 'hidden'}>
-              <History />
-            </Activity>
-            <Activity mode={activeAside == 'code' ? 'visible' : 'hidden'}>
-              <SqlCode />
-            </Activity>
-            <Activity mode={activeAside === 'tabs' ? 'visible' : 'hidden'}>
-              <VerticalTabs />
-            </Activity>
+            {ACTIVITIES.map(({ id, component: Component }) => (
+              <Activity
+                key={id}
+                mode={activeSide === id ? 'visible' : 'hidden'}
+              >
+                <Component />
+              </Activity>
+            ))}
           </Sidebar>
           <div className={classes.controls}>
             <div className={classes.resizeVertical} onMouseDown={actionLeft} />
