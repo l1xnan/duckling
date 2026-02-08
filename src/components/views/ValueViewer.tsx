@@ -116,7 +116,7 @@ export function ValueViewer({
               key={key}
               value={key}
               className={cn(
-                'group-data-[orientation=horizontal]/tabs:after:bottom-[-1px]',
+                'group-data-[orientation=horizontal]/tabs:after:bottom-px',
               )}
             >
               {label}

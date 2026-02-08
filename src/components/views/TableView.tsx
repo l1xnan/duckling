@@ -1,26 +1,26 @@
+import { Data as ArrowDataType } from '@apache-arrow/ts';
 import { useAtomValue } from 'jotai';
 import { Loader2Icon } from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
-
-import { CanvasTable } from '@/components/tables';
-import { cn } from '@/lib/utils';
-import { precisionAtom } from '@/stores/setting';
-import { TabContextType, TableContextType, useTabsStore } from '@/stores/tabs';
 
 import { SingleLineEditor } from '@/components/editor/SingleLineEditor';
 import {
   sqlComparisonOperators,
   sqlWhereKeywords,
 } from '@/components/editor/useRegister';
+import { CanvasTable } from '@/components/tables';
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
 import { usePageStore } from '@/hooks/context';
+import { cn } from '@/lib/utils';
 import { schemaMapAtom } from '@/stores/dbList';
-import { Data as ArrowDataType } from '@apache-arrow/ts';
+import { precisionAtom } from '@/stores/setting';
+import { TabContextType, TableContextType, useTabsStore } from '@/stores/tabs';
+
 import { DataViewToolbar } from './DataViewToolbar';
 import { ValueViewer } from './ValueViewer';
 
@@ -114,7 +114,7 @@ export function TableView({ context }: { context: TabContextType }) {
         setCross={setCross}
       />
       <ResizablePanelGroup orientation={direction}>
-        <ResizablePanel defaultSize={80} className="flex flex-col size-full">
+        <ResizablePanel defaultSize={80} className="size-full">
           <div className="h-full flex flex-col">
             <InputToolbar context={context as TableContextType} />
             <div className="h-full flex-1 overflow-hidden mb-px">
@@ -144,12 +144,9 @@ export function TableView({ context }: { context: TabContextType }) {
         </ResizablePanel>
         {showValue ? (
           <>
-            <ResizableHandle hitAreaMargins={{ coarse: 0, fine: 2 }} />
-            <ResizablePanel
-              defaultSize={20}
-              className="flex flex-row items-start"
-            >
-              <div className="flex size-full">
+            <ResizableHandle withHandle />
+            <ResizablePanel defaultSize={20}>
+              <div className="size-full">
                 <ValueViewer
                   selectedCell={selectedCell}
                   selectedCellInfos={selectedCellInfos}

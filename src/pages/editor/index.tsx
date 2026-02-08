@@ -3,7 +3,11 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { nanoid } from 'nanoid';
 import { useRef, useState } from 'react';
+import { useHotkeys } from 'react-hotkeys-hook';
 
+import MonacoEditor, { EditorRef } from '@/components/editor/MonacoEditor';
+import VerticalContainer from '@/components/VerticalContainer';
+import { docsAtom, runsAtom } from '@/stores/app';
 import { DBType, schemaMapAtom } from '@/stores/dbList';
 import {
   EditorContextType,
@@ -15,10 +19,6 @@ import {
   useTabsStore,
 } from '@/stores/tabs';
 
-import MonacoEditor, { EditorRef } from '@/components/editor/MonacoEditor';
-import VerticalContainer from '@/components/VerticalContainer';
-import { docsAtom, runsAtom } from '@/stores/app';
-import { useHotkeys } from 'react-hotkeys-hook';
 import { EditorToolbar } from './EditorToolbar';
 import { QueryTabs } from './QueryTabs';
 
@@ -153,11 +153,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
             onRun={handleClick}
           />
         </div>
-        <QueryTabs
-          tabsAtom={subTabsAtom}
-          activeKey={tab.activeKey}
-          setActiveKey={setActiveKey}
-        />
+        <QueryTabs tabsAtom={subTabsAtom} activeKey={tab.activeKey} setActiveKey={setActiveKey} />
       </VerticalContainer>
     </div>
   );

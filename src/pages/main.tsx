@@ -1,5 +1,7 @@
+import { useShallow } from 'zustand/shallow';
+
 import {
-  DefaultTab,
+  CloseableItem,
   PageTabs,
   TabItemContextMenu,
 } from '@/components/PageTabs';
@@ -8,16 +10,15 @@ import {
   DatabaseSchemaView,
   TableView,
 } from '@/components/views';
+import { SearchView } from '@/components/views/SchemaView';
+import { PageProvider } from '@/hooks/context';
 import {
   SchemaContextType,
   TabContextType,
   TableContextType,
   useTabsStore,
 } from '@/stores/tabs';
-import { useShallow } from 'zustand/shallow';
 
-import { SearchView } from '@/components/views/SchemaView';
-import { PageProvider } from '@/hooks/context';
 import MonacoEditor from './editor';
 
 function TabContent({ id, tab }: { id: string; tab: TabContextType }) {
@@ -61,14 +62,16 @@ function TabContent({ id, tab }: { id: string; tab: TabContextType }) {
 
 export function Main() {
   const { activateTab, removeTab, removeOtherTab, tabObj, ids, currentId } =
-    useTabsStore(useShallow((s) => ({
-      activateTab: s.active,
-      removeTab: s.remove,
-      removeOtherTab: s.removeOther,
-      tabObj: s.tabs,
-      currentId: s.currentId,
-      ids: s.ids,
-    })));
+    useTabsStore(
+      useShallow((s) => ({
+        activateTab: s.active,
+        removeTab: s.remove,
+        removeOtherTab: s.removeOther,
+        tabObj: s.tabs,
+        currentId: s.currentId,
+        ids: s.ids,
+      })),
+    );
 
   const items = ids.map((id) => {
     const tab = tabObj[id];
@@ -78,7 +81,7 @@ export function Main() {
   return (
     <PageTabs
       items={items}
-      indicator="top"
+      indicator="bottom"
       onChange={(value) => activateTab(value)}
       activeKey={currentId ?? ''}
       renderItem={({ tab }: { tab: TabContextType }) => (
@@ -87,7 +90,7 @@ export function Main() {
           onRemove={removeTab}
           onRemoveOther={removeOtherTab}
         >
-          <DefaultTab tab={tab} onRemove={removeTab} />
+          <CloseableItem tab={tab} onRemove={removeTab} />
         </TabItemContextMenu>
       )}
     />

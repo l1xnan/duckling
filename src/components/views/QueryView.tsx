@@ -2,17 +2,17 @@ import { PrimitiveAtom, useAtom, useAtomValue } from 'jotai';
 import { Suspense, useEffect, useState } from 'react';
 
 import { CanvasTable } from '@/components/tables/CanvasTable';
-import { Loading, SelectedCellType } from '@/components/views/TableView';
-import { atomStore } from '@/stores';
-import { precisionAtom } from '@/stores/setting';
-import { QueryContextType, executeSQL, exportData } from '@/stores/tabs';
-
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
+import { Loading, SelectedCellType } from '@/components/views/TableView';
 import { useFocusAtom } from '@/hooks';
+import { atomStore } from '@/stores';
+import { precisionAtom } from '@/stores/setting';
+import { QueryContextType, executeSQL, exportData } from '@/stores/tabs';
+
 import { DataViewToolbar } from './DataViewToolbar';
 import { ValueViewer } from './ValueViewer';
 
@@ -127,7 +127,7 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
         setTranspose={handleTranspose}
         setCross={handleCross}
       />
-      <ResizablePanelGroup direction={ctx.direction}>
+      <ResizablePanelGroup orientation={ctx.direction}>
         <ResizablePanel defaultSize={80}>
           <Suspense fallback={<Loading />}>
             {loading ? <Loading /> : null}

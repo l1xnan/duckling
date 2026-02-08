@@ -1,14 +1,3 @@
-import { DelayedTooltip } from '@/components/custom/tooltip';
-import { cn } from '@/lib/utils';
-import {
-  DBType,
-  NodeContextType,
-  selectedNodeAtom,
-  useDBListStore,
-} from '@/stores/dbList';
-import { TableContextType, useTabsStore } from '@/stores/tabs';
-import { NodeElementType } from '@/types';
-import { Node3Type, convertId, convertTreeToMap, filterTree } from '@/utils';
 import {
   FeatureImplementation,
   ItemInstance,
@@ -23,10 +12,6 @@ import { useTree } from '@headless-tree/react';
 import { Virtualizer, useVirtualizer } from '@tanstack/react-virtual';
 import { useAtom } from 'jotai';
 import { ChevronRight } from 'lucide-react';
-
-import { ConnectionContextMenu } from '@/pages/sidebar/context-menu/ConnectionContextMenu';
-import { SchemaContextMenu } from '@/pages/sidebar/context-menu/SchemaContextMenu';
-import { TableContextMenu } from '@/pages/sidebar/context-menu/TableContextMenu';
 import React, {
   PropsWithChildren,
   forwardRef,
@@ -36,6 +21,22 @@ import React, {
   useRef,
   useState,
 } from 'react';
+
+import { DelayedTooltip } from '@/components/custom/tooltip';
+import { cn } from '@/lib/utils';
+import { ConnectionContextMenu } from '@/pages/sidebar/context-menu/ConnectionContextMenu';
+import { SchemaContextMenu } from '@/pages/sidebar/context-menu/SchemaContextMenu';
+import { TableContextMenu } from '@/pages/sidebar/context-menu/TableContextMenu';
+import {
+  DBType,
+  NodeContextType,
+  selectedNodeAtom,
+  useDBListStore,
+} from '@/stores/dbList';
+import { TableContextType, useTabsStore } from '@/stores/tabs';
+import { NodeElementType } from '@/types';
+import { Node3Type, convertId, convertTreeToMap, filterTree } from '@/utils';
+
 import { getTypeIcon } from './Icons';
 
 declare module '@headless-tree/core' {
@@ -228,7 +229,7 @@ export function TreeViewInner({
 
   const customClickBehavior: FeatureImplementation = {
     itemInstance: {
-      getProps: ({ tree, item, prev }) => ({
+      getProps: ({ item, prev }) => ({
         ...prev?.(),
         onDoubleClick: (_e: MouseEvent) => {
           onDoubleClickNode(item);
