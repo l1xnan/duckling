@@ -72,9 +72,9 @@ export function DatabaseForm({
                     <SelectItem value="mysql">MySQL</SelectItem>
                     <SelectItem value="postgres">Postgres</SelectItem>
                     <SelectItem value="clickhouse">Clickhouse</SelectItem>
-                    <SelectItem value="clickhouse_tcp">
+                    {/* <SelectItem value="clickhouse_tcp">
                       Clickhouse(TCP)
-                    </SelectItem>
+                    </SelectItem> */}
                   </SelectContent>
                 </Select>
               </FormItem>

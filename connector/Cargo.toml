@@ -9,12 +9,12 @@ serde_json = "1.0"
 parquet = "56"
 arrow = { version = "^56", features = ["prettyprint", "csv"] }
 duckdb = { version = "1.4.4", features = [
-    "extensions-full",
     "bundled",
+    "extensions-full",
 ] }
 futures-util = "0.3"
 rust_decimal = { version = "1", features = ["db-tokio-postgres"] }
-clickhouse-rs = { git = "https://github.com/l1xnan/clickhouse-rs.git", branch = "async-await" }
+# clickhouse-rs = { git = "https://github.com/l1xnan/clickhouse-rs.git", branch = "async-await" }
 rusqlite = { version = "^0.37.0", features = [
     "bundled",
     "column_decltype",

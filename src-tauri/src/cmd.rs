@@ -11,7 +11,6 @@ use tauri::State;
 use crate::api::ArrowResponse;
 use connector::dialect::Connection;
 use connector::dialect::clickhouse::ClickhouseConnection;
-use connector::dialect::clickhouse_tcp::ClickhouseConnection as ClickhouseTcpConnection;
 use connector::dialect::duckdb::DuckDbConnection;
 use connector::dialect::file::FileConnection;
 use connector::dialect::folder::FolderConnection;
@@ -80,13 +79,13 @@ pub async fn get_dialect(
       password: password.unwrap_or_default(),
       database,
     })),
-    "clickhouse_tcp" => Some(Box::new(ClickhouseTcpConnection {
-      host: host.unwrap(),
-      port: port.unwrap_or_default(),
-      username: username.unwrap_or_default(),
-      password: password.unwrap_or_default(),
-      database,
-    })),
+    // "clickhouse_tcp" => Some(Box::new(ClickhouseTcpConnection {
+    //   host: host.unwrap(),
+    //   port: port.unwrap_or_default(),
+    //   username: username.unwrap_or_default(),
+    //   password: password.unwrap_or_default(),
+    //   database,
+    // })),
     "mysql" => Some(Box::new(MySqlConnection {
       host: host.unwrap(),
       port: port.unwrap(),

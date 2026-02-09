@@ -6,7 +6,7 @@ use itertools::Itertools;
 
 pub mod ast;
 pub mod clickhouse;
-pub mod clickhouse_tcp;
+// pub mod clickhouse_tcp;
 pub mod duckdb;
 pub mod file;
 pub mod folder;
