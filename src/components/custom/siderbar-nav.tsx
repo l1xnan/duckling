@@ -1,5 +1,15 @@
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+} from '../ui/sidebar';
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
   activeKey: string;
@@ -10,7 +20,7 @@ interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
   }[];
 }
 
-export function SidebarNav({
+export function SidebarNav1({
   className,
   items,
   activeKey,
@@ -44,5 +54,46 @@ export function SidebarNav({
         </div>
       ))}
     </nav>
+  );
+}
+export function SidebarNav({
+  className,
+  items,
+  activeKey,
+  setKey,
+  ...props
+}: SidebarNavProps) {
+  return (
+    <SidebarProvider>
+      <Sidebar>
+        {/* <SidebarContent>
+          {items.map((item) => (
+            <SidebarGroup
+              key={item.key}
+              onClick={() => {
+                setKey(item.key);
+              }}
+              title={item.title}
+            />
+          ))}
+        </SidebarContent> */}
+
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {items.map((item) => (
+                  <SidebarMenuItem key={item.key}>
+                    <SidebarMenuButton isActive={item.key === activeKey}>
+                      {item.title}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+    </SidebarProvider>
   );
 }

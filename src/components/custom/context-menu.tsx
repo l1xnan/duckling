@@ -7,8 +7,9 @@ import {
 
 import type { ComponentProps, ReactNode } from 'react';
 
-interface ContextMenuItemProps
-  extends ComponentProps<typeof UIContextMenuItem> {
+interface ContextMenuItemProps extends ComponentProps<
+  typeof UIContextMenuItem
+> {
   icon?: LucideIcon;
   shortcut?: string;
   children: ReactNode | string;
@@ -25,7 +26,7 @@ export function ContextMenuItem({
       {...props}
       inset={!IconComponent ? true : undefined}
     >
-      {IconComponent ? <IconComponent size={14}  /> : null}
+      {IconComponent ? <IconComponent size={14} /> : null}
       {props.children}
       {shortcut ? <ContextMenuShortcut>{shortcut}</ContextMenuShortcut> : null}
     </UIContextMenuItem>

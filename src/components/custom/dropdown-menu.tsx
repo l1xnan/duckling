@@ -13,8 +13,9 @@ import {
 } from '@/components/ui/pagination';
 import { ChevronDownIcon } from 'lucide-react';
 
-export interface DropdownProps
-  extends PropsWithChildren<ComponentProps<typeof UIDropdownMenu>> {
+export interface DropdownProps extends PropsWithChildren<
+  ComponentProps<typeof UIDropdownMenu>
+> {
   content: string;
 }
 

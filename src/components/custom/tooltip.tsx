@@ -1,4 +1,4 @@
-import { Tooltip as TooltipPrimitive } from 'radix-ui';
+import { Tooltip as TooltipPrimitive } from '@base-ui/react/tooltip';
 import React, {
   PropsWithChildren,
   ReactElement,
@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 
 import {
-  Tooltip as ITooltip,
+  Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
@@ -18,30 +18,26 @@ import {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-export function Tooltip({
+export function TitleTooltip({
   children,
   title,
 }: PropsWithChildren<
   { title: ReactNode } & React.ComponentProps<typeof TooltipPrimitive.Provider>
 >) {
   return (
-    <TooltipProvider
-      delayDuration={1500}
-      skipDelayDuration={1000}
-      disableHoverableContent={true}
-    >
-      <ITooltip>
-        <TooltipTrigger asChild>{children}</TooltipTrigger>
-        <TooltipPrimitive.Portal>
-          <TooltipContent
-            side="bottom"
-            align="start"
-            // className="bg-popover text-popover-foreground border"
-          >
-            {title}
-          </TooltipContent>
-        </TooltipPrimitive.Portal>
-      </ITooltip>
+    <TooltipProvider delay={1500} closeDelay={1000}>
+      <Tooltip disableHoverablePopup={true}>
+        <TooltipTrigger>{children}</TooltipTrigger>
+        {/* <TooltipPrimitive.Portal> */}
+        <TooltipContent
+          side="bottom"
+          align="start"
+          // className="bg-popover text-popover-foreground border"
+        >
+          {title}
+        </TooltipContent>
+        {/* </TooltipPrimitive.Portal> */}
+      </Tooltip>
     </TooltipProvider>
   );
 }
@@ -81,9 +77,8 @@ export function DelayedTooltip({
   }, []);
 
   return (
-    <ITooltip open={open}>
+    <Tooltip open={open}>
       <TooltipTrigger
-        asChild
         onMouseEnter={handleOpen}
         onMouseLeave={handleClose}
         onTouchStart={handleOpen}
@@ -96,7 +91,7 @@ export function DelayedTooltip({
           {content}
         </TooltipContent>
       ) : null}
-    </ITooltip>
+    </Tooltip>
   );
 }
 
@@ -105,7 +100,7 @@ interface IconButtonProps extends PropsWithChildren<
 > {
   icon?: ReactElement;
   tooltip?: string;
-  tooltipProps?: TooltipPrimitive.TooltipContentProps;
+  tooltipProps?: TooltipPrimitive.Popup.Props;
   active?: boolean;
 
   ref?: React.Ref<HTMLButtonElement>;

@@ -1,5 +1,4 @@
 import * as React from "react"
-import { Label as LabelPrimitive, Slot as SlotPrimitive } from "radix-ui"
 
 import {
   Controller,
@@ -88,7 +87,7 @@ function FormItem({ className, ...props }: React.ComponentProps<"div">) {
 function FormLabel({
   className,
   ...props
-}: React.ComponentProps<typeof LabelPrimitive.Root>) {
+}: React.ComponentProps<typeof Label>) {
   const { error, formItemId } = useFormField()
 
   return (
@@ -102,22 +101,16 @@ function FormLabel({
   )
 }
 
-function FormControl({ ...props }: React.ComponentProps<typeof SlotPrimitive.Slot>) {
+function FormControl({ ...props }: React.ComponentProps<"div">) {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
 
-  return (
-    <SlotPrimitive.Slot
-      data-slot="form-control"
-      id={formItemId}
-      aria-describedby={
-        !error
-          ? `${formDescriptionId}`
-          : `${formDescriptionId} ${formMessageId}`
-      }
-      aria-invalid={!!error}
-      {...props}
-    />
-  )
+  return React.cloneElement(React.Children.only(props.children) as React.ReactElement, {
+    id: formItemId,
+    "aria-describedby": !error
+      ? `${formDescriptionId}`
+      : `${formDescriptionId} ${formMessageId}`,
+    "aria-invalid": !!error,
+  })
 }
 
 function FormDescription({ className, ...props }: React.ComponentProps<"p">) {

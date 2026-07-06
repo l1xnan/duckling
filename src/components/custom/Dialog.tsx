@@ -1,5 +1,4 @@
-import { Dialog as DialogPrimitive } from 'radix-ui';
-import { ReactNode } from 'react';
+import { ReactNode, ReactElement } from 'react'
 
 import {
   DialogContent,
@@ -7,14 +6,16 @@ import {
   Dialog as DialogRoot,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
+} from '@/components/ui/dialog'
+import { cn } from '@/lib/utils'
 
-interface DialogProps extends DialogPrimitive.DialogProps {
-  title: string;
-  className?: string;
-  children: ReactNode;
-  trigger?: ReactNode;
+interface DialogProps {
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  title: string
+  className?: string
+  children: ReactNode
+  trigger?: ReactElement
 }
 
 export const Dialog = ({
@@ -26,14 +27,10 @@ export const Dialog = ({
   className,
 }: DialogProps) => {
   return (
-    <DialogRoot open={open} onOpenChange={onOpenChange}>
-      {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
+    <DialogRoot open={open} onOpenChange={onOpenChange} disablePointerDismissal>
+      {trigger ? <DialogTrigger render={trigger} /> : null}
       <DialogContent
         className={cn('grid-rows-[auto_1fr]', className)}
-        onInteractOutside={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
       >
         <DialogHeader className="h-5">
           <DialogTitle>{title}</DialogTitle>
@@ -41,7 +38,7 @@ export const Dialog = ({
         {children}
       </DialogContent>
     </DialogRoot>
-  );
-};
+  )
+}
 
-export default Dialog;
+export default Dialog
