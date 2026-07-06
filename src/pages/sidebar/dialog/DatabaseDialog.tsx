@@ -245,8 +245,8 @@ export function DatabaseDialog() {
     >
       <DatabaseForm form={form} handleSubmit={handleSubmit} />
       <DialogFooter>
-        <DialogClose asChild>
-          <Button variant="secondary">Cancel</Button>
+        <DialogClose render={ <Button variant="secondary">Cancel</Button>}>
+         
         </DialogClose>
         <Button type="submit" onClick={form.handleSubmit(handleSubmit)}>
           Ok

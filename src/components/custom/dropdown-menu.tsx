@@ -22,7 +22,7 @@ export interface DropdownProps extends PropsWithChildren<
 export function DropdownMenu({ content, children }: DropdownProps) {
   return (
     <UIDropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <PaginationContent>
           <PaginationItem>
             <PaginationLink className="w-full px-2 text-xs" size={'sm'}>

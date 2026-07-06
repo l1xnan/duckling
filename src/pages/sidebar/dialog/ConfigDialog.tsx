@@ -34,8 +34,8 @@ export function ConfigDialog({
     >
       <DatabaseForm form={form} handleSubmit={handleSubmit} isNew={false} />
       <DialogFooter>
-        <DialogClose asChild>
-          <Button variant="secondary">Cancel</Button>
+        <DialogClose render={<Button variant="secondary">Cancel</Button>}>
+          
         </DialogClose>
         <Button type="submit" onClick={form.handleSubmit(handleSubmit)}>
           Ok

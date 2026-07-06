@@ -27,7 +27,7 @@ export function TitleTooltip({
   return (
     <TooltipProvider delay={1500} closeDelay={1000}>
       <Tooltip disableHoverablePopup={true}>
-        <TooltipTrigger>{children}</TooltipTrigger>
+        <TooltipTrigger render={children}></TooltipTrigger>
         {/* <TooltipPrimitive.Portal> */}
         <TooltipContent
           side="bottom"
@@ -83,8 +83,8 @@ export function DelayedTooltip({
         onMouseLeave={handleClose}
         onTouchStart={handleOpen}
         onTouchEnd={handleClose}
+        render={children}
       >
-        {children}
       </TooltipTrigger>
       {content ? (
         <TooltipContent side="bottom" align="start">

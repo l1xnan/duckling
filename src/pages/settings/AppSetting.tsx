@@ -13,11 +13,7 @@ import { toast } from 'sonner';
 import { Dialog } from '@/components/custom/Dialog';
 import { SidebarNav } from '@/components/custom/siderbar-nav';
 import { Button } from '@/components/ui/button';
-import {
-  DialogClose,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
+import { DialogClose, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -27,13 +23,7 @@ import {
   FormLabel,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemTitle,
-} from '@/components/ui/item';
+import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
 import {
   Select,
   SelectContent,
@@ -69,10 +59,7 @@ const items = [
 
 export const navKeyAtom = atom('profile');
 
-export const Display = ({
-  hidden,
-  children,
-}: PropsWithChildren<{ hidden: boolean }>) => (
+export const Display = ({ hidden, children }: PropsWithChildren<{ hidden: boolean }>) => (
   <div className={hidden ? 'flex flex-col h-full' : 'hidden'}>{children}</div>
 );
 
@@ -89,9 +76,11 @@ export default function AppSettingDialog() {
       }
     >
       <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
-        <aside className="mr-4 lg:w-1/5">
+        {/* <aside className="mr-4 lg:w-1/5">
           <SidebarNav items={items} activeKey={navKey} setKey={setNavKey} />
-        </aside>
+        </aside> */}
+        <SidebarNav items={items} activeKey={navKey} setKey={setNavKey} />
+
         <div className="flex-1 lg:max-w-2xl h-full">
           <Display hidden={navKey == 'profile'}>
             <Profile />
@@ -120,10 +109,7 @@ function Profile() {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className=" h-full flex flex-col"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="h-full flex flex-col">
         <div className="flex-1 space-y-4">
           <FormField
             control={form.control}
@@ -156,10 +142,7 @@ function Profile() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Editor Light Theme</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select editor theme" />
@@ -184,10 +167,7 @@ function Profile() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Editor Dark Theme</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select editor theme" />
@@ -205,10 +185,7 @@ function Profile() {
                 </Select>
                 <FormDescription>
                   Reference:{' '}
-                  <a
-                    href="https://textmate-grammars-themes.netlify.app/"
-                    target="_blank"
-                  >
+                  <a href="https://textmate-grammars-themes.netlify.app/" target="_blank">
                     Shiki TextMate Grammar & Theme Playground
                   </a>
                   .
@@ -230,9 +207,7 @@ function Profile() {
           />
         </div>
         <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="secondary">Cancel</Button>
-          </DialogClose>
+          <DialogClose render={<Button variant="secondary">Cancel</Button>}></DialogClose>
           <Button type="submit">Update</Button>
         </DialogFooter>
       </form>
@@ -297,19 +272,14 @@ const UpdateForm = () => {
   return (
     <>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className=" h-full flex flex-col"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className=" h-full flex flex-col">
           <div className="flex-1 space-y-4">
             <Item variant="outline" className="shadow-sm">
               <ItemContent>
                 <FormLabel>Current version: {version}</FormLabel>
                 {/* <FormDescription>Tauri: {tauriVersion}</FormDescription> */}
                 {update?.version && (
-                  <FormDescription>
-                    Discover new version: {update?.version}
-                  </FormDescription>
+                  <FormDescription>Discover new version: {update?.version}</FormDescription>
                 )}
               </ItemContent>
               <ItemActions>
@@ -348,17 +318,13 @@ const UpdateForm = () => {
                       <div className="space-y-0.5">
                         <ItemTitle>Automatic updates</ItemTitle>
                         <ItemDescription>
-                          Turn this off to prevent the app from checking for
-                          updates.
+                          Turn this off to prevent the app from checking for updates.
                         </ItemDescription>
                       </div>
                     </ItemContent>
                     <ItemActions>
                       <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
                       </FormControl>
                     </ItemActions>
                   </Item>
@@ -371,9 +337,7 @@ const UpdateForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Proxy</FormLabel>
-                  <FormDescription>
-                    use a proxy server for updater
-                  </FormDescription>
+                  <FormDescription>use a proxy server for updater</FormDescription>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -386,9 +350,7 @@ const UpdateForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Debug</FormLabel>
-                  <FormDescription>
-                    Open developer debugging page
-                  </FormDescription>
+                  <FormDescription>Open developer debugging page</FormDescription>
                   <div className="flex w-full items-center space-x-2">
                     <FormControl>
                       <Input placeholder="http://localhost:5173" {...field} />
@@ -411,9 +373,7 @@ const UpdateForm = () => {
             />
           </div>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="secondary">Cancel</Button>
-            </DialogClose>
+            <DialogClose render={<Button variant="secondary">Cancel</Button>}></DialogClose>
             <Button type="submit">Update</Button>
           </DialogFooter>
         </form>
@@ -423,6 +383,8 @@ const UpdateForm = () => {
 };
 
 const CSVForm = () => {
+  // https://duckdb.org/docs/stable/data/csv/overview#parameters
+  // https://duckdb.org/docs/stable/sql/statements/copy#csv-options
   const [settings, setSettings] = useAtom(settingAtom);
   const form = useForm({
     defaultValues: settings.csv,
@@ -438,20 +400,13 @@ const CSVForm = () => {
         Read csv file parameters, see:&nbsp;
         <a
           className="prose prose-a:text-link text-link border-b-[1px] cursor-pointer"
-          onClick={() =>
-            shell.open(
-              'https://duckdb.org/docs/data/csv/overview.html#parameters',
-            )
-          }
+          onClick={() => shell.open('https://duckdb.org/docs/data/csv/overview.html#parameters')}
         >
           csv parameters
         </a>
       </DialogDescription>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col h-full"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
           <div className="flex-1 space-y-4">
             <FormField
               control={form.control}
@@ -463,8 +418,7 @@ const CSVForm = () => {
                     <Input {...field} />
                   </FormControl>
                   <FormDescription>
-                    Specifies the string that separates columns within each row
-                    (line) of the file.
+                    Specifies the string that separates columns within each row (line) of the file.
                   </FormDescription>
                 </FormItem>
               )}
@@ -479,8 +433,7 @@ const CSVForm = () => {
                     <Input {...field} />
                   </FormControl>
                   <FormDescription>
-                    Specifies the quoting string to be used when a data value is
-                    quoted.
+                    Specifies the quoting string to be used when a data value is quoted.
                   </FormDescription>
                 </FormItem>
               )}
@@ -495,8 +448,8 @@ const CSVForm = () => {
                     <Input {...field} />
                   </FormControl>
                   <FormDescription>
-                    Specifies the string that should appear before a data
-                    character sequence that matches the quote value.
+                    Specifies the string that should appear before a data character sequence that
+                    matches the quote value.
                   </FormDescription>
                 </FormItem>
               )}
@@ -511,8 +464,7 @@ const CSVForm = () => {
                     <Input {...field} />
                   </FormControl>
                   <FormDescription>
-                    Set the new line character(s) in the file. Options are
-                    '\r','\n', or '\r\n'.
+                    Set the new line character(s) in the file. Options are '\r','\n', or '\r\n'.
                   </FormDescription>
                 </FormItem>
               )}
@@ -520,9 +472,7 @@ const CSVForm = () => {
           </div>
 
           <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="secondary">Cancel</Button>
-            </DialogClose>
+            <DialogClose render={<Button variant="secondary">Cancel</Button>}></DialogClose>
             <Button className="mx-0" type="submit">
               Update
             </Button>

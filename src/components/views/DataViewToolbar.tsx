@@ -1,8 +1,4 @@
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { IconDecimal } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
 import {
@@ -131,15 +127,13 @@ export function DataViewToolbar({
           }}
           tooltip="Refresh"
         />
-        <div className="text-xs ml-6">
-          elapsed time: {elapsedRender(elapsed)}
-        </div>
+        <div className="text-xs ml-6">elapsed time: {elapsedRender(elapsed)}</div>
       </Stack>
       <Stack>
         <Popover>
-          <PopoverTrigger asChild>
-            <TooltipButton icon={<Columns3CogIcon />} tooltip="Hidden Column" />
-          </PopoverTrigger>
+          <PopoverTrigger
+            render={<TooltipButton icon={<Columns3CogIcon />} tooltip="Hidden Column" />}
+          ></PopoverTrigger>
           <PopoverContent>
             <div className="flex flex-col gap-2">
               <h4>Data Columns</h4>
@@ -161,12 +155,7 @@ export function DataViewToolbar({
           </PopoverContent>
         </Popover>
 
-        <TooltipButton
-          icon={<CrossIcon />}
-          onClick={setCross}
-          tooltip="Cross"
-          active={cross}
-        />
+        <TooltipButton icon={<CrossIcon />} onClick={setCross} tooltip="Cross" active={cross} />
         <TooltipButton
           icon={<TransposeIcon />}
           onClick={setTranspose}
@@ -175,25 +164,17 @@ export function DataViewToolbar({
         />
 
         <Popover>
-          <PopoverTrigger>
-            <TooltipButton disabled={!sql} icon={<CodeIcon />} />
-          </PopoverTrigger>
+          <PopoverTrigger
+            render={<TooltipButton disabled={!sql} icon={<CodeIcon />} />}
+          ></PopoverTrigger>
           <PopoverContent className="h-[100px] pr-2">
             <SQLCodeViewer className="text-sm" sql={sql ?? ''} />
           </PopoverContent>
         </Popover>
 
+        <TooltipButton icon={<EyeIcon />} onClick={setShowValue} tooltip="Value Viewer" />
         <TooltipButton
-          icon={<EyeIcon />}
-          onClick={setShowValue}
-          tooltip="Value Viewer"
-        />
-        <TooltipButton
-          icon={
-            <DownloadIcon
-              className={loading ? 'animate-spin duration-2000' : ''}
-            />
-          }
+          icon={<DownloadIcon className={loading ? 'animate-spin duration-2000' : ''} />}
           tooltip="Export data"
           onClick={handleExport}
         />

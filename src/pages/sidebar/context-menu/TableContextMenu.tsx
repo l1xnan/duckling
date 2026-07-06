@@ -40,9 +40,7 @@ export function TableContextMenu({
   const alertDialog = useDialog();
   const searchDialog = useDialog();
 
-  const handleDropTable: React.MouseEventHandler<HTMLButtonElement> = async (
-    e,
-  ) => {
+  const handleDropTable: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
     e.stopPropagation();
     await dropTable(node.path, db.config as DialectConfig);
   };
@@ -146,32 +144,20 @@ export function TableContextMenu({
             e.stopPropagation();
           }}
         >
-          <ContextMenuItem onSelect={handleShowTable}>
-            Show table
-          </ContextMenuItem>
-          <ContextMenuItem onSelect={handleShowColumn}>
-            Show columns
-          </ContextMenuItem>
+          <ContextMenuItem onSelect={handleShowTable}>Show table</ContextMenuItem>
+          <ContextMenuItem onSelect={handleShowColumn}>Show columns</ContextMenuItem>
           {db.dialect == 'folder' ? (
             <>
-              <ContextMenuItem onSelect={handleShowParquet}>
-                Show *.parquet
-              </ContextMenuItem>
-              <ContextMenuItem onSelect={handleShowCsv}>
-                Show *.csv
-              </ContextMenuItem>
+              <ContextMenuItem onSelect={handleShowParquet}>Show *.parquet</ContextMenuItem>
+              <ContextMenuItem onSelect={handleShowCsv}>Show *.csv</ContextMenuItem>
               <ContextMenuSeparator />
               <ContextMenuItem onSelect={handleSearch}>Search</ContextMenuItem>
-              <ContextMenuItem onSelect={handkeOpenPath}>
-                Open Path
-              </ContextMenuItem>
+              <ContextMenuItem onSelect={handkeOpenPath}>Open Path</ContextMenuItem>
             </>
           ) : null}
 
           <ContextMenuSeparator />
-          <ContextMenuItem onSelect={alertDialog.trigger}>
-            Delete
-          </ContextMenuItem>
+          <ContextMenuItem onSelect={alertDialog.trigger}>Delete</ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem onSelect={handleCopy}>Copy</ContextMenuItem>
           <ContextMenuSeparator />
@@ -196,9 +182,10 @@ export function TableContextMenu({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction asChild onClick={handleDropTable}>
-              <Button variant="destructive">Yes</Button>
-            </AlertDialogAction>
+            <AlertDialogAction
+              render={<Button variant="destructive">Yes</Button>}
+              onClick={handleDropTable}
+            ></AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -1,29 +1,15 @@
 import { Data, Vector } from '@apache-arrow/ts';
 import MonacoEditor from '@monaco-editor/react';
-import {
-  LetterTextIcon,
-  PanelBottomIcon,
-  PanelRightIcon,
-  XIcon,
-} from 'lucide-react';
+import { LetterTextIcon, PanelBottomIcon, PanelRightIcon, XIcon } from 'lucide-react';
 import { editor } from 'monaco-editor';
 import { useRef, useState } from 'react';
 
 import { arrowToJSON } from '@/api';
 import { TooltipButton } from '@/components/custom/button';
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-} from '@/components/custom/dropdown-menu';
+import { DropdownMenu, DropdownMenuItem } from '@/components/custom/dropdown-menu';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { DropdownMenuContent } from '@/components/ui/dropdown-menu';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { Direction } from '@/stores/dataset';
@@ -102,7 +88,8 @@ export function ValueViewer({
       console.error('格式化失败:', error);
     }
   };
-
+  
+  console.log(selectedCell, selectedCellInfos);
   const value = displayValue(selectedCell?.value as Data, type);
   return (
     <Tabs defaultValue="value" className="size-full flex flex-col">
@@ -115,9 +102,7 @@ export function ValueViewer({
             <TabsTrigger
               key={key}
               value={key}
-              className={cn(
-                'group-data-[orientation=horizontal]/tabs:after:bottom-px',
-              )}
+              className={cn('group-data-[orientation=horizontal]/tabs:after:bottom-px')}
             >
               {label}
             </TabsTrigger>
@@ -161,9 +146,7 @@ export function ValueViewer({
       </div>
       <TabsContent value="value" className="size-full">
         {selectedCell === null ? (
-          <pre className="size-full flex items-center justify-center">
-            not selected
-          </pre>
+          <pre className="size-full flex items-center justify-center">not selected</pre>
         ) : (
           <MonacoEditor
             theme={theme}
@@ -220,9 +203,7 @@ function CalcViewer({ cells }: { cells?: SelectedCellType[][] | null }) {
         {statsArr.map((row, i) => {
           return (
             <TableRow key={i}>
-              <TableCell className="p-1 w-20 pl-4">
-                {row?.['field'] as string}
-              </TableCell>
+              <TableCell className="p-1 w-20 pl-4">{row?.['field'] as string}</TableCell>
               {df.inds.map((k) => {
                 return (
                   <TableCell key={k} className="p-1 w-10">

@@ -153,7 +153,11 @@ export default function Editor({ context }: { context: EditorContextType }) {
             onRun={handleClick}
           />
         </div>
-        <QueryTabs tabsAtom={subTabsAtom} activeKey={tab.activeKey} setActiveKey={setActiveKey} />
+        <QueryTabs
+          tabsAtom={subTabsAtom}
+          activeKey={tab.activeKey}
+          setActiveKey={setActiveKey}
+        />
       </VerticalContainer>
     </div>
   );

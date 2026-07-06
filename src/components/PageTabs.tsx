@@ -300,26 +300,29 @@ function TabMenuItem({
         'data-[state=active]:shadow-none',
         'data-[state=active]:rounded-none',
       )}
-    >
-      <div
-        className={cn(
-          'h-0.5 w-full absolute left-0 invisible z-6',
-          // 'bg-[#1976d2]',
-          'bg-foreground',
-          'group-data-[state=active]:visible',
-          {
-            'bottom-0': indicator != 'top',
-            'top-0': indicator == 'top',
-          },
-          `${indicator ?? 'bottom'}-0`,
-        )}
-      />
-      {Comp ? (
-        <Comp tab={tab} />
-      ) : (
-        <SimpleTab tab={tab} onRemove={onRemove as (s: string) => void} />
-      )}
-    </TabsTrigger>
+      render={
+        <div>
+          <div
+            className={cn(
+              'h-0.5 w-full absolute left-0 invisible z-6',
+              // 'bg-[#1976d2]',
+              'bg-foreground',
+              'group-data-[active]:visible',
+              {
+                'bottom-0': indicator != 'top',
+                'top-0': indicator == 'top',
+              },
+              `${indicator ?? 'bottom'}-0`,
+            )}
+          />
+          {Comp ? (
+            <Comp tab={tab} />
+          ) : (
+            <SimpleTab tab={tab} onRemove={onRemove as (s: string) => void} />
+          )}
+        </div>
+      }
+    ></TabsTrigger>
   );
 }
 
@@ -413,9 +416,9 @@ function RenameDialog({
           />
 
           <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="secondary">Cancel</Button>
-            </DialogClose>
+            <Button variant="secondary" onClick={() => onOpenChange?.(false)}>
+              Cancel
+            </Button>
             <Button type="submit">Ok</Button>
           </DialogFooter>
         </form>

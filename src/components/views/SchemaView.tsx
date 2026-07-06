@@ -19,8 +19,8 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 
 export function DatabaseSchemaView({
-                                     context,
-                                   }: {
+  context,
+}: {
   context: SchemaContextType;
 }) {
   const currentTab = useAtomValue(activeTabAtom);

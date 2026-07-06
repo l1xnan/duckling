@@ -68,7 +68,7 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
   return (
     <>
       <ContextMenu onOpenChange={setEnabled}>
-        <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
+        <ContextMenuTrigger>{children}</ContextMenuTrigger>
         <ContextMenuContent className="w-64">
           <ContextMenuItem onSelect={handleProperties} icon={Settings}>
             Properties

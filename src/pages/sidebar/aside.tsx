@@ -43,7 +43,7 @@ const SideButton = ({ id, icon: Comp, label, onClick }: SideButtonProps) => {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger asChild>
+        <TooltipTrigger  render={
           <Button
             variant="ghost"
             size="icon"
@@ -56,6 +56,8 @@ const SideButton = ({ id, icon: Comp, label, onClick }: SideButtonProps) => {
           >
             <Comp className="size-4" />
           </Button>
+        }>
+          
         </TooltipTrigger>
         <TooltipContent side="right" sideOffset={5}>
           {label}

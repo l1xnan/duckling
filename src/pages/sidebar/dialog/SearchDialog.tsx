@@ -48,11 +48,7 @@ export function SearchDialog(
   });
 
   return (
-    <Dialog
-      open={props.open}
-      onOpenChange={props.onOpenChange}
-      title={`Search: ${ctx?.path}`}
-    >
+    <Dialog open={props.open} onOpenChange={props.onOpenChange} title={`Search: ${ctx?.path}`}>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
           <FormField
@@ -68,9 +64,7 @@ export function SearchDialog(
           />
 
           <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="secondary">Cancel</Button>
-            </DialogClose>
+            <DialogClose render={<Button variant="secondary">Cancel</Button>}></DialogClose>
             <Button type="submit">Ok</Button>
           </DialogFooter>
         </form>

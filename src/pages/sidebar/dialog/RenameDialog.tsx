@@ -55,8 +55,7 @@ export const RenameDialog = React.memo(function RenameDialog(
           />
 
           <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="secondary">Cancel</Button>
+        <DialogClose render={ <Button variant="secondary">Cancel</Button>}>
             </DialogClose>
             <Button type="submit">Ok</Button>
           </DialogFooter>
