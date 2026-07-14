@@ -11,25 +11,14 @@ import {
   XIcon,
 } from 'lucide-react';
 import { shake } from 'radash';
-import {
-  JSX,
-  PropsWithChildren,
-  ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-} from 'react';
+import { JSX, PropsWithChildren, ReactNode, useContext, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import {
-  ScrollMenu,
-  VisibilityContext,
-  type publicApiType,
-} from 'react-horizontal-scrolling-menu';
+import { ScrollMenu, VisibilityContext, type publicApiType } from 'react-horizontal-scrolling-menu';
 import { useShallow } from 'zustand/shallow';
 
 import { ContextMenuItem } from '@/components/custom/context-menu';
 import { Dialog } from '@/components/custom/Dialog';
-import { Tooltip } from '@/components/custom/tooltip';
+import { TitleTooltip } from '@/components/custom/tooltip';
 import { useDialog } from '@/components/custom/use-dialog';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { Button } from '@/components/ui/button';
@@ -39,25 +28,14 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { DialogClose, DialogFooter } from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from '@/components/ui/form';
+import { DialogFooter } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { docsAtom, favoriteAtom } from '@/stores/app';
-import {
-  TabContextType,
-  tabObjAtom,
-  useTabsAtom,
-  useTabsStore,
-} from '@/stores/tabs';
+import { TabContextType, tabObjAtom, useTabsAtom, useTabsStore } from '@/stores/tabs';
 
 export interface PageTabsProps {
   items: { tab: TabContextType; children: ReactNode }[];
@@ -224,7 +202,7 @@ export function PageTabs({
   });
   return (
     <Tabs
-      className="size-full justify-start items-start gap-0"
+      className="size-full justify-start items-stretch gap-0 flex flex-col"
       value={activeKey}
       onValueChange={onChange}
     >
@@ -247,17 +225,15 @@ export function PageTabs({
         </div>
       </ScrollArea>
       {items.map(({ tab: { id }, children }) => {
+        const isActive = id === activeKey;
         return (
           <TabsContent
             key={id}
             value={id}
-            forceMount
-            hidden={id != activeKey}
-            className="h-full w-full mt-0 overflow-hidden"
+            keepMounted
+            // className={cn('h-full w-full mt-0 overflow-hidden', isActive ? 'flex-1' : 'hidden')}
           >
-            <ErrorBoundary fallback={<p>Something went wrong</p>}>
-              {children}
-            </ErrorBoundary>
+            <ErrorBoundary fallback={<p>Something went wrong</p>}>{children}</ErrorBoundary>
           </TabsContent>
         );
       })}
@@ -278,13 +254,7 @@ type TabItemMenuProps = {
   onRemove: ((key: string) => void) | undefined;
 };
 
-function TabMenuItem({
-  itemId,
-  renderItem,
-  tab,
-  indicator,
-  onRemove,
-}: TabItemMenuProps) {
+function TabMenuItem({ itemId, renderItem, tab, indicator, onRemove }: TabItemMenuProps) {
   const Comp = renderItem;
   return (
     <TabsTrigger
@@ -295,10 +265,10 @@ function TabMenuItem({
       className={cn(
         'h-8 text-xs relative wm-200 pl-3 pr-1.5 rounded-none border-r',
         'group',
-        'data-[state=active]:bg-muted',
-        'data-[state=active]:text-foreground',
-        'data-[state=active]:shadow-none',
-        'data-[state=active]:rounded-none',
+        'data-[active]:bg-muted',
+        'data-[active]:text-foreground',
+        'data-[active]:shadow-none',
+        'data-[active]:rounded-none',
       )}
       render={
         <div>
@@ -329,12 +299,12 @@ function TabMenuItem({
 export function CloseableItem({ tab, onRemove }: TabItemProps) {
   return (
     <div className="flex items-center justify-between">
-      <Tooltip title={`${tab.type}: ${tab.displayName}`}>
+      <TitleTooltip title={`${tab.type}: ${tab.displayName}`}>
         <div className="flex">
           <TabTypeIcon type={tab.type} className="size-4 mr-1" />
           <div className="max-w-52 truncate">{tab.displayName}</div>
         </div>
-      </Tooltip>
+      </TitleTooltip>
       <Button
         variant="ghost"
         size="icon"
@@ -450,8 +420,7 @@ export function LeftArrow() {
   const isFirstItemVisible = visibility.useIsVisible('last', true);
 
   // NOTE: Look here
-  const onClick = () =>
-    visibility.scrollToItem(visibility.getPrevElement(), 'smooth', 'start');
+  const onClick = () => visibility.scrollToItem(visibility.getPrevElement(), 'smooth', 'start');
 
   return (
     <Arrow disabled={isFirstItemVisible} onClick={onClick} testId="left-arrow">
@@ -465,8 +434,7 @@ export function RightArrow() {
   const isLastItemVisible = visibility.useIsVisible('first', false);
 
   // NOTE: Look here
-  const onClick = () =>
-    visibility.scrollToItem(visibility.getNextElement(), 'smooth', 'end');
+  const onClick = () => visibility.scrollToItem(visibility.getNextElement(), 'smooth', 'end');
 
   return (
     <Arrow disabled={isLastItemVisible} onClick={onClick} testId="right-arrow">
