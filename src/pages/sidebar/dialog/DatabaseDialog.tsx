@@ -1,6 +1,6 @@
 import { IconDatabasePlus } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 
 import { Dialog } from '@/components/custom/Dialog';
@@ -20,14 +20,25 @@ import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { DialectConfig, useDBListStore } from '@/stores/dbList';
+import { DialectConfig, DialectType, useDBListStore } from '@/stores/dbList';
 import { TreeNode } from '@/types';
 import { nanoid } from 'nanoid';
+
+const dialectItems: { label: string; value: DialectType }[] = [
+  { label: 'DuckDB', value: 'duckdb' },
+  { label: 'DuckDB(Quack)', value: 'quack' },
+  { label: 'Data Folder', value: 'folder' },
+  { label: 'SQLite', value: 'sqlite' },
+  { label: 'MySQL', value: 'mysql' },
+  { label: 'Postgres', value: 'postgres' },
+  { label: 'Clickhouse', value: 'clickhouse' },
+];
 
 type DatabaseFormProps = {
   form: UseFormReturn<DialectConfig>;
@@ -37,6 +48,12 @@ type DatabaseFormProps = {
 
 export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormProps) {
   const watchDialect = form.watch('dialect');
+
+  useEffect(() => {
+    if (watchDialect === 'quack' && form.getValues('disable_ssl') === undefined) {
+      form.setValue('disable_ssl', true);
+    }
+  }, [watchDialect, form]);
 
   return (
     <Form {...form}>
@@ -49,10 +66,15 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
               <FormItem className="flex items-center w-[62.5%]">
                 <FormLabel className="w-1/5 mr-2 mt-2">Dialect</FormLabel>
                 <Select
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    if (value === 'quack') {
+                      form.setValue('disable_ssl', form.getValues('disable_ssl') ?? true);
+                    }
+                  }}
                   defaultValue={field.value}
                   disabled={!isNew}
-                  {...field}
+                  value={field.value}
                 >
                   <FormControl className="w-4/5">
                     <SelectTrigger>
@@ -60,16 +82,13 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="duckdb">DuckDB</SelectItem>
-                    <SelectItem value="quack">DuckDB(Quack)</SelectItem>
-                    <SelectItem value="folder">Data Folder</SelectItem>
-                    <SelectItem value="sqlite">SQLite</SelectItem>
-                    <SelectItem value="mysql">MySQL</SelectItem>
-                    <SelectItem value="postgres">Postgres</SelectItem>
-                    <SelectItem value="clickhouse">Clickhouse</SelectItem>
-                    {/* <SelectItem value="clickhouse_tcp">
-                      Clickhouse(TCP)
-                    </SelectItem> */}
+                    <SelectGroup>
+                      {dialectItems.map((item) => (
+                        <SelectItem key={item.value} value={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </FormItem>
@@ -180,11 +199,15 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
               <FormField
                 control={form.control}
                 name="disable_ssl"
+                defaultValue={true}
                 render={({ field }) => (
                   <FormItem className="flex items-center w-[62.5%]">
                     <FormLabel className="w-1/5 mr-2 mt-2">Disable SSL</FormLabel>
                     <FormControl>
-                      <Switch checked={field.value ?? true} onCheckedChange={field.onChange} />
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -253,7 +276,11 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
 
 export function DatabaseDialog() {
   const [open, setOpen] = useState(false);
-  const form = useForm<DialectConfig>();
+  const form = useForm<DialectConfig>({
+    defaultValues: {
+      disable_ssl: true,
+    },
+  });
   const appendDB = useDBListStore((state) => state.append);
   const updateDB = useDBListStore((state) => state.updateByConfig);
 
