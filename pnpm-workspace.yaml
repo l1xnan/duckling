@@ -1,0 +1,10 @@
+overrides:
+  "react-reconciler": "^0.33.0"
+allowBuilds:
+  '@l1xnan/tree-sitter-sql': false
+  tree-sitter: false
+  unrs-resolver: false
+minimumReleaseAgeExclude:
+  - '@hookform/resolvers@5.4.0'
+  - idb-keyval@6.2.4
+  - '@l1xnan/tree-sitter-sql@0.4.7'
