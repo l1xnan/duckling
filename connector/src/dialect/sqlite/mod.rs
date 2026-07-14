@@ -51,10 +51,13 @@ impl Connection for SqliteConnection {
     self._query(sql, limit, offset)
   }
 
+  // https://github.com/GitoxideLabs/gitoxide/pull/2331
+
+  // https://github.com/rusqlite/rusqlite/pull/1732
   #[allow(clippy::unused_async)]
   async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
     let conn = self.connect()?;
-    let total = conn.query_row(sql, [], |row| row.get::<_, usize>(0))?;
+    let total = conn.query_row(sql, [], |row| row.get::<_, i64>(0))? as usize;
     Ok(total)
   }
 
@@ -241,7 +244,7 @@ impl SqliteConnection {
   pub(crate) async fn _table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
     let conn = self.connect()?;
     let sql = self._table_count_sql(table, cond);
-    let total = conn.query_row(&sql, [], |row| row.get::<_, usize>(0))?;
+    let total = conn.query_row(&sql, [], |row| row.get::<_, i64>(0))? as usize;
     Ok(total)
   }
 
