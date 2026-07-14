@@ -3,30 +3,14 @@ import path from 'path';
 
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import jotaiDebugLabel from 'jotai/babel/plugin-debug-label';
-import jotaiReactRefresh from 'jotai/babel/plugin-react-refresh';
-import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 import { defineConfig } from 'vite';
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    tailwindcss(),
-    react({
-      babel: {
-        presets: ['jotai/babel/preset'],
-        plugins: [jotaiDebugLabel, jotaiReactRefresh],
-      },
-    }),
-    viteStaticCopy({
-      targets: [
-        {
-          src: 'node_modules/web-tree-sitter/tree-sitter.wasm',
-          dest: '',
-        },
-      ],
-    }),
-  ],
+  experimental: {
+    bundledDev: true,
+  },
+  plugins: [tailwindcss(), react({})],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -52,12 +36,13 @@ export default defineConfig({
   envPrefix: ['VITE_', 'TAURI_'],
   build: {
     // Tauri uses Chromium on Windows and WebKit on macOS and Linux
-    target:
-      process.env.TAURI_ENV_PLATFORM == 'windows' ? 'chrome105' : 'safari15',
+    target: process.env.TAURI_ENV_PLATFORM == 'windows' ? 'chrome105' : 'safari15',
     // don't minify for debug builds
-    minify: !process.env.TAURI_ENV_DEBUG ? 'esbuild' : false,
+    minify: !process.env.TAURI_ENV_DEBUG ? 'oxc' : false,
     // produce sourcemaps for debug builds
     sourcemap: !!process.env.TAURI_ENV_DEBUG,
+
+    rolldownOptions: {
       external: (id) => {
         if (id.startsWith('@shikijs/langs')) {
           return !id.includes('json') && !id.includes('sql');
