@@ -13,6 +13,13 @@ import { toast } from 'sonner';
 import { Dialog } from '@/components/custom/Dialog';
 import { SidebarNav } from '@/components/custom/siderbar-nav';
 import { Button } from '@/components/ui/button';
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from '@/components/ui/combobox';
 import { DialogClose, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import {
   Form,
@@ -24,13 +31,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -75,10 +75,7 @@ export default function AppSettingDialog() {
         </Button>
       }
     >
-      <div className="flex min-h-0 flex-col space-y-8 overflow-y-auto lg:flex-row lg:space-x-12 lg:space-y-0">
-        {/* <aside className="mr-4 lg:w-1/5">
-          <SidebarNav items={items} activeKey={navKey} setKey={setNavKey} />
-        </aside> */}
+      <div className="flex min-h-0 flex-col space-y-8 overflow-y-auto overflow-x-hidden lg:flex-row lg:space-x-12 lg:space-y-0">
         <SidebarNav items={items} activeKey={navKey} setKey={setNavKey} />
 
         <div className="flex-1 lg:max-w-2xl h-full">
@@ -142,28 +139,29 @@ function Profile() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Editor Light Theme</FormLabel>
-                <Select
+                <Combobox
+                  value={field.value}
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
                   items={editorThemes
                     .filter((t) => t.type == 'light')
                     .map((t) => ({ label: t.name, value: t.id }))}
+                  itemToStringValue={(item: { label: string; value: string }) => item?.label}
                 >
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select editor theme" />
-                    </SelectTrigger>
+                    <ComboboxInput placeholder="Select editor theme" />
                   </FormControl>
-                  <SelectContent>
-                    {editorThemes
-                      .filter((t) => t.type == 'light')
-                      .map(({ name, id }) => (
-                        <SelectItem key={id} value={id} label={name}>
-                          {name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                  <ComboboxContent>
+                    <ComboboxList>
+                      {editorThemes
+                        .filter((t) => t.type == 'light')
+                        .map(({ name, id }) => (
+                          <ComboboxItem key={id} value={{ label: name, value: id }}>
+                            {name}
+                          </ComboboxItem>
+                        ))}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
               </FormItem>
             )}
           />
@@ -173,28 +171,29 @@ function Profile() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Editor Dark Theme</FormLabel>
-                <Select
+                <Combobox
+                  value={field.value}
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
                   items={editorThemes
                     .filter((t) => t.type == 'dark')
                     .map((t) => ({ label: t.name, value: t.id }))}
+                  itemToStringValue={(item: { label: string; value: string }) => item?.label}
                 >
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select editor theme" />
-                    </SelectTrigger>
+                    <ComboboxInput placeholder="Select editor theme" />
                   </FormControl>
-                  <SelectContent>
-                    {editorThemes
-                      .filter((t) => t.type == 'dark')
-                      .map(({ name, id }) => (
-                        <SelectItem key={id} value={id} label={name}>
-                          {name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                  <ComboboxContent>
+                    <ComboboxList>
+                      {editorThemes
+                        .filter((t) => t.type == 'dark')
+                        .map(({ name, id }) => (
+                          <ComboboxItem key={id} value={{ label: name, value: id }}>
+                            {name}
+                          </ComboboxItem>
+                        ))}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
                 <FormDescription>
                   Reference:{' '}
                   <a href="https://textmate-grammars-themes.netlify.app/" target="_blank">
