@@ -37,10 +37,13 @@ export function DropdownMenu({ content, children }: DropdownProps) {
   );
 }
 
-export function DropdownMenuItem(
-  props: ComponentProps<typeof UIDropdownMenuItem>,
-) {
-  return <UIDropdownMenuItem className="py-1 text-xs" {...props} />;
+export function DropdownMenuItem({
+  onSelect,
+  ...props
+}: ComponentProps<typeof UIDropdownMenuItem> & {
+  onSelect?: ComponentProps<typeof UIDropdownMenuItem>['onClick'];
+}) {
+  return <UIDropdownMenuItem className="py-1 text-xs" onClick={onSelect} {...props} />;
 }
 export function DropdownMenuLabel(
   props: ComponentProps<typeof UIDropdownMenuLabel>,

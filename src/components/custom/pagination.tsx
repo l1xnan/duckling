@@ -7,6 +7,7 @@ import {
 } from '@/components/custom/dropdown-menu';
 import {
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -37,7 +38,9 @@ export function PaginationDropdown({ content, setPerPage }: DropdownProps) {
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
-        <DropdownMenuLabel>Default: 500</DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Default: 500</DropdownMenuLabel>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );

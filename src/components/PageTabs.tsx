@@ -262,6 +262,7 @@ function TabMenuItem({ itemId, renderItem, tab, indicator, onRemove }: TabItemMe
       key={tab.id}
       value={tab.id}
       data-cy={itemId}
+      nativeButton={false}
       className={cn(
         'h-8 text-xs relative wm-200 pl-3 pr-1.5 rounded-none border-r',
         'group',

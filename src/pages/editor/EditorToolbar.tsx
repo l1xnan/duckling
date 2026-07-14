@@ -88,9 +88,9 @@ export default function Connection({ content, setSession }: DropdownProps) {
   return (
     <DropdownMenu content={content ?? `unknown`}>
       <DropdownMenuContent className="w-full">
-        <DropdownMenuLabel>Session</DropdownMenuLabel>
-        <DropdownMenuSeparator />
         <DropdownMenuGroup>
+          <DropdownMenuLabel>Session</DropdownMenuLabel>
+          <DropdownMenuSeparator />
           {dbList.map((item) => (
             <DropdownMenuItem
               key={item.id}
