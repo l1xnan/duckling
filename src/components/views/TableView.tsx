@@ -203,13 +203,13 @@ export function InputToolbar({
   };
 
   return (
-    <div className="flex flex-row items-center h-8 min-h-8 bg-background/40 border-b font-mono">
-      <ResizablePanelGroup orientation="horizontal">
-        <ResizablePanel defaultSize={50} className="flex flex-row items-center">
+    <div className="flex flex-row items-center h-8 min-h-8 w-full overflow-hidden bg-background/40 border-b font-mono">
+      <ResizablePanelGroup orientation="horizontal" className="min-w-0">
+        <ResizablePanel defaultSize={50} className="flex flex-row items-center min-w-0">
           <div className="mx-2 min-w-fit text-muted-foreground text-sm">
             WHERE
           </div>
-          <div className="w-full">
+          <div className="w-full min-w-0">
             <SingleLineEditor
               className="text-sm"
               initialValue={sqlWhere}
@@ -223,11 +223,11 @@ export function InputToolbar({
           </div>
         </ResizablePanel>
         <ResizableHandle />
-        <ResizablePanel defaultSize={50} className="flex flex-row items-center">
+        <ResizablePanel defaultSize={50} className="flex flex-row items-center min-w-0">
           <div className="mx-2 min-w-fit text-muted-foreground text-sm">
             ORDER BY
           </div>
-          <div className="w-full">
+          <div className="w-full min-w-0">
             <SingleLineEditor
               initialValue={sqlOrderBy}
               onChange={setSQLOrderBy}

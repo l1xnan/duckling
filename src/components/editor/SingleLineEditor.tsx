@@ -138,6 +138,7 @@ const options: editor.IStandaloneEditorConstructionOptions = {
   fontSize: 13,
   lineHeight: 20,
   padding: { bottom: 3, top: 3 }, // 内边距
+  automaticLayout: true, // 随容器尺寸自动重排
   minimap: {
     enabled: false,
   },
