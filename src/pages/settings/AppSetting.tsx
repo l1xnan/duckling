@@ -94,6 +94,14 @@ export default function AppSettingDialog() {
   );
 }
 
+const darkItems = editorThemes
+  .filter((t) => t.type == 'dark')
+  .map((t) => ({ label: t.name, value: t.id }));
+
+const lightItems = editorThemes
+  .filter((t) => t.type == 'light')
+  .map((t) => ({ label: t.name, value: t.id }));
+
 function Profile() {
   const [settings, setSettings] = useAtom(settingAtom);
   const form = useForm({
@@ -139,26 +147,23 @@ function Profile() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Editor Light Theme</FormLabel>
+
                 <Combobox
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  items={editorThemes
-                    .filter((t) => t.type == 'light')
-                    .map((t) => ({ label: t.name, value: t.id }))}
-                  itemToStringValue={(item: { label: string; value: string }) => item?.label}
+                  value={lightItems.find((i) => i.value === field.value) ?? null}
+                  onValueChange={(v) => field.onChange(v?.value ?? '')}
+                  items={lightItems}
+                  itemToStringValue={(item) => item?.label}
                 >
                   <FormControl>
                     <ComboboxInput placeholder="Select editor theme" />
                   </FormControl>
                   <ComboboxContent>
                     <ComboboxList>
-                      {editorThemes
-                        .filter((t) => t.type == 'light')
-                        .map(({ name, id }) => (
-                          <ComboboxItem key={id} value={{ label: name, value: id }}>
-                            {name}
-                          </ComboboxItem>
-                        ))}
+                      {lightItems.map(({ label, value }) => (
+                        <ComboboxItem key={value} value={{ label, value }}>
+                          {label}
+                        </ComboboxItem>
+                      ))}
                     </ComboboxList>
                   </ComboboxContent>
                 </Combobox>
@@ -172,25 +177,21 @@ function Profile() {
               <FormItem>
                 <FormLabel>Editor Dark Theme</FormLabel>
                 <Combobox
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  items={editorThemes
-                    .filter((t) => t.type == 'dark')
-                    .map((t) => ({ label: t.name, value: t.id }))}
-                  itemToStringValue={(item: { label: string; value: string }) => item?.label}
+                  value={darkItems.find((i) => i.value === field.value) ?? null}
+                  onValueChange={(v) => field.onChange(v?.value ?? '')}
+                  items={darkItems}
+                  itemToStringValue={(item) => item?.label}
                 >
                   <FormControl>
                     <ComboboxInput placeholder="Select editor theme" />
                   </FormControl>
                   <ComboboxContent>
                     <ComboboxList>
-                      {editorThemes
-                        .filter((t) => t.type == 'dark')
-                        .map(({ name, id }) => (
-                          <ComboboxItem key={id} value={{ label: name, value: id }}>
-                            {name}
-                          </ComboboxItem>
-                        ))}
+                      {darkItems.map(({ label, value }) => (
+                        <ComboboxItem key={value} value={{ label, value }}>
+                          {label}
+                        </ComboboxItem>
+                      ))}
                     </ComboboxList>
                   </ComboboxContent>
                 </Combobox>
