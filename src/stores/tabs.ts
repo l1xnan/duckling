@@ -21,11 +21,7 @@ import {
 import { atomStore } from '@/stores';
 
 import { Direction, SchemaType } from './dataset';
-import {
-  dbMapAtom,
-  PostgresDialectType,
-  tablesAtom
-} from './dbList';
+import { dbMapAtom, PostgresDialectType, tablesAtom } from './dbList';
 import { settingAtom } from './setting';
 
 export type QueryParamType = {

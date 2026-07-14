@@ -1,4 +1,4 @@
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { BellIcon } from 'lucide-react';
 import { Activity, RefObject } from 'react';
 
