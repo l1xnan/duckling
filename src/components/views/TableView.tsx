@@ -28,12 +28,14 @@ import { ValueViewer } from './ValueViewer';
 
 export const Loading = ({ className }: { className?: string }) => {
   return (
-    <Loader2Icon
+    <div
       className={cn(
-        'my-28 h-16 w-full text-primary/60 animate-spin',
+        'flex size-full items-center justify-center',
         className,
       )}
-    />
+    >
+      <Loader2Icon className="h-16 w-16 animate-spin text-primary/60" />
+    </div>
   );
 };
 
