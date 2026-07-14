@@ -75,6 +75,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                   defaultValue={field.value}
                   disabled={!isNew}
                   value={field.value}
+                  items={dialectItems}
                 >
                   <FormControl className="w-4/5">
                     <SelectTrigger>
@@ -84,7 +85,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                   <SelectContent>
                     <SelectGroup>
                       {dialectItems.map((item) => (
-                        <SelectItem key={item.value} value={item.value}>
+                        <SelectItem key={item.value} value={item.value} label={item.label}>
                           {item.label}
                         </SelectItem>
                       ))}
@@ -204,10 +205,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                   <FormItem className="flex items-center w-[62.5%]">
                     <FormLabel className="w-1/5 mr-2 mt-2">Disable SSL</FormLabel>
                     <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

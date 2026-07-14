@@ -142,7 +142,13 @@ function Profile() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Editor Light Theme</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  items={editorThemes
+                    .filter((t) => t.type == 'light')
+                    .map((t) => ({ label: t.name, value: t.id }))}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select editor theme" />
@@ -152,7 +158,7 @@ function Profile() {
                     {editorThemes
                       .filter((t) => t.type == 'light')
                       .map(({ name, id }) => (
-                        <SelectItem key={id} value={id}>
+                        <SelectItem key={id} value={id} label={name}>
                           {name}
                         </SelectItem>
                       ))}
@@ -167,7 +173,13 @@ function Profile() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Editor Dark Theme</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  items={editorThemes
+                    .filter((t) => t.type == 'dark')
+                    .map((t) => ({ label: t.name, value: t.id }))}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select editor theme" />
@@ -177,7 +189,7 @@ function Profile() {
                     {editorThemes
                       .filter((t) => t.type == 'dark')
                       .map(({ name, id }) => (
-                        <SelectItem key={id} value={id}>
+                        <SelectItem key={id} value={id} label={name}>
                           {name}
                         </SelectItem>
                       ))}
