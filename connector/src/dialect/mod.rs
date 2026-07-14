@@ -12,6 +12,7 @@ pub mod file;
 pub mod folder;
 pub mod mysql;
 pub mod postgres;
+pub mod quack;
 pub mod sqlite;
 
 #[async_trait]

@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { DialectConfig, useDBListStore } from '@/stores/dbList';
 import { TreeNode } from '@/types';
 import { nanoid } from 'nanoid';
@@ -34,19 +35,12 @@ type DatabaseFormProps = {
   isNew?: boolean;
 };
 
-export function DatabaseForm({
-  form,
-  handleSubmit,
-  isNew = true,
-}: DatabaseFormProps) {
+export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormProps) {
   const watchDialect = form.watch('dialect');
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className="flex flex-col"
-      >
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col">
         <div className="flex-1 space-y-4">
           <FormField
             control={form.control}
@@ -67,6 +61,7 @@ export function DatabaseForm({
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="duckdb">DuckDB</SelectItem>
+                    <SelectItem value="quack">DuckDB(Quack)</SelectItem>
                     <SelectItem value="folder">Data Folder</SelectItem>
                     <SelectItem value="sqlite">SQLite</SelectItem>
                     <SelectItem value="mysql">MySQL</SelectItem>
@@ -154,9 +149,50 @@ export function DatabaseForm({
               />
             </>
           ) : null}
-          {watchDialect == 'duckdb' ||
-          watchDialect == 'sqlite' ||
-          watchDialect == 'folder' ? (
+          {watchDialect == 'quack' ? (
+            <>
+              <FormField
+                control={form.control}
+                name="uri"
+                render={({ field }) => (
+                  <FormItem className="flex items-center w-[62.5%]">
+                    <FormLabel className="w-1/5 mr-2 mt-2">URI</FormLabel>
+                    <FormControl className="w-4/5">
+                      <Input placeholder="quack:localhost:9494" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="token"
+                render={({ field }) => (
+                  <FormItem className="flex items-center w-[62.5%]">
+                    <FormLabel className="w-1/5 mr-2 mt-2">Token</FormLabel>
+                    <FormControl className="w-4/5">
+                      <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="disable_ssl"
+                render={({ field }) => (
+                  <FormItem className="flex items-center w-[62.5%]">
+                    <FormLabel className="w-1/5 mr-2 mt-2">Disable SSL</FormLabel>
+                    <FormControl>
+                      <Switch checked={field.value ?? true} onCheckedChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          ) : null}
+          {watchDialect == 'duckdb' || watchDialect == 'sqlite' || watchDialect == 'folder' ? (
             <>
               <FormField
                 control={form.control}
@@ -226,7 +262,10 @@ export function DatabaseDialog() {
       id: nanoid(),
       dialect: values.dialect,
       config: values,
-      displayName: (values as any).path ?? (values as any).host,
+      displayName:
+        (values as { path?: string }).path ??
+        (values as { host?: string }).host ??
+        (values as { uri?: string }).uri,
       data: {} as TreeNode,
       loading: true,
     };
@@ -245,9 +284,7 @@ export function DatabaseDialog() {
     >
       <DatabaseForm form={form} handleSubmit={handleSubmit} />
       <DialogFooter>
-        <DialogClose render={ <Button variant="secondary">Cancel</Button>}>
-         
-        </DialogClose>
+        <DialogClose render={<Button variant="secondary">Cancel</Button>}></DialogClose>
         <Button type="submit" onClick={form.handleSubmit(handleSubmit)}>
           Ok
         </Button>

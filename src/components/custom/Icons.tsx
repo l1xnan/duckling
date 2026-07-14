@@ -219,6 +219,34 @@ export const PostgresIcon = ({
   );
 };
 
+export const QuackIcon = ({ color = 'currentColor', ref, ...props }: IconProps) => {
+  return (
+    <svg
+      preserveAspectRatio="xMidYMid"
+      xmlns="http://www.w3.org/2000/svg"
+      width="38"
+      height="38"
+      fill="none"
+      viewBox="0 0 38 38"
+      {...props}
+      ref={ref}
+    >
+      <path
+        fill="#0D0D0D"
+        d="M19 0C8.507 0 0 8.507 0 19s8.507 19 19 19 19-8.507 19-19S29.493 0 19 0"
+      ></path>
+      <path
+        fill="#fff100"
+        d="m23.3 21.2-1.7-1.7a1.583 1.583 0 1 0-2.24 2.238l1.698 1.698zM29.809 27.709l-1.67-1.67-2.241 2.237 1.672 1.672c.309.31.714.464 1.12.464a1.583 1.583 0 0 0 1.12-2.703"
+      ></path>
+      <path
+        fill="#fff100"
+        d="M19 28.463c-5.218 0-9.463-4.245-9.463-9.463S13.782 9.537 19 9.537s9.463 4.245 9.463 9.463-4.245 9.463-9.463 9.463m0-16.023A6.567 6.567 0 0 0 12.44 19 6.567 6.567 0 0 0 19 25.56 6.567 6.567 0 0 0 25.56 19 6.57 6.57 0 0 0 19 12.44"
+      ></path>
+    </svg>
+  );
+};
+
 export const getTypeIcon = (type: string, expanded?: boolean) => {
   if (type == 'path' && expanded) {
     return <IconFolderOpen />;
@@ -240,6 +268,9 @@ export const getTypeIcon = (type: string, expanded?: boolean) => {
   }
   if (type == 'duckdb') {
     return <DuckdbIcon />;
+  }
+  if (type == 'quack') {
+    return <QuackIcon />;
   }
   if (type == 'sqlite') {
     return <SqliteIcon />;

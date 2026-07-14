@@ -110,7 +110,7 @@ fn parse_order_by_expr(order_by: &str) -> Vec<(String, Option<bool>)> {
 
 fn convert_dialect(d: &str) -> Box<dyn sqlparser::dialect::Dialect> {
   match d {
-    "duckdb" => Box::new(sqlparser::dialect::DuckDbDialect {}),
+    "duckdb" | "quack" => Box::new(sqlparser::dialect::DuckDbDialect {}),
     _ => Box::new(sqlparser::dialect::GenericDialect {}),
   }
 }

@@ -23,6 +23,7 @@ export type DialectType =
   | 'folder'
   | 'file'
   | 'duckdb'
+  | 'quack'
   | 'clickhouse'
   | 'clickhouse_tcp'
   | 'sqlite'
@@ -63,12 +64,20 @@ export type PostgresDialectType = {
   dialect: DialectType;
 };
 
+export type QuackConfig = {
+  uri: string;
+  token?: string;
+  disable_ssl?: boolean;
+  dialect: 'quack';
+};
+
 export type DialectConfig =
   | DuckdbConfig
   | ClickhouseDialectType
   | FolderConfig
   | FileConfig
-  | PostgresDialectType;
+  | PostgresDialectType
+  | QuackConfig;
 
 export type DBType = {
   id: string;

@@ -16,6 +16,7 @@ use connector::dialect::file::FileConnection;
 use connector::dialect::folder::FolderConnection;
 use connector::dialect::mysql::MySqlConnection;
 use connector::dialect::postgres::PostgresConnection;
+use connector::dialect::quack::QuackConnection;
 use connector::dialect::sqlite::SqliteConnection;
 use connector::utils::{Metadata, TreeNode};
 
@@ -31,12 +32,15 @@ pub struct DialectPayload {
   pub port: Option<String>,
   pub database: Option<String>,
   pub cwd: Option<String>,
+  pub uri: Option<String>,
+  pub token: Option<String>,
+  pub disable_ssl: Option<bool>,
 }
 
 #[allow(clippy::unused_async)]
 pub fn get_ast_dialect(dialect: &str) -> Box<dyn sqlparser::dialect::Dialect> {
   match dialect {
-    "folder" | "file" | "duckdb" => Box::new(sqlparser::dialect::DuckDbDialect {}),
+    "folder" | "file" | "duckdb" | "quack" => Box::new(sqlparser::dialect::DuckDbDialect {}),
     "clickhouse_tcp" => Box::new(sqlparser::dialect::ClickHouseDialect {}),
     "mysql" => Box::new(sqlparser::dialect::MySqlDialect {}),
     "postgres" => Box::new(sqlparser::dialect::PostgreSqlDialect {}),
@@ -55,6 +59,9 @@ pub async fn get_dialect(
     host,
     port,
     cwd,
+    uri,
+    token,
+    disable_ssl,
   }: DialectPayload,
 ) -> Option<Box<dyn Connection>> {
   match dialect.as_str() {
@@ -99,6 +106,11 @@ pub async fn get_dialect(
       username: username.unwrap_or_default(),
       password: password.unwrap_or_default(),
       database,
+    })),
+    "quack" => Some(Box::new(QuackConnection {
+      uri: uri.unwrap(),
+      token,
+      disable_ssl: disable_ssl.unwrap_or(false),
     })),
     // _ => Err("not support dialect".to_string()),
     _ => None,
