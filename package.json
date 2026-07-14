@@ -1,7 +1,7 @@
 {
   "name": "duckling",
   "private": true,
-  "version": "0.0.50",
+  "version": "0.51.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -94,8 +94,6 @@
     "eslint-plugin-prettier": "^5.5.6",
     "eslint-plugin-react-hooks": "^7.1.1",
     "oxfmt": "^0.58.0",
-    "postcss": "^8.5.18",
-    "postcss-nesting": "^14.0.0",
     "prettier": "^3.9.5",
     "prettier-plugin-organize-imports": "^4.3.0",
     "react-reconciler": "^0.33.0",
