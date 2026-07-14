@@ -8,10 +8,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 parquet = "58"
 arrow = { version = "58", features = ["prettyprint", "csv"] }
-duckdb = { version = "1.10504.0", features = [
-    "bundled",
-    "extensions-full",
-] }
+duckdb = { version = "1.10504.0", features = ["bundled", "extensions-full"] }
 futures-util = "0.3"
 rust_decimal = { version = "1", features = ["db-tokio-postgres"] }
 # clickhouse-rs = { git = "https://github.com/l1xnan/clickhouse-rs.git", branch = "async-await" }

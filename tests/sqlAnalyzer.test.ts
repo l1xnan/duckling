@@ -58,153 +58,89 @@ describe('analyzeSqlContext', () => {
   // Basic check - Vitest will ensure async tests are handled
   it('select from _', async () => {
     const { sql, position } = current;
-    const sqlContext = analyzeContext(
-      parser,
-      sql,
-      position,
-    );
+    const sqlContext = analyzeContext(parser, sql, position);
     console.log('sqlContext:', sqlContext);
   });
   it('select * from _', async () => {
     const { sql, position } = current;
-    const sqlContext = analyzeContext(
-      parser,
-      sql,
-      position,
-    );
+    const sqlContext = analyzeContext(parser, sql, position);
     console.log('sqlContext:', sqlContext);
   });
   it('select _ from tbl0, tbl1 as t1, tbl2 t2', async () => {
     const { sql, position } = current;
-    const sqlContext = analyzeContext(
-      parser,
-      sql,
-      position,
-    );
+    const sqlContext = analyzeContext(parser, sql, position);
     console.log('sqlContext:', sqlContext);
   });
   it('select t1._ from tbl0, tbl1 as t1, tbl2 t2', async () => {
     const { sql, position } = current;
-    const sqlContext = analyzeContext(
-      parser,
-      sql,
-      position,
-    );
+    const sqlContext = analyzeContext(parser, sql, position);
     console.log('sqlContext:', sqlContext);
   });
   it('select * from tbl0 join _', async () => {
     const { sql, position } = current;
-    const sqlContext = analyzeContext(
-      parser,
-      sql,
-      position,
-    );
+    const sqlContext = analyzeContext(parser, sql, position);
     console.log('sqlContext:', sqlContext);
   });
   it('select * from tbl0 join tbl1 as t1 on _', async () => {
     const { sql, position } = current;
-    const sqlContext = analyzeContext(
-      parser,
-      sql,
-      position,
-    );
+    const sqlContext = analyzeContext(parser, sql, position);
     console.log('sqlContext:', sqlContext);
   });
   it('select * from tbl0 join tbl1 as t1 on t1._', async () => {
     const { sql, position } = current;
-    const sqlContext = analyzeContext(
-      parser,
-      sql,
-      position,
-    );
+    const sqlContext = analyzeContext(parser, sql, position);
     console.log('sqlContext:', sqlContext);
   });
 
   it('select * from db1._', async () => {
     const { sql, position } = current;
-    const sqlContext = analyzeContext(
-      parser,
-      sql,
-      position,
-    );
+    const sqlContext = analyzeContext(parser, sql, position);
     console.log('sqlContext:', sqlContext);
   });
 
   it('select * from db1.schema1.tbl1 as t1, db2.tbl2, tbl3 where _', async () => {
     const { sql, position } = current;
-    const sqlContext = analyzeContext(
-      parser,
-      sql,
-      position,
-    );
+    const sqlContext = analyzeContext(parser, sql, position);
     console.log('sqlContext:', sqlContext);
   });
 
   it('select * from tbl1, db2.tbl2 where a=1 and _', async () => {
     const { sql, position } = current;
-    const sqlContext = analyzeContext(
-      parser,
-      sql,
-      position,
-    );
+    const sqlContext = analyzeContext(parser, sql, position);
     console.log('sqlContext:', sqlContext);
   });
 
   it(`select * from tbl1, '_'`, async () => {
     const { sql, position } = current;
-    const sqlContext = analyzeContext(
-      parser,
-      sql,
-      position,
-    );
+    const sqlContext = analyzeContext(parser, sql, position);
     console.log('sqlContext:', sqlContext);
   });
 
   it(`select * from tbl1 order by _`, async () => {
     const { sql, position } = current;
-    const sqlContext = analyzeContext(
-      parser,
-      sql,
-      position,
-    );
+    const sqlContext = analyzeContext(parser, sql, position);
     console.log('sqlContext:', sqlContext);
   });
 
   it(`select * from tbl1 where a=1 order by _`, async () => {
     const { sql, position } = current;
-    const sqlContext = analyzeContext(
-      parser,
-      sql,
-      position,
-    );
+    const sqlContext = analyzeContext(parser, sql, position);
     console.log('sqlContext:', sqlContext);
   });
 
   it(`select * from tbl1 where a=1 group by _`, async () => {
     const { sql, position } = current;
-    const sqlContext = analyzeContext(
-      parser,
-      sql,
-      position,
-    );
+    const sqlContext = analyzeContext(parser, sql, position);
     console.log('sqlContext:', sqlContext);
   });
   it(`with a as (select * from _)`, async () => {
     const { sql, position } = current;
-    const sqlContext = analyzeContext(
-      parser,
-      sql,
-      position,
-    );
+    const sqlContext = analyzeContext(parser, sql, position);
     console.log('sqlContext:', sqlContext);
   });
   it(`select * from  tbl _`, async () => {
     const { sql, position } = current;
-    const sqlContext = analyzeContext(
-      parser,
-      sql,
-      position,
-    );
+    const sqlContext = analyzeContext(parser, sql, position);
     console.log('sqlContext:', sqlContext);
   });
 });

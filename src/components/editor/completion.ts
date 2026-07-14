@@ -52,7 +52,7 @@ export function handleProvideCompletionItems(
 
   let offset = model.getOffsetAt(position);
   console.log(`code: "${code}", offset: ${offset}`);
-  console.log(`word: `,word, `position:`, position);
+  console.log(`word: `, word, `position:`, position);
 
   const sql = prefixCode + insertUnderscore(code, offset);
   offset += prefixCode.length;

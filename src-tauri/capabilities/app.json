@@ -2,11 +2,7 @@
   "$schema": "./schemas/desktop-schema.json",
   "identifier": "run-app",
   "description": "permissions to run the app",
-  "windows": [
-    "main",
-    "main-*",
-    "debug*"
-  ],
+  "windows": ["main", "main-*", "debug*"],
   "permissions": [
     "core:path:default",
     "core:event:default",
