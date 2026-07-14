@@ -9,14 +9,14 @@ import {
 } from '@visactor/vtable';
 import {
   ContextMenuPlugin,
-  MenuClickEventArgs,
+  MenuClickEventArgs
 } from '@visactor/vtable-plugins';
 import { IVTablePlugin } from '@visactor/vtable/es/plugins';
 import { FieldDef } from '@visactor/vtable/es/ts-types';
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai';
-import { CSSProperties, memo, useMemo, useRef, useState } from 'react';
 import type { ComponentProps } from 'react';
+import { CSSProperties, useMemo, useRef, useState } from 'react';
 
 import { SelectedCellType } from '@/components/views/TableView';
 import { useTheme } from '@/hooks/theme-provider';
@@ -24,6 +24,7 @@ import { OrderByType, SchemaType } from '@/stores/dataset';
 import { tableFontFamilyAtom } from '@/stores/setting';
 import { isDarkTheme, isNumberType, uniqueArray } from '@/utils';
 
+import { handleFieldFormat } from './format';
 import { HighlightHeaderWhenSelectCellPlugin } from './highlight-header-when-select-cell';
 import { makeTableTheme } from './theme';
 
@@ -120,7 +121,7 @@ type FieldFormatParamsType = {
   precision?: number;
 };
 
-const handleFieldFormat = (
+const _handleFieldFormat = (
   record: any,
   { key, dataType, type, beautify, precision }: FieldFormatParamsType,
 ) => {
@@ -136,16 +137,16 @@ const handleFieldFormat = (
       .replace(new RegExp(`(.{${scale}})$`), '.$1');
   }
 
-  const templte = 'YYYY-MM-DD HH:mm:ss';
+  const templ = 'YYYY-MM-DD HH:mm:ss';
   if (DataType.isDate(dataType) && type?.toLowerCase()?.includes('datetime')) {
-    return dayjs(value).format(templte);
+    return dayjs(value).format(templ);
   } else if (DataType.isDate(dataType)) {
     return dayjs(value).format('YYYY-MM-DD');
   } else if (DataType.isTimestamp(dataType)) {
     if (!dataType.timezone) {
-      return dayjs(value).utc().format(templte);
+      return dayjs(value).utc().format(templ);
     }
-    return dayjs(value).format(templte);
+    return dayjs(value).format(templ);
   }
 
   if (beautify && DataType.isFloat(dataType) && precision) {
@@ -192,7 +193,7 @@ function useTitles(schema: SchemaType[]) {
   return { _titles, titleMap, types };
 }
 
-const CanvasTable_ = memo(function CanvasTable({
+function CanvasTable_({
   data,
   schema,
   beautify,
@@ -211,6 +212,9 @@ const CanvasTable_ = memo(function CanvasTable({
   const [rightPinnedCols, setRightPinnedCols] = useState<string[]>([]);
 
   const { _titles, titleMap, types } = useTitles(schema);
+
+  const appTheme = useTheme();
+  const isDark = isDarkTheme(appTheme);
 
   const __columns: ColumnDefine[] = useMemo(() => {
     const pinnedSet = new Set([...leftPinnedCols, ...rightPinnedCols]);
@@ -327,8 +331,12 @@ const CanvasTable_ = memo(function CanvasTable({
       new HighlightHeaderWhenSelectCellPlugin({
         colHighlight: true,
         rowHighlight: true,
+        colHighlightBGColor: isDark ? '#9cbef4' : '#CCE0FF',
+        colHighlightColor: '#1f2937',
+        rowHighlightBGColor: isDark ? '#9cbef4' : '#CCE0FF',
+        rowHighlightColor: '#1f2937',
       }),
-    [],
+    [isDark],
   );
 
   const contextMenuPlugin = useMemo(() => {
@@ -425,9 +433,10 @@ const CanvasTable_ = memo(function CanvasTable({
             title: '',
             width: 'auto',
             headerStyle: {},
-            style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
+            style: { color: '#818181', fontSize: 10, textAlign: 'center' },
             dragOrder: false,
             disableColumnResize: true,
+            disableHover: true,
           }
         : undefined,
       columns: [...__columns],
@@ -492,7 +501,7 @@ const CanvasTable_ = memo(function CanvasTable({
       />
     </div>
   );
-});
+}
 
 export const CanvasTable = (props: TableProps) => {
   if ((props.schema?.length ?? 0) == 0) {
@@ -525,7 +534,8 @@ export function SimpleTable({ data }: { data: unknown[] }) {
           disableHeaderHover: true,
           disableHeaderSelect: true,
           disableColumnResize: true,
-          style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
+          disableHover: true,
+          style: { color: '#838383', fontSize: 10, textAlign: 'center' },
           fieldFormat: (_r, _col, row) => {
             return row;
           },
