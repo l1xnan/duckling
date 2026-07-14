@@ -44,20 +44,22 @@ jobs:
             args: ""
           - platform: "windows-latest"
             args: ""
+            env:
+              DUCKDB_DOWNLOAD_LIB: "1" # windows 构建尝试下载 DuckDB 库, 提高构建速度
 
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: lts/*
 
-      - uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v6
         name: Install pnpm
         with:
-          version: 9
+          version: 11
           run_install: false
 
       - name: Get pnpm store directory
@@ -72,9 +74,6 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        run: pnpm add -g tree-sitter-cli
 
       - name: Install dependencies
         run: pnpm install
@@ -99,7 +98,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y webkit2gtk-4.1 libayatana-appindicator3-dev librsvg2-dev patchelf
 
-      - uses: tauri-apps/tauri-action@v0
+      - uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
@@ -112,4 +111,3 @@ jobs:
           prerelease: false
           args: ${{ matrix.args }}
           # releaseId: ${{ needs.create-release.outputs.release_id }}
-
