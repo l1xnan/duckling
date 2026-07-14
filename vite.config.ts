@@ -58,25 +58,6 @@ export default defineConfig({
     minify: !process.env.TAURI_ENV_DEBUG ? 'esbuild' : false,
     // produce sourcemaps for debug builds
     sourcemap: !!process.env.TAURI_ENV_DEBUG,
-    rollupOptions: {
-      output: {
-        // 动态覆盖 WASM 文件规则
-        assetFileNames: (assetInfo) => {
-          const isWasm = assetInfo.names?.[0]?.endsWith('.wasm');
-          return isWasm
-            ? 'assets/[name].[ext]' // WASM 无哈希
-            : 'assets/[name]-[hash].[ext]'; // 其他文件带哈希
-        },
-        // manualChunks: {
-        //   'web-tree-sitter': ['web-tree-sitter'],
-        // },
-        codeSplitting: {
-          groups: [
-            // 将 web-tree-sitter 单独打包为一个 chunk
-            { name: 'web-tree-sitter', test: /node_modules\/web-tree-sitter/ },
-          ],
-        },
-      },
       external: (id) => {
         if (id.startsWith('@shikijs/langs')) {
           return !id.includes('json') && !id.includes('sql');
