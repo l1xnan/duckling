@@ -6,9 +6,9 @@ edition = "2024"
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-parquet = "56"
-arrow = { version = "^56", features = ["prettyprint", "csv"] }
-duckdb = { version = "1.4.4", features = [
+parquet = "58"
+arrow = { version = "58", features = ["prettyprint", "csv"] }
+duckdb = { version = "1.10504.0", features = [
     "bundled",
     "extensions-full",
 ] }
@@ -20,11 +20,11 @@ rusqlite = { version = "^0.40.1", features = [
   "column_decltype",
   "modern_sqlite",
 ] }
-mysql = { version = "27.0.0" }
-tokio-postgres = { version = "0.7.10", features = [
-    "with-serde_json-1",
-    "array-impls",
-    "with-chrono-0_4",
+mysql = { version = "28.0.0" }
+tokio-postgres = { version = "0.7.18", features = [
+  "with-serde_json-1",
+  "array-impls",
+  "with-chrono-0_4",
 ] }
 anyhow = "1"
 url = "^2.5.0"
@@ -40,7 +40,7 @@ sqlformat = "^0.5"
 log = "^0.4"
 glob = "*"
 itertools = "*"
-clickhouse = { version = "0.14.2", features = ["rustls-tls"] }
+clickhouse = { version = "0.15.0", features = ["rustls-tls"] }
 rust_xlsxwriter = "^0.90.2"
 walkdir = "2"
 regex = "*"
