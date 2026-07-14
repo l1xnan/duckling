@@ -75,7 +75,7 @@ export default function AppSettingDialog() {
         </Button>
       }
     >
-      <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
+      <div className="flex min-h-0 flex-col space-y-8 overflow-y-auto lg:flex-row lg:space-x-12 lg:space-y-0">
         {/* <aside className="mr-4 lg:w-1/5">
           <SidebarNav items={items} activeKey={navKey} setKey={setNavKey} />
         </aside> */}
