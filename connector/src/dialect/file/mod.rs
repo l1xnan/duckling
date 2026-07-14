@@ -42,7 +42,7 @@ impl Connection for FileConnection {
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     let conn = self.connect()?;
     let sql = self._table_count_sql(table, r#where);
-    let total = conn.query_row(&sql, [], |row| row.get::<_, usize>(0))?;
+    let total = conn.query_row(&sql, [], |row| row.get::<_, i64>(0))? as usize;
     Ok(total)
   }
 

@@ -31,7 +31,7 @@ impl Connection for FolderConnection {
   #[allow(clippy::unused_async)]
   async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
     let conn = self.connect()?;
-    let total = conn.query_row(sql, [], |row| row.get::<_, usize>(0))?;
+    let total = conn.query_row(sql, [], |row| row.get::<_, i64>(0))? as usize;
     Ok(total)
   }
 
