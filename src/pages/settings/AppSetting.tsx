@@ -68,14 +68,14 @@ export default function AppSettingDialog() {
   return (
     <Dialog
       title="Setting"
-      className="min-w-[800px] min-h-[600px]"
+      className="min-w-[800px] min-h-[600px] max-h-[calc(100dvh-2rem)]"
       trigger={
         <Button variant="ghost" size="icon" className="size-8 rounded-lg">
           <SettingsIcon className="size-4" />
         </Button>
       }
     >
-      <div className="flex min-h-0 flex-col space-y-8 overflow-y-auto overflow-x-hidden lg:flex-row lg:space-x-12 lg:space-y-0">
+      <div className="flex min-h-0 flex-col space-y-8 overflow-y-auto overflow-x-hidden pb-1 lg:flex-row lg:space-x-12 lg:space-y-0">
         <SidebarNav items={items} activeKey={navKey} setKey={setNavKey} />
 
         <div className="flex-1 lg:max-w-2xl h-full">
