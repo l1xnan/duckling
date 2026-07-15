@@ -113,6 +113,40 @@ const contextMenuItems = (
   ];
 };
 
+const copySelectedAsCsv = async (table: ListTableAPI | null) => {
+  if (!table) {
+    return;
+  }
+  const cellInfos = table.getSelectedCellInfos();
+  if (!cellInfos || cellInfos.length === 0) {
+    return;
+  }
+  const transpose = table.transpose;
+  const firstRow = cellInfos[0];
+  const includesHeader =
+    (!transpose && firstRow.some((cell) => cell.row === 0)) ||
+    (!!transpose && firstRow.some((cell) => cell.col === 0));
+
+  const rows = cellInfos.map((row) =>
+    row.map((item) => item.dataValue).join(','),
+  );
+
+  if (includesHeader) {
+    await writeText(rows.join('\n'));
+    return;
+  }
+
+  const headerRow = firstRow
+    .map((cell) =>
+      transpose
+        ? table.getCellValue(0, cell.row)
+        : table.getCellValue(cell.col, 0),
+    )
+    .join(',');
+
+  await writeText([headerRow, ...rows].join('\n'));
+};
+
 type FieldFormatParamsType = {
   key: string;
   dataType: DataType;
@@ -311,12 +345,7 @@ function CanvasTable_({
       if (e.menuKey == 'copy') {
         await writeText(table?.getCopyValue() ?? '');
       } else if (e.menuKey == 'copy-as-csv') {
-        const rows =
-          table?.getSelectedCellInfos()?.map((row) => {
-            return row.map((item) => item.dataValue).join(',');
-          }) ?? [];
-
-        await writeText(rows.join('\n'));
+        await copySelectedAsCsv(table);
       }
     }
   };
@@ -401,12 +430,7 @@ function CanvasTable_({
         if (menuKey == 'copy') {
           await writeText(table?.getCopyValue() ?? '');
         } else if (menuKey == 'copy-as-csv') {
-          const rows =
-            table?.getSelectedCellInfos()?.map((row) => {
-              return row.map((item) => item.dataValue).join(',');
-            }) ?? [];
-
-          await writeText(rows.join('\n'));
+          await copySelectedAsCsv(table);
         }
       },
     });
