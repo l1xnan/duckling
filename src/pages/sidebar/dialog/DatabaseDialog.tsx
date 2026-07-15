@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { DialectConfig, DialectType, useDBListStore } from '@/stores/dbList';
+import { listSshConfigHosts, SshConfigHost } from '@/api';
 import { TreeNode } from '@/types';
 import { nanoid } from 'nanoid';
 
@@ -48,12 +49,59 @@ type DatabaseFormProps = {
 
 export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormProps) {
   const watchDialect = form.watch('dialect');
+  const watchSshEnabled = form.watch('ssh_enabled');
+  const [sshHosts, setSshHosts] = useState<SshConfigHost[]>([]);
 
   useEffect(() => {
     if (watchDialect === 'quack' && form.getValues('disable_ssl') === undefined) {
       form.setValue('disable_ssl', true);
     }
   }, [watchDialect, form]);
+
+  useEffect(() => {
+    if (watchDialect !== 'mysql' || !watchSshEnabled) {
+      return;
+    }
+
+    let cancelled = false;
+    listSshConfigHosts()
+      .then((hosts) => {
+        if (!cancelled) {
+          setSshHosts(hosts);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSshHosts([]);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [watchDialect, watchSshEnabled]);
+
+  const applySshConfigHost = (alias: string) => {
+    if (alias === '__custom__') {
+      form.setValue('ssh_config_host', '');
+      return;
+    }
+
+    const host = sshHosts.find((item) => item.alias === alias);
+    if (!host) {
+      return;
+    }
+
+    form.setValue('ssh_config_host', alias);
+    form.setValue('ssh_host', host.host);
+    form.setValue('ssh_port', String(host.port));
+    if (host.username) {
+      form.setValue('ssh_username', host.username);
+    }
+    if (host.identity_file) {
+      form.setValue('ssh_private_key_path', host.identity_file);
+    }
+  };
 
   return (
     <Form {...form}>
@@ -167,6 +215,174 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                   </FormItem>
                 )}
               />
+            </>
+          ) : null}
+          {watchDialect == 'mysql' ? (
+            <>
+              <FormField
+                control={form.control}
+                name="ssh_enabled"
+                render={({ field }) => (
+                  <FormItem className="flex items-center w-[62.5%]">
+                    <FormLabel className="w-1/5 mr-2 mt-2">SSH Tunnel</FormLabel>
+                    <FormControl>
+                      <Switch checked={!!field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {watchSshEnabled ? (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="ssh_config_host"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center w-[62.5%]">
+                        <FormLabel className="w-1/5 mr-2 mt-2">SSH Config</FormLabel>
+                        <Select
+                          value={field.value || '__custom__'}
+                          onValueChange={(value) => {
+                            if (!value) {
+                              return;
+                            }
+                            field.onChange(value === '__custom__' ? '' : value);
+                            applySshConfigHost(value);
+                          }}
+                          items={[
+                            { label: '手动填写', value: '__custom__' },
+                            ...sshHosts.map((host) => ({
+                              label: host.label,
+                              value: host.alias,
+                            })),
+                          ]}
+                        >
+                          <FormControl className="w-4/5">
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select from ~/.ssh/config" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value="__custom__" label="手动填写">
+                                手动填写
+                              </SelectItem>
+                              {sshHosts.map((host) => (
+                                <SelectItem
+                                  key={host.alias}
+                                  value={host.alias}
+                                  label={host.label}
+                                >
+                                  {host.label}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="flex">
+                    <FormField
+                      control={form.control}
+                      name="ssh_host"
+                      render={({ field }) => (
+                        <FormItem className="flex items-center w-[62.5%]">
+                          <FormLabel className="w-1/5 mr-2 mt-2">SSH Host</FormLabel>
+                          <FormControl className="w-4/5">
+                            <Input placeholder="jump.example.com" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="ssh_port"
+                      render={({ field }) => (
+                        <FormItem className="flex items-center w-[37.5%]">
+                          <FormLabel className="ml-4">SSH Port</FormLabel>
+                          <FormControl className="w-2/3">
+                            <Input placeholder="22" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="ssh_username"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center w-[62.5%]">
+                        <FormLabel className="w-1/5 mr-2 mt-2">SSH User</FormLabel>
+                        <FormControl className="w-4/5">
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="ssh_password"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center w-[62.5%]">
+                        <FormLabel className="w-1/5 mr-2 mt-2">SSH Password</FormLabel>
+                        <FormControl className="w-4/5">
+                          <Input type="password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="ssh_private_key_path"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center w-[62.5%]">
+                        <FormLabel className="w-1/5 mr-2 mt-2">Private Key</FormLabel>
+                        <FormControl className="w-4/5">
+                          <ButtonGroup>
+                            <Input placeholder="~/.ssh/id_rsa" {...field} />
+                            <Button
+                              aria-label="Select private key"
+                              variant="outline"
+                              onClick={async (e) => {
+                                e.preventDefault();
+                                const file = await dialog.open({
+                                  multiple: false,
+                                  directory: false,
+                                });
+                                if (file) {
+                                  form.setValue('ssh_private_key_path', file);
+                                }
+                              }}
+                            >
+                              Select
+                            </Button>
+                          </ButtonGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="ssh_passphrase"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center w-[62.5%]">
+                        <FormLabel className="w-1/5 mr-2 mt-2">Key Passphrase</FormLabel>
+                        <FormControl className="w-4/5">
+                          <Input type="password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              ) : null}
             </>
           ) : null}
           {watchDialect == 'quack' ? (

@@ -143,6 +143,7 @@ fn main() {
       cmd::format_sql,
       cmd::find,
       cmd::all_columns,
+      cmd::list_ssh_config_hosts,
       cmd::open_path,
     ])
     .build(tauri::generate_context!())

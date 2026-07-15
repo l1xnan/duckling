@@ -2,10 +2,11 @@ mod type_arrow;
 mod type_json;
 
 use crate::dialect::Connection;
+use crate::ssh_tunnel::{SshConfig, SshTunnel};
 use crate::types::JSONValue;
 use crate::utils::{Metadata, RawArrowData, Table, build_tree};
 use crate::utils::{Title, TreeNode};
-use anyhow::anyhow;
+use anyhow::{Context, anyhow};
 use arrow::array::*;
 use arrow::datatypes::Schema;
 use async_trait::async_trait;
@@ -17,6 +18,17 @@ use std::fmt::Debug;
 use std::sync::Arc;
 use type_arrow::*;
 
+#[derive(Debug, Clone, Default)]
+pub struct MySqlSshConfig {
+  pub enabled: bool,
+  pub host: String,
+  pub port: String,
+  pub username: String,
+  pub password: Option<String>,
+  pub private_key_path: Option<String>,
+  pub passphrase: Option<String>,
+}
+
 #[derive(Debug, Default)]
 pub struct MySqlConnection {
   pub host: String,
@@ -24,6 +36,7 @@ pub struct MySqlConnection {
   pub username: String,
   pub password: String,
   pub database: Option<String>,
+  pub ssh: Option<MySqlSshConfig>,
 }
 
 #[async_trait]
@@ -47,7 +60,8 @@ impl Connection for MySqlConnection {
 
   #[allow(clippy::unused_async)]
   async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
-    let mut conn = self.get_conn()?;
+    let mut guard = self.get_conn()?;
+    let mut conn = guard.conn;
     if let Some(total) = conn.query_first::<usize, _>(sql)? {
       Ok(total)
     } else {
@@ -113,6 +127,11 @@ impl Connection for MySqlConnection {
   }
 }
 
+struct MySqlConnGuard {
+  _tunnel: Option<SshTunnel>,
+  conn: PooledConn,
+}
+
 impl MySqlConnection {
   fn new(host: &str, port: &str, username: &str, password: &str) -> Self {
     Self {
@@ -121,32 +140,70 @@ impl MySqlConnection {
       username: username.to_string(),
       password: password.to_string(),
       database: None,
+      ssh: None,
     }
   }
 
-  fn get_url(&self) -> String {
-    format!(
-      "mysql://{}:{}@{}:{}/{}",
-      self.username,
-      self.password,
-      self.host,
-      self.port,
-      self.database.clone().unwrap_or_default(),
-    )
+  fn ssh_config(&self) -> Option<SshConfig> {
+    let ssh = self.ssh.as_ref()?;
+    if !ssh.enabled {
+      return None;
+    }
+
+    let port = ssh.port.parse::<u16>().unwrap_or(22);
+    Some(SshConfig {
+      host: ssh.host.clone(),
+      port,
+      username: ssh.username.clone(),
+      password: ssh.password.clone(),
+      private_key_path: ssh.private_key_path.clone(),
+      passphrase: ssh.passphrase.clone(),
+    })
   }
 
-  fn get_conn(&self) -> anyhow::Result<PooledConn> {
-    let binding = self.get_url();
-    let url = binding.as_str();
-    let pool = Pool::new(url)?;
-    Ok(pool.get_conn()?)
+  fn get_opts(&self, tunnel: Option<&SshTunnel>) -> anyhow::Result<Opts> {
+    let mut builder = OptsBuilder::new()
+      .user(Some(self.username.clone()))
+      .pass(Some(self.password.clone()))
+      .db_name(self.database.clone())
+      .prefer_socket(false);
+
+    if let Some(tunnel) = tunnel {
+      builder = builder
+        .ip_or_hostname(Some("127.0.0.1"))
+        .tcp_port(tunnel.local_port());
+    } else {
+      builder = builder
+        .ip_or_hostname(Some(self.host.clone()))
+        .tcp_port(self.port.parse().unwrap_or(3306));
+    }
+
+    Ok(builder.into())
+  }
+
+  fn get_conn(&self) -> anyhow::Result<MySqlConnGuard> {
+    let tunnel = if let Some(ssh_config) = self.ssh_config() {
+      let target_port = self.port.parse().context("invalid MySQL port")?;
+      Some(SshTunnel::open(&ssh_config, &self.host, target_port)?)
+    } else {
+      None
+    };
+
+    let opts = self.get_opts(tunnel.as_ref())?;
+    let pool = Pool::new(opts)?;
+    let conn = pool.get_conn()?;
+    Ok(MySqlConnGuard {
+      _tunnel: tunnel,
+      conn,
+    })
   }
 
   fn get_schema(&self) -> Vec<Table> {
     vec![]
   }
   pub fn get_tables(&self) -> anyhow::Result<Vec<Table>> {
-    let mut conn = self.get_conn()?;
+    let mut guard = self.get_conn()?;
+    let mut conn = guard.conn;
 
     let sql = r"
     select
@@ -172,7 +229,8 @@ impl MySqlConnection {
   }
 
   fn _all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
-    let mut conn = self.get_conn()?;
+    let mut guard = self.get_conn()?;
+    let mut conn = guard.conn;
     let sql = "
     SELECT
         table_schema,
@@ -208,7 +266,8 @@ impl MySqlConnection {
   }
 
   fn _query(&self, sql: &str) -> anyhow::Result<RawArrowData> {
-    let mut conn = self.get_conn()?;
+    let mut guard = self.get_conn()?;
+    let mut conn = guard.conn;
 
     let mut result = conn.query_iter(sql)?;
     let columns = result.columns();
@@ -267,7 +326,8 @@ impl MySqlConnection {
   }
 
   fn _query_json(&self, sql: &str) -> anyhow::Result<JSONValue> {
-    let mut conn = self.get_conn()?;
+    let mut guard = self.get_conn()?;
+    let mut conn = guard.conn;
     let mut result = conn.query_iter(sql)?;
     let columns = result.columns();
     let columns = columns.as_ref();
@@ -280,7 +340,8 @@ impl MySqlConnection {
     Ok(result)
   }
   fn _table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
-    let mut conn = self.get_conn()?;
+    let mut guard = self.get_conn()?;
+    let mut conn = guard.conn;
     let mut sql = format!("select count(*) from {table}");
     if !cond.is_empty() {
       sql = format!("{sql} where {cond}");
@@ -290,7 +351,8 @@ impl MySqlConnection {
       .ok_or_else(|| anyhow!("No value found"))
   }
   fn _sql_row_count(&self, sql: &str) -> anyhow::Result<usize> {
-    let mut conn = self.get_conn()?;
+    let mut guard = self.get_conn()?;
+    let mut conn = guard.conn;
     conn
       .query_first::<usize, _>(&sql)?
       .ok_or_else(|| anyhow!("No value found"))

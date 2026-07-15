@@ -64,6 +64,23 @@ export type PostgresDialectType = {
   dialect: DialectType;
 };
 
+export type MySqlDialectType = {
+  host: string;
+  port: string;
+  password: string;
+  username: string;
+  database: string;
+  dialect: 'mysql';
+  ssh_enabled?: boolean;
+  ssh_host?: string;
+  ssh_port?: string;
+  ssh_username?: string;
+  ssh_password?: string;
+  ssh_private_key_path?: string;
+  ssh_passphrase?: string;
+  ssh_config_host?: string;
+};
+
 export type QuackConfig = {
   uri: string;
   token?: string;
@@ -77,6 +94,7 @@ export type DialectConfig =
   | FolderConfig
   | FileConfig
   | PostgresDialectType
+  | MySqlDialectType
   | QuackConfig;
 
 export type DBType = {

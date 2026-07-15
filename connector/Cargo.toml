@@ -42,7 +42,11 @@ rust_xlsxwriter = "^0.90.2"
 walkdir = "2"
 regex = "*"
 calamine = "^0.33.0"
+russh = "0.62"
+ssh2-config-rs = "0.7"
 
 
 [target.'cfg(not(target_os = "windows"))'.dependencies]
 duckdb = { version = "1.10504.0", features = ["bundled", "extensions-full"] }
+# [features]
+# duckdb = ["duckdb/bundled", "duckdb/extensions-full"]

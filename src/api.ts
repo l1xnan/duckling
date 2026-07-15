@@ -226,6 +226,19 @@ export async function openPath(path: string): Promise<string> {
   return res;
 }
 
+export type SshConfigHost = {
+  alias: string;
+  host: string;
+  port: number;
+  username?: string;
+  identity_file?: string;
+  label: string;
+};
+
+export async function listSshConfigHosts(): Promise<SshConfigHost[]> {
+  return invoke<SshConfigHost[]>('list_ssh_config_hosts');
+}
+
 export class Connection {
   db: unknown;
 

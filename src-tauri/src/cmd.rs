@@ -35,6 +35,13 @@ pub struct DialectPayload {
   pub uri: Option<String>,
   pub token: Option<String>,
   pub disable_ssl: Option<bool>,
+  pub ssh_enabled: Option<bool>,
+  pub ssh_host: Option<String>,
+  pub ssh_port: Option<String>,
+  pub ssh_username: Option<String>,
+  pub ssh_password: Option<String>,
+  pub ssh_private_key_path: Option<String>,
+  pub ssh_passphrase: Option<String>,
 }
 
 #[allow(clippy::unused_async)]
@@ -62,6 +69,13 @@ pub async fn get_dialect(
     uri,
     token,
     disable_ssl,
+    ssh_enabled,
+    ssh_host,
+    ssh_port,
+    ssh_username,
+    ssh_password,
+    ssh_private_key_path,
+    ssh_passphrase,
   }: DialectPayload,
 ) -> Option<Box<dyn Connection>> {
   match dialect.as_str() {
@@ -99,6 +113,17 @@ pub async fn get_dialect(
       username: username.unwrap_or_default(),
       password: password.unwrap_or_default(),
       database,
+      ssh: ssh_enabled.filter(|enabled| *enabled).map(|_| {
+        connector::dialect::mysql::MySqlSshConfig {
+          enabled: true,
+          host: ssh_host.unwrap_or_default(),
+          port: ssh_port.unwrap_or_else(|| "22".to_string()),
+          username: ssh_username.unwrap_or_default(),
+          password: ssh_password,
+          private_key_path: ssh_private_key_path,
+          passphrase: ssh_passphrase,
+        }
+      }),
     })),
     "postgres" => Some(Box::new(PostgresConnection {
       host: host.unwrap(),
@@ -298,6 +323,11 @@ pub async fn all_columns(dialect: DialectPayload) -> Result<Vec<Metadata>, Strin
   let s = d.all_columns().await;
 
   s.map_err(|e| format!("not support dialect {}", e))
+}
+
+#[tauri::command]
+pub async fn list_ssh_config_hosts() -> Vec<connector::ssh_config::SshConfigHost> {
+  connector::ssh_config::list_ssh_config_hosts()
 }
 
 #[tauri::command]
