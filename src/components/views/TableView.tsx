@@ -2,7 +2,7 @@ import { Data as ArrowDataType } from '@apache-arrow/ts';
 import { toMerged } from 'es-toolkit/object';
 import { useAtomValue } from 'jotai';
 import { Loader2Icon } from 'lucide-react';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { SingleLineEditor } from '@/components/editor/SingleLineEditor';
@@ -60,12 +60,14 @@ export function TableView({ context }: { context: TabContextType }) {
     direction,
   } = usePageStore();
   const currentTab = useTabsStore((s) => s.currentId);
+  const initialLoaded = useRef(false);
 
   useEffect(() => {
-    if (currentTab == context.id) {
+    if (currentTab == context.id && !initialLoaded.current) {
       (async () => {
         try {
           await refresh();
+          initialLoaded.current = true;
         } catch (error) {
           toast.error((error as Error).message);
         }
