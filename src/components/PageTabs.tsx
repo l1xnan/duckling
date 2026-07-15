@@ -231,6 +231,7 @@ export function PageTabs({
             key={id}
             value={id}
             keepMounted
+            className="min-h-0"
             // className={cn('h-full w-full mt-0 overflow-hidden', isActive ? 'flex-1' : 'hidden')}
           >
             <ErrorBoundary fallback={<p>Something went wrong</p>}>{children}</ErrorBoundary>
