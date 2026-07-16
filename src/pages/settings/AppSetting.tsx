@@ -3,7 +3,7 @@ import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import * as dialog from '@tauri-apps/plugin-dialog';
 import { relaunch } from '@tauri-apps/plugin-process';
 import * as shell from '@tauri-apps/plugin-shell';
-import { Update, check } from '@tauri-apps/plugin-updater';
+import { Update } from '@tauri-apps/plugin-updater';
 import { atom, useAtom } from 'jotai';
 import { SettingsIcon } from 'lucide-react';
 import { nanoid } from 'nanoid';
@@ -11,7 +11,7 @@ import { PropsWithChildren, useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { checkSqlfmt, type SqlfmtCheckResult } from '@/api';
+import { checkAppUpdate, checkSqlfmt, type SqlfmtCheckResult } from '@/api';
 import { Dialog } from '@/components/custom/Dialog';
 import { SidebarNav } from '@/components/custom/siderbar-nav';
 import { Button } from '@/components/ui/button';
@@ -34,6 +34,15 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -56,18 +65,10 @@ import {
   sqlIndentStyleOptions,
   sqlLogicalNewlineOptions,
   sqlfmtDialectOptions,
+  updaterSources,
   useSettingStore,
 } from '@/stores/setting';
 import { isEmpty } from 'radash';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
 
 const items = [
   {
@@ -971,17 +972,29 @@ function SqlFormatForm() {
 
 const UpdateForm = () => {
   const proxy = useSettingStore((state) => state.proxy);
+  const updaterSource = useSettingStore(
+    (state) => state.updater_source ?? defaultSettings.updater_source!,
+  );
 
   const [settings, setSettings] = useAtom(settingAtom);
   const form = useForm({
-    defaultValues: settings,
+    defaultValues: {
+      ...settings,
+      updater_source: settings.updater_source ?? defaultSettings.updater_source,
+    },
   });
 
   const [loading, setLoading] = useState<boolean>(false);
   const [version, setVersion] = useState<string>();
   const [_tauriVersion, setTauriVersion] = useState<string>();
   const onSubmit = (data: SettingState) => {
-    setSettings((s) => ({ ...s, ...data }));
+    setSettings((s) => ({
+      ...s,
+      auto_update: data.auto_update,
+      proxy: data.proxy,
+      debug: data.debug,
+      updater_source: data.updater_source ?? 'official',
+    }));
   };
   useEffect(() => {
     (async () => {
@@ -995,15 +1008,26 @@ const UpdateForm = () => {
 
   const handleCheck = async () => {
     setLoading(true);
-    const update = await check({ proxy });
-    console.log(update);
-    setUpdate(update);
-    if (update?.version != update?.currentVersion) {
-      //
-    } else {
-      toast.success("It's the latest version");
+    try {
+      const source =
+        form.getValues('updater_source') ?? updaterSource ?? 'official';
+      const next = await checkAppUpdate({
+        source,
+        proxy: form.getValues('proxy') ?? proxy,
+      });
+      console.log(next);
+      setUpdate(next);
+      if (next?.version != next?.currentVersion) {
+        //
+      } else {
+        toast.success("It's the latest version");
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(`Update check failed: ${message}`);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleUpdater = async () => {
@@ -1062,6 +1086,51 @@ const UpdateForm = () => {
                 )}
               </ItemActions>
             </Item>
+            <FormField
+              control={form.control}
+              name="updater_source"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Update source</FormLabel>
+                  <Select
+                    value={field.value ?? 'official'}
+                    onValueChange={(v) => field.onChange(v ?? 'official')}
+                    items={updaterSources.map((s) => ({
+                      label: s.name,
+                      value: s.id,
+                    }))}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectGroup>
+                        {updaterSources.map((item) => (
+                          <SelectItem
+                            key={item.id}
+                            value={item.id}
+                            label={item.name}
+                          >
+                            <div className="flex flex-col items-start">
+                              <span>{item.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {item.description}
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Official uses GitHub Releases. China Mirror goes through gh-proxy.com for
+                    better connectivity in mainland China.
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="auto_update"

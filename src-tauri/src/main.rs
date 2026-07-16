@@ -149,6 +149,8 @@ fn main() {
       cmd::list_sql_dir,
       cmd::read_text_file,
       cmd::open_path,
+      #[cfg(desktop)]
+      cmd::check_app_update,
     ])
     .build(tauri::generate_context!())
     .expect("error while running tauri application")

@@ -52,6 +52,39 @@ export type SqlfmtOptions = {
   dialect: SqlfmtDialect;
 };
 
+/** App updater endpoint preset (see `tauri.conf.json` plugins.updater.endpoints). */
+export type UpdaterSource = 'official' | 'china';
+
+export const UPDATER_ENDPOINT_OFFICIAL =
+  'https://github.com/l1xnan/duckling/releases/latest/download/latest.json';
+
+export const UPDATER_ENDPOINT_CHINA =
+  'https://gh-proxy.com/github.com/l1xnan/duckling/releases/latest/download/latest.json';
+
+export const updaterSources: {
+  id: UpdaterSource;
+  name: string;
+  description: string;
+  url: string;
+}[] = [
+  {
+    id: 'official',
+    name: 'GitHub (Official)',
+    description: 'Official GitHub Releases endpoint',
+    url: UPDATER_ENDPOINT_OFFICIAL,
+  },
+  {
+    id: 'china',
+    name: 'China Mirror',
+    description: 'gh-proxy.com mirror for mainland China',
+    url: UPDATER_ENDPOINT_CHINA,
+  },
+];
+
+export function updaterEndpointForSource(source?: UpdaterSource | null): string {
+  return source === 'china' ? UPDATER_ENDPOINT_CHINA : UPDATER_ENDPOINT_OFFICIAL;
+}
+
 export type SettingState = {
   precision: number;
   table_font_family: string;
@@ -60,6 +93,8 @@ export type SettingState = {
   auto_update?: boolean;
   proxy?: string;
   debug?: string;
+  /** Updater endpoint source: official GitHub or China mirror. */
+  updater_source?: UpdaterSource;
   csv?: CsvParam;
   /** SQL formatting engine used by the Monaco editor. */
   sql_formatter_engine?: SqlFormatterEngine;
@@ -105,6 +140,7 @@ export const defaultSqlfmtOptions: SqlfmtOptions = {
 export const defaultSettings: SettingState = {
   precision: 4,
   auto_update: false,
+  updater_source: 'official',
   table_font_family: 'Consolas',
   table_render: 'canvas',
   main_font_family: [
@@ -177,6 +213,11 @@ export const editorThemeAtom = selectAtom(settingAtom, (s) => ({
 }));
 
 export const autoUpdateAtom = selectAtom(settingAtom, (s) => s.auto_update);
+
+export const updaterSourceAtom = selectAtom(
+  settingAtom,
+  (s) => s.updater_source ?? defaultSettings.updater_source!,
+);
 
 export const sqlFormatterEngineAtom = selectAtom(
   settingAtom,

@@ -8,6 +8,10 @@ use serde::Deserialize;
 use serde::Serialize;
 use sqlformat::{FormatOptions, QueryParams};
 use tauri::State;
+#[cfg(desktop)]
+use tauri::Manager;
+#[cfg(desktop)]
+use tauri_plugin_updater::UpdaterExt;
 
 use crate::api::ArrowResponse;
 use connector::dialect::Connection;
@@ -565,4 +569,78 @@ pub async fn open_path(path: &str) -> Result<(), String> {
     Err(err) => log::warn!("An error occurred when opening '{}': {}", path, err),
   }
   Ok(())
+}
+
+/// Official GitHub releases endpoint (default).
+const UPDATER_ENDPOINT_OFFICIAL: &str =
+  "https://github.com/l1xnan/duckling/releases/latest/download/latest.json";
+
+/// China mainland mirror via gh-proxy.
+const UPDATER_ENDPOINT_CHINA: &str =
+  "https://gh-proxy.com/github.com/l1xnan/duckling/releases/latest/download/latest.json";
+
+fn updater_endpoint_for_source(source: Option<&str>) -> &'static str {
+  match source.map(str::trim).unwrap_or("official") {
+    "china" | "mirror" => UPDATER_ENDPOINT_CHINA,
+    _ => UPDATER_ENDPOINT_OFFICIAL,
+  }
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppUpdateMetadata {
+  pub rid: tauri::ResourceId,
+  pub current_version: String,
+  pub version: String,
+  pub date: Option<String>,
+  pub body: Option<String>,
+  pub raw_json: serde_json::Value,
+}
+
+/// Check for updates using a selected endpoint source (`official` | `china`).
+///
+/// Returns the same metadata shape as `plugin:updater|check` so the frontend can
+/// construct `@tauri-apps/plugin-updater`'s `Update` and call `downloadAndInstall`.
+#[cfg(desktop)]
+#[tauri::command]
+pub async fn check_app_update(
+  app: tauri::AppHandle,
+  webview: tauri::Webview,
+  source: Option<String>,
+  proxy: Option<String>,
+) -> Result<Option<AppUpdateMetadata>, String> {
+  let endpoint = url::Url::parse(updater_endpoint_for_source(source.as_deref()))
+    .map_err(|e| format!("invalid updater endpoint: {e}"))?;
+
+  let mut builder = app
+    .updater_builder()
+    .endpoints(vec![endpoint])
+    .map_err(|e| e.to_string())?;
+
+  if let Some(proxy_url) = proxy
+    .as_deref()
+    .map(str::trim)
+    .filter(|p| !p.is_empty())
+  {
+    let proxy = url::Url::parse(proxy_url).map_err(|e| format!("invalid proxy url: {e}"))?;
+    builder = builder.proxy(proxy);
+  }
+
+  let updater = builder.build().map_err(|e| e.to_string())?;
+  let update = updater.check().await.map_err(|e| e.to_string())?;
+
+  let Some(update) = update else {
+    return Ok(None);
+  };
+
+  let date = update.date.map(|d| d.to_string());
+  let metadata = AppUpdateMetadata {
+    current_version: update.current_version.clone(),
+    version: update.version.clone(),
+    date,
+    body: update.body.clone(),
+    raw_json: update.raw_json.clone(),
+    rid: webview.resources_table().add(update),
+  };
+  Ok(Some(metadata))
 }

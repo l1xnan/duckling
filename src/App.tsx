@@ -1,10 +1,10 @@
 import { relaunch } from '@tauri-apps/plugin-process';
-import { check } from '@tauri-apps/plugin-updater';
 import { Provider, useAtomValue } from 'jotai';
 import { DevTools, DevToolsProps } from 'jotai-devtools';
 import css from 'jotai-devtools/styles.css?inline';
 import { useEffect } from 'react';
 
+import { checkAppUpdate } from '@/api';
 import { Toaster } from '@/components/ui/sonner';
 import { atomStore } from '@/stores';
 import {
@@ -26,8 +26,6 @@ const JotaiDevTools = (props: DevToolsProps) =>
   ) : null;
 
 function App() {
-  const proxy = useSettingStore((state) => state.proxy);
-
   const tableFontFamily = useAtomValue(tableFontFamilyAtom);
   const mainFontFamily = useAtomValue(mainFontFamilyAtom);
   const autoUpdate = useAtomValue(autoUpdateAtom);
@@ -40,18 +38,23 @@ function App() {
   }, [tableFontFamily, mainFontFamily]);
 
   useEffect(() => {
-    if (autoUpdate) {
-      (async () => {
-        const update = await check({ proxy });
-        if (update?.version != update?.currentVersion) {
-          await update?.downloadAndInstall(async (e) => {
-            console.log(e);
-          });
-          await relaunch();
-        }
-      })();
+    if (!autoUpdate) {
+      return;
     }
-  }, []);
+    (async () => {
+      const { proxy, updater_source } = useSettingStore.getState();
+      const update = await checkAppUpdate({
+        source: updater_source,
+        proxy,
+      });
+      if (update?.version != update?.currentVersion) {
+        await update?.downloadAndInstall(async (e) => {
+          console.log(e);
+        });
+        await relaunch();
+      }
+    })();
+  }, [autoUpdate]);
 
   return (
     <Provider store={atomStore}>

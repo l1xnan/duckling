@@ -1,10 +1,12 @@
 import { Data, Table, tableFromIPC } from '@apache-arrow/ts';
 import { invoke } from '@tauri-apps/api/core';
+import { Update } from '@tauri-apps/plugin-updater';
 import { uniqBy } from 'es-toolkit';
 import { nanoid } from 'nanoid';
 
 import { ArrowResponse, SchemaType } from '@/stores/dataset';
 import { DBType, DialectConfig } from '@/stores/dbList';
+import { UpdaterSource } from '@/stores/setting';
 import { getDatabase } from '@/stores/tabs';
 
 import { TreeNode } from './types';
@@ -290,6 +292,30 @@ export async function listSqlDir(path: string): Promise<TreeNode> {
 
 export async function readTextFile(path: string): Promise<string> {
   return invoke<string>('read_text_file', { path });
+}
+
+type AppUpdateMetadata = {
+  rid: number;
+  currentVersion: string;
+  version: string;
+  date?: string;
+  body?: string;
+  rawJson: Record<string, unknown>;
+};
+
+/**
+ * Check for app updates using the selected endpoint source.
+ * Defaults to the official GitHub Releases URL; `china` uses the gh-proxy mirror.
+ */
+export async function checkAppUpdate(options?: {
+  source?: UpdaterSource | null;
+  proxy?: string | null;
+}): Promise<Update | null> {
+  const metadata = await invoke<AppUpdateMetadata | null>('check_app_update', {
+    source: options?.source ?? 'official',
+    proxy: options?.proxy?.trim() ? options.proxy.trim() : null,
+  });
+  return metadata ? new Update(metadata) : null;
 }
 
 export class Connection {
