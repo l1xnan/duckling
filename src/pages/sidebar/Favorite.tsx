@@ -101,29 +101,4 @@ export function History() {
   );
 }
 
-export function SqlCode() {
-  const tabs = useTabsStore((state) => state.tabs);
-  const updateTab = useTabsStore((state) => state.update);
-
-  const handleClick = (item: TabContextType) => {
-    updateTab(item);
-  };
-
-  return (
-    <Container title="Code">
-      {Object.values(tabs)
-        .filter((tab) => tab.type == 'editor')
-        .map((item) => {
-          return (
-            <ItemLabel
-              key={item.id}
-              content={item.displayName}
-              onClick={() => {
-                handleClick(item);
-              }}
-            />
-          );
-        })}
-    </Container>
-  );
-}
+export { SqlCode } from './SqlCode';

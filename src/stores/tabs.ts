@@ -71,6 +71,8 @@ export type EditorContextType = {
   type: string;
   displayName: string;
   docId?: string;
+  /** Absolute path when opened from a local SQL folder; absent for scratch editors. */
+  path?: string;
 };
 
 export type TableContextType = {

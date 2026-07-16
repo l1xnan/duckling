@@ -39,6 +39,8 @@ export const sizeAtom = focusAtom(appAtom, (optic) => optic.prop('size'));
 export const favoriteAtom = atomWithStorage<TabContextType[]>('favorite', []);
 export const runsAtom = atomWithStorage<TabContextType[]>('runs', []);
 export const docsAtom = atomWithStorage<Record<string, string>>('docs', {});
+/** Local SQL workspace folders shown in the Code sidebar. */
+export const sqlFoldersAtom = atomWithStorage<string[]>('sqlFolders', []);
 
 export const themeAtom = atomWithStorage<ThemeType>(
   'mode',

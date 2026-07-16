@@ -366,6 +366,25 @@ pub async fn list_ssh_config_hosts() -> Vec<connector::ssh_config::SshConfigHost
 }
 
 #[tauri::command]
+pub async fn list_sql_dir(path: &str) -> Result<TreeNode, String> {
+  let p = Path::new(path);
+  if !p.exists() {
+    return Err(format!("the path does not exist: {path}"));
+  }
+  connector::dialect::folder::sql_directory_tree(p)
+    .ok_or_else(|| format!("unable to list sql directory: {path}"))
+}
+
+#[tauri::command]
+pub async fn read_text_file(path: &str) -> Result<String, String> {
+  let p = Path::new(path);
+  if !p.is_file() {
+    return Err(format!("not a file: {path}"));
+  }
+  std::fs::read_to_string(p).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 pub async fn open_path(path: &str) -> Result<(), String> {
   let _path = Path::new(path);
 

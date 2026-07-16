@@ -239,6 +239,14 @@ export async function listSshConfigHosts(): Promise<SshConfigHost[]> {
   return invoke<SshConfigHost[]>('list_ssh_config_hosts');
 }
 
+export async function listSqlDir(path: string): Promise<TreeNode> {
+  return invoke<TreeNode>('list_sql_dir', { path });
+}
+
+export async function readTextFile(path: string): Promise<string> {
+  return invoke<string>('read_text_file', { path });
+}
+
 export class Connection {
   db: unknown;
 

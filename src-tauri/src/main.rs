@@ -144,6 +144,8 @@ fn main() {
       cmd::find,
       cmd::all_columns,
       cmd::list_ssh_config_hosts,
+      cmd::list_sql_dir,
+      cmd::read_text_file,
       cmd::open_path,
     ])
     .build(tauri::generate_context!())

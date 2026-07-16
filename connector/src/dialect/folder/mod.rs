@@ -206,6 +206,70 @@ impl FolderConnection {
   }
 }
 
+/// Build a directory tree that only includes `.sql` files and folders that contain them.
+pub fn sql_directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
+  let path = path.as_ref();
+  let name = path
+    .file_name()
+    .unwrap_or_default()
+    .to_string_lossy()
+    .to_string();
+  let display_path = path.display().to_string().replace('\\', "/");
+
+  if path.is_file() {
+    let is_sql = path
+      .extension()
+      .map(|ext| ext.eq_ignore_ascii_case("sql"))
+      .unwrap_or(false);
+    if !is_sql {
+      return None;
+    }
+    return Some(TreeNode {
+      name,
+      path: display_path,
+      schema: None,
+      children: None,
+      node_type: "sql".to_string(),
+      size: path.metadata().ok().map(|m| m.len()),
+      comment: None,
+    });
+  }
+
+  if !path.is_dir() {
+    return None;
+  }
+
+  let mut child_nodes = Vec::new();
+  if let Ok(entries) = fs::read_dir(path) {
+    for entry in entries.flatten() {
+      if let Some(child_node) = sql_directory_tree(entry.path()) {
+        child_nodes.push(child_node);
+      }
+    }
+  }
+
+  child_nodes.sort_by(|a, b| {
+    (a.node_type == "path")
+      .cmp(&(b.node_type == "path"))
+      .reverse()
+      .then(a.name.cmp(&b.name))
+  });
+
+  Some(TreeNode {
+    name: if name.is_empty() {
+      display_path.clone()
+    } else {
+      name
+    },
+    path: display_path,
+    schema: None,
+    children: Some(child_nodes),
+    node_type: "path".to_string(),
+    size: None,
+    comment: None,
+  })
+}
+
 pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
   let path = path.as_ref();
   let is_dir = path.is_dir();
