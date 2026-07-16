@@ -422,9 +422,24 @@ pub async fn check_sqlfmt(path: Option<String>) -> SqlfmtCheckResult {
 
 /// Format SQL via external `sqlfmt` (`echo SQL | sqlfmt -`).
 #[tauri::command]
-pub async fn format_sql_sqlfmt(sql: String, path: Option<String>) -> Result<String, String> {
+pub async fn format_sql_sqlfmt(
+  sql: String,
+  path: Option<String>,
+  line_length: Option<u32>,
+  dialect: Option<String>,
+) -> Result<String, String> {
   let bin = resolve_sqlfmt_bin(path.as_deref());
   let mut cmd = Command::new(&bin);
+  if let Some(len) = line_length {
+    cmd.arg("--line-length").arg(len.to_string());
+  }
+  if let Some(d) = dialect
+    .as_deref()
+    .map(str::trim)
+    .filter(|d| !d.is_empty() && *d != "polyglot")
+  {
+    cmd.arg("--dialect").arg(d);
+  }
   cmd.arg("-");
   cmd.stdin(Stdio::piped());
   cmd.stdout(Stdio::piped());

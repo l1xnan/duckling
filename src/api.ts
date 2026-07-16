@@ -239,11 +239,20 @@ export async function checkSqlfmt(path?: string | null): Promise<SqlfmtCheckResu
 /** Format SQL via external `sqlfmt` (`sqlfmt -` over stdin). */
 export async function formatSqlWithSqlfmt(
   sql: string,
-  path?: string | null,
+  options?: {
+    path?: string | null;
+    lineLength?: number | null;
+    dialect?: string | null;
+  } | null,
 ): Promise<string> {
   return invoke<string>('format_sql_sqlfmt', {
     sql,
-    path: path?.trim() ? path.trim() : null,
+    path: options?.path?.trim() ? options.path.trim() : null,
+    line_length: options?.lineLength ?? null,
+    dialect:
+      options?.dialect && options.dialect !== 'polyglot'
+        ? options.dialect
+        : null,
   });
 }
 

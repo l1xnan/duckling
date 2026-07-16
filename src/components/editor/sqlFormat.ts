@@ -4,7 +4,13 @@ import { format as formatWithSqlFormatter, type SqlLanguage } from 'sql-formatte
 import { formatSqlWithSqlfmt } from '@/api';
 import { getDuckdbHolywellProfile } from '@/components/editor/holywellDuckdbProfile';
 import { DialectType } from '@/stores/dbList';
-import { SqlFormatterEngine, useSettingStore } from '@/stores/setting';
+import {
+  SqlFormatterEngine,
+  resolveHolywellOptions,
+  resolveSqlFormatterOptions,
+  resolveSqlfmtOptions,
+  useSettingStore,
+} from '@/stores/setting';
 
 export type FormatSqlOptions = {
   engine?: SqlFormatterEngine;
@@ -63,18 +69,37 @@ export async function formatSqlText(
     options.engine ?? settings.sql_formatter_engine ?? 'sql-formatter';
 
   if (resolved === 'shandy-sqlfmt') {
-    return formatSqlWithSqlfmt(text, settings.sqlfmt_path);
-  }
-
-  if (resolved === 'holywell') {
-    return formatWithHolywell(text, {
-      dialect: toHolywellDialect(options.dialect),
+    const sqlfmt = resolveSqlfmtOptions(settings);
+    return formatSqlWithSqlfmt(text, {
+      path: sqlfmt.path,
+      lineLength: sqlfmt.lineLength,
+      dialect: sqlfmt.dialect,
     });
   }
 
+  if (resolved === 'holywell') {
+    const holywell = resolveHolywellOptions(settings.holywell_options);
+    return formatWithHolywell(text, {
+      dialect: toHolywellDialect(options.dialect),
+      maxLineLength: holywell.maxLineLength,
+      recover: holywell.recover,
+    });
+  }
+
+  const fmt = resolveSqlFormatterOptions(settings.sql_formatter_options);
   return formatWithSqlFormatter(text, {
     language: toSqlFormatterLanguage(options.dialect),
-    tabWidth: 2,
-    keywordCase: 'upper',
+    tabWidth: fmt.tabWidth,
+    useTabs: fmt.useTabs,
+    keywordCase: fmt.keywordCase,
+    identifierCase: fmt.identifierCase,
+    dataTypeCase: fmt.dataTypeCase,
+    functionCase: fmt.functionCase,
+    indentStyle: fmt.indentStyle,
+    logicalOperatorNewline: fmt.logicalOperatorNewline,
+    expressionWidth: fmt.expressionWidth,
+    linesBetweenQueries: fmt.linesBetweenQueries,
+    denseOperators: fmt.denseOperators,
+    newlineBeforeSemicolon: fmt.newlineBeforeSemicolon,
   });
 }

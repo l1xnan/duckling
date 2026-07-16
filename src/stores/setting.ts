@@ -16,6 +16,42 @@ export type CsvParam = {
 
 export type SqlFormatterEngine = 'sql-formatter' | 'holywell' | 'shandy-sqlfmt';
 
+export type SqlCaseOption = 'preserve' | 'upper' | 'lower';
+export type SqlIndentStyle = 'standard' | 'tabularLeft' | 'tabularRight';
+export type SqlLogicalNewline = 'before' | 'after';
+
+/** Options for the built-in `sql-formatter` engine. */
+export type SqlFormatterOptions = {
+  tabWidth: number;
+  useTabs: boolean;
+  keywordCase: SqlCaseOption;
+  identifierCase: SqlCaseOption;
+  dataTypeCase: SqlCaseOption;
+  functionCase: SqlCaseOption;
+  indentStyle: SqlIndentStyle;
+  logicalOperatorNewline: SqlLogicalNewline;
+  expressionWidth: number;
+  linesBetweenQueries: number;
+  denseOperators: boolean;
+  newlineBeforeSemicolon: boolean;
+};
+
+/** Options for the `holywell` engine. */
+export type HolywellOptions = {
+  maxLineLength: number;
+  recover: boolean;
+};
+
+export type SqlfmtDialect = 'polyglot' | 'clickhouse';
+
+/** Options for the external `shandy-sqlfmt` CLI. */
+export type SqlfmtOptions = {
+  /** Absolute path to `sqlfmt`; empty = look up on PATH. */
+  path: string;
+  lineLength: number;
+  dialect: SqlfmtDialect;
+};
+
 export type SettingState = {
   precision: number;
   table_font_family: string;
@@ -27,12 +63,43 @@ export type SettingState = {
   csv?: CsvParam;
   /** SQL formatting engine used by the Monaco editor. */
   sql_formatter_engine?: SqlFormatterEngine;
-  /** Optional absolute path to the `sqlfmt` executable (shandy-sqlfmt). Empty = PATH. */
+  /**
+   * @deprecated Prefer `sqlfmt_options.path`. Kept for persisted settings migration.
+   */
   sqlfmt_path?: string;
+  sql_formatter_options?: Partial<SqlFormatterOptions>;
+  holywell_options?: Partial<HolywellOptions>;
+  sqlfmt_options?: Partial<SqlfmtOptions>;
   editor_theme: {
     dark: string;
     light: string;
   };
+};
+
+export const defaultSqlFormatterOptions: SqlFormatterOptions = {
+  tabWidth: 2,
+  useTabs: false,
+  keywordCase: 'upper',
+  identifierCase: 'preserve',
+  dataTypeCase: 'upper',
+  functionCase: 'upper',
+  indentStyle: 'standard',
+  logicalOperatorNewline: 'before',
+  expressionWidth: 50,
+  linesBetweenQueries: 1,
+  denseOperators: false,
+  newlineBeforeSemicolon: false,
+};
+
+export const defaultHolywellOptions: HolywellOptions = {
+  maxLineLength: 80,
+  recover: true,
+};
+
+export const defaultSqlfmtOptions: SqlfmtOptions = {
+  path: '',
+  lineLength: 88,
+  dialect: 'polyglot',
 };
 
 export const defaultSettings: SettingState = {
@@ -49,11 +116,36 @@ export const defaultSettings: SettingState = {
   csv: {},
   sql_formatter_engine: 'sql-formatter',
   sqlfmt_path: '',
+  sql_formatter_options: defaultSqlFormatterOptions,
+  holywell_options: defaultHolywellOptions,
+  sqlfmt_options: defaultSqlfmtOptions,
   editor_theme: {
     light: 'vitesse-light',
     dark: 'vitesse-dark',
   },
 };
+
+export function resolveSqlFormatterOptions(
+  partial?: Partial<SqlFormatterOptions> | null,
+): SqlFormatterOptions {
+  return { ...defaultSqlFormatterOptions, ...partial };
+}
+
+export function resolveHolywellOptions(
+  partial?: Partial<HolywellOptions> | null,
+): HolywellOptions {
+  return { ...defaultHolywellOptions, ...partial };
+}
+
+export function resolveSqlfmtOptions(
+  state: Pick<SettingState, 'sqlfmt_options' | 'sqlfmt_path'>,
+): SqlfmtOptions {
+  return {
+    ...defaultSqlfmtOptions,
+    ...state.sqlfmt_options,
+    path: state.sqlfmt_options?.path ?? state.sqlfmt_path ?? '',
+  };
+}
 
 export const store = create<SettingState>()(
   persist((_) => defaultSettings, {
@@ -93,7 +185,7 @@ export const sqlFormatterEngineAtom = selectAtom(
 
 export const sqlfmtPathAtom = selectAtom(
   settingAtom,
-  (s) => s.sqlfmt_path ?? defaultSettings.sqlfmt_path ?? '',
+  (s) => resolveSqlfmtOptions(s).path,
 );
 
 export const sqlFormatterEngines: {
@@ -116,6 +208,34 @@ export const sqlFormatterEngines: {
     id: 'shandy-sqlfmt',
     description: 'External sqlfmt CLI (dbt-oriented, via Tauri)',
   },
+];
+
+export const sqlCaseOptions: { label: string; value: SqlCaseOption }[] = [
+  { label: 'Upper', value: 'upper' },
+  { label: 'Lower', value: 'lower' },
+  { label: 'Preserve', value: 'preserve' },
+];
+
+export const sqlIndentStyleOptions: {
+  label: string;
+  value: SqlIndentStyle;
+}[] = [
+  { label: 'Standard', value: 'standard' },
+  { label: 'Tabular left', value: 'tabularLeft' },
+  { label: 'Tabular right', value: 'tabularRight' },
+];
+
+export const sqlLogicalNewlineOptions: {
+  label: string;
+  value: SqlLogicalNewline;
+}[] = [
+  { label: 'Before operator', value: 'before' },
+  { label: 'After operator', value: 'after' },
+];
+
+export const sqlfmtDialectOptions: { label: string; value: SqlfmtDialect }[] = [
+  { label: 'Polyglot (default)', value: 'polyglot' },
+  { label: 'ClickHouse', value: 'clickhouse' },
 ];
 
 export const useEditorTheme = () => {

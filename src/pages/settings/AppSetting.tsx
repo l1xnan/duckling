@@ -38,19 +38,45 @@ import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import {
   CsvParam,
+  HolywellOptions,
   SettingState,
+  SqlFormatterOptions,
+  SqlfmtOptions,
+  defaultHolywellOptions,
   defaultSettings,
+  defaultSqlFormatterOptions,
+  defaultSqlfmtOptions,
   editorThemes,
+  resolveHolywellOptions,
+  resolveSqlFormatterOptions,
+  resolveSqlfmtOptions,
   settingAtom,
+  sqlCaseOptions,
   sqlFormatterEngines,
+  sqlIndentStyleOptions,
+  sqlLogicalNewlineOptions,
+  sqlfmtDialectOptions,
   useSettingStore,
 } from '@/stores/setting';
 import { isEmpty } from 'radash';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 
 const items = [
   {
     key: 'profile',
     title: 'Appearance',
+  },
+  {
+    key: 'sql-format',
+    title: 'SQL Formatting',
   },
   {
     key: 'csv',
@@ -87,6 +113,9 @@ export default function AppSettingDialog() {
           <Display hidden={navKey == 'profile'}>
             <Profile />
           </Display>
+          <Display hidden={navKey == 'sql-format'}>
+            <SqlFormatForm />
+          </Display>
           <Display hidden={navKey == 'csv'}>
             <CSVForm />
           </Display>
@@ -113,52 +142,17 @@ function Profile() {
     defaultValues: {
       ...defaultSettings,
       ...settings,
-      sql_formatter_engine: settings.sql_formatter_engine ?? defaultSettings.sql_formatter_engine,
-      sqlfmt_path: settings.sqlfmt_path ?? defaultSettings.sqlfmt_path ?? '',
     },
   });
 
-  const formatterEngine = useWatch({
-    control: form.control,
-    name: 'sql_formatter_engine',
-  });
-
-  const [sqlfmtStatus, setSqlfmtStatus] = useState<SqlfmtCheckResult | null>(null);
-  const [sqlfmtChecking, setSqlfmtChecking] = useState(false);
-
-  const runSqlfmtCheck = async (path?: string | null) => {
-    setSqlfmtChecking(true);
-    try {
-      const result = await checkSqlfmt(path);
-      setSqlfmtStatus(result);
-      return result;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      const failed: SqlfmtCheckResult = {
-        available: false,
-        path: path?.trim() || 'sqlfmt',
-        version: null,
-        error: message,
-      };
-      setSqlfmtStatus(failed);
-      return failed;
-    } finally {
-      setSqlfmtChecking(false);
-    }
-  };
-
-  useEffect(() => {
-    if (formatterEngine !== 'shandy-sqlfmt') {
-      setSqlfmtStatus(null);
-      return;
-    }
-    void runSqlfmtCheck(form.getValues('sqlfmt_path'));
-    // Only auto-check when the engine is selected; path edits use Check / Browse.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formatterEngine]);
-
   const onSubmit = (data: SettingState) => {
-    setSettings((s) => ({ ...s, ...data }));
+    setSettings((s) => ({
+      ...s,
+      main_font_family: data.main_font_family,
+      table_font_family: data.table_font_family,
+      editor_theme: data.editor_theme,
+      precision: data.precision,
+    }));
   };
 
   return (
@@ -256,6 +250,109 @@ function Profile() {
           />
           <FormField
             control={form.control}
+            name="precision"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Float precision</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
+        <DialogFooter>
+          <DialogClose render={<Button variant="secondary">Cancel</Button>}></DialogClose>
+          <Button type="submit">Update</Button>
+        </DialogFooter>
+      </form>
+    </Form>
+  );
+}
+
+type SqlFormatSettings = {
+  sql_formatter_engine: NonNullable<SettingState['sql_formatter_engine']>;
+  sql_formatter_options: SqlFormatterOptions;
+  holywell_options: HolywellOptions;
+  sqlfmt_options: SqlfmtOptions;
+};
+
+function numberFromInput(value: string, fallback: number) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function SqlFormatForm() {
+  const [settings, setSettings] = useAtom(settingAtom);
+  const form = useForm<SqlFormatSettings>({
+    defaultValues: {
+      sql_formatter_engine:
+        settings.sql_formatter_engine ?? defaultSettings.sql_formatter_engine!,
+      sql_formatter_options: resolveSqlFormatterOptions(
+        settings.sql_formatter_options,
+      ),
+      holywell_options: resolveHolywellOptions(settings.holywell_options),
+      sqlfmt_options: resolveSqlfmtOptions(settings),
+    },
+  });
+
+  const formatterEngine = useWatch({
+    control: form.control,
+    name: 'sql_formatter_engine',
+  });
+
+  const [sqlfmtStatus, setSqlfmtStatus] = useState<SqlfmtCheckResult | null>(null);
+  const [sqlfmtChecking, setSqlfmtChecking] = useState(false);
+
+  const runSqlfmtCheck = async (path?: string | null) => {
+    setSqlfmtChecking(true);
+    try {
+      const result = await checkSqlfmt(path);
+      setSqlfmtStatus(result);
+      return result;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const failed: SqlfmtCheckResult = {
+        available: false,
+        path: path?.trim() || 'sqlfmt',
+        version: null,
+        error: message,
+      };
+      setSqlfmtStatus(failed);
+      return failed;
+    } finally {
+      setSqlfmtChecking(false);
+    }
+  };
+
+  useEffect(() => {
+    if (formatterEngine !== 'shandy-sqlfmt') {
+      setSqlfmtStatus(null);
+      return;
+    }
+    void runSqlfmtCheck(form.getValues('sqlfmt_options.path'));
+    // Only auto-check when the engine is selected; path edits use Check / Browse.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formatterEngine]);
+
+  const onSubmit = (data: SqlFormatSettings) => {
+    setSettings((s) => ({
+      ...s,
+      sql_formatter_engine: data.sql_formatter_engine,
+      sql_formatter_options: data.sql_formatter_options,
+      holywell_options: data.holywell_options,
+      sqlfmt_options: data.sqlfmt_options,
+      // Keep legacy key in sync for older readers / migration.
+      sqlfmt_path: data.sqlfmt_options.path,
+    }));
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="h-full flex flex-col">
+        <div className="flex-1 space-y-4">
+          <FormField
+            control={form.control}
             name="sql_formatter_engine"
             render={({ field }) => {
               const selected =
@@ -300,88 +397,568 @@ function Profile() {
               );
             }}
           />
-          {formatterEngine === 'shandy-sqlfmt' ? (
-            <FormField
-              control={form.control}
-              name="sqlfmt_path"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>sqlfmt Executable</FormLabel>
-                  <FormControl>
-                    <ButtonGroup>
-                      <Input
-                        placeholder="sqlfmt (from PATH) or absolute path"
-                        {...field}
-                        value={field.value ?? ''}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={async (e) => {
-                          e.preventDefault();
-                          const file = await dialog.open({
-                            multiple: false,
-                            directory: false,
-                          });
-                          if (typeof file === 'string') {
-                            field.onChange(file);
-                            await runSqlfmtCheck(file);
+
+          {formatterEngine === 'sql-formatter' ? (
+            <div className="space-y-4 rounded-md border p-3">
+              <div>
+                <Label className="text-sm font-medium">sql-formatter options</Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Dialect still follows the active connection. Defaults match previous behavior.
+                </p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="sql_formatter_options.tabWidth"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tab width</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={16}
+                          value={field.value}
+                          onChange={(e) =>
+                            field.onChange(
+                              numberFromInput(
+                                e.target.value,
+                                defaultSqlFormatterOptions.tabWidth,
+                              ),
+                            )
                           }
-                        }}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="sql_formatter_options.expressionWidth"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Expression width</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={10}
+                          max={200}
+                          value={field.value}
+                          onChange={(e) =>
+                            field.onChange(
+                              numberFromInput(
+                                e.target.value,
+                                defaultSqlFormatterOptions.expressionWidth,
+                              ),
+                            )
+                          }
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="sql_formatter_options.linesBetweenQueries"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Lines between queries</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={0}
+                          max={10}
+                          value={field.value}
+                          onChange={(e) =>
+                            field.onChange(
+                              numberFromInput(
+                                e.target.value,
+                                defaultSqlFormatterOptions.linesBetweenQueries,
+                              ),
+                            )
+                          }
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="sql_formatter_options.indentStyle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Indent style</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={(v) =>
+                          field.onChange(v ?? defaultSqlFormatterOptions.indentStyle)
+                        }
+                        items={sqlIndentStyleOptions}
                       >
-                        Browse
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        disabled={sqlfmtChecking}
-                        onClick={async (e) => {
-                          e.preventDefault();
-                          await runSqlfmtCheck(field.value);
-                        }}
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectGroup>
+                            {sqlIndentStyleOptions.map((item) => (
+                              <SelectItem
+                                key={item.value}
+                                value={item.value}
+                                label={item.label}
+                              >
+                                {item.label}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="sql_formatter_options.keywordCase"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Keyword case</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={(v) =>
+                          field.onChange(v ?? defaultSqlFormatterOptions.keywordCase)
+                        }
+                        items={sqlCaseOptions}
                       >
-                        {sqlfmtChecking ? <Spinner className="size-4" /> : 'Check'}
-                      </Button>
-                    </ButtonGroup>
-                  </FormControl>
-                  <FormDescription>
-                    Install with{' '}
-                    <code className="text-xs">uv tool install shandy-sqlfmt</code> or set the
-                    full path to the <code className="text-xs">sqlfmt</code> binary.
-                    {sqlfmtStatus ? (
-                      <>
-                        <br />
-                        {sqlfmtStatus.available ? (
-                          <span className="text-emerald-600 dark:text-emerald-400">
-                            Available
-                            {sqlfmtStatus.version ? `: ${sqlfmtStatus.version}` : ''}
-                            {sqlfmtStatus.path ? ` (${sqlfmtStatus.path})` : ''}
-                          </span>
-                        ) : (
-                          <span className="text-destructive">
-                            Not available
-                            {sqlfmtStatus.error ? `: ${sqlfmtStatus.error}` : ''}
-                          </span>
-                        )}
-                      </>
-                    ) : null}
-                  </FormDescription>
-                </FormItem>
-              )}
-            />
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectGroup>
+                            {sqlCaseOptions.map((item) => (
+                              <SelectItem
+                                key={item.value}
+                                value={item.value}
+                                label={item.label}
+                              >
+                                {item.label}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="sql_formatter_options.identifierCase"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Identifier case</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={(v) =>
+                          field.onChange(
+                            v ?? defaultSqlFormatterOptions.identifierCase,
+                          )
+                        }
+                        items={sqlCaseOptions}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectGroup>
+                            {sqlCaseOptions.map((item) => (
+                              <SelectItem
+                                key={item.value}
+                                value={item.value}
+                                label={item.label}
+                              >
+                                {item.label}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="sql_formatter_options.functionCase"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Function case</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={(v) =>
+                          field.onChange(v ?? defaultSqlFormatterOptions.functionCase)
+                        }
+                        items={sqlCaseOptions}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectGroup>
+                            {sqlCaseOptions.map((item) => (
+                              <SelectItem
+                                key={item.value}
+                                value={item.value}
+                                label={item.label}
+                              >
+                                {item.label}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="sql_formatter_options.dataTypeCase"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Data type case</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={(v) =>
+                          field.onChange(v ?? defaultSqlFormatterOptions.dataTypeCase)
+                        }
+                        items={sqlCaseOptions}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectGroup>
+                            {sqlCaseOptions.map((item) => (
+                              <SelectItem
+                                key={item.value}
+                                value={item.value}
+                                label={item.label}
+                              >
+                                {item.label}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="sql_formatter_options.logicalOperatorNewline"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Logical operator newline</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={(v) =>
+                          field.onChange(
+                            v ?? defaultSqlFormatterOptions.logicalOperatorNewline,
+                          )
+                        }
+                        items={sqlLogicalNewlineOptions}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectGroup>
+                            {sqlLogicalNewlineOptions.map((item) => (
+                              <SelectItem
+                                key={item.value}
+                                value={item.value}
+                                label={item.label}
+                              >
+                                {item.label}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="sql_formatter_options.useTabs"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-md border px-3 py-2">
+                      <div className="space-y-0.5">
+                        <FormLabel>Use tabs</FormLabel>
+                        <FormDescription>Indent with tabs instead of spaces</FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="sql_formatter_options.denseOperators"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-md border px-3 py-2">
+                      <div className="space-y-0.5">
+                        <FormLabel>Dense operators</FormLabel>
+                        <FormDescription>Pack operators without spaces</FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="sql_formatter_options.newlineBeforeSemicolon"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-md border px-3 py-2 sm:col-span-2">
+                      <div className="space-y-0.5">
+                        <FormLabel>Newline before semicolon</FormLabel>
+                        <FormDescription>Place `;` on its own line</FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
           ) : null}
-          <FormField
-            control={form.control}
-            name="precision"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Float precision</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+
+          {formatterEngine === 'holywell' ? (
+            <div className="space-y-4 rounded-md border p-3">
+              <div>
+                <Label className="text-sm font-medium">holywell options</Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  River-alignment style; dialect follows the active connection.
+                </p>
+              </div>
+              <FormField
+                control={form.control}
+                name="holywell_options.maxLineLength"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Max line length</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={40}
+                        max={200}
+                        value={field.value}
+                        onChange={(e) =>
+                          field.onChange(
+                            numberFromInput(
+                              e.target.value,
+                              defaultHolywellOptions.maxLineLength,
+                            ),
+                          )
+                        }
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Preferred maximum output width in display columns.
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="holywell_options.recover"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-md border px-3 py-2">
+                    <div className="space-y-0.5">
+                      <FormLabel>Recover on parse errors</FormLabel>
+                      <FormDescription>
+                        Keep unparseable statements as raw text instead of failing
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+          ) : null}
+
+          {formatterEngine === 'shandy-sqlfmt' ? (
+            <div className="space-y-4 rounded-md border p-3">
+              <div>
+                <Label className="text-sm font-medium">shandy-sqlfmt options</Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Calls the external <code className="text-xs">sqlfmt</code> binary via Tauri.
+                </p>
+              </div>
+              <FormField
+                control={form.control}
+                name="sqlfmt_options.path"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>sqlfmt Executable</FormLabel>
+                    <FormControl>
+                      <ButtonGroup>
+                        <Input
+                          placeholder="sqlfmt (from PATH) or absolute path"
+                          {...field}
+                          value={field.value ?? ''}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            const file = await dialog.open({
+                              multiple: false,
+                              directory: false,
+                            });
+                            if (typeof file === 'string') {
+                              field.onChange(file);
+                              await runSqlfmtCheck(file);
+                            }
+                          }}
+                        >
+                          Browse
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={sqlfmtChecking}
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            await runSqlfmtCheck(field.value);
+                          }}
+                        >
+                          {sqlfmtChecking ? <Spinner className="size-4" /> : 'Check'}
+                        </Button>
+                      </ButtonGroup>
+                    </FormControl>
+                    <FormDescription>
+                      Install with{' '}
+                      <code className="text-xs">uv tool install shandy-sqlfmt</code> or set the
+                      full path to the <code className="text-xs">sqlfmt</code> binary.
+                      {sqlfmtStatus ? (
+                        <>
+                          <br />
+                          {sqlfmtStatus.available ? (
+                            <span className="text-emerald-600 dark:text-emerald-400">
+                              Available
+                              {sqlfmtStatus.version ? `: ${sqlfmtStatus.version}` : ''}
+                              {sqlfmtStatus.path ? ` (${sqlfmtStatus.path})` : ''}
+                            </span>
+                          ) : (
+                            <span className="text-destructive">
+                              Not available
+                              {sqlfmtStatus.error ? `: ${sqlfmtStatus.error}` : ''}
+                            </span>
+                          )}
+                        </>
+                      ) : null}
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="sqlfmt_options.lineLength"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Line length</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={40}
+                          max={200}
+                          value={field.value}
+                          onChange={(e) =>
+                            field.onChange(
+                              numberFromInput(
+                                e.target.value,
+                                defaultSqlfmtOptions.lineLength,
+                              ),
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormDescription>Passed as --line-length (default 88)</FormDescription>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="sqlfmt_options.dialect"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Dialect</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={(v) =>
+                          field.onChange(v ?? defaultSqlfmtOptions.dialect)
+                        }
+                        items={sqlfmtDialectOptions}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectGroup>
+                            {sqlfmtDialectOptions.map((item) => (
+                              <SelectItem
+                                key={item.value}
+                                value={item.value}
+                                label={item.label}
+                              >
+                                {item.label}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Use ClickHouse to preserve identifier case sensitivity
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          ) : null}
         </div>
         <DialogFooter>
           <DialogClose render={<Button variant="secondary">Cancel</Button>}></DialogClose>
