@@ -139,24 +139,26 @@ const Node = ({ tree, item, style }: NodeProps) => {
               className={cn(
                 'text-foreground-muted',
                 'transition-transform duration-200',
-                'size-4',
+                'size-4 shrink-0',
                 'group-aria-expanded:rotate-90',
               )}
             />
           ) : (
-            <div className="size-4 min-w-4"></div>
+            <div className="size-4 shrink-0"></div>
           )}
           <div
             className={cn(
-              'relative flex items-center [&_svg]:size-4',
+              'relative flex shrink-0 items-center [&_svg]:size-4',
               isRoot && node?.data?.loading ? 'animate-spin duration-2000' : '',
             )}
           >
             {getTypeIcon(icon)}
           </div>
-          <DelayedTooltip content={path}>
-            <div className="truncate font-mono">{displayName ?? name}</div>
-          </DelayedTooltip>
+          <div className="min-w-0 flex-1">
+            <DelayedTooltip content={path}>
+              <div className="truncate font-mono">{displayName ?? name}</div>
+            </DelayedTooltip>
+          </div>
         </div>
       </ContextNode>
     </div>
