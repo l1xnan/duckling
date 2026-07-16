@@ -158,11 +158,15 @@ export const useTabsStore = create<TabsState & TabsAction>()(
       },
       setSession: (item: TabContextType) => {
         set((state) => {
-          const { ids, tabs } = state;
-          if (ids.findIndex((id) => id === item.id) >= 0) {
-            tabs[item.id] = item;
+          if (state.ids.findIndex((id) => id === item.id) < 0) {
+            return state;
           }
-          return { tabs };
+          return {
+            tabs: {
+              ...state.tabs,
+              [item.id]: item,
+            },
+          };
         });
       },
       remove: (key, force) => {

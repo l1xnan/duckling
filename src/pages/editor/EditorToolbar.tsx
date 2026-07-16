@@ -94,7 +94,7 @@ export default function Connection({ content, setSession }: DropdownProps) {
           {dbList.map((item) => (
             <DropdownMenuItem
               key={item.id}
-              onClick={() => {
+              onSelect={() => {
                 setSession(item);
               }}
             >
