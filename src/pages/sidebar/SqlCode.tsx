@@ -1,6 +1,6 @@
 import * as dialog from '@tauri-apps/plugin-dialog';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { ChevronRight, Code2Icon, FolderIcon, FolderPlus, RefreshCw, XIcon } from 'lucide-react';
+import { ChevronRight, Code2Icon, FolderClock, FolderIcon, FolderPlus, RefreshCw, XIcon } from 'lucide-react';
 import { Dispatch, ReactNode, SetStateAction, useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -426,7 +426,7 @@ export function SqlCode() {
             label="Temporary Files"
             expandable
             expanded={tempOpen}
-            icon={<FolderIcon className="size-4" />}
+            icon={<FolderClock  className="size-4" />}
             onClick={() => {
               if (!query) {
                 setTempExpanded((v) => !v);
