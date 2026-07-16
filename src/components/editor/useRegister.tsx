@@ -3,6 +3,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { nanoid } from 'nanoid';
 import { useCallback, useEffect, useRef } from 'react';
 import {
+  registerSqlFormattingProvider,
   registerUriBasedCompletionProvider,
   removeCompletionsForUri,
   setCompletionsForUri,
@@ -36,6 +37,9 @@ export function useRegister({ language = 'sql', completeMeta = {} }) {
       // Registering multiple times is safe due to checks inside the function
       // You might store the disposable if you need fine-grained control, but often not necessary
       registerUriBasedCompletionProvider(language);
+      if (language === 'sql') {
+        registerSqlFormattingProvider(language);
+      }
     }
   }, [monaco, language]);
 

@@ -2,12 +2,22 @@
 import { CompleteMetaType } from '@/ast/analyze';
 import { handleProvideCompletionItems } from '@/components/editor/completion';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { format } from 'sql-formatter';
 
 // Central Registry: Map<modelUri: string, completionFunction | completionItems[]>
 // Using a function allows for more dynamic completions based on position/context
 export const completionRegistry = new Map<string, CompleteMetaType>();
 
 const globalProviderDisposable: Record<string, monaco.IDisposable> = {};
+const formatProviderDisposables: Record<string, monaco.IDisposable[]> = {};
+
+function formatSqlText(text: string) {
+  return format(text, {
+    language: 'sql',
+    tabWidth: 2,
+    keywordCase: 'upper',
+  });
+}
 
 // Function to register the single global provider for a given language
 // We make it accept languageId so it can be reused (e.g., 'sql', 'javascript')
@@ -40,6 +50,50 @@ export function registerUriBasedCompletionProvider(languageId: string) {
 
   // Return the disposable in case the caller wants to manage it specifically
   return disposable;
+}
+
+export function registerSqlFormattingProvider(languageId = 'sql') {
+  if (formatProviderDisposables[languageId]) {
+    return;
+  }
+
+  const documentProvider =
+    monaco.languages.registerDocumentFormattingEditProvider(languageId, {
+      provideDocumentFormattingEdits(model) {
+        try {
+          const formatted = formatSqlText(model.getValue());
+          return [
+            {
+              range: model.getFullModelRange(),
+              text: formatted,
+            },
+          ];
+        } catch (error) {
+          console.warn('SQL format failed:', error);
+          return [];
+        }
+      },
+    });
+
+  const rangeProvider =
+    monaco.languages.registerDocumentRangeFormattingEditProvider(languageId, {
+      provideDocumentRangeFormattingEdits(model, range) {
+        try {
+          const formatted = formatSqlText(model.getValueInRange(range));
+          return [
+            {
+              range,
+              text: formatted,
+            },
+          ];
+        } catch (error) {
+          console.warn('SQL range format failed:', error);
+          return [];
+        }
+      },
+    });
+
+  formatProviderDisposables[languageId] = [documentProvider, rangeProvider];
 }
 
 // Function for components to register their completion logic/data

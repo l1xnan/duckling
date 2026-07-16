@@ -46,6 +46,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
   const subTabsAtom = focusAtom(tabAtom, (o) => o.prop('children'));
   const setSubTabs = useSetAtom(subTabsAtom);
   const [hasLimit, setHasLimit] = useState(true);
+  const [canFormatSelection, setCanFormatSelection] = useState(false);
 
   const stmt = docs[id] ?? '';
 
@@ -53,6 +54,18 @@ export default function Editor({ context }: { context: EditorContextType }) {
 
   const tableSchema = schemaMap.get(dbId);
   const ref = useRef<EditorRef | null>(null);
+
+  const syncSelectionState = () => {
+    setCanFormatSelection(!!ref.current?.hasSelection());
+  };
+
+  const handleFormat = (scope: 'document' | 'selection') => {
+    if (scope === 'selection') {
+      void ref.current?.formatSelection();
+    } else {
+      void ref.current?.formatDocument();
+    }
+  };
 
   const handleChange: OnChange = (value, _event) => {
     setDocs((prev) => ({ ...prev, [id]: value ?? '' }));
@@ -138,6 +151,8 @@ export default function Editor({ context }: { context: EditorContextType }) {
         setSession={handleSession}
         onHasLimit={setHasLimit}
         hasLimit={hasLimit}
+        onFormat={handleFormat}
+        canFormatSelection={canFormatSelection}
       />
       <VerticalContainer bottom={tab.children.length > 0 ? 300 : undefined}>
         <div className="h-full flex flex-col overflow-hidden border-b">
@@ -151,6 +166,12 @@ export default function Editor({ context }: { context: EditorContextType }) {
               defaultDatabase: db?.defaultDatabase,
             }}
             onRun={handleClick}
+            onMount={(editor) => {
+              syncSelectionState();
+              editor.onDidChangeCursorSelection(() => {
+                syncSelectionState();
+              });
+            }}
           />
         </div>
         <QueryTabs

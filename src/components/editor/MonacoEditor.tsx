@@ -14,6 +14,9 @@ export interface EditorRef {
   getSelectionText: () => string | undefined;
   getValue: () => string | undefined;
   editor: () => OnMountParams[0] | null;
+  formatDocument: () => Promise<void>;
+  formatSelection: () => Promise<void>;
+  hasSelection: () => boolean;
 }
 
 type OnMountParams = Parameters<OnMount>;
@@ -39,12 +42,24 @@ const MonacoEditor = forwardRef<
     handleEditorDidMount(editor, monaco);
 
     editor.addAction({
-      id: `${instanceId}.run}`,
+      id: `${instanceId.current}.run`,
       label: 'Run',
       contextMenuGroupId: 'navigation',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
       run: () => {
         props.onRun?.();
+      },
+    });
+
+    editor.addAction({
+      id: `${instanceId.current}.format`,
+      label: 'Format SQL',
+      contextMenuGroupId: '1_modification',
+      keybindings: [
+        monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.KeyF,
+      ],
+      run: (ed) => {
+        void ed.getAction('editor.action.formatDocument')?.run();
       },
     });
   };
@@ -67,6 +82,28 @@ const MonacoEditor = forwardRef<
 
     getValue: () => {
       return editorRef.current?.getValue();
+    },
+
+    hasSelection: () => {
+      const editor = editorRef.current;
+      const selection = editor?.getSelection();
+      return !!selection && !selection.isEmpty();
+    },
+
+    formatDocument: async () => {
+      await editorRef.current?.getAction('editor.action.formatDocument')?.run();
+    },
+
+    formatSelection: async () => {
+      const editor = editorRef.current;
+      if (!editor) {
+        return;
+      }
+      const selection = editor.getSelection();
+      if (!selection || selection.isEmpty()) {
+        return;
+      }
+      await editor.getAction('editor.action.formatSelection')?.run();
     },
   }));
 

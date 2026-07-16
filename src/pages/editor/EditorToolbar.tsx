@@ -7,7 +7,12 @@ import {
 
 import { Stack, ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
 
-import { ListPlusIcon, PlayIcon } from 'lucide-react';
+import {
+  AlignLeftIcon,
+  ListPlusIcon,
+  PlayIcon,
+  TextSelectIcon,
+} from 'lucide-react';
 
 import {
   DropdownMenuContent,
@@ -33,12 +38,16 @@ export function EditorToolbar({
   onHasLimit,
   hasLimit,
   setSession,
+  onFormat,
+  canFormatSelection = false,
 }: {
   onClick: (action?: string) => void;
   onHasLimit: (limit: boolean) => void;
   session?: string;
   hasLimit?: boolean;
   setSession: (s: DBType) => void;
+  onFormat?: (scope: 'document' | 'selection') => void;
+  canFormatSelection?: boolean;
 }) {
   return (
     <ToolbarContainer>
@@ -67,6 +76,22 @@ export function EditorToolbar({
             tooltipProps={tooltipProps}
           >
             {hasLimit ? <IconInfinityOff /> : <IconInfinity />}
+          </TooltipButton>
+
+          <TooltipButton
+            tooltip="Format Document (Shift+Alt+F)"
+            tooltipProps={tooltipProps}
+            onClick={() => onFormat?.('document')}
+          >
+            <AlignLeftIcon fontSize="inherit" />
+          </TooltipButton>
+          <TooltipButton
+            tooltip="Format Selection"
+            tooltipProps={tooltipProps}
+            disabled={!canFormatSelection}
+            onClick={() => onFormat?.('selection')}
+          >
+            <TextSelectIcon fontSize="inherit" />
           </TooltipButton>
         </Stack>
         <Stack>
