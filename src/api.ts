@@ -294,6 +294,11 @@ export async function readTextFile(path: string): Promise<string> {
   return invoke<string>('read_text_file', { path });
 }
 
+/** Unique font family names installed on the system. */
+export async function listSystemFonts(): Promise<string[]> {
+  return invoke<string[]>('list_system_fonts');
+}
+
 type AppUpdateMetadata = {
   rid: number;
   currentVersion: string;

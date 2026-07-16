@@ -13,6 +13,10 @@ import { toast } from 'sonner';
 
 import { checkAppUpdate, checkSqlfmt, type SqlfmtCheckResult } from '@/api';
 import { Dialog } from '@/components/custom/Dialog';
+import {
+  FontFamilyCombobox,
+  useSystemFontFamilies,
+} from '@/components/custom/FontFamilyCombobox';
 import { SidebarNav } from '@/components/custom/siderbar-nav';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
@@ -139,6 +143,7 @@ const lightItems = editorThemes
 
 function Profile() {
   const [settings, setSettings] = useAtom(settingAtom);
+  const { fonts: systemFonts } = useSystemFontFamilies();
   const form = useForm({
     defaultValues: {
       ...defaultSettings,
@@ -166,9 +171,15 @@ function Profile() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Main Font Family</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
+                <FontFamilyCombobox
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  placeholder="Search system fonts"
+                  fonts={systemFonts}
+                />
+                <FormDescription>
+                  Search and select an installed system font.
+                </FormDescription>
               </FormItem>
             )}
           />
@@ -178,9 +189,15 @@ function Profile() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Table Font Family</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
+                <FontFamilyCombobox
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  placeholder="Search system fonts"
+                  fonts={systemFonts}
+                />
+                <FormDescription>
+                  Used by the data table canvas renderer.
+                </FormDescription>
               </FormItem>
             )}
           />

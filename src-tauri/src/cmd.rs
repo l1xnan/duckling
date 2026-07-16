@@ -644,3 +644,19 @@ pub async fn check_app_update(
   };
   Ok(Some(metadata))
 }
+
+/// List unique font family names installed on the system.
+#[tauri::command]
+pub async fn list_system_fonts() -> Result<Vec<String>, String> {
+  let mut db = fontdb::Database::new();
+  db.load_system_fonts();
+
+  let mut families: Vec<String> = db
+    .faces()
+    .filter_map(|face| face.families.first().map(|(name, _)| name.clone()))
+    .collect();
+
+  families.sort_by(|a, b| a.to_lowercase().cmp(&b.to_lowercase()));
+  families.dedup_by(|a, b| a.eq_ignore_ascii_case(b));
+  Ok(families)
+}
