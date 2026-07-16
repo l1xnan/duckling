@@ -1,54 +1,36 @@
 // monacoConfig.js
 import { CompleteMetaType } from '@/ast/analyze';
 import { handleProvideCompletionItems } from '@/components/editor/completion';
+import { formatSqlText } from '@/components/editor/sqlFormat';
+import { DialectType } from '@/stores/dbList';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { format } from 'sql-formatter';
 
-// Central Registry: Map<modelUri: string, completionFunction | completionItems[]>
-// Using a function allows for more dynamic completions based on position/context
 export const completionRegistry = new Map<string, CompleteMetaType>();
+export const dialectRegistry = new Map<string, DialectType | undefined>();
 
 const globalProviderDisposable: Record<string, monaco.IDisposable> = {};
 const formatProviderDisposables: Record<string, monaco.IDisposable[]> = {};
 
-function formatSqlText(text: string) {
-  return format(text, {
-    language: 'sql',
-    tabWidth: 2,
-    keywordCase: 'upper',
-  });
+function dialectForModel(model: monaco.editor.ITextModel) {
+  return dialectRegistry.get(model.uri.toString());
 }
 
-// Function to register the single global provider for a given language
-// We make it accept languageId so it can be reused (e.g., 'sql', 'javascript')
 export function registerUriBasedCompletionProvider(languageId: string) {
-  // Dispose previous provider for this languageId if re-registering (optional, usually run once)
   if (globalProviderDisposable[languageId]) {
-    // console.warn(`Disposing existing provider for ${languageId} before re-registering.`);
-    // globalProviderDisposable[languageId].dispose();
     return;
   }
-
-  console.log(
-    `Registering URI-based GLOBAL completion provider for language: ${languageId}`,
-  );
 
   const disposable = monaco.languages.registerCompletionItemProvider(
     languageId,
     {
-      triggerCharacters: ['.', ' ', '(', "'", '"', '`', '\n'], // Add trigger characters as needed
+      triggerCharacters: ['.', ' ', '(', "'", '"', '`', '\n'],
       provideCompletionItems: (model, position, _context, _token) => {
         return handleProvideCompletionItems(model, position);
       },
     },
   );
 
-  // Store the disposable for potential future cleanup
   globalProviderDisposable[languageId] = disposable;
-
-  console.log(`Provider registered successfully for ${languageId}`);
-
-  // Return the disposable in case the caller wants to manage it specifically
   return disposable;
 }
 
@@ -61,7 +43,9 @@ export function registerSqlFormattingProvider(languageId = 'sql') {
     monaco.languages.registerDocumentFormattingEditProvider(languageId, {
       provideDocumentFormattingEdits(model) {
         try {
-          const formatted = formatSqlText(model.getValue());
+          const formatted = formatSqlText(model.getValue(), {
+            dialect: dialectForModel(model),
+          });
           return [
             {
               range: model.getFullModelRange(),
@@ -79,7 +63,9 @@ export function registerSqlFormattingProvider(languageId = 'sql') {
     monaco.languages.registerDocumentRangeFormattingEditProvider(languageId, {
       provideDocumentRangeFormattingEdits(model, range) {
         try {
-          const formatted = formatSqlText(model.getValueInRange(range));
+          const formatted = formatSqlText(model.getValueInRange(range), {
+            dialect: dialectForModel(model),
+          });
           return [
             {
               range,
@@ -96,52 +82,40 @@ export function registerSqlFormattingProvider(languageId = 'sql') {
   formatProviderDisposables[languageId] = [documentProvider, rangeProvider];
 }
 
-// Function for components to register their completion logic/data
-// Accepts either a static array or a function for dynamic calculation
 export function setCompletionsForUri(
   modelUri: string,
   completeMeta: CompleteMetaType,
 ) {
   if (!modelUri) {
-    console.error('Cannot set completions for a null or undefined URI.');
     return;
   }
-  console.log(
-    `Setting completion source for URI: ${modelUri}. Type: ${typeof completeMeta}`,
-  );
   completionRegistry.set(modelUri, completeMeta);
 }
 
-// Function for components to clean up when they unmount or context changes
-export function removeCompletionsForUri(modelUri: string) {
+export function setDialectForUri(modelUri: string, dialect?: DialectType) {
   if (!modelUri) {
-    console.warn(
-      'Attempted to remove completions for a null or undefined URI.',
-    );
     return;
   }
-  const deleted = completionRegistry.delete(modelUri);
-  if (deleted) {
-    console.log(`Removed completion source for URI: ${modelUri}`);
-  } else {
-    console.log(
-      `Attempted to remove completion source for URI: ${modelUri}, but it was not found.`,
-    );
-  }
+  dialectRegistry.set(modelUri, dialect);
 }
 
-// Optional: Helper to create Monaco completion items
+export function removeCompletionsForUri(modelUri: string) {
+  if (!modelUri) {
+    return;
+  }
+  completionRegistry.delete(modelUri);
+  dialectRegistry.delete(modelUri);
+}
+
 export function createCompletionItem(
   suggestion: Partial<monaco.languages.CompletionItem>,
 ) {
-  // Basic example, adapt kinds and details as needed
   return {
-    label: suggestion.label, // The label shown in the list
-    kind: suggestion.kind || monaco.languages.CompletionItemKind.Text, // e.g., Keyword, Function, Variable
-    insertText: suggestion.insertText || suggestion.label, // Text to insert
-    detail: suggestion.detail, // Additional info shown on the side
-    documentation: suggestion.documentation, // More detailed info on hover/expand
-    range: suggestion.range || null, // Let Monaco determine the replacement range usually
-    // ... other CompletionItem properties
+    label: suggestion.label,
+    kind: suggestion.kind || monaco.languages.CompletionItemKind.Text,
+    insertText: suggestion.insertText || suggestion.label,
+    detail: suggestion.detail,
+    documentation: suggestion.documentation,
+    range: suggestion.range || null,
   };
 }

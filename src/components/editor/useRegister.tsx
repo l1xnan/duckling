@@ -2,12 +2,16 @@ import { Monaco, useMonaco } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { nanoid } from 'nanoid';
 import { useCallback, useEffect, useRef } from 'react';
+
+import { DialectType } from '@/stores/dbList';
+
 import {
   registerSqlFormattingProvider,
   registerUriBasedCompletionProvider,
   removeCompletionsForUri,
   setCompletionsForUri,
-} from './monacoConfig'; // Adjust path
+  setDialectForUri,
+} from './monacoConfig';
 
 export const sqlWhereKeywords = [
   'AND',
@@ -24,54 +28,62 @@ export const sqlWhereKeywords = [
 ];
 export const sqlComparisonOperators = ['=', '>', '<', '>=', '<=', '<>', '!='];
 
-export function useRegister({ language = 'sql', completeMeta = {} }) {
+export function useRegister({
+  language = 'sql',
+  completeMeta = {},
+  dialect,
+}: {
+  language?: string;
+  completeMeta?: object;
+  dialect?: DialectType;
+}) {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(null);
   const instanceId = useRef(nanoid());
+  const monacoApi = useMonaco();
+  const modelUriRef = useRef<string | null>(null);
 
-  const monaco = useMonaco();
-  const modelUriRef = useRef<string>(null); // Store the model URI string
-
-  // 1. Ensure the global provider for the language is registered
   useEffect(() => {
-    if (monaco) {
-      // Registering multiple times is safe due to checks inside the function
-      // You might store the disposable if you need fine-grained control, but often not necessary
+    if (monacoApi) {
       registerUriBasedCompletionProvider(language);
       if (language === 'sql') {
         registerSqlFormattingProvider(language);
       }
     }
-  }, [monaco, language]);
+  }, [monacoApi, language]);
 
-  // 2. Editor Mount: Get Model URI and register completion source
   const handleEditorDidMount = useCallback(
     (editor: monaco.editor.IStandaloneCodeEditor, _monaco: Monaco) => {
       editorRef.current = editor;
       const model = editor.getModel();
       if (model) {
-        const currentModelUri = model.uri.toString();
-        modelUriRef.current = currentModelUri; // Store URI for cleanup
+        const uri = model.uri.toString();
+        modelUriRef.current = uri;
+        setCompletionsForUri(uri, completeMeta);
+        setDialectForUri(uri, dialect);
       }
     },
-    [],
+    [completeMeta, dialect],
   );
 
-  const currentModelUri = modelUriRef.current;
   useEffect(() => {
-    if (currentModelUri) {
-      setCompletionsForUri(currentModelUri, completeMeta);
+    if (modelUriRef.current) {
+      setCompletionsForUri(modelUriRef.current, completeMeta);
     }
-  }, [completeMeta, currentModelUri]);
+  }, [completeMeta]);
 
-  // 3. Cleanup: Remove completion source for this URI on unmount
   useEffect(() => {
-    // Return the cleanup function
+    if (modelUriRef.current) {
+      setDialectForUri(modelUriRef.current, dialect);
+    }
+  }, [dialect]);
+
+  useEffect(() => {
     return () => {
       if (modelUriRef.current) {
         removeCompletionsForUri(modelUriRef.current);
-        modelUriRef.current = null; // Clear the ref
+        modelUriRef.current = null;
       }
-      editorRef.current = null; // Clean up editor ref
+      editorRef.current = null;
     };
   }, []);
 

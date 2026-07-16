@@ -110,6 +110,9 @@ importers:
       es-toolkit:
         specifier: ^1.49.0
         version: 1.49.0
+      holywell:
+        specifier: ^1.8.10
+        version: 1.8.10
       idb-keyval:
         specifier: ^6.3.0
         version: 6.3.0
@@ -2464,6 +2467,11 @@ packages:
   highlight.js@11.11.1:
     resolution: {integrity: sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==}
     engines: {node: '>=12.0.0'}
+
+  holywell@1.8.10:
+    resolution: {integrity: sha512-4I3rU5S4orvUGE+ajfE5rZAilVK1519cye4VmD/u1eEXNemrPriB7xdI89pfvTeOAQIoJCZV2OItSFbsLi3ukA==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   html-void-elements@3.0.0:
     resolution: {integrity: sha512-bEqo66MRXsUGxWHV5IP0PUiAWwoEjba4VCzg0LjFJBpchPaTfyfCKTG6bc5F8ucKec3q5y6qOdGyYTSBEvhCrg==}
@@ -5914,6 +5922,8 @@ snapshots:
       hermes-estree: 0.25.1
 
   highlight.js@11.11.1: {}
+
+  holywell@1.8.10: {}
 
   html-void-elements@3.0.0: {}
 

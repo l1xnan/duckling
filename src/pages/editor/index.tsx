@@ -161,6 +161,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
             value={stmt}
             language="sql"
             onChange={handleChange}
+            dialect={db?.dialect}
             completeMeta={{
               tables: tableSchema,
               defaultDatabase: db?.defaultDatabase,

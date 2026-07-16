@@ -45,6 +45,7 @@
     "deepmerge": "^4.3.1",
     "derive-zustand": "^0.2.0",
     "es-toolkit": "^1.49.0",
+    "holywell": "^1.8.10",
     "idb-keyval": "^6.3.0",
     "immer": "^11.1.11",
     "jotai": "^2.20.1",

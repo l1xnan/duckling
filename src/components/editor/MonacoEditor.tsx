@@ -8,6 +8,7 @@ import { ForwardedRef, forwardRef, useImperativeHandle } from 'react';
 
 import { CompleteMetaType } from '@/ast/analyze';
 import { useRegister } from '@/components/editor/useRegister';
+import { DialectType } from '@/stores/dbList';
 import { useEditorTheme } from '@/stores/setting';
 
 export interface EditorRef {
@@ -25,14 +26,16 @@ const MonacoEditor = forwardRef<
   EditorRef,
   EditorProps & {
     completeMeta?: CompleteMetaType;
+    dialect?: DialectType;
     onRun: () => void;
   }
 >(function MonacoEditor(
-  { completeMeta, ...props },
+  { completeMeta, dialect, ...props },
   ref: ForwardedRef<EditorRef>,
 ) {
   const { handleEditorDidMount, editorRef, instanceId } = useRegister({
     completeMeta,
+    dialect,
   });
 
   const handleBeforeMount: BeforeMount = (_monaco) => {};

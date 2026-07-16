@@ -14,6 +14,8 @@ export type CsvParam = {
   quote?: string;
 };
 
+export type SqlFormatterEngine = 'sql-formatter' | 'holywell';
+
 export type SettingState = {
   precision: number;
   table_font_family: string;
@@ -23,13 +25,15 @@ export type SettingState = {
   proxy?: string;
   debug?: string;
   csv?: CsvParam;
+  /** SQL formatting engine used by the Monaco editor. */
+  sql_formatter_engine?: SqlFormatterEngine;
   editor_theme: {
     dark: string;
     light: string;
   };
 };
 
-export const defaultSettings = {
+export const defaultSettings: SettingState = {
   precision: 4,
   auto_update: false,
   table_font_family: 'Consolas',
@@ -41,6 +45,7 @@ export const defaultSettings = {
     'sans-serif',
   ].join(','),
   csv: {},
+  sql_formatter_engine: 'sql-formatter',
   editor_theme: {
     light: 'vitesse-light',
     dark: 'vitesse-dark',
@@ -77,6 +82,28 @@ export const editorThemeAtom = selectAtom(settingAtom, (s) => ({
 }));
 
 export const autoUpdateAtom = selectAtom(settingAtom, (s) => s.auto_update);
+
+export const sqlFormatterEngineAtom = selectAtom(
+  settingAtom,
+  (s) => s.sql_formatter_engine ?? defaultSettings.sql_formatter_engine!,
+);
+
+export const sqlFormatterEngines: {
+  name: string;
+  id: SqlFormatterEngine;
+  description: string;
+}[] = [
+  {
+    name: 'sql-formatter',
+    id: 'sql-formatter',
+    description: 'General-purpose SQL formatter',
+  },
+  {
+    name: 'holywell',
+    id: 'holywell',
+    description: "Simon Holywell's sqlstyle.guide (river alignment)",
+  },
+];
 
 export const useEditorTheme = () => {
   const theme = useTheme();

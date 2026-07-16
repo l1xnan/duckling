@@ -36,8 +36,10 @@ import { Switch } from '@/components/ui/switch';
 import {
   CsvParam,
   SettingState,
+  defaultSettings,
   editorThemes,
   settingAtom,
+  sqlFormatterEngines,
   useSettingStore,
 } from '@/stores/setting';
 import { isEmpty } from 'radash';
@@ -105,7 +107,11 @@ const lightItems = editorThemes
 function Profile() {
   const [settings, setSettings] = useAtom(settingAtom);
   const form = useForm({
-    defaultValues: settings,
+    defaultValues: {
+      ...defaultSettings,
+      ...settings,
+      sql_formatter_engine: settings.sql_formatter_engine ?? defaultSettings.sql_formatter_engine,
+    },
   });
 
   const onSubmit = (data: SettingState) => {
@@ -204,6 +210,52 @@ function Profile() {
                 </FormDescription>
               </FormItem>
             )}
+          />
+          <FormField
+            control={form.control}
+            name="sql_formatter_engine"
+            render={({ field }) => {
+              const selected =
+                sqlFormatterEngines.find((i) => i.id === field.value) ??
+                sqlFormatterEngines[0] ??
+                null;
+
+              return (
+                <FormItem>
+                  <FormLabel>SQL Formatter Engine</FormLabel>
+                  <Combobox
+                    value={selected}
+                    onValueChange={(v) =>
+                      field.onChange(v?.id ?? 'sql-formatter')
+                    }
+                    items={sqlFormatterEngines}
+                    itemToStringLabel={(item) => item.name}
+                    isItemEqualToValue={(a, b) => a.id === b.id}
+                  >
+                    <FormControl>
+                      <ComboboxInput placeholder="Select SQL formatter" />
+                    </FormControl>
+                    <ComboboxContent>
+                      <ComboboxList>
+                        {sqlFormatterEngines.map((item) => (
+                          <ComboboxItem key={item.id} value={item}>
+                            <div className="flex flex-col">
+                              <span>{item.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {item.description}
+                              </span>
+                            </div>
+                          </ComboboxItem>
+                        ))}
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
+                  <FormDescription>
+                    Used by Format Document / Format Selection in the SQL editor.
+                  </FormDescription>
+                </FormItem>
+              );
+            }}
           />
           <FormField
             control={form.control}
