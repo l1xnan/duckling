@@ -36,13 +36,15 @@ export const ItemLabel = React.forwardRef(
 export function Container({
   children,
   title,
-}: PropsWithChildren<{ title: string }>) {
+  actions,
+}: PropsWithChildren<{ title: string; actions?: ReactNode }>) {
   return (
     <div className="flex flex-col h-full">
-      <div className="flex h-8 items-center border-b px-2">
-        <a className="flex items-center font-semibold">
-          <span className="text-sm">{title}</span>
+      <div className="flex h-8 items-center justify-between border-b px-2 gap-2">
+        <a className="flex items-center font-semibold min-w-0">
+          <span className="text-sm truncate">{title}</span>
         </a>
+        {actions ? <div className="shrink-0">{actions}</div> : null}
       </div>
       <div className="flex-1 min-h-0">
         <ScrollArea className="size-full">
