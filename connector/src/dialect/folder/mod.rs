@@ -88,11 +88,15 @@ impl Connection for FolderConnection {
     name.to_string()
   }
 
-  async fn export(&self, sql: &str, file: &str, format: &str) -> anyhow::Result<()> {
+  async fn export(
+    &self,
+    sql: &str,
+    file: &str,
+    format: &str,
+    options: &crate::utils::ExportOptions,
+  ) -> anyhow::Result<()> {
     let conn = self.connect()?;
-
-    let _ = duckdb_sync::export(&conn, sql, file, format)?;
-
+    duckdb_sync::export(&conn, sql, file, format, options)?;
     Ok(())
   }
 

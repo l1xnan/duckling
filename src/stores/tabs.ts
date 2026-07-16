@@ -370,19 +370,13 @@ type ExportTarget = {
 export async function exportData(
   { file }: ExportTarget,
   ctx: QueryParamType,
-): Promise<ResultType | undefined> {
+): Promise<void> {
   // TODO: export table
   const param = getParams(ctx) as QueryParams;
   if (param) {
-    const data = await exportCsv({
+    await exportCsv({
       file,
       ...param,
     });
-
-    console.log('data:', data);
-    if (data?.code == 401 && data?.message) {
-      toast.warning(data?.message);
-    }
-    return data;
   }
 }

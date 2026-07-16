@@ -118,20 +118,31 @@ export async function queryTable(
   return convert(res);
 }
 
+export type ExportFormat = 'csv' | 'tsv' | 'json' | 'parquet' | 'xlsx';
+
+export type ExportOptions = {
+  header?: boolean;
+  delimiter?: string;
+  quote?: string;
+  compression?: string;
+  compression_level?: number;
+  json_array?: boolean;
+};
+
 export async function exportCsv(
   params: QueryParams & {
     file: string;
-    format?: 'csv' | 'parquet' | 'xlsx';
+    format?: ExportFormat;
+    options?: ExportOptions;
     dbId?: string;
   },
-): Promise<ResultType> {
+): Promise<void> {
   const db = getDatabase(params.dbId ?? '');
   console.debug('params:', params);
-  const res = await invoke<ArrowResponse>('export', {
+  await invoke('export', {
     ...params,
     dialect: db?.config,
   });
-  console.log(res);
 }
 
 export type MetadataType = {

@@ -158,8 +158,14 @@ impl DuckDbSyncConnection {
     Ok(batch)
   }
 
-  pub fn export(&self, sql: &str, file: &str, format: &str) -> anyhow::Result<()> {
-    let _ = export(&self.inner, sql, file, format)?;
+  pub fn export(
+    &self,
+    sql: &str,
+    file: &str,
+    format: &str,
+    options: &crate::utils::ExportOptions,
+  ) -> anyhow::Result<()> {
+    let _ = export(&self.inner, sql, file, format, options)?;
     Ok(())
   }
 }
@@ -254,17 +260,97 @@ pub fn export(
   sql: &str,
   file: &str,
   format: &str,
+  options: &crate::utils::ExportOptions,
 ) -> anyhow::Result<()> {
-  let sql = if format == "xlsx" {
-    format!("INSTALL excel; LOAD excel; COPY ({sql}) TO '{file}' (FORMAT xlsx, HEADER true)")
-  } else if format == "parquet" {
-    format!("COPY ({sql}) TO '{file}' (FORMAT {format}, compression ZSTD)")
-  } else {
-    format!("COPY ({sql}) TO '{file}' (FORMAT {format})")
-  };
+  let file_sql = file.replace('\'', "''");
+  let sql = build_copy_sql(sql, &file_sql, format, options)?;
   log::warn!("export sql: {}", &sql);
-  let _ = conn.execute(&sql, [])?;
+  conn.execute(&sql, [])?;
   Ok(())
+}
+
+fn escape_sql_char_literal(value: &str) -> String {
+  value.replace('\'', "''")
+}
+
+fn build_copy_sql(
+  sql: &str,
+  file: &str,
+  format: &str,
+  options: &crate::utils::ExportOptions,
+) -> anyhow::Result<String> {
+  let format_lower = format.to_ascii_lowercase();
+  Ok(match format_lower.as_str() {
+    "xlsx" => {
+      format!(
+        "INSTALL excel; LOAD excel; COPY ({sql}) TO '{file}' (FORMAT xlsx, HEADER true)"
+      )
+    }
+    "parquet" => {
+      let compression = options
+        .compression
+        .as_deref()
+        .unwrap_or("zstd")
+        .to_ascii_uppercase();
+      let mut opts = vec![
+        "FORMAT PARQUET".to_string(),
+        format!("COMPRESSION '{compression}'"),
+      ];
+      if let Some(level) = options.compression_level {
+        let supports_level = matches!(
+          compression.as_str(),
+          "ZSTD" | "GZIP" | "BROTLI"
+        );
+        if supports_level {
+          opts.push(format!("COMPRESSION_LEVEL {level}"));
+        }
+      }
+      format!("COPY ({sql}) TO '{file}' ({})", opts.join(", "))
+    }
+    "json" => {
+      let mut opts = vec!["FORMAT JSON".to_string()];
+      if options.json_array.unwrap_or(true) {
+        opts.push("ARRAY true".to_string());
+      }
+      format!("COPY ({sql}) TO '{file}' ({})", opts.join(", "))
+    }
+    "tsv" | "csv" => {
+      let header = options.header.unwrap_or(true);
+      let delimiter = if format_lower == "tsv" {
+        options
+          .delimiter
+          .clone()
+          .unwrap_or_else(|| "\\t".to_string())
+      } else {
+        options
+          .delimiter
+          .clone()
+          .unwrap_or_else(|| ",".to_string())
+      };
+      let delim = match delimiter.as_str() {
+        "\\t" | "\t" | "tab" | "TAB" => "\\t".to_string(),
+        other => escape_sql_char_literal(other),
+      };
+      let mut opts = vec![
+        "FORMAT CSV".to_string(),
+        format!("HEADER {header}"),
+        format!("DELIMITER '{delim}'"),
+      ];
+      if let Some(quote) = options.quote.as_deref().filter(|q| !q.is_empty()) {
+        let q = quote.chars().next().unwrap_or('"');
+        let q_sql = if q == '\'' {
+          "''".to_string()
+        } else {
+          q.to_string()
+        };
+        opts.push(format!("QUOTE '{q_sql}'"));
+      }
+      format!("COPY ({sql}) TO '{file}' ({})", opts.join(", "))
+    }
+    other => {
+      format!("COPY ({sql}) TO '{file}' (FORMAT {other})")
+    }
+  })
 }
 
 #[test]

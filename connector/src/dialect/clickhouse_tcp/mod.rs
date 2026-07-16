@@ -170,7 +170,7 @@ impl ClickhouseConnection {
     let b = batchs[0].clone();
     let schema = b.schema();
     let batch = arrow::compute::concat_batches(&schema, &batchs)?;
-    write_csv(file, &batch)?;
+    write_csv(file, &batch, &crate::utils::ExportOptions::default())?;
     Ok(())
   }
 

@@ -156,9 +156,15 @@ pub trait Connection: Sync + Send {
     sql
   }
 
-  async fn export(&self, sql: &str, file: &str, format: &str) -> anyhow::Result<()> {
+  async fn export(
+    &self,
+    sql: &str,
+    file: &str,
+    format: &str,
+    options: &crate::utils::ExportOptions,
+  ) -> anyhow::Result<()> {
     let batch = self.query(sql, 0, 0).await?.batch;
-    batch_write(&file, &batch, format)?;
+    batch_write(file, &batch, format, options)?;
     Ok(())
   }
 

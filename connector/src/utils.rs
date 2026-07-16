@@ -9,12 +9,13 @@ use arrow::record_batch::RecordBatch;
 use arrow::util::display::FormatOptions;
 use chrono::NaiveDate;
 use chrono::{Datelike, NaiveDateTime, Timelike};
-use parquet::basic::{Compression, ZstdLevel};
+use parquet::basic::{BrotliLevel, Compression, GzipLevel, ZstdLevel};
 use parquet::{arrow::ArrowWriter, file::properties::WriterProperties};
 use rust_xlsxwriter::{Workbook, XlsxError};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fs::File;
+use std::io::Write;
 use std::path::Path;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -161,24 +162,129 @@ pub fn build_tree(tables: Vec<Table>) -> Vec<TreeNode> {
   databases
 }
 
-pub fn write_csv(file: &str, batch: &RecordBatch) -> anyhow::Result<()> {
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct ExportOptions {
+  pub header: Option<bool>,
+  pub delimiter: Option<String>,
+  pub quote: Option<String>,
+  pub compression: Option<String>,
+  pub compression_level: Option<i32>,
+  /// When true, write a JSON array; otherwise NDJSON (one object per line).
+  pub json_array: Option<bool>,
+}
+
+fn parse_delimiter_byte(s: &str) -> u8 {
+  match s {
+    "\\t" | "\t" | "tab" | "TAB" => b'\t',
+    other if !other.is_empty() => other.as_bytes()[0],
+    _ => b',',
+  }
+}
+
+fn parse_quote_byte(s: &str) -> u8 {
+  if s.is_empty() {
+    b'"'
+  } else {
+    s.as_bytes()[0]
+  }
+}
+
+fn parquet_compression(
+  name: &str,
+  level: Option<i32>,
+) -> anyhow::Result<Compression> {
+  let lower = name.to_ascii_lowercase();
+  Ok(match lower.as_str() {
+    "uncompressed" | "none" => Compression::UNCOMPRESSED,
+    "snappy" => Compression::SNAPPY,
+    "gzip" => Compression::GZIP(GzipLevel::try_new(level.unwrap_or(6) as u32)?),
+    "brotli" => Compression::BROTLI(BrotliLevel::try_new(level.unwrap_or(4) as u32)?),
+    "lz4" | "lz4_raw" => Compression::LZ4_RAW,
+    "zstd" => Compression::ZSTD(ZstdLevel::try_new(level.unwrap_or(3))?),
+    other => {
+      return Err(anyhow!("unsupported parquet compression: {other}"));
+    }
+  })
+}
+
+pub fn write_csv(
+  file: &str,
+  batch: &RecordBatch,
+  options: &ExportOptions,
+) -> anyhow::Result<()> {
   let file = File::create(file)?;
-  let builder = WriterBuilder::new().with_header(true);
+  let header = options.header.unwrap_or(true);
+  let delimiter = options
+    .delimiter
+    .as_deref()
+    .map(parse_delimiter_byte)
+    .unwrap_or(b',');
+  let mut builder = WriterBuilder::new()
+    .with_header(header)
+    .with_delimiter(delimiter);
+  if let Some(quote) = options.quote.as_deref() {
+    builder = builder.with_quote(parse_quote_byte(quote));
+  }
   let mut writer = builder.build(file);
   writer.write(batch)?;
   Ok(())
 }
-pub fn write_parquet(file: &str, batch: &RecordBatch) -> anyhow::Result<()> {
+
+pub fn write_parquet(
+  file: &str,
+  batch: &RecordBatch,
+  options: &ExportOptions,
+) -> anyhow::Result<()> {
   let file = File::create(file)?;
-  // WriterProperties can be used to set Parquet file options
+  let compression = parquet_compression(
+    options.compression.as_deref().unwrap_or("zstd"),
+    options.compression_level,
+  )?;
   let props = WriterProperties::builder()
-    .set_compression(Compression::ZSTD(ZstdLevel::try_new(22)?))
+    .set_compression(compression)
     .build();
   let mut writer = ArrowWriter::try_new(file, batch.schema(), Some(props))?;
-  writer.write(&batch).expect("Writing batch");
-  // writer must be closed to write footer
+  writer.write(batch)?;
   writer.close()?;
+  Ok(())
+}
 
+pub fn write_json(
+  file: &str,
+  batch: &RecordBatch,
+  options: &ExportOptions,
+) -> anyhow::Result<()> {
+  let schema = batch.schema();
+  let fmt_options = FormatOptions::default();
+  let formatters = batch
+    .columns()
+    .iter()
+    .map(|col| arrow::util::display::ArrayFormatter::try_new(col.as_ref(), &fmt_options))
+    .collect::<Result<Vec<_>, _>>()?;
+
+  let mut rows = Vec::with_capacity(batch.num_rows());
+  for row_idx in 0..batch.num_rows() {
+    let mut obj = serde_json::Map::new();
+    for (col_idx, field) in schema.fields().iter().enumerate() {
+      if batch.column(col_idx).is_null(row_idx) {
+        obj.insert(field.name().clone(), serde_json::Value::Null);
+      } else {
+        let text = formatters[col_idx].value(row_idx).to_string();
+        obj.insert(field.name().clone(), serde_json::Value::String(text));
+      }
+    }
+    rows.push(serde_json::Value::Object(obj));
+  }
+
+  let mut out = File::create(file)?;
+  if options.json_array.unwrap_or(true) {
+    serde_json::to_writer_pretty(&mut out, &rows)?;
+  } else {
+    for row in rows {
+      serde_json::to_writer(&mut out, &row)?;
+      out.write_all(b"\n")?;
+    }
+  }
   Ok(())
 }
 
@@ -231,13 +337,25 @@ pub fn write_xlsx(file: &str, batch: &RecordBatch) -> Result<()> {
   Ok(())
 }
 
-pub fn batch_write(file: &str, batch: &RecordBatch, format: &str) -> anyhow::Result<()> {
-  if format == "csv" {
-    write_csv(file, batch)?;
-  } else if format == "parquet" {
-    write_parquet(file, batch)?;
-  } else if format == "xlsx" {
-    write_xlsx(file, batch)?
+pub fn batch_write(
+  file: &str,
+  batch: &RecordBatch,
+  format: &str,
+  options: &ExportOptions,
+) -> anyhow::Result<()> {
+  match format {
+    "csv" => write_csv(file, batch, options)?,
+    "tsv" => {
+      let mut opts = options.clone();
+      if opts.delimiter.is_none() {
+        opts.delimiter = Some("\t".to_string());
+      }
+      write_csv(file, batch, &opts)?;
+    }
+    "json" => write_json(file, batch, options)?,
+    "parquet" => write_parquet(file, batch, options)?,
+    "xlsx" => write_xlsx(file, batch)?,
+    other => return Err(anyhow!("unsupported export format: {other}")),
   }
   Ok(())
 }

@@ -93,10 +93,16 @@ impl Connection for QuackConnection {
     }
   }
 
-  async fn export(&self, sql: &str, file: &str, format: &str) -> anyhow::Result<()> {
+  async fn export(
+    &self,
+    sql: &str,
+    file: &str,
+    format: &str,
+    options: &crate::utils::ExportOptions,
+  ) -> anyhow::Result<()> {
     let conn = self.connect()?;
     let wrapped = self.wrap_sql(sql);
-    conn.export(&wrapped, file, format)?;
+    conn.export(&wrapped, file, format, options)?;
     Ok(())
   }
 

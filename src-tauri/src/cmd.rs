@@ -258,6 +258,7 @@ pub async fn export(
   sql: String,
   file: String,
   format: Option<String>,
+  options: Option<connector::utils::ExportOptions>,
   dialect: DialectPayload,
 ) -> Result<(), String> {
   if let Some(d) = get_dialect(dialect).await {
@@ -266,7 +267,10 @@ pub async fn export(
     } else {
       file.split('.').next_back().unwrap_or("csv").to_string()
     };
-    let _ = d.export(&sql, &file, &format).await;
+    let options = options.unwrap_or_default();
+    d.export(&sql, &file, &format, &options)
+      .await
+      .map_err(|e| e.to_string())?;
     Ok(())
   } else {
     Err("not support dialect".to_string())

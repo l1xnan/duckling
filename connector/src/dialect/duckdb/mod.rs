@@ -99,8 +99,14 @@ impl Connection for DuckDbConnection {
     }
   }
 
-  async fn export(&self, sql: &str, file: &str, format: &str) -> anyhow::Result<()> {
-    self.connect()?.export(sql, file, format)?;
+  async fn export(
+    &self,
+    sql: &str,
+    file: &str,
+    format: &str,
+    options: &crate::utils::ExportOptions,
+  ) -> anyhow::Result<()> {
+    self.connect()?.export(sql, file, format, options)?;
     Ok(())
   }
   fn start_quote(&self) -> &'static str {

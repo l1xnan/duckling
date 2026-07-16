@@ -1,6 +1,5 @@
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { IconDecimal } from '@tabler/icons-react';
-import * as dialog from '@tauri-apps/plugin-dialog';
 import {
   CodeIcon,
   Columns3CogIcon,
@@ -12,17 +11,16 @@ import {
 
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
 
-import { exportCsv } from '@/api';
 import { TransposeIcon } from '@/components/custom/Icons';
 import { Pagination } from '@/components/custom/pagination';
 import { TooltipButton } from '@/components/custom/tooltip';
+import { useDialog } from '@/components/custom/use-dialog';
 import { SQLCodeViewer } from '@/components/editor/SingleLineEditor';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { ExportDialog } from '@/components/views/ExportDialog';
 import { SchemaType } from '@/stores/dataset';
 import { TabContextType } from '@/stores/tabs';
-import { useState } from 'react';
-import { toast } from 'sonner';
 
 export interface DataViewToolbarProps {
   context?: TabContextType;
@@ -72,33 +70,7 @@ export function DataViewToolbar({
   setTranspose,
   setCross,
 }: DataViewToolbarProps) {
-  const [loading, setLoading] = useState(false);
-  const handleExport = async () => {
-    console.log('context:', context);
-    const filename = context?.displayName ?? `xxx-${new Date().getTime()}.csv`;
-    const file = await dialog.save({
-      title: 'Export',
-      defaultPath: filename,
-      filters: [
-        { name: 'CSV', extensions: ['csv'] },
-        { name: 'Parquet', extensions: ['parquet'] },
-        {
-          name: 'XLSX',
-          extensions: ['xlsx'],
-        },
-      ],
-    });
-    if (file && sql) {
-      setLoading(true);
-      try {
-        await exportCsv({ file, dbId, sql });
-      } catch (error) {
-        console.error(error);
-      }
-      setLoading(false);
-      toast.success('success!');
-    }
-  };
+  const exportDialog = useDialog();
 
   return (
     <ToolbarContainer>
@@ -118,7 +90,6 @@ export function DataViewToolbar({
           onClick={setBeautify}
           tooltip="Float precision"
         />
-        {/*<Separator orientation="vertical" />*/}
 
         <TooltipButton
           icon={<RefreshCw />}
@@ -139,7 +110,7 @@ export function DataViewToolbar({
               <h4>Data Columns</h4>
               {columns?.map((column) => {
                 return (
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3" key={column.name}>
                     <Checkbox
                       id={column.name}
                       checked={!hiddenColumns?.[column.name]}
@@ -174,11 +145,19 @@ export function DataViewToolbar({
 
         <TooltipButton icon={<EyeIcon />} onClick={setShowValue} tooltip="Value Viewer" />
         <TooltipButton
-          icon={<DownloadIcon className={loading ? 'animate-spin duration-2000' : ''} />}
+          icon={<DownloadIcon />}
           tooltip="Export data"
-          onClick={handleExport}
+          disabled={!sql}
+          onClick={exportDialog.trigger}
         />
       </Stack>
+
+      <ExportDialog
+        {...exportDialog.props}
+        dbId={dbId}
+        sql={sql}
+        defaultName={context?.displayName}
+      />
     </ToolbarContainer>
   );
 }
