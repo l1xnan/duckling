@@ -41,9 +41,9 @@ export function registerSqlFormattingProvider(languageId = 'sql') {
 
   const documentProvider =
     monaco.languages.registerDocumentFormattingEditProvider(languageId, {
-      provideDocumentFormattingEdits(model) {
+      async provideDocumentFormattingEdits(model) {
         try {
-          const formatted = formatSqlText(model.getValue(), {
+          const formatted = await formatSqlText(model.getValue(), {
             dialect: dialectForModel(model),
           });
           return [
@@ -61,9 +61,9 @@ export function registerSqlFormattingProvider(languageId = 'sql') {
 
   const rangeProvider =
     monaco.languages.registerDocumentRangeFormattingEditProvider(languageId, {
-      provideDocumentRangeFormattingEdits(model, range) {
+      async provideDocumentRangeFormattingEdits(model, range) {
         try {
-          const formatted = formatSqlText(model.getValueInRange(range), {
+          const formatted = await formatSqlText(model.getValueInRange(range), {
             dialect: dialectForModel(model),
           });
           return [

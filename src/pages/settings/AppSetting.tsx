@@ -1,5 +1,6 @@
 import { getTauriVersion, getVersion } from '@tauri-apps/api/app';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
+import * as dialog from '@tauri-apps/plugin-dialog';
 import { relaunch } from '@tauri-apps/plugin-process';
 import * as shell from '@tauri-apps/plugin-shell';
 import { Update, check } from '@tauri-apps/plugin-updater';
@@ -7,12 +8,14 @@ import { atom, useAtom } from 'jotai';
 import { SettingsIcon } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { PropsWithChildren, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import { checkSqlfmt, type SqlfmtCheckResult } from '@/api';
 import { Dialog } from '@/components/custom/Dialog';
 import { SidebarNav } from '@/components/custom/siderbar-nav';
 import { Button } from '@/components/ui/button';
+import { ButtonGroup } from '@/components/ui/button-group';
 import {
   Combobox,
   ComboboxContent,
@@ -111,8 +114,48 @@ function Profile() {
       ...defaultSettings,
       ...settings,
       sql_formatter_engine: settings.sql_formatter_engine ?? defaultSettings.sql_formatter_engine,
+      sqlfmt_path: settings.sqlfmt_path ?? defaultSettings.sqlfmt_path ?? '',
     },
   });
+
+  const formatterEngine = useWatch({
+    control: form.control,
+    name: 'sql_formatter_engine',
+  });
+
+  const [sqlfmtStatus, setSqlfmtStatus] = useState<SqlfmtCheckResult | null>(null);
+  const [sqlfmtChecking, setSqlfmtChecking] = useState(false);
+
+  const runSqlfmtCheck = async (path?: string | null) => {
+    setSqlfmtChecking(true);
+    try {
+      const result = await checkSqlfmt(path);
+      setSqlfmtStatus(result);
+      return result;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const failed: SqlfmtCheckResult = {
+        available: false,
+        path: path?.trim() || 'sqlfmt',
+        version: null,
+        error: message,
+      };
+      setSqlfmtStatus(failed);
+      return failed;
+    } finally {
+      setSqlfmtChecking(false);
+    }
+  };
+
+  useEffect(() => {
+    if (formatterEngine !== 'shandy-sqlfmt') {
+      setSqlfmtStatus(null);
+      return;
+    }
+    void runSqlfmtCheck(form.getValues('sqlfmt_path'));
+    // Only auto-check when the engine is selected; path edits use Check / Browse.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formatterEngine]);
 
   const onSubmit = (data: SettingState) => {
     setSettings((s) => ({ ...s, ...data }));
@@ -257,6 +300,76 @@ function Profile() {
               );
             }}
           />
+          {formatterEngine === 'shandy-sqlfmt' ? (
+            <FormField
+              control={form.control}
+              name="sqlfmt_path"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>sqlfmt Executable</FormLabel>
+                  <FormControl>
+                    <ButtonGroup>
+                      <Input
+                        placeholder="sqlfmt (from PATH) or absolute path"
+                        {...field}
+                        value={field.value ?? ''}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          const file = await dialog.open({
+                            multiple: false,
+                            directory: false,
+                          });
+                          if (typeof file === 'string') {
+                            field.onChange(file);
+                            await runSqlfmtCheck(file);
+                          }
+                        }}
+                      >
+                        Browse
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={sqlfmtChecking}
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          await runSqlfmtCheck(field.value);
+                        }}
+                      >
+                        {sqlfmtChecking ? <Spinner className="size-4" /> : 'Check'}
+                      </Button>
+                    </ButtonGroup>
+                  </FormControl>
+                  <FormDescription>
+                    Install with{' '}
+                    <code className="text-xs">uv tool install shandy-sqlfmt</code> or set the
+                    full path to the <code className="text-xs">sqlfmt</code> binary.
+                    {sqlfmtStatus ? (
+                      <>
+                        <br />
+                        {sqlfmtStatus.available ? (
+                          <span className="text-emerald-600 dark:text-emerald-400">
+                            Available
+                            {sqlfmtStatus.version ? `: ${sqlfmtStatus.version}` : ''}
+                            {sqlfmtStatus.path ? ` (${sqlfmtStatus.path})` : ''}
+                          </span>
+                        ) : (
+                          <span className="text-destructive">
+                            Not available
+                            {sqlfmtStatus.error ? `: ${sqlfmtStatus.error}` : ''}
+                          </span>
+                        )}
+                      </>
+                    ) : null}
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+          ) : null}
           <FormField
             control={form.control}
             name="precision"

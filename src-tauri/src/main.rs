@@ -141,6 +141,8 @@ fn main() {
       cmd::show_column,
       cmd::drop_table,
       cmd::format_sql,
+      cmd::check_sqlfmt,
+      cmd::format_sql_sqlfmt,
       cmd::find,
       cmd::all_columns,
       cmd::list_ssh_config_hosts,

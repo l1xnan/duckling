@@ -1,5 +1,6 @@
+use std::io::Write;
 use std::path::Path;
-use std::process::Command;
+use std::process::{Command, Stdio};
 use std::sync::Mutex;
 use std::time::Instant;
 
@@ -338,6 +339,130 @@ pub async fn format_sql(sql: &str) -> Result<String, String> {
   let params = QueryParams::default();
   let options = FormatOptions::default();
   Ok(sqlformat::format(sql, &params, &options))
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SqlfmtCheckResult {
+  pub available: bool,
+  pub path: String,
+  pub version: Option<String>,
+  pub error: Option<String>,
+}
+
+fn resolve_sqlfmt_bin(path: Option<&str>) -> String {
+  path
+    .map(str::trim)
+    .filter(|p| !p.is_empty())
+    .unwrap_or("sqlfmt")
+    .to_string()
+}
+
+fn configure_no_window(cmd: &mut Command) {
+  #[cfg(windows)]
+  {
+    use std::os::windows::process::CommandExt;
+    const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+    cmd.creation_flags(CREATE_NO_WINDOW);
+  }
+}
+
+/// Check whether `sqlfmt` (shandy-sqlfmt) is available on PATH or at a custom path.
+#[tauri::command]
+pub async fn check_sqlfmt(path: Option<String>) -> SqlfmtCheckResult {
+  let bin = resolve_sqlfmt_bin(path.as_deref());
+  let mut cmd = Command::new(&bin);
+  cmd.arg("--version");
+  cmd.stdout(Stdio::piped());
+  cmd.stderr(Stdio::piped());
+  configure_no_window(&mut cmd);
+
+  match cmd.output() {
+    Ok(output) if output.status.success() => {
+      let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+      let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+      let version = if !stdout.is_empty() {
+        Some(stdout)
+      } else if !stderr.is_empty() {
+        Some(stderr)
+      } else {
+        Some("ok".to_string())
+      };
+      SqlfmtCheckResult {
+        available: true,
+        path: bin,
+        version,
+        error: None,
+      }
+    }
+    Ok(output) => {
+      let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+      let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+      let detail = if !stderr.is_empty() {
+        stderr
+      } else if !stdout.is_empty() {
+        stdout
+      } else {
+        format!("exit code {}", output.status)
+      };
+      SqlfmtCheckResult {
+        available: false,
+        path: bin,
+        version: None,
+        error: Some(detail),
+      }
+    }
+    Err(err) => SqlfmtCheckResult {
+      available: false,
+      path: bin,
+      version: None,
+      error: Some(err.to_string()),
+    },
+  }
+}
+
+/// Format SQL via external `sqlfmt` (`echo SQL | sqlfmt -`).
+#[tauri::command]
+pub async fn format_sql_sqlfmt(sql: String, path: Option<String>) -> Result<String, String> {
+  let bin = resolve_sqlfmt_bin(path.as_deref());
+  let mut cmd = Command::new(&bin);
+  cmd.arg("-");
+  cmd.stdin(Stdio::piped());
+  cmd.stdout(Stdio::piped());
+  cmd.stderr(Stdio::piped());
+  configure_no_window(&mut cmd);
+
+  let mut child = cmd
+    .spawn()
+    .map_err(|e| format!("failed to start `{bin}`: {e}"))?;
+
+  {
+    let mut stdin = child
+      .stdin
+      .take()
+      .ok_or_else(|| format!("failed to open stdin for `{bin}`"))?;
+    stdin
+      .write_all(sql.as_bytes())
+      .map_err(|e| format!("failed to write SQL to `{bin}`: {e}"))?;
+  }
+
+  let output = child
+    .wait_with_output()
+    .map_err(|e| format!("failed to wait for `{bin}`: {e}"))?;
+
+  if !output.status.success() {
+    let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+    let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    let detail = if !stderr.is_empty() {
+      stderr
+    } else if !stdout.is_empty() {
+      stdout
+    } else {
+      format!("exit code {}", output.status)
+    };
+    return Err(format!("`{bin}` failed: {detail}"));
+  }
+
+  String::from_utf8(output.stdout).map_err(|e| format!("invalid utf-8 from `{bin}`: {e}"))
 }
 
 #[tauri::command]

@@ -14,7 +14,7 @@ export type CsvParam = {
   quote?: string;
 };
 
-export type SqlFormatterEngine = 'sql-formatter' | 'holywell';
+export type SqlFormatterEngine = 'sql-formatter' | 'holywell' | 'shandy-sqlfmt';
 
 export type SettingState = {
   precision: number;
@@ -27,6 +27,8 @@ export type SettingState = {
   csv?: CsvParam;
   /** SQL formatting engine used by the Monaco editor. */
   sql_formatter_engine?: SqlFormatterEngine;
+  /** Optional absolute path to the `sqlfmt` executable (shandy-sqlfmt). Empty = PATH. */
+  sqlfmt_path?: string;
   editor_theme: {
     dark: string;
     light: string;
@@ -46,6 +48,7 @@ export const defaultSettings: SettingState = {
   ].join(','),
   csv: {},
   sql_formatter_engine: 'sql-formatter',
+  sqlfmt_path: '',
   editor_theme: {
     light: 'vitesse-light',
     dark: 'vitesse-dark',
@@ -88,6 +91,11 @@ export const sqlFormatterEngineAtom = selectAtom(
   (s) => s.sql_formatter_engine ?? defaultSettings.sql_formatter_engine!,
 );
 
+export const sqlfmtPathAtom = selectAtom(
+  settingAtom,
+  (s) => s.sqlfmt_path ?? defaultSettings.sqlfmt_path ?? '',
+);
+
 export const sqlFormatterEngines: {
   name: string;
   id: SqlFormatterEngine;
@@ -102,6 +110,11 @@ export const sqlFormatterEngines: {
     name: 'holywell',
     id: 'holywell',
     description: "Simon Holywell's sqlstyle.guide (river alignment)",
+  },
+  {
+    name: 'shandy-sqlfmt',
+    id: 'shandy-sqlfmt',
+    description: 'External sqlfmt CLI (dbt-oriented, via Tauri)',
   },
 ];
 

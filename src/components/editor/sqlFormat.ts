@@ -1,6 +1,7 @@
 import { formatSQL as formatWithHolywell, type SQLDialect } from 'holywell';
 import { format as formatWithSqlFormatter, type SqlLanguage } from 'sql-formatter';
 
+import { formatSqlWithSqlfmt } from '@/api';
 import { getDuckdbHolywellProfile } from '@/components/editor/holywellDuckdbProfile';
 import { DialectType } from '@/stores/dbList';
 import { SqlFormatterEngine, useSettingStore } from '@/stores/setting';
@@ -53,14 +54,17 @@ export function toHolywellDialect(
   }
 }
 
-export function formatSqlText(
+export async function formatSqlText(
   text: string,
   options: FormatSqlOptions = {},
-): string {
+): Promise<string> {
+  const settings = useSettingStore.getState();
   const resolved =
-    options.engine ??
-    useSettingStore.getState().sql_formatter_engine ??
-    'sql-formatter';
+    options.engine ?? settings.sql_formatter_engine ?? 'sql-formatter';
+
+  if (resolved === 'shandy-sqlfmt') {
+    return formatSqlWithSqlfmt(text, settings.sqlfmt_path);
+  }
 
   if (resolved === 'holywell') {
     return formatWithHolywell(text, {

@@ -222,6 +222,31 @@ export async function formatSQL(sql: string): Promise<string> {
   return res;
 }
 
+export type SqlfmtCheckResult = {
+  available: boolean;
+  path: string;
+  version: string | null;
+  error: string | null;
+};
+
+/** Check whether the external `sqlfmt` (shandy-sqlfmt) binary is available. */
+export async function checkSqlfmt(path?: string | null): Promise<SqlfmtCheckResult> {
+  return invoke<SqlfmtCheckResult>('check_sqlfmt', {
+    path: path?.trim() ? path.trim() : null,
+  });
+}
+
+/** Format SQL via external `sqlfmt` (`sqlfmt -` over stdin). */
+export async function formatSqlWithSqlfmt(
+  sql: string,
+  path?: string | null,
+): Promise<string> {
+  return invoke<string>('format_sql_sqlfmt', {
+    sql,
+    path: path?.trim() ? path.trim() : null,
+  });
+}
+
 export async function find(
   value: string,
   path: string,
