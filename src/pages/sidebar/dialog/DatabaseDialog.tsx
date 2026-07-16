@@ -3,6 +3,7 @@ import * as dialog from '@tauri-apps/plugin-dialog';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 
+import { listSshConfigHosts, SshConfigHost } from '@/api';
 import { Dialog } from '@/components/custom/Dialog';
 import { TooltipButton } from '@/components/custom/button';
 import { Button } from '@/components/ui/button';
@@ -27,7 +28,6 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { DialectConfig, DialectType, useDBListStore } from '@/stores/dbList';
-import { listSshConfigHosts, SshConfigHost } from '@/api';
 import { TreeNode } from '@/types';
 import { nanoid } from 'nanoid';
 
@@ -259,7 +259,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                             applySshConfigHost(alias);
                           }}
                           items={[
-                            { label: '手动填写', value: '__custom__' },
+                            { label: 'Manual Input', value: '__custom__' },
                             ...sshHosts.map((host) => ({
                               label: host.label,
                               value: host.alias,
@@ -273,8 +273,8 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                           </FormControl>
                           <SelectContent>
                             <SelectGroup>
-                              <SelectItem value="__custom__" label="手动填写">
-                                手动填写
+                              <SelectItem value="__custom__" label="Manual Input">
+                                Manual Input
                               </SelectItem>
                               {sshHosts.map((host) => (
                                 <SelectItem
