@@ -22,6 +22,28 @@ use connector::utils::{Metadata, TreeNode};
 
 pub struct OpenedFiles(pub Mutex<Option<Vec<String>>>);
 
+fn build_ssh_config(
+  ssh_enabled: Option<bool>,
+  ssh_host: Option<String>,
+  ssh_port: Option<String>,
+  ssh_username: Option<String>,
+  ssh_password: Option<String>,
+  ssh_private_key_path: Option<String>,
+  ssh_passphrase: Option<String>,
+) -> Option<connector::ssh_tunnel::DbSshConfig> {
+  ssh_enabled.filter(|enabled| *enabled).map(|_| {
+    connector::ssh_tunnel::DbSshConfig {
+      enabled: true,
+      host: ssh_host.unwrap_or_default(),
+      port: ssh_port.unwrap_or_else(|| "22".to_string()),
+      username: ssh_username.unwrap_or_default(),
+      password: ssh_password,
+      private_key_path: ssh_private_key_path,
+      passphrase: ssh_passphrase,
+    }
+  })
+}
+
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct DialectPayload {
   pub dialect: String,
@@ -107,31 +129,44 @@ pub async fn get_dialect(
     //   password: password.unwrap_or_default(),
     //   database,
     // })),
-    "mysql" => Some(Box::new(MySqlConnection {
-      host: host.unwrap(),
-      port: port.unwrap(),
-      username: username.unwrap_or_default(),
-      password: password.unwrap_or_default(),
-      database,
-      ssh: ssh_enabled.filter(|enabled| *enabled).map(|_| {
-        connector::dialect::mysql::MySqlSshConfig {
-          enabled: true,
-          host: ssh_host.unwrap_or_default(),
-          port: ssh_port.unwrap_or_else(|| "22".to_string()),
-          username: ssh_username.unwrap_or_default(),
-          password: ssh_password,
-          private_key_path: ssh_private_key_path,
-          passphrase: ssh_passphrase,
-        }
-      }),
-    })),
-    "postgres" => Some(Box::new(PostgresConnection {
-      host: host.unwrap(),
-      port: port.unwrap(),
-      username: username.unwrap_or_default(),
-      password: password.unwrap_or_default(),
-      database,
-    })),
+    "mysql" => {
+      let ssh = build_ssh_config(
+        ssh_enabled,
+        ssh_host.clone(),
+        ssh_port.clone(),
+        ssh_username.clone(),
+        ssh_password.clone(),
+        ssh_private_key_path.clone(),
+        ssh_passphrase.clone(),
+      );
+      Some(Box::new(MySqlConnection {
+        host: host.unwrap(),
+        port: port.unwrap(),
+        username: username.unwrap_or_default(),
+        password: password.unwrap_or_default(),
+        database,
+        ssh,
+      }))
+    }
+    "postgres" => {
+      let ssh = build_ssh_config(
+        ssh_enabled,
+        ssh_host,
+        ssh_port,
+        ssh_username,
+        ssh_password,
+        ssh_private_key_path,
+        ssh_passphrase,
+      );
+      Some(Box::new(PostgresConnection {
+        host: host.unwrap(),
+        port: port.unwrap(),
+        username: username.unwrap_or_default(),
+        password: password.unwrap_or_default(),
+        database,
+        ssh,
+      }))
+    }
     "quack" => Some(Box::new(QuackConnection {
       uri: uri.unwrap(),
       token,

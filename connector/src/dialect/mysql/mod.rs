@@ -2,7 +2,7 @@ mod type_arrow;
 mod type_json;
 
 use crate::dialect::Connection;
-use crate::ssh_tunnel::{SshConfig, SshTunnel};
+use crate::ssh_tunnel::{DbSshConfig, SshTunnel};
 use crate::types::JSONValue;
 use crate::utils::{Metadata, RawArrowData, Table, build_tree};
 use crate::utils::{Title, TreeNode};
@@ -18,16 +18,7 @@ use std::fmt::Debug;
 use std::sync::Arc;
 use type_arrow::*;
 
-#[derive(Debug, Clone, Default)]
-pub struct MySqlSshConfig {
-  pub enabled: bool,
-  pub host: String,
-  pub port: String,
-  pub username: String,
-  pub password: Option<String>,
-  pub private_key_path: Option<String>,
-  pub passphrase: Option<String>,
-}
+pub type MySqlSshConfig = DbSshConfig;
 
 #[derive(Debug, Default)]
 pub struct MySqlConnection {
@@ -36,7 +27,7 @@ pub struct MySqlConnection {
   pub username: String,
   pub password: String,
   pub database: Option<String>,
-  pub ssh: Option<MySqlSshConfig>,
+  pub ssh: Option<DbSshConfig>,
 }
 
 #[async_trait]
@@ -144,23 +135,6 @@ impl MySqlConnection {
     }
   }
 
-  fn ssh_config(&self) -> Option<SshConfig> {
-    let ssh = self.ssh.as_ref()?;
-    if !ssh.enabled {
-      return None;
-    }
-
-    let port = ssh.port.parse::<u16>().unwrap_or(22);
-    Some(SshConfig {
-      host: ssh.host.clone(),
-      port,
-      username: ssh.username.clone(),
-      password: ssh.password.clone(),
-      private_key_path: ssh.private_key_path.clone(),
-      passphrase: ssh.passphrase.clone(),
-    })
-  }
-
   fn get_opts(&self, tunnel: Option<&SshTunnel>) -> anyhow::Result<Opts> {
     let mut builder = OptsBuilder::new()
       .user(Some(self.username.clone()))
@@ -182,7 +156,7 @@ impl MySqlConnection {
   }
 
   fn get_conn(&self) -> anyhow::Result<MySqlConnGuard> {
-    let tunnel = if let Some(ssh_config) = self.ssh_config() {
+    let tunnel = if let Some(ssh_config) = self.ssh.as_ref().and_then(|s| s.to_tunnel_config()) {
       let target_port = self.port.parse().context("invalid MySQL port")?;
       Some(SshTunnel::open(&ssh_config, &self.host, target_port)?)
     } else {

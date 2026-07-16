@@ -59,7 +59,10 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
   }, [watchDialect, form]);
 
   useEffect(() => {
-    if (watchDialect !== 'mysql' || !watchSshEnabled) {
+    if (
+      (watchDialect !== 'mysql' && watchDialect !== 'postgres') ||
+      !watchSshEnabled
+    ) {
       return;
     }
 
@@ -82,8 +85,10 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
   }, [watchDialect, watchSshEnabled]);
 
   const applySshConfigHost = (alias: string) => {
+    const opts = { shouldDirty: true, shouldTouch: true, shouldValidate: false } as const;
+
     if (alias === '__custom__') {
-      form.setValue('ssh_config_host', '');
+      form.setValue('ssh_config_host', '', opts);
       return;
     }
 
@@ -92,15 +97,11 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
       return;
     }
 
-    form.setValue('ssh_config_host', alias);
-    form.setValue('ssh_host', host.host);
-    form.setValue('ssh_port', String(host.port));
-    if (host.username) {
-      form.setValue('ssh_username', host.username);
-    }
-    if (host.identity_file) {
-      form.setValue('ssh_private_key_path', host.identity_file);
-    }
+    form.setValue('ssh_config_host', alias, opts);
+    form.setValue('ssh_host', host.host, opts);
+    form.setValue('ssh_port', String(host.port || 22), opts);
+    form.setValue('ssh_username', host.username ?? '', opts);
+    form.setValue('ssh_private_key_path', host.identity_file ?? '', opts);
   };
 
   return (
@@ -217,7 +218,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
               />
             </>
           ) : null}
-          {watchDialect == 'mysql' ? (
+          {watchDialect == 'mysql' || watchDialect == 'postgres' ? (
             <>
               <FormField
                 control={form.control}
@@ -243,11 +244,19 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                         <Select
                           value={field.value || '__custom__'}
                           onValueChange={(value) => {
-                            if (!value) {
+                            const alias =
+                              typeof value === 'string'
+                                ? value
+                                : value != null &&
+                                    typeof value === 'object' &&
+                                    'value' in value
+                                  ? String((value as { value: unknown }).value)
+                                  : '';
+                            if (!alias) {
                               return;
                             }
-                            field.onChange(value === '__custom__' ? '' : value);
-                            applySshConfigHost(value);
+                            field.onChange(alias === '__custom__' ? '' : alias);
+                            applySshConfigHost(alias);
                           }}
                           items={[
                             { label: '手动填写', value: '__custom__' },
@@ -291,7 +300,11 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                         <FormItem className="flex items-center w-[62.5%]">
                           <FormLabel className="w-1/5 mr-2 mt-2">SSH Host</FormLabel>
                           <FormControl className="w-4/5">
-                            <Input placeholder="jump.example.com" {...field} />
+                            <Input
+                              placeholder="jump.example.com"
+                              {...field}
+                              value={field.value ?? ''}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -304,7 +317,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                         <FormItem className="flex items-center w-[37.5%]">
                           <FormLabel className="ml-4">SSH Port</FormLabel>
                           <FormControl className="w-2/3">
-                            <Input placeholder="22" {...field} />
+                            <Input placeholder="22" {...field} value={field.value ?? ''} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -318,7 +331,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                       <FormItem className="flex items-center w-[62.5%]">
                         <FormLabel className="w-1/5 mr-2 mt-2">SSH User</FormLabel>
                         <FormControl className="w-4/5">
-                          <Input {...field} />
+                          <Input {...field} value={field.value ?? ''} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -331,7 +344,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                       <FormItem className="flex items-center w-[62.5%]">
                         <FormLabel className="w-1/5 mr-2 mt-2">SSH Password</FormLabel>
                         <FormControl className="w-4/5">
-                          <Input type="password" {...field} />
+                          <Input type="password" {...field} value={field.value ?? ''} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -345,7 +358,11 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                         <FormLabel className="w-1/5 mr-2 mt-2">Private Key</FormLabel>
                         <FormControl className="w-4/5">
                           <ButtonGroup>
-                            <Input placeholder="~/.ssh/id_rsa" {...field} />
+                            <Input
+                              placeholder="~/.ssh/id_rsa"
+                              {...field}
+                              value={field.value ?? ''}
+                            />
                             <Button
                               aria-label="Select private key"
                               variant="outline"
@@ -356,7 +373,10 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                                   directory: false,
                                 });
                                 if (file) {
-                                  form.setValue('ssh_private_key_path', file);
+                                  form.setValue('ssh_private_key_path', file, {
+                                    shouldDirty: true,
+                                    shouldTouch: true,
+                                  });
                                 }
                               }}
                             >
@@ -375,7 +395,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                       <FormItem className="flex items-center w-[62.5%]">
                         <FormLabel className="w-1/5 mr-2 mt-2">Key Passphrase</FormLabel>
                         <FormControl className="w-4/5">
-                          <Input type="password" {...field} />
+                          <Input type="password" {...field} value={field.value ?? ''} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

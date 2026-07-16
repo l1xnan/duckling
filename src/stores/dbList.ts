@@ -62,6 +62,14 @@ export type PostgresDialectType = {
   username: string;
   database: string;
   dialect: DialectType;
+  ssh_enabled?: boolean;
+  ssh_host?: string;
+  ssh_port?: string;
+  ssh_username?: string;
+  ssh_password?: string;
+  ssh_private_key_path?: string;
+  ssh_passphrase?: string;
+  ssh_config_host?: string;
 };
 
 export type MySqlDialectType = {

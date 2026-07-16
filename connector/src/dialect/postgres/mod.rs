@@ -5,13 +5,14 @@ use std::fmt::Debug;
 use std::sync::Arc;
 
 use arrow::datatypes::{ArrowNativeType, Field, Schema};
-
-use crate::dialect::Connection;
-use crate::utils::{RawArrowData, Table, build_tree, json_to_arrow};
-use crate::utils::{Title, TreeNode};
 use async_trait::async_trait;
 use futures_util::FutureExt;
 use tokio_postgres::{Client, NoTls, Row};
+
+use crate::dialect::Connection;
+use crate::ssh_tunnel::{DbSshConfig, SshTunnel};
+use crate::utils::{RawArrowData, Table, Title, TreeNode, build_tree, json_to_arrow};
+use anyhow::Context;
 use type_json::RowData;
 
 #[derive(Debug, Default)]
@@ -21,6 +22,12 @@ pub struct PostgresConnection {
   pub username: String,
   pub password: String,
   pub database: Option<String>,
+  pub ssh: Option<DbSshConfig>,
+}
+
+struct PostgresConnGuard {
+  _tunnel: Option<SshTunnel>,
+  client: Client,
 }
 
 #[async_trait]
@@ -42,8 +49,8 @@ impl Connection for PostgresConnection {
   }
 
   async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
-    let conn = self.get_conn(&self.database()).await?;
-    let row = conn.query_one(sql, &[]).await?;
+    let guard = self.get_conn(&self.database()).await?;
+    let row = guard.client.query_one(sql, &[]).await?;
     let total: u32 = row.get(0);
     Ok(total as usize)
   }
@@ -86,39 +93,55 @@ impl Connection for PostgresConnection {
 }
 
 impl PostgresConnection {
-  fn get_url(&self) -> String {
-    format!(
-      "host={} port={} user={} password={}",
-      self.host, self.port, self.username, self.password,
-    )
+  fn build_conn_string(&self, db: &str, tunnel: Option<&SshTunnel>) -> String {
+    let (host, port) = if let Some(tunnel) = tunnel {
+      ("127.0.0.1".to_string(), tunnel.local_port().to_string())
+    } else {
+      (self.host.clone(), self.port.clone())
+    };
+
+    let mut config = format!(
+      "host={host} port={port} user={} password={}",
+      self.username, self.password
+    );
+    if !db.is_empty() {
+      config.push_str(&format!(" dbname={db}"));
+    }
+    config
   }
 
-  async fn get_conn(&self, db: &str) -> anyhow::Result<Client> {
-    let db = if db.is_empty() {
-      String::new()
+  async fn get_conn(&self, db: &str) -> anyhow::Result<PostgresConnGuard> {
+    let tunnel = if let Some(ssh_config) = self.ssh.as_ref().and_then(|s| s.to_tunnel_config()) {
+      let target_port = self.port.parse().context("invalid Postgres port")?;
+      Some(SshTunnel::open(&ssh_config, &self.host, target_port)?)
     } else {
-      format!(" dbname={db}")
+      None
     };
-    let config = self.get_url() + &db;
-    connect(&config).await
+
+    let config = self.build_conn_string(db, tunnel.as_ref());
+    let client = connect(&config).await?;
+    Ok(PostgresConnGuard {
+      _tunnel: tunnel,
+      client,
+    })
   }
 
   async fn get_schema(&self) -> Vec<Table> {
     unimplemented!()
   }
   pub async fn databases(&self) -> anyhow::Result<Vec<String>> {
-    let client = self.get_conn("postgres").await?;
+    let guard = self.get_conn("postgres").await?;
     let sql = "SELECT datname FROM pg_database WHERE datistemplate = false";
 
     let mut names = vec![];
-    for row in client.query(sql, &[]).await? {
+    for row in guard.client.query(sql, &[]).await? {
       let _name: String = row.get(0);
       names.push(row.get(0));
     }
     Ok(names)
   }
   pub async fn get_tables(&self, db: &str) -> anyhow::Result<Vec<Table>> {
-    let client = self.get_conn(db).await?;
+    let guard = self.get_conn(db).await?;
 
     let sql = "
       select
@@ -130,7 +153,7 @@ impl PostgresConnection {
       from information_schema.tables WHERE table_schema='public'
       ";
     let mut tables = vec![];
-    for row in client.query(sql, &[]).await? {
+    for row in guard.client.query(sql, &[]).await? {
       tables.push(Table {
         db_name: row.get::<_, String>(0),
         schema: Some(row.get::<_, String>(1)),
@@ -154,9 +177,9 @@ impl PostgresConnection {
   }
 
   async fn _query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
-    let conn = self.get_conn(&self.database()).await?;
+    let guard = self.get_conn(&self.database()).await?;
 
-    let stmt = conn.prepare(sql).await?;
+    let stmt = guard.client.prepare(sql).await?;
     let mut fields = vec![];
     let mut titles = vec![];
     for col in stmt.columns() {
@@ -180,7 +203,7 @@ impl PostgresConnection {
     let schema = Arc::new(Schema::new(fields));
 
     let mut rows: Vec<RowData> = vec![];
-    for row in conn.query(&stmt, &[]).await? {
+    for row in guard.client.query(&stmt, &[]).await? {
       let r = type_json::postgres_row_to_row_data(row)?;
       rows.push(r);
     }
@@ -196,7 +219,7 @@ impl PostgresConnection {
   }
 
   async fn _query_json(&self, sql: &str) -> anyhow::Result<()> {
-    let conn = self.get_conn(&self.database()).await?;
+    let _guard = self.get_conn(&self.database()).await?;
     Ok(()) // TODO
   }
   fn database(&self) -> String {
@@ -204,9 +227,9 @@ impl PostgresConnection {
   }
 
   async fn _table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
-    let conn = self.get_conn(&self.database()).await?;
+    let guard = self.get_conn(&self.database()).await?;
     let sql = self._table_count_sql(table, cond);
-    let row = conn.query_one(&sql, &[]).await?;
+    let row = guard.client.query_one(&sql, &[]).await?;
     let total: u32 = row.get::<_, u32>(0);
     Ok(total.as_usize())
   }

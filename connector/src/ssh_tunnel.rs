@@ -27,6 +27,34 @@ impl SshConfig {
   }
 }
 
+/// Dialect-facing SSH tunnel options (shared by MySQL / Postgres).
+#[derive(Debug, Clone, Default)]
+pub struct DbSshConfig {
+  pub enabled: bool,
+  pub host: String,
+  pub port: String,
+  pub username: String,
+  pub password: Option<String>,
+  pub private_key_path: Option<String>,
+  pub passphrase: Option<String>,
+}
+
+impl DbSshConfig {
+  pub fn to_tunnel_config(&self) -> Option<SshConfig> {
+    if !self.enabled {
+      return None;
+    }
+    Some(SshConfig {
+      host: self.host.clone(),
+      port: self.port.parse().unwrap_or(22),
+      username: self.username.clone(),
+      password: self.password.clone(),
+      private_key_path: self.private_key_path.clone(),
+      passphrase: self.passphrase.clone(),
+    })
+  }
+}
+
 pub struct SshTunnel {
   local_port: u16,
   shutdown_tx: Option<Sender<()>>,
