@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { listSystemFonts } from '@/api';
 import {
@@ -35,7 +35,12 @@ const FALLBACK_FONTS = [
   'monospace',
 ];
 
-type FontItem = { label: string; value: string };
+type FontItem = {
+  label: string;
+  value: string;
+  /** True when the value is a manually typed name not found in system fonts. */
+  isCustom?: boolean;
+};
 
 function toFontItems(families: string[], current?: string): FontItem[] {
   const set = new Set<string>();
@@ -51,49 +56,65 @@ function toFontItems(families: string[], current?: string): FontItem[] {
     .map((family) => ({ label: family, value: family }));
 }
 
-export function useSystemFontFamilies() {
-  const [fonts, setFonts] = useState<string[]>(FALLBACK_FONTS);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const listed = await listSystemFonts();
-        if (!cancelled && listed.length > 0) {
-          setFonts(listed);
-        }
-      } catch (error) {
-        console.warn('Failed to list system fonts:', error);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  return { fonts, loading };
+function hasExactFamily(families: FontItem[], name: string) {
+  const target = name.trim().toLowerCase();
+  return families.some((item) => item.value.trim().toLowerCase() === target);
 }
 
 type FontFamilyComboboxProps = {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  fonts: string[];
 };
 
 export function FontFamilyCombobox({
   value,
   onChange,
   placeholder = 'Select a font',
-  fonts,
 }: FontFamilyComboboxProps) {
-  const items = useMemo(() => toFontItems(fonts, value), [fonts, value]);
+  const [fonts, setFonts] = useState<string[]>(FALLBACK_FONTS);
+  const [loading, setLoading] = useState(false);
+  const [query, setQuery] = useState('');
+  const loadedRef = useRef(false);
+  const loadingRef = useRef(false);
+
+  const loadFonts = useCallback(async () => {
+    if (loadedRef.current || loadingRef.current) return;
+    loadingRef.current = true;
+    setLoading(true);
+    try {
+      const listed = await listSystemFonts();
+      if (listed.length > 0) {
+        setFonts(listed);
+      }
+      loadedRef.current = true;
+    } catch (error) {
+      console.warn('Failed to list system fonts:', error);
+    } finally {
+      loadingRef.current = false;
+      setLoading(false);
+    }
+  }, []);
+
+  const items = useMemo(() => {
+    const base = toFontItems(fonts, value);
+    const q = query.trim();
+    if (!q || hasExactFamily(base, q)) {
+      return base;
+    }
+    // Allow committing any typed name / CSS stack even if not installed.
+    return [{ label: q, value: q, isCustom: true }, ...base];
+  }, [fonts, value, query]);
 
   const selected =
-    items.find((item) => item.value === value) ?? (value ? { label: value, value } : null);
+    items.find((item) => item.value === value && !item.isCustom) ??
+    (value
+      ? {
+          label: value,
+          value,
+          isCustom: !hasExactFamily(toFontItems(fonts), value),
+        }
+      : null);
 
   return (
     <Combobox
@@ -104,6 +125,15 @@ export function FontFamilyCombobox({
       items={items}
       itemToStringLabel={(item) => item.label}
       isItemEqualToValue={(a, b) => a.value === b.value}
+      onInputValueChange={(next) => setQuery(next)}
+      onOpenChange={(open) => {
+        if (open) {
+          void loadFonts();
+          setQuery('');
+          return;
+        }
+        setQuery('');
+      }}
     >
       <FormControl>
         <ComboboxTrigger
@@ -131,15 +161,35 @@ export function FontFamilyCombobox({
         </ComboboxTrigger>
       </FormControl>
       <ComboboxContent className="max-h-72">
-        {/* Searchable select: Input lives inside the popup. */}
-        <ComboboxInput placeholder="Search fonts..." showTrigger={false} className="w-auto" />
-        <ComboboxEmpty>No matching fonts</ComboboxEmpty>
+        <ComboboxInput
+          placeholder={
+            loading ? 'Loading fonts...' : 'Search or type a font name...'
+          }
+          showTrigger={false}
+          className="w-auto"
+        />
+        <ComboboxEmpty>
+          {loading ? 'Loading fonts...' : 'No matching fonts'}
+        </ComboboxEmpty>
         <ComboboxList>
           {(item) => (
-            <ComboboxItem key={item.value} value={item}>
-              <span className="truncate" style={{ fontFamily: item.value }} title={item.label}>
-                {item.label}
-              </span>
+            <ComboboxItem
+              key={`${item.isCustom ? 'custom:' : ''}${item.value}`}
+              value={item}
+            >
+              {item.isCustom ? (
+                <span className="truncate text-muted-foreground" title={item.value}>
+                  Use “{item.value}”
+                </span>
+              ) : (
+                <span
+                  className="truncate"
+                  style={{ fontFamily: item.value }}
+                  title={item.label}
+                >
+                  {item.label}
+                </span>
+              )}
             </ComboboxItem>
           )}
         </ComboboxList>

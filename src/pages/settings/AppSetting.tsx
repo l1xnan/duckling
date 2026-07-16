@@ -13,10 +13,7 @@ import { toast } from 'sonner';
 
 import { checkAppUpdate, checkSqlfmt, type SqlfmtCheckResult } from '@/api';
 import { Dialog } from '@/components/custom/Dialog';
-import {
-  FontFamilyCombobox,
-  useSystemFontFamilies,
-} from '@/components/custom/FontFamilyCombobox';
+import { FontFamilyCombobox } from '@/components/custom/FontFamilyCombobox';
 import { SidebarNav } from '@/components/custom/siderbar-nav';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
@@ -143,7 +140,6 @@ const lightItems = editorThemes
 
 function Profile() {
   const [settings, setSettings] = useAtom(settingAtom);
-  const { fonts: systemFonts } = useSystemFontFamilies();
   const form = useForm({
     defaultValues: {
       ...defaultSettings,
@@ -175,10 +171,9 @@ function Profile() {
                   value={field.value ?? ''}
                   onChange={field.onChange}
                   placeholder="Search system fonts"
-                  fonts={systemFonts}
                 />
                 <FormDescription>
-                  Search and select an installed system font.
+                  Search installed fonts, or type any font name / CSS stack and choose Use.
                 </FormDescription>
               </FormItem>
             )}
@@ -193,10 +188,9 @@ function Profile() {
                   value={field.value ?? ''}
                   onChange={field.onChange}
                   placeholder="Search system fonts"
-                  fonts={systemFonts}
                 />
                 <FormDescription>
-                  Used by the data table canvas renderer.
+                  Used by the data table canvas renderer. Custom names are allowed.
                 </FormDescription>
               </FormItem>
             )}
@@ -342,16 +336,6 @@ function SqlFormatForm() {
       setSqlfmtChecking(false);
     }
   };
-
-  useEffect(() => {
-    if (formatterEngine !== 'shandy-sqlfmt') {
-      setSqlfmtStatus(null);
-      return;
-    }
-    void runSqlfmtCheck(form.getValues('sqlfmt_options.path'));
-    // Only auto-check when the engine is selected; path edits use Check / Browse.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formatterEngine]);
 
   const onSubmit = (data: SqlFormatSettings) => {
     setSettings((s) => ({
@@ -865,7 +849,7 @@ function SqlFormatForm() {
                             });
                             if (typeof file === 'string') {
                               field.onChange(file);
-                              await runSqlfmtCheck(file);
+                              setSqlfmtStatus(null);
                             }
                           }}
                         >
