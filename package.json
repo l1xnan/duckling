@@ -1,7 +1,7 @@
 {
   "name": "duckling",
   "private": true,
-  "version": "0.52.0",
+  "version": "0.53.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -33,10 +33,10 @@
     "@tauri-apps/plugin-shell": "^2.3.5",
     "@tauri-apps/plugin-store": "^2.4.3",
     "@tauri-apps/plugin-updater": "^2.10.1",
-    "@visactor/react-vtable": "^1.26.4",
-    "@visactor/vtable": "^1.26.4",
-    "@visactor/vtable-export": "^1.26.4",
-    "@visactor/vtable-plugins": "^1.26.4",
+    "@visactor/react-vtable": "^1.26.5",
+    "@visactor/vtable": "^1.26.5",
+    "@visactor/vtable-export": "^1.26.5",
+    "@visactor/vtable-plugins": "^1.26.5",
     "apache-arrow": "^21.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
