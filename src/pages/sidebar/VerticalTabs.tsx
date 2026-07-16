@@ -4,7 +4,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { getTypeIcon } from '@/components/custom/Icons';
 import { SearchInput } from '@/components/custom/search';
-import { TabItemProps } from '@/components/PageTabs';
+import { TabItemProps, TabTypeIcon } from '@/components/PageTabs';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useDBListStore } from '@/stores/dbList';
@@ -37,7 +37,10 @@ export function Node({
       style={{ paddingLeft: indent ? `${indent}px` : undefined }}
       onClick={onClick}
     >
-      <div className="px-1 truncate font-mono min-w-0 flex-1">
+      <div className="flex shrink-0 items-center px-1">
+        <TabTypeIcon type={tab.type} className="size-4" />
+      </div>
+      <div className="truncate font-mono min-w-0 flex-1">
         {tab.displayName}
       </div>
       <Button
