@@ -149,6 +149,7 @@ fn main() {
       cmd::list_sql_dir,
       cmd::read_text_file,
       cmd::open_path,
+      cmd::open_settings_dir,
       cmd::list_system_fonts,
       #[cfg(desktop)]
       cmd::check_app_update,

@@ -7,9 +7,7 @@ use std::time::Instant;
 use serde::Deserialize;
 use serde::Serialize;
 use sqlformat::{FormatOptions, QueryParams};
-use tauri::State;
-#[cfg(desktop)]
-use tauri::Manager;
+use tauri::{Manager, State};
 #[cfg(desktop)]
 use tauri_plugin_updater::UpdaterExt;
 
@@ -569,6 +567,24 @@ pub async fn open_path(path: &str) -> Result<(), String> {
     Err(err) => log::warn!("An error occurred when opening '{}': {}", path, err),
   }
   Ok(())
+}
+
+/// Open the app data directory that holds local config files (e.g. settings.json).
+#[tauri::command]
+pub async fn open_settings_dir(app: tauri::AppHandle) -> Result<String, String> {
+  let dir = app
+    .path()
+    .app_data_dir()
+    .map_err(|e| e.to_string())?;
+
+  if !dir.exists() {
+    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+  }
+
+  let path = dir.to_string_lossy().to_string();
+  open::that(&dir).map_err(|e| format!("failed to open settings folder: {e}"))?;
+  log::info!("Opened settings dir: {path}");
+  Ok(path)
 }
 
 /// Official GitHub releases endpoint (default).

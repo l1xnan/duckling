@@ -273,6 +273,11 @@ export async function openPath(path: string): Promise<string> {
   return res;
 }
 
+/** Open the app data folder that contains local config (e.g. settings.json). */
+export async function openSettingsDir(): Promise<string> {
+  return invoke<string>('open_settings_dir');
+}
+
 export type SshConfigHost = {
   alias: string;
   host: string;

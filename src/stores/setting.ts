@@ -7,6 +7,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { useTheme } from '@/hooks/theme-provider';
+import { tauriFileStorage } from '@/stores/tauriStore';
 import { createSelectors } from '@/stores/utils';
 import { isDarkTheme } from '@/utils';
 
@@ -204,7 +205,8 @@ export function resolveSqlfmtOptions(
 export const store = create<SettingState>()(
   persist((_) => defaultSettings, {
     name: 'setting',
-    storage: createJSONStorage(() => localStorage),
+    // Persist to app data dir settings.json (Tauri); falls back to localStorage on web.
+    storage: createJSONStorage(() => tauriFileStorage),
   }),
 );
 

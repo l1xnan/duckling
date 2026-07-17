@@ -7,13 +7,18 @@ import { relaunch } from '@tauri-apps/plugin-process';
 import * as shell from '@tauri-apps/plugin-shell';
 import { Update } from '@tauri-apps/plugin-updater';
 import { atom, useAtom } from 'jotai';
-import { SettingsIcon } from 'lucide-react';
+import { FolderOpenIcon, SettingsIcon } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { checkAppUpdate, checkSqlfmt, type SqlfmtCheckResult } from '@/api';
+import {
+  checkAppUpdate,
+  checkSqlfmt,
+  openSettingsDir,
+  type SqlfmtCheckResult,
+} from '@/api';
 import { Dialog } from '@/components/custom/Dialog';
 import { FontFamilyCombobox } from '@/components/custom/FontFamilyCombobox';
 import { SidebarNav } from '@/components/custom/siderbar-nav';
@@ -418,6 +423,36 @@ function Profile() {
               </FormItem>
             )}
           />
+          <Item variant="outline" className="shadow-sm">
+            <ItemContent>
+              <ItemTitle>
+                <Trans>Settings folder</Trans>
+              </ItemTitle>
+              <ItemDescription>
+                <Trans>
+                  Open the local folder that stores app settings (settings.json).
+                </Trans>
+              </ItemDescription>
+            </ItemContent>
+            <ItemActions>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={async () => {
+                  try {
+                    await openSettingsDir();
+                  } catch (error) {
+                    const message =
+                      error instanceof Error ? error.message : String(error);
+                    toast.error(t`Failed to open settings folder: ${message}`);
+                  }
+                }}
+              >
+                <FolderOpenIcon className="size-4" />
+                <Trans>Open folder</Trans>
+              </Button>
+            </ItemActions>
+          </Item>
         </div>
         <DialogFooter className="shrink-0 border-t pt-4">
           <DialogClose
