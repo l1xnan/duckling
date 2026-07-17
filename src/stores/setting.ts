@@ -95,6 +95,12 @@ export type SettingState = {
   precision: number;
   table_font_family: string;
   main_font_family: string;
+  /** Font family for Monaco / SQL code editors. */
+  code_font_family?: string;
+  /** Font size (px) for the data table canvas renderer. */
+  table_font_size?: number;
+  /** Font size (px) for Monaco / SQL code editors. */
+  code_font_size?: number;
   table_render: string;
   auto_update?: boolean;
   proxy?: string;
@@ -151,7 +157,10 @@ export const defaultSettings: SettingState = {
   locale: 'system',
   updater_source: 'official',
   table_font_family: 'Consolas',
+  table_font_size: 12,
   table_render: 'canvas',
+  code_font_family: "Consolas, 'Courier New', monospace",
+  code_font_size: 13,
   main_font_family: [
     '-apple-system, BlinkMacSystemFont, PingFang SC, Hiragino Sans GB',
     'Segoe WPC, Segoe UI, Microsoft YaHei',
@@ -211,9 +220,21 @@ export const tableFontFamilyAtom = selectAtom(
   settingAtom,
   (s) => s.table_font_family ?? defaultSettings['table_font_family'],
 );
+export const tableFontSizeAtom = selectAtom(
+  settingAtom,
+  (s) => s.table_font_size ?? defaultSettings.table_font_size!,
+);
 export const mainFontFamilyAtom = selectAtom(
   settingAtom,
   (s) => s.main_font_family ?? defaultSettings['main_font_family'],
+);
+export const codeFontFamilyAtom = selectAtom(
+  settingAtom,
+  (s) => s.code_font_family ?? defaultSettings.code_font_family!,
+);
+export const codeFontSizeAtom = selectAtom(
+  settingAtom,
+  (s) => s.code_font_size ?? defaultSettings.code_font_size!,
 );
 
 export const editorThemeAtom = selectAtom(settingAtom, (s) => ({

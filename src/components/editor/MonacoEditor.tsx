@@ -5,13 +5,14 @@ import {
   OnMount,
 } from '@monaco-editor/react';
 import { msg } from '@lingui/core/macro';
-import { ForwardedRef, forwardRef, useImperativeHandle } from 'react';
+import { useAtomValue } from 'jotai';
+import { ForwardedRef, forwardRef, useEffect, useImperativeHandle } from 'react';
 
 import { CompleteMetaType } from '@/ast/analyze';
 import { useRegister } from '@/components/editor/useRegister';
 import { i18n } from '@/i18n';
 import { DialectType } from '@/stores/dbList';
-import { useEditorTheme } from '@/stores/setting';
+import { codeFontFamilyAtom, codeFontSizeAtom, useEditorTheme } from '@/stores/setting';
 
 export interface EditorRef {
   getSelectionText: () => string | undefined;
@@ -113,6 +114,15 @@ const MonacoEditor = forwardRef<
   }));
 
   const theme = useEditorTheme();
+  const codeFontFamily = useAtomValue(codeFontFamilyAtom);
+  const codeFontSize = useAtomValue(codeFontSizeAtom);
+
+  useEffect(() => {
+    editorRef.current?.updateOptions({
+      fontFamily: codeFontFamily,
+      fontSize: codeFontSize,
+    });
+  }, [codeFontFamily, codeFontSize, editorRef]);
 
   return (
     <Editor
@@ -120,12 +130,15 @@ const MonacoEditor = forwardRef<
       defaultLanguage="sql"
       language={props.language ?? 'sql'}
       height="100%"
+      {...props}
       options={{
         minimap: {
           enabled: true,
         },
+        fontFamily: codeFontFamily,
+        fontSize: codeFontSize,
+        ...props.options,
       }}
-      {...props}
       beforeMount={handleBeforeMount}
       onMount={handleMount}
     />

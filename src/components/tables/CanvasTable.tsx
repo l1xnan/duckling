@@ -23,7 +23,7 @@ import { SelectedCellType } from '@/components/views/TableView';
 import { useTheme } from '@/hooks/theme-provider';
 import { i18n } from '@/i18n';
 import { OrderByType, SchemaType } from '@/stores/dataset';
-import { tableFontFamilyAtom } from '@/stores/setting';
+import { tableFontFamilyAtom, tableFontSizeAtom } from '@/stores/setting';
 import { isDarkTheme, isNumberType, uniqueArray } from '@/utils';
 
 import { handleFieldFormat } from './format';
@@ -51,9 +51,10 @@ function useTableTheme() {
   const appTheme = useTheme();
   const isDark = isDarkTheme(appTheme);
   const tableFontFamily = useAtomValue(tableFontFamilyAtom);
+  const tableFontSize = useAtomValue(tableFontSizeAtom);
   return useMemo(
-    () => makeTableTheme(isDark, tableFontFamily),
-    [isDark, tableFontFamily],
+    () => makeTableTheme(isDark, tableFontFamily, tableFontSize),
+    [isDark, tableFontFamily, tableFontSize],
   );
 }
 

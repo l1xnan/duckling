@@ -92,26 +92,32 @@ function getLightBackgroundColor(args: TYPES.StylePropertyFunctionArg): string {
   return '#fbfbfc';
 }
 
-export function makeTableTheme(isDark: boolean, tableFontFamily: string) {
+export function makeTableTheme(
+  isDark: boolean,
+  tableFontFamily: string,
+  tableFontSize = 12,
+) {
+  const fontSize = tableFontSize;
+  const lineHeight = tableFontSize;
   const common: ITableThemeDefine = {
     cellInnerBorder: false,
     defaultStyle: {
-      fontSize: 12,
+      fontSize,
       fontFamily: 'Consolas',
       borderLineWidth: 1,
       fontWeight: 500,
-      lineHeight: 12,
+      lineHeight,
     },
     bodyStyle: {
-      fontSize: 12,
-      lineHeight: 12,
+      fontSize,
+      lineHeight,
       padding: [8, 12, 6, 12],
       fontFamily: tableFontFamily,
       borderLineWidth: 1,
     },
     headerStyle: {
       fontFamily: tableFontFamily,
-      fontSize: 12,
+      fontSize,
       padding: [8, 12, 6, 12],
       borderLineWidth: 1,
     },

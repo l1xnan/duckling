@@ -1,9 +1,10 @@
 import { Editor, OnMount } from '@monaco-editor/react';
+import { useAtomValue } from 'jotai';
 import type { editor, IKeyboardEvent } from 'monaco-editor';
-import { useImperativeHandle, useState } from 'react';
+import { useEffect, useImperativeHandle, useState } from 'react';
 
 import { CompleteMetaType } from '@/ast/analyze';
-import { useEditorTheme } from '@/stores/setting';
+import { codeFontFamilyAtom, codeFontSizeAtom, useEditorTheme } from '@/stores/setting';
 
 import { useRegister } from './useRegister';
 
@@ -120,6 +121,18 @@ export function SingleLineEditor({
   };
 
   const theme = useEditorTheme();
+  const codeFontFamily = useAtomValue(codeFontFamilyAtom);
+  const codeFontSize = useAtomValue(codeFontSizeAtom);
+  const lineHeight = Math.max(16, Math.round(codeFontSize * (20 / 13)));
+
+  useEffect(() => {
+    editorRef.current?.updateOptions({
+      fontFamily: codeFontFamily,
+      fontSize: codeFontSize,
+      lineHeight,
+    });
+  }, [codeFontFamily, codeFontSize, lineHeight, editorRef]);
+
   return (
     <Editor
       theme={theme}
@@ -128,8 +141,13 @@ export function SingleLineEditor({
       className={props.className}
       onMount={handleEditorMount}
       onChange={handleEditorChange}
-      height={`${20 + 3 * 2}px`}
-      options={options}
+      height={`${lineHeight + 3 * 2}px`}
+      options={{
+        ...options,
+        fontFamily: codeFontFamily,
+        fontSize: codeFontSize,
+        lineHeight,
+      }}
     />
   );
 }
@@ -178,6 +196,8 @@ interface SQLCodeViewerProps {
 
 export function SQLCodeViewer({ className, sql }: SQLCodeViewerProps) {
   const theme = useEditorTheme();
+  const codeFontFamily = useAtomValue(codeFontFamilyAtom);
+  const codeFontSize = useAtomValue(codeFontSizeAtom);
   return (
     <Editor
       theme={theme}
@@ -188,6 +208,8 @@ export function SQLCodeViewer({ className, sql }: SQLCodeViewerProps) {
       width={'100%'}
       options={{
         ...options,
+        fontFamily: codeFontFamily,
+        fontSize: codeFontSize,
         wordWrap: 'on', // 换行
         scrollBeyondLastLine: false,
         automaticLayout: true,

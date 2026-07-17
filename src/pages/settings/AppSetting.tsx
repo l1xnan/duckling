@@ -39,6 +39,11 @@ import { Input } from '@/components/ui/input';
 import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
 import { Label } from '@/components/ui/label';
 import {
+  Progress,
+  ProgressLabel,
+  ProgressValue,
+} from '@/components/ui/progress';
+import {
   Select,
   SelectContent,
   SelectGroup,
@@ -157,6 +162,9 @@ function Profile() {
       locale: data.locale ?? 'system',
       main_font_family: data.main_font_family,
       table_font_family: data.table_font_family,
+      table_font_size: data.table_font_size,
+      code_font_family: data.code_font_family,
+      code_font_size: data.code_font_size,
       editor_theme: data.editor_theme,
       precision: data.precision,
     }));
@@ -240,6 +248,87 @@ function Profile() {
                   <Trans>
                     Used by the data table canvas renderer. Custom names are allowed.
                   </Trans>
+                </FormDescription>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="table_font_size"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  <Trans>Table Font Size</Trans>
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min={8}
+                    max={32}
+                    value={field.value ?? defaultSettings.table_font_size}
+                    onChange={(e) => {
+                      const n = Number(e.target.value);
+                      field.onChange(
+                        Number.isFinite(n)
+                          ? Math.min(32, Math.max(8, n))
+                          : defaultSettings.table_font_size,
+                      );
+                    }}
+                  />
+                </FormControl>
+                <FormDescription>
+                  <Trans>Font size in pixels for the data table (8–32).</Trans>
+                </FormDescription>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="code_font_family"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  <Trans>Code Font Family</Trans>
+                </FormLabel>
+                <FontFamilyCombobox
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  placeholder={t`Search system fonts`}
+                />
+                <FormDescription>
+                  <Trans>
+                    Used by the Monaco SQL editor and other code viewers. Prefer monospace fonts.
+                  </Trans>
+                </FormDescription>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="code_font_size"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  <Trans>Code Font Size</Trans>
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min={8}
+                    max={32}
+                    value={field.value ?? defaultSettings.code_font_size}
+                    onChange={(e) => {
+                      const n = Number(e.target.value);
+                      field.onChange(
+                        Number.isFinite(n)
+                          ? Math.min(32, Math.max(8, n))
+                          : defaultSettings.code_font_size,
+                      );
+                    }}
+                  />
+                </FormControl>
+                <FormDescription>
+                  <Trans>Font size in pixels for the Monaco editor (8–32).</Trans>
                 </FormDescription>
               </FormItem>
             )}
@@ -1189,7 +1278,7 @@ const UpdateForm = () => {
   });
 
   const [update, setUpdate] = useState<Update | null>(null);
-  const [size, setSize] = useState<number | null>();
+  const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
 
   const handleCheck = async () => {
     setLoading(true);
@@ -1217,17 +1306,38 @@ const UpdateForm = () => {
 
   const handleUpdater = async () => {
     setLoading(true);
-    await update?.downloadAndInstall((e) => {
-      if (e.event == 'Started') {
-        setSize(e.data.contentLength);
-      } else if (e.event == 'Progress') {
-        if (size) {
-          e.data.chunkLength;
+    setDownloadProgress(0);
+    try {
+      let downloaded = 0;
+      let contentLength = 0;
+      await update?.downloadAndInstall((e) => {
+        switch (e.event) {
+          case 'Started':
+            contentLength = e.data.contentLength ?? 0;
+            downloaded = 0;
+            setDownloadProgress(0);
+            break;
+          case 'Progress':
+            downloaded += e.data.chunkLength;
+            if (contentLength > 0) {
+              setDownloadProgress(
+                Math.min(100, Math.round((downloaded / contentLength) * 100)),
+              );
+            }
+            break;
+          case 'Finished':
+            setDownloadProgress(100);
+            break;
         }
-      }
-    });
-    setLoading(false);
-    await relaunch();
+      });
+      await relaunch();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(t`Update failed: ${message}`);
+    } finally {
+      setLoading(false);
+      setDownloadProgress(null);
+    }
   };
 
   const debug = form.watch('debug');
@@ -1251,16 +1361,25 @@ const UpdateForm = () => {
               </ItemContent>
               <ItemActions>
                 {update?.version ? (
-                  <Button
-                    disabled={loading}
-                    onClick={async (e) => {
-                      e.preventDefault();
-                      await handleUpdater();
-                    }}
-                  >
-                    {loading ? <Spinner /> : null}
-                    <Trans>Click to update</Trans>
-                  </Button>
+                  downloadProgress !== null ? (
+                    <Progress value={downloadProgress} className="w-44">
+                      <ProgressLabel>
+                        <Trans>Downloading</Trans>
+                      </ProgressLabel>
+                      <ProgressValue />
+                    </Progress>
+                  ) : (
+                    <Button
+                      disabled={loading}
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        await handleUpdater();
+                      }}
+                    >
+                      {loading ? <Spinner /> : null}
+                      <Trans>Click to update</Trans>
+                    </Button>
+                  )
                 ) : (
                   <Button
                     disabled={loading}

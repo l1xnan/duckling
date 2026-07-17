@@ -3,9 +3,10 @@ import type { MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import MonacoEditor from '@monaco-editor/react';
+import { useAtomValue } from 'jotai';
 import { LetterTextIcon, PanelBottomIcon, PanelRightIcon, XIcon } from 'lucide-react';
 import { editor } from 'monaco-editor';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { arrowToJSON } from '@/api';
 import { TooltipButton } from '@/components/custom/button';
@@ -16,7 +17,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { Direction } from '@/stores/dataset';
-import { useEditorTheme } from '@/stores/setting';
+import { codeFontFamilyAtom, codeFontSizeAtom, useEditorTheme } from '@/stores/setting';
 import { DataFrame } from '@/utils/dataframe';
 
 import { SelectedCellType } from './TableView';
@@ -93,9 +94,18 @@ export function ValueViewer({
 }: ValueViewerProps) {
   const { t } = useLingui();
   const theme = useEditorTheme();
+  const codeFontFamily = useAtomValue(codeFontFamilyAtom);
+  const codeFontSize = useAtomValue(codeFontSizeAtom);
 
   const [type, setType] = useState('Raw');
   const editorRef = useRef<editor.IStandaloneCodeEditor>(null);
+
+  useEffect(() => {
+    editorRef.current?.updateOptions({
+      fontFamily: codeFontFamily,
+      fontSize: codeFontSize,
+    });
+  }, [codeFontFamily, codeFontSize]);
 
   const handleFormat = () => {
     if (!editorRef.current) return;
@@ -175,6 +185,10 @@ export function ValueViewer({
             value={value}
             onMount={(editor) => {
               editorRef.current = editor;
+              editor.updateOptions({
+                fontFamily: codeFontFamily,
+                fontSize: codeFontSize,
+              });
             }}
             options={{
               minimap: {
@@ -183,6 +197,8 @@ export function ValueViewer({
               lineNumbers: 'off',
               wordWrap: 'on',
               tabSize: 2,
+              fontFamily: codeFontFamily,
+              fontSize: codeFontSize,
             }}
           />
         )}
