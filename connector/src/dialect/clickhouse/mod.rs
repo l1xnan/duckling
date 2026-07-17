@@ -38,9 +38,15 @@ impl Connection for ClickhouseConnection {
   async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     self.fetch_all(sql).await
   }
-  #[allow(clippy::unused_async)]
-  async fn query_count(&self, _sql: &str) -> anyhow::Result<usize> {
-    Ok(0)
+
+  async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
+    let client = self.client().await?;
+    let total = client.query(sql).fetch_one::<u64>().await?;
+    Ok(total as usize)
+  }
+
+  fn dialect(&self) -> &'static str {
+    "clickhouse"
   }
 
   async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
@@ -181,8 +187,8 @@ impl ClickhouseConnection {
   async fn _table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     let conn = self.client().await?;
     let sql = self._table_count_sql(table, r#where);
-    let total = conn.query(&sql).fetch_one::<usize>().await?;
-    Ok(total)
+    let total = conn.query(&sql).fetch_one::<u64>().await?;
+    Ok(total as usize)
   }
 
   async fn export(&self, sql: &str, file: &str) -> anyhow::Result<()> {
