@@ -89,7 +89,7 @@ const NAV_ITEMS = [
 export const navKeyAtom = atom('profile');
 
 export const Display = ({ hidden, children }: PropsWithChildren<{ hidden: boolean }>) => (
-  <div className={hidden ? 'flex flex-col h-full' : 'hidden'}>{children}</div>
+  <div className={hidden ? 'flex min-h-0 h-full flex-col' : 'hidden'}>{children}</div>
 );
 
 export default function AppSettingDialog() {
@@ -103,17 +103,17 @@ export default function AppSettingDialog() {
   return (
     <Dialog
       title={<Trans>Setting</Trans>}
-      className="min-w-[800px] min-h-[600px] max-h-[calc(100dvh-2rem)]"
+      className="min-w-[800px] h-[min(600px,calc(100dvh-2rem))] max-h-[calc(100dvh-2rem)] overflow-hidden"
       trigger={
         <Button variant="ghost" size="icon" className="size-8 rounded-lg">
           <SettingsIcon className="size-4" />
         </Button>
       }
     >
-      <div className="flex min-h-0 flex-col space-y-8 overflow-y-auto overflow-x-hidden pb-1 lg:flex-row lg:space-x-12 lg:space-y-0">
+      <div className="flex min-h-0 h-full flex-col gap-8 overflow-hidden lg:flex-row lg:gap-12">
         <SidebarNav items={items} activeKey={navKey} setKey={setNavKey} />
 
-        <div className="flex-1 lg:max-w-2xl h-full">
+        <div className="min-h-0 flex-1 overflow-hidden lg:max-w-2xl">
           <Display hidden={navKey == 'profile'}>
             <Profile />
           </Display>
@@ -172,8 +172,8 @@ function Profile() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="h-full flex flex-col">
-        <div className="flex-1 space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex min-h-0 h-full flex-col">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
           <FormField
             control={form.control}
             name="locale"
@@ -419,7 +419,7 @@ function Profile() {
             )}
           />
         </div>
-        <DialogFooter>
+        <DialogFooter className="shrink-0 border-t pt-4">
           <DialogClose
             render={
               <Button variant="secondary">
@@ -535,8 +535,8 @@ function SqlFormatForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="h-full flex flex-col">
-        <div className="flex-1 space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex min-h-0 h-full flex-col">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
           <FormField
             control={form.control}
             name="sql_formatter_engine"
@@ -1072,8 +1072,9 @@ function SqlFormatForm() {
                       <Trans>sqlfmt Executable</Trans>
                     </FormLabel>
                     <FormControl>
-                      <ButtonGroup>
+                      <ButtonGroup className="w-full">
                         <Input
+                          className="flex-1"
                           placeholder={t`sqlfmt (from PATH) or absolute path`}
                           {...field}
                           value={field.value ?? ''}
@@ -1216,7 +1217,7 @@ function SqlFormatForm() {
             </div>
           ) : null}
         </div>
-        <DialogFooter>
+        <DialogFooter className="shrink-0 border-t pt-4">
           <DialogClose
             render={
               <Button variant="secondary">
@@ -1345,8 +1346,8 @@ const UpdateForm = () => {
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className=" h-full flex flex-col">
-          <div className="flex-1 space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex min-h-0 h-full flex-col">
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
             <Item variant="outline" className="shadow-sm">
               <ItemContent>
                 <FormLabel>
@@ -1516,7 +1517,7 @@ const UpdateForm = () => {
               )}
             />
           </div>
-          <DialogFooter>
+          <DialogFooter className="shrink-0 border-t pt-4">
             <DialogClose
               render={
                 <Button variant="secondary">
@@ -1547,8 +1548,8 @@ const CSVForm = () => {
   };
 
   return (
-    <>
-      <DialogDescription>
+    <div className="flex min-h-0 h-full flex-col">
+      <DialogDescription className="shrink-0 pb-4">
         <Trans>
           Read csv file parameters, see:&nbsp;
           <a
@@ -1560,8 +1561,8 @@ const CSVForm = () => {
         </Trans>
       </DialogDescription>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
-          <div className="flex-1 space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
             <FormField
               control={form.control}
               name="delim"
@@ -1643,7 +1644,7 @@ const CSVForm = () => {
             />
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="shrink-0 border-t pt-4">
             <DialogClose
               render={
                 <Button variant="secondary">
@@ -1657,6 +1658,6 @@ const CSVForm = () => {
           </DialogFooter>
         </form>
       </Form>
-    </>
+    </div>
   );
 };
