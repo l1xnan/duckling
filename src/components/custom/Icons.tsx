@@ -290,7 +290,7 @@ export const getTypeIcon = (type: string, expanded?: boolean) => {
   if (type == 'view') {
     return <IconBorderOuter />;
   }
-  if (type == 'csv') {
+  if (type == 'csv' || type == 'tsv') {
     return <IconFileTypeCsv />;
   }
   if (type == 'xlsx') {

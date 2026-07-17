@@ -55,11 +55,18 @@ impl Connection for FolderConnection {
         tmp.push(format!("SELECT '*.csv' as file_type, * FROM (DESCRIBE select * FROM read_csv('{pattern}', union_by_name = true))"));
       }
 
+      let pattern = format!("{table}/**/*.tsv");
+      if exist_glob(&pattern) {
+        tmp.push(format!("SELECT '*.tsv' as file_type, * FROM (DESCRIBE select * FROM read_csv('{pattern}', union_by_name = true, delim = '\t'))"));
+      }
+
       tmp.join("\n union all \n")
     } else if ext == "parquet" {
       format!("DESCRIBE select * from read_parquet('{table}')")
     } else if ext == "csv" {
       format!("DESCRIBE select * from read_csv('{table}', union_by_name=true)")
+    } else if ext == "tsv" {
+      format!("DESCRIBE select * from read_csv('{table}', union_by_name=true, delim='\t')")
     } else {
       String::new()
     };
@@ -121,11 +128,20 @@ impl Connection for FolderConnection {
         ));
       }
 
+      let pattern = format!("{table}/**/*.tsv");
+      if exist_glob(&pattern) {
+        tmp.push(format!(
+          "select * FROM read_csv('{pattern}', union_by_name=true, filename=true, delim='\t')"
+        ));
+      }
+
       tmp.join("\n union all \n")
     } else if ext == "parquet" {
       format!("select * from read_parquet('{table}', union_by_name=true, filename=true)")
     } else if ext == "csv" {
       format!("select * from read_csv('{table}', union_by_name=true, filename=true)")
+    } else if ext == "tsv" {
+      format!("select * from read_csv('{table}', union_by_name=true, filename=true, delim='\t')")
     } else if ext == "xlsx" {
       format!("select * from read_xlsx('{table}', ignore_errors=true)")
     } else {
@@ -159,7 +175,7 @@ impl Connection for FolderConnection {
   }
 }
 
-static EXTENSIONS: &[&'static str] = &["csv", "parquet", "xlsx", "json", "jsonl"];
+static EXTENSIONS: &[&'static str] = &["csv", "tsv", "parquet", "xlsx", "json", "jsonl"];
 
 impl FolderConnection {
   fn new(path: &str) -> Self {
