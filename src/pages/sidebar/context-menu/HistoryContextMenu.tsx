@@ -1,5 +1,6 @@
 import { runsAtom } from '@/stores/app';
 import { QueryContextType } from '@/stores/tabs';
+import { Trans } from '@lingui/react/macro';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useSetAtom } from 'jotai';
 import { PropsWithChildren } from 'react';
@@ -30,8 +31,12 @@ export function HistoryContextMenu({
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-64">
-        <ContextMenuItem onSelect={handleCopy}>Copy</ContextMenuItem>{' '}
-        <ContextMenuItem onSelect={handleDelete}>Delete</ContextMenuItem>
+        <ContextMenuItem onSelect={handleCopy}>
+          <Trans>Copy</Trans>
+        </ContextMenuItem>{' '}
+        <ContextMenuItem onSelect={handleDelete}>
+          <Trans>Delete</Trans>
+        </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );

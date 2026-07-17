@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import * as dialog from '@tauri-apps/plugin-dialog';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { ChevronRight, Code2Icon, FolderClock, FolderIcon, FolderPlus, RefreshCw, XIcon } from 'lucide-react';
@@ -301,6 +302,7 @@ function LocalSqlFolder({
 }
 
 export function SqlCode() {
+  const { t } = useLingui();
   const tabs = useTabsStore((state) => state.tabs);
   const currentId = useTabsStore((state) => state.currentId);
   const updateTab = useTabsStore((state) => state.update);
@@ -317,6 +319,7 @@ export function SqlCode() {
   );
   const deleteDialog = useDialog();
   const query = search.trim().toLowerCase();
+  const tempLabel = t`Temporary Files`;
 
   const scratchTabs = Object.values(tabs).filter(
     (tab): tab is EditorContextType =>
@@ -327,8 +330,9 @@ export function SqlCode() {
   );
   const showTempFolder =
     !query ||
-    matchesQuery('Temporary Files', query) ||
+    matchesQuery(tempLabel, query) ||
     matchesQuery('temporary', query) ||
+    matchesQuery('临时', query) ||
     visibleScratchTabs.length > 0;
   const tempOpen = !!query || tempExpanded;
 
@@ -395,15 +399,17 @@ export function SqlCode() {
     setSqlFolders((prev) => (prev.includes(path) ? prev : [...prev, path]));
   };
 
+  const pendingDisplayName = pendingDelete?.displayName ?? '';
+
   return (
     <Container
-      title="Code"
+      title={t`Code`}
       actions={
         <Button
           variant="ghost"
           size="icon"
           className="size-6 rounded-md"
-          aria-label="Open SQL folder"
+          aria-label={t`Open SQL folder`}
           onClick={() => {
             void handleOpenFolder();
           }}
@@ -423,7 +429,7 @@ export function SqlCode() {
       {showTempFolder ? (
         <div>
           <TreeRow
-            label="Temporary Files"
+            label={tempLabel}
             expandable
             expanded={tempOpen}
             icon={<FolderClock  className="size-4" />}
@@ -460,7 +466,7 @@ export function SqlCode() {
                         'size-5 rounded-md shrink-0 opacity-0 group-hover:opacity-100',
                         'hover:bg-selection',
                       )}
-                      aria-label="Delete temporary SQL"
+                      aria-label={t`Delete temporary SQL`}
                       onClick={(e) => {
                         e.stopPropagation();
                         requestDeleteScratch(item);
@@ -506,19 +512,25 @@ export function SqlCode() {
           }}
         >
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete temporary SQL?</AlertDialogTitle>
+            <AlertDialogTitle>
+              <Trans>Delete temporary SQL?</Trans>
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete temporary SQL “
-              {pendingDelete?.displayName ?? ''}”. This action cannot be undone.
+              <Trans>
+                This will permanently delete temporary SQL "{pendingDisplayName}".
+                This action cannot be undone.
+              </Trans>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>
+              <Trans>Cancel</Trans>
+            </AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={confirmDeleteScratch}
             >
-              Delete
+              <Trans>Delete</Trans>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

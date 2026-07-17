@@ -1,3 +1,5 @@
+import { msg } from '@lingui/core/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { getTauriVersion, getVersion } from '@tauri-apps/api/app';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import * as dialog from '@tauri-apps/plugin-dialog';
@@ -7,7 +9,7 @@ import { Update } from '@tauri-apps/plugin-updater';
 import { atom, useAtom } from 'jotai';
 import { SettingsIcon } from 'lucide-react';
 import { nanoid } from 'nanoid';
-import { PropsWithChildren, useEffect, useState } from 'react';
+import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -49,6 +51,7 @@ import { Switch } from '@/components/ui/switch';
 import {
   CsvParam,
   HolywellOptions,
+  LocalePreference,
   SettingState,
   SqlFormatterOptions,
   SqlfmtOptions,
@@ -71,24 +74,12 @@ import {
 } from '@/stores/setting';
 import { isEmpty } from 'radash';
 
-const items = [
-  {
-    key: 'profile',
-    title: 'Appearance',
-  },
-  {
-    key: 'sql-format',
-    title: 'SQL Formatting',
-  },
-  {
-    key: 'csv',
-    title: 'Import/Export',
-  },
-  {
-    key: 'update',
-    title: 'Software Update',
-  },
-];
+const NAV_ITEMS = [
+  { key: 'profile', title: msg`Appearance` },
+  { key: 'sql-format', title: msg`SQL Formatting` },
+  { key: 'csv', title: msg`Import/Export` },
+  { key: 'update', title: msg`Software Update` },
+] as const;
 
 export const navKeyAtom = atom('profile');
 
@@ -97,10 +88,16 @@ export const Display = ({ hidden, children }: PropsWithChildren<{ hidden: boolea
 );
 
 export default function AppSettingDialog() {
+  const { t } = useLingui();
   const [navKey, setNavKey] = useAtom(navKeyAtom);
+  const items = useMemo(
+    () => NAV_ITEMS.map((item) => ({ key: item.key, title: t(item.title) })),
+    [t],
+  );
+
   return (
     <Dialog
-      title="Setting"
+      title={<Trans>Setting</Trans>}
       className="min-w-[800px] min-h-[600px] max-h-[calc(100dvh-2rem)]"
       trigger={
         <Button variant="ghost" size="icon" className="size-8 rounded-lg">
@@ -139,6 +136,7 @@ const lightItems = editorThemes
   .map((t) => ({ label: t.name, value: t.id }));
 
 function Profile() {
+  const { t } = useLingui();
   const [settings, setSettings] = useAtom(settingAtom);
   const form = useForm({
     defaultValues: {
@@ -147,9 +145,16 @@ function Profile() {
     },
   });
 
+  const localeOptions: { value: LocalePreference; label: string }[] = [
+    { value: 'system', label: t`System` },
+    { value: 'en', label: 'English' },
+    { value: 'zh-CN', label: '简体中文' },
+  ];
+
   const onSubmit = (data: SettingState) => {
     setSettings((s) => ({
       ...s,
+      locale: data.locale ?? 'system',
       main_font_family: data.main_font_family,
       table_font_family: data.table_font_family,
       editor_theme: data.editor_theme,
@@ -163,17 +168,57 @@ function Profile() {
         <div className="flex-1 space-y-4">
           <FormField
             control={form.control}
+            name="locale"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  <Trans>Language</Trans>
+                </FormLabel>
+                <Select
+                  value={field.value ?? 'system'}
+                  onValueChange={(v) => field.onChange((v as LocalePreference) ?? 'system')}
+                  items={localeOptions}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectGroup>
+                      {localeOptions.map((item) => (
+                        <SelectItem key={item.value} value={item.value} label={item.label}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  <Trans>
+                    Follow the system language when available; otherwise fall back to English.
+                  </Trans>
+                </FormDescription>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="main_font_family"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Main Font Family</FormLabel>
+                <FormLabel>
+                  <Trans>Main Font Family</Trans>
+                </FormLabel>
                 <FontFamilyCombobox
                   value={field.value ?? ''}
                   onChange={field.onChange}
-                  placeholder="Search system fonts"
+                  placeholder={t`Search system fonts`}
                 />
                 <FormDescription>
-                  Search installed fonts, or type any font name / CSS stack and choose Use.
+                  <Trans>
+                    Search installed fonts, or type any font name / CSS stack and choose Use.
+                  </Trans>
                 </FormDescription>
               </FormItem>
             )}
@@ -183,14 +228,18 @@ function Profile() {
             name="table_font_family"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Table Font Family</FormLabel>
+                <FormLabel>
+                  <Trans>Table Font Family</Trans>
+                </FormLabel>
                 <FontFamilyCombobox
                   value={field.value ?? ''}
                   onChange={field.onChange}
-                  placeholder="Search system fonts"
+                  placeholder={t`Search system fonts`}
                 />
                 <FormDescription>
-                  Used by the data table canvas renderer. Custom names are allowed.
+                  <Trans>
+                    Used by the data table canvas renderer. Custom names are allowed.
+                  </Trans>
                 </FormDescription>
               </FormItem>
             )}
@@ -201,7 +250,9 @@ function Profile() {
             name="editor_theme.light"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Editor Light Theme</FormLabel>
+                <FormLabel>
+                  <Trans>Editor Light Theme</Trans>
+                </FormLabel>
 
                 <Combobox
                   value={lightItems.find((i) => i.value === field.value) ?? null}
@@ -210,7 +261,7 @@ function Profile() {
                   itemToStringValue={(item) => item?.label}
                 >
                   <FormControl>
-                    <ComboboxInput placeholder="Select editor theme" />
+                    <ComboboxInput placeholder={t`Select editor theme`} />
                   </FormControl>
                   <ComboboxContent>
                     <ComboboxList>
@@ -230,7 +281,9 @@ function Profile() {
             name="editor_theme.dark"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Editor Dark Theme</FormLabel>
+                <FormLabel>
+                  <Trans>Editor Dark Theme</Trans>
+                </FormLabel>
                 <Combobox
                   value={darkItems.find((i) => i.value === field.value) ?? null}
                   onValueChange={(v) => field.onChange(v?.value ?? '')}
@@ -238,7 +291,7 @@ function Profile() {
                   itemToStringValue={(item) => item?.label}
                 >
                   <FormControl>
-                    <ComboboxInput placeholder="Select editor theme" />
+                    <ComboboxInput placeholder={t`Select editor theme`} />
                   </FormControl>
                   <ComboboxContent>
                     <ComboboxList>
@@ -251,11 +304,13 @@ function Profile() {
                   </ComboboxContent>
                 </Combobox>
                 <FormDescription>
-                  Reference:{' '}
-                  <a href="https://textmate-grammars-themes.netlify.app/" target="_blank">
-                    Shiki TextMate Grammar & Theme Playground
-                  </a>
-                  .
+                  <Trans>
+                    Reference:{' '}
+                    <a href="https://textmate-grammars-themes.netlify.app/" target="_blank">
+                      Shiki TextMate Grammar & Theme Playground
+                    </a>
+                    .
+                  </Trans>
                 </FormDescription>
               </FormItem>
             )}
@@ -265,7 +320,9 @@ function Profile() {
             name="precision"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Float precision</FormLabel>
+                <FormLabel>
+                  <Trans>Float precision</Trans>
+                </FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -274,8 +331,16 @@ function Profile() {
           />
         </div>
         <DialogFooter>
-          <DialogClose render={<Button variant="secondary">Cancel</Button>}></DialogClose>
-          <Button type="submit">Update</Button>
+          <DialogClose
+            render={
+              <Button variant="secondary">
+                <Trans>Cancel</Trans>
+              </Button>
+            }
+          ></DialogClose>
+          <Button type="submit">
+            <Trans>Update</Trans>
+          </Button>
         </DialogFooter>
       </form>
     </Form>
@@ -295,6 +360,7 @@ function numberFromInput(value: string, fallback: number) {
 }
 
 function SqlFormatForm() {
+  const { t } = useLingui();
   const [settings, setSettings] = useAtom(settingAtom);
   const form = useForm<SqlFormatSettings>({
     defaultValues: {
@@ -312,6 +378,35 @@ function SqlFormatForm() {
     control: form.control,
     name: 'sql_formatter_engine',
   });
+
+  const caseOptions = useMemo(
+    () => sqlCaseOptions.map((item) => ({ value: item.value, label: t(item.label) })),
+    [t],
+  );
+  const indentStyleOptions = useMemo(
+    () =>
+      sqlIndentStyleOptions.map((item) => ({
+        value: item.value,
+        label: t(item.label),
+      })),
+    [t],
+  );
+  const logicalNewlineOptions = useMemo(
+    () =>
+      sqlLogicalNewlineOptions.map((item) => ({
+        value: item.value,
+        label: t(item.label),
+      })),
+    [t],
+  );
+  const dialectOptions = useMemo(
+    () =>
+      sqlfmtDialectOptions.map((item) => ({
+        value: item.value,
+        label: t(item.label),
+      })),
+    [t],
+  );
 
   const [sqlfmtStatus, setSqlfmtStatus] = useState<SqlfmtCheckResult | null>(null);
   const [sqlfmtChecking, setSqlfmtChecking] = useState(false);
@@ -364,7 +459,9 @@ function SqlFormatForm() {
 
               return (
                 <FormItem>
-                  <FormLabel>SQL Formatter Engine</FormLabel>
+                  <FormLabel>
+                    <Trans>SQL Formatter Engine</Trans>
+                  </FormLabel>
                   <Combobox
                     value={selected}
                     onValueChange={(v) =>
@@ -375,7 +472,7 @@ function SqlFormatForm() {
                     isItemEqualToValue={(a, b) => a.id === b.id}
                   >
                     <FormControl>
-                      <ComboboxInput placeholder="Select SQL formatter" />
+                      <ComboboxInput placeholder={t`Select SQL formatter`} />
                     </FormControl>
                     <ComboboxContent>
                       <ComboboxList>
@@ -384,7 +481,7 @@ function SqlFormatForm() {
                             <div className="flex flex-col">
                               <span>{item.name}</span>
                               <span className="text-xs text-muted-foreground">
-                                {item.description}
+                                {t(item.description)}
                               </span>
                             </div>
                           </ComboboxItem>
@@ -393,7 +490,9 @@ function SqlFormatForm() {
                     </ComboboxContent>
                   </Combobox>
                   <FormDescription>
-                    Used by Format Document / Format Selection in the SQL editor.
+                    <Trans>
+                      Used by Format Document / Format Selection in the SQL editor.
+                    </Trans>
                   </FormDescription>
                 </FormItem>
               );
@@ -403,9 +502,14 @@ function SqlFormatForm() {
           {formatterEngine === 'sql-formatter' ? (
             <div className="space-y-4 rounded-md border p-3">
               <div>
-                <Label className="text-sm font-medium">sql-formatter options</Label>
+                <Label className="text-sm font-medium">
+                  <Trans>sql-formatter options</Trans>
+                </Label>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Dialect still follows the active connection. Defaults match previous behavior.
+                  <Trans>
+                    Dialect still follows the active connection. Defaults match previous
+                    behavior.
+                  </Trans>
                 </p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -414,7 +518,9 @@ function SqlFormatForm() {
                   name="sql_formatter_options.tabWidth"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tab width</FormLabel>
+                      <FormLabel>
+                        <Trans>Tab width</Trans>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -439,7 +545,9 @@ function SqlFormatForm() {
                   name="sql_formatter_options.expressionWidth"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Expression width</FormLabel>
+                      <FormLabel>
+                        <Trans>Expression width</Trans>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -464,7 +572,9 @@ function SqlFormatForm() {
                   name="sql_formatter_options.linesBetweenQueries"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Lines between queries</FormLabel>
+                      <FormLabel>
+                        <Trans>Lines between queries</Trans>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -489,13 +599,15 @@ function SqlFormatForm() {
                   name="sql_formatter_options.indentStyle"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Indent style</FormLabel>
+                      <FormLabel>
+                        <Trans>Indent style</Trans>
+                      </FormLabel>
                       <Select
                         value={field.value}
                         onValueChange={(v) =>
                           field.onChange(v ?? defaultSqlFormatterOptions.indentStyle)
                         }
-                        items={sqlIndentStyleOptions}
+                        items={indentStyleOptions}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -504,7 +616,7 @@ function SqlFormatForm() {
                         </FormControl>
                         <SelectContent>
                           <SelectGroup>
-                            {sqlIndentStyleOptions.map((item) => (
+                            {indentStyleOptions.map((item) => (
                               <SelectItem
                                 key={item.value}
                                 value={item.value}
@@ -524,13 +636,15 @@ function SqlFormatForm() {
                   name="sql_formatter_options.keywordCase"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Keyword case</FormLabel>
+                      <FormLabel>
+                        <Trans>Keyword case</Trans>
+                      </FormLabel>
                       <Select
                         value={field.value}
                         onValueChange={(v) =>
                           field.onChange(v ?? defaultSqlFormatterOptions.keywordCase)
                         }
-                        items={sqlCaseOptions}
+                        items={caseOptions}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -539,7 +653,7 @@ function SqlFormatForm() {
                         </FormControl>
                         <SelectContent>
                           <SelectGroup>
-                            {sqlCaseOptions.map((item) => (
+                            {caseOptions.map((item) => (
                               <SelectItem
                                 key={item.value}
                                 value={item.value}
@@ -559,7 +673,9 @@ function SqlFormatForm() {
                   name="sql_formatter_options.identifierCase"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Identifier case</FormLabel>
+                      <FormLabel>
+                        <Trans>Identifier case</Trans>
+                      </FormLabel>
                       <Select
                         value={field.value}
                         onValueChange={(v) =>
@@ -567,7 +683,7 @@ function SqlFormatForm() {
                             v ?? defaultSqlFormatterOptions.identifierCase,
                           )
                         }
-                        items={sqlCaseOptions}
+                        items={caseOptions}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -576,7 +692,7 @@ function SqlFormatForm() {
                         </FormControl>
                         <SelectContent>
                           <SelectGroup>
-                            {sqlCaseOptions.map((item) => (
+                            {caseOptions.map((item) => (
                               <SelectItem
                                 key={item.value}
                                 value={item.value}
@@ -596,13 +712,15 @@ function SqlFormatForm() {
                   name="sql_formatter_options.functionCase"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Function case</FormLabel>
+                      <FormLabel>
+                        <Trans>Function case</Trans>
+                      </FormLabel>
                       <Select
                         value={field.value}
                         onValueChange={(v) =>
                           field.onChange(v ?? defaultSqlFormatterOptions.functionCase)
                         }
-                        items={sqlCaseOptions}
+                        items={caseOptions}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -611,7 +729,7 @@ function SqlFormatForm() {
                         </FormControl>
                         <SelectContent>
                           <SelectGroup>
-                            {sqlCaseOptions.map((item) => (
+                            {caseOptions.map((item) => (
                               <SelectItem
                                 key={item.value}
                                 value={item.value}
@@ -631,13 +749,15 @@ function SqlFormatForm() {
                   name="sql_formatter_options.dataTypeCase"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Data type case</FormLabel>
+                      <FormLabel>
+                        <Trans>Data type case</Trans>
+                      </FormLabel>
                       <Select
                         value={field.value}
                         onValueChange={(v) =>
                           field.onChange(v ?? defaultSqlFormatterOptions.dataTypeCase)
                         }
-                        items={sqlCaseOptions}
+                        items={caseOptions}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -646,7 +766,7 @@ function SqlFormatForm() {
                         </FormControl>
                         <SelectContent>
                           <SelectGroup>
-                            {sqlCaseOptions.map((item) => (
+                            {caseOptions.map((item) => (
                               <SelectItem
                                 key={item.value}
                                 value={item.value}
@@ -666,7 +786,9 @@ function SqlFormatForm() {
                   name="sql_formatter_options.logicalOperatorNewline"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Logical operator newline</FormLabel>
+                      <FormLabel>
+                        <Trans>Logical operator newline</Trans>
+                      </FormLabel>
                       <Select
                         value={field.value}
                         onValueChange={(v) =>
@@ -674,7 +796,7 @@ function SqlFormatForm() {
                             v ?? defaultSqlFormatterOptions.logicalOperatorNewline,
                           )
                         }
-                        items={sqlLogicalNewlineOptions}
+                        items={logicalNewlineOptions}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -683,7 +805,7 @@ function SqlFormatForm() {
                         </FormControl>
                         <SelectContent>
                           <SelectGroup>
-                            {sqlLogicalNewlineOptions.map((item) => (
+                            {logicalNewlineOptions.map((item) => (
                               <SelectItem
                                 key={item.value}
                                 value={item.value}
@@ -706,8 +828,12 @@ function SqlFormatForm() {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-md border px-3 py-2">
                       <div className="space-y-0.5">
-                        <FormLabel>Use tabs</FormLabel>
-                        <FormDescription>Indent with tabs instead of spaces</FormDescription>
+                        <FormLabel>
+                          <Trans>Use tabs</Trans>
+                        </FormLabel>
+                        <FormDescription>
+                          <Trans>Indent with tabs instead of spaces</Trans>
+                        </FormDescription>
                       </div>
                       <FormControl>
                         <Switch
@@ -724,8 +850,12 @@ function SqlFormatForm() {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-md border px-3 py-2">
                       <div className="space-y-0.5">
-                        <FormLabel>Dense operators</FormLabel>
-                        <FormDescription>Pack operators without spaces</FormDescription>
+                        <FormLabel>
+                          <Trans>Dense operators</Trans>
+                        </FormLabel>
+                        <FormDescription>
+                          <Trans>Pack operators without spaces</Trans>
+                        </FormDescription>
                       </div>
                       <FormControl>
                         <Switch
@@ -742,8 +872,12 @@ function SqlFormatForm() {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-md border px-3 py-2 sm:col-span-2">
                       <div className="space-y-0.5">
-                        <FormLabel>Newline before semicolon</FormLabel>
-                        <FormDescription>Place `;` on its own line</FormDescription>
+                        <FormLabel>
+                          <Trans>Newline before semicolon</Trans>
+                        </FormLabel>
+                        <FormDescription>
+                          <Trans>Place `;` on its own line</Trans>
+                        </FormDescription>
                       </div>
                       <FormControl>
                         <Switch
@@ -761,9 +895,13 @@ function SqlFormatForm() {
           {formatterEngine === 'holywell' ? (
             <div className="space-y-4 rounded-md border p-3">
               <div>
-                <Label className="text-sm font-medium">holywell options</Label>
+                <Label className="text-sm font-medium">
+                  <Trans>holywell options</Trans>
+                </Label>
                 <p className="text-xs text-muted-foreground mt-1">
-                  River-alignment style; dialect follows the active connection.
+                  <Trans>
+                    River-alignment style; dialect follows the active connection.
+                  </Trans>
                 </p>
               </div>
               <FormField
@@ -771,7 +909,9 @@ function SqlFormatForm() {
                 name="holywell_options.maxLineLength"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Max line length</FormLabel>
+                    <FormLabel>
+                      <Trans>Max line length</Trans>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -789,7 +929,7 @@ function SqlFormatForm() {
                       />
                     </FormControl>
                     <FormDescription>
-                      Preferred maximum output width in display columns.
+                      <Trans>Preferred maximum output width in display columns.</Trans>
                     </FormDescription>
                   </FormItem>
                 )}
@@ -800,9 +940,13 @@ function SqlFormatForm() {
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-md border px-3 py-2">
                     <div className="space-y-0.5">
-                      <FormLabel>Recover on parse errors</FormLabel>
+                      <FormLabel>
+                        <Trans>Recover on parse errors</Trans>
+                      </FormLabel>
                       <FormDescription>
-                        Keep unparseable statements as raw text instead of failing
+                        <Trans>
+                          Keep unparseable statements as raw text instead of failing
+                        </Trans>
                       </FormDescription>
                     </div>
                     <FormControl>
@@ -820,9 +964,14 @@ function SqlFormatForm() {
           {formatterEngine === 'shandy-sqlfmt' ? (
             <div className="space-y-4 rounded-md border p-3">
               <div>
-                <Label className="text-sm font-medium">shandy-sqlfmt options</Label>
+                <Label className="text-sm font-medium">
+                  <Trans>shandy-sqlfmt options</Trans>
+                </Label>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Calls the external <code className="text-xs">sqlfmt</code> binary via Tauri.
+                  <Trans>
+                    Calls the external <code className="text-xs">sqlfmt</code> binary via
+                    Tauri.
+                  </Trans>
                 </p>
               </div>
               <FormField
@@ -830,11 +979,13 @@ function SqlFormatForm() {
                 name="sqlfmt_options.path"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>sqlfmt Executable</FormLabel>
+                    <FormLabel>
+                      <Trans>sqlfmt Executable</Trans>
+                    </FormLabel>
                     <FormControl>
                       <ButtonGroup>
                         <Input
-                          placeholder="sqlfmt (from PATH) or absolute path"
+                          placeholder={t`sqlfmt (from PATH) or absolute path`}
                           {...field}
                           value={field.value ?? ''}
                         />
@@ -853,7 +1004,7 @@ function SqlFormatForm() {
                             }
                           }}
                         >
-                          Browse
+                          <Trans>Browse</Trans>
                         </Button>
                         <Button
                           type="button"
@@ -864,26 +1015,29 @@ function SqlFormatForm() {
                             await runSqlfmtCheck(field.value);
                           }}
                         >
-                          {sqlfmtChecking ? <Spinner className="size-4" /> : 'Check'}
+                          {sqlfmtChecking ? <Spinner className="size-4" /> : <Trans>Check</Trans>}
                         </Button>
                       </ButtonGroup>
                     </FormControl>
                     <FormDescription>
-                      Install with{' '}
-                      <code className="text-xs">uv tool install shandy-sqlfmt</code> or set the
-                      full path to the <code className="text-xs">sqlfmt</code> binary.
+                      <Trans>
+                        Install with{' '}
+                        <code className="text-xs">uv tool install shandy-sqlfmt</code> or
+                        set the full path to the <code className="text-xs">sqlfmt</code>{' '}
+                        binary.
+                      </Trans>
                       {sqlfmtStatus ? (
                         <>
                           <br />
                           {sqlfmtStatus.available ? (
                             <span className="text-emerald-600 dark:text-emerald-400">
-                              Available
+                              <Trans>Available</Trans>
                               {sqlfmtStatus.version ? `: ${sqlfmtStatus.version}` : ''}
                               {sqlfmtStatus.path ? ` (${sqlfmtStatus.path})` : ''}
                             </span>
                           ) : (
                             <span className="text-destructive">
-                              Not available
+                              <Trans>Not available</Trans>
                               {sqlfmtStatus.error ? `: ${sqlfmtStatus.error}` : ''}
                             </span>
                           )}
@@ -899,7 +1053,9 @@ function SqlFormatForm() {
                   name="sqlfmt_options.lineLength"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Line length</FormLabel>
+                      <FormLabel>
+                        <Trans>Line length</Trans>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -916,7 +1072,12 @@ function SqlFormatForm() {
                           }
                         />
                       </FormControl>
-                      <FormDescription>Passed as --line-length (default 88)</FormDescription>
+                      <FormDescription>
+                        <Trans>
+                          Passed as <code className="text-xs">--line-length</code> (default
+                          88)
+                        </Trans>
+                      </FormDescription>
                     </FormItem>
                   )}
                 />
@@ -925,13 +1086,15 @@ function SqlFormatForm() {
                   name="sqlfmt_options.dialect"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Dialect</FormLabel>
+                      <FormLabel>
+                        <Trans>Dialect</Trans>
+                      </FormLabel>
                       <Select
                         value={field.value}
                         onValueChange={(v) =>
                           field.onChange(v ?? defaultSqlfmtOptions.dialect)
                         }
-                        items={sqlfmtDialectOptions}
+                        items={dialectOptions}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -940,7 +1103,7 @@ function SqlFormatForm() {
                         </FormControl>
                         <SelectContent>
                           <SelectGroup>
-                            {sqlfmtDialectOptions.map((item) => (
+                            {dialectOptions.map((item) => (
                               <SelectItem
                                 key={item.value}
                                 value={item.value}
@@ -953,7 +1116,9 @@ function SqlFormatForm() {
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Use ClickHouse to preserve identifier case sensitivity
+                        <Trans>
+                          Use ClickHouse to preserve identifier case sensitivity
+                        </Trans>
                       </FormDescription>
                     </FormItem>
                   )}
@@ -963,8 +1128,16 @@ function SqlFormatForm() {
           ) : null}
         </div>
         <DialogFooter>
-          <DialogClose render={<Button variant="secondary">Cancel</Button>}></DialogClose>
-          <Button type="submit">Update</Button>
+          <DialogClose
+            render={
+              <Button variant="secondary">
+                <Trans>Cancel</Trans>
+              </Button>
+            }
+          ></DialogClose>
+          <Button type="submit">
+            <Trans>Update</Trans>
+          </Button>
         </DialogFooter>
       </form>
     </Form>
@@ -972,6 +1145,7 @@ function SqlFormatForm() {
 }
 
 const UpdateForm = () => {
+  const { t } = useLingui();
   const proxy = useSettingStore((state) => state.proxy);
   const updaterSource = useSettingStore(
     (state) => state.updater_source ?? defaultSettings.updater_source!,
@@ -984,6 +1158,16 @@ const UpdateForm = () => {
       updater_source: settings.updater_source ?? defaultSettings.updater_source,
     },
   });
+
+  const updaterSourceItems = useMemo(
+    () =>
+      updaterSources.map((s) => ({
+        label: t(s.name),
+        value: s.id,
+        description: t(s.description),
+      })),
+    [t],
+  );
 
   const [loading, setLoading] = useState<boolean>(false);
   const [version, setVersion] = useState<string>();
@@ -1021,11 +1205,11 @@ const UpdateForm = () => {
       if (next?.version != next?.currentVersion) {
         //
       } else {
-        toast.success("It's the latest version");
+        toast.success(t`It's the latest version`);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      toast.error(`Update check failed: ${message}`);
+      toast.error(t`Update check failed: ${message}`);
     } finally {
       setLoading(false);
     }
@@ -1055,10 +1239,14 @@ const UpdateForm = () => {
           <div className="flex-1 space-y-4">
             <Item variant="outline" className="shadow-sm">
               <ItemContent>
-                <FormLabel>Current version: {version}</FormLabel>
+                <FormLabel>
+                  <Trans>Current version: {version}</Trans>
+                </FormLabel>
                 {/* <FormDescription>Tauri: {tauriVersion}</FormDescription> */}
                 {update?.version && (
-                  <FormDescription>Discover new version: {update?.version}</FormDescription>
+                  <FormDescription>
+                    <Trans>Discover new version: {update?.version}</Trans>
+                  </FormDescription>
                 )}
               </ItemContent>
               <ItemActions>
@@ -1071,7 +1259,7 @@ const UpdateForm = () => {
                     }}
                   >
                     {loading ? <Spinner /> : null}
-                    Click to update
+                    <Trans>Click to update</Trans>
                   </Button>
                 ) : (
                   <Button
@@ -1082,7 +1270,7 @@ const UpdateForm = () => {
                     }}
                   >
                     {loading ? <Spinner /> : null}
-                    Check for updates
+                    <Trans>Check for updates</Trans>
                   </Button>
                 )}
               </ItemActions>
@@ -1092,14 +1280,13 @@ const UpdateForm = () => {
               name="updater_source"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Update source</FormLabel>
+                  <FormLabel>
+                    <Trans>Update source</Trans>
+                  </FormLabel>
                   <Select
                     value={field.value ?? 'official'}
                     onValueChange={(v) => field.onChange(v ?? 'official')}
-                    items={updaterSources.map((s) => ({
-                      label: s.name,
-                      value: s.id,
-                    }))}
+                    items={updaterSourceItems}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -1108,14 +1295,14 @@ const UpdateForm = () => {
                     </FormControl>
                     <SelectContent>
                       <SelectGroup>
-                        {updaterSources.map((item) => (
+                        {updaterSourceItems.map((item) => (
                           <SelectItem
-                            key={item.id}
-                            value={item.id}
-                            label={item.name}
+                            key={item.value}
+                            value={item.value}
+                            label={item.label}
                           >
                             <div className="flex flex-col items-start">
-                              <span>{item.name}</span>
+                              <span>{item.label}</span>
                               <span className="text-xs text-muted-foreground">
                                 {item.description}
                               </span>
@@ -1126,8 +1313,10 @@ const UpdateForm = () => {
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    Official uses GitHub Releases. China Mirror goes through gh-proxy.com for
-                    better connectivity in mainland China.
+                    <Trans>
+                      Official uses GitHub Releases. China Mirror goes through gh-proxy.com
+                      for better connectivity in mainland China.
+                    </Trans>
                   </FormDescription>
                 </FormItem>
               )}
@@ -1140,9 +1329,13 @@ const UpdateForm = () => {
                   <Item variant="outline" className="shadow-sm">
                     <ItemContent>
                       <div className="space-y-0.5">
-                        <ItemTitle>Automatic updates</ItemTitle>
+                        <ItemTitle>
+                          <Trans>Automatic updates</Trans>
+                        </ItemTitle>
                         <ItemDescription>
-                          Turn this off to prevent the app from checking for updates.
+                          <Trans>
+                            Turn this off to prevent the app from checking for updates.
+                          </Trans>
                         </ItemDescription>
                       </div>
                     </ItemContent>
@@ -1160,8 +1353,12 @@ const UpdateForm = () => {
               name="proxy"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Proxy</FormLabel>
-                  <FormDescription>use a proxy server for updater</FormDescription>
+                  <FormLabel>
+                    <Trans>Proxy</Trans>
+                  </FormLabel>
+                  <FormDescription>
+                    <Trans>use a proxy server for updater</Trans>
+                  </FormDescription>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -1173,8 +1370,12 @@ const UpdateForm = () => {
               name="debug"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Debug</FormLabel>
-                  <FormDescription>Open developer debugging page</FormDescription>
+                  <FormLabel>
+                    <Trans>Debug</Trans>
+                  </FormLabel>
+                  <FormDescription>
+                    <Trans>Open developer debugging page</Trans>
+                  </FormDescription>
                   <div className="flex w-full items-center space-x-2">
                     <FormControl>
                       <Input placeholder="http://localhost:5173" {...field} />
@@ -1189,7 +1390,7 @@ const UpdateForm = () => {
                         });
                       }}
                     >
-                      Open
+                      <Trans>Open</Trans>
                     </Button>
                   </div>
                 </FormItem>
@@ -1197,8 +1398,16 @@ const UpdateForm = () => {
             />
           </div>
           <DialogFooter>
-            <DialogClose render={<Button variant="secondary">Cancel</Button>}></DialogClose>
-            <Button type="submit">Update</Button>
+            <DialogClose
+              render={
+                <Button variant="secondary">
+                  <Trans>Cancel</Trans>
+                </Button>
+              }
+            ></DialogClose>
+            <Button type="submit">
+              <Trans>Update</Trans>
+            </Button>
           </DialogFooter>
         </form>
       </Form>
@@ -1221,13 +1430,15 @@ const CSVForm = () => {
   return (
     <>
       <DialogDescription>
-        Read csv file parameters, see:&nbsp;
-        <a
-          className="prose prose-a:text-link text-link border-b-[1px] cursor-pointer"
-          onClick={() => shell.open('https://duckdb.org/docs/data/csv/overview.html#parameters')}
-        >
-          csv parameters
-        </a>
+        <Trans>
+          Read csv file parameters, see:&nbsp;
+          <a
+            className="prose prose-a:text-link text-link border-b-[1px] cursor-pointer"
+            onClick={() => shell.open('https://duckdb.org/docs/data/csv/overview.html#parameters')}
+          >
+            csv parameters
+          </a>
+        </Trans>
       </DialogDescription>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
@@ -1237,12 +1448,17 @@ const CSVForm = () => {
               name="delim"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Delim</FormLabel>
+                  <FormLabel>
+                    <Trans>Delim</Trans>
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
                   <FormDescription>
-                    Specifies the string that separates columns within each row (line) of the file.
+                    <Trans>
+                      Specifies the string that separates columns within each row (line) of
+                      the file.
+                    </Trans>
                   </FormDescription>
                 </FormItem>
               )}
@@ -1252,12 +1468,16 @@ const CSVForm = () => {
               name="quote"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Quote</FormLabel>
+                  <FormLabel>
+                    <Trans>Quote</Trans>
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
                   <FormDescription>
-                    Specifies the quoting string to be used when a data value is quoted.
+                    <Trans>
+                      Specifies the quoting string to be used when a data value is quoted.
+                    </Trans>
                   </FormDescription>
                 </FormItem>
               )}
@@ -1267,13 +1487,17 @@ const CSVForm = () => {
               name="escape"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Escape</FormLabel>
+                  <FormLabel>
+                    <Trans>Escape</Trans>
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
                   <FormDescription>
-                    Specifies the string that should appear before a data character sequence that
-                    matches the quote value.
+                    <Trans>
+                      Specifies the string that should appear before a data character
+                      sequence that matches the quote value.
+                    </Trans>
                   </FormDescription>
                 </FormItem>
               )}
@@ -1283,12 +1507,17 @@ const CSVForm = () => {
               name="new_line"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>New line</FormLabel>
+                  <FormLabel>
+                    <Trans>New line</Trans>
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
                   <FormDescription>
-                    Set the new line character(s) in the file. Options are '\r','\n', or '\r\n'.
+                    <Trans>
+                      Set the new line character(s) in the file. Options are '\r','\n', or
+                      '\r\n'.
+                    </Trans>
                   </FormDescription>
                 </FormItem>
               )}
@@ -1296,9 +1525,15 @@ const CSVForm = () => {
           </div>
 
           <DialogFooter>
-            <DialogClose render={<Button variant="secondary">Cancel</Button>}></DialogClose>
+            <DialogClose
+              render={
+                <Button variant="secondary">
+                  <Trans>Cancel</Trans>
+                </Button>
+              }
+            ></DialogClose>
             <Button className="mx-0" type="submit">
-              Update
+              <Trans>Update</Trans>
             </Button>
           </DialogFooter>
         </form>

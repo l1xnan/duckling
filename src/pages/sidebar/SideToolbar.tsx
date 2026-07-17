@@ -1,3 +1,4 @@
+import { useLingui } from '@lingui/react/macro';
 import {
   IconDatabaseCog,
   IconFolderPlus,
@@ -28,6 +29,7 @@ export function SideToolbar({
   onExpandAll: () => void;
   onCollapseAll: () => void;
 }) {
+  const { t } = useLingui();
   const [dbList, appendDB, updateDB, _removeDB] = useDBListStore(
     useShallow((s) => [s.dbList, s.append, s.updateByConfig, s.remove]),
   );
@@ -70,24 +72,24 @@ export function SideToolbar({
   return (
     <>
       <div className="h-8 min-h-8 w-full px-2 flex items-center justify-between border-b">
-        <div className="font-semibold text-sm">Database Explorer</div>
+        <div className="font-semibold text-sm">{t`Database Explorer`}</div>
         <div className="flex items-center">
-          <TooltipButton tooltip="Expand All" onClick={onExpandAll}>
+          <TooltipButton tooltip={t`Expand All`} onClick={onExpandAll}>
             <ChevronsUpDownIcon />
           </TooltipButton>
-          <TooltipButton tooltip="Collapse All" onClick={onCollapseAll}>
+          <TooltipButton tooltip={t`Collapse All`} onClick={onCollapseAll}>
             <ChevronsDownUpIcon />
           </TooltipButton>
         </div>
       </div>
       <ToolbarContainer>
         <Stack>
-          <TooltipButton tooltip="Add data folder" onClick={handleAppendFolder}>
+          <TooltipButton tooltip={t`Add data folder`} onClick={handleAppendFolder}>
             <IconFolderPlus />
           </TooltipButton>
           <DatabaseDialog />
           <TooltipButton
-            tooltip="DB setting"
+            tooltip={t`DB setting`}
             disabled={!selectedNode}
             onClick={d.trigger}
           >
@@ -95,7 +97,7 @@ export function SideToolbar({
           </TooltipButton>
           {/* refresh tree */}
           <TooltipButton
-            tooltip="Refresh DB"
+            tooltip={t`Refresh DB`}
             disabled={!selectedNode}
             onClick={handleRefresh}
           >

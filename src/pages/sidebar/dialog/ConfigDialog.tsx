@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import { useForm } from 'react-hook-form';
 
 import { Dialog } from '@/components/custom/Dialog';
@@ -34,11 +35,11 @@ export function ConfigDialog({
     >
       <DatabaseForm form={form} handleSubmit={handleSubmit} isNew={false} />
       <DialogFooter>
-        <DialogClose render={<Button variant="secondary">Cancel</Button>}>
+        <DialogClose render={<Button variant="secondary"><Trans>Cancel</Trans></Button>}>
           
         </DialogClose>
         <Button type="submit" onClick={form.handleSubmit(handleSubmit)}>
-          Ok
+          <Trans>Ok</Trans>
         </Button>
       </DialogFooter>
     </Dialog>

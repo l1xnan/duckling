@@ -1,8 +1,10 @@
 import * as React from "react"
 import { Dialog as SheetPrimitive } from "@base-ui/react/dialog"
+import { msg } from '@lingui/core/macro'
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { i18n } from '@/i18n'
 import { XIcon } from "lucide-react"
 
 function Sheet({ ...props }: SheetPrimitive.Root.Props) {
@@ -70,7 +72,7 @@ function SheetContent({
           >
             <XIcon
             />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{i18n._(msg`Close`)}</span>
           </SheetPrimitive.Close>
         )}
       </SheetPrimitive.Popup>

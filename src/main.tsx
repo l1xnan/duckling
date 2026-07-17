@@ -11,6 +11,7 @@ import './styles.css';
 
 import '@/init-monaco';
 import '@/init-theme';
+import { setupI18n } from '@/i18n';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -26,8 +27,11 @@ document.oncontextmenu = function () {
   return false;
 };
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-);
+void (async () => {
+  await setupI18n();
+  ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+  );
+})();

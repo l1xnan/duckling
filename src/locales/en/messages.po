@@ -1,0 +1,1037 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-07-17 10:54+0800\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: src/components/custom/pagination.tsx:69
+msgid "{count} rows"
+msgstr "{count} rows"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:586
+msgid "Add data"
+msgstr "Add data"
+
+#: src/pages/sidebar/SideToolbar.tsx:87
+msgid "Add data folder"
+msgstr "Add data folder"
+
+#: src/stores/setting.ts:288
+msgid "After operator"
+msgstr "After operator"
+
+#: src/components/views/ExportDialog.tsx:108
+msgid "All Files"
+msgstr "All Files"
+
+#: src/pages/settings/AppSetting.tsx:78
+msgid "Appearance"
+msgstr "Appearance"
+
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:196
+msgid "Are you absolutely sure?"
+msgstr "Are you absolutely sure?"
+
+#: src/pages/settings/AppSetting.tsx:1333
+msgid "Automatic updates"
+msgstr "Automatic updates"
+
+#: src/pages/settings/AppSetting.tsx:1034
+msgid "Available"
+msgstr "Available"
+
+#: src/stores/setting.ts:287
+msgid "Before operator"
+msgstr "Before operator"
+
+#: src/components/views/ExportDialog.tsx:241
+#: src/pages/settings/AppSetting.tsx:1007
+msgid "Browse"
+msgstr "Browse"
+
+#: src/components/views/ValueViewer.tsx:119
+msgid "Calculate"
+msgstr "Calculate"
+
+#: src/pages/settings/AppSetting.tsx:971
+msgid "Calls the external <0>sqlfmt</0> binary via Tauri."
+msgstr "Calls the external <0>sqlfmt</0> binary via Tauri."
+
+#: src/components/PageTabs.tsx:419
+#: src/components/views/ExportDialog.tsx:378
+#: src/pages/settings/AppSetting.tsx:337
+#: src/pages/settings/AppSetting.tsx:1134
+#: src/pages/settings/AppSetting.tsx:1404
+#: src/pages/settings/AppSetting.tsx:1531
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:206
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:38
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:590
+#: src/pages/sidebar/dialog/RenameDialog.tsx:61
+#: src/pages/sidebar/dialog/SearchDialog.tsx:69
+#: src/pages/sidebar/SqlCode.tsx:527
+msgid "Cancel"
+msgstr "Cancel"
+
+#: src/pages/settings/AppSetting.tsx:1018
+msgid "Check"
+msgstr "Check"
+
+#: src/pages/settings/AppSetting.tsx:1273
+msgid "Check for updates"
+msgstr "Check for updates"
+
+#: src/stores/setting.ts:84
+msgid "China Mirror"
+msgstr "China Mirror"
+
+#: src/components/StatusBar.tsx:162
+msgid "Clear all"
+msgstr "Clear all"
+
+#: src/components/tables/CanvasTable.tsx:78
+msgid "Clear pinned"
+msgstr "Clear pinned"
+
+#: src/pages/settings/AppSetting.tsx:1262
+msgid "Click to update"
+msgstr "Click to update"
+
+#: src/stores/setting.ts:296
+msgid "ClickHouse"
+msgstr "ClickHouse"
+
+#: src/components/PageTabs.tsx:102
+#: src/components/ui/dialog.tsx:75
+#: src/components/ui/sheet.tsx:75
+#: src/components/views/ValueViewer.tsx:162
+msgid "Close"
+msgstr "Close"
+
+#: src/components/PageTabs.tsx:109
+msgid "Close Other"
+msgstr "Close Other"
+
+#: src/pages/sidebar/aside.tsx:75
+#: src/pages/sidebar/SqlCode.tsx:406
+msgid "Code"
+msgstr "Code"
+
+#: src/pages/sidebar/SideToolbar.tsx:80
+msgid "Collapse All"
+msgstr "Collapse All"
+
+#: src/components/views/ExportDialog.tsx:323
+msgid "Compression"
+msgstr "Compression"
+
+#: src/components/views/ExportDialog.tsx:351
+msgid "Compression level"
+msgstr "Compression level"
+
+#. placeholder {0}: node.path
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:199
+msgid "Confirm deletion of table: <0>{0}</0>"
+msgstr "Confirm deletion of table: <0>{0}</0>"
+
+#: src/components/PageTabs.tsx:129
+#: src/components/tables/CanvasTable.tsx:80
+#: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:35
+#: src/pages/sidebar/context-menu/SchemaContextMenu.tsx:51
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:178
+msgid "Copy"
+msgstr "Copy"
+
+#: src/components/tables/CanvasTable.tsx:81
+msgid "Copy as CSV"
+msgstr "Copy as CSV"
+
+#: src/components/tables/CanvasTable.tsx:75
+msgid "Copy Field Name"
+msgstr "Copy Field Name"
+
+#: src/components/views/DataViewToolbar.tsx:137
+msgid "Cross"
+msgstr "Cross"
+
+#: src/components/views/ExportDialog.tsx:249
+msgid "CSV / TSV options"
+msgstr "CSV / TSV options"
+
+#: src/pages/settings/AppSetting.tsx:1243
+msgid "Current version: {version}"
+msgstr "Current version: {version}"
+
+#: src/components/views/DataViewToolbar.tsx:117
+msgid "Data Columns"
+msgstr "Data Columns"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:51
+msgid "Data Folder"
+msgstr "Data Folder"
+
+#: src/pages/settings/AppSetting.tsx:753
+msgid "Data type case"
+msgstr "Data type case"
+
+#: src/pages/sidebar/aside.tsx:73
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:199
+msgid "Database"
+msgstr "Database"
+
+#: src/pages/sidebar/SideToolbar.tsx:75
+msgid "Database Explorer"
+msgstr "Database Explorer"
+
+#: src/pages/sidebar/SideToolbar.tsx:92
+msgid "DB setting"
+msgstr "DB setting"
+
+#: src/pages/settings/AppSetting.tsx:1374
+msgid "Debug"
+msgstr "Debug"
+
+#: src/components/custom/pagination.tsx:44
+msgid "Default: 500"
+msgstr "Default: 500"
+
+#: src/components/PageTabs.tsx:142
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:93
+#: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:38
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:174
+#: src/pages/sidebar/SqlCode.tsx:533
+msgid "Delete"
+msgstr "Delete"
+
+#: src/pages/sidebar/SqlCode.tsx:469
+msgid "Delete temporary SQL"
+msgstr "Delete temporary SQL"
+
+#: src/pages/sidebar/SqlCode.tsx:516
+msgid "Delete temporary SQL?"
+msgstr "Delete temporary SQL?"
+
+#: src/pages/settings/AppSetting.tsx:1452
+msgid "Delim"
+msgstr "Delim"
+
+#: src/components/views/ExportDialog.tsx:265
+msgid "Delimiter"
+msgstr "Delimiter"
+
+#: src/pages/settings/AppSetting.tsx:854
+msgid "Dense operators"
+msgstr "Dense operators"
+
+#: src/pages/settings/AppSetting.tsx:1090
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:122
+msgid "Dialect"
+msgstr "Dialect"
+
+#: src/pages/settings/AppSetting.tsx:509
+msgid "Dialect still follows the active connection. Defaults match previous behavior."
+msgstr "Dialect still follows the active connection. Defaults match previous behavior."
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:478
+msgid "Disable SSL"
+msgstr "Disable SSL"
+
+#. placeholder {0}: update?.version
+#: src/pages/settings/AppSetting.tsx:1248
+msgid "Discover new version: {0}"
+msgstr "Discover new version: {0}"
+
+#: src/components/PageTabs.tsx:318
+msgid "Editor"
+msgstr "Editor"
+
+#: src/pages/settings/AppSetting.tsx:285
+msgid "Editor Dark Theme"
+msgstr "Editor Dark Theme"
+
+#: src/pages/settings/AppSetting.tsx:254
+msgid "Editor Light Theme"
+msgstr "Editor Light Theme"
+
+#. placeholder {0}: elapsedRender(elapsed)
+#: src/components/views/DataViewToolbar.tsx:106
+msgid "elapsed time: {0}"
+msgstr "elapsed time: {0}"
+
+#: src/pages/settings/AppSetting.tsx:1491
+msgid "Escape"
+msgstr "Escape"
+
+#: src/pages/sidebar/SideToolbar.tsx:77
+msgid "Expand All"
+msgstr "Expand All"
+
+#: src/components/views/ExportDialog.tsx:101
+#: src/components/views/ExportDialog.tsx:145
+#: src/components/views/ExportDialog.tsx:388
+msgid "Export"
+msgstr "Export"
+
+#: src/components/views/ExportDialog.tsx:24
+msgid "Export completed"
+msgstr "Export completed"
+
+#: src/components/views/DataViewToolbar.tsx:157
+#: src/components/views/ExportDialog.tsx:193
+msgid "Export data"
+msgstr "Export data"
+
+#: src/components/views/ExportDialog.tsx:388
+msgid "Exporting…"
+msgstr "Exporting…"
+
+#: src/pages/settings/AppSetting.tsx:549
+msgid "Expression width"
+msgstr "Expression width"
+
+#: src/stores/setting.ts:264
+msgid "External sqlfmt CLI (dbt-oriented, via Tauri)"
+msgstr "External sqlfmt CLI (dbt-oriented, via Tauri)"
+
+#: src/components/PageTabs.tsx:119
+#: src/pages/sidebar/aside.tsx:74
+#: src/pages/sidebar/Favorite.tsx:68
+msgid "Favorite"
+msgstr "Favorite"
+
+#: src/components/views/ValueViewer.tsx:214
+msgid "Field"
+msgstr "Field"
+
+#: src/components/views/ExportDialog.tsx:232
+msgid "File path"
+msgstr "File path"
+
+#: src/pages/sidebar/VerticalTabs.tsx:194
+msgid "Flat view"
+msgstr "Flat view"
+
+#: src/components/views/DataViewToolbar.tsx:95
+#: src/pages/settings/AppSetting.tsx:324
+msgid "Float precision"
+msgstr "Float precision"
+
+#: src/pages/settings/AppSetting.tsx:198
+msgid "Follow the system language when available; otherwise fall back to English."
+msgstr "Follow the system language when available; otherwise fall back to English."
+
+#: src/components/views/ExportDialog.tsx:199
+#: src/components/views/ValueViewer.tsx:136
+msgid "Format"
+msgstr "Format"
+
+#: src/pages/editor/EditorToolbar.tsx:85
+msgid "Format Document (Shift+Alt+F)"
+msgstr "Format Document (Shift+Alt+F)"
+
+#: src/pages/editor/EditorToolbar.tsx:92
+msgid "Format Selection"
+msgstr "Format Selection"
+
+#: src/components/editor/MonacoEditor.tsx:61
+msgid "Format SQL"
+msgstr "Format SQL"
+
+#: src/pages/settings/AppSetting.tsx:716
+msgid "Function case"
+msgstr "Function case"
+
+#: src/stores/setting.ts:254
+msgid "General-purpose SQL formatter"
+msgstr "General-purpose SQL formatter"
+
+#: src/stores/setting.ts:85
+msgid "gh-proxy.com mirror for mainland China"
+msgstr "gh-proxy.com mirror for mainland China"
+
+#: src/stores/setting.ts:78
+msgid "GitHub (Official)"
+msgstr "GitHub (Official)"
+
+#: src/components/ui/pagination.tsx:92
+msgid "Go to next page"
+msgstr "Go to next page"
+
+#: src/components/ui/pagination.tsx:74
+msgid "Go to previous page"
+msgstr "Go to previous page"
+
+#: src/pages/sidebar/aside.tsx:98
+msgid "Help"
+msgstr "Help"
+
+#: src/components/tables/CanvasTable.tsx:79
+msgid "Hidden column"
+msgstr "Hidden column"
+
+#: src/components/views/DataViewToolbar.tsx:112
+msgid "Hidden Column"
+msgstr "Hidden Column"
+
+#: src/pages/sidebar/aside.tsx:76
+#: src/pages/sidebar/Favorite.tsx:95
+msgid "History"
+msgstr "History"
+
+#: src/pages/settings/AppSetting.tsx:899
+msgid "holywell options"
+msgstr "holywell options"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:166
+msgid "Host"
+msgstr "Host"
+
+#: src/pages/settings/AppSetting.tsx:677
+msgid "Identifier case"
+msgstr "Identifier case"
+
+#: src/pages/settings/AppSetting.tsx:80
+msgid "Import/Export"
+msgstr "Import/Export"
+
+#: src/components/views/ExportDialog.tsx:258
+msgid "Include header row"
+msgstr "Include header row"
+
+#: src/pages/settings/AppSetting.tsx:603
+msgid "Indent style"
+msgstr "Indent style"
+
+#: src/pages/settings/AppSetting.tsx:835
+msgid "Indent with tabs instead of spaces"
+msgstr "Indent with tabs instead of spaces"
+
+#: src/pages/settings/AppSetting.tsx:1023
+msgid "Install with <0>uv tool install shandy-sqlfmt</0> or set the full path to the <1>sqlfmt</1> binary."
+msgstr "Install with <0>uv tool install shandy-sqlfmt</0> or set the full path to the <1>sqlfmt</1> binary."
+
+#: src/pages/settings/AppSetting.tsx:1208
+msgid "It's the latest version"
+msgstr "It's the latest version"
+
+#: src/components/views/ExportDialog.tsx:298
+msgid "JSON options"
+msgstr "JSON options"
+
+#: src/pages/settings/AppSetting.tsx:947
+msgid "Keep unparseable statements as raw text instead of failing"
+msgstr "Keep unparseable statements as raw text instead of failing"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:428
+msgid "Key Passphrase"
+msgstr "Key Passphrase"
+
+#: src/pages/settings/AppSetting.tsx:640
+msgid "Keyword case"
+msgstr "Keyword case"
+
+#: src/pages/settings/AppSetting.tsx:175
+msgid "Language"
+msgstr "Language"
+
+#: src/pages/editor/EditorToolbar.tsx:78
+msgid "limit 500"
+msgstr "limit 500"
+
+#: src/pages/settings/AppSetting.tsx:1057
+msgid "Line length"
+msgstr "Line length"
+
+#: src/pages/settings/AppSetting.tsx:576
+msgid "Lines between queries"
+msgstr "Lines between queries"
+
+#: src/components/ui/spinner.tsx:8
+msgid "Loading"
+msgstr "Loading"
+
+#: src/components/custom/FontFamilyCombobox.tsx:170
+#: src/components/custom/FontFamilyCombobox.tsx:176
+msgid "Loading fonts..."
+msgstr "Loading fonts..."
+
+#: src/pages/settings/AppSetting.tsx:790
+msgid "Logical operator newline"
+msgstr "Logical operator newline"
+
+#: src/stores/setting.ts:270
+msgid "Lower"
+msgstr "Lower"
+
+#: src/pages/settings/AppSetting.tsx:211
+msgid "Main Font Family"
+msgstr "Main Font Family"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:283
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:297
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:298
+msgid "Manual Input"
+msgstr "Manual Input"
+
+#: src/pages/settings/AppSetting.tsx:913
+msgid "Max line length"
+msgstr "Max line length"
+
+#: src/components/ui/pagination.tsx:119
+msgid "More pages"
+msgstr "More pages"
+
+#: src/components/views/ValueViewer.tsx:145
+msgid "Move to the bottom"
+msgstr "Move to the bottom"
+
+#: src/components/views/ValueViewer.tsx:153
+msgid "Move to the top"
+msgstr "Move to the top"
+
+#: src/components/views/DataViewToolbar.tsx:52
+msgid "N/A"
+msgstr "N/A"
+
+#: src/components/PageTabs.tsx:408
+#: src/pages/sidebar/dialog/RenameDialog.tsx:51
+msgid "Name"
+msgstr "Name"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:584
+msgid "New Connection"
+msgstr "New Connection"
+
+#: src/pages/settings/AppSetting.tsx:1511
+msgid "New line"
+msgstr "New line"
+
+#: src/pages/settings/AppSetting.tsx:876
+msgid "Newline before semicolon"
+msgstr "Newline before semicolon"
+
+#: src/components/custom/FontFamilyCombobox.tsx:176
+msgid "No matching fonts"
+msgstr "No matching fonts"
+
+#: src/components/StatusBar.tsx:169
+msgid "No notifications yet"
+msgstr "No notifications yet"
+
+#: src/components/views/ExportDialog.tsx:139
+msgid "No SQL to export"
+msgstr "No SQL to export"
+
+#: src/pages/settings/AppSetting.tsx:1040
+msgid "Not available"
+msgstr "Not available"
+
+#: src/pages/editor/EditorToolbar.tsx:78
+msgid "not limit"
+msgstr "not limit"
+
+#: src/components/views/ValueViewer.tsx:169
+msgid "not selected"
+msgstr "not selected"
+
+#: src/components/StatusBar.tsx:138
+#: src/components/StatusBar.tsx:152
+msgid "Notifications"
+msgstr "Notifications"
+
+#: src/components/custom/pagination.tsx:100
+msgid "of {total}"
+msgstr "of {total}"
+
+#: src/stores/setting.ts:79
+msgid "Official GitHub Releases endpoint"
+msgstr "Official GitHub Releases endpoint"
+
+#: src/pages/settings/AppSetting.tsx:1316
+msgid "Official uses GitHub Releases. China Mirror goes through gh-proxy.com for better connectivity in mainland China."
+msgstr "Official uses GitHub Releases. China Mirror goes through gh-proxy.com for better connectivity in mainland China."
+
+#: src/components/PageTabs.tsx:422
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:42
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:592
+#: src/pages/sidebar/dialog/RenameDialog.tsx:64
+#: src/pages/sidebar/dialog/SearchDialog.tsx:71
+msgid "Ok"
+msgstr "Ok"
+
+#: src/pages/settings/AppSetting.tsx:1393
+msgid "Open"
+msgstr "Open"
+
+#: src/pages/settings/AppSetting.tsx:1377
+msgid "Open developer debugging page"
+msgstr "Open developer debugging page"
+
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:167
+msgid "Open Path"
+msgstr "Open Path"
+
+#: src/pages/sidebar/SqlCode.tsx:412
+msgid "Open SQL folder"
+msgstr "Open SQL folder"
+
+#: src/pages/settings/AppSetting.tsx:857
+msgid "Pack operators without spaces"
+msgstr "Pack operators without spaces"
+
+#: src/components/ui/pagination.tsx:13
+msgid "pagination"
+msgstr "pagination"
+
+#: src/components/views/ExportDialog.tsx:319
+msgid "Parquet options"
+msgstr "Parquet options"
+
+#: src/pages/settings/AppSetting.tsx:1076
+msgid "Passed as <0>--line-length</0> (default 88)"
+msgstr "Passed as <0>--line-length</0> (default 88)"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:227
+msgid "Password"
+msgstr "Password"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:497
+msgid "Path"
+msgstr "Path"
+
+#: src/components/tables/CanvasTable.tsx:76
+msgid "Pin to left"
+msgstr "Pin to left"
+
+#: src/components/tables/CanvasTable.tsx:77
+msgid "Pin to right"
+msgstr "Pin to right"
+
+#: src/pages/settings/AppSetting.tsx:879
+msgid "Place `;` on its own line"
+msgstr "Place `;` on its own line"
+
+#: src/stores/setting.ts:295
+msgid "Polyglot (default)"
+msgstr "Polyglot (default)"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:183
+msgid "Port"
+msgstr "Port"
+
+#: src/pages/settings/AppSetting.tsx:932
+msgid "Preferred maximum output width in display columns."
+msgstr "Preferred maximum output width in display columns."
+
+#: src/stores/setting.ts:271
+msgid "Preserve"
+msgstr "Preserve"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:388
+msgid "Private Key"
+msgstr "Private Key"
+
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:75
+msgid "Properties"
+msgstr "Properties"
+
+#: src/pages/settings/AppSetting.tsx:1357
+msgid "Proxy"
+msgstr "Proxy"
+
+#: src/components/PageTabs.tsx:324
+msgid "Query"
+msgstr "Query"
+
+#: src/components/views/ExportDialog.tsx:276
+#: src/pages/settings/AppSetting.tsx:1472
+msgid "Quote"
+msgstr "Quote"
+
+#: src/components/views/ValueViewer.tsx:25
+msgid "Raw"
+msgstr "Raw"
+
+#: src/components/views/ValueViewer.tsx:27
+msgid "Raw(JSON)"
+msgstr "Raw(JSON)"
+
+#: src/pages/settings/AppSetting.tsx:1433
+msgid "Read csv file parameters, see: <0>csv parameters</0>"
+msgstr "Read csv file parameters, see: <0>csv parameters</0>"
+
+#: src/pages/settings/AppSetting.tsx:944
+msgid "Recover on parse errors"
+msgstr "Recover on parse errors"
+
+#: src/pages/settings/AppSetting.tsx:307
+msgid "Reference: <0>Shiki TextMate Grammar & Theme Playground</0>."
+msgstr "Reference: <0>Shiki TextMate Grammar & Theme Playground</0>."
+
+#: src/components/views/DataViewToolbar.tsx:103
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:89
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:183
+msgid "Refresh"
+msgstr "Refresh"
+
+#: src/pages/sidebar/SideToolbar.tsx:100
+msgid "Refresh DB"
+msgstr "Refresh DB"
+
+#: src/components/PageTabs.tsx:135
+#: src/components/PageTabs.tsx:399
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:85
+#: src/pages/sidebar/dialog/RenameDialog.tsx:42
+msgid "Rename"
+msgstr "Rename"
+
+#. placeholder {0}: (tab?.children?.length ?? 0) + 1
+#: src/pages/editor/index.tsx:109
+msgid "Result{0}"
+msgstr "Result{0}"
+
+#: src/pages/settings/AppSetting.tsx:902
+msgid "River-alignment style; dialect follows the active connection."
+msgstr "River-alignment style; dialect follows the active connection."
+
+#: src/components/editor/MonacoEditor.tsx:51
+msgid "Run"
+msgstr "Run"
+
+#: src/pages/editor/EditorToolbar.tsx:61
+msgid "Run (Ctrl+Enter)"
+msgstr "Run (Ctrl+Enter)"
+
+#: src/pages/editor/EditorToolbar.tsx:68
+msgid "Run in the new TAB"
+msgstr "Run in the new TAB"
+
+#: src/components/PageTabs.tsx:322
+msgid "Schema"
+msgstr "Schema"
+
+#: src/components/custom/search.tsx:22
+#: src/components/PageTabs.tsx:316
+#: src/components/views/SchemaView.tsx:66
+#: src/components/views/SchemaView.tsx:147
+#: src/components/views/SchemaView.tsx:229
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:164
+msgid "Search"
+msgstr "Search"
+
+#: src/pages/settings/AppSetting.tsx:219
+msgid "Search installed fonts, or type any font name / CSS stack and choose Use."
+msgstr "Search installed fonts, or type any font name / CSS stack and choose Use."
+
+#: src/components/custom/FontFamilyCombobox.tsx:170
+msgid "Search or type a font name..."
+msgstr "Search or type a font name..."
+
+#: src/pages/settings/AppSetting.tsx:216
+#: src/pages/settings/AppSetting.tsx:237
+msgid "Search system fonts"
+msgstr "Search system fonts"
+
+#. placeholder {0}: ctx?.path
+#: src/pages/sidebar/dialog/SearchDialog.tsx:53
+msgid "Search: {0}"
+msgstr "Search: {0}"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:503
+msgid "Search..."
+msgstr "Search..."
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:414
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:505
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:518
+msgid "Select"
+msgstr "Select"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:138
+msgid "Select a dialect"
+msgstr "Select a dialect"
+
+#: src/components/custom/FontFamilyCombobox.tsx:83
+msgid "Select a font"
+msgstr "Select a font"
+
+#: src/pages/settings/AppSetting.tsx:264
+#: src/pages/settings/AppSetting.tsx:294
+msgid "Select editor theme"
+msgstr "Select editor theme"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:292
+msgid "Select from ~/.ssh/config"
+msgstr "Select from ~/.ssh/config"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:398
+msgid "Select private key"
+msgstr "Select private key"
+
+#: src/pages/settings/AppSetting.tsx:475
+msgid "Select SQL formatter"
+msgstr "Select SQL formatter"
+
+#: src/pages/editor/EditorToolbar.tsx:122
+msgid "Session"
+msgstr "Session"
+
+#: src/pages/settings/AppSetting.tsx:1517
+msgid "Set the new line character(s) in the file. Options are '\\r','\\n', or '\\r\\n'."
+msgstr "Set the new line character(s) in the file. Options are '\\r','\\n', or '\\r\\n'."
+
+#: src/pages/settings/AppSetting.tsx:100
+msgid "Setting"
+msgstr "Setting"
+
+#: src/pages/settings/AppSetting.tsx:968
+msgid "shandy-sqlfmt options"
+msgstr "shandy-sqlfmt options"
+
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:160
+msgid "Show *.csv"
+msgstr "Show *.csv"
+
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:157
+msgid "Show *.parquet"
+msgstr "Show *.parquet"
+
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:152
+msgid "Show columns"
+msgstr "Show columns"
+
+#: src/pages/sidebar/context-menu/SchemaContextMenu.tsx:46
+msgid "Show Database"
+msgstr "Show Database"
+
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:149
+msgid "Show table"
+msgstr "Show table"
+
+#: src/stores/setting.ts:259
+msgid "Simon Holywell's sqlstyle.guide (river alignment)"
+msgstr "Simon Holywell's sqlstyle.guide (river alignment)"
+
+#: src/pages/settings/AppSetting.tsx:81
+msgid "Software Update"
+msgstr "Software Update"
+
+#: src/components/PageTabs.tsx:243
+#: src/components/views/ValueViewer.tsx:191
+msgid "Something went wrong"
+msgstr "Something went wrong"
+
+#: src/pages/settings/AppSetting.tsx:1478
+msgid "Specifies the quoting string to be used when a data value is quoted."
+msgstr "Specifies the quoting string to be used when a data value is quoted."
+
+#: src/pages/settings/AppSetting.tsx:1458
+msgid "Specifies the string that separates columns within each row (line) of the file."
+msgstr "Specifies the string that separates columns within each row (line) of the file."
+
+#: src/pages/settings/AppSetting.tsx:1497
+msgid "Specifies the string that should appear before a data character sequence that matches the quote value."
+msgstr "Specifies the string that should appear before a data character sequence that matches the quote value."
+
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:80
+msgid "SQL Editor"
+msgstr "SQL Editor"
+
+#: src/pages/settings/AppSetting.tsx:463
+msgid "SQL Formatter Engine"
+msgstr "SQL Formatter Engine"
+
+#: src/pages/settings/AppSetting.tsx:79
+msgid "SQL Formatting"
+msgstr "SQL Formatting"
+
+#: src/pages/settings/AppSetting.tsx:506
+msgid "sql-formatter options"
+msgstr "sql-formatter options"
+
+#: src/pages/settings/AppSetting.tsx:988
+msgid "sqlfmt (from PATH) or absolute path"
+msgstr "sqlfmt (from PATH) or absolute path"
+
+#: src/pages/settings/AppSetting.tsx:983
+msgid "sqlfmt Executable"
+msgstr "sqlfmt Executable"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:263
+msgid "SSH Config"
+msgstr "SSH Config"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:323
+msgid "SSH Host"
+msgstr "SSH Host"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:373
+msgid "SSH Password"
+msgstr "SSH Password"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:342
+msgid "SSH Port"
+msgstr "SSH Port"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:246
+msgid "SSH Tunnel"
+msgstr "SSH Tunnel"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:358
+msgid "SSH User"
+msgstr "SSH User"
+
+#: src/stores/setting.ts:278
+msgid "Standard"
+msgstr "Standard"
+
+#: src/pages/settings/AppSetting.tsx:149
+msgid "System"
+msgstr "System"
+
+#: src/pages/settings/AppSetting.tsx:522
+msgid "Tab width"
+msgstr "Tab width"
+
+#: src/components/PageTabs.tsx:320
+msgid "Table"
+msgstr "Table"
+
+#: src/pages/settings/AppSetting.tsx:232
+msgid "Table Font Family"
+msgstr "Table Font Family"
+
+#: src/pages/sidebar/aside.tsx:77
+#: src/pages/sidebar/VerticalTabs.tsx:187
+msgid "Tabs"
+msgstr "Tabs"
+
+#: src/stores/setting.ts:279
+msgid "Tabular left"
+msgstr "Tabular left"
+
+#: src/stores/setting.ts:280
+msgid "Tabular right"
+msgstr "Tabular right"
+
+#: src/pages/sidebar/SqlCode.tsx:322
+msgid "Temporary Files"
+msgstr "Temporary Files"
+
+#: src/pages/sidebar/SqlCode.tsx:519
+msgid "This will permanently delete temporary SQL \"{pendingDisplayName}\". This action cannot be undone."
+msgstr "This will permanently delete temporary SQL \"{pendingDisplayName}\". This action cannot be undone."
+
+#: src/components/ui/sidebar.tsx:275
+#: src/components/ui/sidebar.tsx:287
+#: src/components/ui/sidebar.tsx:290
+msgid "Toggle Sidebar"
+msgstr "Toggle Sidebar"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:462
+msgid "Token"
+msgstr "Token"
+
+#: src/components/views/DataViewToolbar.tsx:141
+msgid "Transpose"
+msgstr "Transpose"
+
+#: src/pages/sidebar/VerticalTabs.tsx:203
+msgid "Tree view"
+msgstr "Tree view"
+
+#: src/components/views/ExportDialog.tsx:289
+msgid "TSV uses tab as delimiter."
+msgstr "TSV uses tab as delimiter."
+
+#: src/pages/settings/AppSetting.tsx:1336
+msgid "Turn this off to prevent the app from checking for updates."
+msgstr "Turn this off to prevent the app from checking for updates."
+
+#: src/components/views/ExportDialog.tsx:311
+msgid "Uncheck to export NDJSON (one object per line)."
+msgstr "Uncheck to export NDJSON (one object per line)."
+
+#: src/components/views/ExportDialog.tsx:78
+msgid "Uncompressed"
+msgstr "Uncompressed"
+
+#: src/pages/editor/EditorToolbar.tsx:118
+msgid "unknown"
+msgstr "unknown"
+
+#: src/pages/settings/AppSetting.tsx:342
+#: src/pages/settings/AppSetting.tsx:1139
+#: src/pages/settings/AppSetting.tsx:1409
+#: src/pages/settings/AppSetting.tsx:1536
+msgid "Update"
+msgstr "Update"
+
+#: src/pages/settings/AppSetting.tsx:1212
+msgid "Update check failed: {message}"
+msgstr "Update check failed: {message}"
+
+#: src/pages/settings/AppSetting.tsx:1284
+msgid "Update source"
+msgstr "Update source"
+
+#: src/stores/setting.ts:269
+msgid "Upper"
+msgstr "Upper"
+
+#. placeholder {0}: item.value
+#: src/components/custom/FontFamilyCombobox.tsx:186
+msgid "Use \"{0}\""
+msgstr "Use \"{0}\""
+
+#: src/pages/settings/AppSetting.tsx:1360
+msgid "use a proxy server for updater"
+msgstr "use a proxy server for updater"
+
+#: src/pages/settings/AppSetting.tsx:1119
+msgid "Use ClickHouse to preserve identifier case sensitivity"
+msgstr "Use ClickHouse to preserve identifier case sensitivity"
+
+#: src/pages/settings/AppSetting.tsx:832
+msgid "Use tabs"
+msgstr "Use tabs"
+
+#: src/pages/settings/AppSetting.tsx:493
+msgid "Used by Format Document / Format Selection in the SQL editor."
+msgstr "Used by Format Document / Format Selection in the SQL editor."
+
+#: src/pages/settings/AppSetting.tsx:240
+msgid "Used by the data table canvas renderer. Custom names are allowed."
+msgstr "Used by the data table canvas renderer. Custom names are allowed."
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:213
+msgid "Username"
+msgstr "Username"
+
+#: src/components/views/ValueViewer.tsx:118
+msgid "Value"
+msgstr "Value"
+
+#: src/components/views/DataViewToolbar.tsx:154
+msgid "Value Viewer"
+msgstr "Value Viewer"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:535
+msgid "Work Path"
+msgstr "Work Path"
+
+#: src/components/views/ExportDialog.tsx:307
+msgid "Write as JSON array"
+msgstr "Write as JSON array"
+
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:211
+msgid "Yes"
+msgstr "Yes"

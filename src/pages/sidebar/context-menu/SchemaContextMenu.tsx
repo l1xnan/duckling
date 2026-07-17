@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { nanoid } from 'nanoid';
 import { PropsWithChildren } from 'react';
@@ -41,10 +42,14 @@ export function SchemaContextMenu({
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-64">
-        <ContextMenuItem onSelect={handleShowDB}>Show Database</ContextMenuItem>
+        <ContextMenuItem onSelect={handleShowDB}>
+          <Trans>Show Database</Trans>
+        </ContextMenuItem>
         <ContextMenuSeparator />
 
-        <ContextMenuItem onSelect={handleCopy}>Copy</ContextMenuItem>
+        <ContextMenuItem onSelect={handleCopy}>
+          <Trans>Copy</Trans>
+        </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );

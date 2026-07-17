@@ -1,3 +1,5 @@
+import { msg } from '@lingui/core/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import * as dialog from '@tauri-apps/plugin-dialog';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -19,6 +21,8 @@ import {
 import { cn } from '@/lib/utils';
 import { pushNotification } from '@/stores/notification';
 
+const EXPORT_COMPLETED = msg`Export completed`;
+
 const FORMAT_ITEMS: { value: ExportFormat; label: string }[] = [
   { value: 'csv', label: 'CSV' },
   { value: 'tsv', label: 'TSV' },
@@ -27,14 +31,14 @@ const FORMAT_ITEMS: { value: ExportFormat; label: string }[] = [
   { value: 'xlsx', label: 'XLSX' },
 ];
 
-const COMPRESSION_ITEMS = [
+const COMPRESSION_CODECS = [
   { value: 'zstd', label: 'ZSTD' },
   { value: 'snappy', label: 'Snappy' },
   { value: 'gzip', label: 'GZIP' },
   { value: 'brotli', label: 'Brotli' },
   { value: 'lz4', label: 'LZ4' },
-  { value: 'uncompressed', label: 'Uncompressed' },
-];
+  { value: 'uncompressed', label: null },
+] as const;
 
 const LEVEL_SUPPORTED = new Set(['zstd', 'gzip', 'brotli']);
 
@@ -66,6 +70,15 @@ export function ExportDialog({
   sql,
   defaultName,
 }: ExportDialogProps) {
+  const { t } = useLingui();
+  const compressionItems = useMemo(
+    () =>
+      COMPRESSION_CODECS.map((item) => ({
+        value: item.value,
+        label: item.label ?? t`Uncompressed`,
+      })),
+    [t],
+  );
   const baseName = useMemo(
     () => stripExtension(defaultName || `export-${Date.now()}`),
     [defaultName],
@@ -85,14 +98,14 @@ export function ExportDialog({
 
   const handleBrowse = async () => {
     const file = await dialog.save({
-      title: 'Export',
+      title: t`Export`,
       defaultPath: filePath || suggestedName,
       filters: [
         {
           name: FORMAT_ITEMS.find((item) => item.value === format)?.label ?? format,
           extensions: [format],
         },
-        { name: 'All Files', extensions: ['*'] },
+        { name: t`All Files`, extensions: ['*'] },
       ],
     });
     if (file) {
@@ -123,13 +136,13 @@ export function ExportDialog({
 
   const handleExport = async () => {
     if (!sql) {
-      toast.error('No SQL to export');
+      toast.error(t`No SQL to export`);
       return;
     }
     const target = ensureExtension(filePath || suggestedName, format);
     if (!filePath) {
       const picked = await dialog.save({
-        title: 'Export',
+        title: t`Export`,
         defaultPath: target,
         filters: [
           {
@@ -158,10 +171,10 @@ export function ExportDialog({
         format,
         options: buildOptions(),
       });
-      toast.success('Export completed');
+      toast.success(t(EXPORT_COMPLETED));
       pushNotification({
         type: 'success',
-        title: 'Export completed',
+        title: EXPORT_COMPLETED,
         description: file,
       });
       onOpenChange(false);
@@ -177,12 +190,14 @@ export function ExportDialog({
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Export data"
+      title={<Trans>Export data</Trans>}
       className="sm:max-w-lg"
     >
       <div className="flex flex-col gap-4 pt-2">
         <div className="flex flex-col gap-2">
-          <Label>Format</Label>
+          <Label>
+            <Trans>Format</Trans>
+          </Label>
           <Select
             value={format}
             onValueChange={(value) => {
@@ -213,7 +228,9 @@ export function ExportDialog({
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label>File path</Label>
+          <Label>
+            <Trans>File path</Trans>
+          </Label>
           <div className="flex gap-2">
             <Input
               value={filePath}
@@ -221,26 +238,32 @@ export function ExportDialog({
               onChange={(e) => setFilePath(e.target.value)}
             />
             <Button type="button" variant="outline" onClick={() => void handleBrowse()}>
-              Browse
+              <Trans>Browse</Trans>
             </Button>
           </div>
         </div>
 
         {(format === 'csv' || format === 'tsv') && (
           <div className="flex flex-col gap-3 rounded-md border p-3">
-            <div className="text-sm font-medium">CSV / TSV options</div>
+            <div className="text-sm font-medium">
+              <Trans>CSV / TSV options</Trans>
+            </div>
             <div className="flex items-center gap-3">
               <Checkbox
                 id="export-header"
                 checked={header}
                 onCheckedChange={(value) => setHeader(!!value)}
               />
-              <Label htmlFor="export-header">Include header row</Label>
+              <Label htmlFor="export-header">
+                <Trans>Include header row</Trans>
+              </Label>
             </div>
             {format === 'csv' ? (
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="export-delimiter">Delimiter</Label>
+                  <Label htmlFor="export-delimiter">
+                    <Trans>Delimiter</Trans>
+                  </Label>
                   <Input
                     id="export-delimiter"
                     value={delimiter}
@@ -249,7 +272,9 @@ export function ExportDialog({
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="export-quote">Quote</Label>
+                  <Label htmlFor="export-quote">
+                    <Trans>Quote</Trans>
+                  </Label>
                   <Input
                     id="export-quote"
                     value={quote}
@@ -261,7 +286,7 @@ export function ExportDialog({
               </div>
             ) : (
               <p className="text-xs text-muted-foreground">
-                TSV uses tab as delimiter.
+                <Trans>TSV uses tab as delimiter.</Trans>
               </p>
             )}
           </div>
@@ -269,26 +294,34 @@ export function ExportDialog({
 
         {format === 'json' && (
           <div className="flex flex-col gap-3 rounded-md border p-3">
-            <div className="text-sm font-medium">JSON options</div>
+            <div className="text-sm font-medium">
+              <Trans>JSON options</Trans>
+            </div>
             <div className="flex items-center gap-3">
               <Checkbox
                 id="export-json-array"
                 checked={jsonArray}
                 onCheckedChange={(value) => setJsonArray(!!value)}
               />
-              <Label htmlFor="export-json-array">Write as JSON array</Label>
+              <Label htmlFor="export-json-array">
+                <Trans>Write as JSON array</Trans>
+              </Label>
             </div>
             <p className="text-xs text-muted-foreground">
-              Uncheck to export NDJSON (one object per line).
+              <Trans>Uncheck to export NDJSON (one object per line).</Trans>
             </p>
           </div>
         )}
 
         {format === 'parquet' && (
           <div className="flex flex-col gap-3 rounded-md border p-3">
-            <div className="text-sm font-medium">Parquet options</div>
+            <div className="text-sm font-medium">
+              <Trans>Parquet options</Trans>
+            </div>
             <div className="flex flex-col gap-1.5">
-              <Label>Compression</Label>
+              <Label>
+                <Trans>Compression</Trans>
+              </Label>
               <Select
                 value={compression}
                 onValueChange={(value) => {
@@ -296,14 +329,14 @@ export function ExportDialog({
                     setCompression(value);
                   }
                 }}
-                items={COMPRESSION_ITEMS}
+                items={compressionItems}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {COMPRESSION_ITEMS.map((item) => (
+                    {compressionItems.map((item) => (
                       <SelectItem key={item.value} value={item.value} label={item.label}>
                         {item.label}
                       </SelectItem>
@@ -315,7 +348,7 @@ export function ExportDialog({
             {LEVEL_SUPPORTED.has(compression) ? (
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="export-level">
-                  Compression level
+                  <Trans>Compression level</Trans>
                   {compression === 'zstd'
                     ? ' (1–22)'
                     : compression === 'gzip'
@@ -342,7 +375,7 @@ export function ExportDialog({
             onClick={() => onOpenChange(false)}
             disabled={loading}
           >
-            Cancel
+            <Trans>Cancel</Trans>
           </Button>
           <Button
             type="button"
@@ -352,7 +385,7 @@ export function ExportDialog({
               void handleExport();
             }}
           >
-            {loading ? 'Exporting…' : 'Export'}
+            {loading ? <Trans>Exporting…</Trans> : <Trans>Export</Trans>}
           </Button>
         </div>
       </div>

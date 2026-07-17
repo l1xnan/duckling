@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils'
 interface DialogProps {
   open?: boolean
   onOpenChange?: (open: boolean) => void
-  title: string
+  title: ReactNode
   className?: string
   children: ReactNode
   trigger?: ReactElement

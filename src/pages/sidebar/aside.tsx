@@ -1,3 +1,4 @@
+import { useLingui } from '@lingui/react/macro';
 import {
   Code2,
   DatabaseIcon,
@@ -18,6 +19,7 @@ import {
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import AppSettingDialog from '@/pages/settings/AppSetting';
+import { msg } from '@lingui/core/macro';
 import { open } from '@tauri-apps/plugin-shell';
 import { atom } from 'jotai';
 import { useAtom } from 'jotai/react';
@@ -43,22 +45,22 @@ const SideButton = ({ id, icon: Comp, label, onClick }: SideButtonProps) => {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger  render={
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn(
-              'size-8 rounded-lg',
-              activeSide == id ? 'bg-muted' : '',
-            )}
-            aria-label={label}
-            onClick={onClick ?? handleClick}
-          >
-            <Comp className="size-4" />
-          </Button>
-        }>
-          
-        </TooltipTrigger>
+        <TooltipTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                'size-8 rounded-lg',
+                activeSide == id ? 'bg-muted' : '',
+              )}
+              aria-label={label}
+              onClick={onClick ?? handleClick}
+            >
+              <Comp className="size-4" />
+            </Button>
+          }
+        ></TooltipTrigger>
         <TooltipContent side="right" sideOffset={5}>
           {label}
         </TooltipContent>
@@ -67,20 +69,33 @@ const SideButton = ({ id, icon: Comp, label, onClick }: SideButtonProps) => {
   );
 };
 
+const SIDE_ITEMS = [
+  { id: 'database', label: msg`Database`, icon: DatabaseIcon },
+  { id: 'favorite', label: msg`Favorite`, icon: FolderHeart },
+  { id: 'code', label: msg`Code`, icon: Code2 },
+  { id: 'history', label: msg`History`, icon: HistoryIcon },
+  { id: 'tabs', label: msg`Tabs`, icon: LayoutPanelLeftIcon },
+] as const;
+
 export function ASide() {
+  const { t } = useLingui();
+
   return (
     <aside className="inset-y absolute left-0 z-20 flex h-full flex-col border-r w-9">
       <nav className="grid gap-0.5 p-0.5 [&>*]:place-self-center">
-        <SideButton id="database" label="Database" icon={DatabaseIcon} />
-        <SideButton id="favorite" label="Favorite" icon={FolderHeart} />
-        <SideButton id="code" label="Code" icon={Code2} />
-        <SideButton id="history" label="History" icon={HistoryIcon} />
-        <SideButton id="tabs" label="Tabs" icon={LayoutPanelLeftIcon} />
+        {SIDE_ITEMS.map((item) => (
+          <SideButton
+            key={item.id}
+            id={item.id}
+            label={t(item.label)}
+            icon={item.icon}
+          />
+        ))}
       </nav>
       <nav className="mt-auto grid gap-1 p-0 [&>*]:place-self-center">
         <SideButton
           id="help"
-          label="Help"
+          label={t`Help`}
           icon={HelpCircleIcon}
           onClick={() => {
             open('https://github.com/l1xnan/duckling');

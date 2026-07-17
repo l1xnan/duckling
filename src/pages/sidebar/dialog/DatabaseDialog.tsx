@@ -1,6 +1,7 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { IconDatabasePlus } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 
 import { listSshConfigHosts, SshConfigHost } from '@/api';
@@ -31,16 +32,6 @@ import { DialectConfig, DialectType, useDBListStore } from '@/stores/dbList';
 import { TreeNode } from '@/types';
 import { nanoid } from 'nanoid';
 
-const dialectItems: { label: string; value: DialectType }[] = [
-  { label: 'DuckDB', value: 'duckdb' },
-  { label: 'DuckDB(Quack)', value: 'quack' },
-  { label: 'Data Folder', value: 'folder' },
-  { label: 'SQLite', value: 'sqlite' },
-  { label: 'MySQL', value: 'mysql' },
-  { label: 'Postgres', value: 'postgres' },
-  { label: 'Clickhouse', value: 'clickhouse' },
-];
-
 type DatabaseFormProps = {
   form: UseFormReturn<DialectConfig>;
   handleSubmit: (values: DialectConfig) => Promise<void>;
@@ -48,9 +39,23 @@ type DatabaseFormProps = {
 };
 
 export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormProps) {
+  const { t } = useLingui();
   const watchDialect = form.watch('dialect');
   const watchSshEnabled = form.watch('ssh_enabled');
   const [sshHosts, setSshHosts] = useState<SshConfigHost[]>([]);
+
+  const dialectItems = useMemo(
+    (): { label: string; value: DialectType }[] => [
+      { label: 'DuckDB', value: 'duckdb' },
+      { label: 'DuckDB(Quack)', value: 'quack' },
+      { label: t`Data Folder`, value: 'folder' },
+      { label: 'SQLite', value: 'sqlite' },
+      { label: 'MySQL', value: 'mysql' },
+      { label: 'Postgres', value: 'postgres' },
+      { label: 'Clickhouse', value: 'clickhouse' },
+    ],
+    [t],
+  );
 
   useEffect(() => {
     if (watchDialect === 'quack' && form.getValues('disable_ssl') === undefined) {
@@ -113,7 +118,9 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
             name="dialect"
             render={({ field }) => (
               <FormItem className="flex items-center w-[62.5%]">
-                <FormLabel className="w-1/5 mr-2 mt-2">Dialect</FormLabel>
+                <FormLabel className="w-1/5 mr-2 mt-2">
+                  <Trans>Dialect</Trans>
+                </FormLabel>
                 <Select
                   onValueChange={(value) => {
                     field.onChange(value);
@@ -128,7 +135,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                 >
                   <FormControl className="w-4/5">
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a dialect" />
+                      <SelectValue placeholder={t`Select a dialect`} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -155,7 +162,9 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                   name="host"
                   render={({ field }) => (
                     <FormItem className="flex items-center w-[62.5%]">
-                      <FormLabel className="w-1/5 mr-2 mt-2">Host</FormLabel>
+                      <FormLabel className="w-1/5 mr-2 mt-2">
+                        <Trans>Host</Trans>
+                      </FormLabel>
                       <FormControl className="w-4/5">
                         <Input {...field} />
                       </FormControl>
@@ -170,7 +179,9 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                   render={({ field }) => (
                     <FormItem className="flex items-center w-[37.5%]">
                       {/* <FormLabel className="w-1/3 ml-2 text-right mt-2"> */}
-                      <FormLabel className="ml-4">Port</FormLabel>
+                      <FormLabel className="ml-4">
+                        <Trans>Port</Trans>
+                      </FormLabel>
                       <FormControl className="w-2/3">
                         <Input {...field} />
                       </FormControl>
@@ -184,7 +195,9 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                 name="database"
                 render={({ field }) => (
                   <FormItem className="flex items-center w-[62.5%]">
-                    <FormLabel className="w-1/5 mr-2 mt-2">Database</FormLabel>
+                    <FormLabel className="w-1/5 mr-2 mt-2">
+                      <Trans>Database</Trans>
+                    </FormLabel>
                     <FormControl className="w-4/5">
                       <Input {...field} />
                     </FormControl>
@@ -196,7 +209,9 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                 name="username"
                 render={({ field }) => (
                   <FormItem className="flex items-center w-[62.5%]">
-                    <FormLabel className="w-1/5 mr-2 mt-2">Username</FormLabel>
+                    <FormLabel className="w-1/5 mr-2 mt-2">
+                      <Trans>Username</Trans>
+                    </FormLabel>
                     <FormControl className="w-4/5">
                       <Input {...field} />
                     </FormControl>
@@ -208,7 +223,9 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                 name="password"
                 render={({ field }) => (
                   <FormItem className="flex items-center w-[62.5%]">
-                    <FormLabel className="w-1/5 mr-2 mt-2">Password</FormLabel>
+                    <FormLabel className="w-1/5 mr-2 mt-2">
+                      <Trans>Password</Trans>
+                    </FormLabel>
                     <FormControl className="w-4/5">
                       <Input type="password" {...field} />
                     </FormControl>
@@ -225,7 +242,9 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                 name="ssh_enabled"
                 render={({ field }) => (
                   <FormItem className="flex items-center w-[62.5%]">
-                    <FormLabel className="w-1/5 mr-2 mt-2">SSH Tunnel</FormLabel>
+                    <FormLabel className="w-1/5 mr-2 mt-2">
+                      <Trans>SSH Tunnel</Trans>
+                    </FormLabel>
                     <FormControl>
                       <Switch checked={!!field.value} onCheckedChange={field.onChange} />
                     </FormControl>
@@ -240,7 +259,9 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                     name="ssh_config_host"
                     render={({ field }) => (
                       <FormItem className="flex items-center w-[62.5%]">
-                        <FormLabel className="w-1/5 mr-2 mt-2">SSH Config</FormLabel>
+                        <FormLabel className="w-1/5 mr-2 mt-2">
+                          <Trans>SSH Config</Trans>
+                        </FormLabel>
                         <Select
                           value={field.value || '__custom__'}
                           onValueChange={(value) => {
@@ -259,7 +280,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                             applySshConfigHost(alias);
                           }}
                           items={[
-                            { label: 'Manual Input', value: '__custom__' },
+                            { label: t`Manual Input`, value: '__custom__' },
                             ...sshHosts.map((host) => ({
                               label: host.label,
                               value: host.alias,
@@ -268,13 +289,13 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                         >
                           <FormControl className="w-4/5">
                             <SelectTrigger>
-                              <SelectValue placeholder="Select from ~/.ssh/config" />
+                              <SelectValue placeholder={t`Select from ~/.ssh/config`} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             <SelectGroup>
-                              <SelectItem value="__custom__" label="Manual Input">
-                                Manual Input
+                              <SelectItem value="__custom__" label={t`Manual Input`}>
+                                <Trans>Manual Input</Trans>
                               </SelectItem>
                               {sshHosts.map((host) => (
                                 <SelectItem
@@ -298,7 +319,9 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                       name="ssh_host"
                       render={({ field }) => (
                         <FormItem className="flex items-center w-[62.5%]">
-                          <FormLabel className="w-1/5 mr-2 mt-2">SSH Host</FormLabel>
+                          <FormLabel className="w-1/5 mr-2 mt-2">
+                            <Trans>SSH Host</Trans>
+                          </FormLabel>
                           <FormControl className="w-4/5">
                             <Input
                               placeholder="jump.example.com"
@@ -315,7 +338,9 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                       name="ssh_port"
                       render={({ field }) => (
                         <FormItem className="flex items-center w-[37.5%]">
-                          <FormLabel className="ml-4">SSH Port</FormLabel>
+                          <FormLabel className="ml-4">
+                            <Trans>SSH Port</Trans>
+                          </FormLabel>
                           <FormControl className="w-2/3">
                             <Input placeholder="22" {...field} value={field.value ?? ''} />
                           </FormControl>
@@ -329,7 +354,9 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                     name="ssh_username"
                     render={({ field }) => (
                       <FormItem className="flex items-center w-[62.5%]">
-                        <FormLabel className="w-1/5 mr-2 mt-2">SSH User</FormLabel>
+                        <FormLabel className="w-1/5 mr-2 mt-2">
+                          <Trans>SSH User</Trans>
+                        </FormLabel>
                         <FormControl className="w-4/5">
                           <Input {...field} value={field.value ?? ''} />
                         </FormControl>
@@ -342,7 +369,9 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                     name="ssh_password"
                     render={({ field }) => (
                       <FormItem className="flex items-center w-[62.5%]">
-                        <FormLabel className="w-1/5 mr-2 mt-2">SSH Password</FormLabel>
+                        <FormLabel className="w-1/5 mr-2 mt-2">
+                          <Trans>SSH Password</Trans>
+                        </FormLabel>
                         <FormControl className="w-4/5">
                           <Input type="password" {...field} value={field.value ?? ''} />
                         </FormControl>
@@ -355,7 +384,9 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                     name="ssh_private_key_path"
                     render={({ field }) => (
                       <FormItem className="flex items-center w-[62.5%]">
-                        <FormLabel className="w-1/5 mr-2 mt-2">Private Key</FormLabel>
+                        <FormLabel className="w-1/5 mr-2 mt-2">
+                          <Trans>Private Key</Trans>
+                        </FormLabel>
                         <FormControl className="w-4/5">
                           <ButtonGroup>
                             <Input
@@ -364,7 +395,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                               value={field.value ?? ''}
                             />
                             <Button
-                              aria-label="Select private key"
+                              aria-label={t`Select private key`}
                               variant="outline"
                               onClick={async (e) => {
                                 e.preventDefault();
@@ -380,7 +411,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                                 }
                               }}
                             >
-                              Select
+                              <Trans>Select</Trans>
                             </Button>
                           </ButtonGroup>
                         </FormControl>
@@ -393,7 +424,9 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                     name="ssh_passphrase"
                     render={({ field }) => (
                       <FormItem className="flex items-center w-[62.5%]">
-                        <FormLabel className="w-1/5 mr-2 mt-2">Key Passphrase</FormLabel>
+                        <FormLabel className="w-1/5 mr-2 mt-2">
+                          <Trans>Key Passphrase</Trans>
+                        </FormLabel>
                         <FormControl className="w-4/5">
                           <Input type="password" {...field} value={field.value ?? ''} />
                         </FormControl>
@@ -425,7 +458,9 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                 name="token"
                 render={({ field }) => (
                   <FormItem className="flex items-center w-[62.5%]">
-                    <FormLabel className="w-1/5 mr-2 mt-2">Token</FormLabel>
+                    <FormLabel className="w-1/5 mr-2 mt-2">
+                      <Trans>Token</Trans>
+                    </FormLabel>
                     <FormControl className="w-4/5">
                       <Input type="password" {...field} />
                     </FormControl>
@@ -439,7 +474,9 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                 defaultValue={true}
                 render={({ field }) => (
                   <FormItem className="flex items-center w-[62.5%]">
-                    <FormLabel className="w-1/5 mr-2 mt-2">Disable SSL</FormLabel>
+                    <FormLabel className="w-1/5 mr-2 mt-2">
+                      <Trans>Disable SSL</Trans>
+                    </FormLabel>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
@@ -456,14 +493,16 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                 name="path"
                 render={({ field }) => (
                   <FormItem className="flex items-center w-[62.5%]">
-                    <FormLabel className="w-1/5 mr-2 mt-2">Path</FormLabel>
+                    <FormLabel className="w-1/5 mr-2 mt-2">
+                      <Trans>Path</Trans>
+                    </FormLabel>
                     <FormControl className="w-4/5">
                       {/* <div className="flex w-full max-w-sm items-center gap-1"> */}
                       {/* </div> */}
                       <ButtonGroup>
-                        <Input placeholder="Search..." {...field} />
+                        <Input placeholder={t`Search...`} {...field} />
                         <Button
-                          aria-label="Select"
+                          aria-label={t`Select`}
                           variant="outline"
                           onClick={async (e) => {
                             e.preventDefault();
@@ -476,7 +515,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                             }
                           }}
                         >
-                          Select
+                          <Trans>Select</Trans>
                         </Button>
                       </ButtonGroup>
                     </FormControl>
@@ -492,7 +531,9 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                 name="cwd"
                 render={({ field }) => (
                   <FormItem className="flex items-center w-[62.5%]">
-                    <FormLabel className="w-1/5 mr-2 mt-2">Work Path</FormLabel>
+                    <FormLabel className="w-1/5 mr-2 mt-2">
+                      <Trans>Work Path</Trans>
+                    </FormLabel>
                     <FormControl className="w-4/5">
                       <Input {...field} />
                     </FormControl>
@@ -509,6 +550,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
 }
 
 export function DatabaseDialog() {
+  const { t } = useLingui();
   const [open, setOpen] = useState(false);
   const form = useForm<DialectConfig>({
     defaultValues: {
@@ -539,15 +581,15 @@ export function DatabaseDialog() {
     <Dialog
       open={open}
       onOpenChange={setOpen}
-      title="New Connection"
+      title={<Trans>New Connection</Trans>}
       className="min-w-[800px] min-h-[500px]"
-      trigger={<TooltipButton tooltip="Add data" icon={<IconDatabasePlus />} />}
+      trigger={<TooltipButton tooltip={t`Add data`} icon={<IconDatabasePlus />} />}
     >
       <DatabaseForm form={form} handleSubmit={handleSubmit} />
       <DialogFooter>
-        <DialogClose render={<Button variant="secondary">Cancel</Button>}></DialogClose>
+        <DialogClose render={<Button variant="secondary"><Trans>Cancel</Trans></Button>}></DialogClose>
         <Button type="submit" onClick={form.handleSubmit(handleSubmit)}>
-          Ok
+          <Trans>Ok</Trans>
         </Button>
       </DialogFooter>
     </Dialog>

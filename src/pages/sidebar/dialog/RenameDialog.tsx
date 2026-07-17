@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import { useForm } from 'react-hook-form';
 
 import Dialog from '@/components/custom/Dialog';
@@ -38,7 +39,7 @@ export const RenameDialog = React.memo(function RenameDialog(
   }, [props.open]);
 
   return (
-    <Dialog open={props.open} onOpenChange={props.onOpenChange} title="Rename">
+    <Dialog open={props.open} onOpenChange={props.onOpenChange} title={<Trans>Rename</Trans>}>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
           <FormField
@@ -46,7 +47,9 @@ export const RenameDialog = React.memo(function RenameDialog(
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>
+                  <Trans>Name</Trans>
+                </FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -55,9 +58,11 @@ export const RenameDialog = React.memo(function RenameDialog(
           />
 
           <DialogFooter>
-        <DialogClose render={ <Button variant="secondary">Cancel</Button>}>
+        <DialogClose render={ <Button variant="secondary"><Trans>Cancel</Trans></Button>}>
             </DialogClose>
-            <Button type="submit">Ok</Button>
+            <Button type="submit">
+              <Trans>Ok</Trans>
+            </Button>
           </DialogFooter>
         </form>
       </Form>

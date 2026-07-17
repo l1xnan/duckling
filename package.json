@@ -9,7 +9,9 @@
     "lint": "tsc",
     "preview": "vite preview",
     "tauri": "tauri",
-    "test": "vitest"
+    "test": "vitest",
+    "i18n:extract": "lingui extract --clean",
+    "i18n:compile": "lingui compile"
   },
   "dependencies": {
     "@apache-arrow/ts": "^21.1.0",
@@ -18,6 +20,8 @@
     "@headless-tree/react": "^1.7.0",
     "@hookform/resolvers": "^5.4.0",
     "@l1xnan/tree-sitter-sql": "^0.4.7",
+    "@lingui/core": "^6.5.0",
+    "@lingui/react": "^6.5.0",
     "@monaco-editor/react": "^4.7.0",
     "@tabler/icons-react": "^3.44.0",
     "@tanstack/react-devtools": "^0.10.8",
@@ -78,7 +82,12 @@
     "zustand-computed": "^2.1.4"
   },
   "devDependencies": {
+    "@babel/core": "^8.0.1",
     "@eslint/js": "^10.0.1",
+    "@lingui/babel-plugin-lingui-macro": "^6.5.0",
+    "@lingui/cli": "^6.5.0",
+    "@lingui/vite-plugin": "^6.5.0",
+    "@rolldown/plugin-babel": "^0.2.3",
     "@shikijs/monaco": "^4.3.1",
     "@tailwindcss/vite": "^4.3.2",
     "@tauri-apps/cli": "^2.11.4",

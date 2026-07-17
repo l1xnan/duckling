@@ -1,4 +1,5 @@
 import { OnChange } from '@monaco-editor/react';
+import { useLingui } from '@lingui/react/macro';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { nanoid } from 'nanoid';
@@ -32,6 +33,7 @@ function createStore(item: Partial<QueryContextType>) {
 }
 
 export default function Editor({ context }: { context: EditorContextType }) {
+  const { t } = useLingui();
   const { id, dbId } = context;
   const db = getDatabase(dbId);
 
@@ -104,7 +106,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
         type: 'query',
         stmt,
         hasLimit,
-        displayName: `Result${(tab?.children?.length ?? 0) + 1}`,
+        displayName: t`Result${(tab?.children?.length ?? 0) + 1}`,
         id,
       });
       setRuns((prev) => [...(prev ?? []), subContext]);

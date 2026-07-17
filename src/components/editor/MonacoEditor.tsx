@@ -4,10 +4,12 @@ import {
   EditorProps,
   OnMount,
 } from '@monaco-editor/react';
+import { msg } from '@lingui/core/macro';
 import { ForwardedRef, forwardRef, useImperativeHandle } from 'react';
 
 import { CompleteMetaType } from '@/ast/analyze';
 import { useRegister } from '@/components/editor/useRegister';
+import { i18n } from '@/i18n';
 import { DialectType } from '@/stores/dbList';
 import { useEditorTheme } from '@/stores/setting';
 
@@ -46,7 +48,7 @@ const MonacoEditor = forwardRef<
 
     editor.addAction({
       id: `${instanceId.current}.run`,
-      label: 'Run',
+      label: i18n._(msg`Run`),
       contextMenuGroupId: 'navigation',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
       run: () => {
@@ -56,7 +58,7 @@ const MonacoEditor = forwardRef<
 
     editor.addAction({
       id: `${instanceId.current}.format`,
-      label: 'Format SQL',
+      label: i18n._(msg`Format SQL`),
       contextMenuGroupId: '1_modification',
       keybindings: [
         monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.KeyF,

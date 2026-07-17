@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 
 import { checkAppUpdate } from '@/api';
 import { Toaster } from '@/components/ui/sonner';
+import { AppI18nProvider } from '@/i18n/AppI18nProvider';
 import { atomStore } from '@/stores';
 import {
   autoUpdateAtom,
@@ -58,12 +59,14 @@ function App() {
 
   return (
     <Provider store={atomStore}>
-      <ThemeProvider>
-        <JotaiDevTools position="bottom-right" />
-        <Home />
+      <AppI18nProvider>
+        <ThemeProvider>
+          <JotaiDevTools position="bottom-right" />
+          <Home />
 
-        <Toaster richColors />
-      </ThemeProvider>
+          <Toaster richColors />
+        </ThemeProvider>
+      </AppI18nProvider>
     </Provider>
   );
 }

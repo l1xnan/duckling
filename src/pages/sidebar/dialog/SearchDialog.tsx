@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { atom } from 'jotai';
 import { useForm } from 'react-hook-form';
 
@@ -22,6 +23,7 @@ export const searchAtom = atom<SearchType>({
 export function SearchDialog(
   props: React.ComponentProps<typeof Dialog> & { ctx: NodeElementType },
 ) {
+  const { t } = useLingui();
   const ctx = props.ctx;
   const updateTab = useTabsStore((state) => state.update);
 
@@ -48,7 +50,7 @@ export function SearchDialog(
   });
 
   return (
-    <Dialog open={props.open} onOpenChange={props.onOpenChange} title={`Search: ${ctx?.path}`}>
+    <Dialog open={props.open} onOpenChange={props.onOpenChange} title={t`Search: ${ctx?.path}`}>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
           <FormField
@@ -64,8 +66,10 @@ export function SearchDialog(
           />
 
           <DialogFooter>
-            <DialogClose render={<Button variant="secondary">Cancel</Button>}></DialogClose>
-            <Button type="submit">Ok</Button>
+            <DialogClose render={<Button variant="secondary"><Trans>Cancel</Trans></Button>}></DialogClose>
+            <Button type="submit">
+              <Trans>Ok</Trans>
+            </Button>
           </DialogFooter>
         </form>
       </Form>

@@ -1,3 +1,5 @@
+import { msg } from '@lingui/core/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { IconDecimal } from '@tabler/icons-react';
 import {
@@ -19,6 +21,7 @@ import { SQLCodeViewer } from '@/components/editor/SingleLineEditor';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { ExportDialog } from '@/components/views/ExportDialog';
+import { i18n } from '@/i18n';
 import { SchemaType } from '@/stores/dataset';
 import { TabContextType } from '@/stores/tabs';
 
@@ -46,7 +49,7 @@ export interface DataViewToolbarProps {
 }
 
 export function elapsedRender(elapsed?: number) {
-  return elapsed ? `${elapsed}ms` : 'NA';
+  return elapsed ? `${elapsed}ms` : i18n._(msg`N/A`);
 }
 
 export function DataViewToolbar({
@@ -70,6 +73,7 @@ export function DataViewToolbar({
   setTranspose,
   setCross,
 }: DataViewToolbarProps) {
+  const { t } = useLingui();
   const exportDialog = useDialog();
 
   return (
@@ -88,7 +92,7 @@ export function DataViewToolbar({
         <TooltipButton
           icon={<IconDecimal className="size-5" />}
           onClick={setBeautify}
-          tooltip="Float precision"
+          tooltip={t`Float precision`}
         />
 
         <TooltipButton
@@ -96,18 +100,22 @@ export function DataViewToolbar({
           onClick={async () => {
             await refresh();
           }}
-          tooltip="Refresh"
+          tooltip={t`Refresh`}
         />
-        <div className="text-xs ml-6">elapsed time: {elapsedRender(elapsed)}</div>
+        <div className="text-xs ml-6">
+          <Trans>elapsed time: {elapsedRender(elapsed)}</Trans>
+        </div>
       </Stack>
       <Stack>
         <Popover>
           <PopoverTrigger
-            render={<TooltipButton icon={<Columns3CogIcon />} tooltip="Hidden Column" />}
+            render={<TooltipButton icon={<Columns3CogIcon />} tooltip={t`Hidden Column`} />}
           ></PopoverTrigger>
           <PopoverContent>
             <div className="flex flex-col gap-2">
-              <h4>Data Columns</h4>
+              <h4>
+                <Trans>Data Columns</Trans>
+              </h4>
               {columns?.map((column) => {
                 return (
                   <div className="flex items-center gap-3" key={column.name}>
@@ -126,11 +134,11 @@ export function DataViewToolbar({
           </PopoverContent>
         </Popover>
 
-        <TooltipButton icon={<CrossIcon />} onClick={setCross} tooltip="Cross" active={cross} />
+        <TooltipButton icon={<CrossIcon />} onClick={setCross} tooltip={t`Cross`} active={cross} />
         <TooltipButton
           icon={<TransposeIcon />}
           onClick={setTranspose}
-          tooltip="Transpose"
+          tooltip={t`Transpose`}
           active={transpose}
         />
 
@@ -143,10 +151,10 @@ export function DataViewToolbar({
           </PopoverContent>
         </Popover>
 
-        <TooltipButton icon={<EyeIcon />} onClick={setShowValue} tooltip="Value Viewer" />
+        <TooltipButton icon={<EyeIcon />} onClick={setShowValue} tooltip={t`Value Viewer`} />
         <TooltipButton
           icon={<DownloadIcon />}
-          tooltip="Export data"
+          tooltip={t`Export data`}
           disabled={!sql}
           onClick={exportDialog.trigger}
         />

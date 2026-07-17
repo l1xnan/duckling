@@ -1,4 +1,7 @@
 import { Data, Vector } from '@apache-arrow/ts';
+import type { MessageDescriptor } from '@lingui/core';
+import { msg } from '@lingui/core/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import MonacoEditor from '@monaco-editor/react';
 import { LetterTextIcon, PanelBottomIcon, PanelRightIcon, XIcon } from 'lucide-react';
 import { editor } from 'monaco-editor';
@@ -18,23 +21,38 @@ import { DataFrame } from '@/utils/dataframe';
 
 import { SelectedCellType } from './TableView';
 
+const FORMAT_OPTIONS: { value: string; label: MessageDescriptor | string }[] = [
+  { value: 'Raw', label: msg`Raw` },
+  { value: 'JSON', label: 'JSON' },
+  { value: 'Raw(JSON)', label: msg`Raw(JSON)` },
+];
+
 interface FormatTypeDropdownProps {
   type: string;
   setType: (type: string) => void;
 }
 
 export function FormatTypeDropdown({ type, setType }: FormatTypeDropdownProps) {
+  const { t } = useLingui();
+  const current = FORMAT_OPTIONS.find((item) => item.value === type);
+  const content =
+    current == null
+      ? type
+      : typeof current.label === 'string'
+        ? current.label
+        : t(current.label);
+
   return (
-    <DropdownMenu content={type}>
+    <DropdownMenu content={content}>
       <DropdownMenuContent className="w-32">
-        {['Raw', 'JSON', 'Raw(JSON)'].map((item) => (
+        {FORMAT_OPTIONS.map((item) => (
           <DropdownMenuItem
-            key={item}
+            key={item.value}
             onSelect={() => {
-              setType(item);
+              setType(item.value);
             }}
           >
-            {item}
+            {typeof item.label === 'string' ? item.label : t(item.label)}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
@@ -73,6 +91,7 @@ export function ValueViewer({
   setDirection,
   direction,
 }: ValueViewerProps) {
+  const { t } = useLingui();
   const theme = useEditorTheme();
 
   const [type, setType] = useState('Raw');
@@ -96,8 +115,8 @@ export function ValueViewer({
       <div className="flex flex-row items-center justify-between">
         <TabsList variant="line">
           {[
-            { key: 'value', label: 'Value' },
-            { key: 'calculate', label: 'Calculate' },
+            { key: 'value', label: t`Value` },
+            { key: 'calculate', label: t`Calculate` },
           ].map(({ key, label }) => (
             <TabsTrigger
               key={key}
@@ -114,7 +133,7 @@ export function ValueViewer({
             icon={<LetterTextIcon className="size-5" />}
             disabled={!type.includes('JSON')}
             onClick={handleFormat}
-            tooltip="Format"
+            tooltip={t`Format`}
           />
 
           {direction == 'horizontal' ? (
@@ -123,7 +142,7 @@ export function ValueViewer({
               onClick={() => {
                 setDirection();
               }}
-              tooltip="Move to the bottom"
+              tooltip={t`Move to the bottom`}
             />
           ) : (
             <TooltipButton
@@ -131,7 +150,7 @@ export function ValueViewer({
               onClick={() => {
                 setDirection();
               }}
-              tooltip="Move to the top"
+              tooltip={t`Move to the top`}
             />
           )}
 
@@ -140,13 +159,15 @@ export function ValueViewer({
             onClick={() => {
               setShowValue();
             }}
-            tooltip="Close"
+            tooltip={t`Close`}
           />
         </div>
       </div>
       <TabsContent value="value" className="size-full">
         {selectedCell === null ? (
-          <pre className="size-full flex items-center justify-center">not selected</pre>
+          <pre className="size-full flex items-center justify-center">
+            <Trans>not selected</Trans>
+          </pre>
         ) : (
           <MonacoEditor
             theme={theme}
@@ -167,7 +188,7 @@ export function ValueViewer({
         )}
       </TabsContent>
       <TabsContent value="calculate" className="size-full">
-        <ErrorBoundary fallback={<p>Something went wrong</p>}>
+        <ErrorBoundary fallback={<p><Trans>Something went wrong</Trans></p>}>
           <CalcViewer cells={selectedCellInfos} />
         </ErrorBoundary>
       </TabsContent>
@@ -189,7 +210,9 @@ function CalcViewer({ cells }: { cells?: SelectedCellType[][] | null }) {
     <Table className="text-xs font-mono">
       <TableHeader>
         <TableRow>
-          <TableCell className="p-1 w-20 pl-4">Field</TableCell>
+          <TableCell className="p-1 w-20 pl-4">
+            <Trans>Field</Trans>
+          </TableCell>
           {df.inds.map((k) => {
             return (
               <TableCell key={k} className="p-1 w-10">

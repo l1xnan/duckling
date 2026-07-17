@@ -1,3 +1,4 @@
+import { useLingui } from '@lingui/react/macro';
 import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { listSystemFonts } from '@/api';
@@ -70,13 +71,16 @@ type FontFamilyComboboxProps = {
 export function FontFamilyCombobox({
   value,
   onChange,
-  placeholder = 'Select a font',
+  placeholder,
 }: FontFamilyComboboxProps) {
+  const { t } = useLingui();
   const [fonts, setFonts] = useState<string[]>(FALLBACK_FONTS);
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState('');
   const loadedRef = useRef(false);
   const loadingRef = useRef(false);
+
+  const resolvedPlaceholder = placeholder ?? t`Select a font`;
 
   const loadFonts = useCallback(async () => {
     if (loadedRef.current || loadingRef.current) return;
@@ -145,7 +149,7 @@ export function FontFamilyCombobox({
             'data-placeholder:text-muted-foreground',
           )}
         >
-          <ComboboxValue placeholder={placeholder}>
+          <ComboboxValue placeholder={resolvedPlaceholder}>
             {(item: FontItem | null) =>
               item ? (
                 <span
@@ -163,13 +167,13 @@ export function FontFamilyCombobox({
       <ComboboxContent className="max-h-72">
         <ComboboxInput
           placeholder={
-            loading ? 'Loading fonts...' : 'Search or type a font name...'
+            loading ? t`Loading fonts...` : t`Search or type a font name...`
           }
           showTrigger={false}
           className="w-auto"
         />
         <ComboboxEmpty>
-          {loading ? 'Loading fonts...' : 'No matching fonts'}
+          {loading ? t`Loading fonts...` : t`No matching fonts`}
         </ComboboxEmpty>
         <ComboboxList>
           {(item) => (
@@ -179,7 +183,7 @@ export function FontFamilyCombobox({
             >
               {item.isCustom ? (
                 <span className="truncate text-muted-foreground" title={item.value}>
-                  Use “{item.value}”
+                  {t`Use "${item.value}"`}
                 </span>
               ) : (
                 <span

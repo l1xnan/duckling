@@ -1,14 +1,16 @@
 import * as React from "react"
+import { msg } from '@lingui/core/macro'
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { i18n } from '@/i18n'
 import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-react"
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
       role="navigation"
-      aria-label="pagination"
+      aria-label={i18n._(msg`pagination`)}
       data-slot="pagination"
       className={cn("mx-auto flex w-full justify-center", className)}
       {...props}
@@ -69,7 +71,7 @@ function PaginationPrevious({
 }: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
   return (
     <PaginationLink
-      aria-label="Go to previous page"
+      aria-label={i18n._(msg`Go to previous page`)}
       size="default"
       className={cn("pl-2!", className)}
       {...props}
@@ -87,7 +89,7 @@ function PaginationNext({
 }: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
   return (
     <PaginationLink
-      aria-label="Go to next page"
+      aria-label={i18n._(msg`Go to next page`)}
       size="default"
       className={cn("pr-2!", className)}
       {...props}
@@ -114,7 +116,7 @@ function PaginationEllipsis({
     >
       <MoreHorizontalIcon
       />
-      <span className="sr-only">More pages</span>
+      <span className="sr-only">{i18n._(msg`More pages`)}</span>
     </span>
   )
 }

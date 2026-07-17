@@ -3,6 +3,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { HistoryContextMenu } from '@/pages/sidebar/context-menu/HistoryContextMenu';
 import { favoriteAtom, runsAtom } from '@/stores/app';
 import { QueryContextType, TabContextType, useTabsStore } from '@/stores/tabs';
+import { useLingui } from '@lingui/react/macro';
 import { useAtomValue } from 'jotai';
 import { Code2Icon, SearchIcon, TableIcon } from 'lucide-react';
 import React, { PropsWithChildren, ReactNode } from 'react';
@@ -56,6 +57,7 @@ export function Container({
 }
 
 export function Favorite() {
+  const { t } = useLingui();
   const items = useAtomValue(favoriteAtom);
   const updateTab = useTabsStore((state) => state.update);
 
@@ -63,7 +65,7 @@ export function Favorite() {
     updateTab(item);
   };
   return (
-    <Container title="Favorite">
+    <Container title={t`Favorite`}>
       {items.map((item, i) => {
         const Comp =
           item.type == 'search'
@@ -87,9 +89,10 @@ export function Favorite() {
 }
 
 export function History() {
+  const { t } = useLingui();
   const items = useAtomValue(runsAtom) as QueryContextType[];
   return (
-    <Container title="History">
+    <Container title={t`History`}>
       {items.map((item, i) => {
         return (
           <HistoryContextMenu key={i} ctx={item}>

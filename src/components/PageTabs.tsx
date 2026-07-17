@@ -1,5 +1,6 @@
 import 'react-horizontal-scrolling-menu/dist/styles.css';
 
+import { Trans, useLingui } from '@lingui/react/macro';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useAtom, useSetAtom } from 'jotai';
 import {
@@ -98,14 +99,14 @@ export function TabItemContextMenu({
               onRemove(tab.id);
             }}
           >
-            Close
+            <Trans>Close</Trans>
           </ContextMenuItem>
           <ContextMenuItem
             onClick={async () => {
               onRemoveOther(tab.id);
             }}
           >
-            Close Other
+            <Trans>Close Other</Trans>
           </ContextMenuItem>
 
           <ContextMenuSeparator />
@@ -115,7 +116,7 @@ export function TabItemContextMenu({
               setFavorite((prev) => [...prev, tab]);
             }}
           >
-            Favorite
+            <Trans>Favorite</Trans>
           </ContextMenuItem>
 
           <ContextMenuSeparator />
@@ -125,18 +126,20 @@ export function TabItemContextMenu({
               await writeText(tab.displayName);
             }}
           >
-            Copy
+            <Trans>Copy</Trans>
           </ContextMenuItem>
           {tab.type == 'editor' ? (
             <>
               <ContextMenuSeparator />
-              <ContextMenuItem onClick={dialog.trigger}>Rename</ContextMenuItem>
+              <ContextMenuItem onClick={dialog.trigger}>
+                <Trans>Rename</Trans>
+              </ContextMenuItem>
               <ContextMenuItem
                 onClick={async () => {
                   handleDeleteTab(tab);
                 }}
               >
-                Delete
+                <Trans>Delete</Trans>
               </ContextMenuItem>
             </>
           ) : null}
@@ -234,7 +237,15 @@ export function PageTabs({
             className="min-h-0"
             // className={cn('h-full w-full mt-0 overflow-hidden', isActive ? 'flex-1' : 'hidden')}
           >
-            <ErrorBoundary fallback={<p>Something went wrong</p>}>{children}</ErrorBoundary>
+            <ErrorBoundary
+              fallback={
+                <p>
+                  <Trans>Something went wrong</Trans>
+                </p>
+              }
+            >
+              {children}
+            </ErrorBoundary>
           </TabsContent>
         );
       })}
@@ -299,9 +310,23 @@ function TabMenuItem({ itemId, renderItem, tab, indicator, onRemove }: TabItemMe
 }
 
 export function CloseableItem({ tab, onRemove }: TabItemProps) {
+  const { t } = useLingui();
+  const typeLabel =
+    tab.type === 'search'
+      ? t`Search`
+      : tab.type === 'editor'
+        ? t`Editor`
+        : tab.type === 'table'
+          ? t`Table`
+          : tab.type === 'schema'
+            ? t`Schema`
+            : tab.type === 'query'
+              ? t`Query`
+              : tab.type;
+
   return (
     <div className="flex items-center justify-between">
-      <TitleTooltip title={`${tab.type}: ${tab.displayName}`}>
+      <TitleTooltip title={`${typeLabel}: ${tab.displayName}`}>
         <div className="flex">
           <TabTypeIcon type={tab.type} className="size-4 mr-1" />
           <div className="max-w-52 truncate">{tab.displayName}</div>
@@ -371,7 +396,7 @@ function RenameDialog({
     defaultValues: { name: tab?.displayName },
   });
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} title="Rename">
+    <Dialog open={open} onOpenChange={onOpenChange} title={<Trans>Rename</Trans>}>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
           <FormField
@@ -379,7 +404,9 @@ function RenameDialog({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>
+                  <Trans>Name</Trans>
+                </FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -389,9 +416,11 @@ function RenameDialog({
 
           <DialogFooter>
             <Button variant="secondary" onClick={() => onOpenChange?.(false)}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
-            <Button type="submit">Ok</Button>
+            <Button type="submit">
+              <Trans>Ok</Trans>
+            </Button>
           </DialogFooter>
         </form>
       </Form>

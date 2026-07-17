@@ -1,11 +1,14 @@
-import { useTheme } from '@/hooks/theme-provider';
-import { createSelectors } from '@/stores/utils';
-import { isDarkTheme } from '@/utils';
+import type { MessageDescriptor } from '@lingui/core';
+import { msg } from '@lingui/core/macro';
 import { useAtomValue } from 'jotai';
 import { atomWithStore } from 'jotai-zustand';
 import { selectAtom } from 'jotai/utils';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+
+import { useTheme } from '@/hooks/theme-provider';
+import { createSelectors } from '@/stores/utils';
+import { isDarkTheme } from '@/utils';
 
 export type CsvParam = {
   delim?: string;
@@ -55,6 +58,9 @@ export type SqlfmtOptions = {
 /** App updater endpoint preset (see `tauri.conf.json` plugins.updater.endpoints). */
 export type UpdaterSource = 'official' | 'china';
 
+/** Persisted UI language preference. `system` follows OS locale with English fallback. */
+export type LocalePreference = 'system' | 'en' | 'zh-CN';
+
 export const UPDATER_ENDPOINT_OFFICIAL =
   'https://github.com/l1xnan/duckling/releases/latest/download/latest.json';
 
@@ -63,20 +69,20 @@ export const UPDATER_ENDPOINT_CHINA =
 
 export const updaterSources: {
   id: UpdaterSource;
-  name: string;
-  description: string;
+  name: MessageDescriptor;
+  description: MessageDescriptor;
   url: string;
 }[] = [
   {
     id: 'official',
-    name: 'GitHub (Official)',
-    description: 'Official GitHub Releases endpoint',
+    name: msg`GitHub (Official)`,
+    description: msg`Official GitHub Releases endpoint`,
     url: UPDATER_ENDPOINT_OFFICIAL,
   },
   {
     id: 'china',
-    name: 'China Mirror',
-    description: 'gh-proxy.com mirror for mainland China',
+    name: msg`China Mirror`,
+    description: msg`gh-proxy.com mirror for mainland China`,
     url: UPDATER_ENDPOINT_CHINA,
   },
 ];
@@ -93,6 +99,8 @@ export type SettingState = {
   auto_update?: boolean;
   proxy?: string;
   debug?: string;
+  /** UI language: follow system, or a fixed supported locale. */
+  locale?: LocalePreference;
   /** Updater endpoint source: official GitHub or China mirror. */
   updater_source?: UpdaterSource;
   csv?: CsvParam;
@@ -140,6 +148,7 @@ export const defaultSqlfmtOptions: SqlfmtOptions = {
 export const defaultSettings: SettingState = {
   precision: 4,
   auto_update: false,
+  locale: 'system',
   updater_source: 'official',
   table_font_family: 'Consolas',
   table_render: 'canvas',
@@ -214,6 +223,11 @@ export const editorThemeAtom = selectAtom(settingAtom, (s) => ({
 
 export const autoUpdateAtom = selectAtom(settingAtom, (s) => s.auto_update);
 
+export const localePreferenceAtom = selectAtom(
+  settingAtom,
+  (s) => s.locale ?? defaultSettings.locale!,
+);
+
 export const updaterSourceAtom = selectAtom(
   settingAtom,
   (s) => s.updater_source ?? defaultSettings.updater_source!,
@@ -232,51 +246,54 @@ export const sqlfmtPathAtom = selectAtom(
 export const sqlFormatterEngines: {
   name: string;
   id: SqlFormatterEngine;
-  description: string;
+  description: MessageDescriptor;
 }[] = [
   {
     name: 'sql-formatter',
     id: 'sql-formatter',
-    description: 'General-purpose SQL formatter',
+    description: msg`General-purpose SQL formatter`,
   },
   {
     name: 'holywell',
     id: 'holywell',
-    description: "Simon Holywell's sqlstyle.guide (river alignment)",
+    description: msg`Simon Holywell's sqlstyle.guide (river alignment)`,
   },
   {
     name: 'shandy-sqlfmt',
     id: 'shandy-sqlfmt',
-    description: 'External sqlfmt CLI (dbt-oriented, via Tauri)',
+    description: msg`External sqlfmt CLI (dbt-oriented, via Tauri)`,
   },
 ];
 
-export const sqlCaseOptions: { label: string; value: SqlCaseOption }[] = [
-  { label: 'Upper', value: 'upper' },
-  { label: 'Lower', value: 'lower' },
-  { label: 'Preserve', value: 'preserve' },
+export const sqlCaseOptions: { label: MessageDescriptor; value: SqlCaseOption }[] = [
+  { label: msg`Upper`, value: 'upper' },
+  { label: msg`Lower`, value: 'lower' },
+  { label: msg`Preserve`, value: 'preserve' },
 ];
 
 export const sqlIndentStyleOptions: {
-  label: string;
+  label: MessageDescriptor;
   value: SqlIndentStyle;
 }[] = [
-  { label: 'Standard', value: 'standard' },
-  { label: 'Tabular left', value: 'tabularLeft' },
-  { label: 'Tabular right', value: 'tabularRight' },
+  { label: msg`Standard`, value: 'standard' },
+  { label: msg`Tabular left`, value: 'tabularLeft' },
+  { label: msg`Tabular right`, value: 'tabularRight' },
 ];
 
 export const sqlLogicalNewlineOptions: {
-  label: string;
+  label: MessageDescriptor;
   value: SqlLogicalNewline;
 }[] = [
-  { label: 'Before operator', value: 'before' },
-  { label: 'After operator', value: 'after' },
+  { label: msg`Before operator`, value: 'before' },
+  { label: msg`After operator`, value: 'after' },
 ];
 
-export const sqlfmtDialectOptions: { label: string; value: SqlfmtDialect }[] = [
-  { label: 'Polyglot (default)', value: 'polyglot' },
-  { label: 'ClickHouse', value: 'clickhouse' },
+export const sqlfmtDialectOptions: {
+  label: MessageDescriptor;
+  value: SqlfmtDialect;
+}[] = [
+  { label: msg`Polyglot (default)`, value: 'polyglot' },
+  { label: msg`ClickHouse`, value: 'clickhouse' },
 ];
 
 export const useEditorTheme = () => {

@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import { Code, RefreshCcw, Settings } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import React, { PropsWithChildren, useState } from 'react';
@@ -71,25 +72,25 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
         <ContextMenuTrigger>{children}</ContextMenuTrigger>
         <ContextMenuContent className="w-64">
           <ContextMenuItem onSelect={handleProperties} icon={Settings}>
-            Properties
+            <Trans>Properties</Trans>
             <ContextMenuShortcut>F3</ContextMenuShortcut>
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem onSelect={handleEditor} icon={Code}>
-            SQL Editor
+            <Trans>SQL Editor</Trans>
             <ContextMenuShortcut>F4</ContextMenuShortcut>
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem inset onSelect={handleRename}>
-            Rename
+            <Trans>Rename</Trans>
             <ContextMenuShortcut>F2</ContextMenuShortcut>
           </ContextMenuItem>
           <ContextMenuItem onSelect={handleRefresh} icon={RefreshCcw}>
-            Refresh
+            <Trans>Refresh</Trans>
             <ContextMenuShortcut>F5</ContextMenuShortcut>
           </ContextMenuItem>
           <ContextMenuItem inset onSelect={handleRemove} tabIndex={-1}>
-            Delete
+            <Trans>Delete</Trans>
             <ContextMenuShortcut>Del</ContextMenuShortcut>
           </ContextMenuItem>
         </ContextMenuContent>

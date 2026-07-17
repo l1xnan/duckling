@@ -1,4 +1,5 @@
 import { DataType } from '@apache-arrow/ts';
+import { msg } from '@lingui/core/macro';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { ListTable } from '@visactor/react-vtable';
 import {
@@ -20,6 +21,7 @@ import { CSSProperties, useMemo, useRef, useState } from 'react';
 
 import { SelectedCellType } from '@/components/views/TableView';
 import { useTheme } from '@/hooks/theme-provider';
+import { i18n } from '@/i18n';
 import { OrderByType, SchemaType } from '@/stores/dataset';
 import { tableFontFamilyAtom } from '@/stores/setting';
 import { isDarkTheme, isNumberType, uniqueArray } from '@/utils';
@@ -70,6 +72,14 @@ const rowSeriesNumber = ({ transpose }: any) => ({
   },
 });
 
+const MENU_COPY_FIELD = msg`Copy Field Name`;
+const MENU_PIN_LEFT = msg`Pin to left`;
+const MENU_PIN_RIGHT = msg`Pin to right`;
+const MENU_PIN_CLEAR = msg`Clear pinned`;
+const MENU_HIDDEN_COLUMN = msg`Hidden column`;
+const MENU_COPY = msg`Copy`;
+const MENU_COPY_AS_CSV = msg`Copy as CSV`;
+
 const contextMenuItems = (
   _field: FieldDef,
   row: number,
@@ -81,34 +91,34 @@ const contextMenuItems = (
     return [
       {
         menuKey: 'copy-field',
-        text: 'Copy Field Name',
+        text: i18n._(MENU_COPY_FIELD),
       },
       {
         menuKey: 'pin-to-left',
-        text: 'Pin to left',
+        text: i18n._(MENU_PIN_LEFT),
       },
       {
         menuKey: 'pin-to-right',
-        text: 'Pin to right',
+        text: i18n._(MENU_PIN_RIGHT),
       },
       {
         menuKey: 'pin-to-clear',
-        text: 'Clear pinned',
+        text: i18n._(MENU_PIN_CLEAR),
       },
       {
         menuKey: 'hidden-column',
-        text: 'Hidden column',
+        text: i18n._(MENU_HIDDEN_COLUMN),
       },
     ];
   }
   return [
     {
       menuKey: 'copy',
-      text: 'Copy',
+      text: i18n._(MENU_COPY),
     },
     {
       menuKey: 'copy-as-csv',
-      text: 'Copy as CSV',
+      text: i18n._(MENU_COPY_AS_CSV),
     },
   ];
 };
@@ -372,35 +382,35 @@ function CanvasTable_({
     return new ContextMenuPlugin({
       bodyCellMenuItems: [
         {
-          text: 'Copy',
+          text: i18n._(MENU_COPY),
           menuKey: 'copy',
           shortcut: 'Ctrl+C',
         },
         {
-          text: 'Copy as CSV',
+          text: i18n._(MENU_COPY_AS_CSV),
           menuKey: 'copy-as-csv',
         },
       ],
       headerCellMenuItems: [
         {
           menuKey: 'copy-field',
-          text: 'Copy Field Name',
+          text: i18n._(MENU_COPY_FIELD),
         },
         {
           menuKey: 'pin-to-left',
-          text: 'Pin to left',
+          text: i18n._(MENU_PIN_LEFT),
         },
         {
           menuKey: 'pin-to-right',
-          text: 'Pin to right',
+          text: i18n._(MENU_PIN_RIGHT),
         },
         {
           menuKey: 'pin-to-clear',
-          text: 'Clear pinned',
+          text: i18n._(MENU_PIN_CLEAR),
         },
         {
           menuKey: 'hidden_column',
-          text: 'Hidden column',
+          text: i18n._(MENU_HIDDEN_COLUMN),
         },
       ],
 
@@ -434,7 +444,7 @@ function CanvasTable_({
         }
       },
     });
-  }, [setHiddenColumns]);
+  }, [setHiddenColumns, i18n.locale]);
 
   const [plugins, setPlugins] = useState<IVTablePlugin[]>([highlightPlugin]);
 

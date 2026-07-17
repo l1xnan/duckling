@@ -1,3 +1,4 @@
+import { useLingui } from '@lingui/react/macro';
 import { Stack } from '@/components/Toolbar';
 import { TooltipButton } from '@/components/custom/button';
 import {
@@ -24,6 +25,7 @@ export interface DropdownProps {
 }
 
 export function PaginationDropdown({ content, setPerPage }: DropdownProps) {
+  const { t } = useLingui();
   return (
     <DropdownMenu content={content}>
       <DropdownMenuContent className="w-32">
@@ -39,7 +41,7 @@ export function PaginationDropdown({ content, setPerPage }: DropdownProps) {
         ))}
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuLabel>Default: 500</DropdownMenuLabel>
+          <DropdownMenuLabel>{t`Default: 500`}</DropdownMenuLabel>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -57,13 +59,14 @@ export function Pagination({
   pageSize: number;
   onChange: (page: number, pageSize: number) => void;
 }) {
+  const { t } = useLingui();
   const [page, setPage] = useState<number>(props.current);
   const [pageSize, setPageSize] = useState<number>(props.pageSize);
   const last = Math.ceil(total / pageSize);
 
   const start = pageSize * (page - 1) + 1;
   const end = start + count - 1;
-  const content = count >= total ? `${count} rows` : `${start}-${end}`;
+  const content = count >= total ? t`${count} rows` : `${start}-${end}`;
 
   return (
     <Stack className="gap-0">
@@ -94,7 +97,7 @@ export function Pagination({
         }}
       />
       <span className="mr-1 text-sm">
-        {count < total ? `of ${total}` : null}
+        {count < total ? t`of ${total}` : null}
       </span>
       <TooltipButton
         color="inherit"

@@ -1,4 +1,13 @@
-import { BellIcon, CheckCircle2Icon, InfoIcon, TriangleAlertIcon, XCircleIcon, XIcon } from 'lucide-react';
+import { Trans, useLingui } from '@lingui/react/macro';
+import type { MessageDescriptor } from '@lingui/core';
+import {
+  BellIcon,
+  CheckCircle2Icon,
+  InfoIcon,
+  TriangleAlertIcon,
+  XCircleIcon,
+  XIcon,
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -12,6 +21,7 @@ import { cn } from '@/lib/utils';
 import {
   AppNotification,
   AppNotificationType,
+  NotificationText,
   useNotificationStore,
 } from '@/stores/notification';
 
@@ -28,16 +38,8 @@ function typeIcon(type: AppNotificationType) {
   }
 }
 
-function formatTime(ts: number) {
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    }).format(new Date(ts));
-  } catch {
-    return new Date(ts).toLocaleTimeString();
-  }
+function isMessageDescriptor(value: NotificationText): value is MessageDescriptor {
+  return typeof value === 'object' && value !== null && 'id' in value;
 }
 
 function NotificationItem({
@@ -49,6 +51,26 @@ function NotificationItem({
   onRead: (id: string) => void;
   onRemove: (id: string) => void;
 }) {
+  const { t, i18n } = useLingui();
+
+  const title = isMessageDescriptor(item.title) ? t(item.title) : item.title;
+  const description = item.description
+    ? isMessageDescriptor(item.description)
+      ? t(item.description)
+      : item.description
+    : undefined;
+
+  let timeLabel: string;
+  try {
+    timeLabel = new Intl.DateTimeFormat(i18n.locale, {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    }).format(new Date(item.createdAt));
+  } catch {
+    timeLabel = new Date(item.createdAt).toLocaleTimeString();
+  }
+
   return (
     <div
       className={cn(
@@ -62,15 +84,13 @@ function NotificationItem({
       <div className="mt-0.5 shrink-0">{typeIcon(item.type)}</div>
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
-          <p className="truncate text-sm font-medium">{item.title}</p>
+          <p className="truncate text-sm font-medium">{title}</p>
           <span className="shrink-0 text-[10px] text-muted-foreground tabular-nums">
-            {formatTime(item.createdAt)}
+            {timeLabel}
           </span>
         </div>
-        {item.description ? (
-          <p className="mt-0.5 break-all text-xs text-muted-foreground">
-            {item.description}
-          </p>
+        {description ? (
+          <p className="mt-0.5 break-all text-xs text-muted-foreground">{description}</p>
         ) : null}
       </div>
       <Button
@@ -91,6 +111,7 @@ function NotificationItem({
 }
 
 export function StatusBar() {
+  const { t } = useLingui();
   const notifications = useNotificationStore((s) => s.notifications);
   const markRead = useNotificationStore((s) => s.markRead);
   const markAllRead = useNotificationStore((s) => s.markAllRead);
@@ -114,7 +135,7 @@ export function StatusBar() {
               variant="ghost"
               size="icon-xs"
               className="relative size-5 rounded-sm"
-              aria-label="Notifications"
+              aria-label={t`Notifications`}
             >
               <BellIcon className="size-3.5" />
               {unread > 0 ? (
@@ -125,14 +146,11 @@ export function StatusBar() {
             </Button>
           }
         />
-        <PopoverContent
-          side="top"
-          align="end"
-          sideOffset={6}
-          className="w-80 gap-2 p-2"
-        >
+        <PopoverContent side="top" align="end" sideOffset={6} className="w-80 gap-2 p-2">
           <PopoverHeader className="flex flex-row items-center justify-between gap-2 px-1 pt-1">
-            <PopoverTitle>Notifications</PopoverTitle>
+            <PopoverTitle>
+              <Trans>Notifications</Trans>
+            </PopoverTitle>
             {notifications.length > 0 ? (
               <Button
                 type="button"
@@ -141,14 +159,14 @@ export function StatusBar() {
                 className="h-6 px-1.5 text-xs text-muted-foreground"
                 onClick={() => clear()}
               >
-                Clear all
+                <Trans>Clear all</Trans>
               </Button>
             ) : null}
           </PopoverHeader>
           <div className="max-h-72 space-y-1.5 overflow-y-auto pr-0.5">
             {notifications.length === 0 ? (
               <p className="px-2 py-6 text-center text-xs text-muted-foreground">
-                No notifications yet
+                <Trans>No notifications yet</Trans>
               </p>
             ) : (
               notifications.map((item) => (

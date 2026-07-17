@@ -1,3 +1,4 @@
+import { useLingui } from '@lingui/react/macro';
 import { useAtomValue } from 'jotai';
 import { RefreshCw, Search } from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
@@ -23,6 +24,7 @@ export function DatabaseSchemaView({
 }: {
   context: SchemaContextType;
 }) {
+  const { t } = useLingui();
   const currentTab = useAtomValue(activeTabAtom);
   const [loading, setLoading] = useState(false);
   const db = getDatabase(context?.dbId);
@@ -61,7 +63,7 @@ export function DatabaseSchemaView({
             onChange={(e) => {
               setSearch(e.target.value);
             }}
-            placeholder="Search"
+            placeholder={t`Search`}
             className="w-full h-full pl-8 py-0.5 text-xs focus-visible:ring-0 shadow-none rounded-none border-t-0 border-b transition-none"
           />
         </div>
@@ -103,6 +105,7 @@ export function DatabaseSchemaView({
 }
 
 export function ColumnSchemaView({ context }: { context: TableContextType }) {
+  const { t } = useLingui();
   const currentTab = useAtomValue(activeTabAtom);
   const [loading, setLoading] = useState(false);
   const db = getDatabase(context?.dbId);
@@ -141,7 +144,7 @@ export function ColumnSchemaView({ context }: { context: TableContextType }) {
             onChange={(e) => {
               setSearch(e.target.value);
             }}
-            placeholder="Search"
+            placeholder={t`Search`}
             className="w-full h-full pl-8 py-0.5 text-xs focus-visible:ring-0 shadow-none rounded-none border-t-0 border-b transition-none"
           />
         </div>
@@ -183,6 +186,7 @@ export function ColumnSchemaView({ context }: { context: TableContextType }) {
 }
 
 export function SearchView({ context }: { context: TableContextType }) {
+  const { t } = useLingui();
   const currentTab = useAtomValue(activeTabAtom);
   const [loading, setLoading] = useState(false);
   const db = getDatabase(context?.dbId);
@@ -222,7 +226,7 @@ export function SearchView({ context }: { context: TableContextType }) {
             onChange={(e) => {
               setSearch(e.target.value);
             }}
-            placeholder="Search"
+            placeholder={t`Search`}
             className="w-full h-full pl-8 py-0.5 text-xs focus-visible:ring-0 shadow-none rounded-none border-t-0 border-b transition-none"
           />
         </div>

@@ -24,6 +24,7 @@ import { SearchDialog } from '@/pages/sidebar/dialog/SearchDialog';
 import { DBType, DialectConfig, useDBListStore } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { NodeElementType } from '@/types';
+import { Trans } from '@lingui/react/macro';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { RefreshCcw } from 'lucide-react';
 import { nanoid } from 'nanoid';
@@ -144,26 +145,42 @@ export function TableContextMenu({
             e.stopPropagation();
           }}
         >
-          <ContextMenuItem onSelect={handleShowTable}>Show table</ContextMenuItem>
-          <ContextMenuItem onSelect={handleShowColumn}>Show columns</ContextMenuItem>
+          <ContextMenuItem onSelect={handleShowTable}>
+            <Trans>Show table</Trans>
+          </ContextMenuItem>
+          <ContextMenuItem onSelect={handleShowColumn}>
+            <Trans>Show columns</Trans>
+          </ContextMenuItem>
           {db.dialect == 'folder' ? (
             <>
-              <ContextMenuItem onSelect={handleShowParquet}>Show *.parquet</ContextMenuItem>
-              <ContextMenuItem onSelect={handleShowCsv}>Show *.csv</ContextMenuItem>
+              <ContextMenuItem onSelect={handleShowParquet}>
+                <Trans>Show *.parquet</Trans>
+              </ContextMenuItem>
+              <ContextMenuItem onSelect={handleShowCsv}>
+                <Trans>Show *.csv</Trans>
+              </ContextMenuItem>
               <ContextMenuSeparator />
-              <ContextMenuItem onSelect={handleSearch}>Search</ContextMenuItem>
-              <ContextMenuItem onSelect={handkeOpenPath}>Open Path</ContextMenuItem>
+              <ContextMenuItem onSelect={handleSearch}>
+                <Trans>Search</Trans>
+              </ContextMenuItem>
+              <ContextMenuItem onSelect={handkeOpenPath}>
+                <Trans>Open Path</Trans>
+              </ContextMenuItem>
             </>
           ) : null}
 
           <ContextMenuSeparator />
-          <ContextMenuItem onSelect={alertDialog.trigger}>Delete</ContextMenuItem>
+          <ContextMenuItem onSelect={alertDialog.trigger}>
+            <Trans>Delete</Trans>
+          </ContextMenuItem>
           <ContextMenuSeparator />
-          <ContextMenuItem onSelect={handleCopy}>Copy</ContextMenuItem>
+          <ContextMenuItem onSelect={handleCopy}>
+            <Trans>Copy</Trans>
+          </ContextMenuItem>
           <ContextMenuSeparator />
 
           <ContextMenuItem onSelect={handleRefresh} icon={RefreshCcw}>
-            Refresh
+            <Trans>Refresh</Trans>
             <ContextMenuShortcut>F5</ContextMenuShortcut>
           </ContextMenuItem>
         </ContextMenuContent>
@@ -175,15 +192,25 @@ export function TableContextMenu({
           }}
         >
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>
+              <Trans>Are you absolutely sure?</Trans>
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Confirm deletion of table: <code>{node.path}</code>
+              <Trans>
+                Confirm deletion of table: <code>{node.path}</code>
+              </Trans>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>
+              <Trans>Cancel</Trans>
+            </AlertDialogCancel>
             <AlertDialogAction
-              render={<Button variant="destructive">Yes</Button>}
+              render={
+                <Button variant="destructive">
+                  <Trans>Yes</Trans>
+                </Button>
+              }
               onClick={handleDropTable}
             ></AlertDialogAction>
           </AlertDialogFooter>

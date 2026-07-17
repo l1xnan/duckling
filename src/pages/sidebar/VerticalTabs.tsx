@@ -1,3 +1,4 @@
+import { useLingui } from '@lingui/react/macro';
 import { ChevronRight, List, ListTree, XIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
@@ -135,6 +136,7 @@ function ConnectionGroup({
 }
 
 export function VerticalTabs() {
+  const { t } = useLingui();
   const { activateTab, removeTab, tabObj, ids, currentId } = useTabsStore(
     useShallow((s) => ({
       activateTab: s.active,
@@ -182,14 +184,14 @@ export function VerticalTabs() {
 
   return (
     <Container
-      title="Tabs"
+      title={t`Tabs`}
       actions={
         <div className="flex items-center gap-0.5">
           <Button
             variant="ghost"
             size="icon"
             className={cn('size-6 rounded-md', viewMode === 'flat' && 'bg-muted')}
-            aria-label="Flat view"
+            aria-label={t`Flat view`}
             onClick={() => setViewMode('flat')}
           >
             <List className="size-3.5" />
@@ -198,7 +200,7 @@ export function VerticalTabs() {
             variant="ghost"
             size="icon"
             className={cn('size-6 rounded-md', viewMode === 'tree' && 'bg-muted')}
-            aria-label="Tree view"
+            aria-label={t`Tree view`}
             onClick={() => setViewMode('tree')}
           >
             <ListTree className="size-3.5" />

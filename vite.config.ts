@@ -1,8 +1,10 @@
 /// <reference types="vitest/config" />
 import path from 'path';
 
+import { lingui, linguiTransformerBabelPreset } from '@lingui/vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
+import babel from '@rolldown/plugin-babel';
 
 import { defineConfig } from 'vite';
 // https://vitejs.dev/config/
@@ -10,7 +12,14 @@ export default defineConfig({
   experimental: {
     bundledDev: true,
   },
-  plugins: [tailwindcss(), react({})],
+  plugins: [
+    tailwindcss(),
+    react(),
+    lingui(),
+    babel({
+      presets: [linguiTransformerBabelPreset()],
+    }),
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

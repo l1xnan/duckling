@@ -1,3 +1,4 @@
+import type { MessageDescriptor } from '@lingui/core';
 import { nanoid } from 'nanoid';
 import { create } from 'zustand';
 
@@ -5,11 +6,14 @@ import { createSelectors } from '@/stores/utils';
 
 export type AppNotificationType = 'success' | 'info' | 'warning' | 'error';
 
+/** Title/description: plain string, or a Lingui `msg` descriptor for locale-reactive UI. */
+export type NotificationText = string | MessageDescriptor;
+
 export type AppNotification = {
   id: string;
   type: AppNotificationType;
-  title: string;
-  description?: string;
+  title: NotificationText;
+  description?: NotificationText;
   createdAt: number;
   read: boolean;
 };

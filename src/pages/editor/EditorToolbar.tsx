@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { TooltipButton } from '@/components/custom/button';
 import {
   DropdownMenu,
@@ -49,20 +50,22 @@ export function EditorToolbar({
   onFormat?: (scope: 'document' | 'selection') => void;
   canFormatSelection?: boolean;
 }) {
+  const { t } = useLingui();
+
   return (
     <ToolbarContainer>
       <ToolbarBox>
         <Stack>
           <TooltipButton
             className="text-green-900"
-            tooltip="Run (Ctrl+Enter)"
+            tooltip={t`Run (Ctrl+Enter)`}
             onClick={() => onClick()}
           >
             <PlayIcon fontSize="inherit" />
           </TooltipButton>
           <TooltipButton
             className="text-green-900"
-            tooltip="Run in the new TAB"
+            tooltip={t`Run in the new TAB`}
             onClick={() => onClick('new')}
           >
             <ListPlusIcon fontSize="inherit" />
@@ -72,21 +75,21 @@ export function EditorToolbar({
             onClick={() => {
               onHasLimit(!hasLimit);
             }}
-            tooltip={hasLimit ? 'limit 500' : 'not limit'}
+            tooltip={hasLimit ? t`limit 500` : t`not limit`}
             tooltipProps={tooltipProps}
           >
             {hasLimit ? <IconInfinityOff /> : <IconInfinity />}
           </TooltipButton>
 
           <TooltipButton
-            tooltip="Format Document (Shift+Alt+F)"
+            tooltip={t`Format Document (Shift+Alt+F)`}
             tooltipProps={tooltipProps}
             onClick={() => onFormat?.('document')}
           >
             <AlignLeftIcon fontSize="inherit" />
           </TooltipButton>
           <TooltipButton
-            tooltip="Format Selection"
+            tooltip={t`Format Selection`}
             tooltipProps={tooltipProps}
             disabled={!canFormatSelection}
             onClick={() => onFormat?.('selection')}
@@ -108,13 +111,16 @@ export interface DropdownProps {
 }
 
 export default function Connection({ content, setSession }: DropdownProps) {
+  const { t } = useLingui();
   const dbList = useDBListStore((s) => s.dbList);
 
   return (
-    <DropdownMenu content={content ?? `unknown`}>
+    <DropdownMenu content={content ?? t`unknown`}>
       <DropdownMenuContent className="w-full">
         <DropdownMenuGroup>
-          <DropdownMenuLabel>Session</DropdownMenuLabel>
+          <DropdownMenuLabel>
+            <Trans>Session</Trans>
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
           {dbList.map((item) => (
             <DropdownMenuItem
