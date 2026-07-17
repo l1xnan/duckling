@@ -65,7 +65,8 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
   const setShowValue = useFocusAtom(context, 'showValue');
   const setDirection = useFocusAtom(context, 'direction');
   const handleRefresh = async () => {
-    await handleQuery(ctx);
+    // Read latest store state to avoid stale closure after setPage/setPerPage
+    await handleQuery();
   };
 
   const setBeautify = useFocusAtom(context, 'beautify');
@@ -81,9 +82,9 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
     page?: number;
     perPage?: number;
   }) => {
-    setPage(page as number);
-    setPerPage(perPage as number);
-    await handleRefresh();
+    if (page !== undefined) setPage(page);
+    if (perPage !== undefined) setPerPage(perPage);
+    await handleQuery();
   };
 
   const handleShowValue = () => {

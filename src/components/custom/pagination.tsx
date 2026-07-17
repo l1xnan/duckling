@@ -17,7 +17,7 @@ import {
   ChevronsLeftIcon,
   ChevronsRightIcon,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export interface DropdownProps {
   content: string;
@@ -62,6 +62,15 @@ export function Pagination({
   const { t } = useLingui();
   const [page, setPage] = useState<number>(props.current);
   const [pageSize, setPageSize] = useState<number>(props.pageSize);
+
+  useEffect(() => {
+    setPage(props.current);
+  }, [props.current]);
+
+  useEffect(() => {
+    setPageSize(props.pageSize);
+  }, [props.pageSize]);
+
   const last = Math.ceil(total / pageSize);
 
   const start = pageSize * (page - 1) + 1;
