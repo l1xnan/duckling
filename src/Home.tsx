@@ -1,8 +1,8 @@
 import { useAtom } from 'jotai';
-import { BellIcon } from 'lucide-react';
 import { Activity, RefObject } from 'react';
 
 import { Content, Sidebar } from '@/components/Layout';
+import { StatusBar } from '@/components/StatusBar';
 import { useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
 import { Main } from '@/pages/main';
@@ -67,15 +67,6 @@ function Home() {
       </div>
       <StatusBar />
     </div>
-  );
-}
-
-export function StatusBar() {
-  return (
-    <footer className="w-full h-6 min-h-6 border-t flex flex-row justify-between items-center px-2">
-      <div></div>
-      <BellIcon className="size-4" />
-    </footer>
   );
 }
 

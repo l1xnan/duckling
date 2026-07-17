@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { pushNotification } from '@/stores/notification';
 
 const FORMAT_ITEMS: { value: ExportFormat; label: string }[] = [
   { value: 'csv', label: 'CSV' },
@@ -158,6 +159,11 @@ export function ExportDialog({
         options: buildOptions(),
       });
       toast.success('Export completed');
+      pushNotification({
+        type: 'success',
+        title: 'Export completed',
+        description: file,
+      });
       onOpenChange(false);
     } catch (error) {
       console.error(error);
