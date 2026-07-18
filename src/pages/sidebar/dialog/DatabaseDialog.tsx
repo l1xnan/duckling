@@ -6,6 +6,7 @@ import { useForm, UseFormReturn } from 'react-hook-form';
 
 import { listSshConfigHosts, SshConfigHost } from '@/api';
 import { Dialog } from '@/components/custom/Dialog';
+import { PasswordInput } from '@/components/custom/PasswordInput';
 import { TooltipButton } from '@/components/custom/button';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
@@ -227,14 +228,15 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                       <Trans>Password</Trans>
                     </FormLabel>
                     <FormControl className="w-4/5">
-                      <Input
-                        type="password"
+                      <PasswordInput
                         {...field}
                         value={field.value ?? ''}
                         placeholder={
                           isNew ? undefined : t`Leave empty to keep current`
                         }
                         autoComplete="off"
+                        showToggleLabel={t`Show password`}
+                        hideToggleLabel={t`Hide password`}
                       />
                     </FormControl>
                     <FormMessage />
@@ -381,14 +383,15 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                           <Trans>SSH Password</Trans>
                         </FormLabel>
                         <FormControl className="w-4/5">
-                          <Input
-                            type="password"
+                          <PasswordInput
                             {...field}
                             value={field.value ?? ''}
                             placeholder={
                               isNew ? undefined : t`Leave empty to keep current`
                             }
                             autoComplete="off"
+                            showToggleLabel={t`Show password`}
+                            hideToggleLabel={t`Hide password`}
                           />
                         </FormControl>
                         <FormMessage />
@@ -444,14 +447,15 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                           <Trans>Key Passphrase</Trans>
                         </FormLabel>
                         <FormControl className="w-4/5">
-                          <Input
-                            type="password"
+                          <PasswordInput
                             {...field}
                             value={field.value ?? ''}
                             placeholder={
                               isNew ? undefined : t`Leave empty to keep current`
                             }
                             autoComplete="off"
+                            showToggleLabel={t`Show password`}
+                            hideToggleLabel={t`Hide password`}
                           />
                         </FormControl>
                         <FormMessage />
@@ -486,14 +490,15 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                       <Trans>Token</Trans>
                     </FormLabel>
                     <FormControl className="w-4/5">
-                      <Input
-                        type="password"
+                      <PasswordInput
                         {...field}
                         value={field.value ?? ''}
                         placeholder={
                           isNew ? undefined : t`Leave empty to keep current`
                         }
                         autoComplete="off"
+                        showToggleLabel={t`Show password`}
+                        hideToggleLabel={t`Hide password`}
                       />
                     </FormControl>
                     <FormMessage />

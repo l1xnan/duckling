@@ -17,7 +17,7 @@ msgstr ""
 msgid "{count} rows"
 msgstr "{count} 行"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:623
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:628
 msgid "Add data"
 msgstr "添加数据"
 
@@ -75,7 +75,7 @@ msgstr "通过 Tauri 调用外部 <0>sqlfmt</0> 可执行文件。"
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:212
 #: src/pages/sidebar/dialog/ConfigDialog.tsx:52
 #: src/pages/sidebar/dialog/ConnectionTransferDialog.tsx:282
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:627
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:632
 #: src/pages/sidebar/dialog/RenameDialog.tsx:61
 #: src/pages/sidebar/dialog/SearchDialog.tsx:69
 #: src/pages/sidebar/SqlCode.tsx:527
@@ -187,7 +187,7 @@ msgstr "当前版本：{version}"
 msgid "Data Columns"
 msgstr "数据列"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:51
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:52
 msgid "Data Folder"
 msgstr "数据文件夹"
 
@@ -196,7 +196,7 @@ msgid "Data type case"
 msgstr "数据类型大小写"
 
 #: src/pages/sidebar/aside.tsx:73
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:199
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:200
 msgid "Database"
 msgstr "数据库"
 
@@ -245,7 +245,7 @@ msgid "Dense operators"
 msgstr "紧凑运算符"
 
 #: src/pages/settings/AppSetting.tsx:1215
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:122
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:123
 msgid "Dialect"
 msgstr "方言"
 
@@ -253,7 +253,7 @@ msgstr "方言"
 msgid "Dialect still follows the active connection. Defaults match previous behavior."
 msgstr "方言仍跟随当前连接。默认值与此前行为一致。"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:510
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:515
 msgid "Disable SSL"
 msgstr "禁用 SSL"
 
@@ -447,6 +447,13 @@ msgstr "隐藏列"
 msgid "Hidden Column"
 msgstr "隐藏列"
 
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:239
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:394
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:458
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:501
+msgid "Hide password"
+msgstr "隐藏密码"
+
 #: src/pages/sidebar/aside.tsx:76
 #: src/pages/sidebar/Favorite.tsx:95
 msgid "History"
@@ -456,7 +463,7 @@ msgstr "历史"
 msgid "holywell options"
 msgstr "holywell 选项"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:166
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:167
 msgid "Host"
 msgstr "主机"
 
@@ -528,7 +535,7 @@ msgstr "JSON 选项"
 msgid "Keep unparseable statements as raw text instead of failing"
 msgstr "无法解析的语句保留为原始文本，而不是失败"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:444
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:447
 msgid "Key Passphrase"
 msgstr "密钥口令"
 
@@ -545,9 +552,9 @@ msgid "Leave empty for plain exports"
 msgstr "明文导出可留空"
 
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:235
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:389
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:452
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:494
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:390
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:454
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:497
 msgid "Leave empty to keep current"
 msgstr "留空则保留现有密码"
 
@@ -584,9 +591,9 @@ msgstr "小写"
 msgid "Main Font Family"
 msgstr "界面字体"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:291
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:305
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:306
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:293
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:307
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:308
 msgid "Manual Input"
 msgstr "手动输入"
 
@@ -627,7 +634,7 @@ msgstr "无"
 msgid "Name"
 msgstr "名称"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:621
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:626
 msgid "New Connection"
 msgstr "新建连接"
 
@@ -686,7 +693,7 @@ msgstr "官方源使用 GitHub Releases。国内镜像经 gh-proxy.com 转发，
 
 #: src/components/PageTabs.tsx:422
 #: src/pages/sidebar/dialog/ConfigDialog.tsx:56
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:629
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:634
 #: src/pages/sidebar/dialog/RenameDialog.tsx:64
 #: src/pages/sidebar/dialog/SearchDialog.tsx:71
 msgid "Ok"
@@ -732,7 +739,7 @@ msgstr "Parquet 选项"
 msgid "Passed as <0>--line-length</0> (default 88)"
 msgstr "作为 <0>--line-length</0> 传入（默认 88）"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:227
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:228
 msgid "Password"
 msgstr "密码"
 
@@ -748,7 +755,7 @@ msgstr "导入加密密钥需要主密码"
 msgid "Passwords do not match"
 msgstr "两次密码不一致"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:529
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:534
 msgid "Path"
 msgstr "路径"
 
@@ -768,7 +775,7 @@ msgstr "将 `;` 单独放在一行"
 msgid "Polyglot (default)"
 msgstr "Polyglot（默认）"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:183
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:184
 msgid "Port"
 msgstr "端口"
 
@@ -780,7 +787,7 @@ msgstr "首选最大输出宽度（按显示列计）。"
 msgid "Preserve"
 msgstr "保持原样"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:404
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:407
 msgid "Private Key"
 msgstr "私钥"
 
@@ -895,17 +902,17 @@ msgstr "搜索系统字体"
 msgid "Search: {0}"
 msgstr "搜索：{0}"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:535
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:540
 msgid "Search..."
 msgstr "搜索..."
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:430
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:537
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:550
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:433
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:542
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:555
 msgid "Select"
 msgstr "选择"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:138
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:139
 msgid "Select a dialect"
 msgstr "选择方言"
 
@@ -918,11 +925,11 @@ msgstr "选择字体"
 msgid "Select editor theme"
 msgstr "选择编辑器主题"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:300
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:302
 msgid "Select from ~/.ssh/config"
 msgstr "从 ~/.ssh/config 选择"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:414
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:417
 msgid "Select private key"
 msgstr "选择私钥"
 
@@ -965,6 +972,13 @@ msgstr "显示列"
 #: src/pages/sidebar/context-menu/SchemaContextMenu.tsx:46
 msgid "Show Database"
 msgstr "显示数据库"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:238
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:393
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:457
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:500
+msgid "Show password"
+msgstr "显示密码"
 
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:155
 msgid "Show table"
@@ -1019,27 +1033,27 @@ msgstr "sqlfmt（来自 PATH）或绝对路径"
 msgid "sqlfmt Executable"
 msgstr "sqlfmt 可执行文件"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:271
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:273
 msgid "SSH Config"
 msgstr "SSH 配置"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:331
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:333
 msgid "SSH Host"
 msgstr "SSH 主机"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:381
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:383
 msgid "SSH Password"
 msgstr "SSH 密码"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:350
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:352
 msgid "SSH Port"
 msgstr "SSH 端口"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:254
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:256
 msgid "SSH Tunnel"
 msgstr "SSH 隧道"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:366
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:368
 msgid "SSH User"
 msgstr "SSH 用户"
 
@@ -1094,7 +1108,7 @@ msgstr "将永久删除临时 SQL “{pendingDisplayName}”。此操作无法�
 msgid "Toggle Sidebar"
 msgstr "切换侧边栏"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:486
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:490
 msgid "Token"
 msgstr "令牌"
 
@@ -1178,7 +1192,7 @@ msgstr "用于数据表画布渲染器，允许自定义字体名。"
 msgid "Used by the Monaco SQL editor and other code viewers. Prefer monospace fonts."
 msgstr "用于 Monaco SQL 编辑器及其他代码查看器，建议选择等宽字体。"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:213
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:214
 msgid "Username"
 msgstr "用户名"
 
@@ -1190,7 +1204,7 @@ msgstr "值"
 msgid "Value Viewer"
 msgstr "值查看器"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:567
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:572
 msgid "Work Path"
 msgstr "工作路径"
 
