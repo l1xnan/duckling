@@ -6,6 +6,7 @@ import { nanoid } from 'nanoid';
 
 import {
   flattenSshTunnelForBackend,
+  pickSecrets,
   stripSecrets,
 } from '@/lib/connectionConfig';
 import type { DialectRef } from '@/lib/connectionRef';
@@ -172,6 +173,31 @@ const convertMeta = (data: MetadataType[]) => {
     {} as Record<string, Record<string, { name: string; type: string }[]>>,
   );
 };
+
+/**
+ * Lightweight connectivity check (does not load full schema for SQL dialects).
+ * - With `connectionId`: re-register form profile so vault can fill empty secrets, then test by id.
+ * - Without id: send ad-hoc flattened config (must include credentials from the form).
+ */
+export async function testConnection(
+  config: DialectConfig,
+  options?: { connectionId?: string },
+): Promise<void> {
+  if (options?.connectionId) {
+    await registerConnectionBackend(
+      options.connectionId,
+      config,
+      pickSecrets(config),
+    );
+    await invoke('test_connection', {
+      dialect: { connectionId: options.connectionId },
+    });
+    return;
+  }
+  await invoke('test_connection', {
+    dialect: flattenSshTunnelForBackend(config),
+  });
+}
 
 /**
  * Open / refresh a connection.

@@ -4,7 +4,7 @@ import * as dialog from '@tauri-apps/plugin-dialog';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 
-import { listSshConfigHosts, SshConfigHost } from '@/api';
+import { listSshConfigHosts, SshConfigHost, testConnection } from '@/api';
 import { Dialog } from '@/components/custom/Dialog';
 import { PasswordInput } from '@/components/custom/PasswordInput';
 import { TooltipButton } from '@/components/custom/button';
@@ -33,10 +33,72 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DialectConfig, DialectType, useDBListStore } from '@/stores/dbList';
 import { TreeNode } from '@/types';
 import { nanoid } from 'nanoid';
+import { toast } from 'sonner';
+
+/** Form values: dialect config + optional connection display name. */
+export type ConnectionFormValues = DialectConfig & {
+  displayName?: string;
+};
+
+/** Derive a default connection name from the current form / config fields. */
+export function defaultConnectionName(
+  values: Partial<ConnectionFormValues> | DialectConfig | undefined,
+): string {
+  if (!values) {
+    return 'connection';
+  }
+  const path =
+    'path' in values && typeof values.path === 'string' ? values.path : undefined;
+  if (path) {
+    const base =
+      path.replaceAll('\\', '/').split('/').filter(Boolean).at(-1) ?? path;
+    return base || path;
+  }
+  const uri =
+    'uri' in values && typeof values.uri === 'string' ? values.uri : undefined;
+  if (uri) {
+    return uri;
+  }
+  const host =
+    'host' in values && typeof values.host === 'string' ? values.host : undefined;
+  const port =
+    'port' in values && typeof values.port === 'string' ? values.port : undefined;
+  const database =
+    'database' in values && typeof values.database === 'string'
+      ? values.database
+      : undefined;
+  if (host) {
+    const hostPort = port ? `${host}:${port}` : host;
+    return database ? `${hostPort}/${database}` : hostPort;
+  }
+  return typeof values.dialect === 'string' ? values.dialect : 'connection';
+}
+
+export function resolveConnectionDisplayName(
+  values: ConnectionFormValues,
+): string {
+  const custom = values.displayName?.trim();
+  if (custom) {
+    return custom;
+  }
+  return defaultConnectionName(values);
+}
+
+export function toDialectConfig(values: ConnectionFormValues): DialectConfig {
+  const { displayName: _name, ...configFields } = values;
+  return configFields as DialectConfig;
+}
+
+export async function runConnectionTest(
+  values: ConnectionFormValues,
+  options?: { connectionId?: string },
+): Promise<void> {
+  await testConnection(toDialectConfig(values), options);
+}
 
 type DatabaseFormProps = {
-  form: UseFormReturn<DialectConfig>;
-  handleSubmit: (values: DialectConfig) => Promise<void>;
+  form: UseFormReturn<ConnectionFormValues>;
+  handleSubmit: (values: ConnectionFormValues) => Promise<void>;
   isNew?: boolean;
 };
 
@@ -44,8 +106,13 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
   const { t } = useLingui();
   const watchDialect = form.watch('dialect');
   const watchSshEnabled = form.watch('ssh_tunnel.enabled');
+  const watchedValues = form.watch();
   const [sshHosts, setSshHosts] = useState<SshConfigHost[]>([]);
   const supportsSsh = watchDialect === 'mysql' || watchDialect === 'postgres';
+  const namePlaceholder = useMemo(
+    () => defaultConnectionName(watchedValues),
+    [watchedValues],
+  );
 
   const dialectItems = useMemo(
     (): { label: string; value: DialectType }[] => [
@@ -119,7 +186,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
           defaultValue="connection"
           className="flex w-full min-h-0 flex-1 flex-col gap-0"
         >
-          <TabsList variant="line" className="w-full shrink-0 justify-start">
+          <TabsList className="w-full shrink-0 justify-start">
             <TabsTrigger value="connection" className="flex-none px-3">
               <Trans>Connection</Trans>
             </TabsTrigger>
@@ -134,6 +201,25 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
             value="connection"
             className="mt-4 min-h-0 flex-1 space-y-4 overflow-y-auto"
           >
+            <FormField
+              control={form.control}
+              name="displayName"
+              render={({ field }) => (
+                <FormItem className="flex items-center w-[62.5%]">
+                  <FormLabel className="w-1/5 mr-2 mt-2">
+                    <Trans>Name</Trans>
+                  </FormLabel>
+                  <FormControl className="w-4/5">
+                    <Input
+                      {...field}
+                      value={field.value ?? ''}
+                      placeholder={namePlaceholder}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="dialect"
@@ -643,25 +729,24 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
 export function DatabaseDialog() {
   const { t } = useLingui();
   const [open, setOpen] = useState(false);
-  const form = useForm<DialectConfig>({
+  const [testing, setTesting] = useState(false);
+  const form = useForm<ConnectionFormValues>({
     defaultValues: {
       disable_ssl: true,
+      displayName: '',
     },
   });
   const appendDB = useDBListStore((state) => state.append);
   const updateDB = useDBListStore((state) => state.updateByConfig);
 
-  async function handleSubmit(values: DialectConfig) {
+  async function handleSubmit(values: ConnectionFormValues) {
     const id = nanoid();
-    const displayName =
-      (values as { path?: string }).path ??
-      (values as { host?: string }).host ??
-      (values as { uri?: string }).uri ??
-      values.dialect;
+    const config = toDialectConfig(values);
+    const displayName = resolveConnectionDisplayName(values);
     const initData = {
       id,
-      dialect: values.dialect,
-      config: values,
+      dialect: config.dialect,
+      config,
       displayName,
       data: { name: displayName, path: displayName } as TreeNode,
       loading: true,
@@ -669,8 +754,28 @@ export function DatabaseDialog() {
     // Await register so registry is ready before tree refresh.
     await appendDB(initData);
     setOpen(false);
-    form.reset({ disable_ssl: true } as DialectConfig);
-    await updateDB(id, values);
+    form.reset({ disable_ssl: true, displayName: '' });
+    await updateDB(id, config);
+  }
+
+  async function handleTest() {
+    const values = form.getValues();
+    if (!values.dialect) {
+      toast.error(t`Select a dialect first`);
+      return;
+    }
+    setTesting(true);
+    try {
+      await runConnectionTest(values);
+      toast.success(t`Connection successful`);
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        error instanceof Error ? error.message : t`Connection failed`,
+      );
+    } finally {
+      setTesting(false);
+    }
   }
 
   return (
@@ -684,6 +789,14 @@ export function DatabaseDialog() {
       <DatabaseForm form={form} handleSubmit={handleSubmit} />
       <DialogFooter>
         <DialogClose render={<Button variant="secondary"><Trans>Cancel</Trans></Button>}></DialogClose>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={testing}
+          onClick={() => void handleTest()}
+        >
+          {testing ? <Trans>Testing…</Trans> : <Trans>Test Connection</Trans>}
+        </Button>
         <Button type="submit" onClick={form.handleSubmit(handleSubmit)}>
           <Trans>Ok</Trans>
         </Button>

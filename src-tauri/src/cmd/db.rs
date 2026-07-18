@@ -301,6 +301,30 @@ pub async fn get_db(
   d.get_db().await.map_err(|e| e.to_string())
 }
 
+/// Lightweight connectivity check (no full schema load for SQL network dialects).
+#[tauri::command]
+pub async fn test_connection(
+  registry: State<'_, ConnectionRegistry>,
+  dialect: DialectPayload,
+) -> Result<(), String> {
+  let dialect_name = dialect.dialect.clone();
+  let d = resolve_connection(&registry, dialect).await?;
+  match dialect_name.as_str() {
+    // Path-based: opening the path / listing is enough.
+    "folder" | "file" | "duckdb" | "sqlite" => d
+      .get_db()
+      .await
+      .map(|_| ())
+      .map_err(|e| e.to_string()),
+    // Network / SQL: SELECT 1 without pulling schema tree.
+    _ => d
+      .query("SELECT 1", 1, 0)
+      .await
+      .map(|_| ())
+      .map_err(|e| e.to_string()),
+  }
+}
+
 #[tauri::command]
 pub async fn show_schema(
   registry: State<'_, ConnectionRegistry>,
