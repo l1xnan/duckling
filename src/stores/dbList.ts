@@ -39,7 +39,6 @@ export type DialectType =
   | 'duckdb'
   | 'quack'
   | 'clickhouse'
-  | 'clickhouse_tcp'
   | 'sqlite'
   | 'postgres'
   | 'mysql';

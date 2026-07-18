@@ -29,7 +29,6 @@ export function toSqlFormatterLanguage(
     case 'sqlite':
       return 'sqlite';
     case 'clickhouse':
-    case 'clickhouse_tcp':
       return 'clickhouse';
     case 'duckdb':
     case 'quack':

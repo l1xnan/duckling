@@ -152,8 +152,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
               </FormItem>
             )}
           />
-          {watchDialect == 'clickhouse_tcp' ||
-          watchDialect == 'clickhouse' ||
+          {watchDialect == 'clickhouse' ||
           watchDialect == 'mysql' ||
           watchDialect == 'postgres' ? (
             <>

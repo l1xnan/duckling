@@ -9,7 +9,7 @@ It supports [DuckDB](https://github.com/duckdb/duckdb)/SQLite, and Experimental 
 
 - PostgreSQL
 - MySQL
-- Clickhouse (please note that only [Native Protocol port](https://clickhouse.com/docs/en/guides/sre/network-ports) is supported, usually `9000`)
+- Clickhouse (HTTP interface, usually port `8123`)
 - Doris/StarRocks(MySQL protocol, usually use `9030` port)
 
 Note: The current objective of this project is not to develop a fully functional database management tool, but rather to facilitate quick browsing of various types of data.

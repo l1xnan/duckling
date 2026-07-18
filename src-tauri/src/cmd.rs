@@ -88,7 +88,7 @@ pub struct DialectPayload {
 pub fn get_ast_dialect(dialect: &str) -> Box<dyn sqlparser::dialect::Dialect> {
   match dialect {
     "folder" | "file" | "duckdb" | "quack" => Box::new(sqlparser::dialect::DuckDbDialect {}),
-    "clickhouse_tcp" => Box::new(sqlparser::dialect::ClickHouseDialect {}),
+    "clickhouse" => Box::new(sqlparser::dialect::ClickHouseDialect {}),
     "mysql" => Box::new(sqlparser::dialect::MySqlDialect {}),
     "postgres" => Box::new(sqlparser::dialect::PostgreSqlDialect {}),
     _ => Box::new(sqlparser::dialect::GenericDialect {}),
@@ -141,13 +141,6 @@ pub async fn get_dialect_from_payload(
       password: password.unwrap_or_default(),
       database,
     })),
-    // "clickhouse_tcp" => Some(Box::new(ClickhouseTcpConnection {
-    //   host: host.unwrap(),
-    //   port: port.unwrap_or_default(),
-    //   username: username.unwrap_or_default(),
-    //   password: password.unwrap_or_default(),
-    //   database,
-    // })),
     "mysql" => {
       let ssh = build_ssh_config(
         ssh_enabled,
@@ -732,7 +725,7 @@ mod tests {
     let _ = get_ast_dialect("folder");
     let _ = get_ast_dialect("file");
     let _ = get_ast_dialect("quack");
-    let _ = get_ast_dialect("clickhouse_tcp");
+    let _ = get_ast_dialect("clickhouse");
     let _ = get_ast_dialect("unknown-dialect");
   }
 
