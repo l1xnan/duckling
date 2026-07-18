@@ -1,7 +1,6 @@
 import { OnChange } from '@monaco-editor/react';
 import { useLingui } from '@lingui/react/macro';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { focusAtom } from 'jotai-optics';
+import { useAtom, useSetAtom } from 'jotai';
 import { nanoid } from 'nanoid';
 import { useRef, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
@@ -14,9 +13,8 @@ import {
   EditorContextType,
   QueryContextType,
   TabContextType,
-  activeTabAtom,
   getDatabase,
-  subTabsAtomFamily,
+  useQuerySessionStore,
   useTabsStore,
 } from '@/stores/tabs';
 
@@ -38,15 +36,14 @@ export default function Editor({ context }: { context: EditorContextType }) {
   const db = getDatabase(dbId);
 
   const [docs, setDocs] = useAtom(docsAtom);
-  const currentTab = useAtomValue(activeTabAtom);
+  const currentTab = useTabsStore((s) => s.currentId);
 
-  const tabAtom = subTabsAtomFamily({ id, children: [] });
-  tabAtom.debugLabel = `tabAtom-${id}`;
+  const session = useQuerySessionStore(
+    (s) => s.byEditor[id] ?? { children: [] as QueryContextType[] },
+  );
+  const setActiveKeyStore = useQuerySessionStore((s) => s.setActiveKey);
+  const setChildren = useQuerySessionStore((s) => s.setChildren);
 
-  const [tab, setTab] = useAtom(tabAtom);
-
-  const subTabsAtom = focusAtom(tabAtom, (o) => o.prop('children'));
-  const setSubTabs = useSetAtom(subTabsAtom);
   const [hasLimit, setHasLimit] = useState(true);
   const [canFormatSelection, setCanFormatSelection] = useState(false);
 
@@ -74,8 +71,9 @@ export default function Editor({ context }: { context: EditorContextType }) {
   };
 
   const setActiveKey = (key?: string) => {
-    setTab((item) => ({ ...item, activeKey: key }));
+    setActiveKeyStore(id, key);
   };
+
   const getStmt = () => {
     const editor = ref.current;
     if (!editor) {
@@ -97,8 +95,8 @@ export default function Editor({ context }: { context: EditorContextType }) {
   const setRuns = useSetAtom(runsAtom);
   const handleClick = async (action?: string) => {
     const stmt = getStmt();
-    const id = `${tab.id}@${nanoid()}`;
-    if (action == 'new' || tab.children.length == 0) {
+    const childId = `${id}@${nanoid()}`;
+    if (action == 'new' || session.children.length == 0) {
       const subContext: QueryContextType = createStore({
         dbId,
         schema: context.schema,
@@ -106,16 +104,24 @@ export default function Editor({ context }: { context: EditorContextType }) {
         type: 'query',
         stmt,
         hasLimit,
-        displayName: t`Result${(tab?.children?.length ?? 0) + 1}`,
-        id,
+        displayName: t`Result${(session?.children?.length ?? 0) + 1}`,
+        id: childId,
       });
       setRuns((prev) => [...(prev ?? []), subContext]);
-      setSubTabs((prev) => [...(prev ?? []), subContext]);
+      setChildren(id, (prev) => [...(prev ?? []), subContext]);
     } else {
-      setSubTabs((tabs) =>
+      setChildren(id, (tabs) =>
         (tabs ?? []).map((item) => {
-          if (item.id == tab.activeKey) {
-            item = { ...item, stmt, id, dbId, page: 1, perPage: 500, hasLimit };
+          if (item.id == session.activeKey) {
+            item = {
+              ...item,
+              stmt,
+              id: childId,
+              dbId,
+              page: 1,
+              perPage: 500,
+              hasLimit,
+            };
             setRuns((prev) => [
               ...(prev ?? []),
               {
@@ -131,7 +137,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
         }),
       );
     }
-    setTab((item) => ({ ...item, activeKey: id }));
+    setActiveKey(childId);
   };
 
   useHotkeys('ctrl+enter', () => handleClick(), { enabled: currentTab == id });
@@ -156,7 +162,9 @@ export default function Editor({ context }: { context: EditorContextType }) {
         onFormat={handleFormat}
         canFormatSelection={canFormatSelection}
       />
-      <VerticalContainer bottom={tab.children.length > 0 ? 300 : undefined}>
+      <VerticalContainer
+        bottom={session.children.length > 0 ? 300 : undefined}
+      >
         <div className="h-full flex flex-col overflow-hidden border-b">
           <MonacoEditor
             ref={ref}
@@ -178,8 +186,8 @@ export default function Editor({ context }: { context: EditorContextType }) {
           />
         </div>
         <QueryTabs
-          tabsAtom={subTabsAtom}
-          activeKey={tab.activeKey}
+          editorId={id}
+          activeKey={session.activeKey}
           setActiveKey={setActiveKey}
         />
       </VerticalContainer>

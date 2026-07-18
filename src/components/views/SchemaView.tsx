@@ -1,5 +1,4 @@
 import { useLingui } from '@lingui/react/macro';
-import { useAtomValue } from 'jotai';
 import { RefreshCw, Search } from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -10,7 +9,7 @@ import { connectionRef } from '@/lib/connectionRef';
 import {
   SchemaContextType,
   TableContextType,
-  activeTabAtom,
+  useTabsStore,
 } from '@/stores/tabs';
 import { isEmpty } from 'radash';
 
@@ -24,7 +23,7 @@ export function DatabaseSchemaView({
   context: SchemaContextType;
 }) {
   const { t } = useLingui();
-  const currentTab = useAtomValue(activeTabAtom);
+  const currentTab = useTabsStore((s) => s.currentId);
   const [loading, setLoading] = useState(false);
 
   const [data, setData] = useState<unknown[]>([]);
@@ -104,7 +103,7 @@ export function DatabaseSchemaView({
 
 export function ColumnSchemaView({ context }: { context: TableContextType }) {
   const { t } = useLingui();
-  const currentTab = useAtomValue(activeTabAtom);
+  const currentTab = useTabsStore((s) => s.currentId);
   const [loading, setLoading] = useState(false);
 
   const [data, setData] = useState<unknown[]>([]);
@@ -184,7 +183,7 @@ export function ColumnSchemaView({ context }: { context: TableContextType }) {
 
 export function SearchView({ context }: { context: TableContextType }) {
   const { t } = useLingui();
-  const currentTab = useAtomValue(activeTabAtom);
+  const currentTab = useTabsStore((s) => s.currentId);
   const [loading, setLoading] = useState(false);
 
   const [data, setData] = useState<unknown[]>([]);

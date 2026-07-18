@@ -1,57 +1,39 @@
-import { PrimitiveAtom, useAtom, useAtomValue } from 'jotai';
-import { splitAtom } from 'jotai/utils';
-
 import { PageTabs } from '@/components/PageTabs';
 import { QueryView } from '@/components/views';
 import { PageProvider } from '@/hooks/context';
-import { QueryContextType } from '@/stores/tabs';
+import { useQuerySessionStore } from '@/stores/tabs';
 
 export interface QueryTabsProps {
-  tabsAtom: PrimitiveAtom<QueryContextType[]>;
+  editorId: string;
   activeKey?: string;
   setActiveKey: (key?: string) => void;
 }
 
 export function QueryTabs({
-  tabsAtom,
+  editorId,
   activeKey,
   setActiveKey,
 }: QueryTabsProps) {
-  const tabsAtomsAtom = splitAtom(tabsAtom);
-  const tabsAtoms = useAtomValue(tabsAtomsAtom);
-  const [tabs, setTabs] = useAtom(tabsAtom);
+  const tabs =
+    useQuerySessionStore((s) => s.byEditor[editorId]?.children) ?? [];
+  const removeChild = useQuerySessionStore((s) => s.removeChild);
 
-  const items =
-    tabsAtoms?.map((tabAtom, i) => {
-      const tab = tabs[i];
-      const children = (
-        <PageProvider context={tab}>
-          <QueryView context={tabAtom} />
-        </PageProvider>
-      );
+  const items = tabs.map((tab) => {
+    const children = (
+      <PageProvider context={tab}>
+        <QueryView editorId={editorId} queryId={tab.id} />
+      </PageProvider>
+    );
 
-      return { tab, children };
-    }) ?? [];
+    return { tab, children };
+  });
 
   const handleChange = (val: string) => {
     setActiveKey(val);
   };
 
   const handleRemove = (key: string) => {
-    setTabs((prev) => prev.filter((item) => item.id != key));
-
-    const delIndex = tabs.findIndex(({ id }) => id === key);
-
-    if (key == activeKey) {
-      const newActiveKey =
-        tabs[delIndex - 1]?.id || tabs[delIndex + 1]?.id || undefined;
-      setActiveKey(newActiveKey);
-    }
-  };
-
-  const handleRemoveOther = (key: string) => {
-    setTabs((prev) => prev.filter((item) => item.id == key));
-    setActiveKey(key);
+    removeChild(editorId, key);
   };
 
   return (

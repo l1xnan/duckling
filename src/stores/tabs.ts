@@ -1,9 +1,4 @@
-import { atom } from 'jotai';
-import { focusAtom } from 'jotai-optics';
-import { atomWithStore } from 'jotai-zustand';
-import { atomFamily } from 'jotai/utils';
 import { isEmpty, shake } from 'radash';
-import { useMemo } from 'react';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -23,7 +18,11 @@ import { connectionRef, type DialectRef } from '@/lib/connectionRef';
 
 import { Direction, SchemaType } from './dataset';
 import { getDbMap, getTableMap, whenRegistryReady } from './dbList';
+import { useQuerySessionStore } from './querySession';
 import { useSettingStore } from './setting';
+
+export { getQueryChild, useQuerySessionStore } from './querySession';
+export type { EditorSession } from './querySession';
 
 export type QueryParamType = {
   dbId: string;
@@ -124,6 +123,7 @@ type TabsAction = {
   append: (tab: TabContextType) => void;
   update: (tab: TabContextType) => void;
   setSession: (tab: TabContextType) => void;
+  patch: (id: string, partial: Partial<TabContextType>) => void;
   remove: (key: string, force?: boolean) => void;
   removeOther: (key: string) => void;
   active: (idx: string) => void;
@@ -172,6 +172,20 @@ export const useTabsStore = create<TabsState & TabsAction>()(
           };
         });
       },
+      patch: (id, partial) => {
+        set((state) => {
+          const prev = state.tabs[id];
+          if (!prev) {
+            return state;
+          }
+          return {
+            tabs: {
+              ...state.tabs,
+              [id]: { ...prev, ...partial } as TabContextType,
+            },
+          };
+        });
+      },
       remove: (key, force) => {
         set((state) => {
           const ids = state.ids;
@@ -185,22 +199,35 @@ export const useTabsStore = create<TabsState & TabsAction>()(
             cur = ids[delIndex - 1] || ids[delIndex + 1] || undefined;
           }
 
+          const nextTabs = shake(state.tabs, (a) => {
+            return a.id == key && (a.type != 'editor' || !!force);
+          });
+
+          if (!(key in nextTabs)) {
+            useQuerySessionStore.getState().clearEditor(key);
+          }
+
           return {
             ids: updatedIds,
-            tabs: shake(state.tabs, (a) => {
-              return a.id == key && (a.type != 'editor' || !!force);
-            }),
+            tabs: nextTabs,
             currentId: cur,
           };
         });
       },
       removeOther: (key) => {
         set((state) => {
+          const nextTabs = shake(state.tabs, (a) => {
+            return a.id != key && a.type != 'editor';
+          });
+          const session = useQuerySessionStore.getState();
+          for (const id of Object.keys(state.tabs)) {
+            if (!(id in nextTabs) && id !== key) {
+              session.clearEditor(id);
+            }
+          }
           return {
             ids: [key],
-            tabs: shake(state.tabs, (a) => {
-              return a.id != key && a.type != 'editor';
-            }),
+            tabs: nextTabs,
             currentId: key,
           };
         });
@@ -212,30 +239,6 @@ export const useTabsStore = create<TabsState & TabsAction>()(
     },
   ),
   // ),
-);
-
-export const tabsStoreAtom = atomWithStore(useTabsStore);
-export const activeTabAtom = focusAtom(tabsStoreAtom, (o) =>
-  o.prop('currentId'),
-);
-
-export const tabObjAtom = focusAtom(tabsStoreAtom, (o) => o.prop('tabs'));
-
-export const useTabsAtom = (objAtom: typeof tabObjAtom, key: string) => {
-  return useMemo(() => {
-    return focusAtom(objAtom, (optic) => optic.prop(key));
-  }, [objAtom, key]);
-};
-
-export type SubTab = {
-  id: string;
-  activeKey?: string;
-  children: QueryContextType[];
-};
-
-export const subTabsAtomFamily = atomFamily(
-  (item: SubTab) => atom(item),
-  (a: Partial<SubTab>, b: Partial<SubTab>) => a.id === b.id,
 );
 
 export function getTable(dbId: string, tableId: string) {

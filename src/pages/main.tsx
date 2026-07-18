@@ -21,9 +21,7 @@ import {
 
 import MonacoEditor from './editor';
 
-function TabContent({ id, tab }: { id: string; tab: TabContextType }) {
-  // const tabAtom = useTabsAtom(tabObjAtom, id);
-  // const tab = useAtomValue(tabAtom);
+function TabContent({ tab }: { id: string; tab: TabContextType }) {
   if (tab.type === 'schema') {
     return (
       <PageProvider context={tab}>

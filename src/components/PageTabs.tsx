@@ -2,7 +2,7 @@ import 'react-horizontal-scrolling-menu/dist/styles.css';
 
 import { Trans, useLingui } from '@lingui/react/macro';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
-import { useAtom, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -36,7 +36,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { docsAtom, favoriteAtom } from '@/stores/app';
-import { TabContextType, tabObjAtom, useTabsAtom, useTabsStore } from '@/stores/tabs';
+import { TabContextType, useTabsStore } from '@/stores/tabs';
 
 export interface PageTabsProps {
   items: { tab: TabContextType; children: ReactNode }[];
@@ -384,16 +384,16 @@ function RenameDialog({
 }: Pick<React.ComponentProps<typeof Dialog>, 'open' | 'onOpenChange'> & {
   id: string;
 }) {
-  const tabAtom = useTabsAtom(tabObjAtom, id);
-  const [tab, setTab] = useAtom(tabAtom);
+  const displayName = useTabsStore((s) => s.tabs[id]?.displayName);
+  const patch = useTabsStore((s) => s.patch);
 
   const handleSubmit = ({ name }: { name: string }) => {
-    setTab((prev) => ({ ...prev, displayName: name }));
+    patch(id, { displayName: name });
     onOpenChange?.(false);
   };
 
   const form = useForm<{ name: string }>({
-    defaultValues: { name: tab?.displayName },
+    defaultValues: { name: displayName },
   });
   return (
     <Dialog open={open} onOpenChange={onOpenChange} title={<Trans>Rename</Trans>}>

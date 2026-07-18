@@ -1,4 +1,4 @@
-import { PrimitiveAtom, useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { Suspense, useEffect, useState } from 'react';
 
 import { CanvasTable } from '@/components/tables/CanvasTable';
@@ -8,29 +8,48 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
 import { Loading, SelectedCellType } from '@/components/views/TableView';
-import { useFocusAtom } from '@/hooks';
-import { atomStore } from '@/stores';
 import { precisionAtom } from '@/stores/setting';
-import { QueryContextType, executeSQL, exportData } from '@/stores/tabs';
+import {
+  executeSQL,
+  getQueryChild,
+  useQuerySessionStore,
+  type QueryContextType,
+} from '@/stores/tabs';
 
 import { DataViewToolbar } from './DataViewToolbar';
 import { ValueViewer } from './ValueViewer';
 
-type QueryContextAtom = PrimitiveAtom<QueryContextType>;
-
-export function QueryView({ context }: { context: QueryContextAtom }) {
-  const [ctx, setContext] = useAtom(context);
+export function QueryView({
+  editorId,
+  queryId,
+}: {
+  editorId: string;
+  queryId: string;
+}) {
+  const ctx = useQuerySessionStore((s) =>
+    s.byEditor[editorId]?.children.find((c) => c.id === queryId),
+  );
+  const patchChild = useQuerySessionStore((s) => s.patchChild);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleQuery = async (ctx?: QueryContextType) => {
+  const patch = (
+    partial:
+      | Partial<QueryContextType>
+      | ((prev: QueryContextType) => QueryContextType),
+  ) => {
+    patchChild(editorId, queryId, partial);
+  };
+
+  const handleQuery = async (input?: QueryContextType) => {
     try {
       setLoading(true);
-      if (!ctx) {
-        ctx = atomStore.get(context);
+      const current = input ?? getQueryChild(editorId, queryId);
+      if (!current) {
+        return;
       }
-      const res = await executeSQL(ctx);
-      setContext((prev) => ({ ...prev, ...res }));
+      const res = await executeSQL(current);
+      patch((prev) => ({ ...prev, ...res }));
       if (res?.message) {
         setError(res?.message);
       }
@@ -41,19 +60,13 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
       setLoading(false);
     }
   };
-  const handleExport = async (file: string) => {
-    try {
-      const ctx = atomStore.get(context);
-      await exportData({ file }, ctx);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   useEffect(() => {
-    (async () => {
-      await handleQuery(ctx);
-    })();
+    const current = getQueryChild(editorId, queryId);
+    if (current) {
+      void handleQuery(current);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const precision = useAtomValue(precisionAtom);
@@ -62,19 +75,11 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
   const [selectedCellInfos, setSelectedCellInfos] = useState<
     SelectedCellType[][] | null
   >();
-  const setShowValue = useFocusAtom(context, 'showValue');
-  const setDirection = useFocusAtom(context, 'direction');
+
   const handleRefresh = async () => {
-    // Read latest store state to avoid stale closure after setPage/setPerPage
     await handleQuery();
   };
 
-  const setBeautify = useFocusAtom(context, 'beautify');
-  const setPage = useFocusAtom(context, 'page');
-  const setPerPage = useFocusAtom(context, 'perPage');
-  const setTranspose = useFocusAtom(context, 'transpose');
-  const setCross = useFocusAtom(context, 'cross');
-  const setHiddenColumns = useFocusAtom(context, 'hiddenColumns');
   const setPagination = async ({
     page,
     perPage,
@@ -82,28 +87,39 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
     page?: number;
     perPage?: number;
   }) => {
-    if (page !== undefined) setPage(page);
-    if (perPage !== undefined) setPerPage(perPage);
+    if (page !== undefined || perPage !== undefined) {
+      patch({
+        ...(page !== undefined ? { page } : {}),
+        ...(perPage !== undefined ? { perPage } : {}),
+      });
+    }
     await handleQuery();
   };
 
+  if (!ctx) {
+    return null;
+  }
+
   const handleShowValue = () => {
-    setShowValue(!ctx.showValue);
+    patch({ showValue: !ctx.showValue });
   };
 
   const handleBeautify = () => {
-    setBeautify((prev) => !prev);
+    patch((prev) => ({ ...prev, beautify: !prev.beautify }));
   };
 
   const handleTranspose = () => {
-    setTranspose((v) => !v);
+    patch((prev) => ({ ...prev, transpose: !prev.transpose }));
   };
+
   const handleCross = () => {
-    setCross((v) => !v);
+    patch((prev) => ({ ...prev, cross: !prev.cross }));
   };
 
   const handleHiddenColumns = (key: string, value: boolean) => {
-    setHiddenColumns({ ...ctx.hiddenColumns, [key]: value });
+    patch({
+      hiddenColumns: { ...ctx.hiddenColumns, [key]: value },
+    });
   };
 
   return (
@@ -170,9 +186,12 @@ export function QueryView({ context }: { context: QueryContextAtom }) {
                 selectedCellInfos={selectedCellInfos}
                 setShowValue={handleShowValue}
                 setDirection={() => {
-                  setDirection(
-                    ctx.direction == 'horizontal' ? 'vertical' : 'horizontal',
-                  );
+                  patch({
+                    direction:
+                      ctx.direction == 'horizontal'
+                        ? 'vertical'
+                        : 'horizontal',
+                  });
                 }}
                 direction={ctx.direction}
               />
