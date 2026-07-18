@@ -69,13 +69,8 @@ export type ClickhouseDialectType = {
   dialect: DialectType;
 };
 
-export type PostgresDialectType = {
-  host: string;
-  port: string;
-  password: string;
-  username: string;
-  database: string;
-  dialect: DialectType;
+/** SSH tunnel settings shared by network dialects (postgres / mysql). */
+export type SshTunnelConfig = {
   ssh_enabled?: boolean;
   ssh_host?: string;
   ssh_port?: string;
@@ -86,6 +81,15 @@ export type PostgresDialectType = {
   ssh_config_host?: string;
 };
 
+export type PostgresDialectType = {
+  host: string;
+  port: string;
+  password: string;
+  username: string;
+  database: string;
+  dialect: DialectType;
+} & SshTunnelConfig;
+
 export type MySqlDialectType = {
   host: string;
   port: string;
@@ -93,15 +97,7 @@ export type MySqlDialectType = {
   username: string;
   database: string;
   dialect: 'mysql';
-  ssh_enabled?: boolean;
-  ssh_host?: string;
-  ssh_port?: string;
-  ssh_username?: string;
-  ssh_password?: string;
-  ssh_private_key_path?: string;
-  ssh_passphrase?: string;
-  ssh_config_host?: string;
-};
+} & SshTunnelConfig;
 
 export type QuackConfig = {
   uri: string;
