@@ -8,7 +8,11 @@ import {
 } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
 import { useAtomValue } from 'jotai';
-import { ChevronsDownUpIcon, ChevronsUpDownIcon } from 'lucide-react';
+import {
+  ChevronsDownUpIcon,
+  ChevronsUpDownIcon,
+  MoreHorizontalIcon,
+} from 'lucide-react';
 import { useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
@@ -16,6 +20,12 @@ import { getDB } from '@/api';
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
 import { TooltipButton } from '@/components/custom/button';
 import { useDialog } from '@/components/custom/use-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ConfigDialog } from '@/pages/sidebar/dialog/ConfigDialog';
 import { ConnectionTransferDialog } from '@/pages/sidebar/dialog/ConnectionTransferDialog';
 import { DatabaseDialog } from '@/pages/sidebar/dialog/DatabaseDialog';
@@ -100,19 +110,6 @@ export function SideToolbar({
           </TooltipButton>
           <DatabaseDialog />
           <TooltipButton
-            tooltip={t`Import connections`}
-            onClick={() => setTransferMode('import')}
-          >
-            <IconFileImport />
-          </TooltipButton>
-          <TooltipButton
-            tooltip={t`Export connections`}
-            onClick={() => setTransferMode('export')}
-            disabled={dbList.length === 0}
-          >
-            <IconFileExport />
-          </TooltipButton>
-          <TooltipButton
             tooltip={t`DB setting`}
             disabled={!selectedNode}
             onClick={d.trigger}
@@ -126,6 +123,27 @@ export function SideToolbar({
           >
             <IconRefresh />
           </TooltipButton>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className="inline-flex size-6 items-center justify-center rounded-lg hover:bg-muted aria-expanded:bg-muted"
+              aria-label={t`More actions`}
+            >
+              <MoreHorizontalIcon className="size-4" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-40">
+              <DropdownMenuItem onClick={() => setTransferMode('import')}>
+                <IconFileImport />
+                {t`Import connections`}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={dbList.length === 0}
+                onClick={() => setTransferMode('export')}
+              >
+                <IconFileExport />
+                {t`Export connections`}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </Stack>
         <ConfigDialog key={db?.id} {...d.props} ctx={db} />
         <ConnectionTransferDialog
