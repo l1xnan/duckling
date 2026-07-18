@@ -226,8 +226,8 @@ export function ConnectionTransferDialog({
               />
             </div>
             {includeSecrets ? (
-              <div className="space-y-3">
-                <div className="space-y-1">
+              <div className="space-y-4">
+                <div className="flex flex-col gap-2">
                   <Label>
                     <Trans>Master password</Trans>
                   </Label>
@@ -238,7 +238,7 @@ export function ConnectionTransferDialog({
                     autoComplete="new-password"
                   />
                 </div>
-                <div className="space-y-1">
+                <div className="flex flex-col gap-2">
                   <Label>
                     <Trans>Confirm password</Trans>
                   </Label>
@@ -260,7 +260,7 @@ export function ConnectionTransferDialog({
                 connections are not overwritten; imported items get new ids.
               </Trans>
             </p>
-            <div className="space-y-1">
+            <div className="flex flex-col gap-2">
               <Label>
                 <Trans>Master password (if file is encrypted)</Trans>
               </Label>
