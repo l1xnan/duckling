@@ -51,8 +51,8 @@ export function ContextNode({
   data,
   isRoot,
 }: PropsWithChildren<{ data: NodeElementType; isRoot: boolean }>) {
-  const getDB = useDBListStore((s) => s.getDB);
-  const db = getDB(data?.dbId);
+  // Subscribe to the actual connection object so password/config updates re-render menus.
+  const db = useDBListStore((s) => s.dbList.find((item) => item.id === data?.dbId));
   if (!db) {
     return children;
   }

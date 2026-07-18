@@ -227,7 +227,15 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                       <Trans>Password</Trans>
                     </FormLabel>
                     <FormControl className="w-4/5">
-                      <Input type="password" {...field} />
+                      <Input
+                        type="password"
+                        {...field}
+                        value={field.value ?? ''}
+                        placeholder={
+                          isNew ? undefined : t`Leave empty to keep current`
+                        }
+                        autoComplete="off"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -373,7 +381,15 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                           <Trans>SSH Password</Trans>
                         </FormLabel>
                         <FormControl className="w-4/5">
-                          <Input type="password" {...field} value={field.value ?? ''} />
+                          <Input
+                            type="password"
+                            {...field}
+                            value={field.value ?? ''}
+                            placeholder={
+                              isNew ? undefined : t`Leave empty to keep current`
+                            }
+                            autoComplete="off"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -428,7 +444,15 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                           <Trans>Key Passphrase</Trans>
                         </FormLabel>
                         <FormControl className="w-4/5">
-                          <Input type="password" {...field} value={field.value ?? ''} />
+                          <Input
+                            type="password"
+                            {...field}
+                            value={field.value ?? ''}
+                            placeholder={
+                              isNew ? undefined : t`Leave empty to keep current`
+                            }
+                            autoComplete="off"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -462,7 +486,15 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                       <Trans>Token</Trans>
                     </FormLabel>
                     <FormControl className="w-4/5">
-                      <Input type="password" {...field} />
+                      <Input
+                        type="password"
+                        {...field}
+                        value={field.value ?? ''}
+                        placeholder={
+                          isNew ? undefined : t`Leave empty to keep current`
+                        }
+                        autoComplete="off"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -561,20 +593,25 @@ export function DatabaseDialog() {
   const updateDB = useDBListStore((state) => state.updateByConfig);
 
   async function handleSubmit(values: DialectConfig) {
+    const id = nanoid();
+    const displayName =
+      (values as { path?: string }).path ??
+      (values as { host?: string }).host ??
+      (values as { uri?: string }).uri ??
+      values.dialect;
     const initData = {
-      id: nanoid(),
+      id,
       dialect: values.dialect,
       config: values,
-      displayName:
-        (values as { path?: string }).path ??
-        (values as { host?: string }).host ??
-        (values as { uri?: string }).uri,
-      data: {} as TreeNode,
+      displayName,
+      data: { name: displayName, path: displayName } as TreeNode,
       loading: true,
     };
+    // append registers connection into backend registry (secrets stay server-side)
     appendDB(initData);
     setOpen(false);
-    updateDB(initData.id, values);
+    form.reset({ disable_ssl: true } as DialectConfig);
+    await updateDB(id, values);
   }
 
   return (

@@ -4,6 +4,7 @@
 use std::env;
 
 use cmd::OpenedFiles;
+use connection_registry::ConnectionRegistry;
 use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::Emitter;
@@ -14,6 +15,8 @@ use tauri_plugin_log::{Target, TargetKind};
 
 mod api;
 mod cmd;
+mod connection_registry;
+mod secret_store;
 
 fn handle_menu(app: &mut tauri::App) -> tauri::Result<()> {
   let handle = app.handle();
@@ -104,6 +107,7 @@ fn handle_updater(app: &mut tauri::App) -> tauri::Result<()> {
 fn main() {
   tauri::Builder::default()
     .manage(OpenedFiles(Mutex::default()))
+    .manage(ConnectionRegistry::default())
     .plugin(tauri_plugin_clipboard_manager::init())
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_shell::init())
@@ -148,9 +152,18 @@ fn main() {
       cmd::list_ssh_config_hosts,
       cmd::list_sql_dir,
       cmd::read_text_file,
+      cmd::write_text_file,
       cmd::open_path,
       cmd::open_settings_dir,
       cmd::list_system_fonts,
+      secret_store::secret_set,
+      secret_store::secret_get,
+      secret_store::secret_delete,
+      secret_store::connections_export_encrypt,
+      secret_store::connections_import_decrypt,
+      connection_registry::register_connection,
+      connection_registry::unregister_connection,
+      connection_registry::sync_connections,
       #[cfg(desktop)]
       cmd::check_app_update,
     ])

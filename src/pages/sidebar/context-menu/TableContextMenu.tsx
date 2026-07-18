@@ -43,12 +43,18 @@ export function TableContextMenu({
 
   const handleDropTable: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
     e.stopPropagation();
-    await dropTable(node.path, db.config as DialectConfig);
+    const { connectionRef } = await import('@/lib/connectionRef');
+    await dropTable(node.path, connectionRef(db.id));
   };
 
   const handleRefresh = async () => {
-    if (db.config) {
-      updateDB(db.id, db.config);
+    const latest = useDBListStore.getState().getDB(db.id);
+    const config = latest?.config ?? db.config;
+    if (config) {
+      await updateDB(db.id, config);
+    } else {
+      // Refresh tree via connection id only (backend has credentials).
+      await updateDB(db.id, { dialect: db.dialect } as DialectConfig);
     }
   };
 

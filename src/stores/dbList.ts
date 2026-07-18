@@ -7,9 +7,22 @@ import { create, useStore } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { getDB } from '@/api';
+import {
+  pickSecrets,
+  stripSecrets,
+  type ConnectionSecrets,
+} from '@/lib/connectionConfig';
+import {
+  registerConnectionBackend,
+  syncConnectionsBackend,
+  unregisterConnectionBackend,
+} from '@/lib/connectionRef';
 import { TreeNode } from '@/types';
 
+import { deleteDbCache, loadDbCaches, setDbCache } from './dbCache';
 import { indexDBStorage } from './indexdb';
+import { setConnectionSecrets } from './secretStore';
+import { connectionsFileStorage } from './tauriStore';
 
 export type NodeContextType = {
   id?: string;
@@ -108,15 +121,21 @@ export type DialectConfig =
 export type DBType = {
   id: string;
   dialect: DialectType;
-
   displayName: string;
-  // tree node
   data: TreeNode;
   meta?: Record<string, Record<string, { name: string; type: string }[]>>;
+  /** Non-secret connection profile only (passwords live in backend registry). */
   config?: DialectConfig;
   defaultDatabase?: string;
   defaultSchema?: string;
   loading?: boolean;
+};
+
+export type PersistedConnection = {
+  id: string;
+  dialect: DialectType;
+  displayName: string;
+  config?: DialectConfig;
 };
 
 type DBListState = {
@@ -126,13 +145,25 @@ type DBListState = {
 type DBListAction = {
   append: (db: DBType) => void;
   update: (id: string, db: Partial<DBType>) => void;
-  // remove db by db id
   remove: (id: string) => void;
   rename: (id: string, displayName: string) => void;
   setCwd: (cwd: string, id: string) => void;
   getDB: (id: string) => DBType | undefined;
-  setDB: (id: string, config: DialectConfig) => void;
+  setDB: (
+    id: string,
+    config: DialectConfig,
+    options?: { clearSecrets?: boolean },
+  ) => Promise<void>;
   updateByConfig: (id: string, config: DialectConfig) => Promise<void>;
+  importConnections: (
+    items: Array<{
+      id: string;
+      displayName: string;
+      dialect: DialectType;
+      config: DialectConfig;
+      secrets?: ConnectionSecrets;
+    }>,
+  ) => Promise<void>;
 };
 
 type DBListStore = DBListState & DBListAction;
@@ -151,19 +182,193 @@ export function flattenTree(tree: TreeNode): Map<string, TreeNode> {
   return result;
 }
 
+function emptyTree(name = ''): TreeNode {
+  return { name, path: name, children: [] };
+}
+
+/** Resolves when connections have been synced into the backend registry. */
+let registryReadyResolve: (() => void) | null = null;
+const registryReady = new Promise<void>((resolve) => {
+  registryReadyResolve = resolve;
+});
+let registryReadyDone = false;
+
+function markRegistryReady() {
+  if (!registryReadyDone) {
+    registryReadyDone = true;
+    registryReadyResolve?.();
+  }
+}
+
+export function whenRegistryReady(): Promise<void> {
+  return registryReady;
+}
+
+if (typeof window !== 'undefined') {
+  window.setTimeout(() => markRegistryReady(), 8000);
+}
+
+async function hydrateCaches(list: DBType[]): Promise<DBType[]> {
+  const caches = await loadDbCaches(list.map((db) => db.id));
+  return list.map((db) => {
+    const cache = caches.get(db.id);
+    if (!cache) {
+      return db;
+    }
+    return {
+      ...db,
+      data: cache.data ?? db.data,
+      meta: cache.meta ?? db.meta,
+      defaultDatabase: cache.defaultDatabase ?? db.defaultDatabase,
+      defaultSchema: cache.defaultSchema ?? db.defaultSchema,
+    };
+  });
+}
+
+type LegacyDbListPayload = {
+  state?: { dbList?: DBType[] };
+  dbList?: DBType[];
+};
+
+async function readLegacyDbList(): Promise<DBType[] | null> {
+  try {
+    const raw = await indexDBStorage.getItem('dbListStore');
+    if (!raw) {
+      return null;
+    }
+    const parsed = JSON.parse(raw) as LegacyDbListPayload;
+    const legacyList = parsed.state?.dbList ?? parsed.dbList;
+    if (!Array.isArray(legacyList) || legacyList.length === 0) {
+      return null;
+    }
+    return legacyList;
+  } catch (error) {
+    console.warn('read legacy dbListStore failed', error);
+    return null;
+  }
+}
+
+async function migrateFromLegacyIndexedDb(): Promise<DBType[] | null> {
+  try {
+    const legacyList = await readLegacyDbList();
+    if (!legacyList) {
+      const raw = await indexDBStorage.getItem('dbListStore');
+      if (raw) {
+        await indexDBStorage.removeItem('dbListStore');
+      }
+      return null;
+    }
+
+    const migrated: DBType[] = [];
+    for (const item of legacyList) {
+      if (!item?.id) {
+        continue;
+      }
+      const secrets = pickSecrets(item.config);
+      // Register into backend (persists secrets + memory registry).
+      await registerConnectionBackend(item.id, item.config, secrets);
+
+      if (item.data && Object.keys(item.data).length > 0) {
+        await setDbCache(item.id, {
+          data: item.data,
+          meta: item.meta,
+          defaultDatabase: item.defaultDatabase,
+          defaultSchema: item.defaultSchema,
+        });
+      }
+
+      migrated.push({
+        id: item.id,
+        dialect: item.dialect,
+        displayName: item.displayName,
+        config: item.config ? stripSecrets(item.config) : undefined,
+        data: item.data ?? emptyTree(item.displayName),
+        meta: item.meta,
+        defaultDatabase: item.defaultDatabase,
+        defaultSchema: item.defaultSchema,
+      });
+    }
+
+    await indexDBStorage.removeItem('dbListStore');
+    return migrated;
+  } catch (error) {
+    console.warn('legacy dbListStore migration failed', error);
+    return null;
+  }
+}
+
+/** Salvage secrets from legacy IDB into backend vault when profiles already exist. */
+async function salvageSecretsFromLegacyIndexedDb(
+  list: DBType[],
+): Promise<void> {
+  if (list.length === 0) {
+    return;
+  }
+  const legacyList = await readLegacyDbList();
+  if (!legacyList) {
+    return;
+  }
+  const legacyById = new Map(
+    legacyList.filter((item) => item?.id).map((item) => [item.id, item]),
+  );
+
+  let salvagedAny = false;
+  for (const db of list) {
+    const legacy = legacyById.get(db.id);
+    const secrets = pickSecrets(legacy?.config);
+    if (
+      secrets.password ||
+      secrets.ssh_password ||
+      secrets.ssh_passphrase ||
+      secrets.token
+    ) {
+      await setConnectionSecrets(db.id, secrets);
+      salvagedAny = true;
+    }
+  }
+
+  if (salvagedAny || legacyById.size === 0) {
+    try {
+      await indexDBStorage.removeItem('dbListStore');
+    } catch {
+      // ignore
+    }
+  }
+}
+
 export const useDBListStore = create<DBListStore>()(
-  // computed(
-  persist<DBListStore>(
+  persist(
     (set, get) => ({
-      // state
       dbList: [],
 
-      // action
-      append: (db) => set((state) => ({ dbList: [...state.dbList, db] })),
-      remove: (id) =>
+      append: (db) => {
+        const secrets = pickSecrets(db.config);
+        const profile = db.config ? stripSecrets(db.config) : undefined;
+        void registerConnectionBackend(db.id, profile, secrets).catch(
+          (error) => console.warn('register_connection failed', error),
+        );
         set((state) => ({
-          dbList: state.dbList?.filter((item) => !(item.id === id)),
-        })),
+          dbList: [
+            ...state.dbList,
+            {
+              ...db,
+              config: profile,
+              data: db.data ?? emptyTree(db.displayName),
+            },
+          ],
+        }));
+      },
+
+      remove: (id) => {
+        void unregisterConnectionBackend(id, true).catch((error) =>
+          console.warn('unregister_connection failed', error),
+        );
+        void deleteDbCache(id);
+        set((state) => ({
+          dbList: state.dbList.filter((item) => item.id !== id),
+        }));
+      },
+
       update: (id, { id: _id, ...db }) =>
         set((state) => ({
           dbList: state.dbList.map((item) =>
@@ -173,10 +378,28 @@ export const useDBListStore = create<DBListStore>()(
 
       updateByConfig: async (id: string, config: DialectConfig) => {
         const updateDB = get().update;
+        const previous = get().dbList.find((item) => item.id === id);
         try {
-          updateDB(id, { loading: true });
-          const { data, meta, defaultDatabase } = await getDB(config);
+          const secrets = pickSecrets(config);
+          const profile = stripSecrets(config);
+          // Keep any previously known secrets if form left them empty.
+          const prevSecrets = pickSecrets(previous?.config);
+          const mergedSecrets: ConnectionSecrets = {
+            password: secrets.password ?? prevSecrets.password,
+            ssh_password: secrets.ssh_password ?? prevSecrets.ssh_password,
+            ssh_passphrase:
+              secrets.ssh_passphrase ?? prevSecrets.ssh_passphrase,
+            token: secrets.token ?? prevSecrets.token,
+          };
+          await registerConnectionBackend(id, profile, mergedSecrets);
+          updateDB(id, { loading: true, config: profile });
+          // Query by connection id only — backend supplies credentials.
+          const { data, meta, defaultDatabase } = await getDB(
+            { connectionId: id },
+            id,
+          );
           updateDB(id, { data, meta, defaultDatabase, loading: false });
+          await setDbCache(id, { data, meta, defaultDatabase });
         } catch (error) {
           console.log(error);
         } finally {
@@ -197,15 +420,26 @@ export const useDBListStore = create<DBListStore>()(
         })),
 
       getDB: (id: string) => {
-        const db = get().dbList.find((item) => item.id === id);
-        return db;
+        return get().dbList.find((item) => item.id === id);
       },
-      setDB: (id: string, config) =>
+
+      setDB: async (id, config, options) => {
+        const previous = get().dbList.find((item) => item.id === id);
+        const profile = stripSecrets(config);
+        const secrets = options?.clearSecrets
+          ? {}
+          : {
+              ...pickSecrets(previous?.config),
+              ...pickSecrets(config),
+            };
+        await registerConnectionBackend(id, profile, secrets);
         set((state) => ({
           dbList: state.dbList.map((item) =>
-            item.id == id ? { ...item, config } : item,
+            item.id == id ? { ...item, config: profile } : item,
           ),
-        })),
+        }));
+        void deleteDbCache(id);
+      },
 
       rename: (dbId: string, displayName: string) => {
         set(({ dbList }) => ({
@@ -219,14 +453,91 @@ export const useDBListStore = create<DBListStore>()(
           }),
         }));
       },
+
+      importConnections: async (items) => {
+        for (const item of items) {
+          const profile = stripSecrets(item.config);
+          const secrets = item.secrets ?? pickSecrets(item.config);
+          await registerConnectionBackend(item.id, profile, secrets);
+          set((state) => ({
+            dbList: [
+              ...state.dbList,
+              {
+                id: item.id,
+                dialect: item.dialect,
+                displayName: item.displayName,
+                config: profile,
+                data: emptyTree(item.displayName),
+                loading: false,
+              },
+            ],
+          }));
+        }
+      },
     }),
     {
-      name: 'dbListStore',
-      storage: createJSONStorage(() => indexDBStorage),
-      partialize: (state) => ({ dbList: state.dbList }) as DBListStore,
+      name: 'connections',
+      storage: createJSONStorage(() => connectionsFileStorage),
+      partialize: (state) =>
+        ({
+          dbList: state.dbList.map(
+            (db): PersistedConnection => ({
+              id: db.id,
+              dialect: db.dialect,
+              displayName: db.displayName,
+              config: db.config ? stripSecrets(db.config) : undefined,
+            }),
+          ),
+        }) as unknown as DBListStore,
+      merge: (persisted, current) => {
+        const p = persisted as Partial<DBListStore> | undefined;
+        const list = Array.isArray(p?.dbList) ? p.dbList : [];
+        return {
+          ...current,
+          dbList: list.map((db) => ({
+            ...db,
+            data: db.data ?? emptyTree(db.displayName),
+            config: db.config ? stripSecrets(db.config) : undefined,
+          })),
+        };
+      },
+      onRehydrateStorage: () => async (state) => {
+        try {
+          if (!state) {
+            return;
+          }
+
+          if (!state.dbList || state.dbList.length === 0) {
+            const migrated = await migrateFromLegacyIndexedDb();
+            if (migrated && migrated.length > 0) {
+              const list = await hydrateCaches(migrated);
+              useDBListStore.setState({ dbList: list });
+              // migrate already registered each connection
+              return;
+            }
+          }
+
+          const list = state.dbList ?? [];
+          await salvageSecretsFromLegacyIndexedDb(list);
+          // Load all profiles into backend memory (secrets from vault/keychain).
+          await syncConnectionsBackend(
+            list.map((db) => ({ id: db.id, config: db.config })),
+          );
+          const withCache = await hydrateCaches(
+            list.map((db) => ({
+              ...db,
+              config: db.config ? stripSecrets(db.config) : undefined,
+            })),
+          );
+          useDBListStore.setState({ dbList: withCache });
+        } catch (error) {
+          console.warn('connection rehydrate failed', error);
+        } finally {
+          markRegistryReady();
+        }
+      },
     },
   ),
-  // ),
 );
 
 const dbMapStore = derive<Map<string, DBType>>((get) => {

@@ -1,17 +1,23 @@
 import { useLingui } from '@lingui/react/macro';
 import {
   IconDatabaseCog,
+  IconFileExport,
+  IconFileImport,
   IconFolderPlus,
   IconRefresh,
 } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
 import { useAtomValue } from 'jotai';
+import { ChevronsDownUpIcon, ChevronsUpDownIcon } from 'lucide-react';
+import { useState } from 'react';
+import { useShallow } from 'zustand/shallow';
 
 import { getDB } from '@/api';
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
 import { TooltipButton } from '@/components/custom/button';
 import { useDialog } from '@/components/custom/use-dialog';
 import { ConfigDialog } from '@/pages/sidebar/dialog/ConfigDialog';
+import { ConnectionTransferDialog } from '@/pages/sidebar/dialog/ConnectionTransferDialog';
 import { DatabaseDialog } from '@/pages/sidebar/dialog/DatabaseDialog';
 import {
   DialectType,
@@ -19,8 +25,6 @@ import {
   useDBListStore,
   useDbMapStore,
 } from '@/stores/dbList';
-import { ChevronsDownUpIcon, ChevronsUpDownIcon } from 'lucide-react';
-import { useShallow } from 'zustand/shallow';
 
 export function SideToolbar({
   onExpandAll,
@@ -30,10 +34,14 @@ export function SideToolbar({
   onCollapseAll: () => void;
 }) {
   const { t } = useLingui();
-  const [dbList, appendDB, updateDB, _removeDB] = useDBListStore(
-    useShallow((s) => [s.dbList, s.append, s.updateByConfig, s.remove]),
+  const [dbList, appendDB, updateDB] = useDBListStore(
+    useShallow((s) => [s.dbList, s.append, s.updateByConfig]),
   );
   const dbMap = useDbMapStore();
+  const [transferMode, setTransferMode] = useState<'export' | 'import' | null>(
+    null,
+  );
+
   async function handleGetDB(path: string, dialect: DialectType) {
     const data = await getDB({ path, dialect });
     appendDB(data);
@@ -54,20 +62,20 @@ export function SideToolbar({
   async function handleRefresh() {
     if (selectedNode) {
       const root = selectedNode.dbId;
-
-      for (const db of dbList) {
-        if (db.id == root) {
-          updateDB(
-            root,
-            db.config ?? { path: db.data.path, dialect: 'folder' },
-          );
-        }
+      // Fresh read from store — toolbar closure can hold a stale dbList snapshot.
+      const latest = useDBListStore.getState().getDB(root);
+      if (latest) {
+        await updateDB(
+          root,
+          latest.config ?? {
+            path: latest.data?.path ?? '',
+            dialect: 'folder',
+          },
+        );
       }
     }
   }
 
-  // TODO: Remove the root element restriction
-  // const isRoot = selectedNode?.type == 'root';
   const d = useDialog();
   return (
     <>
@@ -84,10 +92,26 @@ export function SideToolbar({
       </div>
       <ToolbarContainer>
         <Stack>
-          <TooltipButton tooltip={t`Add data folder`} onClick={handleAppendFolder}>
+          <TooltipButton
+            tooltip={t`Add data folder`}
+            onClick={handleAppendFolder}
+          >
             <IconFolderPlus />
           </TooltipButton>
           <DatabaseDialog />
+          <TooltipButton
+            tooltip={t`Import connections`}
+            onClick={() => setTransferMode('import')}
+          >
+            <IconFileImport />
+          </TooltipButton>
+          <TooltipButton
+            tooltip={t`Export connections`}
+            onClick={() => setTransferMode('export')}
+            disabled={dbList.length === 0}
+          >
+            <IconFileExport />
+          </TooltipButton>
           <TooltipButton
             tooltip={t`DB setting`}
             disabled={!selectedNode}
@@ -95,7 +119,6 @@ export function SideToolbar({
           >
             <IconDatabaseCog />
           </TooltipButton>
-          {/* refresh tree */}
           <TooltipButton
             tooltip={t`Refresh DB`}
             disabled={!selectedNode}
@@ -105,6 +128,15 @@ export function SideToolbar({
           </TooltipButton>
         </Stack>
         <ConfigDialog key={db?.id} {...d.props} ctx={db} />
+        <ConnectionTransferDialog
+          mode={transferMode ?? 'export'}
+          open={transferMode != null}
+          onOpenChange={(open) => {
+            if (!open) {
+              setTransferMode(null);
+            }
+          }}
+        />
       </ToolbarContainer>
     </>
   );

@@ -6,12 +6,11 @@ import { toast } from 'sonner';
 
 import { find, showColumns, showSchema } from '@/api';
 import { Loading } from '@/components/views/TableView';
-import { DialectConfig } from '@/stores/dbList';
+import { connectionRef } from '@/lib/connectionRef';
 import {
   SchemaContextType,
   TableContextType,
   activeTabAtom,
-  getDatabase,
 } from '@/stores/tabs';
 import { isEmpty } from 'radash';
 
@@ -27,7 +26,6 @@ export function DatabaseSchemaView({
   const { t } = useLingui();
   const currentTab = useAtomValue(activeTabAtom);
   const [loading, setLoading] = useState(false);
-  const db = getDatabase(context?.dbId);
 
   const [data, setData] = useState<unknown[]>([]);
 
@@ -36,7 +34,7 @@ export function DatabaseSchemaView({
       setLoading(true);
       const { data } = await showSchema(
         context.schema as string,
-        db?.config as DialectConfig,
+        connectionRef(context.dbId),
       );
       setData(data);
     } catch (error) {
@@ -108,7 +106,6 @@ export function ColumnSchemaView({ context }: { context: TableContextType }) {
   const { t } = useLingui();
   const currentTab = useAtomValue(activeTabAtom);
   const [loading, setLoading] = useState(false);
-  const db = getDatabase(context?.dbId);
 
   const [data, setData] = useState<unknown[]>([]);
 
@@ -117,7 +114,7 @@ export function ColumnSchemaView({ context }: { context: TableContextType }) {
       setLoading(true);
       const { data } = await showColumns(
         context.tableId as string,
-        db?.config as DialectConfig,
+        connectionRef(context.dbId),
       );
       setData(data);
     } catch (error) {
@@ -189,7 +186,6 @@ export function SearchView({ context }: { context: TableContextType }) {
   const { t } = useLingui();
   const currentTab = useAtomValue(activeTabAtom);
   const [loading, setLoading] = useState(false);
-  const db = getDatabase(context?.dbId);
 
   const [data, setData] = useState<unknown[]>([]);
 
@@ -197,9 +193,9 @@ export function SearchView({ context }: { context: TableContextType }) {
     try {
       setLoading(true);
       const { data } = await find(
-        context.value as string,
-        context.path as string,
-        db?.config as DialectConfig,
+        (context as { value?: string }).value as string,
+        (context as { path?: string }).path as string,
+        connectionRef(context.dbId),
       );
       setData(data);
     } catch (error) {

@@ -1,7 +1,8 @@
 import { Trans } from '@lingui/react/macro';
-import { Code, RefreshCcw, Settings } from 'lucide-react';
+import { Code, FileDown, RefreshCcw, Settings } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import React, { PropsWithChildren, useState } from 'react';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 import { ContextMenuItem } from '@/components/custom/context-menu';
 import { useDialog } from '@/components/custom/use-dialog';
@@ -13,11 +14,10 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
 import { ConfigDialog } from '@/pages/sidebar/dialog/ConfigDialog';
+import { ConnectionTransferDialog } from '@/pages/sidebar/dialog/ConnectionTransferDialog';
 import { RenameDialog } from '@/pages/sidebar/dialog/RenameDialog';
 import { DBType, useDBListStore } from '@/stores/dbList';
 import { useTabsStore } from '@/stores/tabs';
-
-import { useHotkeys } from 'react-hotkeys-hook';
 
 export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
   children,
@@ -29,6 +29,7 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
 
   const dialog = useDialog();
   const configDialog = useDialog();
+  const [exportOpen, setExportOpen] = useState(false);
 
   const handleEditor = () => {
     if (db) {
@@ -50,8 +51,10 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
   };
 
   const handleRefresh = async () => {
-    if (db.config) {
-      updateDB(db.id, db.config);
+    const latest = useDBListStore.getState().getDB(db.id);
+    const config = latest?.config ?? db.config;
+    if (config) {
+      await updateDB(db.id, config);
     }
   };
 
@@ -89,6 +92,9 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
             <Trans>Refresh</Trans>
             <ContextMenuShortcut>F5</ContextMenuShortcut>
           </ContextMenuItem>
+          <ContextMenuItem onSelect={() => setExportOpen(true)} icon={FileDown}>
+            <Trans>Export Connection</Trans>
+          </ContextMenuItem>
           <ContextMenuItem inset onSelect={handleRemove} tabIndex={-1}>
             <Trans>Delete</Trans>
             <ContextMenuShortcut>Del</ContextMenuShortcut>
@@ -97,6 +103,12 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
       </ContextMenu>
       <RenameDialog {...dialog.props} ctx={db} />
       <ConfigDialog {...configDialog.props} ctx={db} />
+      <ConnectionTransferDialog
+        mode="export"
+        open={exportOpen}
+        onOpenChange={setExportOpen}
+        only={db}
+      />
     </>
   );
 });

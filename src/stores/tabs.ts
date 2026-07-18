@@ -20,8 +20,10 @@ import {
 } from '@/api';
 import { atomStore } from '@/stores';
 
+import { connectionRef, type DialectRef } from '@/lib/connectionRef';
+
 import { Direction, SchemaType } from './dataset';
-import { dbMapAtom, PostgresDialectType, tablesAtom } from './dbList';
+import { dbMapAtom, tablesAtom, whenRegistryReady } from './dbList';
 import { settingAtom } from './setting';
 
 export type QueryParamType = {
@@ -249,9 +251,9 @@ export function getDatabase(dbId?: string) {
   }
 }
 
-export function getParams(
+export async function getParams(
   ctx: QueryParamType,
-): QueryParams | QueryTableParams | undefined {
+): Promise<QueryParams | QueryTableParams | undefined> {
   const {
     page = 1,
     perPage = 500,
@@ -266,13 +268,20 @@ export function getParams(
   if (!db && ctx.type != 'file') {
     throw new Error('No connection found');
   }
-  let dialect = db?.config;
+
+  await whenRegistryReady();
+
+  let dialect: DialectRef;
   if (ctx.type == 'file') {
     dialect = {
       path: tableId,
       dialect: 'file',
-    };
+    } as DialectRef;
+  } else {
+    // Frontend only sends connection id; backend registry holds credentials.
+    dialect = connectionRef(dbId);
   }
+
   const param = {
     limit: perPage,
     offset: (page - 1) * perPage,
@@ -289,10 +298,10 @@ export function getParams(
 
   let tableName = ctx.tableName ?? table?.path ?? tableId;
 
-  if (dialect?.dialect == 'postgres') {
-    (dialect as PostgresDialectType).database = table?.path.split(
-      '.',
-    )[0] as string;
+  if (db?.dialect === 'postgres' && table?.path) {
+    dialect = connectionRef(dbId, {
+      database: table.path.split('.')[0],
+    });
   }
 
   if (tableName.endsWith('.csv')) {
@@ -326,7 +335,7 @@ export function getParams(
 export async function execute(
   ctx: QueryParamType,
 ): Promise<ResultType | undefined> {
-  const param = getParams(ctx);
+  const param = await getParams(ctx);
   if (!param) {
     return;
   }
@@ -347,7 +356,7 @@ export async function execute(
 export async function executeSQL(
   ctx: QueryParamType,
 ): Promise<ResultType | undefined> {
-  const param = getParams(ctx);
+  const param = await getParams(ctx);
   if (!param) {
     return;
   }
@@ -371,11 +380,11 @@ export async function exportData(
   { file }: ExportTarget,
   ctx: QueryParamType,
 ): Promise<void> {
-  // TODO: export table
-  const param = getParams(ctx) as QueryParams;
+  const param = (await getParams(ctx)) as QueryParams;
   if (param) {
     await exportCsv({
       file,
+      dbId: ctx.dbId,
       ...param,
     });
   }

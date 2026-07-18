@@ -12,6 +12,7 @@ use tauri::{Manager, State};
 use tauri_plugin_updater::UpdaterExt;
 
 use crate::api::ArrowResponse;
+use crate::connection_registry::{self, ConnectionRegistry};
 use connector::dialect::Connection;
 use connector::dialect::clickhouse::ClickhouseConnection;
 use connector::dialect::duckdb::DuckDbConnection;
@@ -48,7 +49,12 @@ fn build_ssh_config(
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DialectPayload {
+  /// When set, credentials are loaded from the in-memory connection registry.
+  #[serde(default)]
+  pub connection_id: Option<String>,
+  #[serde(default)]
   pub dialect: String,
   pub path: Option<String>,
   pub username: Option<String>,
@@ -80,9 +86,10 @@ pub fn get_ast_dialect(dialect: &str) -> Box<dyn sqlparser::dialect::Dialect> {
   }
 }
 
-#[allow(clippy::unused_async)]
-pub async fn get_dialect(
+/// Build a connector from a fully-resolved payload (secrets already merged).
+pub async fn get_dialect_from_payload(
   DialectPayload {
+    connection_id: _,
     dialect,
     path,
     username,
@@ -180,42 +187,49 @@ pub async fn get_dialect(
   }
 }
 
+async fn resolve_connection(
+  registry: &ConnectionRegistry,
+  dialect: DialectPayload,
+) -> Result<Box<dyn Connection>, String> {
+  let resolved = connection_registry::resolve_payload(registry, dialect)?;
+  get_dialect_from_payload(resolved)
+    .await
+    .ok_or_else(|| "not support dialect".to_string())
+}
+
 #[tauri::command]
 pub async fn query(
+  registry: State<'_, ConnectionRegistry>,
   sql: String,
   limit: usize,
   offset: usize,
   dialect: DialectPayload,
 ) -> Result<ArrowResponse, String> {
-  if let Some(d) = get_dialect(dialect).await {
-    let start = Instant::now();
-    let res = d.query(&sql, limit, offset).await;
-    let duration = start.elapsed().as_millis();
-    Ok(ArrowResponse::from_raw_data(res, Some(duration)))
-  } else {
-    Err("not support dialect".to_string())
-  }
+  let d = resolve_connection(&registry, dialect).await?;
+  let start = Instant::now();
+  let res = d.query(&sql, limit, offset).await;
+  let duration = start.elapsed().as_millis();
+  Ok(ArrowResponse::from_raw_data(res, Some(duration)))
 }
 
 #[tauri::command]
 pub async fn paging_query(
+  registry: State<'_, ConnectionRegistry>,
   sql: String,
   limit: usize,
   offset: usize,
   dialect: DialectPayload,
 ) -> Result<ArrowResponse, String> {
-  if let Some(d) = get_dialect(dialect).await {
-    let start = Instant::now();
-    let res = d.paging_query(&sql, Some(limit), Some(offset)).await;
-    let duration = start.elapsed().as_millis();
-    Ok(ArrowResponse::from_raw_data(res, Some(duration)))
-  } else {
-    Err("not support dialect".to_string())
-  }
+  let d = resolve_connection(&registry, dialect).await?;
+  let start = Instant::now();
+  let res = d.paging_query(&sql, Some(limit), Some(offset)).await;
+  let duration = start.elapsed().as_millis();
+  Ok(ArrowResponse::from_raw_data(res, Some(duration)))
 }
 
 #[tauri::command]
 pub async fn query_table(
+  registry: State<'_, ConnectionRegistry>,
   table: &str,
   limit: usize,
   offset: usize,
@@ -223,9 +237,7 @@ pub async fn query_table(
   r#where: Option<String>,
   dialect: DialectPayload,
 ) -> Result<ArrowResponse, String> {
-  let d = get_dialect(dialect.clone())
-    .await
-    .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
+  let d = resolve_connection(&registry, dialect).await?;
 
   let start = Instant::now();
   let res = d
@@ -243,41 +255,37 @@ pub async fn query_table(
 
 #[tauri::command]
 pub async fn table_row_count(
+  registry: State<'_, ConnectionRegistry>,
   table: &str,
   condition: &str,
   dialect: DialectPayload,
 ) -> Result<usize, String> {
-  if let Some(d) = get_dialect(dialect).await {
-    d.table_row_count(table, condition)
-      .await
-      .map_err(|e| e.to_string())
-  } else {
-    Err("not support dialect".to_string())
-  }
+  let d = resolve_connection(&registry, dialect).await?;
+  d.table_row_count(table, condition)
+    .await
+    .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
 pub async fn export(
+  registry: State<'_, ConnectionRegistry>,
   sql: String,
   file: String,
   format: Option<String>,
   options: Option<connector::utils::ExportOptions>,
   dialect: DialectPayload,
 ) -> Result<(), String> {
-  if let Some(d) = get_dialect(dialect).await {
-    let format = if let Some(format) = format {
-      format
-    } else {
-      file.split('.').next_back().unwrap_or("csv").to_string()
-    };
-    let options = options.unwrap_or_default();
-    d.export(&sql, &file, &format, &options)
-      .await
-      .map_err(|e| e.to_string())?;
-    Ok(())
+  let d = resolve_connection(&registry, dialect).await?;
+  let format = if let Some(format) = format {
+    format
   } else {
-    Err("not support dialect".to_string())
-  }
+    file.split('.').next_back().unwrap_or("csv").to_string()
+  };
+  let options = options.unwrap_or_default();
+  d.export(&sql, &file, &format, &options)
+    .await
+    .map_err(|e| e.to_string())?;
+  Ok(())
 }
 
 #[tauri::command]
@@ -290,47 +298,45 @@ pub async fn opened_files(state: State<'_, OpenedFiles>) -> Result<Vec<String>, 
 }
 
 #[tauri::command]
-pub async fn get_db(dialect: DialectPayload) -> Result<TreeNode, String> {
-  if let Some(d) = get_dialect(dialect).await {
-    d.get_db().await.map_err(|e| e.to_string())
-  } else {
-    Err("not support dialect".to_string())
-  }
+pub async fn get_db(
+  registry: State<'_, ConnectionRegistry>,
+  dialect: DialectPayload,
+) -> Result<TreeNode, String> {
+  let d = resolve_connection(&registry, dialect).await?;
+  d.get_db().await.map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-pub async fn show_schema(schema: &str, dialect: DialectPayload) -> Result<ArrowResponse, String> {
-  let d = get_dialect(dialect.clone())
-    .await
-    .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
+pub async fn show_schema(
+  registry: State<'_, ConnectionRegistry>,
+  schema: &str,
+  dialect: DialectPayload,
+) -> Result<ArrowResponse, String> {
+  let d = resolve_connection(&registry, dialect).await?;
   let res = d.show_schema(schema).await;
-
   Ok(ArrowResponse::from_raw_data(res, None))
 }
 
 #[tauri::command]
 pub async fn show_column(
+  registry: State<'_, ConnectionRegistry>,
   schema: Option<&str>,
   table: &str,
   dialect: DialectPayload,
 ) -> Result<ArrowResponse, String> {
-  let d = get_dialect(dialect.clone())
-    .await
-    .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
+  let d = resolve_connection(&registry, dialect).await?;
   let res = d.show_column(schema, table).await;
-
   Ok(ArrowResponse::from_raw_data(res, None))
 }
 
 #[tauri::command]
 pub async fn drop_table(
+  registry: State<'_, ConnectionRegistry>,
   schema: Option<&str>,
   table: &str,
   dialect: DialectPayload,
 ) -> Result<String, String> {
-  let d = get_dialect(dialect.clone())
-    .await
-    .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
+  let d = resolve_connection(&registry, dialect).await?;
   // TODO: ERROR INFO
   let res = d.drop_table(schema, table).await.expect("ERROR");
   Ok(res)
@@ -484,25 +490,23 @@ pub async fn format_sql_sqlfmt(
 
 #[tauri::command]
 pub async fn find(
+  registry: State<'_, ConnectionRegistry>,
   value: &str,
   path: &str,
   dialect: DialectPayload,
 ) -> Result<ArrowResponse, String> {
-  let d = get_dialect(dialect.clone())
-    .await
-    .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
+  let d = resolve_connection(&registry, dialect).await?;
   let res = d.find(value, path).await;
-
   Ok(ArrowResponse::from_raw_data(res, None))
 }
 
 #[tauri::command]
-pub async fn all_columns(dialect: DialectPayload) -> Result<Vec<Metadata>, String> {
-  let d = get_dialect(dialect.clone())
-    .await
-    .ok_or_else(|| format!("not support dialect {}", dialect.dialect))?;
+pub async fn all_columns(
+  registry: State<'_, ConnectionRegistry>,
+  dialect: DialectPayload,
+) -> Result<Vec<Metadata>, String> {
+  let d = resolve_connection(&registry, dialect).await?;
   let s = d.all_columns().await;
-
   s.map_err(|e| format!("not support dialect {}", e))
 }
 
@@ -528,6 +532,17 @@ pub async fn read_text_file(path: &str) -> Result<String, String> {
     return Err(format!("not a file: {path}"));
   }
   std::fs::read_to_string(p).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn write_text_file(path: &str, contents: String) -> Result<(), String> {
+  let p = Path::new(path);
+  if let Some(parent) = p.parent() {
+    if !parent.as_os_str().is_empty() {
+      std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+  }
+  std::fs::write(p, contents).map_err(|e| e.to_string())
 }
 
 #[tauri::command]

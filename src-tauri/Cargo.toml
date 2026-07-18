@@ -38,6 +38,11 @@ connector = { path = "../connector" }
 anyhow = "1.0.98"
 open = "5"
 fontdb = "0.23.0"
+keyring = "3"
+aes-gcm = "0.10"
+argon2 = "0.5"
+base64 = "0.22"
+rand = "0.8"
 
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
 tauri-plugin-updater = "^2.10.0"

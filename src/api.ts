@@ -4,10 +4,11 @@ import { Update } from '@tauri-apps/plugin-updater';
 import { uniqBy } from 'es-toolkit';
 import { nanoid } from 'nanoid';
 
+import type { DialectRef } from '@/lib/connectionRef';
+import { registerConnectionBackend } from '@/lib/connectionRef';
 import { ArrowResponse, SchemaType } from '@/stores/dataset';
 import { DBType, DialectConfig } from '@/stores/dbList';
 import { UpdaterSource } from '@/stores/setting';
-import { getDatabase } from '@/stores/tabs';
 
 import { TreeNode } from './types';
 
@@ -28,7 +29,7 @@ export type ResultType<T = unknown> = {
 
 function bigIntReplacer(_key: string, value: any) {
   if (typeof value === 'bigint') {
-    return value.toString(); // 将 BigInt 转换为字符串
+    return value.toString();
   }
   return value;
 }
@@ -88,7 +89,7 @@ export type QueryParams = {
   sql: string;
   limit: number;
   offset: number;
-  dialect?: DialectConfig;
+  dialect?: DialectRef;
 };
 
 export type QueryTableParams = {
@@ -97,7 +98,7 @@ export type QueryTableParams = {
   offset: number;
   where?: string;
   orderBy?: string;
-  dialect?: DialectConfig;
+  dialect?: DialectRef;
 };
 
 export async function query(params: QueryParams): Promise<ResultType> {
@@ -139,11 +140,13 @@ export async function exportCsv(
     dbId?: string;
   },
 ): Promise<void> {
-  const db = getDatabase(params.dbId ?? '');
   console.debug('params:', params);
+  const dialect =
+    params.dialect ??
+    (params.dbId ? { connectionId: params.dbId } : undefined);
   await invoke('export', {
     ...params,
-    dialect: db?.config,
+    dialect,
   });
 }
 
@@ -156,11 +159,8 @@ export type MetadataType = {
 const convertMeta = (data: MetadataType[]) => {
   return data.reduce(
     (acc, { database, table, columns }) => {
-      // 初始化 database 层级
-      acc[database] ??= {}; // 使用逻辑空赋值简化代码
-      // 初始化 table 层级
+      acc[database] ??= {};
       acc[database][table] ??= [];
-      // 添加 column 到数组
       const _columns = columns.map(([name, type]) => ({ name, type }));
       acc[database][table].push(..._columns);
       return acc;
@@ -169,10 +169,48 @@ const convertMeta = (data: MetadataType[]) => {
   );
 };
 
-export async function getDB(dialect: DialectConfig): Promise<DBType> {
-  const tree: TreeNode = await invoke('get_db', { dialect });
+/**
+ * Open / refresh a connection.
+ * - With `connectionId`: backend loads credentials from registry (password not needed from UI).
+ * - Without id: ad-hoc payload (first open); caller should register afterward.
+ */
+export async function getDB(
+  dialect: DialectConfig | DialectRef,
+  connectionId?: string,
+): Promise<DBType> {
+  const id =
+    connectionId ??
+    ('connectionId' in dialect && dialect.connectionId
+      ? dialect.connectionId
+      : nanoid());
+
+  // Ensure backend registry has this connection before querying by id-only.
+  if (!('connectionId' in dialect && dialect.connectionId) && !connectionId) {
+    // First-time open: send full config once, then register for subsequent calls.
+    const tree: TreeNode = await invoke('get_db', { dialect });
+    const colMeta: MetadataType[] = await invoke('all_columns', { dialect });
+    await registerConnectionBackend(id, dialect as DialectConfig);
+
+    let defaultDatabase = '';
+    if (uniqBy(colMeta, (item) => item.database).length == 1) {
+      defaultDatabase = colMeta[0].database;
+    }
+    const meta = convertMeta(colMeta);
+    return {
+      id,
+      dialect: (dialect as DialectConfig).dialect,
+      data: tree,
+      config: dialect as DialectConfig,
+      meta,
+      displayName: tree.name,
+      defaultDatabase,
+    };
+  }
+
+  const ref: DialectRef = { connectionId: id };
+  const tree: TreeNode = await invoke('get_db', { dialect: ref });
   const colMeta: MetadataType[] = await invoke('all_columns', {
-    dialect,
+    dialect: ref,
   });
 
   let defaultDatabase = '';
@@ -180,12 +218,15 @@ export async function getDB(dialect: DialectConfig): Promise<DBType> {
     defaultDatabase = colMeta[0].database;
   }
   const meta = convertMeta(colMeta);
-  console.log('tree:', tree, colMeta, meta);
+  const dialectName =
+    'dialect' in dialect && dialect.dialect
+      ? (dialect.dialect as DBType['dialect'])
+      : 'duckdb';
   return {
-    id: nanoid(),
-    dialect: dialect.dialect,
+    id,
+    dialect: dialectName,
     data: tree,
-    config: dialect,
+    config: 'dialect' in dialect ? (dialect as DialectConfig) : undefined,
     meta,
     displayName: tree.name,
     defaultDatabase,
@@ -194,7 +235,7 @@ export async function getDB(dialect: DialectConfig): Promise<DBType> {
 
 export async function showSchema(
   schema: string,
-  dialect: DialectConfig,
+  dialect: DialectRef,
 ): Promise<ResultType> {
   const res = await invoke('show_schema', { schema, dialect });
   return convert(res as ArrowResponse);
@@ -202,25 +243,22 @@ export async function showSchema(
 
 export async function showColumns(
   table: string,
-  dialect: DialectConfig,
+  dialect: DialectRef,
 ): Promise<ResultType> {
-  console.log(table, dialect);
   const res = await invoke('show_column', { table, dialect });
   return convert(res as ArrowResponse);
 }
 
 export async function dropTable(
   table: string,
-  dialect: DialectConfig,
+  dialect: DialectRef,
 ): Promise<ResultType> {
-  console.log(table, dialect);
   const res = await invoke('drop_table', { table, dialect });
   return convert(res as ArrowResponse);
 }
 
 export async function formatSQL(sql: string): Promise<string> {
   const res = await invoke<string>('format_sql', { sql });
-  console.log('format sql:', res);
   return res;
 }
 
@@ -231,14 +269,14 @@ export type SqlfmtCheckResult = {
   error: string | null;
 };
 
-/** Check whether the external `sqlfmt` (shandy-sqlfmt) binary is available. */
-export async function checkSqlfmt(path?: string | null): Promise<SqlfmtCheckResult> {
+export async function checkSqlfmt(
+  path?: string | null,
+): Promise<SqlfmtCheckResult> {
   return invoke<SqlfmtCheckResult>('check_sqlfmt', {
     path: path?.trim() ? path.trim() : null,
   });
 }
 
-/** Format SQL via external `sqlfmt` (`sqlfmt -` over stdin). */
 export async function formatSqlWithSqlfmt(
   sql: string,
   options?: {
@@ -261,7 +299,7 @@ export async function formatSqlWithSqlfmt(
 export async function find(
   value: string,
   path: string,
-  dialect: DialectConfig,
+  dialect: DialectRef,
 ): Promise<ResultType> {
   const res = await invoke('find', { value, path, dialect });
   return convert(res as ArrowResponse);
@@ -269,7 +307,6 @@ export async function find(
 
 export async function openPath(path: string): Promise<string> {
   const res = await invoke<string>('open_path', { path });
-  console.log('open path:', path);
   return res;
 }
 
@@ -299,6 +336,64 @@ export async function readTextFile(path: string): Promise<string> {
   return invoke<string>('read_text_file', { path });
 }
 
+export async function writeTextFile(
+  path: string,
+  contents: string,
+): Promise<void> {
+  await invoke('write_text_file', { path, contents });
+}
+
+export type ConnectionSecretsDto = {
+  password?: string;
+  ssh_password?: string;
+  ssh_passphrase?: string;
+  token?: string;
+};
+
+export type ConnectionProfileDto = {
+  id: string;
+  displayName: string;
+  dialect: string;
+  config?: unknown;
+  createdAt?: number;
+  updatedAt?: number;
+};
+
+export type ConnectionsExportDto = {
+  format: string;
+  version: number;
+  exportedAt: string;
+  includeSecrets: boolean;
+  connections: ConnectionProfileDto[];
+  kdf?: string;
+  crypto?: string;
+  salt?: string;
+  nonce?: string;
+  secretsBlob?: string;
+};
+
+export async function connectionsExportEncrypt(
+  connections: ConnectionProfileDto[],
+  secretsById: Record<string, ConnectionSecretsDto>,
+  password: string,
+): Promise<ConnectionsExportDto> {
+  return invoke<ConnectionsExportDto>('connections_export_encrypt', {
+    connections,
+    secretsById,
+    password,
+  });
+}
+
+export async function connectionsImportDecrypt(
+  file: ConnectionsExportDto,
+  password: string,
+): Promise<Record<string, ConnectionSecretsDto>> {
+  return invoke<Record<string, ConnectionSecretsDto>>(
+    'connections_import_decrypt',
+    { file, password },
+  );
+}
+
 /** Unique font family names installed on the system. */
 export async function listSystemFonts(): Promise<string[]> {
   return invoke<string[]>('list_system_fonts');
@@ -313,10 +408,6 @@ type AppUpdateMetadata = {
   rawJson: Record<string, unknown>;
 };
 
-/**
- * Check for app updates using the selected endpoint source.
- * Defaults to the official GitHub Releases URL; `china` uses the gh-proxy mirror.
- */
 export async function checkAppUpdate(options?: {
   source?: UpdaterSource | null;
   proxy?: string | null;
