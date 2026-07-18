@@ -4,8 +4,8 @@ use std::sync::Mutex;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, State};
 
-use crate::cmd::DialectPayload;
-use crate::secret_store::{self, ConnectionSecrets};
+use super::db::DialectPayload;
+use super::secret_store::{self, ConnectionSecrets};
 
 /// In-memory connection configs (with secrets) for the app process lifetime.
 #[derive(Default)]

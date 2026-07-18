@@ -3,8 +3,7 @@
 
 use std::env;
 
-use cmd::OpenedFiles;
-use connection_registry::ConnectionRegistry;
+use cmd::{ConnectionRegistry, OpenedFiles};
 use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::Emitter;
@@ -15,8 +14,6 @@ use tauri_plugin_log::{Target, TargetKind};
 
 mod api;
 mod cmd;
-mod connection_registry;
-mod secret_store;
 
 fn handle_menu(app: &mut tauri::App) -> tauri::Result<()> {
   let handle = app.handle();
@@ -134,38 +131,38 @@ fn main() {
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
-      cmd::query,
-      cmd::paging_query,
-      cmd::query_table,
-      cmd::opened_files,
-      cmd::get_db,
-      cmd::export,
-      cmd::table_row_count,
-      cmd::show_schema,
-      cmd::show_column,
-      cmd::drop_table,
-      cmd::format_sql,
-      cmd::check_sqlfmt,
-      cmd::format_sql_sqlfmt,
-      cmd::find,
-      cmd::all_columns,
-      cmd::list_ssh_config_hosts,
-      cmd::list_sql_dir,
-      cmd::read_text_file,
-      cmd::write_text_file,
-      cmd::open_path,
-      cmd::open_settings_dir,
-      cmd::list_system_fonts,
-      secret_store::secret_set,
-      secret_store::secret_get,
-      secret_store::secret_delete,
-      secret_store::connections_export_encrypt,
-      secret_store::connections_import_decrypt,
-      connection_registry::register_connection,
-      connection_registry::unregister_connection,
-      connection_registry::sync_connections,
+      cmd::db::query,
+      cmd::db::paging_query,
+      cmd::db::query_table,
+      cmd::db::export,
+      cmd::db::table_row_count,
+      cmd::db::find,
+      cmd::db::get_db,
+      cmd::db::show_schema,
+      cmd::db::show_column,
+      cmd::db::drop_table,
+      cmd::db::all_columns,
+      cmd::app::format_sql,
+      cmd::app::check_sqlfmt,
+      cmd::app::format_sql_sqlfmt,
+      cmd::app::opened_files,
+      cmd::app::list_sql_dir,
+      cmd::app::read_text_file,
+      cmd::app::write_text_file,
+      cmd::app::open_path,
+      cmd::app::list_ssh_config_hosts,
+      cmd::app::open_settings_dir,
+      cmd::app::list_system_fonts,
+      cmd::secret_store::secret_set,
+      cmd::secret_store::secret_get,
+      cmd::secret_store::secret_delete,
+      cmd::secret_store::connections_export_encrypt,
+      cmd::secret_store::connections_import_decrypt,
+      cmd::connection_registry::register_connection,
+      cmd::connection_registry::unregister_connection,
+      cmd::connection_registry::sync_connections,
       #[cfg(desktop)]
-      cmd::check_app_update,
+      cmd::app::check_app_update,
     ])
     .build(tauri::generate_context!())
     .expect("error while running tauri application")
