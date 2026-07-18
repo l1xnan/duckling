@@ -607,7 +607,7 @@ export function DatabaseDialog() {
       data: { name: displayName, path: displayName } as TreeNode,
       loading: true,
     };
-    // append registers connection into backend registry (secrets stay server-side)
+    // updateByConfig awaits register + tree load (append alone is async race-prone).
     appendDB(initData);
     setOpen(false);
     form.reset({ disable_ssl: true } as DialectConfig);

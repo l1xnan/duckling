@@ -64,9 +64,9 @@ fn vault_dir(app: &AppHandle) -> Result<PathBuf, String> {
   Ok(dir)
 }
 
-fn vault_path(app: &AppHandle, connection_id: &str) -> Result<PathBuf, String> {
-  // Sanitize id for filesystem (nanoid is already safe).
-  let safe: String = connection_id
+/// Sanitize connection id for use as a vault filename stem.
+pub(crate) fn sanitize_connection_id(connection_id: &str) -> String {
+  connection_id
     .chars()
     .map(|c| {
       if c.is_ascii_alphanumeric() || c == '-' || c == '_' {
@@ -75,7 +75,11 @@ fn vault_path(app: &AppHandle, connection_id: &str) -> Result<PathBuf, String> {
         '_'
       }
     })
-    .collect();
+    .collect()
+}
+
+fn vault_path(app: &AppHandle, connection_id: &str) -> Result<PathBuf, String> {
+  let safe = sanitize_connection_id(connection_id);
   Ok(vault_dir(app)?.join(format!("{safe}.json")))
 }
 
@@ -461,5 +465,173 @@ mod tests {
       }
       .is_empty()
     );
+  }
+
+  #[test]
+  fn sanitize_connection_id_keeps_safe_chars() {
+    assert_eq!(sanitize_connection_id("abc-123_XYZ"), "abc-123_XYZ");
+    // `.` is not alphanumeric; each unsafe char becomes `_`.
+    assert_eq!(sanitize_connection_id("a/b:c*d?.json"), "a_b_c_d__json");
+    assert_eq!(sanitize_connection_id(""), "");
+  }
+
+  #[test]
+  fn import_without_secrets_returns_empty_map() {
+    let file = ConnectionsExportDto {
+      format: "duckling.connections".into(),
+      version: 1,
+      exported_at: "0".into(),
+      include_secrets: false,
+      connections: vec![],
+      kdf: None,
+      crypto: None,
+      salt: None,
+      nonce: None,
+      secrets_blob: None,
+    };
+    let map = block_on(connections_import_decrypt(file, "any".into())).unwrap();
+    assert!(map.is_empty());
+  }
+
+  #[test]
+  fn import_requires_crypto_fields_when_include_secrets() {
+    let base = ConnectionsExportDto {
+      format: "duckling.connections".into(),
+      version: 1,
+      exported_at: "0".into(),
+      include_secrets: true,
+      connections: vec![],
+      kdf: Some("argon2id".into()),
+      crypto: Some("aes-256-gcm".into()),
+      salt: None,
+      nonce: None,
+      secrets_blob: None,
+    };
+    assert!(
+      block_on(connections_import_decrypt(base.clone(), "pw".into()))
+        .unwrap_err()
+        .contains("salt")
+    );
+
+    let mut missing_nonce = base.clone();
+    missing_nonce.salt = Some(B64.encode([1u8; 16]));
+    assert!(
+      block_on(connections_import_decrypt(missing_nonce, "pw".into()))
+        .unwrap_err()
+        .contains("nonce")
+    );
+
+    let mut missing_blob = base;
+    missing_blob.salt = Some(B64.encode([1u8; 16]));
+    missing_blob.nonce = Some(B64.encode([2u8; 12]));
+    assert!(
+      block_on(connections_import_decrypt(missing_blob, "pw".into()))
+        .unwrap_err()
+        .contains("secretsBlob")
+    );
+  }
+
+  #[test]
+  fn import_rejects_invalid_nonce_length() {
+    let mut secrets = HashMap::new();
+    secrets.insert(
+      "c1".to_string(),
+      ConnectionSecrets {
+        password: Some("x".into()),
+        ..Default::default()
+      },
+    );
+    let mut exported =
+      block_on(connections_export_encrypt(vec![], secrets, "master".into())).unwrap();
+    // Corrupt nonce to wrong decoded length (8 bytes instead of 12).
+    exported.nonce = Some(B64.encode([9u8; 8]));
+    let err = block_on(connections_import_decrypt(exported, "master".into())).unwrap_err();
+    assert!(err.contains("nonce"));
+  }
+
+  #[test]
+  fn decrypt_requires_password() {
+    let file = ConnectionsExportDto {
+      format: "duckling.connections".into(),
+      version: 1,
+      exported_at: "0".into(),
+      include_secrets: true,
+      connections: vec![],
+      kdf: None,
+      crypto: None,
+      salt: Some("s".into()),
+      nonce: Some("n".into()),
+      secrets_blob: Some("b".into()),
+    };
+    let err = block_on(connections_import_decrypt(file, "   ".into())).unwrap_err();
+    assert!(err.contains("password"));
+  }
+
+  #[test]
+  fn export_json_never_contains_plaintext_secrets_for_multiple_ids() {
+    let mut secrets = HashMap::new();
+    secrets.insert(
+      "a".into(),
+      ConnectionSecrets {
+        password: Some("pw-a".into()),
+        token: Some("tok-a".into()),
+        ..Default::default()
+      },
+    );
+    secrets.insert(
+      "b".into(),
+      ConnectionSecrets {
+        ssh_password: Some("ssh-b".into()),
+        ssh_passphrase: Some("pass-b".into()),
+        ..Default::default()
+      },
+    );
+    let exported = block_on(connections_export_encrypt(
+      vec![
+        ConnectionProfileDto {
+          id: "a".into(),
+          display_name: "A".into(),
+          dialect: "mysql".into(),
+          config: None,
+          created_at: None,
+          updated_at: None,
+        },
+        ConnectionProfileDto {
+          id: "b".into(),
+          display_name: "B".into(),
+          dialect: "postgres".into(),
+          config: None,
+          created_at: None,
+          updated_at: None,
+        },
+      ],
+      secrets,
+      "master".into(),
+    ))
+    .unwrap();
+    let json = serde_json::to_string(&exported).unwrap();
+    for s in ["pw-a", "tok-a", "ssh-b", "pass-b"] {
+      assert!(!json.contains(s), "leaked secret: {s}");
+    }
+    let decrypted = block_on(connections_import_decrypt(exported, "master".into())).unwrap();
+    assert_eq!(decrypted.len(), 2);
+    assert_eq!(
+      decrypted.get("a").and_then(|s| s.password.as_deref()),
+      Some("pw-a")
+    );
+    assert_eq!(
+      decrypted.get("b").and_then(|s| s.ssh_password.as_deref()),
+      Some("ssh-b")
+    );
+  }
+
+  #[test]
+  fn derive_key_is_deterministic_for_same_inputs() {
+    let salt = [7u8; 16];
+    let k1 = derive_key("pw", &salt).unwrap();
+    let k2 = derive_key("pw", &salt).unwrap();
+    let k3 = derive_key("other", &salt).unwrap();
+    assert_eq!(k1, k2);
+    assert_ne!(k1, k3);
   }
 }

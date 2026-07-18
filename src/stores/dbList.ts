@@ -344,6 +344,8 @@ export const useDBListStore = create<DBListStore>()(
       append: (db) => {
         const secrets = pickSecrets(db.config);
         const profile = db.config ? stripSecrets(db.config) : undefined;
+        // Secrets passed explicitly; profile is stripped for disk state.
+        // updateByConfig awaits a second register before querying.
         void registerConnectionBackend(db.id, profile, secrets).catch(
           (error) => console.warn('register_connection failed', error),
         );
@@ -378,20 +380,11 @@ export const useDBListStore = create<DBListStore>()(
 
       updateByConfig: async (id: string, config: DialectConfig) => {
         const updateDB = get().update;
-        const previous = get().dbList.find((item) => item.id === id);
         try {
           const secrets = pickSecrets(config);
           const profile = stripSecrets(config);
-          // Keep any previously known secrets if form left them empty.
-          const prevSecrets = pickSecrets(previous?.config);
-          const mergedSecrets: ConnectionSecrets = {
-            password: secrets.password ?? prevSecrets.password,
-            ssh_password: secrets.ssh_password ?? prevSecrets.ssh_password,
-            ssh_passphrase:
-              secrets.ssh_passphrase ?? prevSecrets.ssh_passphrase,
-            token: secrets.token ?? prevSecrets.token,
-          };
-          await registerConnectionBackend(id, profile, mergedSecrets);
+          // Always re-register full profile; backend vault fills empty secrets.
+          await registerConnectionBackend(id, profile, secrets);
           updateDB(id, { loading: true, config: profile });
           // Query by connection id only — backend supplies credentials.
           const { data, meta, defaultDatabase } = await getDB(
@@ -424,14 +417,9 @@ export const useDBListStore = create<DBListStore>()(
       },
 
       setDB: async (id, config, options) => {
-        const previous = get().dbList.find((item) => item.id === id);
         const profile = stripSecrets(config);
-        const secrets = options?.clearSecrets
-          ? {}
-          : {
-              ...pickSecrets(previous?.config),
-              ...pickSecrets(config),
-            };
+        // previous.config is already stripped — empty form fields rely on backend vault merge.
+        const secrets = options?.clearSecrets ? {} : pickSecrets(config);
         await registerConnectionBackend(id, profile, secrets);
         set((state) => ({
           dbList: state.dbList.map((item) =>

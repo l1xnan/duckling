@@ -12,7 +12,6 @@ use crate::secret_store::{self, ConnectionSecrets};
 pub struct ConnectionRegistry(pub Mutex<HashMap<String, DialectPayload>>);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct RegisterConnectionRequest {
   pub id: String,
   /// Non-secret profile fields (may include empty password placeholders).
@@ -311,5 +310,171 @@ mod tests {
     let merged = merge_secrets_into_payload(base, &secrets);
     // empty secret must not overwrite existing password
     assert_eq!(merged.password.as_deref(), Some("keep"));
+  }
+
+  #[test]
+  fn resolve_trims_connection_id() {
+    let registry = ConnectionRegistry::default();
+    {
+      let mut map = registry.0.lock().unwrap();
+      map.insert("c1".into(), mysql_payload("s3cret"));
+    }
+    let request = DialectPayload {
+      connection_id: Some("  c1  ".into()),
+      ..Default::default()
+    };
+    let resolved = resolve_payload(&registry, request).unwrap();
+    assert_eq!(resolved.password.as_deref(), Some("s3cret"));
+  }
+
+  #[test]
+  fn whitespace_only_connection_id_is_passthrough() {
+    let registry = ConnectionRegistry::default();
+    let payload = DialectPayload {
+      connection_id: Some("   ".into()),
+      dialect: "sqlite".into(),
+      path: Some("/tmp/x.db".into()),
+      ..Default::default()
+    };
+    let resolved = resolve_payload(&registry, payload).unwrap();
+    assert_eq!(resolved.dialect, "sqlite");
+    assert_eq!(resolved.path.as_deref(), Some("/tmp/x.db"));
+  }
+
+  #[test]
+  fn resolve_dialect_override_and_empty_keeps_base() {
+    let registry = ConnectionRegistry::default();
+    {
+      let mut map = registry.0.lock().unwrap();
+      map.insert("c1".into(), mysql_payload("pw"));
+    }
+
+    let with_override = DialectPayload {
+      connection_id: Some("c1".into()),
+      dialect: "postgres".into(),
+      ..Default::default()
+    };
+    let r1 = resolve_payload(&registry, with_override).unwrap();
+    assert_eq!(r1.dialect, "postgres");
+    assert_eq!(r1.password.as_deref(), Some("pw"));
+
+    let empty_dialect = DialectPayload {
+      connection_id: Some("c1".into()),
+      dialect: String::new(),
+      ..Default::default()
+    };
+    let r2 = resolve_payload(&registry, empty_dialect).unwrap();
+    assert_eq!(r2.dialect, "mysql");
+  }
+
+  #[test]
+  fn resolve_host_port_username_override() {
+    let registry = ConnectionRegistry::default();
+    {
+      let mut map = registry.0.lock().unwrap();
+      map.insert("c1".into(), mysql_payload("pw"));
+    }
+    let request = DialectPayload {
+      connection_id: Some("c1".into()),
+      host: Some("10.0.0.2".into()),
+      port: Some("3307".into()),
+      username: Some("admin".into()),
+      ..Default::default()
+    };
+    let resolved = resolve_payload(&registry, request).unwrap();
+    assert_eq!(resolved.host.as_deref(), Some("10.0.0.2"));
+    assert_eq!(resolved.port.as_deref(), Some("3307"));
+    assert_eq!(resolved.username.as_deref(), Some("admin"));
+    assert_eq!(resolved.password.as_deref(), Some("pw"));
+  }
+
+  #[test]
+  fn resolve_overlay_password_wins_when_present() {
+    let registry = ConnectionRegistry::default();
+    {
+      let mut map = registry.0.lock().unwrap();
+      map.insert("c1".into(), mysql_payload("base-pw"));
+    }
+    let request = DialectPayload {
+      connection_id: Some("c1".into()),
+      password: Some("overlay-pw".into()),
+      ..Default::default()
+    };
+    let resolved = resolve_payload(&registry, request).unwrap();
+    assert_eq!(resolved.password.as_deref(), Some("overlay-pw"));
+  }
+
+  #[test]
+  fn merge_secrets_fills_ssh_fields() {
+    let base = DialectPayload {
+      dialect: "mysql".into(),
+      ssh_enabled: Some(true),
+      ..Default::default()
+    };
+    let secrets = ConnectionSecrets {
+      ssh_password: Some("ssh-pw".into()),
+      ssh_passphrase: Some("ssh-ph".into()),
+      ..Default::default()
+    };
+    let merged = merge_secrets_into_payload(base, &secrets);
+    assert_eq!(merged.ssh_password.as_deref(), Some("ssh-pw"));
+    assert_eq!(merged.ssh_passphrase.as_deref(), Some("ssh-ph"));
+  }
+
+  #[test]
+  fn apply_overrides_keeps_base_ssh_when_overlay_empty() {
+    let base = DialectPayload {
+      dialect: "mysql".into(),
+      ssh_enabled: Some(true),
+      ssh_host: Some("bastion".into()),
+      ssh_port: Some("22".into()),
+      ssh_username: Some("deploy".into()),
+      ssh_password: Some("ssh".into()),
+      ssh_private_key_path: Some("/k".into()),
+      ssh_passphrase: Some("ph".into()),
+      password: Some("db".into()),
+      ..Default::default()
+    };
+    let overlay = DialectPayload {
+      connection_id: Some("c1".into()),
+      database: Some("db2".into()),
+      ..Default::default()
+    };
+    let merged = apply_overrides(base, &overlay);
+    assert_eq!(merged.database.as_deref(), Some("db2"));
+    assert_eq!(merged.ssh_host.as_deref(), Some("bastion"));
+    assert_eq!(merged.ssh_password.as_deref(), Some("ssh"));
+    assert_eq!(merged.password.as_deref(), Some("db"));
+  }
+
+  #[test]
+  fn registry_insert_and_remove_via_mutex() {
+    let registry = ConnectionRegistry::default();
+    {
+      let mut map = registry.0.lock().unwrap();
+      map.insert("a".into(), mysql_payload("1"));
+      map.insert("b".into(), mysql_payload("2"));
+      assert_eq!(map.len(), 2);
+      map.remove("a");
+      assert_eq!(map.len(), 1);
+    }
+    let err = resolve_payload(
+      &registry,
+      DialectPayload {
+        connection_id: Some("a".into()),
+        ..Default::default()
+      },
+    )
+    .unwrap_err();
+    assert!(err.contains("not registered"));
+    let ok = resolve_payload(
+      &registry,
+      DialectPayload {
+        connection_id: Some("b".into()),
+        ..Default::default()
+      },
+    )
+    .unwrap();
+    assert_eq!(ok.password.as_deref(), Some("2"));
   }
 }

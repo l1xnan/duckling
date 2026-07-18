@@ -26,7 +26,7 @@ use connector::utils::{Metadata, TreeNode};
 
 pub struct OpenedFiles(pub Mutex<Option<Vec<String>>>);
 
-fn build_ssh_config(
+pub(crate) fn build_ssh_config(
   ssh_enabled: Option<bool>,
   ssh_host: Option<String>,
   ssh_port: Option<String>,
@@ -49,10 +49,10 @@ fn build_ssh_config(
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct DialectPayload {
   /// When set, credentials are loaded from the in-memory connection registry.
-  #[serde(default)]
+  /// Accept both camelCase (JS) and snake_case.
+  #[serde(default, alias = "connectionId")]
   pub connection_id: Option<String>,
   #[serde(default)]
   pub dialect: String,
@@ -65,13 +65,22 @@ pub struct DialectPayload {
   pub cwd: Option<String>,
   pub uri: Option<String>,
   pub token: Option<String>,
+  /// Frontend DialectConfig uses snake_case (`disable_ssl`); also accept camelCase.
+  #[serde(default, alias = "disableSsl")]
   pub disable_ssl: Option<bool>,
+  #[serde(default, alias = "sshEnabled")]
   pub ssh_enabled: Option<bool>,
+  #[serde(default, alias = "sshHost")]
   pub ssh_host: Option<String>,
+  #[serde(default, alias = "sshPort")]
   pub ssh_port: Option<String>,
+  #[serde(default, alias = "sshUsername")]
   pub ssh_username: Option<String>,
+  #[serde(default, alias = "sshPassword")]
   pub ssh_password: Option<String>,
+  #[serde(default, alias = "sshPrivateKeyPath")]
   pub ssh_private_key_path: Option<String>,
+  #[serde(default, alias = "sshPassphrase")]
   pub ssh_passphrase: Option<String>,
 }
 
@@ -690,4 +699,251 @@ pub async fn list_system_fonts() -> Result<Vec<String>, String> {
   families.sort_by(|a, b| a.to_lowercase().cmp(&b.to_lowercase()));
   families.dedup_by(|a, b| a.eq_ignore_ascii_case(b));
   Ok(families)
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::connection_registry::ConnectionRegistry;
+
+  fn block_on<F: std::future::Future>(f: F) -> F::Output {
+    use std::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};
+    fn dummy(_: *const ()) {}
+    fn clone(_: *const ()) -> RawWaker {
+      RawWaker::new(std::ptr::null(), &VTABLE)
+    }
+    static VTABLE: RawWakerVTable = RawWakerVTable::new(clone, dummy, dummy, dummy);
+    let waker = unsafe { Waker::from_raw(RawWaker::new(std::ptr::null(), &VTABLE)) };
+    let mut cx = Context::from_waker(&waker);
+    let mut fut = Box::pin(f);
+    loop {
+      if let Poll::Ready(v) = fut.as_mut().poll(&mut cx) {
+        return v;
+      }
+    }
+  }
+
+  #[test]
+  fn get_ast_dialect_matches_known_names() {
+    // Smoke: constructors must not panic for supported dialects.
+    let _ = get_ast_dialect("mysql");
+    let _ = get_ast_dialect("postgres");
+    let _ = get_ast_dialect("duckdb");
+    let _ = get_ast_dialect("folder");
+    let _ = get_ast_dialect("file");
+    let _ = get_ast_dialect("quack");
+    let _ = get_ast_dialect("clickhouse_tcp");
+    let _ = get_ast_dialect("unknown-dialect");
+  }
+
+  #[test]
+  fn build_ssh_config_disabled_returns_none() {
+    assert!(
+      build_ssh_config(
+        Some(false),
+        Some("h".into()),
+        Some("22".into()),
+        Some("u".into()),
+        None,
+        None,
+        None,
+      )
+      .is_none()
+    );
+    assert!(
+      build_ssh_config(None, Some("h".into()), None, None, None, None, None).is_none()
+    );
+  }
+
+  #[test]
+  fn build_ssh_config_enabled_defaults_port_22() {
+    let cfg = build_ssh_config(
+      Some(true),
+      Some("bastion".into()),
+      None,
+      Some("deploy".into()),
+      Some("pw".into()),
+      Some("/key".into()),
+      Some("ph".into()),
+    )
+    .expect("ssh config");
+    assert!(cfg.enabled);
+    assert_eq!(cfg.host, "bastion");
+    assert_eq!(cfg.port, "22");
+    assert_eq!(cfg.username, "deploy");
+    assert_eq!(cfg.password.as_deref(), Some("pw"));
+    assert_eq!(cfg.private_key_path.as_deref(), Some("/key"));
+    assert_eq!(cfg.passphrase.as_deref(), Some("ph"));
+  }
+
+  #[test]
+  fn dialect_payload_accepts_connection_id_aliases() {
+    let camel = r#"{"connectionId":"abc","dialect":"mysql","host":"h","port":"3306"}"#;
+    let p: DialectPayload = serde_json::from_str(camel).unwrap();
+    assert_eq!(p.connection_id.as_deref(), Some("abc"));
+    assert_eq!(p.dialect, "mysql");
+    assert_eq!(p.host.as_deref(), Some("h"));
+
+    let snake = r#"{"connection_id":"xyz","dialect":"mysql"}"#;
+    let p2: DialectPayload = serde_json::from_str(snake).unwrap();
+    assert_eq!(p2.connection_id.as_deref(), Some("xyz"));
+  }
+
+  #[test]
+  fn dialect_payload_accepts_snake_case_ssh_fields_from_frontend() {
+    // Frontend DialectConfig uses snake_case field names.
+    let json = r#"{
+      "connectionId": "c1",
+      "dialect": "mysql",
+      "host": "10.0.0.5",
+      "port": "3306",
+      "username": "root",
+      "password": "db-pw",
+      "ssh_enabled": true,
+      "ssh_host": "bastion",
+      "ssh_port": "22",
+      "ssh_username": "deploy",
+      "ssh_password": "ssh-pw",
+      "ssh_private_key_path": "/home/u/.ssh/id_rsa",
+      "ssh_passphrase": "ph"
+    }"#;
+    let p: DialectPayload = serde_json::from_str(json).unwrap();
+    assert_eq!(p.connection_id.as_deref(), Some("c1"));
+    assert_eq!(p.password.as_deref(), Some("db-pw"));
+    assert_eq!(p.ssh_enabled, Some(true));
+    assert_eq!(p.ssh_host.as_deref(), Some("bastion"));
+    assert_eq!(p.ssh_port.as_deref(), Some("22"));
+    assert_eq!(p.ssh_username.as_deref(), Some("deploy"));
+    assert_eq!(p.ssh_password.as_deref(), Some("ssh-pw"));
+    assert_eq!(
+      p.ssh_private_key_path.as_deref(),
+      Some("/home/u/.ssh/id_rsa")
+    );
+    assert_eq!(p.ssh_passphrase.as_deref(), Some("ph"));
+
+    let ssh = build_ssh_config(
+      p.ssh_enabled,
+      p.ssh_host.clone(),
+      p.ssh_port.clone(),
+      p.ssh_username.clone(),
+      p.ssh_password.clone(),
+      p.ssh_private_key_path.clone(),
+      p.ssh_passphrase.clone(),
+    )
+    .expect("ssh should be enabled");
+    assert_eq!(ssh.host, "bastion");
+    assert_eq!(ssh.password.as_deref(), Some("ssh-pw"));
+  }
+
+  #[test]
+  fn get_dialect_from_payload_rejects_unknown() {
+    let payload = DialectPayload {
+      dialect: "not-a-db".into(),
+      ..Default::default()
+    };
+    assert!(block_on(get_dialect_from_payload(payload)).is_none());
+  }
+
+  #[test]
+  fn get_dialect_from_payload_builds_file_and_sqlite() {
+    let file = DialectPayload {
+      dialect: "file".into(),
+      path: Some("/tmp/a.parquet".into()),
+      ..Default::default()
+    };
+    assert!(block_on(get_dialect_from_payload(file)).is_some());
+
+    let sqlite = DialectPayload {
+      dialect: "sqlite".into(),
+      path: Some("/tmp/a.db".into()),
+      ..Default::default()
+    };
+    assert!(block_on(get_dialect_from_payload(sqlite)).is_some());
+  }
+
+  #[test]
+  fn get_dialect_from_payload_builds_network_dialects() {
+    for dialect in ["mysql", "postgres", "clickhouse"] {
+      let payload = DialectPayload {
+        dialect: dialect.into(),
+        host: Some("127.0.0.1".into()),
+        port: Some(if dialect == "postgres" {
+          "5432".into()
+        } else if dialect == "clickhouse" {
+          "8123".into()
+        } else {
+          "3306".into()
+        }),
+        username: Some("u".into()),
+        password: Some("p".into()),
+        database: Some("d".into()),
+        ..Default::default()
+      };
+      assert!(
+        block_on(get_dialect_from_payload(payload)).is_some(),
+        "failed for {dialect}"
+      );
+    }
+
+    let quack = DialectPayload {
+      dialect: "quack".into(),
+      uri: Some("quack:localhost".into()),
+      token: Some("t".into()),
+      disable_ssl: Some(true),
+      ..Default::default()
+    };
+    assert!(block_on(get_dialect_from_payload(quack)).is_some());
+  }
+
+  #[test]
+  fn resolve_connection_uses_registry() {
+    let registry = ConnectionRegistry::default();
+    {
+      let mut map = registry.0.lock().unwrap();
+      map.insert(
+        "c1".into(),
+        DialectPayload {
+          connection_id: Some("c1".into()),
+          dialect: "sqlite".into(),
+          path: Some("/tmp/x.db".into()),
+          password: Some("unused-for-sqlite".into()),
+          ..Default::default()
+        },
+      );
+    }
+    let req = DialectPayload {
+      connection_id: Some("c1".into()),
+      ..Default::default()
+    };
+    let conn = block_on(resolve_connection(&registry, req));
+    assert!(conn.is_ok());
+  }
+
+  #[test]
+  fn resolve_connection_missing_id_errors() {
+    let registry = ConnectionRegistry::default();
+    let req = DialectPayload {
+      connection_id: Some("nope".into()),
+      ..Default::default()
+    };
+    let err = match block_on(resolve_connection(&registry, req)) {
+      Ok(_) => panic!("expected missing connection error"),
+      Err(e) => e,
+    };
+    assert!(err.contains("not registered"));
+  }
+
+  #[test]
+  fn resolve_sqlfmt_bin_defaults_and_custom() {
+    assert_eq!(resolve_sqlfmt_bin(None), "sqlfmt");
+    assert_eq!(resolve_sqlfmt_bin(Some("")), "sqlfmt");
+    assert_eq!(resolve_sqlfmt_bin(Some("  ")), "sqlfmt");
+    assert_eq!(resolve_sqlfmt_bin(Some(" /usr/bin/sqlfmt ")), "/usr/bin/sqlfmt");
+  }
+
+  #[test]
+  fn format_sql_roundtrip_smoke() {
+    let out = block_on(format_sql("select 1")).unwrap();
+    assert!(out.to_lowercase().contains("select"));
+  }
 }
