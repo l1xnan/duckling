@@ -3,6 +3,7 @@ import { atom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
 import { splitAtom } from 'jotai/utils';
+import { toast } from 'sonner';
 import { create, useStore } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -143,11 +144,11 @@ type DBListState = {
 };
 
 type DBListAction = {
-  append: (db: DBType) => void;
+  append: (db: DBType) => Promise<void>;
   update: (id: string, db: Partial<DBType>) => void;
   remove: (id: string) => void;
   rename: (id: string, displayName: string) => void;
-  setCwd: (cwd: string, id: string) => void;
+  setCwd: (cwd: string, id: string) => Promise<void>;
   getDB: (id: string) => DBType | undefined;
   setDB: (
     id: string,
@@ -165,6 +166,10 @@ type DBListAction = {
     }>,
   ) => Promise<void>;
 };
+
+function errorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error && error.message ? error.message : fallback;
+}
 
 type DBListStore = DBListState & DBListAction;
 
@@ -341,14 +346,9 @@ export const useDBListStore = create<DBListStore>()(
     (set, get) => ({
       dbList: [],
 
-      append: (db) => {
+      append: async (db) => {
         const secrets = pickSecrets(db.config);
         const profile = db.config ? stripSecrets(db.config) : undefined;
-        // Secrets passed explicitly; profile is stripped for disk state.
-        // updateByConfig awaits a second register before querying.
-        void registerConnectionBackend(db.id, profile, secrets).catch(
-          (error) => console.warn('register_connection failed', error),
-        );
         set((state) => ({
           dbList: [
             ...state.dbList,
@@ -359,6 +359,16 @@ export const useDBListStore = create<DBListStore>()(
             },
           ],
         }));
+        try {
+          // Await so callers (e.g. updateByConfig) never race an empty registry.
+          await registerConnectionBackend(db.id, profile, secrets);
+        } catch (error) {
+          console.warn('register_connection failed', error);
+          toast.error(
+            errorMessage(error, 'Failed to register connection'),
+          );
+          throw error;
+        }
       },
 
       remove: (id) => {
@@ -394,23 +404,37 @@ export const useDBListStore = create<DBListStore>()(
           updateDB(id, { data, meta, defaultDatabase, loading: false });
           await setDbCache(id, { data, meta, defaultDatabase });
         } catch (error) {
-          console.log(error);
+          console.error(error);
+          toast.error(
+            errorMessage(error, 'Failed to refresh connection'),
+          );
         } finally {
           updateDB(id, { loading: false });
         }
       },
 
-      setCwd: (cwd: string, id: string) =>
+      setCwd: async (cwd: string, id: string) => {
+        const item = get().dbList.find((db) => db.id === id);
+        if (!item?.config) {
+          return;
+        }
+        const nextConfig = { ...item.config, cwd } as DialectConfig;
+        const profile = stripSecrets(nextConfig);
         set((state) => ({
-          dbList: state.dbList.map((item) => {
-            return item.id == id
-              ? {
-                  ...item,
-                  config: { ...item.config, cwd } as DialectConfig,
-                }
-              : item;
-          }),
-        })),
+          dbList: state.dbList.map((db) =>
+            db.id === id ? { ...db, config: profile } : db,
+          ),
+        }));
+        try {
+          // cwd affects folder/duckdb backends — keep registry in sync.
+          await registerConnectionBackend(id, profile, {});
+        } catch (error) {
+          console.warn('setCwd register failed', error);
+          toast.error(
+            errorMessage(error, 'Failed to update connection working directory'),
+          );
+        }
+      },
 
       getDB: (id: string) => {
         return get().dbList.find((item) => item.id === id);
@@ -420,13 +444,21 @@ export const useDBListStore = create<DBListStore>()(
         const profile = stripSecrets(config);
         // previous.config is already stripped — empty form fields rely on backend vault merge.
         const secrets = options?.clearSecrets ? {} : pickSecrets(config);
-        await registerConnectionBackend(id, profile, secrets);
-        set((state) => ({
-          dbList: state.dbList.map((item) =>
-            item.id == id ? { ...item, config: profile } : item,
-          ),
-        }));
-        void deleteDbCache(id);
+        try {
+          await registerConnectionBackend(id, profile, secrets);
+          set((state) => ({
+            dbList: state.dbList.map((item) =>
+              item.id == id ? { ...item, config: profile } : item,
+            ),
+          }));
+          void deleteDbCache(id);
+        } catch (error) {
+          console.error(error);
+          toast.error(
+            errorMessage(error, 'Failed to save connection'),
+          );
+          throw error;
+        }
       },
 
       rename: (dbId: string, displayName: string) => {
@@ -443,23 +475,29 @@ export const useDBListStore = create<DBListStore>()(
       },
 
       importConnections: async (items) => {
-        for (const item of items) {
-          const profile = stripSecrets(item.config);
-          const secrets = item.secrets ?? pickSecrets(item.config);
-          await registerConnectionBackend(item.id, profile, secrets);
-          set((state) => ({
-            dbList: [
-              ...state.dbList,
-              {
-                id: item.id,
-                dialect: item.dialect,
-                displayName: item.displayName,
-                config: profile,
-                data: emptyTree(item.displayName),
-                loading: false,
-              },
-            ],
-          }));
+        try {
+          for (const item of items) {
+            const profile = stripSecrets(item.config);
+            const secrets = item.secrets ?? pickSecrets(item.config);
+            await registerConnectionBackend(item.id, profile, secrets);
+            set((state) => ({
+              dbList: [
+                ...state.dbList,
+                {
+                  id: item.id,
+                  dialect: item.dialect,
+                  displayName: item.displayName,
+                  config: profile,
+                  data: emptyTree(item.displayName),
+                  loading: false,
+                },
+              ],
+            }));
+          }
+        } catch (error) {
+          console.error(error);
+          toast.error(errorMessage(error, 'Failed to import connections'));
+          throw error;
         }
       },
     }),
@@ -520,6 +558,9 @@ export const useDBListStore = create<DBListStore>()(
           useDBListStore.setState({ dbList: withCache });
         } catch (error) {
           console.warn('connection rehydrate failed', error);
+          toast.error(
+            errorMessage(error, 'Failed to restore connections'),
+          );
         } finally {
           markRegistryReady();
         }

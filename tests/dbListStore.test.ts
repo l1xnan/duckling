@@ -86,6 +86,14 @@ vi.mock('@/api', () => ({
   getDB: (...args: unknown[]) => getDB(...args),
 }));
 
+vi.mock('sonner', () => ({
+  toast: {
+    error: vi.fn(),
+    success: vi.fn(),
+    warning: vi.fn(),
+  },
+}));
+
 import { useDBListStore } from '@/stores/dbList';
 import { mysqlConfig, quackConfig } from './helpers/fixtures';
 
@@ -98,7 +106,7 @@ describe('dbListStore connection lifecycle', () => {
   });
 
   it('append strips secrets in store and registers backend with secrets', async () => {
-    useDBListStore.getState().append({
+    await useDBListStore.getState().append({
       id: 'c1',
       dialect: 'mysql',
       displayName: 'MySQL',
@@ -113,9 +121,7 @@ describe('dbListStore connection lifecycle', () => {
       '10.0.0.1',
     );
 
-    await vi.waitFor(() => {
-      expect(registerConnectionBackend).toHaveBeenCalled();
-    });
+    expect(registerConnectionBackend).toHaveBeenCalled();
     const [id, profile, secrets] = registerConnectionBackend.mock.calls[0];
     expect(id).toBe('c1');
     expect((profile as { password?: string }).password).toBeUndefined();
@@ -123,6 +129,32 @@ describe('dbListStore connection lifecycle', () => {
       password: 's3cret',
       ssh_password: 'ssh-pass',
     });
+  });
+
+  it('setCwd re-registers connection with updated cwd', async () => {
+    useDBListStore.setState({
+      dbList: [
+        {
+          id: 'c1',
+          dialect: 'folder',
+          displayName: 'data',
+          data: { name: 'data', path: '/old' },
+          config: { dialect: 'folder', path: '/old', cwd: '/old' },
+        },
+      ],
+    });
+
+    await useDBListStore.getState().setCwd('/new-cwd', 'c1');
+
+    const stored = useDBListStore.getState().getDB('c1');
+    expect((stored?.config as { cwd?: string } | undefined)?.cwd).toBe(
+      '/new-cwd',
+    );
+    expect(registerConnectionBackend).toHaveBeenCalledWith(
+      'c1',
+      expect.objectContaining({ path: '/old', cwd: '/new-cwd' }),
+      {},
+    );
   });
 
   it('remove unregisters with deleteSecrets and drops from list', async () => {

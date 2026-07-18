@@ -4,6 +4,7 @@ import { Update } from '@tauri-apps/plugin-updater';
 import { uniqBy } from 'es-toolkit';
 import { nanoid } from 'nanoid';
 
+import { stripSecrets } from '@/lib/connectionConfig';
 import type { DialectRef } from '@/lib/connectionRef';
 import { registerConnectionBackend } from '@/lib/connectionRef';
 import { ArrowResponse, SchemaType } from '@/stores/dataset';
@@ -187,9 +188,12 @@ export async function getDB(
   // Ensure backend registry has this connection before querying by id-only.
   if (!('connectionId' in dialect && dialect.connectionId) && !connectionId) {
     // First-time open: send full config once, then register for subsequent calls.
-    const tree: TreeNode = await invoke('get_db', { dialect });
-    const colMeta: MetadataType[] = await invoke('all_columns', { dialect });
-    await registerConnectionBackend(id, dialect as DialectConfig);
+    const full = dialect as DialectConfig;
+    const tree: TreeNode = await invoke('get_db', { dialect: full });
+    const colMeta: MetadataType[] = await invoke('all_columns', {
+      dialect: full,
+    });
+    await registerConnectionBackend(id, full);
 
     let defaultDatabase = '';
     if (uniqBy(colMeta, (item) => item.database).length == 1) {
@@ -198,9 +202,10 @@ export async function getDB(
     const meta = convertMeta(colMeta);
     return {
       id,
-      dialect: (dialect as DialectConfig).dialect,
+      dialect: full.dialect,
       data: tree,
-      config: dialect as DialectConfig,
+      // Never return plaintext secrets to frontend state.
+      config: stripSecrets(full),
       meta,
       displayName: tree.name,
       defaultDatabase,
@@ -226,7 +231,10 @@ export async function getDB(
     id,
     dialect: dialectName,
     data: tree,
-    config: 'dialect' in dialect ? (dialect as DialectConfig) : undefined,
+    config:
+      'dialect' in dialect
+        ? stripSecrets(dialect as DialectConfig)
+        : undefined,
     meta,
     displayName: tree.name,
     defaultDatabase,

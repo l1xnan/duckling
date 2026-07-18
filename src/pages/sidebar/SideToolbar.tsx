@@ -54,7 +54,7 @@ export function SideToolbar({
 
   async function handleGetDB(path: string, dialect: DialectType) {
     const data = await getDB({ path, dialect });
-    appendDB(data);
+    await appendDB(data);
   }
 
   const selectedNode = useAtomValue(selectedNodeAtom);

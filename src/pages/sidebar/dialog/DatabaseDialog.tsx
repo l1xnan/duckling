@@ -612,8 +612,8 @@ export function DatabaseDialog() {
       data: { name: displayName, path: displayName } as TreeNode,
       loading: true,
     };
-    // updateByConfig awaits register + tree load (append alone is async race-prone).
-    appendDB(initData);
+    // Await register so registry is ready before tree refresh.
+    await appendDB(initData);
     setOpen(false);
     form.reset({ disable_ssl: true } as DialectConfig);
     await updateDB(id, values);

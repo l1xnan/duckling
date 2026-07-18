@@ -230,7 +230,12 @@ describe('connection IPC contracts', () => {
 
       expect(db.dialect).toBe('mysql');
       expect(db.defaultDatabase).toBe('app');
-      expect(db.config).toEqual(mysqlConfig);
+      // Returned config must not keep plaintext secrets for frontend state.
+      expect(db.config).toMatchObject({
+        dialect: 'mysql',
+        host: '10.0.0.1',
+      });
+      expect((db.config as { password?: string } | undefined)?.password).toBeUndefined();
 
       const getDbCall = lastInvoke('get_db');
       expect(getDbCall![1]!.dialect).toMatchObject({

@@ -30,7 +30,7 @@ function useInitOpenFiles() {
         updateTab!(item);
       } else if (file?.endsWith('.duckdb')) {
         const data = await getDB({ path: file, dialect: 'duckdb' });
-        appendDB(data);
+        await appendDB(data);
       }
     }
   }
