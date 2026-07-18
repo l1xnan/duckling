@@ -30,9 +30,12 @@ export const Dialog = ({
     <DialogRoot open={open} onOpenChange={onOpenChange} disablePointerDismissal>
       {trigger ? <DialogTrigger render={trigger} /> : null}
       <DialogContent
-        className={cn('grid-rows-[auto_1fr]', className)}
+        className={cn(
+          'grid max-h-[min(90vh,720px)] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden',
+          className,
+        )}
       >
-        <DialogHeader className="h-5">
+        <DialogHeader className="h-5 shrink-0">
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         {children}

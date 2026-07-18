@@ -4,7 +4,10 @@ import { Update } from '@tauri-apps/plugin-updater';
 import { uniqBy } from 'es-toolkit';
 import { nanoid } from 'nanoid';
 
-import { stripSecrets } from '@/lib/connectionConfig';
+import {
+  flattenSshTunnelForBackend,
+  stripSecrets,
+} from '@/lib/connectionConfig';
 import type { DialectRef } from '@/lib/connectionRef';
 import { registerConnectionBackend } from '@/lib/connectionRef';
 import { ArrowResponse, SchemaType } from '@/stores/dataset';
@@ -189,9 +192,11 @@ export async function getDB(
   if (!('connectionId' in dialect && dialect.connectionId) && !connectionId) {
     // First-time open: send full config once, then register for subsequent calls.
     const full = dialect as DialectConfig;
-    const tree: TreeNode = await invoke('get_db', { dialect: full });
+    // Backend DialectPayload expects flat `ssh_*` fields.
+    const backendDialect = flattenSshTunnelForBackend(full);
+    const tree: TreeNode = await invoke('get_db', { dialect: backendDialect });
     const colMeta: MetadataType[] = await invoke('all_columns', {
-      dialect: full,
+      dialect: backendDialect,
     });
     await registerConnectionBackend(id, full);
 

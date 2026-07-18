@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid';
 
 import {
   hasPlaintextSecrets,
+  normalizeDialectConfig,
   pickSecrets,
   stripSecrets,
   type ConnectionSecrets,
@@ -58,7 +59,9 @@ export function toConnectionProfile(input: {
     id: input.id,
     displayName: input.displayName,
     dialect: input.dialect,
-    config: input.config ? stripSecrets(input.config) : undefined,
+    config: input.config
+      ? stripSecrets(normalizeDialectConfig(input.config))
+      : undefined,
     createdAt: input.createdAt,
     updatedAt: input.updatedAt,
   };
@@ -74,7 +77,9 @@ export function buildPlainExport(
     includeSecrets: false,
     connections: profiles.map((p) => ({
       ...p,
-      config: p.config ? stripSecrets(p.config) : undefined,
+      config: p.config
+        ? stripSecrets(normalizeDialectConfig(p.config))
+        : undefined,
     })),
   };
   if (hasPlaintextSecrets(file)) {
@@ -135,7 +140,9 @@ export function parseConnectionsExport(raw: string): ConnectionsExportFile {
         id: item.id,
         displayName: item.displayName,
         dialect: item.dialect as DialectType,
-        config: config ? stripSecrets(config) : undefined,
+        config: config
+          ? stripSecrets(normalizeDialectConfig(config))
+          : undefined,
         createdAt:
           typeof item.createdAt === 'number' ? item.createdAt : undefined,
         updatedAt:
@@ -174,9 +181,11 @@ export function mapImportProfiles(
 ): ImportConnectionItem[] {
   return file.connections.map((profile) => {
     const secrets = secretsByExportId[profile.id] ?? {};
-    const baseConfig = (profile.config ?? {
-      dialect: profile.dialect,
-    }) as DialectConfig;
+    const baseConfig = normalizeDialectConfig(
+      (profile.config ?? {
+        dialect: profile.dialect,
+      }) as DialectConfig,
+    );
     return {
       id: nanoid(),
       displayName: profile.displayName.includes('(imported)')

@@ -7,12 +7,14 @@ export const mysqlConfig = {
   username: 'root',
   password: 's3cret',
   database: 'app',
-  ssh_enabled: true,
-  ssh_host: 'bastion',
-  ssh_port: '22',
-  ssh_username: 'deploy',
-  ssh_password: 'ssh-pass',
-  ssh_passphrase: 'key-pass',
+  ssh_tunnel: {
+    enabled: true,
+    host: 'bastion',
+    port: '22',
+    username: 'deploy',
+    password: 'ssh-pass',
+    passphrase: 'key-pass',
+  },
 } satisfies DialectConfig;
 
 export const postgresConfig = {

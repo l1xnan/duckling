@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 
 import {
+  flattenSshTunnelForBackend,
   pickSecrets,
   stripSecrets,
   type ConnectionSecrets,
@@ -28,7 +29,9 @@ export function toRegisterRequest(
   config: DialectConfig | undefined,
   secrets?: ConnectionSecrets,
 ) {
-  const stripped = config ? stripSecrets(config) : ({ dialect: 'duckdb' } as DialectConfig);
+  const stripped = config
+    ? stripSecrets(config)
+    : ({ dialect: 'duckdb' } as DialectConfig);
   const fromConfig = pickSecrets(config);
   const mergedSecrets: ConnectionSecrets = {
     password: secrets?.password ?? fromConfig.password,
@@ -37,9 +40,9 @@ export function toRegisterRequest(
     token: secrets?.token ?? fromConfig.token,
   };
 
-  // Backend DialectPayload uses camelCase via serde rename_all.
+  // Backend DialectPayload expects flat `ssh_*` fields.
   const payload: Record<string, unknown> = {
-    ...stripped,
+    ...flattenSshTunnelForBackend(stripped),
     connectionId: id,
   };
 

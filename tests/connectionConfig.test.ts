@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  flattenSshTunnelForBackend,
   hasPlaintextSecrets,
   mergeSecrets,
+  normalizeDialectConfig,
   pickSecrets,
   resolveSecretsForSave,
   secretsAreEmpty,
@@ -17,11 +19,26 @@ const mysqlConfig = {
   username: 'root',
   password: 's3cret',
   database: 'app',
+  ssh_tunnel: {
+    enabled: true,
+    host: 'bastion',
+    password: 'ssh-pass',
+    passphrase: 'key-pass',
+  },
+} satisfies DialectConfig;
+
+const legacyMysqlConfig = {
+  dialect: 'mysql' as const,
+  host: '127.0.0.1',
+  port: '3306',
+  username: 'root',
+  password: 's3cret',
+  database: 'app',
   ssh_enabled: true,
   ssh_host: 'bastion',
   ssh_password: 'ssh-pass',
   ssh_passphrase: 'key-pass',
-} satisfies DialectConfig;
+} as DialectConfig;
 
 const quackConfig = {
   dialect: 'quack' as const,
@@ -43,21 +60,59 @@ describe('connectionConfig', () => {
       pickSecrets({
         ...mysqlConfig,
         password: '',
-        ssh_password: '',
+        ssh_tunnel: {
+          ...mysqlConfig.ssh_tunnel,
+          password: '',
+        },
       }),
     ).toEqual({
       ssh_passphrase: 'key-pass',
     });
   });
 
+  it('pickSecrets reads legacy flat ssh_* fields', () => {
+    expect(pickSecrets(legacyMysqlConfig)).toEqual({
+      password: 's3cret',
+      ssh_password: 'ssh-pass',
+      ssh_passphrase: 'key-pass',
+    });
+  });
+
   it('stripSecrets removes sensitive fields from profile', () => {
-    const stripped = stripSecrets(mysqlConfig) as Record<string, unknown>;
+    const stripped = stripSecrets(mysqlConfig) as {
+      password?: string;
+      host?: string;
+      username?: string;
+      ssh_tunnel?: { password?: string; passphrase?: string; host?: string };
+    };
     expect(stripped.password).toBeUndefined();
-    expect(stripped.ssh_password).toBeUndefined();
-    expect(stripped.ssh_passphrase).toBeUndefined();
+    expect(stripped.ssh_tunnel?.password).toBeUndefined();
+    expect(stripped.ssh_tunnel?.passphrase).toBeUndefined();
+    expect(stripped.ssh_tunnel?.host).toBe('bastion');
     expect(stripped.host).toBe('127.0.0.1');
     expect(stripped.username).toBe('root');
     expect(hasPlaintextSecrets(stripped)).toBe(false);
+  });
+
+  it('normalizeDialectConfig migrates flat ssh_* into ssh_tunnel', () => {
+    const normalized = normalizeDialectConfig(legacyMysqlConfig) as {
+      ssh_tunnel?: { enabled?: boolean; host?: string; password?: string };
+      ssh_host?: string;
+    };
+    expect(normalized.ssh_tunnel).toMatchObject({
+      enabled: true,
+      host: 'bastion',
+      password: 'ssh-pass',
+    });
+    expect(normalized.ssh_host).toBeUndefined();
+  });
+
+  it('flattenSshTunnelForBackend maps nested tunnel to flat ssh_*', () => {
+    const flat = flattenSshTunnelForBackend(mysqlConfig);
+    expect(flat.ssh_enabled).toBe(true);
+    expect(flat.ssh_host).toBe('bastion');
+    expect(flat.ssh_password).toBe('ssh-pass');
+    expect(flat.ssh_tunnel).toBeUndefined();
   });
 
   it('mergeSecrets rehydrates credentials without mutating base host fields', () => {
@@ -65,9 +120,13 @@ describe('connectionConfig', () => {
     const merged = mergeSecrets(base, {
       password: 'new-pass',
       ssh_password: 'ssh2',
-    }) as Record<string, unknown>;
+    }) as {
+      password?: string;
+      host?: string;
+      ssh_tunnel?: { password?: string };
+    };
     expect(merged.password).toBe('new-pass');
-    expect(merged.ssh_password).toBe('ssh2');
+    expect(merged.ssh_tunnel?.password).toBe('ssh2');
     expect(merged.host).toBe('127.0.0.1');
   });
 
@@ -84,7 +143,10 @@ describe('connectionConfig', () => {
     const previous = {
       ...mysqlConfig,
       password: 'old',
-      ssh_password: 'old-ssh',
+      ssh_tunnel: {
+        ...mysqlConfig.ssh_tunnel,
+        password: 'old-ssh',
+      },
     };
     const next = {
       ...stripSecrets(mysqlConfig),

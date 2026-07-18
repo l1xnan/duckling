@@ -6,7 +6,10 @@ import { toast } from 'sonner';
 import { Dialog } from '@/components/custom/Dialog';
 import { Button } from '@/components/ui/button';
 import { DialogClose, DialogFooter } from '@/components/ui/dialog';
-import { stripSecrets } from '@/lib/connectionConfig';
+import {
+  normalizeDialectConfig,
+  stripSecrets,
+} from '@/lib/connectionConfig';
 import { DatabaseForm } from '@/pages/sidebar/dialog/DatabaseDialog.tsx';
 import { DBType, DialectConfig, useDBListStore } from '@/stores/dbList';
 
@@ -19,11 +22,15 @@ export function ConfigDialog({
 
   const form = useForm<DialectConfig>({
     // Do not echo secrets into the form; empty password = keep existing (backend).
-    defaultValues: db?.config ? stripSecrets(db.config) : undefined,
+    defaultValues: db?.config
+      ? stripSecrets(normalizeDialectConfig(db.config))
+      : undefined,
   });
 
   useEffect(() => {
-    form.reset(db?.config ? stripSecrets(db.config) : undefined);
+    form.reset(
+      db?.config ? stripSecrets(normalizeDialectConfig(db.config)) : undefined,
+    );
   }, [db?.id, form]);
 
   async function handleSubmit(values: DialectConfig) {

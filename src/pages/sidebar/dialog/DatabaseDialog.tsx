@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DialectConfig, DialectType, useDBListStore } from '@/stores/dbList';
 import { TreeNode } from '@/types';
 import { nanoid } from 'nanoid';
@@ -42,8 +43,9 @@ type DatabaseFormProps = {
 export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormProps) {
   const { t } = useLingui();
   const watchDialect = form.watch('dialect');
-  const watchSshEnabled = form.watch('ssh_enabled');
+  const watchSshEnabled = form.watch('ssh_tunnel.enabled');
   const [sshHosts, setSshHosts] = useState<SshConfigHost[]>([]);
+  const supportsSsh = watchDialect === 'mysql' || watchDialect === 'postgres';
 
   const dialectItems = useMemo(
     (): { label: string; value: DialectType }[] => [
@@ -65,10 +67,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
   }, [watchDialect, form]);
 
   useEffect(() => {
-    if (
-      (watchDialect !== 'mysql' && watchDialect !== 'postgres') ||
-      !watchSshEnabled
-    ) {
+    if (!supportsSsh || !watchSshEnabled) {
       return;
     }
 
@@ -88,13 +87,13 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
     return () => {
       cancelled = true;
     };
-  }, [watchDialect, watchSshEnabled]);
+  }, [supportsSsh, watchSshEnabled]);
 
   const applySshConfigHost = (alias: string) => {
     const opts = { shouldDirty: true, shouldTouch: true, shouldValidate: false } as const;
 
     if (alias === '__custom__') {
-      form.setValue('ssh_config_host', '', opts);
+      form.setValue('ssh_tunnel.config_host', '', opts);
       return;
     }
 
@@ -103,67 +102,286 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
       return;
     }
 
-    form.setValue('ssh_config_host', alias, opts);
-    form.setValue('ssh_host', host.host, opts);
-    form.setValue('ssh_port', String(host.port || 22), opts);
-    form.setValue('ssh_username', host.username ?? '', opts);
-    form.setValue('ssh_private_key_path', host.identity_file ?? '', opts);
+    form.setValue('ssh_tunnel.config_host', alias, opts);
+    form.setValue('ssh_tunnel.host', host.host, opts);
+    form.setValue('ssh_tunnel.port', String(host.port || 22), opts);
+    form.setValue('ssh_tunnel.username', host.username ?? '', opts);
+    form.setValue('ssh_tunnel.private_key_path', host.identity_file ?? '', opts);
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col">
-        <div className="flex-1 space-y-4">
-          <FormField
-            control={form.control}
-            name="dialect"
-            render={({ field }) => (
-              <FormItem className="flex items-center w-[62.5%]">
-                <FormLabel className="w-1/5 mr-2 mt-2">
-                  <Trans>Dialect</Trans>
-                </FormLabel>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                    if (value === 'quack') {
-                      form.setValue('disable_ssl', form.getValues('disable_ssl') ?? true);
-                    }
-                  }}
-                  defaultValue={field.value}
-                  disabled={!isNew}
-                  value={field.value}
-                  items={dialectItems}
-                >
-                  <FormControl className="w-4/5">
-                    <SelectTrigger>
-                      <SelectValue placeholder={t`Select a dialect`} />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectGroup>
-                      {dialectItems.map((item) => (
-                        <SelectItem key={item.value} value={item.value} label={item.label}>
-                          {item.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
-          {watchDialect == 'clickhouse' ||
-          watchDialect == 'mysql' ||
-          watchDialect == 'postgres' ? (
-            <>
-              <div className="flex">
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="flex min-h-0 flex-1 flex-col"
+      >
+        <Tabs
+          defaultValue="connection"
+          className="flex w-full min-h-0 flex-1 flex-col gap-0"
+        >
+          <TabsList variant="line" className="w-full shrink-0 justify-start">
+            <TabsTrigger value="connection" className="flex-none px-3">
+              <Trans>Connection</Trans>
+            </TabsTrigger>
+            {supportsSsh ? (
+              <TabsTrigger value="ssh" className="flex-none px-3">
+                <Trans>SSH Tunnel</Trans>
+              </TabsTrigger>
+            ) : null}
+          </TabsList>
+
+          <TabsContent
+            value="connection"
+            className="mt-4 min-h-0 flex-1 space-y-4 overflow-y-auto"
+          >
+            <FormField
+              control={form.control}
+              name="dialect"
+              render={({ field }) => (
+                <FormItem className="flex items-center w-[62.5%]">
+                  <FormLabel className="w-1/5 mr-2 mt-2">
+                    <Trans>Dialect</Trans>
+                  </FormLabel>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      if (value === 'quack') {
+                        form.setValue(
+                          'disable_ssl',
+                          form.getValues('disable_ssl') ?? true,
+                        );
+                      }
+                      if (value !== 'mysql' && value !== 'postgres') {
+                        form.setValue('ssh_tunnel', undefined, {
+                          shouldDirty: false,
+                        });
+                      }
+                    }}
+                    defaultValue={field.value}
+                    disabled={!isNew}
+                    value={field.value}
+                    items={dialectItems}
+                  >
+                    <FormControl className="w-4/5">
+                      <SelectTrigger>
+                        <SelectValue placeholder={t`Select a dialect`} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectGroup>
+                        {dialectItems.map((item) => (
+                          <SelectItem
+                            key={item.value}
+                            value={item.value}
+                            label={item.label}
+                          >
+                            {item.label}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            {watchDialect == 'clickhouse' ||
+            watchDialect == 'mysql' ||
+            watchDialect == 'postgres' ? (
+              <>
+                <div className="flex">
+                  <FormField
+                    control={form.control}
+                    name="host"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center w-[62.5%]">
+                        <FormLabel className="w-1/5 mr-2 mt-2">
+                          <Trans>Host</Trans>
+                        </FormLabel>
+                        <FormControl className="w-4/5">
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="port"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center w-[37.5%]">
+                        <FormLabel className="ml-4">
+                          <Trans>Port</Trans>
+                        </FormLabel>
+                        <FormControl className="w-2/3">
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <FormField
                   control={form.control}
-                  name="host"
+                  name="database"
                   render={({ field }) => (
                     <FormItem className="flex items-center w-[62.5%]">
                       <FormLabel className="w-1/5 mr-2 mt-2">
-                        <Trans>Host</Trans>
+                        <Trans>Database</Trans>
+                      </FormLabel>
+                      <FormControl className="w-4/5">
+                        <Input {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center w-[62.5%]">
+                      <FormLabel className="w-1/5 mr-2 mt-2">
+                        <Trans>Username</Trans>
+                      </FormLabel>
+                      <FormControl className="w-4/5">
+                        <Input {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center w-[62.5%]">
+                      <FormLabel className="w-1/5 mr-2 mt-2">
+                        <Trans>Password</Trans>
+                      </FormLabel>
+                      <FormControl className="w-4/5">
+                        <PasswordInput
+                          {...field}
+                          value={field.value ?? ''}
+                          placeholder={
+                            isNew ? undefined : t`Leave empty to keep current`
+                          }
+                          autoComplete="off"
+                          showToggleLabel={t`Show password`}
+                          hideToggleLabel={t`Hide password`}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            ) : null}
+            {watchDialect == 'quack' ? (
+              <>
+                <FormField
+                  control={form.control}
+                  name="uri"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center w-[62.5%]">
+                      <FormLabel className="w-1/5 mr-2 mt-2">URI</FormLabel>
+                      <FormControl className="w-4/5">
+                        <Input placeholder="quack:localhost:9494" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="token"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center w-[62.5%]">
+                      <FormLabel className="w-1/5 mr-2 mt-2">
+                        <Trans>Token</Trans>
+                      </FormLabel>
+                      <FormControl className="w-4/5">
+                        <PasswordInput
+                          {...field}
+                          value={field.value ?? ''}
+                          placeholder={
+                            isNew ? undefined : t`Leave empty to keep current`
+                          }
+                          autoComplete="off"
+                          showToggleLabel={t`Show password`}
+                          hideToggleLabel={t`Hide password`}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="disable_ssl"
+                  defaultValue={true}
+                  render={({ field }) => (
+                    <FormItem className="flex items-center w-[62.5%]">
+                      <FormLabel className="w-1/5 mr-2 mt-2">
+                        <Trans>Disable SSL</Trans>
+                      </FormLabel>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            ) : null}
+            {watchDialect == 'duckdb' ||
+            watchDialect == 'sqlite' ||
+            watchDialect == 'folder' ? (
+              <>
+                <FormField
+                  control={form.control}
+                  name="path"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center w-[62.5%]">
+                      <FormLabel className="w-1/5 mr-2 mt-2">
+                        <Trans>Path</Trans>
+                      </FormLabel>
+                      <FormControl className="w-4/5">
+                        <ButtonGroup>
+                          <Input placeholder={t`Search...`} {...field} />
+                          <Button
+                            aria-label={t`Select`}
+                            variant="outline"
+                            onClick={async (e) => {
+                              e.preventDefault();
+                              const file = await dialog.open({
+                                multiple: false,
+                                directory: watchDialect == 'folder',
+                              });
+                              if (file) {
+                                form.setValue('path', file);
+                              }
+                            }}
+                          >
+                            <Trans>Select</Trans>
+                          </Button>
+                        </ButtonGroup>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </>
+            ) : null}
+            {watchDialect == 'duckdb' ? (
+              <>
+                <FormField
+                  control={form.control}
+                  name="cwd"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center w-[62.5%]">
+                      <FormLabel className="w-1/5 mr-2 mt-2">
+                        <Trans>Work Path</Trans>
                       </FormLabel>
                       <FormControl className="w-4/5">
                         <Input {...field} />
@@ -172,90 +390,28 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                     </FormItem>
                   )}
                 />
+              </>
+            ) : null}
+          </TabsContent>
 
-                <FormField
-                  control={form.control}
-                  name="port"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center w-[37.5%]">
-                      {/* <FormLabel className="w-1/3 ml-2 text-right mt-2"> */}
-                      <FormLabel className="ml-4">
-                        <Trans>Port</Trans>
-                      </FormLabel>
-                      <FormControl className="w-2/3">
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+          {supportsSsh ? (
+            <TabsContent
+              value="ssh"
+              className="mt-4 min-h-0 flex-1 space-y-4 overflow-y-auto"
+            >
               <FormField
                 control={form.control}
-                name="database"
+                name="ssh_tunnel.enabled"
                 render={({ field }) => (
                   <FormItem className="flex items-center w-[62.5%]">
                     <FormLabel className="w-1/5 mr-2 mt-2">
-                      <Trans>Database</Trans>
-                    </FormLabel>
-                    <FormControl className="w-4/5">
-                      <Input {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem className="flex items-center w-[62.5%]">
-                    <FormLabel className="w-1/5 mr-2 mt-2">
-                      <Trans>Username</Trans>
-                    </FormLabel>
-                    <FormControl className="w-4/5">
-                      <Input {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem className="flex items-center w-[62.5%]">
-                    <FormLabel className="w-1/5 mr-2 mt-2">
-                      <Trans>Password</Trans>
-                    </FormLabel>
-                    <FormControl className="w-4/5">
-                      <PasswordInput
-                        {...field}
-                        value={field.value ?? ''}
-                        placeholder={
-                          isNew ? undefined : t`Leave empty to keep current`
-                        }
-                        autoComplete="off"
-                        showToggleLabel={t`Show password`}
-                        hideToggleLabel={t`Hide password`}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </>
-          ) : null}
-          {watchDialect == 'mysql' || watchDialect == 'postgres' ? (
-            <>
-              <FormField
-                control={form.control}
-                name="ssh_enabled"
-                render={({ field }) => (
-                  <FormItem className="flex items-center w-[62.5%]">
-                    <FormLabel className="w-1/5 mr-2 mt-2">
-                      <Trans>SSH Tunnel</Trans>
+                      <Trans>Enable SSH</Trans>
                     </FormLabel>
                     <FormControl>
-                      <Switch checked={!!field.value} onCheckedChange={field.onChange} />
+                      <Switch
+                        checked={!!field.value}
+                        onCheckedChange={field.onChange}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -265,7 +421,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                 <>
                   <FormField
                     control={form.control}
-                    name="ssh_config_host"
+                    name="ssh_tunnel.config_host"
                     render={({ field }) => (
                       <FormItem className="flex items-center w-[62.5%]">
                         <FormLabel className="w-1/5 mr-2 mt-2">
@@ -298,12 +454,17 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                         >
                           <FormControl className="w-4/5">
                             <SelectTrigger>
-                              <SelectValue placeholder={t`Select from ~/.ssh/config`} />
+                              <SelectValue
+                                placeholder={t`Select from ~/.ssh/config`}
+                              />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             <SelectGroup>
-                              <SelectItem value="__custom__" label={t`Manual Input`}>
+                              <SelectItem
+                                value="__custom__"
+                                label={t`Manual Input`}
+                              >
                                 <Trans>Manual Input</Trans>
                               </SelectItem>
                               {sshHosts.map((host) => (
@@ -325,7 +486,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                   <div className="flex">
                     <FormField
                       control={form.control}
-                      name="ssh_host"
+                      name="ssh_tunnel.host"
                       render={({ field }) => (
                         <FormItem className="flex items-center w-[62.5%]">
                           <FormLabel className="w-1/5 mr-2 mt-2">
@@ -344,14 +505,18 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                     />
                     <FormField
                       control={form.control}
-                      name="ssh_port"
+                      name="ssh_tunnel.port"
                       render={({ field }) => (
                         <FormItem className="flex items-center w-[37.5%]">
                           <FormLabel className="ml-4">
                             <Trans>SSH Port</Trans>
                           </FormLabel>
                           <FormControl className="w-2/3">
-                            <Input placeholder="22" {...field} value={field.value ?? ''} />
+                            <Input
+                              placeholder="22"
+                              {...field}
+                              value={field.value ?? ''}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -360,7 +525,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                   </div>
                   <FormField
                     control={form.control}
-                    name="ssh_username"
+                    name="ssh_tunnel.username"
                     render={({ field }) => (
                       <FormItem className="flex items-center w-[62.5%]">
                         <FormLabel className="w-1/5 mr-2 mt-2">
@@ -375,7 +540,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                   />
                   <FormField
                     control={form.control}
-                    name="ssh_password"
+                    name="ssh_tunnel.password"
                     render={({ field }) => (
                       <FormItem className="flex items-center w-[62.5%]">
                         <FormLabel className="w-1/5 mr-2 mt-2">
@@ -399,7 +564,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                   />
                   <FormField
                     control={form.control}
-                    name="ssh_private_key_path"
+                    name="ssh_tunnel.private_key_path"
                     render={({ field }) => (
                       <FormItem className="flex items-center w-[62.5%]">
                         <FormLabel className="w-1/5 mr-2 mt-2">
@@ -422,10 +587,14 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                                   directory: false,
                                 });
                                 if (file) {
-                                  form.setValue('ssh_private_key_path', file, {
-                                    shouldDirty: true,
-                                    shouldTouch: true,
-                                  });
+                                  form.setValue(
+                                    'ssh_tunnel.private_key_path',
+                                    file,
+                                    {
+                                      shouldDirty: true,
+                                      shouldTouch: true,
+                                    },
+                                  );
                                 }
                               }}
                             >
@@ -439,7 +608,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                   />
                   <FormField
                     control={form.control}
-                    name="ssh_passphrase"
+                    name="ssh_tunnel.passphrase"
                     render={({ field }) => (
                       <FormItem className="flex items-center w-[62.5%]">
                         <FormLabel className="w-1/5 mr-2 mt-2">
@@ -463,123 +632,9 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                   />
                 </>
               ) : null}
-            </>
+            </TabsContent>
           ) : null}
-          {watchDialect == 'quack' ? (
-            <>
-              <FormField
-                control={form.control}
-                name="uri"
-                render={({ field }) => (
-                  <FormItem className="flex items-center w-[62.5%]">
-                    <FormLabel className="w-1/5 mr-2 mt-2">URI</FormLabel>
-                    <FormControl className="w-4/5">
-                      <Input placeholder="quack:localhost:9494" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="token"
-                render={({ field }) => (
-                  <FormItem className="flex items-center w-[62.5%]">
-                    <FormLabel className="w-1/5 mr-2 mt-2">
-                      <Trans>Token</Trans>
-                    </FormLabel>
-                    <FormControl className="w-4/5">
-                      <PasswordInput
-                        {...field}
-                        value={field.value ?? ''}
-                        placeholder={
-                          isNew ? undefined : t`Leave empty to keep current`
-                        }
-                        autoComplete="off"
-                        showToggleLabel={t`Show password`}
-                        hideToggleLabel={t`Hide password`}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="disable_ssl"
-                defaultValue={true}
-                render={({ field }) => (
-                  <FormItem className="flex items-center w-[62.5%]">
-                    <FormLabel className="w-1/5 mr-2 mt-2">
-                      <Trans>Disable SSL</Trans>
-                    </FormLabel>
-                    <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </>
-          ) : null}
-          {watchDialect == 'duckdb' || watchDialect == 'sqlite' || watchDialect == 'folder' ? (
-            <>
-              <FormField
-                control={form.control}
-                name="path"
-                render={({ field }) => (
-                  <FormItem className="flex items-center w-[62.5%]">
-                    <FormLabel className="w-1/5 mr-2 mt-2">
-                      <Trans>Path</Trans>
-                    </FormLabel>
-                    <FormControl className="w-4/5">
-                      {/* <div className="flex w-full max-w-sm items-center gap-1"> */}
-                      {/* </div> */}
-                      <ButtonGroup>
-                        <Input placeholder={t`Search...`} {...field} />
-                        <Button
-                          aria-label={t`Select`}
-                          variant="outline"
-                          onClick={async (e) => {
-                            e.preventDefault();
-                            const file = await dialog.open({
-                              multiple: false,
-                              directory: watchDialect == 'folder',
-                            });
-                            if (file) {
-                              form.setValue('path', file);
-                            }
-                          }}
-                        >
-                          <Trans>Select</Trans>
-                        </Button>
-                      </ButtonGroup>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </>
-          ) : null}
-          {watchDialect == 'duckdb' ? (
-            <>
-              <FormField
-                control={form.control}
-                name="cwd"
-                render={({ field }) => (
-                  <FormItem className="flex items-center w-[62.5%]">
-                    <FormLabel className="w-1/5 mr-2 mt-2">
-                      <Trans>Work Path</Trans>
-                    </FormLabel>
-                    <FormControl className="w-4/5">
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </>
-          ) : null}
-        </div>
+        </Tabs>
       </form>
     </Form>
   );

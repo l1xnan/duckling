@@ -9,6 +9,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { getDB } from '@/api';
 import {
+  normalizeDialectConfig,
   pickSecrets,
   stripSecrets,
   type ConnectionSecrets,
@@ -68,16 +69,17 @@ export type ClickhouseDialectType = {
   dialect: DialectType;
 };
 
-/** SSH tunnel settings shared by network dialects (postgres / mysql). */
+/** SSH tunnel entity (nested on network dialects; reusable as a standalone profile later). */
 export type SshTunnelConfig = {
-  ssh_enabled?: boolean;
-  ssh_host?: string;
-  ssh_port?: string;
-  ssh_username?: string;
-  ssh_password?: string;
-  ssh_private_key_path?: string;
-  ssh_passphrase?: string;
-  ssh_config_host?: string;
+  enabled?: boolean;
+  host?: string;
+  port?: string;
+  username?: string;
+  password?: string;
+  private_key_path?: string;
+  passphrase?: string;
+  /** Alias from ~/.ssh/config when filled from config picker. */
+  config_host?: string;
 };
 
 export type PostgresDialectType = {
@@ -87,7 +89,8 @@ export type PostgresDialectType = {
   username: string;
   database: string;
   dialect: DialectType;
-} & SshTunnelConfig;
+  ssh_tunnel?: SshTunnelConfig;
+};
 
 export type MySqlDialectType = {
   host: string;
@@ -96,7 +99,8 @@ export type MySqlDialectType = {
   username: string;
   database: string;
   dialect: 'mysql';
-} & SshTunnelConfig;
+  ssh_tunnel?: SshTunnelConfig;
+};
 
 export type QuackConfig = {
   uri: string;
@@ -281,7 +285,9 @@ async function migrateFromLegacyIndexedDb(): Promise<DBType[] | null> {
         id: item.id,
         dialect: item.dialect,
         displayName: item.displayName,
-        config: item.config ? stripSecrets(item.config) : undefined,
+        config: item.config
+          ? stripSecrets(normalizeDialectConfig(item.config))
+          : undefined,
         data: item.data ?? emptyTree(item.displayName),
         meta: item.meta,
         defaultDatabase: item.defaultDatabase,
@@ -343,7 +349,9 @@ export const useDBListStore = create<DBListStore>()(
 
       append: async (db) => {
         const secrets = pickSecrets(db.config);
-        const profile = db.config ? stripSecrets(db.config) : undefined;
+        const profile = db.config
+          ? stripSecrets(normalizeDialectConfig(db.config))
+          : undefined;
         set((state) => ({
           dbList: [
             ...state.dbList,
@@ -386,8 +394,9 @@ export const useDBListStore = create<DBListStore>()(
       updateByConfig: async (id: string, config: DialectConfig) => {
         const updateDB = get().update;
         try {
-          const secrets = pickSecrets(config);
-          const profile = stripSecrets(config);
+          const normalized = normalizeDialectConfig(config);
+          const secrets = pickSecrets(normalized);
+          const profile = stripSecrets(normalized);
           // Always re-register full profile; backend vault fills empty secrets.
           await registerConnectionBackend(id, profile, secrets);
           updateDB(id, { loading: true, config: profile });
@@ -436,9 +445,10 @@ export const useDBListStore = create<DBListStore>()(
       },
 
       setDB: async (id, config, options) => {
-        const profile = stripSecrets(config);
+        const normalized = normalizeDialectConfig(config);
+        const profile = stripSecrets(normalized);
         // previous.config is already stripped — empty form fields rely on backend vault merge.
-        const secrets = options?.clearSecrets ? {} : pickSecrets(config);
+        const secrets = options?.clearSecrets ? {} : pickSecrets(normalized);
         try {
           await registerConnectionBackend(id, profile, secrets);
           set((state) => ({
@@ -472,8 +482,9 @@ export const useDBListStore = create<DBListStore>()(
       importConnections: async (items) => {
         try {
           for (const item of items) {
-            const profile = stripSecrets(item.config);
-            const secrets = item.secrets ?? pickSecrets(item.config);
+            const normalized = normalizeDialectConfig(item.config);
+            const profile = stripSecrets(normalized);
+            const secrets = item.secrets ?? pickSecrets(normalized);
             await registerConnectionBackend(item.id, profile, secrets);
             set((state) => ({
               dbList: [
@@ -506,7 +517,9 @@ export const useDBListStore = create<DBListStore>()(
               id: db.id,
               dialect: db.dialect,
               displayName: db.displayName,
-              config: db.config ? stripSecrets(db.config) : undefined,
+              config: db.config
+                ? stripSecrets(normalizeDialectConfig(db.config))
+                : undefined,
             }),
           ),
         }) as unknown as DBListStore,
@@ -518,7 +531,9 @@ export const useDBListStore = create<DBListStore>()(
           dbList: list.map((db) => ({
             ...db,
             data: db.data ?? emptyTree(db.displayName),
-            config: db.config ? stripSecrets(db.config) : undefined,
+            config: db.config
+              ? stripSecrets(normalizeDialectConfig(db.config))
+              : undefined,
           })),
         };
       },
@@ -547,7 +562,9 @@ export const useDBListStore = create<DBListStore>()(
           const withCache = await hydrateCaches(
             list.map((db) => ({
               ...db,
-              config: db.config ? stripSecrets(db.config) : undefined,
+              config: db.config
+                ? stripSecrets(normalizeDialectConfig(db.config))
+                : undefined,
             })),
           );
           useDBListStore.setState({ dbList: withCache });
