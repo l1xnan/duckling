@@ -1,6 +1,6 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import * as dialog from '@tauri-apps/plugin-dialog';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { ChevronRight, Code2Icon, FolderClock, FolderIcon, FolderPlus, RefreshCw, XIcon } from 'lucide-react';
 import { Dispatch, ReactNode, SetStateAction, useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -22,7 +22,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { docsAtom, sqlFoldersAtom } from '@/stores/app';
-import { selectedNodeAtom, useDBListStore } from '@/stores/dbList';
+import { useDBListStore, useSelectedNodeStore } from '@/stores/dbList';
 import { EditorContextType, TabContextType, useTabsStore } from '@/stores/tabs';
 import { TreeNode } from '@/types';
 
@@ -308,7 +308,7 @@ export function SqlCode() {
   const updateTab = useTabsStore((state) => state.update);
   const removeTab = useTabsStore((state) => state.remove);
   const dbList = useDBListStore((s) => s.dbList);
-  const selectedNode = useAtomValue(selectedNodeAtom);
+  const selectedNode = useSelectedNodeStore((s) => s.selectedNode);
   const setDocs = useSetAtom(docsAtom);
   const [sqlFolders, setSqlFolders] = useAtom(sqlFoldersAtom);
 

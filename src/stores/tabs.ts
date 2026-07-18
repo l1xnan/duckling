@@ -18,13 +18,12 @@ import {
   ResultType,
   TitleType,
 } from '@/api';
-import { atomStore } from '@/stores';
 
 import { connectionRef, type DialectRef } from '@/lib/connectionRef';
 
 import { Direction, SchemaType } from './dataset';
-import { dbMapAtom, tablesAtom, whenRegistryReady } from './dbList';
-import { settingAtom } from './setting';
+import { getDbMap, getTableMap, whenRegistryReady } from './dbList';
+import { useSettingStore } from './setting';
 
 export type QueryParamType = {
   dbId: string;
@@ -240,14 +239,12 @@ export const subTabsAtomFamily = atomFamily(
 );
 
 export function getTable(dbId: string, tableId: string) {
-  const tableMap = atomStore.get(tablesAtom);
-  return tableMap.get(dbId)?.get(tableId);
+  return getTableMap().get(dbId)?.get(tableId);
 }
 
 export function getDatabase(dbId?: string) {
   if (!isEmpty(dbId)) {
-    const dbMap = atomStore.get(dbMapAtom);
-    return dbMap.get(dbId!);
+    return getDbMap().get(dbId!);
   }
 }
 
@@ -305,7 +302,7 @@ export async function getParams(
   }
 
   if (tableName.endsWith('.csv')) {
-    const csv = atomStore.get(settingAtom).csv;
+    const csv = useSettingStore.getState().csv;
     const params = [`'${tableName}'`, 'auto_detect=true, union_by_name=true'];
     for (const [key, val] of Object.entries(csv ?? {})) {
       if (!isEmpty(val)) {

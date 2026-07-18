@@ -7,7 +7,6 @@ import {
   IconRefresh,
 } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
-import { useAtomValue } from 'jotai';
 import {
   ChevronsDownUpIcon,
   ChevronsUpDownIcon,
@@ -31,9 +30,9 @@ import { ConnectionTransferDialog } from '@/pages/sidebar/dialog/ConnectionTrans
 import { DatabaseDialog } from '@/pages/sidebar/dialog/DatabaseDialog';
 import {
   DialectType,
-  selectedNodeAtom,
   useDBListStore,
   useDbMapStore,
+  useSelectedNodeStore,
 } from '@/stores/dbList';
 
 export function SideToolbar({
@@ -57,7 +56,7 @@ export function SideToolbar({
     await appendDB(data);
   }
 
-  const selectedNode = useAtomValue(selectedNodeAtom);
+  const selectedNode = useSelectedNodeStore((s) => s.selectedNode);
   const db = selectedNode ? dbMap?.get(selectedNode?.dbId) : undefined;
 
   async function handleAppendFolder() {

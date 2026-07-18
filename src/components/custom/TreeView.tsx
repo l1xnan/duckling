@@ -10,7 +10,6 @@ import {
 } from '@headless-tree/core';
 import { useTree } from '@headless-tree/react';
 import { Virtualizer, useVirtualizer } from '@tanstack/react-virtual';
-import { useAtom } from 'jotai';
 import { ChevronRight } from 'lucide-react';
 import React, {
   PropsWithChildren,
@@ -30,8 +29,8 @@ import { TableContextMenu } from '@/pages/sidebar/context-menu/TableContextMenu'
 import {
   DBType,
   NodeContextType,
-  selectedNodeAtom,
   useDBListStore,
+  useSelectedNodeStore,
 } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { NodeElementType } from '@/types';
@@ -293,7 +292,7 @@ interface TreeViewProps {
 
 export function TreeView({ dbList, search, ref }: TreeViewProps) {
   const updateTab = useTabsStore((s) => s.update);
-  const [, setSelectedNode] = useAtom(selectedNodeAtom);
+  const setSelectedNode = useSelectedNodeStore((s) => s.setSelectedNode);
 
   const treeData = useMemo(() => {
     const _treeData = {

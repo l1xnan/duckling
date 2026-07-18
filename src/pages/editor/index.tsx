@@ -9,7 +9,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import MonacoEditor, { EditorRef } from '@/components/editor/MonacoEditor';
 import VerticalContainer from '@/components/VerticalContainer';
 import { docsAtom, runsAtom } from '@/stores/app';
-import { DBType, schemaMapAtom } from '@/stores/dbList';
+import { DBType, useSchemaMapStore } from '@/stores/dbList';
 import {
   EditorContextType,
   QueryContextType,
@@ -52,7 +52,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
 
   const stmt = docs[id] ?? '';
 
-  const schemaMap = useAtomValue(schemaMapAtom);
+  const schemaMap = useSchemaMapStore();
 
   const tableSchema = schemaMap.get(dbId);
   const ref = useRef<EditorRef | null>(null);

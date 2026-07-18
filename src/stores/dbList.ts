@@ -1,8 +1,4 @@
 import { derive } from 'derive-zustand';
-import { atom } from 'jotai';
-import { focusAtom } from 'jotai-optics';
-import { atomWithStore } from 'jotai-zustand';
-import { splitAtom } from 'jotai/utils';
 import { toast } from 'sonner';
 import { create, useStore } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -379,6 +375,10 @@ export const useDBListStore = create<DBListStore>()(
           console.warn('unregister_connection failed', error),
         );
         void deleteDbCache(id);
+        const sel = useSelectedNodeStore.getState().selectedNode;
+        if (sel?.dbId === id) {
+          useSelectedNodeStore.getState().setSelectedNode(null);
+        }
         set((state) => ({
           dbList: state.dbList.filter((item) => item.id !== id),
         }));
@@ -595,20 +595,31 @@ const tableMapStore = derive<Map<string, Map<string, TreeNode>>>((get) => {
 
 export const useTableMapStore = () => useStore(tableMapStore);
 
-const storeAtom = atomWithStore(useDBListStore);
-export const dbListAtom = focusAtom(storeAtom, (o) => o.prop('dbList'));
-export const dbMapAtom = atom(
-  (get) => new Map(get(dbListAtom).map((db) => [db.id, db])),
-);
+const schemaMapStore = derive<
+  Map<string, Record<string, Record<string, { name: string; type: string }[]>>>
+>((get) => {
+  const dbList = get(useDBListStore).dbList;
+  return new Map(dbList.map((db) => [db.id, db.meta ?? {}]));
+});
 
-export const schemaMapAtom = atom(
-  (get) => new Map(get(dbListAtom).map((db) => [db.id, db.meta ?? {}])),
-);
+export const useSchemaMapStore = () => useStore(schemaMapStore);
 
-export const tablesAtom = atom(
-  (get) => new Map(get(dbListAtom).map((db) => [db.id, flattenTree(db.data)])),
-);
+export function getDbMap() {
+  return dbMapStore.getState();
+}
 
-export const dbAtomsAtom = splitAtom(dbListAtom);
+export function getTableMap() {
+  return tableMapStore.getState();
+}
 
-export const selectedNodeAtom = atom<NodeContextType | null>(null);
+export function getSchemaMap() {
+  return schemaMapStore.getState();
+}
+
+export const useSelectedNodeStore = create<{
+  selectedNode: NodeContextType | null;
+  setSelectedNode: (n: NodeContextType | null) => void;
+}>((set) => ({
+  selectedNode: null,
+  setSelectedNode: (selectedNode) => set({ selectedNode }),
+}));

@@ -20,28 +20,16 @@ vi.mock('@/stores/dbList', async (importOriginal) => {
   return {
     ...actual,
     whenRegistryReady: () => whenRegistryReady(),
-    dbMapAtom: { toString: () => 'dbMapAtom' },
-    tablesAtom: { toString: () => 'tablesAtom' },
+    getDbMap: () => dbMap,
+    getTableMap: () => tableMaps,
   };
 });
 
-vi.mock('@/stores', () => ({
-  atomStore: {
-    get: (atom: { toString?: () => string }) => {
-      const key = atom?.toString?.() ?? '';
-      if (key.includes('dbMap')) {
-        return dbMap;
-      }
-      if (key.includes('tables')) {
-        return tableMaps;
-      }
-      return {};
-    },
-  },
-}));
-
 vi.mock('@/stores/setting', () => ({
   settingAtom: { toString: () => 'settingAtom' },
+  useSettingStore: {
+    getState: () => ({ csv: {} }),
+  },
 }));
 
 import { getParams } from '@/stores/tabs';
@@ -140,16 +128,18 @@ describe('getParams', () => {
       dialect: 'postgres',
       displayName: 'PG',
       data: { name: 'pg', path: 'pg' },
-      config: { dialect: 'postgres', host: 'h', port: '5432', username: 'u', password: 'p', database: 'db' },
+      config: {
+        dialect: 'postgres',
+        host: 'h',
+        port: '5432',
+        username: 'u',
+        password: 'p',
+        database: 'db',
+      },
     });
     tableMaps.set(
       'pg1',
-      new Map([
-        [
-          'db.public.users',
-          { name: 'users', path: 'db.public.users' },
-        ],
-      ]),
+      new Map([['db.public.users', { name: 'users', path: 'db.public.users' }]]),
     );
 
     const params = await getParams({

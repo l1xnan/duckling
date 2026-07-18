@@ -94,7 +94,13 @@ vi.mock('sonner', () => ({
   },
 }));
 
-import { useDBListStore } from '@/stores/dbList';
+import {
+  getDbMap,
+  getSchemaMap,
+  getTableMap,
+  useDBListStore,
+  useSelectedNodeStore,
+} from '@/stores/dbList';
 import { mysqlConfig, quackConfig } from './helpers/fixtures';
 
 describe('dbListStore connection lifecycle', () => {
@@ -103,6 +109,7 @@ describe('dbListStore connection lifecycle', () => {
     idb.clear();
     fileMem.clear();
     useDBListStore.setState({ dbList: [] });
+    useSelectedNodeStore.setState({ selectedNode: null });
   });
 
   it('append strips secrets in store and registers backend with secrets', async () => {
@@ -325,5 +332,103 @@ describe('dbListStore connection lifecycle', () => {
     expect(
       (partial.dbList[0].config as { password?: string } | undefined)?.password,
     ).toBeUndefined();
+  });
+
+  it('derived maps expose db/table/schema lookups', () => {
+    useDBListStore.setState({
+      dbList: [
+        {
+          id: 'c1',
+          dialect: 'mysql',
+          displayName: 'MySQL',
+          data: {
+            name: 'root',
+            path: 'root',
+            children: [{ name: 'users', path: 'app.users' }],
+          },
+          meta: { app: { users: [{ name: 'id', type: 'int' }] } },
+          config: {
+            dialect: 'mysql',
+            host: 'h',
+            port: '3306',
+            username: 'u',
+            password: '',
+            database: 'd',
+          },
+        },
+      ],
+    });
+
+    expect(getDbMap().get('c1')?.displayName).toBe('MySQL');
+    expect(getTableMap().get('c1')?.get('app.users')?.name).toBe('users');
+    expect(getSchemaMap().get('c1')).toEqual({
+      app: { users: [{ name: 'id', type: 'int' }] },
+    });
+  });
+
+  it('selectedNode store set and clear', () => {
+    useSelectedNodeStore.getState().setSelectedNode({
+      dbId: 'c1',
+      tableId: 't1',
+      type: 'table',
+    });
+    expect(useSelectedNodeStore.getState().selectedNode).toMatchObject({
+      dbId: 'c1',
+      tableId: 't1',
+    });
+
+    useSelectedNodeStore.getState().setSelectedNode(null);
+    expect(useSelectedNodeStore.getState().selectedNode).toBeNull();
+  });
+
+  it('remove clears selectedNode only for matching connection', () => {
+    useDBListStore.setState({
+      dbList: [
+        {
+          id: 'c1',
+          dialect: 'mysql',
+          displayName: 'a',
+          data: { name: 'a', path: 'a' },
+        },
+        {
+          id: 'c2',
+          dialect: 'mysql',
+          displayName: 'b',
+          data: { name: 'b', path: 'b' },
+        },
+      ],
+    });
+
+    useSelectedNodeStore.getState().setSelectedNode({
+      dbId: 'c1',
+      tableId: 't',
+    });
+    useDBListStore.getState().remove('c1');
+    expect(useSelectedNodeStore.getState().selectedNode).toBeNull();
+
+    useDBListStore.setState({
+      dbList: [
+        {
+          id: 'c1',
+          dialect: 'mysql',
+          displayName: 'a',
+          data: { name: 'a', path: 'a' },
+        },
+        {
+          id: 'c2',
+          dialect: 'mysql',
+          displayName: 'b',
+          data: { name: 'b', path: 'b' },
+        },
+      ],
+    });
+    useSelectedNodeStore.getState().setSelectedNode({
+      dbId: 'c2',
+      tableId: 't',
+    });
+    useDBListStore.getState().remove('c1');
+    expect(useSelectedNodeStore.getState().selectedNode).toMatchObject({
+      dbId: 'c2',
+    });
   });
 });

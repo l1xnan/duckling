@@ -19,7 +19,7 @@ import {
 import { usePageStore } from '@/hooks/context';
 import { cn } from '@/lib/utils';
 import { SchemaType } from '@/stores/dataset';
-import { schemaMapAtom } from '@/stores/dbList';
+import { useSchemaMapStore } from '@/stores/dbList';
 import { precisionAtom } from '@/stores/setting';
 import { TabContextType, TableContextType, useTabsStore } from '@/stores/tabs';
 
@@ -182,7 +182,7 @@ export function InputToolbar({
   const { setSQLWhere, setSQLOrderBy, refresh, sqlWhere, sqlOrderBy } =
     usePageStore();
 
-  const schemaMap = useAtomValue(schemaMapAtom);
+  const schemaMap = useSchemaMapStore();
   const { dbId, tableId } = context;
   const tableSchema = schemaMap.get(dbId);
 
