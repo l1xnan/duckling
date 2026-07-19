@@ -1,2 +1,2 @@
-export { CanvasTable } from './CanvasTable';
+export { CanvasTable, SimpleTable } from './CanvasTable';
 

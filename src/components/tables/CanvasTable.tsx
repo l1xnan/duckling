@@ -45,6 +45,8 @@ export interface TableProps<T = unknown> {
   setHiddenColumns: (col: string, hidden: boolean) => void;
   onSelectedCell?: (value: SelectedCellType | null) => void;
   onSelectedCellInfos?: (cells: SelectedCellType[][] | null) => void;
+  /** Header context menu: count distinct values for this column. */
+  onCountByColumn?: (columnName: string) => void;
 }
 
 function useTableTheme() {
@@ -78,6 +80,7 @@ const MENU_PIN_LEFT = msg`Pin to left`;
 const MENU_PIN_RIGHT = msg`Pin to right`;
 const MENU_PIN_CLEAR = msg`Clear pinned`;
 const MENU_HIDDEN_COLUMN = msg`Hidden column`;
+const MENU_COUNT_BY_COLUMN = msg`Count by this column`;
 const MENU_COPY = msg`Copy`;
 const MENU_COPY_AS_CSV = msg`Copy as CSV`;
 
@@ -250,6 +253,7 @@ function CanvasTable_({
   hiddenColumns,
   onSelectedCell,
   onSelectedCellInfos,
+  onCountByColumn,
 }: TableProps) {
   const tableRef = useRef<ListTableAPI>(null);
 
@@ -398,6 +402,10 @@ function CanvasTable_({
           text: i18n._(MENU_COPY_FIELD),
         },
         {
+          menuKey: 'count-by-column',
+          text: i18n._(MENU_COUNT_BY_COLUMN),
+        },
+        {
           menuKey: 'pin-to-left',
           text: i18n._(MENU_PIN_LEFT),
         },
@@ -425,6 +433,8 @@ function CanvasTable_({
         if (!transpose) {
           if (menuKey === 'copy-field') {
             await writeText((field as string) ?? '');
+          } else if (menuKey === 'count-by-column') {
+            onCountByColumn?.(String(field ?? ''));
           } else if (menuKey == 'pin-to-left') {
             setLeftPinnedCols((v) => uniqueArray([...v, field as string]));
             setRightPinnedCols((v) => v.filter((key) => key != field));
@@ -445,7 +455,7 @@ function CanvasTable_({
         }
       },
     });
-  }, [setHiddenColumns, i18n.locale]);
+  }, [setHiddenColumns, onCountByColumn, i18n.locale]);
 
   const [plugins, setPlugins] = useState<IVTablePlugin[]>([highlightPlugin]);
 

@@ -4,6 +4,7 @@ import { Loader2Icon } from 'lucide-react';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
+import { useDialog } from '@/components/custom/use-dialog';
 import { SingleLineEditor } from '@/components/editor/SingleLineEditor';
 import {
   sqlComparisonOperators,
@@ -22,6 +23,7 @@ import { useConnectionMeta } from '@/stores/dbList';
 import { usePrecision } from '@/stores/setting';
 import { TabContextType, TableContextType, useTabsStore } from '@/stores/tabs';
 
+import { CountByColumnDialog } from './CountByColumnDialog';
 import { DataViewToolbar } from './DataViewToolbar';
 import { ValueViewer } from './ValueViewer';
 
@@ -87,13 +89,18 @@ export function TableView({ context }: { context: TabContextType }) {
     total,
     sql,
     elapsed,
+    sqlWhere,
     hiddenColumns,
+    dialogColumn,
     setBeautify,
     setPagination,
     setTranspose,
     setHiddenColumns,
     setCross,
+    setDialogColumn,
   } = usePageStore();
+
+  const countByDialog = useDialog();
 
   return (
     <div className="h-full flex flex-col">
@@ -145,6 +152,11 @@ export function TableView({ context }: { context: TabContextType }) {
                   onSelectedCellInfos={(cells) => {
                     setSelectedCellInfos(cells);
                   }}
+                  onCountByColumn={(col) => {
+                    if (!col) return;
+                    setDialogColumn(col);
+                    countByDialog.trigger();
+                  }}
                 />
               </Suspense>
             </div>
@@ -167,6 +179,12 @@ export function TableView({ context }: { context: TabContextType }) {
           </>
         ) : null}
       </ResizablePanelGroup>
+      <CountByColumnDialog
+        {...countByDialog.props}
+        column={dialogColumn}
+        context={context as TableContextType}
+        sqlWhere={sqlWhere}
+      />
     </div>
   );
 }
