@@ -1,11 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { HistoryContextMenu } from '@/pages/sidebar/context-menu/HistoryContextMenu';
-import { favoriteAtom, runsAtom } from '@/stores/app';
+import { docsAtom, favoriteAtom, runsAtom } from '@/stores/app';
 import { QueryContextType, TabContextType, useTabsStore } from '@/stores/tabs';
 import { useLingui } from '@lingui/react/macro';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { Code2Icon, SearchIcon, TableIcon } from 'lucide-react';
+import { nanoid } from 'nanoid';
 import React, { PropsWithChildren, ReactNode } from 'react';
 
 interface ItemLabelProps {
@@ -91,12 +92,43 @@ export function Favorite() {
 export function History() {
   const { t } = useLingui();
   const items = useAtomValue(runsAtom) as QueryContextType[];
+  const setDocs = useSetAtom(docsAtom);
+  const append = useTabsStore((state) => state.append);
+  const active = useTabsStore((state) => state.active);
+  const currentId = useTabsStore((state) => state.currentId);
+  const tabs = useTabsStore((state) => state.tabs);
+
+  const handleOpen = (item: QueryContextType) => {
+    const stmt = item.stmt ?? '';
+    if (!stmt.trim()) return;
+    const current = currentId ? tabs[currentId] : undefined;
+    if (current?.type === 'editor') {
+      setDocs((prev) => ({ ...prev, [current.id]: stmt }));
+      active(current.id);
+      return;
+    }
+    const id = nanoid();
+    setDocs((prev) => ({ ...prev, [id]: stmt }));
+    append({
+      id,
+      dbId: item.dbId,
+      schema: item.schema,
+      tableId: item.tableId,
+      type: 'editor',
+      displayName: stmt.slice(0, 40) || 'Query',
+    });
+    active(id);
+  };
+
   return (
     <Container title={t`History`}>
       {items.map((item, i) => {
         return (
           <HistoryContextMenu key={i} ctx={item}>
-            <ItemLabel content={item.stmt} />
+            <ItemLabel
+              content={item.stmt}
+              onClick={() => handleOpen(item)}
+            />
           </HistoryContextMenu>
         );
       })}
