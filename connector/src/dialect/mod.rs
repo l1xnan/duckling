@@ -14,18 +14,33 @@ pub mod postgres;
 pub mod quack;
 pub mod sqlite;
 
+/// Run a synchronous connector operation off the async runtime.
+pub async fn run_blocking<T, F>(f: F) -> anyhow::Result<T>
+where
+  T: Send + 'static,
+  F: FnOnce() -> anyhow::Result<T> + Send + 'static,
+{
+  tokio::task::spawn_blocking(f)
+    .await
+    .map_err(|e| anyhow::anyhow!("blocking task join error: {e}"))?
+}
+
+fn unsupported(method: &str) -> anyhow::Error {
+  anyhow::anyhow!("operation not supported: {method}")
+}
+
 #[async_trait]
 pub trait Connection: Sync + Send {
   async fn get_db(&self) -> anyhow::Result<TreeNode>;
   async fn query(&self, _sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
-    unimplemented!()
+    Err(unsupported("query"))
   }
 
   async fn query_count(&self, _sql: &str) -> anyhow::Result<usize> {
-    unimplemented!()
+    Err(unsupported("query_count"))
   }
   async fn query_all(&self, _sql: &str) -> anyhow::Result<RawArrowData> {
-    unimplemented!()
+    Err(unsupported("query_all"))
   }
 
   fn dialect(&self) -> &'static str {
@@ -38,10 +53,9 @@ pub trait Connection: Sync + Send {
     limit: Option<usize>,
     offset: Option<usize>,
   ) -> anyhow::Result<RawArrowData> {
-    
     let dialect = self.dialect();
     let stmt = first_stmt(dialect, sql);
-    
+
     let limit_sql = if let Some(ref _stmt) = stmt {
       ast::limit_stmt(dialect, _stmt, limit, offset).unwrap_or(sql.to_string())
     } else {
@@ -63,7 +77,7 @@ pub trait Connection: Sync + Send {
   }
 
   async fn _sql_row_count(&self, _sql: &str) -> anyhow::Result<usize> {
-    unimplemented!()
+    Err(unsupported("_sql_row_count"))
   }
 
   async fn query_table(
@@ -104,11 +118,11 @@ pub trait Connection: Sync + Send {
   }
 
   async fn show_schema(&self, _schema: &str) -> anyhow::Result<RawArrowData> {
-    unimplemented!()
+    Err(unsupported("show_schema"))
   }
 
   async fn show_column(&self, _schema: Option<&str>, _table: &str) -> anyhow::Result<RawArrowData> {
-    unimplemented!()
+    Err(unsupported("show_column"))
   }
 
   async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
@@ -116,11 +130,11 @@ pub trait Connection: Sync + Send {
   }
 
   async fn drop_table(&self, _schema: Option<&str>, _table: &str) -> anyhow::Result<String> {
-    unimplemented!()
+    Err(unsupported("drop_table"))
   }
 
   async fn table_row_count(&self, _table: &str, _where: &str) -> anyhow::Result<usize> {
-    unimplemented!()
+    Err(unsupported("table_row_count"))
   }
 
   fn _table_count_sql(&self, table: &str, where_: &str) -> String {
@@ -168,10 +182,10 @@ pub trait Connection: Sync + Send {
   }
 
   async fn find(&self, value: &str, path: &str) -> anyhow::Result<RawArrowData> {
-    unimplemented!()
+    Err(unsupported("find"))
   }
   async fn execute(&self, sql: &str) -> anyhow::Result<usize> {
-    unimplemented!()
+    Err(unsupported("execute"))
   }
 
   /// check if the identifier is valid
