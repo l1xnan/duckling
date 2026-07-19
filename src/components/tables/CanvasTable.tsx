@@ -47,6 +47,8 @@ export interface TableProps<T = unknown> {
   onSelectedCellInfos?: (cells: SelectedCellType[][] | null) => void;
   /** Header context menu: count distinct values for this column. */
   onCountByColumn?: (columnName: string) => void;
+  /** Header context menu: column profile (null/distinct/min/max/top-N). */
+  onProfileColumn?: (columnName: string) => void;
   /**
    * When set, header sort uses this callback (server-side) instead of
    * VTable client-side sorting.
@@ -89,6 +91,7 @@ const MENU_PIN_RIGHT = msg`Pin to right`;
 const MENU_PIN_CLEAR = msg`Clear pinned`;
 const MENU_HIDDEN_COLUMN = msg`Hidden column`;
 const MENU_COUNT_BY_COLUMN = msg`Count by this column`;
+const MENU_COLUMN_PROFILE = msg`Column profile`;
 const MENU_COPY = msg`Copy`;
 const MENU_COPY_AS_CSV = msg`Copy as CSV`;
 
@@ -225,6 +228,15 @@ const handleColumnStyle = (
   }
   if (arg.dataValue === null || arg.dataValue === undefined) {
     style['color'] = 'gray';
+  } else if (arg.dataValue === '') {
+    style['color'] = '#c2410c';
+    style['fontStyle'] = 'italic';
+  } else if (
+    typeof arg.dataValue === 'number' &&
+    !Number.isFinite(arg.dataValue)
+  ) {
+    style['color'] = '#dc2626';
+    style['fontWeight'] = 'bold';
   }
   return style;
 };
@@ -263,6 +275,7 @@ function CanvasTable_({
   onSelectedCell,
   onSelectedCellInfos,
   onCountByColumn,
+  onProfileColumn,
   onOrderByColumn,
 }: TableProps) {
   const tableRef = useRef<ListTableAPI>(null);
@@ -442,6 +455,14 @@ function CanvasTable_({
           menuKey: 'count-by-column',
           text: i18n._(MENU_COUNT_BY_COLUMN),
         },
+        ...(onProfileColumn
+          ? [
+              {
+                menuKey: 'column-profile',
+                text: i18n._(MENU_COLUMN_PROFILE),
+              },
+            ]
+          : []),
         {
           menuKey: 'pin-to-left',
           text: i18n._(MENU_PIN_LEFT),
@@ -480,7 +501,11 @@ function CanvasTable_({
             const col = String(field ?? '').replace(/\s*[↑↓]\s*$/, '').trim();
             if (col) onOrderByColumn?.(col, { clear: true });
           } else if (menuKey === 'count-by-column') {
-            onCountByColumn?.(String(field ?? ''));
+            const col = String(field ?? '').replace(/\s*[↑↓]\s*$/, '').trim();
+            onCountByColumn?.(col);
+          } else if (menuKey === 'column-profile') {
+            const col = String(field ?? '').replace(/\s*[↑↓]\s*$/, '').trim();
+            onProfileColumn?.(col);
           } else if (menuKey == 'pin-to-left') {
             setLeftPinnedCols((v) => uniqueArray([...v, field as string]));
             setRightPinnedCols((v) => v.filter((key) => key != field));
@@ -504,6 +529,7 @@ function CanvasTable_({
   }, [
     setHiddenColumns,
     onCountByColumn,
+    onProfileColumn,
     onOrderByColumn,
     orderBy,
     i18n.locale,
