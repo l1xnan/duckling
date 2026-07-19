@@ -28,8 +28,8 @@ where
     .map_err(|e| anyhow::anyhow!("blocking task join error: {e}"))?
 }
 
-fn unsupported(method: &str) -> anyhow::Error {
-  anyhow::anyhow!("operation not supported: {method}")
+fn unsupported(method: &'static str) -> anyhow::Error {
+  anyhow::Error::new(crate::error::ConnectorError::unsupported(method))
 }
 
 #[async_trait]

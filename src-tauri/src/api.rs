@@ -38,10 +38,11 @@ impl ArrowResponse {
       },
       Err(err) => {
         log::error!("Error processing RawArrowData: {}", err);
+        let (code, message) = connector::error::arrow_error_parts(&err);
         ArrowResponse {
-          code: 401,
+          code,
           elapsed,
-          message: err.to_string(),
+          message,
           ..Self::default()
         }
       }
