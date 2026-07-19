@@ -217,47 +217,77 @@ export function ValueViewer({
 }
 
 function CalcViewer({ cells }: { cells?: SelectedCellType[][] | null }) {
+  const { t } = useLingui();
   const data =
     cells?.map((row) => {
       return Object.fromEntries(row.map(({ field, value }) => [field, value]));
     }) ?? [];
   const df = new DataFrame(data);
 
-  console.log(data);
-
   const statsArr = df.statsAll();
+
+  const handleCopyMarkdown = async () => {
+    const md = df.statsMarkdown();
+    if (!md) return;
+    try {
+      await navigator.clipboard.writeText(md);
+    } catch {
+      /* ignore */
+    }
+  };
+
   return (
-    <Table className="text-xs font-mono">
-      <TableHeader>
-        <TableRow>
-          <TableCell className="p-1 w-20 pl-4">
-            <Trans>Field</Trans>
-          </TableCell>
-          {df.inds.map((k) => {
+    <div className="flex size-full flex-col gap-1 overflow-auto">
+      <div className="flex shrink-0 justify-end px-2 pt-1">
+        <button
+          type="button"
+          className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+          onClick={() => {
+            void handleCopyMarkdown();
+          }}
+        >
+          {t`Copy as Markdown`}
+        </button>
+      </div>
+      <Table className="text-xs font-mono">
+        <TableHeader>
+          <TableRow>
+            <TableCell className="p-1 w-20 pl-4">
+              <Trans>Field</Trans>
+            </TableCell>
+            {df.inds.map((k) => {
+              return (
+                <TableCell key={k} className="p-1 w-10">
+                  {k.toUpperCase()}
+                </TableCell>
+              );
+            })}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {statsArr.map((row, i) => {
             return (
-              <TableCell key={k} className="p-1 w-10">
-                {k.toUpperCase()}
-              </TableCell>
+              <TableRow key={i}>
+                <TableCell className="p-1 w-20 pl-4">
+                  {row?.['field'] as string}
+                </TableCell>
+                {df.inds.map((k) => {
+                  const v = row?.[k];
+                  const display =
+                    v == null || (typeof v === 'number' && Number.isNaN(v))
+                      ? '—'
+                      : String(v);
+                  return (
+                    <TableCell key={k} className="p-1 w-10">
+                      {display}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
             );
           })}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {statsArr.map((row, i) => {
-          return (
-            <TableRow key={i}>
-              <TableCell className="p-1 w-20 pl-4">{row?.['field'] as string}</TableCell>
-              {df.inds.map((k) => {
-                return (
-                  <TableCell key={k} className="p-1 w-10">
-                    {row?.[k] as string}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+        </TableBody>
+      </Table>
+    </div>
   );
 }
