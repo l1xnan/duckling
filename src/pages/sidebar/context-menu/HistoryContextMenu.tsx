@@ -1,9 +1,5 @@
 import { docsAtom, runsAtom } from '@/stores/app';
-import {
-  QueryContextType,
-  useTabsStore,
-  type EditorContextType,
-} from '@/stores/tabs';
+import { useTabsStore, type EditorContextType } from '@/stores/tabs';
 import { Trans } from '@lingui/react/macro';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useSetAtom } from 'jotai';
@@ -17,11 +13,15 @@ import {
   ContextMenuContent,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
+import {
+  summarizeSql,
+  type QueryHistoryItem,
+} from '@/lib/queryHistory';
 
 export function HistoryContextMenu({
   children,
   ctx,
-}: PropsWithChildren<{ ctx: QueryContextType }>) {
+}: PropsWithChildren<{ ctx: QueryHistoryItem }>) {
   const setItems = useSetAtom(runsAtom);
   const setDocs = useSetAtom(docsAtom);
   const append = useTabsStore((s) => s.append);
@@ -35,10 +35,9 @@ export function HistoryContextMenu({
   };
 
   const handleDelete = async () => {
-    setItems((prev) => prev.filter((p) => p.id != ctx.id));
+    setItems((prev) => (prev ?? []).filter((p) => p.id != ctx.id));
   };
 
-  /** Open SQL into a new editor tab on the same connection. */
   const handleOpenInEditor = () => {
     const stmt = ctx.stmt ?? '';
     if (!stmt.trim()) {
@@ -52,14 +51,13 @@ export function HistoryContextMenu({
       schema: ctx.schema,
       tableId: ctx.tableId,
       type: 'editor',
-      displayName: stmt.slice(0, 40) || 'Query',
+      displayName: summarizeSql(stmt, 40),
     };
     setDocs((prev) => ({ ...prev, [id]: stmt }));
     append(tab);
     active(id);
   };
 
-  /** Fill SQL into the current editor tab (or open new if not an editor). */
   const handleFillEditor = () => {
     const stmt = ctx.stmt ?? '';
     if (!stmt.trim()) {

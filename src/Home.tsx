@@ -8,7 +8,8 @@ import classes from '@/hooks/resize.module.css';
 import { Main } from '@/pages/main';
 import { DBTree } from '@/pages/sidebar';
 import { activeSideAtom, ASide } from '@/pages/sidebar/aside';
-import { Favorite, History, SqlCode } from '@/pages/sidebar/Favorite';
+import { Favorite, SqlCode } from '@/pages/sidebar/Favorite';
+import { History } from '@/pages/sidebar/History';
 import { sizeAtom } from '@/stores/app';
 
 import { cn } from './lib/utils';

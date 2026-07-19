@@ -8,12 +8,12 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import MonacoEditor, { EditorRef } from '@/components/editor/MonacoEditor';
 import VerticalContainer from '@/components/VerticalContainer';
 import { bookmarksAtom, docsAtom, runsAtom } from '@/stores/app';
+import type { QueryHistoryItem } from '@/lib/queryHistory';
 import { buildExplainSql } from '@/lib/sql/sample';
 import { DBType, useConnection, useConnectionMeta } from '@/stores/dbList';
 import {
   EditorContextType,
   QueryContextType,
-  TabContextType,
   useQuerySessionStore,
   useTabsStore,
 } from '@/stores/tabs';
@@ -131,6 +131,23 @@ export default function Editor({ context }: { context: EditorContextType }) {
     const currentActive = useQuerySessionStore.getState().byEditor[id]
       ?.activeKey;
 
+    const historyEntry = (entry: {
+      id: string;
+      stmt?: string;
+      tableId?: string;
+      hasLimit?: boolean;
+    }): QueryHistoryItem => ({
+      id: entry.id,
+      type: 'query',
+      dbId,
+      schema: context.schema,
+      tableId: entry.tableId ?? context.tableId,
+      stmt: entry.stmt ?? stmt ?? '',
+      hasLimit: entry.hasLimit ?? hasLimit,
+      createdAt: Date.now(),
+      displayName: t`Result${childCount + 1}`,
+    });
+
     if (action == 'new' || childCount == 0) {
       const subContext: QueryContextType = createStore({
         dbId,
@@ -142,7 +159,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
         displayName: t`Result${childCount + 1}`,
         id: childId,
       });
-      setRuns((prev) => [...(prev ?? []), subContext]);
+      setRuns((prev) => [historyEntry({ id: childId, stmt }), ...(prev ?? [])]);
       appendChild(id, subContext);
     } else {
       setChildren(id, (tabs) =>
@@ -158,14 +175,13 @@ export default function Editor({ context }: { context: EditorContextType }) {
               hasLimit,
             };
             setRuns((prev) => [
-              ...(prev ?? []),
-              {
-                dbId,
-                tableId: item.tableId,
-                type: 'query',
+              historyEntry({
+                id: childId,
                 stmt: item.stmt,
+                tableId: item.tableId,
                 hasLimit: item.hasLimit,
-              } as TabContextType,
+              }),
+              ...(prev ?? []),
             ]);
           }
           return item;

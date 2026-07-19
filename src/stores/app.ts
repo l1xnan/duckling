@@ -1,3 +1,4 @@
+import type { QueryHistoryItem } from '@/lib/queryHistory';
 import { TabContextType } from '@/stores/tabs';
 
 import { createSelectors } from '@/stores/utils';
@@ -37,7 +38,8 @@ export const appAtom = atomWithStore(useAppStore);
 export const sizeAtom = focusAtom(appAtom, (optic) => optic.prop('size'));
 
 export const favoriteAtom = atomWithStorage<TabContextType[]>('favorite', []);
-export const runsAtom = atomWithStorage<TabContextType[]>('runs', []);
+/** Query run history (newest items typically appended; UI sorts by createdAt). */
+export const runsAtom = atomWithStorage<QueryHistoryItem[]>('runs', []);
 export const docsAtom = atomWithStorage<Record<string, string>>('docs', {});
 /** Local SQL workspace folders shown in the Code sidebar. */
 export const sqlFoldersAtom = atomWithStorage<string[]>('sqlFolders', []);

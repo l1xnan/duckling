@@ -1,4 +1,5 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
+import { useSetAtom } from 'jotai';
 import { nanoid } from 'nanoid';
 
 import { useDialog } from '@/components/custom/use-dialog';
@@ -11,6 +12,7 @@ import {
 import { Loading, SelectedCellType } from '@/components/views/TableView';
 import { isQueryErrorCode } from '@/lib/capabilities';
 import { filterRows } from '@/lib/filterRows';
+import { runsAtom } from '@/stores/app';
 import { usePrecision } from '@/stores/setting';
 import {
   cancelExecuteSQL,
@@ -35,6 +37,7 @@ export function QueryView({
     (s) => s.byEditor[editorId]?.byId[queryId],
   );
   const patchChild = useQuerySessionStore((s) => s.patchChild);
+  const setRuns = useSetAtom(runsAtom);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const requestIdRef = useRef<string | null>(null);
@@ -45,6 +48,32 @@ export function QueryView({
       | ((prev: QueryContextType) => QueryContextType),
   ) => {
     patchChild(editorId, queryId, partial);
+  };
+
+  const patchHistoryResult = (
+    queryIdKey: string,
+    result: {
+      elapsed?: number;
+      total?: number;
+      code?: number;
+      message?: string;
+      sql?: string;
+    },
+  ) => {
+    setRuns((prev) =>
+      (prev ?? []).map((item) =>
+        item.id === queryIdKey
+          ? {
+              ...item,
+              elapsed: result.elapsed ?? item.elapsed,
+              total: result.total ?? item.total,
+              code: result.code ?? item.code,
+              message: result.message ?? item.message,
+              sql: result.sql ?? item.sql,
+            }
+          : item,
+      ),
+    );
   };
 
   const handleCancel = async () => {
@@ -69,6 +98,13 @@ export function QueryView({
       }
       const res = await executeSQL(current, { requestId });
       patch((prev) => ({ ...prev, ...res }));
+      patchHistoryResult(current.id ?? queryId, {
+        elapsed: res?.elapsed,
+        total: res?.total,
+        code: res?.code,
+        message: res?.message,
+        sql: res?.sql,
+      });
       if (isQueryErrorCode(res?.code) && res?.message) {
         setError(res.message);
       } else if (res?.message) {
@@ -76,7 +112,9 @@ export function QueryView({
       }
     } catch (error) {
       console.error(error);
-      setError(error as string);
+      const msg = error instanceof Error ? error.message : String(error);
+      setError(msg);
+      patchHistoryResult(queryId, { message: msg, code: -1 });
     } finally {
       if (requestIdRef.current === requestId) {
         requestIdRef.current = null;
