@@ -12,12 +12,18 @@ use mysql::prelude::*;
 use mysql::*;
 use std::collections::HashMap;
 use std::fmt::Debug;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use type_arrow::*;
 
 pub type MySqlSshConfig = DbSshConfig;
 
-#[derive(Debug, Default, Clone)]
+struct MySqlLive {
+  _tunnel: Option<SshTunnel>,
+  pool: Pool,
+}
+
+/// MySQL dialect connection. Pool + SSH tunnel are cached on first use and
+/// shared across clones so SessionManager can reuse one live session.
 pub struct MySqlConnection {
   pub host: String,
   pub port: String,
@@ -25,6 +31,72 @@ pub struct MySqlConnection {
   pub password: String,
   pub database: Option<String>,
   pub ssh: Option<DbSshConfig>,
+  live: Arc<Mutex<Option<MySqlLive>>>,
+}
+
+impl Default for MySqlConnection {
+  fn default() -> Self {
+    Self::new(
+      String::new(),
+      String::new(),
+      String::new(),
+      String::new(),
+      None,
+      None,
+    )
+  }
+}
+
+impl MySqlConnection {
+  pub fn new(
+    host: String,
+    port: String,
+    username: String,
+    password: String,
+    database: Option<String>,
+    ssh: Option<DbSshConfig>,
+  ) -> Self {
+    Self {
+      host,
+      port,
+      username,
+      password,
+      database,
+      ssh,
+      live: Arc::new(Mutex::new(None)),
+    }
+  }
+}
+
+impl std::fmt::Debug for MySqlConnection {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.debug_struct("MySqlConnection")
+      .field("host", &self.host)
+      .field("port", &self.port)
+      .field("username", &self.username)
+      .field("database", &self.database)
+      .finish_non_exhaustive()
+  }
+}
+
+impl Clone for MySqlConnection {
+  fn clone(&self) -> Self {
+    Self {
+      host: self.host.clone(),
+      port: self.port.clone(),
+      username: self.username.clone(),
+      password: self.password.clone(),
+      database: self.database.clone(),
+      ssh: self.ssh.clone(),
+      live: Arc::clone(&self.live),
+    }
+  }
+}
+
+impl std::fmt::Debug for MySqlLive {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.debug_struct("MySqlLive").finish_non_exhaustive()
+  }
 }
 
 #[async_trait]
@@ -53,8 +125,7 @@ impl Connection for MySqlConnection {
     let this = self.clone_config();
     let sql = sql.to_string();
     crate::dialect::run_blocking(move || {
-      let mut guard = this.get_conn()?;
-      let mut conn = guard.conn;
+      let mut conn = this.get_conn()?;
       if let Some(total) = conn.query_first::<usize, _>(sql)? {
         Ok(total)
       } else {
@@ -126,11 +197,6 @@ impl Connection for MySqlConnection {
   }
 }
 
-struct MySqlConnGuard {
-  _tunnel: Option<SshTunnel>,
-  conn: PooledConn,
-}
-
 impl MySqlConnection {
   fn clone_config(&self) -> Self {
     self.clone()
@@ -156,7 +222,15 @@ impl MySqlConnection {
     Ok(builder.into())
   }
 
-  fn get_conn(&self) -> anyhow::Result<MySqlConnGuard> {
+  fn ensure_live(&self) -> anyhow::Result<()> {
+    let mut guard = self
+      .live
+      .lock()
+      .map_err(|_| anyhow!("mysql live lock poisoned"))?;
+    if guard.is_some() {
+      return Ok(());
+    }
+
     let tunnel = if let Some(ssh_config) = self.ssh.as_ref().and_then(|s| s.to_tunnel_config()) {
       let target_port = self.port.parse().context("invalid MySQL port")?;
       Some(SshTunnel::open(&ssh_config, &self.host, target_port)?)
@@ -166,16 +240,27 @@ impl MySqlConnection {
 
     let opts = self.get_opts(tunnel.as_ref())?;
     let pool = Pool::new(opts)?;
-    let conn = pool.get_conn()?;
-    Ok(MySqlConnGuard {
+    *guard = Some(MySqlLive {
       _tunnel: tunnel,
-      conn,
-    })
+      pool,
+    });
+    Ok(())
+  }
+
+  fn get_conn(&self) -> anyhow::Result<PooledConn> {
+    self.ensure_live()?;
+    let guard = self
+      .live
+      .lock()
+      .map_err(|_| anyhow!("mysql live lock poisoned"))?;
+    let live = guard
+      .as_ref()
+      .ok_or_else(|| anyhow!("mysql live pool missing"))?;
+    Ok(live.pool.get_conn()?)
   }
 
   pub fn get_tables(&self) -> anyhow::Result<Vec<Table>> {
-    let mut guard = self.get_conn()?;
-    let mut conn = guard.conn;
+    let mut conn = self.get_conn()?;
 
     let sql = r"
     select
@@ -201,8 +286,7 @@ impl MySqlConnection {
   }
 
   fn _all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
-    let mut guard = self.get_conn()?;
-    let mut conn = guard.conn;
+    let mut conn = self.get_conn()?;
     let sql = "
     SELECT
         table_schema,
@@ -238,8 +322,7 @@ impl MySqlConnection {
   }
 
   fn _query(&self, sql: &str) -> anyhow::Result<RawArrowData> {
-    let mut guard = self.get_conn()?;
-    let mut conn = guard.conn;
+    let mut conn = self.get_conn()?;
 
     let mut result = conn.query_iter(sql)?;
     let columns = result.columns();
@@ -285,8 +368,7 @@ impl MySqlConnection {
   }
 
   fn _table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
-    let mut guard = self.get_conn()?;
-    let mut conn = guard.conn;
+    let mut conn = self.get_conn()?;
     let mut sql = format!("select count(*) from {table}");
     if !cond.is_empty() {
       sql = format!("{sql} where {cond}");
