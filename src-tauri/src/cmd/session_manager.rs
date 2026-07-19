@@ -1,11 +1,14 @@
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 use std::sync::{Arc, Mutex};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use connector::dialect::Connection;
 
 use super::db::DialectPayload;
+
+/// Default idle TTL before a live session is dropped (15 minutes).
+pub const DEFAULT_IDLE_TTL: Duration = Duration::from_secs(15 * 60);
 
 struct CachedSession {
   fingerprint: u64,
@@ -14,12 +17,28 @@ struct CachedSession {
 }
 
 /// Process-lifetime live connections keyed by connection_id.
-#[derive(Default)]
 pub struct SessionManager {
   sessions: Mutex<HashMap<String, CachedSession>>,
+  idle_ttl: Duration,
+}
+
+impl Default for SessionManager {
+  fn default() -> Self {
+    Self {
+      sessions: Mutex::new(HashMap::new()),
+      idle_ttl: DEFAULT_IDLE_TTL,
+    }
+  }
 }
 
 impl SessionManager {
+  pub fn with_idle_ttl(idle_ttl: Duration) -> Self {
+    Self {
+      sessions: Mutex::new(HashMap::new()),
+      idle_ttl,
+    }
+  }
+
   pub fn fingerprint(payload: &DialectPayload) -> u64 {
     let mut hasher = std::collections::hash_map::DefaultHasher::new();
     payload.dialect.hash(&mut hasher);
@@ -43,6 +62,21 @@ impl SessionManager {
     hasher.finish()
   }
 
+  /// Drop sessions whose `last_used` is older than `idle_ttl`. Returns count removed.
+  pub fn evict_idle(&self) -> usize {
+    self.evict_idle_at(Instant::now())
+  }
+
+  fn evict_idle_at(&self, now: Instant) -> usize {
+    let Ok(mut map) = self.sessions.lock() else {
+      return 0;
+    };
+    let ttl = self.idle_ttl;
+    let before = map.len();
+    map.retain(|_, s| now.duration_since(s.last_used) < ttl);
+    before.saturating_sub(map.len())
+  }
+
   pub fn get_or_insert(
     &self,
     connection_id: &str,
@@ -53,6 +87,9 @@ impl SessionManager {
     if id.is_empty() {
       return Err("connection id is required for session".into());
     }
+    // Opportunistic cleanup of other idle sessions.
+    let _ = self.evict_idle();
+
     let fp = Self::fingerprint(payload);
     let mut map = self
       .sessions
@@ -98,6 +135,15 @@ impl SessionManager {
   #[cfg(test)]
   pub fn len(&self) -> usize {
     self.sessions.lock().map(|m| m.len()).unwrap_or(0)
+  }
+
+  #[cfg(test)]
+  fn set_last_used_for_test(&self, connection_id: &str, when: Instant) {
+    if let Ok(mut map) = self.sessions.lock() {
+      if let Some(entry) = map.get_mut(connection_id) {
+        entry.last_used = when;
+      }
+    }
   }
 }
 
@@ -173,5 +219,58 @@ mod tests {
       .unwrap();
     mgr.invalidate("c1");
     assert_eq!(mgr.len(), 0);
+  }
+
+  #[test]
+  fn evict_idle_removes_stale_sessions() {
+    let mgr = SessionManager::with_idle_ttl(Duration::from_millis(50));
+    let p = file_payload("/tmp/a.csv");
+    let _ = mgr
+      .get_or_insert("c1", &p, || {
+        Ok(Box::new(FileConnection {
+          path: "/tmp/a.csv".into(),
+        }))
+      })
+      .unwrap();
+    assert_eq!(mgr.len(), 1);
+    // Backdate last_used past TTL.
+    mgr.set_last_used_for_test("c1", Instant::now() - Duration::from_secs(1));
+    let removed = mgr.evict_idle();
+    assert_eq!(removed, 1);
+    assert_eq!(mgr.len(), 0);
+  }
+
+  #[test]
+  fn get_or_insert_evicts_other_idle_sessions() {
+    let mgr = SessionManager::with_idle_ttl(Duration::from_millis(50));
+    let p1 = file_payload("/tmp/a.csv");
+    let _ = mgr
+      .get_or_insert("old", &p1, || {
+        Ok(Box::new(FileConnection {
+          path: "/tmp/a.csv".into(),
+        }))
+      })
+      .unwrap();
+    mgr.set_last_used_for_test("old", Instant::now() - Duration::from_secs(1));
+
+    let p2 = DialectPayload {
+      connection_id: Some("new".into()),
+      dialect: "file".into(),
+      path: Some("/tmp/b.csv".into()),
+      ..Default::default()
+    };
+    let _ = mgr
+      .get_or_insert("new", &p2, || {
+        Ok(Box::new(FileConnection {
+          path: "/tmp/b.csv".into(),
+        }))
+      })
+      .unwrap();
+    assert_eq!(mgr.len(), 1);
+    // only "new" remains
+    let again = mgr
+      .get_or_insert("new", &p2, || panic!("should reuse new"))
+      .unwrap();
+    assert_eq!(again.dialect(), "file");
   }
 }
