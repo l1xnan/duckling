@@ -243,9 +243,8 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                         });
                       }
                     }}
-                    defaultValue={field.value}
                     disabled={!isNew}
-                    value={field.value}
+                    value={field.value ?? null}
                     items={dialectItems}
                   >
                     <FormControl className="w-4/5">
@@ -734,6 +733,7 @@ export function DatabaseDialog() {
     defaultValues: {
       disable_ssl: true,
       displayName: '',
+      dialect: undefined,
     },
   });
   const appendDB = useDBListStore((state) => state.append);
@@ -754,7 +754,7 @@ export function DatabaseDialog() {
     // Await register so registry is ready before tree refresh.
     await appendDB(initData);
     setOpen(false);
-    form.reset({ disable_ssl: true, displayName: '' });
+    form.reset({ disable_ssl: true, displayName: '', dialect: undefined });
     await updateDB(id, config);
   }
 
