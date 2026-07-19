@@ -75,15 +75,8 @@ pub struct DialectPayload {
   pub ssh_passphrase: Option<String>,
 }
 
-#[allow(clippy::unused_async)]
 pub fn get_ast_dialect(dialect: &str) -> Box<dyn sqlparser::dialect::Dialect> {
-  match dialect {
-    "folder" | "file" | "duckdb" | "quack" => Box::new(sqlparser::dialect::DuckDbDialect {}),
-    "clickhouse" => Box::new(sqlparser::dialect::ClickHouseDialect {}),
-    "mysql" => Box::new(sqlparser::dialect::MySqlDialect {}),
-    "postgres" => Box::new(sqlparser::dialect::PostgreSqlDialect {}),
-    _ => Box::new(sqlparser::dialect::GenericDialect {}),
-  }
+  connector::dialect::ast::convert_dialect(dialect)
 }
 
 /// Build a connector from a fully-resolved payload (secrets already merged).
@@ -356,9 +349,9 @@ pub async fn drop_table(
   dialect: DialectPayload,
 ) -> Result<String, String> {
   let d = resolve_connection(&registry, dialect).await?;
-  // TODO: ERROR INFO
-  let res = d.drop_table(schema, table).await.expect("ERROR");
-  Ok(res)
+  d.drop_table(schema, table)
+    .await
+    .map_err(|e| e.to_string())
 }
 
 #[tauri::command]

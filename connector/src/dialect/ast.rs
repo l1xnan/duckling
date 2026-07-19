@@ -28,7 +28,12 @@ pub fn count_stmt(dialect: &str, stmt: &Statement) -> Option<String> {
         tmp.with = None;
 
         let count_sql = count_sql(&tmp.to_string());
-        let stmt: &mut Statement = &mut Parser::parse_sql(dialect, &count_sql).unwrap()[0];
+        let Ok(mut parsed) = Parser::parse_sql(dialect, &count_sql) else {
+          return Some(count_sql);
+        };
+        let Some(stmt) = parsed.get_mut(0) else {
+          return Some(count_sql);
+        };
 
         if let Statement::Query(tmp) = stmt {
           tmp.with = Some(with.clone());
@@ -72,7 +77,12 @@ pub fn limit_stmt(
         tmp.with = None;
 
         let count_sql = limit_sql(&tmp.to_string(), limit, offset);
-        let stmt: &mut Statement = &mut Parser::parse_sql(dialect, &count_sql).unwrap()[0];
+        let Ok(mut parsed) = Parser::parse_sql(dialect, &count_sql) else {
+          return Some(count_sql);
+        };
+        let Some(stmt) = parsed.get_mut(0) else {
+          return Some(count_sql);
+        };
 
         if let Statement::Query(tmp) = stmt {
           tmp.with = Some(with.clone());
@@ -108,9 +118,14 @@ fn parse_order_by_expr(order_by: &str) -> Vec<(String, Option<bool>)> {
   exprs
 }
 
-fn convert_dialect(d: &str) -> Box<dyn sqlparser::dialect::Dialect> {
+/// Map connector dialect names to sqlparser dialect implementations.
+pub fn convert_dialect(d: &str) -> Box<dyn sqlparser::dialect::Dialect> {
   match d {
-    "duckdb" | "quack" => Box::new(sqlparser::dialect::DuckDbDialect {}),
+    "folder" | "file" | "duckdb" | "quack" => Box::new(sqlparser::dialect::DuckDbDialect {}),
+    "clickhouse" => Box::new(sqlparser::dialect::ClickHouseDialect {}),
+    "mysql" => Box::new(sqlparser::dialect::MySqlDialect {}),
+    "postgres" => Box::new(sqlparser::dialect::PostgreSqlDialect {}),
+    "sqlite" => Box::new(sqlparser::dialect::SQLiteDialect {}),
     _ => Box::new(sqlparser::dialect::GenericDialect {}),
   }
 }
@@ -159,11 +174,24 @@ mod tests {
   #[test]
   fn test_order_by_expr() {
     let exprs = parse_order_by_expr("a DESC, b, c + 1 ASC");
-    println!("{:?}", exprs);
     assert!(!exprs[0].1.unwrap());
     assert_eq!(exprs[2].0, "c + 1");
+  }
 
-    // let serialized = serde_json::to_string_pretty(&stmts).unwrap();
-    // println!("Serialized as JSON:\n{serialized}");
+  #[test]
+  fn convert_dialect_covers_known_names() {
+    for name in [
+      "mysql",
+      "postgres",
+      "duckdb",
+      "folder",
+      "file",
+      "quack",
+      "clickhouse",
+      "sqlite",
+      "unknown-dialect",
+    ] {
+      let _ = convert_dialect(name);
+    }
   }
 }
