@@ -1,8 +1,7 @@
 import { Trans } from '@lingui/react/macro';
 import { Code, FileDown, RefreshCcw, Settings } from 'lucide-react';
 import { nanoid } from 'nanoid';
-import React, { PropsWithChildren, useState } from 'react';
-import { useHotkeys } from 'react-hotkeys-hook';
+import React, { PropsWithChildren, useEffect, useState } from 'react';
 
 import { ContextMenuItem } from '@/components/custom/context-menu';
 import { useDialog } from '@/components/custom/use-dialog';
@@ -13,11 +12,23 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
+import { formatHotkey, HOTKEYS } from '@/hotkeys';
 import { ConfigDialog } from '@/pages/sidebar/dialog/ConfigDialog';
 import { ConnectionTransferDialog } from '@/pages/sidebar/dialog/ConnectionTransferDialog';
 import { RenameDialog } from '@/pages/sidebar/dialog/RenameDialog';
-import { DBType, getStoredDB, useDBListStore } from '@/stores/dbList';
+import {
+  DBType,
+  getStoredDB,
+  useDBListStore,
+  useSelectedNodeStore,
+  type NodeContextType,
+} from '@/stores/dbList';
 import { useTabsStore } from '@/stores/tabs';
+
+type TreeHotkeyDetail = {
+  action: string;
+  node: NodeContextType | null;
+};
 
 export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
   children,
@@ -26,6 +37,7 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
   const updateTab = useTabsStore((state) => state.update);
   const removeDB = useDBListStore((state) => state.remove);
   const updateDB = useDBListStore((state) => state.updateByConfig);
+  const selectedNode = useSelectedNodeStore((s) => s.selectedNode);
 
   const dialog = useDialog();
   const configDialog = useDialog();
@@ -61,43 +73,62 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
   const handleRename = () => {
     dialog.trigger();
   };
-  const [enabled, setEnabled] = useState(false);
 
-  useHotkeys('f2', handleRename, { enabled });
-  useHotkeys('f3', handleProperties, { enabled });
-  useHotkeys('f4', handleEditor, { enabled });
-  useHotkeys('f5', handleRefresh, { enabled });
-  useHotkeys('delete', handleRemove, { enabled });
+  // Respond to global tree hotkeys when this connection is selected.
+  useEffect(() => {
+    const onTreeHotkey = (e: Event) => {
+      const detail = (e as CustomEvent<TreeHotkeyDetail>).detail;
+      if (!detail?.node || detail.node.dbId !== db.id) return;
+      if (detail.action === 'rename') handleRename();
+      else if (detail.action === 'properties') handleProperties();
+      else if (detail.action === 'delete') handleRemove();
+    };
+    window.addEventListener('duckling:tree-hotkey', onTreeHotkey);
+    return () => {
+      window.removeEventListener('duckling:tree-hotkey', onTreeHotkey);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [db.id, selectedNode?.dbId]);
 
   return (
     <>
-      <ContextMenu onOpenChange={setEnabled}>
+      <ContextMenu>
         <ContextMenuTrigger>{children}</ContextMenuTrigger>
         <ContextMenuContent className="w-64">
           <ContextMenuItem onSelect={handleProperties} icon={Settings}>
             <Trans>Properties</Trans>
-            <ContextMenuShortcut>F3</ContextMenuShortcut>
+            <ContextMenuShortcut>
+              {formatHotkey(HOTKEYS['connection.properties'].hotkey)}
+            </ContextMenuShortcut>
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem onSelect={handleEditor} icon={Code}>
             <Trans>SQL Editor</Trans>
-            <ContextMenuShortcut>F4</ContextMenuShortcut>
+            <ContextMenuShortcut>
+              {formatHotkey(HOTKEYS['connection.editor'].hotkey)}
+            </ContextMenuShortcut>
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem inset onSelect={handleRename}>
             <Trans>Rename</Trans>
-            <ContextMenuShortcut>F2</ContextMenuShortcut>
+            <ContextMenuShortcut>
+              {formatHotkey(HOTKEYS['connection.rename'].hotkey)}
+            </ContextMenuShortcut>
           </ContextMenuItem>
           <ContextMenuItem onSelect={handleRefresh} icon={RefreshCcw}>
             <Trans>Refresh</Trans>
-            <ContextMenuShortcut>F5</ContextMenuShortcut>
+            <ContextMenuShortcut>
+              {formatHotkey(HOTKEYS['tree.refresh'].hotkey)}
+            </ContextMenuShortcut>
           </ContextMenuItem>
           <ContextMenuItem onSelect={() => setExportOpen(true)} icon={FileDown}>
             <Trans>Export Connection</Trans>
           </ContextMenuItem>
           <ContextMenuItem inset onSelect={handleRemove} tabIndex={-1}>
             <Trans>Delete</Trans>
-            <ContextMenuShortcut>Del</ContextMenuShortcut>
+            <ContextMenuShortcut>
+              {formatHotkey(HOTKEYS['tree.delete'].hotkey)}
+            </ContextMenuShortcut>
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>

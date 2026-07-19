@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 
 import { checkAppUpdate, setSessionIdleTtl } from '@/api';
 import { Toaster } from '@/components/ui/sonner';
+import { HotkeysRoot } from '@/hotkeys';
 import { AppI18nProvider } from '@/i18n/AppI18nProvider';
 import { atomStore } from '@/stores';
 import {
@@ -73,10 +74,11 @@ function App() {
     <Provider store={atomStore}>
       <AppI18nProvider>
         <ThemeProvider>
-          <JotaiDevTools position="bottom-right" />
-          <Home />
-
-          <Toaster richColors />
+          <HotkeysRoot>
+            <JotaiDevTools position="bottom-right" />
+            <Home />
+            <Toaster richColors />
+          </HotkeysRoot>
         </ThemeProvider>
       </AppI18nProvider>
     </Provider>

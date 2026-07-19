@@ -72,6 +72,22 @@ const MonacoEditor = forwardRef<
         void ed.getAction('editor.action.formatDocument')?.run();
       },
     });
+
+    // Chord: Mod+K Mod+F — format selection (matches registry editor.formatSelection)
+    editor.addAction({
+      id: `${instanceId.current}.formatSelection`,
+      label: i18n._(msg`Format Selection`),
+      contextMenuGroupId: '1_modification',
+      keybindings: [
+        monaco.KeyMod.chord(
+          monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK,
+          monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF,
+        ),
+      ],
+      run: (ed) => {
+        void ed.getAction('editor.action.formatSelection')?.run();
+      },
+    });
   };
 
   useImperativeHandle(ref, () => ({

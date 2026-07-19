@@ -3,13 +3,13 @@ import { useLingui } from '@lingui/react/macro';
 import { useAtom, useSetAtom } from 'jotai';
 import { nanoid } from 'nanoid';
 import { useRef, useState } from 'react';
-import { useHotkeys } from 'react-hotkeys-hook';
 
 import MonacoEditor, { EditorRef } from '@/components/editor/MonacoEditor';
 import VerticalContainer from '@/components/VerticalContainer';
-import { bookmarksAtom, docsAtom, runsAtom } from '@/stores/app';
+import { useAppHotkey } from '@/hotkeys';
 import type { QueryHistoryItem } from '@/lib/queryHistory';
 import { buildExplainSql } from '@/lib/sql/sample';
+import { bookmarksAtom, docsAtom, runsAtom } from '@/stores/app';
 import { DBType, useConnection, useConnectionMeta } from '@/stores/dbList';
 import {
   EditorContextType,
@@ -191,7 +191,14 @@ export default function Editor({ context }: { context: EditorContextType }) {
     setActiveKey(childId);
   };
 
-  useHotkeys('ctrl+enter', () => handleClick(), { enabled: currentTab == id });
+  // Run (Mod+Enter) is bound only in Monaco to avoid double-fire.
+  useAppHotkey(
+    'editor.runNewTab',
+    () => {
+      void handleClick('new');
+    },
+    { enabled: currentTab === id },
+  );
 
   const setSession = useTabsStore((s) => s.setSession);
   const handleSession = (db: DBType) => {
