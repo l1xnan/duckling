@@ -622,3 +622,13 @@ export function getSchemaMap() {
 export function getStoredDB(id: string): DBType | undefined {
   return useDBListStore.getState().dbList.find((item) => item.id === id);
 }
+
+/** Fine-grained React selector: only re-renders when this connection's meta changes. */
+export function useConnectionMeta(dbId: string) {
+  return useDBListStore((s) => s.dbList.find((d) => d.id === dbId)?.meta);
+}
+
+/** Fine-grained React selector for a single connection row. */
+export function useConnection(dbId: string) {
+  return useDBListStore((s) => s.dbList.find((d) => d.id === dbId));
+}

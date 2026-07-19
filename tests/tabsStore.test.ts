@@ -121,22 +121,20 @@ describe('tabsStore P0 invariants', () => {
 
   it('remove force drops editor and clears session', () => {
     useTabsStore.getState().update(editorTab('e1'));
-    useQuerySessionStore.getState().setChildren('e1', [
-      {
-        id: 'q1',
-        dbId: 'db1',
-        tableId: 't',
-        type: 'query',
-        displayName: 'q1',
-        page: 1,
-        perPage: 10,
-        total: 0,
-        elapsed: 0,
-        hiddenColumns: {},
-        direction: 'horizontal',
-        cross: false,
-      } as never,
-    ]);
+    useQuerySessionStore.getState().appendChild('e1', {
+      id: 'q1',
+      dbId: 'db1',
+      tableId: 't',
+      type: 'query',
+      displayName: 'q1',
+      page: 1,
+      perPage: 10,
+      total: 0,
+      elapsed: 0,
+      hiddenColumns: {},
+      direction: 'horizontal',
+      cross: false,
+    } as never);
 
     useTabsStore.getState().remove('e1', true);
 

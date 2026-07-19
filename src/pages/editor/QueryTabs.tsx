@@ -1,7 +1,14 @@
+import type { ReactElement } from 'react';
+
 import { PageTabs } from '@/components/PageTabs';
 import { QueryView } from '@/components/views';
 import { PageProvider } from '@/hooks/context';
-import { EMPTY_CHILDREN, useQuerySessionStore } from '@/stores/tabs';
+import {
+  EMPTY_BY_ID,
+  EMPTY_ORDER,
+  useQuerySessionStore,
+  type QueryContextType,
+} from '@/stores/tabs';
 
 export interface QueryTabsProps {
   editorId: string;
@@ -14,20 +21,31 @@ export function QueryTabs({
   activeKey,
   setActiveKey,
 }: QueryTabsProps) {
-  const tabs = useQuerySessionStore(
-    (s) => s.byEditor[editorId]?.children ?? EMPTY_CHILDREN,
+  const order = useQuerySessionStore(
+    (s) => s.byEditor[editorId]?.order ?? EMPTY_ORDER,
+  );
+  const byId = useQuerySessionStore(
+    (s) => s.byEditor[editorId]?.byId ?? EMPTY_BY_ID,
   );
   const removeChild = useQuerySessionStore((s) => s.removeChild);
 
-  const items = tabs.map((tab) => {
-    const children = (
-      <PageProvider context={tab}>
-        <QueryView editorId={editorId} queryId={tab.id} />
-      </PageProvider>
+  const items = order
+    .map((queryId) => {
+      const tab = byId[queryId];
+      if (!tab) {
+        return null;
+      }
+      const children = (
+        <PageProvider context={tab}>
+          <QueryView editorId={editorId} queryId={queryId} />
+        </PageProvider>
+      );
+      return { tab, children };
+    })
+    .filter(
+      (item): item is { tab: QueryContextType; children: ReactElement } =>
+        item != null,
     );
-
-    return { tab, children };
-  });
 
   const handleChange = (val: string) => {
     setActiveKey(val);
@@ -40,7 +58,7 @@ export function QueryTabs({
   return (
     <PageTabs
       items={items}
-      activeKey={activeKey ?? tabs[0]?.id ?? ''}
+      activeKey={activeKey ?? order[0] ?? ''}
       onChange={handleChange}
       onRemove={handleRemove}
     />

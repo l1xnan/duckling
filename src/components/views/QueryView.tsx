@@ -26,8 +26,8 @@ export function QueryView({
   editorId: string;
   queryId: string;
 }) {
-  const ctx = useQuerySessionStore((s) =>
-    s.byEditor[editorId]?.children.find((c) => c.id === queryId),
+  const ctx = useQuerySessionStore(
+    (s) => s.byEditor[editorId]?.byId[queryId],
   );
   const patchChild = useQuerySessionStore((s) => s.patchChild);
   const [loading, setLoading] = useState(false);

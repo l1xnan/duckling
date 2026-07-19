@@ -8,13 +8,11 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import MonacoEditor, { EditorRef } from '@/components/editor/MonacoEditor';
 import VerticalContainer from '@/components/VerticalContainer';
 import { docsAtom, runsAtom } from '@/stores/app';
-import { DBType, useSchemaMapStore } from '@/stores/dbList';
+import { DBType, useConnection, useConnectionMeta } from '@/stores/dbList';
 import {
-  EMPTY_SESSION,
   EditorContextType,
   QueryContextType,
   TabContextType,
-  getDatabase,
   useQuerySessionStore,
   useTabsStore,
 } from '@/stores/tabs';
@@ -34,23 +32,24 @@ function createStore(item: Partial<QueryContextType>) {
 export default function Editor({ context }: { context: EditorContextType }) {
   const { t } = useLingui();
   const { id, dbId } = context;
-  const db = getDatabase(dbId);
+  const db = useConnection(dbId);
+  const tableSchema = useConnectionMeta(dbId);
 
   const [docs, setDocs] = useAtom(docsAtom);
   const currentTab = useTabsStore((s) => s.currentId);
 
-  const session = useQuerySessionStore((s) => s.byEditor[id] ?? EMPTY_SESSION);
+  const activeKey = useQuerySessionStore((s) => s.byEditor[id]?.activeKey);
+  const childCount = useQuerySessionStore(
+    (s) => s.byEditor[id]?.order.length ?? 0,
+  );
   const setActiveKeyStore = useQuerySessionStore((s) => s.setActiveKey);
   const setChildren = useQuerySessionStore((s) => s.setChildren);
+  const appendChild = useQuerySessionStore((s) => s.appendChild);
 
   const [hasLimit, setHasLimit] = useState(true);
   const [canFormatSelection, setCanFormatSelection] = useState(false);
 
   const stmt = docs[id] ?? '';
-
-  const schemaMap = useSchemaMapStore();
-
-  const tableSchema = schemaMap.get(dbId);
   const ref = useRef<EditorRef | null>(null);
 
   const syncSelectionState = () => {
@@ -95,7 +94,10 @@ export default function Editor({ context }: { context: EditorContextType }) {
   const handleClick = async (action?: string) => {
     const stmt = getStmt();
     const childId = `${id}@${nanoid()}`;
-    if (action == 'new' || session.children.length == 0) {
+    const currentActive = useQuerySessionStore.getState().byEditor[id]
+      ?.activeKey;
+
+    if (action == 'new' || childCount == 0) {
       const subContext: QueryContextType = createStore({
         dbId,
         schema: context.schema,
@@ -103,15 +105,15 @@ export default function Editor({ context }: { context: EditorContextType }) {
         type: 'query',
         stmt,
         hasLimit,
-        displayName: t`Result${(session?.children?.length ?? 0) + 1}`,
+        displayName: t`Result${childCount + 1}`,
         id: childId,
       });
       setRuns((prev) => [...(prev ?? []), subContext]);
-      setChildren(id, (prev) => [...(prev ?? []), subContext]);
+      appendChild(id, subContext);
     } else {
       setChildren(id, (tabs) =>
         (tabs ?? []).map((item) => {
-          if (item.id == session.activeKey) {
+          if (item.id == currentActive) {
             item = {
               ...item,
               stmt,
@@ -161,9 +163,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
         onFormat={handleFormat}
         canFormatSelection={canFormatSelection}
       />
-      <VerticalContainer
-        bottom={session.children.length > 0 ? 300 : undefined}
-      >
+      <VerticalContainer bottom={childCount > 0 ? 300 : undefined}>
         <div className="h-full flex flex-col overflow-hidden border-b">
           <MonacoEditor
             ref={ref}
@@ -186,7 +186,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
         </div>
         <QueryTabs
           editorId={id}
-          activeKey={session.activeKey}
+          activeKey={activeKey}
           setActiveKey={setActiveKey}
         />
       </VerticalContainer>
