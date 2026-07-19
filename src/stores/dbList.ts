@@ -90,6 +90,8 @@ export type PostgresDialectType = {
   username: string;
   database: string;
   dialect: DialectType;
+  /** `disable` (default) | `require` */
+  ssl_mode?: 'disable' | 'require';
   ssh_tunnel?: SshTunnelConfig;
 };
 

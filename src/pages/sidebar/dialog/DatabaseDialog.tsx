@@ -334,6 +334,52 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                     </FormItem>
                   )}
                 />
+                {watchDialect === 'postgres' ? (
+                  <FormField
+                    control={form.control}
+                    name="ssl_mode"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center w-[62.5%]">
+                        <FormLabel className="w-1/5 mr-2 mt-2">
+                          <Trans>SSL</Trans>
+                        </FormLabel>
+                        <Select
+                          value={
+                            (field.value as string | undefined) ?? 'disable'
+                          }
+                          onValueChange={(v) =>
+                            field.onChange(
+                              (typeof v === 'string' ? v : 'disable') as
+                                | 'disable'
+                                | 'require',
+                            )
+                          }
+                          items={[
+                            { label: t`Disable`, value: 'disable' },
+                            { label: t`Require`, value: 'require' },
+                          ]}
+                        >
+                          <FormControl className="w-4/5">
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value="disable" label={t`Disable`}>
+                                <Trans>Disable</Trans>
+                              </SelectItem>
+                              <SelectItem value="require" label={t`Require`}>
+                                <Trans>Require</Trans>
+                              </SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ) : null}
                 <FormField
                   control={form.control}
                   name="password"

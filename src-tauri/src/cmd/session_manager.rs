@@ -74,6 +74,7 @@ impl SessionManager {
     payload.uri.hash(&mut hasher);
     payload.token.hash(&mut hasher);
     payload.disable_ssl.hash(&mut hasher);
+    payload.ssl_mode.hash(&mut hasher);
     payload.ssh_enabled.hash(&mut hasher);
     payload.ssh_host.hash(&mut hasher);
     payload.ssh_port.hash(&mut hasher);

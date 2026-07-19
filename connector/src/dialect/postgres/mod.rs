@@ -15,6 +15,32 @@ use crate::ssh_tunnel::{DbSshConfig, SshTunnel};
 use crate::utils::{RawArrowData, Table, TreeNode, build_tree};
 use anyhow::{Context, anyhow};
 
+/// TLS mode for Postgres connections.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum SslMode {
+  /// No TLS (previous default).
+  #[default]
+  Disable,
+  /// Require TLS (native-tls; system certs).
+  Require,
+}
+
+impl SslMode {
+  pub fn parse(s: &str) -> Self {
+    match s.trim().to_ascii_lowercase().as_str() {
+      "require" | "required" | "enable" | "enabled" | "true" | "1" => Self::Require,
+      _ => Self::Disable,
+    }
+  }
+
+  pub fn as_str(self) -> &'static str {
+    match self {
+      Self::Disable => "disable",
+      Self::Require => "require",
+    }
+  }
+}
+
 struct PostgresLive {
   _tunnel: Option<SshTunnel>,
   tunnel_port: Option<u16>,
@@ -30,6 +56,7 @@ pub struct PostgresConnection {
   pub password: String,
   pub database: Option<String>,
   pub ssh: Option<DbSshConfig>,
+  pub ssl_mode: SslMode,
   live: Arc<Mutex<Option<PostgresLive>>>,
 }
 
@@ -55,6 +82,18 @@ impl PostgresConnection {
     database: Option<String>,
     ssh: Option<DbSshConfig>,
   ) -> Self {
+    Self::with_ssl(host, port, username, password, database, ssh, SslMode::Disable)
+  }
+
+  pub fn with_ssl(
+    host: String,
+    port: String,
+    username: String,
+    password: String,
+    database: Option<String>,
+    ssh: Option<DbSshConfig>,
+    ssl_mode: SslMode,
+  ) -> Self {
     Self {
       host,
       port,
@@ -62,6 +101,7 @@ impl PostgresConnection {
       password,
       database,
       ssh,
+      ssl_mode,
       live: Arc::new(Mutex::new(None)),
     }
   }
@@ -76,6 +116,7 @@ impl Clone for PostgresConnection {
       password: self.password.clone(),
       database: self.database.clone(),
       ssh: self.ssh.clone(),
+      ssl_mode: self.ssl_mode,
       live: Arc::clone(&self.live),
     }
   }
@@ -88,6 +129,7 @@ impl std::fmt::Debug for PostgresConnection {
       .field("port", &self.port)
       .field("username", &self.username)
       .field("database", &self.database)
+      .field("ssl_mode", &self.ssl_mode)
       .finish_non_exhaustive()
   }
 }
@@ -239,7 +281,7 @@ impl PostgresConnection {
     }
 
     let config = self.build_conn_string(&db_key, tunnel_port);
-    let client = Arc::new(connect(&config).await?);
+    let client = Arc::new(connect_with_ssl(&config, self.ssl_mode).await?);
 
     let mut guard = self
       .live
@@ -378,15 +420,39 @@ impl PostgresConnection {
   }
 }
 
-async fn connect(s: &str) -> anyhow::Result<Client> {
-  let (client, connection) = tokio_postgres::connect(s, NoTls).await?;
-  let connection = connection.map(|e| e.unwrap());
-  tokio::spawn(connection);
-  Ok(client)
+async fn connect_with_ssl(s: &str, ssl_mode: SslMode) -> anyhow::Result<Client> {
+  match ssl_mode {
+    SslMode::Disable => {
+      let (client, connection) = tokio_postgres::connect(s, NoTls).await?;
+      let connection = connection.map(|e| e.unwrap());
+      tokio::spawn(connection);
+      Ok(client)
+    }
+    SslMode::Require => {
+      let connector = native_tls::TlsConnector::builder()
+        .build()
+        .context("failed to build TLS connector")?;
+      let tls = postgres_native_tls::MakeTlsConnector::new(connector);
+      let (client, connection) = tokio_postgres::connect(s, tls).await?;
+      let connection = connection.map(|e| e.unwrap());
+      tokio::spawn(connection);
+      Ok(client)
+    }
+  }
 }
 
 #[tokio::test]
 async fn test_database() {}
+
+#[test]
+fn ssl_mode_parse() {
+  assert_eq!(SslMode::parse("disable"), SslMode::Disable);
+  assert_eq!(SslMode::parse("require"), SslMode::Require);
+  assert_eq!(SslMode::parse("required"), SslMode::Require);
+  assert_eq!(SslMode::parse(""), SslMode::Disable);
+  assert_eq!(SslMode::Disable.as_str(), "disable");
+  assert_eq!(SslMode::Require.as_str(), "require");
+}
 
 #[tokio::test]
 async fn query_cancellable_respects_precheck() {

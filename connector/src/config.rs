@@ -23,6 +23,8 @@ pub struct ConnectionConfig {
   pub uri: Option<String>,
   pub token: Option<String>,
   pub disable_ssl: Option<bool>,
+  /// Postgres: `disable` | `require` (default disable).
+  pub ssl_mode: Option<String>,
   pub ssh: Option<DbSshConfig>,
 }
 
@@ -121,18 +123,26 @@ pub fn open(config: ConnectionConfig) -> anyhow::Result<Box<dyn Connection>> {
       config.database,
       config.ssh,
     ))),
-    "postgres" => Ok(Box::new(PostgresConnection::new(
-      config
-        .host
-        .ok_or_else(|| anyhow::anyhow!("host required for postgres"))?,
-      config
-        .port
-        .ok_or_else(|| anyhow::anyhow!("port required for postgres"))?,
-      config.username.unwrap_or_default(),
-      config.password.unwrap_or_default(),
-      config.database,
-      config.ssh,
-    ))),
+    "postgres" => {
+      let ssl_mode = config
+        .ssl_mode
+        .as_deref()
+        .map(crate::dialect::postgres::SslMode::parse)
+        .unwrap_or_default();
+      Ok(Box::new(PostgresConnection::with_ssl(
+        config
+          .host
+          .ok_or_else(|| anyhow::anyhow!("host required for postgres"))?,
+        config
+          .port
+          .ok_or_else(|| anyhow::anyhow!("port required for postgres"))?,
+        config.username.unwrap_or_default(),
+        config.password.unwrap_or_default(),
+        config.database,
+        config.ssh,
+        ssl_mode,
+      )))
+    }
     "quack" => Ok(Box::new(QuackConnection {
       uri: config
         .uri

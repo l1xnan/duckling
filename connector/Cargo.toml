@@ -22,6 +22,8 @@ tokio-postgres = { version = "0.7.18", features = [
   "array-impls",
   "with-chrono-0_4",
 ] }
+postgres-native-tls = "0.5"
+native-tls = "0.2"
 anyhow = "1"
 url = "^2.5.0"
 nanoid = "0.4.0"
