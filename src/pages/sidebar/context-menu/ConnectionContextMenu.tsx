@@ -12,7 +12,7 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { formatHotkey, HOTKEYS } from '@/hotkeys';
+import { formatHotkey, getHotkey } from '@/hotkeys';
 import { ConfigDialog } from '@/pages/sidebar/dialog/ConfigDialog';
 import { ConnectionTransferDialog } from '@/pages/sidebar/dialog/ConnectionTransferDialog';
 import { RenameDialog } from '@/pages/sidebar/dialog/RenameDialog';
@@ -98,27 +98,27 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
           <ContextMenuItem onSelect={handleProperties} icon={Settings}>
             <Trans>Properties</Trans>
             <ContextMenuShortcut>
-              {formatHotkey(HOTKEYS['connection.properties'].hotkey)}
+              {formatHotkey(getHotkey('connection.properties'))}
             </ContextMenuShortcut>
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem onSelect={handleEditor} icon={Code}>
             <Trans>SQL Editor</Trans>
             <ContextMenuShortcut>
-              {formatHotkey(HOTKEYS['connection.editor'].hotkey)}
+              {formatHotkey(getHotkey('connection.editor'))}
             </ContextMenuShortcut>
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem inset onSelect={handleRename}>
             <Trans>Rename</Trans>
             <ContextMenuShortcut>
-              {formatHotkey(HOTKEYS['connection.rename'].hotkey)}
+              {formatHotkey(getHotkey('connection.rename'))}
             </ContextMenuShortcut>
           </ContextMenuItem>
           <ContextMenuItem onSelect={handleRefresh} icon={RefreshCcw}>
             <Trans>Refresh</Trans>
             <ContextMenuShortcut>
-              {formatHotkey(HOTKEYS['tree.refresh'].hotkey)}
+              {formatHotkey(getHotkey('tree.refresh'))}
             </ContextMenuShortcut>
           </ContextMenuItem>
           <ContextMenuItem onSelect={() => setExportOpen(true)} icon={FileDown}>
@@ -127,7 +127,7 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
           <ContextMenuItem inset onSelect={handleRemove} tabIndex={-1}>
             <Trans>Delete</Trans>
             <ContextMenuShortcut>
-              {formatHotkey(HOTKEYS['tree.delete'].hotkey)}
+              {formatHotkey(getHotkey('tree.delete'))}
             </ContextMenuShortcut>
           </ContextMenuItem>
         </ContextMenuContent>

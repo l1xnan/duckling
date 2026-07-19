@@ -4,10 +4,11 @@ import {
   type UseHotkeyOptions,
 } from '@tanstack/react-hotkeys';
 
-import { HOTKEYS, type HotkeyId } from './registry';
+import type { HotkeyId } from './registry';
+import { useHotkeyBinding } from './resolve';
 
 /**
- * Register a hotkey from the app registry by id.
+ * Register a hotkey from the app registry by id (honors user overrides).
  * Pass `enabled: false` to keep registration but suppress firing.
  */
 export function useAppHotkey(
@@ -15,10 +16,10 @@ export function useAppHotkey(
   callback: (event: KeyboardEvent) => void,
   options?: Omit<UseHotkeyOptions, 'hotkey'> & { enabled?: boolean },
 ) {
-  const def = HOTKEYS[id];
-  // Registry stores plain strings; TanStack types them as template-literal Hotkeys.
+  const hotkey = useHotkeyBinding(id);
+  // Registry / overrides store plain strings; TanStack types them as template-literal Hotkeys.
   useHotkey(
-    def.hotkey as unknown as RegisterableHotkey,
+    hotkey as unknown as RegisterableHotkey,
     (event) => {
       callback(event as KeyboardEvent);
     },

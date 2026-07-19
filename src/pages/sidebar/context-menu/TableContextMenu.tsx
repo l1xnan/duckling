@@ -20,7 +20,7 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { formatHotkey, HOTKEYS } from '@/hotkeys';
+import { formatHotkey, getHotkey } from '@/hotkeys';
 import { canDropTable, canFind, canMetadata } from '@/lib/capabilities';
 import { quoteTableExpr } from '@/lib/sql/countByColumn';
 import { buildSampleSql } from '@/lib/sql/sample';
@@ -273,7 +273,7 @@ export function TableContextMenu({
           <ContextMenuItem onSelect={handleRefresh} icon={RefreshCcw}>
             <Trans>Refresh</Trans>
             <ContextMenuShortcut>
-              {formatHotkey(HOTKEYS['tree.refresh'].hotkey)}
+              {formatHotkey(getHotkey('tree.refresh'))}
             </ContextMenuShortcut>
           </ContextMenuItem>
         </ContextMenuContent>

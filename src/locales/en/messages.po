@@ -86,7 +86,7 @@ msgstr "Add data"
 msgid "Add data folder"
 msgstr "Add data folder"
 
-#: src/stores/setting.ts:346
+#: src/stores/setting.ts:352
 msgid "After operator"
 msgstr "After operator"
 
@@ -94,7 +94,7 @@ msgstr "After operator"
 msgid "All Files"
 msgstr "All Files"
 
-#: src/pages/settings/AppSetting.tsx:91
+#: src/pages/settings/AppSetting.tsx:92
 msgid "Appearance"
 msgstr "Appearance"
 
@@ -106,15 +106,15 @@ msgstr "Apply filter to WHERE"
 msgid "Are you absolutely sure?"
 msgstr "Are you absolutely sure?"
 
-#: src/pages/settings/AppSetting.tsx:1536
+#: src/pages/settings/AppSetting.tsx:1541
 msgid "Automatic updates"
 msgstr "Automatic updates"
 
-#: src/pages/settings/AppSetting.tsx:1207
+#: src/pages/settings/AppSetting.tsx:1212
 msgid "Available"
 msgstr "Available"
 
-#: src/stores/setting.ts:345
+#: src/stores/setting.ts:351
 msgid "Before operator"
 msgstr "Before operator"
 
@@ -131,24 +131,28 @@ msgid "Bookmarked"
 msgstr "Bookmarked"
 
 #: src/components/views/ExportDialog.tsx:276
-#: src/pages/settings/AppSetting.tsx:1180
+#: src/pages/settings/AppSetting.tsx:1185
 msgid "Browse"
 msgstr "Browse"
+
+#: src/pages/settings/HotkeysForm.tsx:215
+msgid "Built-in"
+msgstr "Built-in"
 
 #: src/components/views/ValueViewer.tsx:133
 msgid "Calculate"
 msgstr "Calculate"
 
-#: src/pages/settings/AppSetting.tsx:1143
+#: src/pages/settings/AppSetting.tsx:1148
 msgid "Calls the external <0>sqlfmt</0> binary via Tauri."
 msgstr "Calls the external <0>sqlfmt</0> binary via Tauri."
 
 #: src/components/PageTabs.tsx:419
 #: src/components/views/ExportDialog.tsx:423
-#: src/pages/settings/AppSetting.tsx:509
-#: src/pages/settings/AppSetting.tsx:1307
-#: src/pages/settings/AppSetting.tsx:1607
-#: src/pages/settings/AppSetting.tsx:1734
+#: src/pages/settings/AppSetting.tsx:514
+#: src/pages/settings/AppSetting.tsx:1312
+#: src/pages/settings/AppSetting.tsx:1612
+#: src/pages/settings/AppSetting.tsx:1739
 #: src/pages/settings/SshProfilesForm.tsx:537
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:299
 #: src/pages/sidebar/dialog/ConfigDialog.tsx:100
@@ -165,11 +169,11 @@ msgstr "Cancel"
 msgid "Chart"
 msgstr "Chart"
 
-#: src/pages/settings/AppSetting.tsx:1191
+#: src/pages/settings/AppSetting.tsx:1196
 msgid "Check"
 msgstr "Check"
 
-#: src/pages/settings/AppSetting.tsx:1476
+#: src/pages/settings/AppSetting.tsx:1481
 msgid "Check for updates"
 msgstr "Check for updates"
 
@@ -201,11 +205,15 @@ msgstr "Clear search"
 msgid "Clear sort"
 msgstr "Clear sort"
 
-#: src/pages/settings/AppSetting.tsx:1464
+#: src/pages/settings/HotkeysForm.tsx:71
+msgid "Click a shortcut to record a new combination. Built-in editor and table shortcuts cannot be remapped here."
+msgstr "Click a shortcut to record a new combination. Built-in editor and table shortcuts cannot be remapped here."
+
+#: src/pages/settings/AppSetting.tsx:1469
 msgid "Click to update"
 msgstr "Click to update"
 
-#: src/stores/setting.ts:354
+#: src/stores/setting.ts:360
 msgid "ClickHouse"
 msgstr "ClickHouse"
 
@@ -216,7 +224,7 @@ msgstr "ClickHouse"
 msgid "Close"
 msgstr "Close"
 
-#: src/pages/settings/AppSetting.tsx:465
+#: src/pages/settings/AppSetting.tsx:470
 msgid "Close idle database sessions (connection pools, SSH tunnels) after this many minutes. Use 0 to keep sessions until the app exits or the connection is removed."
 msgstr "Close idle database sessions (connection pools, SSH tunnels) after this many minutes. Use 0 to keep sessions until the app exits or the connection is removed."
 
@@ -233,11 +241,11 @@ msgstr "Close tab"
 msgid "Code"
 msgstr "Code"
 
-#: src/pages/settings/AppSetting.tsx:308
+#: src/pages/settings/AppSetting.tsx:313
 msgid "Code Font Family"
 msgstr "Code Font Family"
 
-#: src/pages/settings/AppSetting.tsx:329
+#: src/pages/settings/AppSetting.tsx:334
 msgid "Code Font Size"
 msgstr "Code Font Size"
 
@@ -351,9 +359,13 @@ msgstr "Cross"
 msgid "CSV / TSV options"
 msgstr "CSV / TSV options"
 
-#: src/pages/settings/AppSetting.tsx:1437
+#: src/pages/settings/AppSetting.tsx:1442
 msgid "Current version: {version}"
 msgstr "Current version: {version}"
+
+#: src/pages/settings/HotkeysForm.tsx:219
+msgid "Custom"
+msgstr "Custom"
 
 #: src/components/views/DataViewToolbar.tsx:182
 msgid "Data Columns"
@@ -363,7 +375,7 @@ msgstr "Data Columns"
 msgid "Data Folder"
 msgstr "Data Folder"
 
-#: src/pages/settings/AppSetting.tsx:925
+#: src/pages/settings/AppSetting.tsx:930
 msgid "Data type case"
 msgstr "Data type case"
 
@@ -384,9 +396,14 @@ msgstr "Database tree"
 msgid "DB setting"
 msgstr "DB setting"
 
-#: src/pages/settings/AppSetting.tsx:1577
+#: src/pages/settings/AppSetting.tsx:1582
 msgid "Debug"
 msgstr "Debug"
+
+#. placeholder {0}: formatHotkey(def.hotkey)
+#: src/pages/settings/HotkeysForm.tsx:221
+msgid "default: {0}"
+msgstr "default: {0}"
 
 #: src/components/custom/pagination.tsx:44
 msgid "Default: 500"
@@ -416,7 +433,7 @@ msgstr "Delete temporary SQL"
 msgid "Delete temporary SQL?"
 msgstr "Delete temporary SQL?"
 
-#: src/pages/settings/AppSetting.tsx:1655
+#: src/pages/settings/AppSetting.tsx:1660
 msgid "Delim"
 msgstr "Delim"
 
@@ -424,7 +441,7 @@ msgstr "Delim"
 msgid "Delimiter"
 msgstr "Delimiter"
 
-#: src/pages/settings/AppSetting.tsx:1026
+#: src/pages/settings/AppSetting.tsx:1031
 msgid "Dense operators"
 msgstr "Dense operators"
 
@@ -432,12 +449,12 @@ msgstr "Dense operators"
 msgid "Describe table"
 msgstr "Describe table"
 
-#: src/pages/settings/AppSetting.tsx:1263
+#: src/pages/settings/AppSetting.tsx:1268
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:236
 msgid "Dialect"
 msgstr "Dialect"
 
-#: src/pages/settings/AppSetting.tsx:681
+#: src/pages/settings/AppSetting.tsx:686
 msgid "Dialect still follows the active connection. Defaults match previous behavior."
 msgstr "Dialect still follows the active connection. Defaults match previous behavior."
 
@@ -452,7 +469,7 @@ msgid "Disable SSL"
 msgstr "Disable SSL"
 
 #. placeholder {0}: update?.version
-#: src/pages/settings/AppSetting.tsx:1442
+#: src/pages/settings/AppSetting.tsx:1447
 msgid "Discover new version: {0}"
 msgstr "Discover new version: {0}"
 
@@ -460,7 +477,7 @@ msgstr "Discover new version: {0}"
 msgid "Distinct"
 msgstr "Distinct"
 
-#: src/pages/settings/AppSetting.tsx:1451
+#: src/pages/settings/AppSetting.tsx:1456
 msgid "Downloading"
 msgstr "Downloading"
 
@@ -473,11 +490,11 @@ msgstr "e.g. Production bastion"
 msgid "Editor"
 msgstr "Editor"
 
-#: src/pages/settings/AppSetting.tsx:391
+#: src/pages/settings/AppSetting.tsx:396
 msgid "Editor Dark Theme"
 msgstr "Editor Dark Theme"
 
-#: src/pages/settings/AppSetting.tsx:360
+#: src/pages/settings/AppSetting.tsx:365
 msgid "Editor Light Theme"
 msgstr "Editor Light Theme"
 
@@ -503,7 +520,7 @@ msgstr "Empty SQL"
 msgid "Enable SSH"
 msgstr "Enable SSH"
 
-#: src/pages/settings/AppSetting.tsx:1694
+#: src/pages/settings/AppSetting.tsx:1699
 msgid "Escape"
 msgstr "Escape"
 
@@ -576,15 +593,15 @@ msgstr "Exported connections with encrypted secrets"
 msgid "Exporting…"
 msgstr "Exporting…"
 
-#: src/pages/settings/AppSetting.tsx:721
+#: src/pages/settings/AppSetting.tsx:726
 msgid "Expression width"
 msgstr "Expression width"
 
-#: src/stores/setting.ts:322
+#: src/stores/setting.ts:328
 msgid "External sqlfmt CLI (dbt-oriented, via Tauri)"
 msgstr "External sqlfmt CLI (dbt-oriented, via Tauri)"
 
-#: src/pages/settings/AppSetting.tsx:495
+#: src/pages/settings/AppSetting.tsx:500
 msgid "Failed to open settings folder: {message}"
 msgstr "Failed to open settings folder: {message}"
 
@@ -619,19 +636,19 @@ msgid "Flat view"
 msgstr "Flat view"
 
 #: src/components/views/DataViewToolbar.tsx:150
-#: src/pages/settings/AppSetting.tsx:430
+#: src/pages/settings/AppSetting.tsx:435
 msgid "Float precision"
 msgstr "Float precision"
 
-#: src/pages/settings/AppSetting.tsx:223
+#: src/pages/settings/AppSetting.tsx:228
 msgid "Follow the system language when available; otherwise fall back to English."
 msgstr "Follow the system language when available; otherwise fall back to English."
 
-#: src/pages/settings/AppSetting.tsx:297
+#: src/pages/settings/AppSetting.tsx:302
 msgid "Font size in pixels for the data table (8–32)."
 msgstr "Font size in pixels for the data table (8–32)."
 
-#: src/pages/settings/AppSetting.tsx:348
+#: src/pages/settings/AppSetting.tsx:353
 msgid "Font size in pixels for the Monaco editor (8–32)."
 msgstr "Font size in pixels for the Monaco editor (8–32)."
 
@@ -644,7 +661,7 @@ msgstr "Format"
 msgid "Format document"
 msgstr "Format document"
 
-#. placeholder {0}: formatHotkey(HOTKEYS['editor.format'].hotkey)
+#. placeholder {0}: formatHotkey(getHotkey('editor.format'))
 #: src/pages/editor/EditorToolbar.tsx:91
 msgid "Format document ({0})"
 msgstr "Format document ({0})"
@@ -657,7 +674,7 @@ msgstr "Format selection"
 msgid "Format Selection"
 msgstr "Format Selection"
 
-#. placeholder {0}: formatHotkey(HOTKEYS['editor.formatSelection'].hotkey)
+#. placeholder {0}: formatHotkey(getHotkey('editor.formatSelection'))
 #: src/pages/editor/EditorToolbar.tsx:98
 msgid "Format selection ({0})"
 msgstr "Format selection ({0})"
@@ -670,7 +687,7 @@ msgstr "Format SQL"
 msgid "From ~/.ssh/config"
 msgstr "From ~/.ssh/config"
 
-#: src/pages/settings/AppSetting.tsx:888
+#: src/pages/settings/AppSetting.tsx:893
 msgid "Function case"
 msgstr "Function case"
 
@@ -678,7 +695,7 @@ msgstr "Function case"
 msgid "General"
 msgstr "General"
 
-#: src/stores/setting.ts:312
+#: src/stores/setting.ts:318
 msgid "General-purpose SQL formatter"
 msgstr "General-purpose SQL formatter"
 
@@ -724,7 +741,7 @@ msgstr "Hide password"
 msgid "History"
 msgstr "History"
 
-#: src/pages/settings/AppSetting.tsx:1071
+#: src/pages/settings/AppSetting.tsx:1076
 msgid "holywell options"
 msgstr "holywell options"
 
@@ -738,7 +755,7 @@ msgstr "Host"
 msgid "Host key"
 msgstr "Host key"
 
-#: src/pages/settings/AppSetting.tsx:849
+#: src/pages/settings/AppSetting.tsx:854
 msgid "Identifier case"
 msgstr "Identifier case"
 
@@ -762,7 +779,7 @@ msgstr "Import connections from a Duckling export file. Existing connections are
 msgid "Import failed"
 msgstr "Import failed"
 
-#: src/pages/settings/AppSetting.tsx:94
+#: src/pages/settings/AppSetting.tsx:96
 msgid "Import/Export"
 msgstr "Import/Export"
 
@@ -782,19 +799,19 @@ msgstr "Include header row"
 msgid "Include passwords (encrypted)"
 msgstr "Include passwords (encrypted)"
 
-#: src/pages/settings/AppSetting.tsx:775
+#: src/pages/settings/AppSetting.tsx:780
 msgid "Indent style"
 msgstr "Indent style"
 
-#: src/pages/settings/AppSetting.tsx:1007
+#: src/pages/settings/AppSetting.tsx:1012
 msgid "Indent with tabs instead of spaces"
 msgstr "Indent with tabs instead of spaces"
 
-#: src/pages/settings/AppSetting.tsx:1196
+#: src/pages/settings/AppSetting.tsx:1201
 msgid "Install with <0>uv tool install shandy-sqlfmt</0> or set the full path to the <1>sqlfmt</1> binary."
 msgstr "Install with <0>uv tool install shandy-sqlfmt</0> or set the full path to the <1>sqlfmt</1> binary."
 
-#: src/pages/settings/AppSetting.tsx:1381
+#: src/pages/settings/AppSetting.tsx:1386
 msgid "It's the latest version"
 msgstr "It's the latest version"
 
@@ -802,7 +819,7 @@ msgstr "It's the latest version"
 msgid "JSON options"
 msgstr "JSON options"
 
-#: src/pages/settings/AppSetting.tsx:1119
+#: src/pages/settings/AppSetting.tsx:1124
 msgid "Keep unparseable statements as raw text instead of failing"
 msgstr "Keep unparseable statements as raw text instead of failing"
 
@@ -811,16 +828,18 @@ msgstr "Keep unparseable statements as raw text instead of failing"
 msgid "Key Passphrase"
 msgstr "Key Passphrase"
 
-#: src/hotkeys/HotkeysHelpDialog.tsx:40
+#: src/hotkeys/HotkeysHelpDialog.tsx:43
 #: src/hotkeys/registry.ts:53
+#: src/pages/settings/AppSetting.tsx:94
+#: src/pages/settings/HotkeysForm.tsx:68
 msgid "Keyboard shortcuts"
 msgstr "Keyboard shortcuts"
 
-#: src/pages/settings/AppSetting.tsx:812
+#: src/pages/settings/AppSetting.tsx:817
 msgid "Keyword case"
 msgstr "Keyword case"
 
-#: src/pages/settings/AppSetting.tsx:200
+#: src/pages/settings/AppSetting.tsx:205
 msgid "Language"
 msgstr "Language"
 
@@ -841,11 +860,11 @@ msgstr "Leave empty to keep current"
 msgid "limit 500"
 msgstr "limit 500"
 
-#: src/pages/settings/AppSetting.tsx:1230
+#: src/pages/settings/AppSetting.tsx:1235
 msgid "Line length"
 msgstr "Line length"
 
-#: src/pages/settings/AppSetting.tsx:748
+#: src/pages/settings/AppSetting.tsx:753
 msgid "Lines between queries"
 msgstr "Lines between queries"
 
@@ -858,15 +877,15 @@ msgstr "Loading"
 msgid "Loading fonts..."
 msgstr "Loading fonts..."
 
-#: src/pages/settings/AppSetting.tsx:962
+#: src/pages/settings/AppSetting.tsx:967
 msgid "Logical operator newline"
 msgstr "Logical operator newline"
 
-#: src/stores/setting.ts:328
+#: src/stores/setting.ts:334
 msgid "Lower"
 msgstr "Lower"
 
-#: src/pages/settings/AppSetting.tsx:236
+#: src/pages/settings/AppSetting.tsx:241
 msgid "Main Font Family"
 msgstr "Main Font Family"
 
@@ -901,7 +920,7 @@ msgstr "Master password (if file is encrypted)"
 msgid "Max"
 msgstr "Max"
 
-#: src/pages/settings/AppSetting.tsx:1085
+#: src/pages/settings/AppSetting.tsx:1090
 msgid "Max line length"
 msgstr "Max line length"
 
@@ -940,11 +959,11 @@ msgstr "Name"
 msgid "New Connection"
 msgstr "New Connection"
 
-#: src/pages/settings/AppSetting.tsx:1714
+#: src/pages/settings/AppSetting.tsx:1719
 msgid "New line"
 msgstr "New line"
 
-#: src/pages/settings/AppSetting.tsx:1048
+#: src/pages/settings/AppSetting.tsx:1053
 msgid "Newline before semicolon"
 msgstr "Newline before semicolon"
 
@@ -987,7 +1006,7 @@ msgstr "No SQL to export"
 msgid "No SSH profiles yet."
 msgstr "No SSH profiles yet."
 
-#: src/pages/settings/AppSetting.tsx:1213
+#: src/pages/settings/AppSetting.tsx:1218
 msgid "Not available"
 msgstr "Not available"
 
@@ -1016,7 +1035,7 @@ msgstr "of {total}"
 msgid "Official GitHub Releases endpoint"
 msgstr "Official GitHub Releases endpoint"
 
-#: src/pages/settings/AppSetting.tsx:1519
+#: src/pages/settings/AppSetting.tsx:1524
 msgid "Official uses GitHub Releases. China Mirror goes through gh-proxy.com for better connectivity in mainland China."
 msgstr "Official uses GitHub Releases. China Mirror goes through gh-proxy.com for better connectivity in mainland China."
 
@@ -1028,15 +1047,15 @@ msgstr "Official uses GitHub Releases. China Mirror goes through gh-proxy.com fo
 msgid "Ok"
 msgstr "Ok"
 
-#: src/pages/settings/AppSetting.tsx:1596
+#: src/pages/settings/AppSetting.tsx:1601
 msgid "Open"
 msgstr "Open"
 
-#: src/pages/settings/AppSetting.tsx:1580
+#: src/pages/settings/AppSetting.tsx:1585
 msgid "Open developer debugging page"
 msgstr "Open developer debugging page"
 
-#: src/pages/settings/AppSetting.tsx:500
+#: src/pages/settings/AppSetting.tsx:505
 msgid "Open folder"
 msgstr "Open folder"
 
@@ -1060,11 +1079,11 @@ msgstr "Open SQL editor"
 msgid "Open SQL folder"
 msgstr "Open SQL folder"
 
-#: src/pages/settings/AppSetting.tsx:480
+#: src/pages/settings/AppSetting.tsx:485
 msgid "Open the local folder that stores app settings (settings.json)."
 msgstr "Open the local folder that stores app settings (settings.json)."
 
-#: src/pages/settings/AppSetting.tsx:1029
+#: src/pages/settings/AppSetting.tsx:1034
 msgid "Pack operators without spaces"
 msgstr "Pack operators without spaces"
 
@@ -1076,7 +1095,7 @@ msgstr "pagination"
 msgid "Parquet options"
 msgstr "Parquet options"
 
-#: src/pages/settings/AppSetting.tsx:1249
+#: src/pages/settings/AppSetting.tsx:1254
 msgid "Passed as <0>--line-length</0> (default 88)"
 msgstr "Passed as <0>--line-length</0> (default 88)"
 
@@ -1113,11 +1132,11 @@ msgstr "Pin to left"
 msgid "Pin to right"
 msgstr "Pin to right"
 
-#: src/pages/settings/AppSetting.tsx:1051
+#: src/pages/settings/AppSetting.tsx:1056
 msgid "Place `;` on its own line"
 msgstr "Place `;` on its own line"
 
-#: src/stores/setting.ts:353
+#: src/stores/setting.ts:359
 msgid "Polyglot (default)"
 msgstr "Polyglot (default)"
 
@@ -1126,13 +1145,17 @@ msgstr "Polyglot (default)"
 msgid "Port"
 msgstr "Port"
 
-#: src/pages/settings/AppSetting.tsx:1104
+#: src/pages/settings/AppSetting.tsx:1109
 msgid "Preferred maximum output width in display columns."
 msgstr "Preferred maximum output width in display columns."
 
-#: src/stores/setting.ts:329
+#: src/stores/setting.ts:335
 msgid "Preserve"
 msgstr "Preserve"
+
+#: src/pages/settings/HotkeysForm.tsx:172
+msgid "Press keys…"
+msgstr "Press keys…"
 
 #: src/pages/settings/SshProfilesForm.tsx:400
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:807
@@ -1147,7 +1170,7 @@ msgstr "Properties"
 msgid "Protect secrets with a master password. Without this option, passwords are not exported."
 msgstr "Protect secrets with a master password. Without this option, passwords are not exported."
 
-#: src/pages/settings/AppSetting.tsx:1560
+#: src/pages/settings/AppSetting.tsx:1565
 msgid "Proxy"
 msgstr "Proxy"
 
@@ -1169,7 +1192,7 @@ msgid "Query failed"
 msgstr "Query failed"
 
 #: src/components/views/ExportDialog.tsx:311
-#: src/pages/settings/AppSetting.tsx:1675
+#: src/pages/settings/AppSetting.tsx:1680
 msgid "Quote"
 msgstr "Quote"
 
@@ -1181,15 +1204,15 @@ msgstr "Raw"
 msgid "Raw(JSON)"
 msgstr "Raw(JSON)"
 
-#: src/pages/settings/AppSetting.tsx:1636
+#: src/pages/settings/AppSetting.tsx:1641
 msgid "Read csv file parameters, see: <0>csv parameters</0>"
 msgstr "Read csv file parameters, see: <0>csv parameters</0>"
 
-#: src/pages/settings/AppSetting.tsx:1116
+#: src/pages/settings/AppSetting.tsx:1121
 msgid "Recover on parse errors"
 msgstr "Recover on parse errors"
 
-#: src/pages/settings/AppSetting.tsx:413
+#: src/pages/settings/AppSetting.tsx:418
 msgid "Reference: <0>Shiki TextMate Grammar & Theme Playground</0>."
 msgstr "Reference: <0>Shiki TextMate Grammar & Theme Playground</0>."
 
@@ -1221,13 +1244,21 @@ msgstr "Rename connection"
 msgid "Require"
 msgstr "Require"
 
+#: src/pages/settings/HotkeysForm.tsx:118
+msgid "Reset all"
+msgstr "Reset all"
+
+#: src/pages/settings/HotkeysForm.tsx:232
+msgid "Reset to default"
+msgstr "Reset to default"
+
 #. placeholder {0}: childCount + 1
 #: src/pages/editor/index.tsx:148
 #: src/pages/editor/index.tsx:159
 msgid "Result{0}"
 msgstr "Result{0}"
 
-#: src/pages/settings/AppSetting.tsx:1074
+#: src/pages/settings/AppSetting.tsx:1079
 msgid "River-alignment style; dialect follows the active connection."
 msgstr "River-alignment style; dialect follows the active connection."
 
@@ -1235,12 +1266,12 @@ msgstr "River-alignment style; dialect follows the active connection."
 msgid "Run"
 msgstr "Run"
 
-#. placeholder {0}: formatHotkey(HOTKEYS['editor.run'].hotkey)
+#. placeholder {0}: formatHotkey(getHotkey('editor.run'))
 #: src/pages/editor/EditorToolbar.tsx:67
 msgid "Run ({0})"
 msgstr "Run ({0})"
 
-#. placeholder {0}: formatHotkey(HOTKEYS['editor.runNewTab'].hotkey)
+#. placeholder {0}: formatHotkey(getHotkey('editor.runNewTab'))
 #: src/pages/editor/EditorToolbar.tsx:74
 msgid "Run in new tab ({0})"
 msgstr "Run in new tab ({0})"
@@ -1282,7 +1313,7 @@ msgstr "Search"
 msgid "Search history…"
 msgstr "Search history…"
 
-#: src/pages/settings/AppSetting.tsx:244
+#: src/pages/settings/AppSetting.tsx:249
 msgid "Search installed fonts, or type any font name / CSS stack and choose Use."
 msgstr "Search installed fonts, or type any font name / CSS stack and choose Use."
 
@@ -1290,9 +1321,9 @@ msgstr "Search installed fonts, or type any font name / CSS stack and choose Use
 msgid "Search or type a font name..."
 msgstr "Search or type a font name..."
 
-#: src/pages/settings/AppSetting.tsx:241
-#: src/pages/settings/AppSetting.tsx:262
-#: src/pages/settings/AppSetting.tsx:313
+#: src/pages/settings/AppSetting.tsx:246
+#: src/pages/settings/AppSetting.tsx:267
+#: src/pages/settings/AppSetting.tsx:318
 msgid "Search system fonts"
 msgstr "Search system fonts"
 
@@ -1329,8 +1360,8 @@ msgstr "Select a font"
 msgid "Select a saved SSH profile"
 msgstr "Select a saved SSH profile"
 
-#: src/pages/settings/AppSetting.tsx:370
-#: src/pages/settings/AppSetting.tsx:400
+#: src/pages/settings/AppSetting.tsx:375
+#: src/pages/settings/AppSetting.tsx:405
 msgid "Select editor theme"
 msgstr "Select editor theme"
 
@@ -1343,7 +1374,7 @@ msgstr "Select from ~/.ssh/config"
 msgid "Select private key"
 msgstr "Select private key"
 
-#: src/pages/settings/AppSetting.tsx:647
+#: src/pages/settings/AppSetting.tsx:652
 msgid "Select SQL formatter"
 msgstr "Select SQL formatter"
 
@@ -1351,25 +1382,33 @@ msgstr "Select SQL formatter"
 msgid "Session"
 msgstr "Session"
 
-#: src/pages/settings/AppSetting.tsx:444
+#: src/pages/settings/AppSetting.tsx:449
 msgid "Session idle timeout (minutes)"
 msgstr "Session idle timeout (minutes)"
 
-#: src/pages/settings/AppSetting.tsx:1720
+#: src/pages/settings/AppSetting.tsx:1725
 msgid "Set the new line character(s) in the file. Options are '\\r','\\n', or '\\r\\n'."
 msgstr "Set the new line character(s) in the file. Options are '\\r','\\n', or '\\r\\n'."
 
-#: src/pages/settings/AppSetting.tsx:112
+#: src/pages/settings/AppSetting.tsx:114
 msgid "Setting"
 msgstr "Setting"
 
-#: src/pages/settings/AppSetting.tsx:477
+#: src/pages/settings/AppSetting.tsx:482
 msgid "Settings folder"
 msgstr "Settings folder"
 
-#: src/pages/settings/AppSetting.tsx:1140
+#: src/pages/settings/AppSetting.tsx:1145
 msgid "shandy-sqlfmt options"
 msgstr "shandy-sqlfmt options"
+
+#: src/pages/settings/HotkeysForm.tsx:157
+msgid "Shortcut updated"
+msgstr "Shortcut updated"
+
+#: src/pages/settings/HotkeysForm.tsx:61
+msgid "Shortcuts restored to defaults"
+msgstr "Shortcuts restored to defaults"
 
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:245
 msgid "Show *.csv"
@@ -1400,13 +1439,17 @@ msgstr "Show password"
 msgid "Show table"
 msgstr "Show table"
 
-#: src/stores/setting.ts:317
+#: src/stores/setting.ts:323
 msgid "Simon Holywell's sqlstyle.guide (river alignment)"
 msgstr "Simon Holywell's sqlstyle.guide (river alignment)"
 
-#: src/pages/settings/AppSetting.tsx:95
+#: src/pages/settings/AppSetting.tsx:97
 msgid "Software Update"
 msgstr "Software Update"
+
+#: src/pages/settings/HotkeysForm.tsx:102
+msgid "Some shortcuts share the same keys within a scope. Resolve conflicts by reassigning one of them."
+msgstr "Some shortcuts share the same keys within a scope. Resolve conflicts by reassigning one of them."
 
 #: src/components/PageTabs.tsx:243
 #: src/components/views/ValueViewer.tsx:211
@@ -1421,15 +1464,15 @@ msgstr "Sort ascending"
 msgid "Sort descending"
 msgstr "Sort descending"
 
-#: src/pages/settings/AppSetting.tsx:1681
+#: src/pages/settings/AppSetting.tsx:1686
 msgid "Specifies the quoting string to be used when a data value is quoted."
 msgstr "Specifies the quoting string to be used when a data value is quoted."
 
-#: src/pages/settings/AppSetting.tsx:1661
+#: src/pages/settings/AppSetting.tsx:1666
 msgid "Specifies the string that separates columns within each row (line) of the file."
 msgstr "Specifies the string that separates columns within each row (line) of the file."
 
-#: src/pages/settings/AppSetting.tsx:1700
+#: src/pages/settings/AppSetting.tsx:1705
 msgid "Specifies the string that should appear before a data character sequence that matches the quote value."
 msgstr "Specifies the string that should appear before a data character sequence that matches the quote value."
 
@@ -1441,23 +1484,23 @@ msgstr "SQL bookmarks"
 msgid "SQL Editor"
 msgstr "SQL Editor"
 
-#: src/pages/settings/AppSetting.tsx:635
+#: src/pages/settings/AppSetting.tsx:640
 msgid "SQL Formatter Engine"
 msgstr "SQL Formatter Engine"
 
-#: src/pages/settings/AppSetting.tsx:93
+#: src/pages/settings/AppSetting.tsx:95
 msgid "SQL Formatting"
 msgstr "SQL Formatting"
 
-#: src/pages/settings/AppSetting.tsx:678
+#: src/pages/settings/AppSetting.tsx:683
 msgid "sql-formatter options"
 msgstr "sql-formatter options"
 
-#: src/pages/settings/AppSetting.tsx:1161
+#: src/pages/settings/AppSetting.tsx:1166
 msgid "sqlfmt (from PATH) or absolute path"
 msgstr "sqlfmt (from PATH) or absolute path"
 
-#: src/pages/settings/AppSetting.tsx:1155
+#: src/pages/settings/AppSetting.tsx:1160
 msgid "sqlfmt Executable"
 msgstr "sqlfmt Executable"
 
@@ -1497,7 +1540,7 @@ msgstr "SSH profile deleted"
 msgid "SSH profile updated"
 msgstr "SSH profile updated"
 
-#: src/pages/settings/AppSetting.tsx:92
+#: src/pages/settings/AppSetting.tsx:93
 msgid "SSH Profiles"
 msgstr "SSH Profiles"
 
@@ -1517,7 +1560,7 @@ msgstr "SSH User"
 msgid "SSL"
 msgstr "SSL"
 
-#: src/stores/setting.ts:336
+#: src/stores/setting.ts:342
 msgid "Standard"
 msgstr "Standard"
 
@@ -1541,11 +1584,11 @@ msgstr "Stop query"
 msgid "Strict (known_hosts)"
 msgstr "Strict (known_hosts)"
 
-#: src/pages/settings/AppSetting.tsx:164
+#: src/pages/settings/AppSetting.tsx:169
 msgid "System"
 msgstr "System"
 
-#: src/pages/settings/AppSetting.tsx:694
+#: src/pages/settings/AppSetting.tsx:699
 msgid "Tab width"
 msgstr "Tab width"
 
@@ -1555,11 +1598,11 @@ msgstr "Tab width"
 msgid "Table"
 msgstr "Table"
 
-#: src/pages/settings/AppSetting.tsx:257
+#: src/pages/settings/AppSetting.tsx:262
 msgid "Table Font Family"
 msgstr "Table Font Family"
 
-#: src/pages/settings/AppSetting.tsx:278
+#: src/pages/settings/AppSetting.tsx:283
 msgid "Table Font Size"
 msgstr "Table Font Size"
 
@@ -1569,11 +1612,11 @@ msgstr "Table Font Size"
 msgid "Tabs"
 msgstr "Tabs"
 
-#: src/stores/setting.ts:337
+#: src/stores/setting.ts:343
 msgid "Tabular left"
 msgstr "Tabular left"
 
-#: src/stores/setting.ts:338
+#: src/stores/setting.ts:344
 msgid "Tabular right"
 msgstr "Tabular right"
 
@@ -1590,6 +1633,10 @@ msgstr "Test Connection"
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:1016
 msgid "Testing…"
 msgstr "Testing…"
+
+#: src/pages/settings/HotkeysForm.tsx:178
+msgid "This shortcut is built into the editor or table and cannot be changed."
+msgstr "This shortcut is built into the editor or table and cannot be changed."
 
 #: src/pages/sidebar/SqlCode.tsx:519
 msgid "This will permanently delete temporary SQL \"{pendingDisplayName}\". This action cannot be undone."
@@ -1638,7 +1685,7 @@ msgstr "Trust all (insecure)"
 msgid "TSV uses tab as delimiter."
 msgstr "TSV uses tab as delimiter."
 
-#: src/pages/settings/AppSetting.tsx:1539
+#: src/pages/settings/AppSetting.tsx:1544
 msgid "Turn this off to prevent the app from checking for updates."
 msgstr "Turn this off to prevent the app from checking for updates."
 
@@ -1658,26 +1705,26 @@ msgstr "unknown"
 msgid "Unknown"
 msgstr "Unknown"
 
-#: src/pages/settings/AppSetting.tsx:514
-#: src/pages/settings/AppSetting.tsx:1312
-#: src/pages/settings/AppSetting.tsx:1612
-#: src/pages/settings/AppSetting.tsx:1739
+#: src/pages/settings/AppSetting.tsx:519
+#: src/pages/settings/AppSetting.tsx:1317
+#: src/pages/settings/AppSetting.tsx:1617
+#: src/pages/settings/AppSetting.tsx:1744
 msgid "Update"
 msgstr "Update"
 
-#: src/pages/settings/AppSetting.tsx:1385
+#: src/pages/settings/AppSetting.tsx:1390
 msgid "Update check failed: {message}"
 msgstr "Update check failed: {message}"
 
-#: src/pages/settings/AppSetting.tsx:1420
+#: src/pages/settings/AppSetting.tsx:1425
 msgid "Update failed: {message}"
 msgstr "Update failed: {message}"
 
-#: src/pages/settings/AppSetting.tsx:1487
+#: src/pages/settings/AppSetting.tsx:1492
 msgid "Update source"
 msgstr "Update source"
 
-#: src/stores/setting.ts:327
+#: src/stores/setting.ts:333
 msgid "Upper"
 msgstr "Upper"
 
@@ -1686,27 +1733,27 @@ msgstr "Upper"
 msgid "Use \"{0}\""
 msgstr "Use \"{0}\""
 
-#: src/pages/settings/AppSetting.tsx:1563
+#: src/pages/settings/AppSetting.tsx:1568
 msgid "use a proxy server for updater"
 msgstr "use a proxy server for updater"
 
-#: src/pages/settings/AppSetting.tsx:1292
+#: src/pages/settings/AppSetting.tsx:1297
 msgid "Use ClickHouse to preserve identifier case sensitivity"
 msgstr "Use ClickHouse to preserve identifier case sensitivity"
 
-#: src/pages/settings/AppSetting.tsx:1004
+#: src/pages/settings/AppSetting.tsx:1009
 msgid "Use tabs"
 msgstr "Use tabs"
 
-#: src/pages/settings/AppSetting.tsx:665
+#: src/pages/settings/AppSetting.tsx:670
 msgid "Used by Format Document / Format Selection in the SQL editor."
 msgstr "Used by Format Document / Format Selection in the SQL editor."
 
-#: src/pages/settings/AppSetting.tsx:265
+#: src/pages/settings/AppSetting.tsx:270
 msgid "Used by the data table canvas renderer. Custom names are allowed."
 msgstr "Used by the data table canvas renderer. Custom names are allowed."
 
-#: src/pages/settings/AppSetting.tsx:316
+#: src/pages/settings/AppSetting.tsx:321
 msgid "Used by the Monaco SQL editor and other code viewers. Prefer monospace fonts."
 msgstr "Used by the Monaco SQL editor and other code viewers. Prefer monospace fonts."
 

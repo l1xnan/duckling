@@ -47,6 +47,7 @@ import {
   ProgressLabel,
   ProgressValue,
 } from '@/components/ui/progress';
+import { HotkeysForm } from '@/pages/settings/HotkeysForm';
 import { SshProfilesForm } from '@/pages/settings/SshProfilesForm';
 import {
   Select,
@@ -90,6 +91,7 @@ import { isEmpty } from 'radash';
 const NAV_ITEMS = [
   { key: 'profile', title: msg`Appearance` },
   { key: 'ssh', title: msg`SSH Profiles` },
+  { key: 'hotkeys', title: msg`Keyboard shortcuts` },
   { key: 'sql-format', title: msg`SQL Formatting` },
   { key: 'csv', title: msg`Import/Export` },
   { key: 'update', title: msg`Software Update` },
@@ -126,6 +128,9 @@ export default function AppSettingDialog() {
           </Display>
           <Display hidden={navKey == 'ssh'}>
             <SshProfilesForm />
+          </Display>
+          <Display hidden={navKey == 'hotkeys'}>
+            <HotkeysForm />
           </Display>
           <Display hidden={navKey == 'sql-format'}>
             <SqlFormatForm />

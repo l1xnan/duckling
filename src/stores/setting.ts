@@ -127,6 +127,11 @@ export type SettingState = {
     dark: string;
     light: string;
   };
+  /**
+   * User overrides for keyboard shortcuts (HotkeyId → TanStack hotkey string).
+   * Missing keys fall back to the built-in registry defaults.
+   */
+  hotkey_overrides?: Record<string, string>;
 };
 
 export const defaultSqlFormatterOptions: SqlFormatterOptions = {
@@ -185,6 +190,7 @@ export const defaultSettings: SettingState = {
     light: 'vitesse-light',
     dark: 'vitesse-dark',
   },
+  hotkey_overrides: {},
 };
 
 export function resolveSqlFormatterOptions(

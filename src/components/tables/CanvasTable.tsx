@@ -26,7 +26,7 @@ import { OrderByType, SchemaType } from '@/stores/dataset';
 import { useTableFontFamily, useTableFontSize } from '@/stores/setting';
 import { isDarkTheme, isNumberType, uniqueArray } from '@/utils';
 
-import { formatHotkey, HOTKEYS } from '@/hotkeys';
+import { formatHotkey, getHotkey } from '@/hotkeys';
 
 import { handleFieldFormat } from './format';
 import { HighlightHeaderWhenSelectCellPlugin } from './highlight-header-when-select-cell';
@@ -462,7 +462,7 @@ function CanvasTable_({
       {
         text: i18n._(MENU_COPY),
         menuKey: 'copy',
-        shortcut: formatHotkey(HOTKEYS['table.copy'].hotkey),
+        shortcut: formatHotkey(getHotkey('table.copy')),
         customIcon: iconCopy,
       },
       {

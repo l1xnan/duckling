@@ -22,7 +22,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { TooltipContent } from '@/components/ui/tooltip';
-import { formatHotkey, HOTKEYS } from '@/hotkeys';
+import { formatHotkey, getHotkey } from '@/hotkeys';
 import { DBType, useDBListStore } from '@/stores/dbList';
 import { IconInfinity, IconInfinityOff } from '@tabler/icons-react';
 import React from 'react';
@@ -64,14 +64,14 @@ export function EditorToolbar({
         <Stack>
           <TooltipButton
             className="text-green-900"
-            tooltip={t`Run (${formatHotkey(HOTKEYS['editor.run'].hotkey)})`}
+            tooltip={t`Run (${formatHotkey(getHotkey('editor.run'))})`}
             onClick={() => onClick()}
           >
             <PlayIcon fontSize="inherit" />
           </TooltipButton>
           <TooltipButton
             className="text-green-900"
-            tooltip={t`Run in new tab (${formatHotkey(HOTKEYS['editor.runNewTab'].hotkey)})`}
+            tooltip={t`Run in new tab (${formatHotkey(getHotkey('editor.runNewTab'))})`}
             onClick={() => onClick('new')}
           >
             <ListPlusIcon fontSize="inherit" />
@@ -88,14 +88,14 @@ export function EditorToolbar({
           </TooltipButton>
 
           <TooltipButton
-            tooltip={t`Format document (${formatHotkey(HOTKEYS['editor.format'].hotkey)})`}
+            tooltip={t`Format document (${formatHotkey(getHotkey('editor.format'))})`}
             tooltipProps={tooltipProps}
             onClick={() => onFormat?.('document')}
           >
             <AlignLeftIcon fontSize="inherit" />
           </TooltipButton>
           <TooltipButton
-            tooltip={t`Format selection (${formatHotkey(HOTKEYS['editor.formatSelection'].hotkey)})`}
+            tooltip={t`Format selection (${formatHotkey(getHotkey('editor.formatSelection'))})`}
             tooltipProps={tooltipProps}
             disabled={!canFormatSelection}
             onClick={() => onFormat?.('selection')}

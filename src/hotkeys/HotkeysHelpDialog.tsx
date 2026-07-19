@@ -7,10 +7,11 @@ import { cn } from '@/lib/utils';
 import { formatHotkey } from './format';
 import {
   HOTKEY_CATEGORY_LABELS,
-  HOTKEY_LIST,
   type HotkeyCategory,
   type HotkeyDef,
 } from './registry';
+import { resolveHotkeyList } from './resolve';
+import { useSettingStore } from '@/stores/setting';
 
 const CATEGORY_ORDER: HotkeyCategory[] = [
   'general',
@@ -27,10 +28,12 @@ export function HotkeysHelpDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const { t } = useLingui();
+  const overrides = useSettingStore((s) => s.hotkey_overrides);
+  const list = resolveHotkeyList(overrides);
 
   const byCategory = CATEGORY_ORDER.map((cat) => ({
     cat,
-    items: HOTKEY_LIST.filter((h) => h.category === cat),
+    items: list.filter((h) => h.category === cat),
   })).filter((g) => g.items.length > 0);
 
   return (
