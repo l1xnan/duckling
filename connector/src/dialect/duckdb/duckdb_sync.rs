@@ -227,7 +227,7 @@ impl fmt::Display for MyDataType {
 }
 
 pub fn query(conn: &duckdb::Connection, sql: &str) -> anyhow::Result<RawArrowData> {
-  println!("sql: {sql}");
+  log::debug!("sql: {sql}");
 
   let mut stmt = conn.prepare(sql)?;
   let frames = stmt.query_arrow([])?;

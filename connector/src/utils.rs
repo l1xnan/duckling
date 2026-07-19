@@ -333,7 +333,7 @@ pub fn write_xlsx(file: &str, batch: &RecordBatch) -> Result<()> {
     .save(file)
     .map_err(|e| anyhow!("Failed to save XLSX file: {}", e))?;
 
-  println!("Successfully wrote data to {}", file);
+  log::debug!("Successfully wrote data to {}", file);
   Ok(())
 }
 

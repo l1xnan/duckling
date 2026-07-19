@@ -75,6 +75,22 @@ impl Connection for ClickhouseConnection {
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     self._table_row_count(table, r#where).await
   }
+
+  async fn export(
+    &self,
+    sql: &str,
+    file: &str,
+    _format: &str,
+    _options: &crate::utils::ExportOptions,
+  ) -> anyhow::Result<()> {
+    let client = self.client().await?;
+    let mut cursor = client.query(sql).fetch_bytes("CSV")?;
+    let mut file = File::create(file)?;
+    while let Some(bytes) = cursor.next().await? {
+      file.write_all(&bytes)?;
+    }
+    Ok(())
+  }
 }
 
 #[derive(Row, Serialize, Deserialize)]
@@ -136,9 +152,6 @@ impl ClickhouseConnection {
     Ok(client)
   }
 
-  fn get_schema(&self) -> Vec<Table> {
-    vec![]
-  }
   async fn get_tables(&self) -> anyhow::Result<Vec<Table>> {
     // TODO: comment field
     let sql = "
@@ -191,16 +204,6 @@ impl ClickhouseConnection {
     Ok(total as usize)
   }
 
-  async fn export(&self, sql: &str, file: &str) -> anyhow::Result<()> {
-    let client = self.client().await?;
-    let mut cursor = client.query(sql).fetch_bytes("CSV")?;
-    let mut file = File::create(file)?;
-    while let Some(bytes) = cursor.next().await? {
-      file.write_all(&bytes)?;
-    }
-    Ok(())
-  }
-
   async fn _fetch_all(&self, sql: &str) -> anyhow::Result<JSONColumnsWithMetadataResponse> {
     let client = self.client().await?;
     // https://clickhouse.com/docs/interfaces/formats/JSONStrings
@@ -240,6 +243,7 @@ impl ClickhouseConnection {
 }
 
 #[tokio::test]
+#[ignore = "requires network access to play.clickhouse.com"]
 async fn test_clickhouse() {
   use arrow::util::pretty::print_batches;
   let conn = ClickhouseConnection::new("https://play.clickhouse.com", "", "play", "");
@@ -252,16 +256,15 @@ async fn test_clickhouse() {
 }
 
 #[tokio::test]
+#[ignore = "requires network access to play.clickhouse.com"]
 async fn test_tables() {
   let conn = ClickhouseConnection::new("https://play.clickhouse.com", "", "play", "");
-  let res = conn.get_tables().await;
-  println!("{:?}", res);
+  let _ = conn.get_tables().await;
 }
 
 #[tokio::test]
+#[ignore = "requires network access to play.clickhouse.com"]
 async fn test_columns() {
   let conn = ClickhouseConnection::new("https://play.clickhouse.com", "", "play", "");
-  let res = conn.all_columns().await;
-  println!("column count: {:?}", res);
-  println!("column count: {:?}", res.map(|v| v.len()));
+  let _ = conn.all_columns().await;
 }
