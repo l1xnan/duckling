@@ -8,15 +8,8 @@ use tauri::State;
 use crate::api::ArrowResponse;
 use super::connection_registry::{self, ConnectionRegistry};
 use super::session_manager::SessionManager;
+use connector::ConnectionConfig;
 use connector::dialect::Connection;
-use connector::dialect::clickhouse::ClickhouseConnection;
-use connector::dialect::duckdb::DuckDbConnection;
-use connector::dialect::file::FileConnection;
-use connector::dialect::folder::FolderConnection;
-use connector::dialect::mysql::MySqlConnection;
-use connector::dialect::postgres::PostgresConnection;
-use connector::dialect::quack::QuackConnection;
-use connector::dialect::sqlite::SqliteConnection;
 use connector::utils::{Metadata, TreeNode};
 
 pub(crate) fn build_ssh_config(
@@ -28,17 +21,17 @@ pub(crate) fn build_ssh_config(
   ssh_private_key_path: Option<String>,
   ssh_passphrase: Option<String>,
 ) -> Option<connector::ssh_tunnel::DbSshConfig> {
-  ssh_enabled.filter(|enabled| *enabled).map(|_| {
-    connector::ssh_tunnel::DbSshConfig {
-      enabled: true,
-      host: ssh_host.unwrap_or_default(),
-      port: ssh_port.unwrap_or_else(|| "22".to_string()),
-      username: ssh_username.unwrap_or_default(),
-      password: ssh_password,
-      private_key_path: ssh_private_key_path,
-      passphrase: ssh_passphrase,
-    }
-  })
+  ConnectionConfig::default()
+    .with_ssh(
+      ssh_enabled,
+      ssh_host,
+      ssh_port,
+      ssh_username,
+      ssh_password,
+      ssh_private_key_path,
+      ssh_passphrase,
+    )
+    .ssh
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -101,85 +94,39 @@ async fn resolve_connection(
   block_create(resolved).map(Arc::from)
 }
 
-fn block_create(payload: DialectPayload) -> Result<Box<dyn Connection>, String> {
-  // get_dialect_from_payload is async but does no await — use a tiny block_on for tests
-  // and production commands already on async runtime via poll-once helper.
-  create_dialect_sync(payload)
+fn payload_to_config(payload: DialectPayload) -> ConnectionConfig {
+  ConnectionConfig {
+    dialect: payload.dialect,
+    path: payload.path,
+    username: payload.username,
+    password: payload.password,
+    host: payload.host,
+    port: payload.port,
+    database: payload.database,
+    cwd: payload.cwd,
+    uri: payload.uri,
+    token: payload.token,
+    disable_ssl: payload.disable_ssl,
+    ssh: None,
+  }
+  .with_ssh(
+    payload.ssh_enabled,
+    payload.ssh_host,
+    payload.ssh_port,
+    payload.ssh_username,
+    payload.ssh_password,
+    payload.ssh_private_key_path,
+    payload.ssh_passphrase,
+  )
 }
 
-fn create_dialect_sync(payload: DialectPayload) -> Result<Box<dyn Connection>, String> {
-  match payload.dialect.as_str() {
-    "folder" => Ok(Box::new(FolderConnection {
-      path: payload.path.ok_or("path required")?,
-      cwd: payload.cwd,
-    })),
-    "file" => Ok(Box::new(FileConnection {
-      path: payload.path.ok_or("path required")?,
-    })),
-    "duckdb" => Ok(Box::new(DuckDbConnection {
-      path: payload.path.ok_or("path required")?,
-      cwd: payload.cwd,
-    })),
-    "sqlite" => Ok(Box::new(SqliteConnection {
-      path: payload.path.ok_or("path required")?,
-    })),
-    "clickhouse" => Ok(Box::new(ClickhouseConnection {
-      host: payload.host.ok_or("host required")?,
-      port: payload.port.unwrap_or_default(),
-      username: payload.username.unwrap_or_default(),
-      password: payload.password.unwrap_or_default(),
-      database: payload.database,
-    })),
-    "mysql" => {
-      let ssh = build_ssh_config(
-        payload.ssh_enabled,
-        payload.ssh_host,
-        payload.ssh_port,
-        payload.ssh_username,
-        payload.ssh_password,
-        payload.ssh_private_key_path,
-        payload.ssh_passphrase,
-      );
-      Ok(Box::new(MySqlConnection::new(
-        payload.host.ok_or("host required")?,
-        payload.port.ok_or("port required")?,
-        payload.username.unwrap_or_default(),
-        payload.password.unwrap_or_default(),
-        payload.database,
-        ssh,
-      )))
-    }
-    "postgres" => {
-      let ssh = build_ssh_config(
-        payload.ssh_enabled,
-        payload.ssh_host,
-        payload.ssh_port,
-        payload.ssh_username,
-        payload.ssh_password,
-        payload.ssh_private_key_path,
-        payload.ssh_passphrase,
-      );
-      Ok(Box::new(PostgresConnection::new(
-        payload.host.ok_or("host required")?,
-        payload.port.ok_or("port required")?,
-        payload.username.unwrap_or_default(),
-        payload.password.unwrap_or_default(),
-        payload.database,
-        ssh,
-      )))
-    }
-    "quack" => Ok(Box::new(QuackConnection {
-      uri: payload.uri.ok_or("uri required")?,
-      token: payload.token,
-      disable_ssl: payload.disable_ssl.unwrap_or(false),
-    })),
-    _ => Err("not support dialect".into()),
-  }
+fn block_create(payload: DialectPayload) -> Result<Box<dyn Connection>, String> {
+  connector::open(payload_to_config(payload)).map_err(|e| e.to_string())
 }
 
 /// Build a connector from a fully-resolved payload (secrets already merged).
 pub async fn get_dialect_from_payload(payload: DialectPayload) -> Option<Box<dyn Connection>> {
-  create_dialect_sync(payload).ok()
+  block_create(payload).ok()
 }
 
 #[tauri::command]
