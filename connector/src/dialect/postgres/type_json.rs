@@ -101,7 +101,7 @@ pub fn pg_cell_to_json_value(
         column.name(),
         column.type_().name()
       );
-      println!(
+      log::debug!(
         "{}={}, {:?}",
         column.type_().name(),
         column.type_().oid(),

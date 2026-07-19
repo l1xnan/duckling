@@ -126,9 +126,6 @@ impl PostgresConnection {
     })
   }
 
-  async fn get_schema(&self) -> Vec<Table> {
-    unimplemented!()
-  }
   pub async fn databases(&self) -> anyhow::Result<Vec<String>> {
     let guard = self.get_conn("postgres").await?;
     let sql = "SELECT datname FROM pg_database WHERE datistemplate = false";
@@ -190,8 +187,7 @@ impl PostgresConnection {
       let typ = type_arrow::col_to_arrow_type(col);
       let field = Field::new(col.name(), typ, true);
       fields.push(field);
-
-      println!(
+      log::debug!(
         "{}={}, {}, {:?}",
         col.name(),
         col.type_().name(),
@@ -199,7 +195,6 @@ impl PostgresConnection {
         col.type_().kind()
       );
     }
-    println!("titles: {titles:?}");
     let schema = Arc::new(Schema::new(fields));
 
     let mut rows: Vec<RowData> = vec![];
@@ -218,10 +213,6 @@ impl PostgresConnection {
     })
   }
 
-  async fn _query_json(&self, sql: &str) -> anyhow::Result<()> {
-    let _guard = self.get_conn(&self.database()).await?;
-    Ok(()) // TODO
-  }
   fn database(&self) -> String {
     self.database.clone().unwrap_or("postgres".to_string())
   }
