@@ -5,6 +5,7 @@ use async_trait::async_trait;
 use itertools::Itertools;
 
 pub mod ast;
+pub mod capabilities;
 pub mod clickhouse;
 pub mod duckdb;
 pub mod file;
@@ -13,6 +14,8 @@ pub mod mysql;
 pub mod postgres;
 pub mod quack;
 pub mod sqlite;
+
+pub use capabilities::{Caps, caps_for_dialect};
 
 /// Run a synchronous connector operation off the async runtime.
 pub async fn run_blocking<T, F>(f: F) -> anyhow::Result<T>
@@ -31,6 +34,11 @@ fn unsupported(method: &str) -> anyhow::Error {
 
 #[async_trait]
 pub trait Connection: Sync + Send {
+  /// Operations this connection supports (for UI gating / IPC).
+  fn capabilities(&self) -> Caps {
+    caps_for_dialect(self.dialect())
+  }
+
   async fn get_db(&self) -> anyhow::Result<TreeNode>;
   async fn query(&self, _sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     Err(unsupported("query"))

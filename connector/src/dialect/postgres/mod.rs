@@ -110,6 +110,10 @@ impl Connection for PostgresConnection {
     self._query(sql, limit, offset).await
   }
 
+  fn dialect(&self) -> &'static str {
+    "postgres"
+  }
+
   async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
     let client = self.get_client(&self.database()).await?;
     let row = client.query_one(sql, &[]).await?;

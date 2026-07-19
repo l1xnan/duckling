@@ -70,7 +70,7 @@ impl Connection for QuackConnection {
   }
 
   fn dialect(&self) -> &'static str {
-    "duckdb"
+    "quack"
   }
 
   async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {

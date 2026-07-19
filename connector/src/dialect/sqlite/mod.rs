@@ -68,6 +68,10 @@ impl Connection for SqliteConnection {
     .await
   }
 
+  fn dialect(&self) -> &'static str {
+    "sqlite"
+  }
+
   async fn show_schema(&self, _schema: &str) -> anyhow::Result<RawArrowData> {
     let sql = "
       SELECT * FROM sqlite_master

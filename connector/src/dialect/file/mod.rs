@@ -32,6 +32,10 @@ impl Connection for FileConnection {
     })
   }
 
+  fn dialect(&self) -> &'static str {
+    "file"
+  }
+
   async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     let path = self.path.clone();
     let sql = sql.to_string();

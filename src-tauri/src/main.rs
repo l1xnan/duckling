@@ -144,6 +144,7 @@ fn main() {
       cmd::db::show_column,
       cmd::db::drop_table,
       cmd::db::all_columns,
+      cmd::db::connection_capabilities,
       cmd::app::format_sql,
       cmd::app::check_sqlfmt,
       cmd::app::format_sql_sqlfmt,

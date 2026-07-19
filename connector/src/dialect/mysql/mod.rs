@@ -139,6 +139,10 @@ impl Connection for MySqlConnection {
     self.query(sql, 0, 0).await
   }
 
+  fn dialect(&self) -> &'static str {
+    "mysql"
+  }
+
   async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
     let sql = format!(
       "select * from information_schema.tables where TABLE_SCHEMA='{schema}' order by TABLE_TYPE, TABLE_NAME"

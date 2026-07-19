@@ -131,7 +131,8 @@ mod tests {
       ..Default::default()
     })
     .unwrap();
-    assert_eq!(file.dialect(), "generic");
+    assert_eq!(file.dialect(), "file");
+    assert!(file.capabilities().contains(crate::dialect::Caps::QUERY));
 
     let sqlite = open(ConnectionConfig {
       dialect: "sqlite".into(),
@@ -139,7 +140,46 @@ mod tests {
       ..Default::default()
     })
     .unwrap();
-    assert_eq!(sqlite.dialect(), "generic");
+    assert_eq!(sqlite.dialect(), "sqlite");
+    assert!(sqlite.capabilities().contains(crate::dialect::Caps::METADATA));
+  }
+
+  #[test]
+  fn open_capabilities_match_dialect_table() {
+    use crate::dialect::{Caps, caps_for_dialect};
+
+    for dialect in [
+      "mysql",
+      "postgres",
+      "clickhouse",
+      "duckdb",
+      "sqlite",
+      "file",
+      "folder",
+      "quack",
+    ] {
+      let mut cfg = ConnectionConfig {
+        dialect: dialect.into(),
+        host: Some("127.0.0.1".into()),
+        port: Some("1".into()),
+        path: Some("/tmp/x".into()),
+        uri: Some("quack:x".into()),
+        username: Some("u".into()),
+        password: Some("p".into()),
+        ..Default::default()
+      };
+      if dialect == "duckdb" {
+        cfg.path = Some(":memory:".into());
+      }
+      let conn = open(cfg).unwrap();
+      assert_eq!(
+        conn.capabilities().bits(),
+        caps_for_dialect(dialect).bits(),
+        "caps mismatch for {dialect}"
+      );
+      // sanity: every openable dialect can query
+      assert!(conn.capabilities().contains(Caps::QUERY));
+    }
   }
 
   #[test]

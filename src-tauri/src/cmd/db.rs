@@ -129,6 +129,40 @@ pub async fn get_dialect_from_payload(payload: DialectPayload) -> Option<Box<dyn
   block_create(payload).ok()
 }
 
+#[derive(Debug, Clone, Serialize)]
+pub struct CapabilitiesResponse {
+  pub dialect: String,
+  pub capabilities: Vec<&'static str>,
+}
+
+/// Return capability flags for a connection (or dialect-only payload).
+#[tauri::command]
+pub async fn connection_capabilities(
+  registry: State<'_, ConnectionRegistry>,
+  sessions: State<'_, SessionManager>,
+  dialect: DialectPayload,
+) -> Result<CapabilitiesResponse, String> {
+  // Prefer live connection when registered; otherwise dialect name table.
+  if dialect
+    .connection_id
+    .as_ref()
+    .map(|s| !s.trim().is_empty())
+    .unwrap_or(false)
+  {
+    let d = resolve_connection(&registry, &sessions, dialect).await?;
+    return Ok(CapabilitiesResponse {
+      dialect: d.dialect().to_string(),
+      capabilities: d.capabilities().names(),
+    });
+  }
+  let name = dialect.dialect.clone();
+  let caps = connector::dialect::caps_for_dialect(&name);
+  Ok(CapabilitiesResponse {
+    dialect: name,
+    capabilities: caps.names(),
+  })
+}
+
 #[tauri::command]
 pub async fn query(
   registry: State<'_, ConnectionRegistry>,
@@ -580,5 +614,44 @@ mod tests {
     let b = block_on(resolve_connection(&registry, &sessions, req)).unwrap();
     assert!(std::sync::Arc::ptr_eq(&a, &b));
     assert_eq!(sessions.len(), 1);
+  }
+
+  #[test]
+  fn connection_capabilities_from_live_session() {
+    let registry = ConnectionRegistry::default();
+    let sessions = SessionManager::default();
+    {
+      let mut map = registry.0.lock().unwrap();
+      map.insert(
+        "c1".into(),
+        DialectPayload {
+          connection_id: Some("c1".into()),
+          dialect: "folder".into(),
+          path: Some("/tmp/data".into()),
+          ..Default::default()
+        },
+      );
+    }
+    let conn = block_on(resolve_connection(
+      &registry,
+      &sessions,
+      DialectPayload {
+        connection_id: Some("c1".into()),
+        ..Default::default()
+      },
+    ))
+    .unwrap();
+    let names = conn.capabilities().names();
+    assert!(names.contains(&"query"));
+    assert!(names.contains(&"find"));
+    assert!(names.contains(&"drop_table"));
+    assert_eq!(conn.dialect(), "folder");
+  }
+
+  #[test]
+  fn dialect_only_capabilities_table() {
+    let caps = connector::dialect::caps_for_dialect("mysql");
+    assert!(caps.names().contains(&"export"));
+    assert!(!caps.names().contains(&"find"));
   }
 }
