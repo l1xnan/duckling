@@ -28,6 +28,21 @@ import { isDarkTheme, isNumberType, uniqueArray } from '@/utils';
 
 import { handleFieldFormat } from './format';
 import { HighlightHeaderWhenSelectCellPlugin } from './highlight-header-when-select-cell';
+import {
+  iconCopy,
+  iconCopyCsv,
+  iconCountBy,
+  iconField,
+  iconFilter,
+  iconHide,
+  iconPinClear,
+  iconPinLeft,
+  iconPinRight,
+  iconProfile,
+  iconSortAsc,
+  iconSortClear,
+  iconSortDesc,
+} from './menuIcons';
 import { makeTableTheme } from './theme';
 
 export type ListTableProps = ComponentProps<typeof ListTable>;
@@ -422,76 +437,121 @@ function CanvasTable_({
   );
 
   const contextMenuPlugin = useMemo(() => {
+    type MenuEntry =
+      | string
+      | {
+          text: string;
+          menuKey: string;
+          shortcut?: string;
+          customIcon?: { svg: string; width?: number; height?: number };
+        };
+
+    const joinGroups = (...groups: MenuEntry[][]): MenuEntry[] => {
+      const out: MenuEntry[] = [];
+      for (const g of groups) {
+        if (!g.length) continue;
+        if (out.length) out.push('---');
+        out.push(...g);
+      }
+      return out;
+    };
+
+    const bodyCopyGroup: MenuEntry[] = [
+      {
+        text: i18n._(MENU_COPY),
+        menuKey: 'copy',
+        shortcut: 'Ctrl+C',
+        customIcon: iconCopy,
+      },
+      {
+        text: i18n._(MENU_COPY_AS_CSV),
+        menuKey: 'copy-as-csv',
+        customIcon: iconCopyCsv,
+      },
+    ];
+    const bodyFilterGroup: MenuEntry[] = onDrillDown
+      ? [
+          {
+            text: i18n._(MENU_FILTER_BY_VALUE),
+            menuKey: 'filter-by-value',
+            customIcon: iconFilter,
+          },
+        ]
+      : [];
+
+    const headerCopyGroup: MenuEntry[] = [
+      {
+        menuKey: 'copy-field',
+        text: i18n._(MENU_COPY_FIELD),
+        customIcon: iconField,
+      },
+    ];
+    const headerSortGroup: MenuEntry[] = onOrderByColumn
+      ? [
+          {
+            menuKey: 'sort-asc',
+            text: i18n._(msg`Sort ascending`),
+            customIcon: iconSortAsc,
+          },
+          {
+            menuKey: 'sort-desc',
+            text: i18n._(msg`Sort descending`),
+            customIcon: iconSortDesc,
+          },
+          {
+            menuKey: 'sort-clear',
+            text: i18n._(msg`Clear sort`),
+            customIcon: iconSortClear,
+          },
+        ]
+      : [];
+    const headerAnalyzeGroup: MenuEntry[] = [
+      {
+        menuKey: 'count-by-column',
+        text: i18n._(MENU_COUNT_BY_COLUMN),
+        customIcon: iconCountBy,
+      },
+      ...(onProfileColumn
+        ? [
+            {
+              menuKey: 'column-profile',
+              text: i18n._(MENU_COLUMN_PROFILE),
+              customIcon: iconProfile,
+            },
+          ]
+        : []),
+    ];
+    const headerLayoutGroup: MenuEntry[] = [
+      {
+        menuKey: 'pin-to-left',
+        text: i18n._(MENU_PIN_LEFT),
+        customIcon: iconPinLeft,
+      },
+      {
+        menuKey: 'pin-to-right',
+        text: i18n._(MENU_PIN_RIGHT),
+        customIcon: iconPinRight,
+      },
+      {
+        menuKey: 'pin-to-clear',
+        text: i18n._(MENU_PIN_CLEAR),
+        customIcon: iconPinClear,
+      },
+      {
+        menuKey: 'hidden_column',
+        text: i18n._(MENU_HIDDEN_COLUMN),
+        customIcon: iconHide,
+      },
+    ];
+
     return new ContextMenuPlugin({
-      bodyCellMenuItems: [
-        {
-          text: i18n._(MENU_COPY),
-          menuKey: 'copy',
-          shortcut: 'Ctrl+C',
-        },
-        {
-          text: i18n._(MENU_COPY_AS_CSV),
-          menuKey: 'copy-as-csv',
-        },
-        ...(onDrillDown
-          ? [
-              {
-                text: i18n._(MENU_FILTER_BY_VALUE),
-                menuKey: 'filter-by-value',
-              },
-            ]
-          : []),
-      ],
-      headerCellMenuItems: [
-        {
-          menuKey: 'copy-field',
-          text: i18n._(MENU_COPY_FIELD),
-        },
-        ...(onOrderByColumn
-          ? [
-              {
-                menuKey: 'sort-asc',
-                text: i18n._(msg`Sort ascending`),
-              },
-              {
-                menuKey: 'sort-desc',
-                text: i18n._(msg`Sort descending`),
-              },
-              {
-                menuKey: 'sort-clear',
-                text: i18n._(msg`Clear sort`),
-              },
-            ]
-          : []),
-        {
-          menuKey: 'count-by-column',
-          text: i18n._(MENU_COUNT_BY_COLUMN),
-        },
-        ...(onProfileColumn
-          ? [
-              {
-                menuKey: 'column-profile',
-                text: i18n._(MENU_COLUMN_PROFILE),
-              },
-            ]
-          : []),
-        {
-          menuKey: 'pin-to-left',
-          text: i18n._(MENU_PIN_LEFT),
-        },
-        {
-          menuKey: 'pin-to-right',
-          text: i18n._(MENU_PIN_RIGHT),
-        },
-        {
-          menuKey: 'pin-to-clear',
-          text: i18n._(MENU_PIN_CLEAR),
-        },
-        {
-          menuKey: 'hidden_column',
-          text: i18n._(MENU_HIDDEN_COLUMN),
-        },
-      ],
+      bodyCellMenuItems: joinGroups(bodyCopyGroup, bodyFilterGroup),
+      headerCellMenuItems: joinGroups(
+        headerCopyGroup,
+        headerSortGroup,
+        headerAnalyzeGroup,
+        headerLayoutGroup,
+      ),
 
       menuClickCallback: async (e: MenuClickEventArgs, table: ListTableAPI) => {
         if (e.colIndex === undefined || e.rowIndex === undefined) {
