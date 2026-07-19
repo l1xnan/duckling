@@ -1,9 +1,7 @@
 mod type_arrow;
-mod type_json;
 
 use crate::dialect::Connection;
 use crate::ssh_tunnel::{DbSshConfig, SshTunnel};
-use crate::types::JSONValue;
 use crate::utils::{Metadata, RawArrowData, Table, build_tree};
 use crate::utils::{Title, TreeNode};
 use anyhow::{Context, anyhow};
@@ -12,7 +10,6 @@ use arrow::datatypes::Schema;
 use async_trait::async_trait;
 use mysql::prelude::*;
 use mysql::*;
-use serde_json::json;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::sync::Arc;
@@ -20,7 +17,7 @@ use type_arrow::*;
 
 pub type MySqlSshConfig = DbSshConfig;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct MySqlConnection {
   pub host: String,
   pub port: String,
@@ -33,7 +30,8 @@ pub struct MySqlConnection {
 #[async_trait]
 impl Connection for MySqlConnection {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
-    let tables = self.get_tables()?;
+    let this = self.clone_config();
+    let tables = crate::dialect::run_blocking(move || this.get_tables()).await?;
     Ok(TreeNode {
       name: self.host.clone(),
       path: self.host.clone(),
@@ -46,22 +44,28 @@ impl Connection for MySqlConnection {
   }
 
   async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
-    self._query(sql)
+    let this = self.clone_config();
+    let sql = sql.to_string();
+    crate::dialect::run_blocking(move || this._query(&sql)).await
   }
 
-  #[allow(clippy::unused_async)]
   async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
-    let mut guard = self.get_conn()?;
-    let mut conn = guard.conn;
-    if let Some(total) = conn.query_first::<usize, _>(sql)? {
-      Ok(total)
-    } else {
-      Err(anyhow::anyhow!("null"))
-    }
+    let this = self.clone_config();
+    let sql = sql.to_string();
+    crate::dialect::run_blocking(move || {
+      let mut guard = this.get_conn()?;
+      let mut conn = guard.conn;
+      if let Some(total) = conn.query_first::<usize, _>(sql)? {
+        Ok(total)
+      } else {
+        Err(anyhow::anyhow!("null"))
+      }
+    })
+    .await
   }
 
   async fn query_all(&self, sql: &str) -> anyhow::Result<RawArrowData> {
-    self._query(sql)
+    self.query(sql, 0, 0).await
   }
 
   async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
@@ -86,11 +90,15 @@ impl Connection for MySqlConnection {
   }
 
   async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
-    Ok(self._all_columns()?)
+    let this = self.clone_config();
+    crate::dialect::run_blocking(move || this._all_columns()).await
   }
 
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
-    self._table_row_count(table, r#where)
+    let this = self.clone_config();
+    let table = table.to_string();
+    let where_ = r#where.to_string();
+    crate::dialect::run_blocking(move || this._table_row_count(&table, &where_)).await
   }
 
   fn start_quote(&self) -> &'static str {
@@ -124,15 +132,8 @@ struct MySqlConnGuard {
 }
 
 impl MySqlConnection {
-  fn new(host: &str, port: &str, username: &str, password: &str) -> Self {
-    Self {
-      host: host.to_string(),
-      port: port.to_string(),
-      username: username.to_string(),
-      password: password.to_string(),
-      database: None,
-      ssh: None,
-    }
+  fn clone_config(&self) -> Self {
+    self.clone()
   }
 
   fn get_opts(&self, tunnel: Option<&SshTunnel>) -> anyhow::Result<Opts> {
@@ -172,9 +173,6 @@ impl MySqlConnection {
     })
   }
 
-  fn get_schema(&self) -> Vec<Table> {
-    vec![]
-  }
   pub fn get_tables(&self) -> anyhow::Result<Vec<Table>> {
     let mut guard = self.get_conn()?;
     let mut conn = guard.conn;
@@ -273,24 +271,11 @@ impl MySqlConnection {
   }
 
   fn get_titles(&self, columns: &[Column]) -> Vec<Title> {
-    let mut titles = vec![];
-    for (i, col) in columns.iter().enumerate() {
-      let type_ = format!("{:?}", col.column_type());
-      let type_ = type_.strip_suffix("MYSQL_TYPE_").unwrap_or(type_.as_str());
-      println!("{i}: {:?}, {:?}", col.name_str(), type_);
-      titles.push(Title {
-        name: col.name_str().to_string(),
-        r#type: type_.to_string(),
-      });
-    }
-
     columns
       .iter()
-      .enumerate()
-      .map(|(i, col)| {
+      .map(|col| {
         let type_ = format!("{:?}", col.column_type());
-        let type_ = type_.strip_suffix("MYSQL_TYPE_").unwrap_or(type_.as_str());
-        println!("{i}: {:?}, {:?}", col.name_str(), type_);
+        let type_ = type_.strip_prefix("MYSQL_TYPE_").unwrap_or(type_.as_str());
         Title {
           name: col.name_str().to_string(),
           r#type: type_.to_string(),
@@ -299,20 +284,6 @@ impl MySqlConnection {
       .collect()
   }
 
-  fn _query_json(&self, sql: &str) -> anyhow::Result<JSONValue> {
-    let mut guard = self.get_conn()?;
-    let mut conn = guard.conn;
-    let mut result = conn.query_iter(sql)?;
-    let columns = result.columns();
-    let columns = columns.as_ref();
-    let titles = self.get_titles(columns);
-    let data = type_json::fetch_dynamic_query_to_json(&mut result)?;
-    let result = json! ({
-      "titles": titles,
-      "data": data
-    });
-    Ok(result)
-  }
   fn _table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
     let mut guard = self.get_conn()?;
     let mut conn = guard.conn;
@@ -320,13 +291,6 @@ impl MySqlConnection {
     if !cond.is_empty() {
       sql = format!("{sql} where {cond}");
     }
-    conn
-      .query_first::<usize, _>(&sql)?
-      .ok_or_else(|| anyhow!("No value found"))
-  }
-  fn _sql_row_count(&self, sql: &str) -> anyhow::Result<usize> {
-    let mut guard = self.get_conn()?;
-    let mut conn = guard.conn;
     conn
       .query_first::<usize, _>(&sql)?
       .ok_or_else(|| anyhow!("No value found"))
