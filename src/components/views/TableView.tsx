@@ -56,6 +56,7 @@ export function TableView({ context }: { context: TabContextType }) {
     tableSchema,
     beautify,
     orderBy,
+    setOrderBy,
     transpose,
     cross,
     showValue,
@@ -167,6 +168,11 @@ export function TableView({ context }: { context: TabContextType }) {
                     if (!col) return;
                     setDialogColumn(col);
                     countByDialog.trigger();
+                  }}
+                  onOrderByColumn={(col, options) => {
+                    if (!col || !setOrderBy) return;
+                    const name = col.replace(/\s*[↑↓]\s*$/, '').trim();
+                    setOrderBy(name, options);
                   }}
                 />
               </Suspense>

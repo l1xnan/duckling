@@ -47,6 +47,14 @@ export interface TableProps<T = unknown> {
   onSelectedCellInfos?: (cells: SelectedCellType[][] | null) => void;
   /** Header context menu: count distinct values for this column. */
   onCountByColumn?: (columnName: string) => void;
+  /**
+   * When set, header sort uses this callback (server-side) instead of
+   * VTable client-side sorting.
+   */
+  onOrderByColumn?: (
+    columnName: string,
+    options?: { desc?: boolean; clear?: boolean },
+  ) => void;
 }
 
 function useTableTheme() {
@@ -249,11 +257,13 @@ function CanvasTable_({
   transpose,
   cross,
   style,
+  orderBy,
   setHiddenColumns,
   hiddenColumns,
   onSelectedCell,
   onSelectedCellInfos,
   onCountByColumn,
+  onOrderByColumn,
 }: TableProps) {
   const tableRef = useRef<ListTableAPI>(null);
 
@@ -274,14 +284,20 @@ function CanvasTable_({
     ].filter((item) => !!item);
 
     return __titles.map(({ key, name, dataType, type }, _) => {
+      const isSorted = orderBy?.name === name;
       return {
         key,
         field: name,
         fieldKey: key,
-        title: name,
+        title: isSorted
+          ? `${name} ${orderBy?.desc ? '↓' : '↑'}`
+          : name,
         dragHeader: true,
         hide: hiddenColumns?.[name],
-        sort: true,
+        // Disable VTable client sort when server-side handler is provided.
+        sort: onOrderByColumn
+          ? false
+          : true,
         style: (arg) => handleColumnStyle(arg, { key, dataType, type }),
         fieldFormat: (record) =>
           handleFieldFormat(record, {
@@ -291,6 +307,9 @@ function CanvasTable_({
             beautify,
             precision,
           }),
+        headerStyle: isSorted
+          ? { fontWeight: 'bold' as const }
+          : undefined,
       } as ColumnDefine;
     });
   }, [
@@ -301,6 +320,8 @@ function CanvasTable_({
     beautify,
     precision,
     hiddenColumns,
+    orderBy,
+    onOrderByColumn,
   ]);
 
   const handleMouseEnterCell: ListTableProps['onMouseEnterCell'] = (args) => {
@@ -401,6 +422,22 @@ function CanvasTable_({
           menuKey: 'copy-field',
           text: i18n._(MENU_COPY_FIELD),
         },
+        ...(onOrderByColumn
+          ? [
+              {
+                menuKey: 'sort-asc',
+                text: i18n._(msg`Sort ascending`),
+              },
+              {
+                menuKey: 'sort-desc',
+                text: i18n._(msg`Sort descending`),
+              },
+              {
+                menuKey: 'sort-clear',
+                text: i18n._(msg`Clear sort`),
+              },
+            ]
+          : []),
         {
           menuKey: 'count-by-column',
           text: i18n._(MENU_COUNT_BY_COLUMN),
@@ -433,6 +470,15 @@ function CanvasTable_({
         if (!transpose) {
           if (menuKey === 'copy-field') {
             await writeText((field as string) ?? '');
+          } else if (menuKey === 'sort-asc') {
+            const col = String(field ?? '').replace(/\s*[↑↓]\s*$/, '').trim();
+            if (col) onOrderByColumn?.(col, { desc: false });
+          } else if (menuKey === 'sort-desc') {
+            const col = String(field ?? '').replace(/\s*[↑↓]\s*$/, '').trim();
+            if (col) onOrderByColumn?.(col, { desc: true });
+          } else if (menuKey === 'sort-clear') {
+            const col = String(field ?? '').replace(/\s*[↑↓]\s*$/, '').trim();
+            if (col) onOrderByColumn?.(col, { clear: true });
           } else if (menuKey === 'count-by-column') {
             onCountByColumn?.(String(field ?? ''));
           } else if (menuKey == 'pin-to-left') {
@@ -455,7 +501,13 @@ function CanvasTable_({
         }
       },
     });
-  }, [setHiddenColumns, onCountByColumn, i18n.locale]);
+  }, [
+    setHiddenColumns,
+    onCountByColumn,
+    onOrderByColumn,
+    orderBy,
+    i18n.locale,
+  ]);
 
   const [plugins, setPlugins] = useState<IVTablePlugin[]>([highlightPlugin]);
 

@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid';
 import { createStore } from 'zustand';
 
 import { ResultType, TitleType } from '@/api';
+import { nextOrderBy, orderByClause } from '@/lib/sql/orderBy';
 
 import {
   QueryParamType,
@@ -10,6 +11,7 @@ import {
   TableContextType,
   cancelExecuteSQL,
   execute,
+  getDatabase,
 } from './tabs';
 
 export type SchemaType = {
@@ -67,7 +69,16 @@ export type DatasetState = {
 
 export type DatasetAction = {
   setStore?: (res: Partial<DatasetState>) => void;
-  setOrderBy?: (name: string) => void;
+  /**
+   * Server-side sort by column.
+   * - no options: toggle none → ASC → DESC → none
+   * - `{ desc }` force direction
+   * - `{ clear: true }` clear sort
+   */
+  setOrderBy?: (
+    name: string,
+    options?: { desc?: boolean; clear?: boolean },
+  ) => void;
   setPagination?: (p: { page?: number; perPage?: number }) => void;
   setTranspose?: () => void;
   setCross?: () => void;
@@ -146,7 +157,11 @@ export const createDatasetStore = (context: TabContextType) =>
     },
 
     setSQLOrderBy: (value: string) => {
-      set((_) => ({ sqlOrderBy: value }));
+      // Manual ORDER BY text clears structured header sort state.
+      set((_) => ({
+        sqlOrderBy: value,
+        orderBy: value.trim() ? undefined : get().orderBy,
+      }));
     },
     setDialogColumn: (dialogColumn: string) => set((_) => ({ dialogColumn })),
     setHiddenColumns: (key: string, value: boolean) =>
@@ -154,12 +169,46 @@ export const createDatasetStore = (context: TabContextType) =>
         hiddenColumns: { ...hiddenColumns, [key]: value },
       })),
 
-    setOrderBy: (_name: string) => {},
+    setOrderBy: (name, options) => {
+      const context = get().context as TableContextType | undefined;
+      const dialect = getDatabase(context?.dbId)?.dialect ?? 'generic';
+
+      if (options?.clear) {
+        set({ orderBy: undefined, sqlOrderBy: '', page: 1 });
+        void get().refresh();
+        return;
+      }
+
+      let next: OrderByType | undefined;
+      if (options && 'desc' in options && options.desc !== undefined) {
+        next = { name, desc: !!options.desc };
+      } else {
+        next = nextOrderBy(get().orderBy, name);
+      }
+
+      if (!next) {
+        set({ orderBy: undefined, sqlOrderBy: '', page: 1 });
+      } else {
+        set({
+          orderBy: next,
+          sqlOrderBy: orderByClause(next.name, next.desc, dialect),
+          page: 1,
+        });
+      }
+      void get().refresh();
+    },
 
     refresh: async () => {
-      const { page, perPage, sqlWhere, sqlOrderBy } = get();
+      const { page, perPage, sqlWhere, sqlOrderBy, orderBy } = get();
       const context = get().context as TableContextType;
       const requestId = nanoid();
+
+      // Prefer structured orderBy when present (header click).
+      let orderClause = sqlOrderBy;
+      if (orderBy?.name) {
+        const dialect = getDatabase(context?.dbId)?.dialect ?? 'generic';
+        orderClause = orderByClause(orderBy.name, orderBy.desc, dialect);
+      }
 
       const ctx: QueryParamType = {
         type: context?.type,
@@ -169,7 +218,7 @@ export const createDatasetStore = (context: TabContextType) =>
         page,
         perPage,
         sqlWhere,
-        sqlOrderBy,
+        sqlOrderBy: orderClause,
       };
       set({ loading: true, message: undefined, refreshRequestId: requestId });
       try {
