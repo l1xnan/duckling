@@ -6,6 +6,7 @@ use tauri::{AppHandle, State};
 
 use super::db::DialectPayload;
 use super::secret_store::{self, ConnectionSecrets};
+use super::session_manager::SessionManager;
 
 /// In-memory connection configs (with secrets) for the app process lifetime.
 #[derive(Default)]
@@ -104,6 +105,7 @@ pub fn resolve_payload(
 async fn register_one(
   app: &AppHandle,
   registry: &ConnectionRegistry,
+  sessions: &SessionManager,
   request: RegisterConnectionRequest,
 ) -> Result<(), String> {
   let id = request.id.trim().to_string();
@@ -149,7 +151,9 @@ async fn register_one(
     .0
     .lock()
     .map_err(|_| "connection registry lock poisoned".to_string())?;
-  map.insert(id, payload);
+  map.insert(id.clone(), payload);
+  // Config changed — drop any live session so next query reconnects.
+  sessions.invalidate(&id);
   Ok(())
 }
 
@@ -157,15 +161,17 @@ async fn register_one(
 pub async fn register_connection(
   app: AppHandle,
   registry: State<'_, ConnectionRegistry>,
+  sessions: State<'_, SessionManager>,
   request: RegisterConnectionRequest,
 ) -> Result<(), String> {
-  register_one(&app, &registry, request).await
+  register_one(&app, &registry, &sessions, request).await
 }
 
 #[tauri::command]
 pub async fn unregister_connection(
   app: AppHandle,
   registry: State<'_, ConnectionRegistry>,
+  sessions: State<'_, SessionManager>,
   connection_id: String,
   #[allow(unused_variables)]
   delete_secrets: Option<bool>,
@@ -178,6 +184,7 @@ pub async fn unregister_connection(
       .map_err(|_| "connection registry lock poisoned".to_string())?;
     map.remove(&id);
   }
+  sessions.invalidate(&id);
   if delete_secrets.unwrap_or(false) {
     let _ = secret_store::secret_delete(app, id).await;
   }
@@ -188,10 +195,11 @@ pub async fn unregister_connection(
 pub async fn sync_connections(
   app: AppHandle,
   registry: State<'_, ConnectionRegistry>,
+  sessions: State<'_, SessionManager>,
   connections: Vec<RegisterConnectionRequest>,
 ) -> Result<(), String> {
   for request in connections {
-    register_one(&app, &registry, request).await?;
+    register_one(&app, &registry, &sessions, request).await?;
   }
   Ok(())
 }

@@ -1,21 +1,28 @@
 mod type_arrow;
 mod type_json;
 
-use std::fmt::Debug;
-use std::sync::Arc;
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
 use arrow::datatypes::{ArrowNativeType, Field, Schema};
 use async_trait::async_trait;
 use futures_util::FutureExt;
-use tokio_postgres::{Client, NoTls, Row};
+use tokio_postgres::{Client, NoTls};
 
 use crate::dialect::Connection;
 use crate::ssh_tunnel::{DbSshConfig, SshTunnel};
 use crate::utils::{RawArrowData, Table, Title, TreeNode, build_tree, json_to_arrow};
-use anyhow::Context;
+use anyhow::{Context, anyhow};
 use type_json::RowData;
 
-#[derive(Debug, Default)]
+struct PostgresLive {
+  _tunnel: Option<SshTunnel>,
+  tunnel_port: Option<u16>,
+  clients: HashMap<String, Arc<Client>>,
+}
+
+/// Postgres dialect connection. Tunnel + clients are cached per database name
+/// and shared across clones for SessionManager reuse.
 pub struct PostgresConnection {
   pub host: String,
   pub port: String,
@@ -23,11 +30,66 @@ pub struct PostgresConnection {
   pub password: String,
   pub database: Option<String>,
   pub ssh: Option<DbSshConfig>,
+  live: Arc<Mutex<Option<PostgresLive>>>,
 }
 
-struct PostgresConnGuard {
-  _tunnel: Option<SshTunnel>,
-  client: Client,
+impl Default for PostgresConnection {
+  fn default() -> Self {
+    Self::new(
+      String::new(),
+      String::new(),
+      String::new(),
+      String::new(),
+      None,
+      None,
+    )
+  }
+}
+
+impl PostgresConnection {
+  pub fn new(
+    host: String,
+    port: String,
+    username: String,
+    password: String,
+    database: Option<String>,
+    ssh: Option<DbSshConfig>,
+  ) -> Self {
+    Self {
+      host,
+      port,
+      username,
+      password,
+      database,
+      ssh,
+      live: Arc::new(Mutex::new(None)),
+    }
+  }
+}
+
+impl Clone for PostgresConnection {
+  fn clone(&self) -> Self {
+    Self {
+      host: self.host.clone(),
+      port: self.port.clone(),
+      username: self.username.clone(),
+      password: self.password.clone(),
+      database: self.database.clone(),
+      ssh: self.ssh.clone(),
+      live: Arc::clone(&self.live),
+    }
+  }
+}
+
+impl std::fmt::Debug for PostgresConnection {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.debug_struct("PostgresConnection")
+      .field("host", &self.host)
+      .field("port", &self.port)
+      .field("username", &self.username)
+      .field("database", &self.database)
+      .finish_non_exhaustive()
+  }
 }
 
 #[async_trait]
@@ -49,8 +111,8 @@ impl Connection for PostgresConnection {
   }
 
   async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
-    let guard = self.get_conn(&self.database()).await?;
-    let row = guard.client.query_one(sql, &[]).await?;
+    let client = self.get_client(&self.database()).await?;
+    let row = client.query_one(sql, &[]).await?;
     let total: u32 = row.get(0);
     Ok(total as usize)
   }
@@ -93,9 +155,9 @@ impl Connection for PostgresConnection {
 }
 
 impl PostgresConnection {
-  fn build_conn_string(&self, db: &str, tunnel: Option<&SshTunnel>) -> String {
-    let (host, port) = if let Some(tunnel) = tunnel {
-      ("127.0.0.1".to_string(), tunnel.local_port().to_string())
+  fn build_conn_string(&self, db: &str, tunnel_port: Option<u16>) -> String {
+    let (host, port) = if let Some(local_port) = tunnel_port {
+      ("127.0.0.1".to_string(), local_port.to_string())
     } else {
       (self.host.clone(), self.port.clone())
     };
@@ -110,35 +172,90 @@ impl PostgresConnection {
     config
   }
 
-  async fn get_conn(&self, db: &str) -> anyhow::Result<PostgresConnGuard> {
+  async fn ensure_tunnel(&self) -> anyhow::Result<Option<u16>> {
+    {
+      let guard = self
+        .live
+        .lock()
+        .map_err(|_| anyhow!("postgres live lock poisoned"))?;
+      if let Some(live) = guard.as_ref() {
+        return Ok(live.tunnel_port);
+      }
+    }
+
     let tunnel = if let Some(ssh_config) = self.ssh.as_ref().and_then(|s| s.to_tunnel_config()) {
       let target_port = self.port.parse().context("invalid Postgres port")?;
       Some(SshTunnel::open(&ssh_config, &self.host, target_port)?)
     } else {
       None
     };
+    let tunnel_port = tunnel.as_ref().map(|t| t.local_port());
 
-    let config = self.build_conn_string(db, tunnel.as_ref());
-    let client = connect(&config).await?;
-    Ok(PostgresConnGuard {
-      _tunnel: tunnel,
-      client,
-    })
+    let mut guard = self
+      .live
+      .lock()
+      .map_err(|_| anyhow!("postgres live lock poisoned"))?;
+    if guard.is_none() {
+      *guard = Some(PostgresLive {
+        _tunnel: tunnel,
+        tunnel_port,
+        clients: HashMap::new(),
+      });
+    }
+    Ok(guard.as_ref().and_then(|l| l.tunnel_port))
+  }
+
+  async fn get_client(&self, db: &str) -> anyhow::Result<Arc<Client>> {
+    let tunnel_port = self.ensure_tunnel().await?;
+    let db_key = if db.is_empty() {
+      "postgres".to_string()
+    } else {
+      db.to_string()
+    };
+
+    {
+      let guard = self
+        .live
+        .lock()
+        .map_err(|_| anyhow!("postgres live lock poisoned"))?;
+      if let Some(live) = guard.as_ref()
+        && let Some(client) = live.clients.get(&db_key)
+      {
+        return Ok(Arc::clone(client));
+      }
+    }
+
+    let config = self.build_conn_string(&db_key, tunnel_port);
+    let client = Arc::new(connect(&config).await?);
+
+    let mut guard = self
+      .live
+      .lock()
+      .map_err(|_| anyhow!("postgres live lock poisoned"))?;
+    let live = guard
+      .as_mut()
+      .ok_or_else(|| anyhow!("postgres live missing after ensure_tunnel"))?;
+    Ok(Arc::clone(
+      live
+        .clients
+        .entry(db_key)
+        .or_insert_with(|| Arc::clone(&client)),
+    ))
   }
 
   pub async fn databases(&self) -> anyhow::Result<Vec<String>> {
-    let guard = self.get_conn("postgres").await?;
+    let client = self.get_client("postgres").await?;
     let sql = "SELECT datname FROM pg_database WHERE datistemplate = false";
 
     let mut names = vec![];
-    for row in guard.client.query(sql, &[]).await? {
-      let _name: String = row.get(0);
+    for row in client.query(sql, &[]).await? {
       names.push(row.get(0));
     }
     Ok(names)
   }
+
   pub async fn get_tables(&self, db: &str) -> anyhow::Result<Vec<Table>> {
-    let guard = self.get_conn(db).await?;
+    let client = self.get_client(db).await?;
 
     let sql = "
       select
@@ -150,7 +267,7 @@ impl PostgresConnection {
       from information_schema.tables WHERE table_schema='public'
       ";
     let mut tables = vec![];
-    for row in guard.client.query(sql, &[]).await? {
+    for row in client.query(sql, &[]).await? {
       tables.push(Table {
         db_name: row.get::<_, String>(0),
         schema: Some(row.get::<_, String>(1)),
@@ -174,9 +291,9 @@ impl PostgresConnection {
   }
 
   async fn _query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
-    let guard = self.get_conn(&self.database()).await?;
+    let client = self.get_client(&self.database()).await?;
 
-    let stmt = guard.client.prepare(sql).await?;
+    let stmt = client.prepare(sql).await?;
     let mut fields = vec![];
     let mut titles = vec![];
     for col in stmt.columns() {
@@ -198,7 +315,7 @@ impl PostgresConnection {
     let schema = Arc::new(Schema::new(fields));
 
     let mut rows: Vec<RowData> = vec![];
-    for row in guard.client.query(&stmt, &[]).await? {
+    for row in client.query(&stmt, &[]).await? {
       let r = type_json::postgres_row_to_row_data(row)?;
       rows.push(r);
     }
@@ -218,9 +335,9 @@ impl PostgresConnection {
   }
 
   async fn _table_row_count(&self, table: &str, cond: &str) -> anyhow::Result<usize> {
-    let guard = self.get_conn(&self.database()).await?;
+    let client = self.get_client(&self.database()).await?;
     let sql = self._table_count_sql(table, cond);
-    let row = guard.client.query_one(&sql, &[]).await?;
+    let row = client.query_one(&sql, &[]).await?;
     let total: u32 = row.get::<_, u32>(0);
     Ok(total.as_usize())
   }
