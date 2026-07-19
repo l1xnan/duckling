@@ -41,6 +41,16 @@ export function SingleLineEditor({
   const { handleEditorDidMount, editorRef } = useRegister({
     completeMeta,
   });
+
+  // Sync when parent updates value externally (e.g. drill-down filter).
+  useEffect(() => {
+    const next = initialValue ?? '';
+    setValue((prev) => (prev === next ? prev : next));
+    if (editorRef.current && editorRef.current.getValue() !== next) {
+      editorRef.current.setValue(next);
+    }
+  }, [initialValue, editorRef]);
+
   useImperativeHandle(ref, () => ({
     editor: () => editorRef.current,
 
