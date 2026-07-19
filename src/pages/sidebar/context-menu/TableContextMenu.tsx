@@ -21,12 +21,20 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
 import { canDropTable, canFind, canMetadata } from '@/lib/capabilities';
+import { quoteTableExpr } from '@/lib/sql/countByColumn';
+import { buildSampleSql } from '@/lib/sql/sample';
 import { SearchDialog } from '@/pages/sidebar/dialog/SearchDialog';
+import { docsAtom } from '@/stores/app';
 import { DBType, DialectConfig, getStoredDB, useDBListStore } from '@/stores/dbList';
-import { TableContextType, useTabsStore } from '@/stores/tabs';
+import {
+  EditorContextType,
+  TableContextType,
+  useTabsStore,
+} from '@/stores/tabs';
 import { NodeElementType } from '@/types';
 import { Trans } from '@lingui/react/macro';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
+import { useSetAtom } from 'jotai';
 import { RefreshCcw } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { PropsWithChildren } from 'react';
@@ -37,7 +45,10 @@ export function TableContextMenu({
   db,
 }: PropsWithChildren<{ node: NodeElementType; db: DBType }>) {
   const updateTab = useTabsStore((state) => state.update);
+  const append = useTabsStore((state) => state.append);
+  const active = useTabsStore((state) => state.active);
   const updateDB = useDBListStore((state) => state.updateByConfig);
+  const setDocs = useSetAtom(docsAtom);
 
   const alertDialog = useDialog();
   const searchDialog = useDialog();
@@ -147,6 +158,58 @@ export function TableContextMenu({
     await writeText(node.path);
   };
 
+  const openSqlInEditor = (sql: string, title: string) => {
+    const id = nanoid();
+    const tab: EditorContextType = {
+      id,
+      dbId: db.id,
+      tableId: node.path,
+      type: 'editor',
+      displayName: title,
+    };
+    setDocs((prev) => ({ ...prev, [id]: sql }));
+    append(tab);
+    active(id);
+  };
+
+  const handleSample = () => {
+    const tableExpr = node.path || node.name;
+    const sql = buildSampleSql({
+      tableExpr,
+      dialect: db.dialect,
+      limit: 100,
+    });
+    openSqlInEditor(sql, `sample:${node.name}`);
+  };
+
+  const handleDescribe = () => {
+    const d = (db.dialect || '').toLowerCase();
+    const t = quoteTableExpr(node.path || node.name, d);
+    let sql: string;
+    if (d === 'mysql') {
+      sql = `DESCRIBE ${t}`;
+    } else if (d === 'postgres') {
+      const parts = (node.path || node.name).split('.');
+      const schema = parts.length > 1 ? parts[0] : 'public';
+      const table = parts.length > 1 ? parts[1] : parts[0];
+      sql =
+        `SELECT column_name, data_type, is_nullable, column_default` +
+        ` FROM information_schema.columns` +
+        ` WHERE table_schema = '${schema.replaceAll("'", "''")}'` +
+        ` AND table_name = '${table.replaceAll("'", "''")}'` +
+        ` ORDER BY ordinal_position`;
+    } else if (d === 'sqlite') {
+      sql = `PRAGMA table_info(${t})`;
+    } else if (d === 'duckdb') {
+      sql = `DESCRIBE SELECT * FROM ${t} LIMIT 0`;
+    } else if (d === 'clickhouse') {
+      sql = `DESCRIBE TABLE ${t}`;
+    } else {
+      sql = `SELECT * FROM ${t} WHERE 1=0`;
+    }
+    openSqlInEditor(sql, `describe:${node.name}`);
+  };
+
   return (
     <>
       <ContextMenu>
@@ -165,6 +228,12 @@ export function TableContextMenu({
             disabled={!allowMetadata}
           >
             <Trans>Show columns</Trans>
+          </ContextMenuItem>
+          <ContextMenuItem onSelect={handleDescribe}>
+            <Trans>Describe table</Trans>
+          </ContextMenuItem>
+          <ContextMenuItem onSelect={handleSample}>
+            <Trans>Sample 100 rows</Trans>
           </ContextMenuItem>
           {db.dialect == 'folder' ? (
             <>
