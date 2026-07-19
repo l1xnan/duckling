@@ -80,11 +80,18 @@ impl Connection for ClickhouseConnection {
     &self,
     sql: &str,
     file: &str,
-    _format: &str,
+    format: &str,
     _options: &crate::utils::ExportOptions,
   ) -> anyhow::Result<()> {
+    // Stream bytes from ClickHouse without buffering the full result set.
+    let ch_format = match format.to_ascii_lowercase().as_str() {
+      "tsv" => "TSVWithNames",
+      "json" => "JSONEachRow",
+      "parquet" => "Parquet",
+      _ => "CSVWithNames",
+    };
     let client = self.client().await?;
-    let mut cursor = client.query(sql).fetch_bytes("CSV")?;
+    let mut cursor = client.query(sql).fetch_bytes(ch_format)?;
     let mut file = File::create(file)?;
     while let Some(bytes) = cursor.next().await? {
       file.write_all(&bytes)?;

@@ -226,6 +226,92 @@ impl SqliteConnection {
   }
 }
 
+#[cfg(test)]
+mod contract_tests {
+  use super::*;
+  use crate::dialect::Caps;
+
+  fn temp_db() -> (SqliteConnection, std::path::PathBuf) {
+    let path = std::env::temp_dir().join(format!("duckling_sqlite_{}.db", nanoid::nanoid!(8)));
+    let conn = rusqlite::Connection::open(&path).unwrap();
+    conn
+      .execute(
+        "CREATE TABLE items (id INTEGER PRIMARY KEY, name TEXT, score REAL)",
+        [],
+      )
+      .unwrap();
+    conn
+      .execute(
+        "INSERT INTO items (id, name, score) VALUES (1, 'a', 1.5), (2, 'b', 2.5)",
+        [],
+      )
+      .unwrap();
+    drop(conn);
+    (
+      SqliteConnection {
+        path: path.to_string_lossy().to_string(),
+      },
+      path,
+    )
+  }
+
+  #[tokio::test]
+  async fn query_select_and_types() {
+    let (db, path) = temp_db();
+    let res = db
+      .query("SELECT id, name, score FROM items ORDER BY id", 0, 0)
+      .await
+      .unwrap();
+    assert_eq!(res.batch.num_rows(), 2);
+    assert_eq!(res.batch.num_columns(), 3);
+    assert!(db.capabilities().contains(Caps::QUERY));
+    assert!(db.capabilities().contains(Caps::METADATA));
+    let _ = std::fs::remove_file(path);
+  }
+
+  #[tokio::test]
+  async fn paging_and_count() {
+    let (db, path) = temp_db();
+    let page = db
+      .paging_query("SELECT id, name FROM items ORDER BY id", Some(1), Some(0))
+      .await
+      .unwrap();
+    assert_eq!(page.batch.num_rows(), 1);
+    assert_eq!(page.total, 2);
+
+    let count = db
+      .query_count("SELECT count(*) FROM items")
+      .await
+      .unwrap();
+    assert_eq!(count, 2);
+    let _ = std::fs::remove_file(path);
+  }
+
+  #[tokio::test]
+  async fn schema_tree_and_columns() {
+    let (db, path) = temp_db();
+    let tree = db.get_db().await.unwrap();
+    assert_eq!(tree.node_type, "root");
+    let children = tree.children.unwrap_or_default();
+    assert!(!children.is_empty());
+
+    let cols = db.show_column(None, "items").await.unwrap();
+    assert!(cols.batch.num_rows() >= 3);
+
+    let meta = db.all_columns().await.unwrap();
+    assert!(meta.iter().any(|m| m.table == "items"));
+    let _ = std::fs::remove_file(path);
+  }
+
+  #[tokio::test]
+  async fn table_row_count_with_where() {
+    let (db, path) = temp_db();
+    let n = db.table_row_count("items", "id = 1").await.unwrap();
+    assert_eq!(n, 1);
+    let _ = std::fs::remove_file(path);
+  }
+}
+
 #[tokio::test]
 #[ignore = "requires a local sqlite file"]
 async fn test_tables() {

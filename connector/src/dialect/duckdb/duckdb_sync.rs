@@ -273,7 +273,8 @@ fn escape_sql_char_literal(value: &str) -> String {
   value.replace('\'', "''")
 }
 
-fn build_copy_sql(
+/// Build DuckDB `COPY (...) TO` SQL for streaming export (no full materialization).
+pub(crate) fn build_copy_sql(
   sql: &str,
   file: &str,
   format: &str,
@@ -363,4 +364,47 @@ fn test_duckdb_cwd() {
     .query_row(sql, [], |row| row.get::<_, String>(0))
     .unwrap();
   assert_eq!(value, "/path/to");
+}
+
+#[test]
+fn build_copy_sql_csv_and_parquet() {
+  let opts = crate::utils::ExportOptions::default();
+  let csv = build_copy_sql("select 1 as a", "out.csv", "csv", &opts).unwrap();
+  assert!(csv.contains("COPY (select 1 as a) TO 'out.csv'"));
+  assert!(csv.contains("FORMAT CSV"));
+  assert!(csv.contains("HEADER true"));
+
+  let mut opts2 = opts.clone();
+  opts2.header = Some(false);
+  opts2.delimiter = Some("|".into());
+  let csv2 = build_copy_sql("select 1", "out.csv", "csv", &opts2).unwrap();
+  assert!(csv2.contains("HEADER false"));
+  assert!(csv2.contains("DELIMITER '|'"));
+
+  let pq = build_copy_sql("select 1", "out.parquet", "parquet", &opts).unwrap();
+  assert!(pq.contains("FORMAT PARQUET"));
+  assert!(pq.contains("COMPRESSION 'ZSTD'"));
+}
+
+#[test]
+fn export_csv_streams_without_materializing_preview() {
+  let dir = std::env::temp_dir().join(format!("duckling_export_{}", nanoid::nanoid!(8)));
+  let _ = std::fs::create_dir_all(&dir);
+  let out = dir.join("t.csv");
+  let conn = DuckDbSyncConnection::new(None, None).unwrap();
+  export(
+    &conn.inner,
+    "select 1 as id, 'hello' as name",
+    out.to_str().unwrap(),
+    "csv",
+    &crate::utils::ExportOptions {
+      header: Some(true),
+      ..Default::default()
+    },
+  )
+  .unwrap();
+  let content = std::fs::read_to_string(&out).unwrap();
+  assert!(content.contains("id") || content.contains("1"));
+  assert!(content.contains("hello"));
+  let _ = std::fs::remove_dir_all(&dir);
 }
