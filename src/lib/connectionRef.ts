@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 
 import {
   flattenSshTunnelForBackend,
-  pickSecrets,
+  resolveConnectionSecretsForRegister,
   stripSecrets,
   type ConnectionSecrets,
 } from '@/lib/connectionConfig';
@@ -24,7 +24,7 @@ export function connectionRef(
 }
 
 /** Convert frontend DialectConfig (+ optional id/secrets) into backend register payload. */
-export function toRegisterRequest(
+export async function toRegisterRequest(
   id: string,
   config: DialectConfig | undefined,
   secrets?: ConnectionSecrets,
@@ -32,15 +32,12 @@ export function toRegisterRequest(
   const stripped = config
     ? stripSecrets(config)
     : ({ dialect: 'duckdb' } as DialectConfig);
-  const fromConfig = pickSecrets(config);
-  const mergedSecrets: ConnectionSecrets = {
-    password: secrets?.password ?? fromConfig.password,
-    ssh_password: secrets?.ssh_password ?? fromConfig.ssh_password,
-    ssh_passphrase: secrets?.ssh_passphrase ?? fromConfig.ssh_passphrase,
-    token: secrets?.token ?? fromConfig.token,
-  };
+  const mergedSecrets = await resolveConnectionSecretsForRegister(
+    config,
+    secrets,
+  );
 
-  // Backend DialectPayload expects flat `ssh_*` fields.
+  // Backend DialectPayload expects flat `ssh_*` fields (profile resolved here).
   const payload: Record<string, unknown> = {
     ...flattenSshTunnelForBackend(stripped),
     connectionId: id,
@@ -59,7 +56,7 @@ export async function registerConnectionBackend(
   secrets?: ConnectionSecrets,
 ): Promise<void> {
   await invoke('register_connection', {
-    request: toRegisterRequest(id, config, secrets),
+    request: await toRegisterRequest(id, config, secrets),
   });
 }
 
@@ -84,8 +81,8 @@ export async function syncConnectionsBackend(
     return;
   }
   await invoke('sync_connections', {
-    connections: items.map((item) =>
-      toRegisterRequest(item.id, item.config, item.secrets),
+    connections: await Promise.all(
+      items.map((item) => toRegisterRequest(item.id, item.config, item.secrets)),
     ),
   });
 }

@@ -14,6 +14,7 @@ import { DialogClose, DialogFooter } from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -31,6 +32,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DialectConfig, DialectType, useDBListStore } from '@/stores/dbList';
+import { useSshProfileStore } from '@/stores/sshProfileList';
 import { TreeNode } from '@/types';
 import { nanoid } from 'nanoid';
 import { toast } from 'sonner';
@@ -106,9 +108,14 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
   const { t } = useLingui();
   const watchDialect = form.watch('dialect');
   const watchSshEnabled = form.watch('ssh_tunnel.enabled');
+  const watchSshProfileId = form.watch('ssh_tunnel.profile_id');
   const watchedValues = form.watch();
   const [sshHosts, setSshHosts] = useState<SshConfigHost[]>([]);
+  const sshProfiles = useSshProfileStore((s) => s.profiles);
   const supportsSsh = watchDialect === 'mysql' || watchDialect === 'postgres';
+  const useSshProfile =
+    !!watchSshProfileId && watchSshProfileId !== '__manual__';
+  const selectedSshProfile = sshProfiles.find((p) => p.id === watchSshProfileId);
   const namePlaceholder = useMemo(
     () => defaultConnectionName(watchedValues),
     [watchedValues],
@@ -552,6 +559,104 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                 <>
                   <FormField
                     control={form.control}
+                    name="ssh_tunnel.profile_id"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center w-[62.5%]">
+                        <FormLabel className="w-1/5 mr-2 mt-2">
+                          <Trans>SSH Profile</Trans>
+                        </FormLabel>
+                        <Select
+                          value={field.value || '__manual__'}
+                          onValueChange={(value) => {
+                            const id =
+                              typeof value === 'string'
+                                ? value
+                                : value != null &&
+                                    typeof value === 'object' &&
+                                    'value' in value
+                                  ? String((value as { value: unknown }).value)
+                                  : '__manual__';
+                            if (id === '__manual__') {
+                              field.onChange('');
+                              form.setValue('ssh_tunnel.profile_id', '', {
+                                shouldDirty: true,
+                              });
+                            } else {
+                              field.onChange(id);
+                              // Clear one-off secrets; profile vault is used.
+                              form.setValue('ssh_tunnel.password', '', {
+                                shouldDirty: true,
+                              });
+                              form.setValue('ssh_tunnel.passphrase', '', {
+                                shouldDirty: true,
+                              });
+                            }
+                          }}
+                          items={[
+                            {
+                              label: t`Manual configuration`,
+                              value: '__manual__',
+                            },
+                            ...sshProfiles.map((p) => ({
+                              label: p.displayName,
+                              value: p.id,
+                            })),
+                          ]}
+                        >
+                          <FormControl className="w-4/5">
+                            <SelectTrigger>
+                              <SelectValue
+                                placeholder={t`Select a saved SSH profile`}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem
+                                value="__manual__"
+                                label={t`Manual configuration`}
+                              >
+                                <Trans>Manual configuration</Trans>
+                              </SelectItem>
+                              {sshProfiles.map((p) => (
+                                <SelectItem
+                                  key={p.id}
+                                  value={p.id}
+                                  label={p.displayName}
+                                >
+                                  {p.displayName}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormDescription className="w-[62.5%] pl-[20%] text-xs text-muted-foreground">
+                    <Trans>
+                      Manage reusable tunnels in Settings → SSH Profiles.
+                    </Trans>
+                  </FormDescription>
+
+                  {useSshProfile && selectedSshProfile ? (
+                    <div className="w-[62.5%] rounded-md border bg-muted/40 px-3 py-2 text-xs">
+                      <div className="font-medium">
+                        {selectedSshProfile.displayName}
+                      </div>
+                      <div className="text-muted-foreground">
+                        {selectedSshProfile.username}@
+                        {selectedSshProfile.host}:
+                        {selectedSshProfile.port || '22'}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {!useSshProfile ? (
+                    <>
+                  <FormField
+                    control={form.control}
                     name="ssh_tunnel.config_host"
                     render={({ field }) => (
                       <FormItem className="flex items-center w-[62.5%]">
@@ -826,6 +931,8 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                       </FormItem>
                     )}
                   />
+                    </>
+                  ) : null}
                 </>
               ) : null}
             </TabsContent>

@@ -47,6 +47,7 @@ import {
   ProgressLabel,
   ProgressValue,
 } from '@/components/ui/progress';
+import { SshProfilesForm } from '@/pages/settings/SshProfilesForm';
 import {
   Select,
   SelectContent,
@@ -88,6 +89,7 @@ import { isEmpty } from 'radash';
 
 const NAV_ITEMS = [
   { key: 'profile', title: msg`Appearance` },
+  { key: 'ssh', title: msg`SSH Profiles` },
   { key: 'sql-format', title: msg`SQL Formatting` },
   { key: 'csv', title: msg`Import/Export` },
   { key: 'update', title: msg`Software Update` },
@@ -121,6 +123,9 @@ export default function AppSettingDialog() {
         <div className="min-h-0 flex-1 overflow-hidden lg:max-w-2xl">
           <Display hidden={navKey == 'profile'}>
             <Profile />
+          </Display>
+          <Display hidden={navKey == 'ssh'}>
+            <SshProfilesForm />
           </Display>
           <Display hidden={navKey == 'sql-format'}>
             <SqlFormatForm />

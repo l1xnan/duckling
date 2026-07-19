@@ -65,9 +65,15 @@ export type ClickhouseDialectType = {
   dialect: DialectType;
 };
 
-/** SSH tunnel entity (nested on network dialects; reusable as a standalone profile later). */
+/**
+ * SSH tunnel on a DB connection.
+ * Prefer `profile_id` to reuse a global SSH profile; inline fields remain for
+ * one-off / legacy configs (and optional overrides when resolving).
+ */
 export type SshTunnelConfig = {
   enabled?: boolean;
+  /** Reference to a global SSH profile (`ssh-profiles.json`). */
+  profile_id?: string;
   host?: string;
   port?: string;
   username?: string;

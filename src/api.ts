@@ -7,6 +7,7 @@ import { nanoid } from 'nanoid';
 import {
   flattenSshTunnelForBackend,
   pickSecrets,
+  resolveConnectionSecretsForRegister,
   stripSecrets,
 } from '@/lib/connectionConfig';
 import type { DialectRef } from '@/lib/connectionRef';
@@ -225,9 +226,19 @@ export async function testConnection(
     });
     return;
   }
-  await invoke('test_connection', {
-    dialect: flattenSshTunnelForBackend(config),
-  });
+  // Ad-hoc test: resolve SSH profile + secrets into flat DialectPayload.
+  const secrets = await resolveConnectionSecretsForRegister(
+    config,
+    pickSecrets(config),
+  );
+  const dialect = {
+    ...flattenSshTunnelForBackend(config),
+    password: secrets.password,
+    token: secrets.token,
+    ssh_password: secrets.ssh_password,
+    ssh_passphrase: secrets.ssh_passphrase,
+  };
+  await invoke('test_connection', { dialect });
 }
 
 /**

@@ -1,4 +1,9 @@
 import type { DialectConfig, SshTunnelConfig } from '@/stores/dbList';
+import {
+  getSshProfile,
+  getSshProfileSecrets,
+  type SshProfile,
+} from '@/stores/sshProfileList';
 
 /** Sensitive fields that must never be written to connections.json or plain export files. */
 export const SENSITIVE_KEYS = [
@@ -117,7 +122,35 @@ export function normalizeDialectConfig<
   return next as T;
 }
 
-/** Flatten nested `ssh_tunnel` into backend DialectPayload `ssh_*` fields. */
+/** Merge a global SSH profile into an inline tunnel shape (profile wins for empty fields). */
+export function resolveSshTunnelInline(
+  tunnel: SshTunnelConfig | undefined,
+  profile: SshProfile | undefined,
+): SshTunnelConfig | undefined {
+  if (!tunnel?.enabled && !profile) {
+    return tunnel;
+  }
+  if (!profile) {
+    return tunnel;
+  }
+  return {
+    enabled: tunnel?.enabled ?? true,
+    profile_id: tunnel?.profile_id ?? profile.id,
+    host: tunnel?.host || profile.host,
+    port: tunnel?.port || profile.port || '22',
+    username: tunnel?.username || profile.username,
+    private_key_path: tunnel?.private_key_path || profile.private_key_path,
+    config_host: tunnel?.config_host || profile.config_host,
+    host_key_policy: tunnel?.host_key_policy ?? profile.host_key_policy ?? 'insecure',
+    password: tunnel?.password,
+    passphrase: tunnel?.passphrase,
+  };
+}
+
+/**
+ * Flatten nested `ssh_tunnel` into backend DialectPayload `ssh_*` fields.
+ * Resolves `profile_id` from the global SSH profile store when present.
+ */
 export function flattenSshTunnelForBackend(
   config: DialectConfig | undefined | null,
 ): Record<string, unknown> {
@@ -126,10 +159,15 @@ export function flattenSshTunnelForBackend(
     return {};
   }
   const record = { ...(normalized as Record<string, unknown>) };
-  const tunnel = isRecord(record.ssh_tunnel)
+  let tunnel = isRecord(record.ssh_tunnel)
     ? (record.ssh_tunnel as SshTunnelConfig)
     : undefined;
   delete record.ssh_tunnel;
+
+  if (tunnel?.profile_id) {
+    const profile = getSshProfile(tunnel.profile_id);
+    tunnel = resolveSshTunnelInline(tunnel, profile);
+  }
 
   if (tunnel) {
     record.ssh_enabled = tunnel.enabled;
@@ -142,6 +180,43 @@ export function flattenSshTunnelForBackend(
     record.ssh_host_key_policy = tunnel.host_key_policy ?? 'insecure';
   }
   return record;
+}
+
+/**
+ * Connection secrets for register: DB secrets from connection vault + SSH secrets
+ * from profile vault when `ssh_tunnel.profile_id` is set.
+ */
+export async function resolveConnectionSecretsForRegister(
+  config: DialectConfig | undefined,
+  connectionSecrets?: ConnectionSecrets | null,
+): Promise<ConnectionSecrets> {
+  const fromConfig = pickSecrets(config);
+  const base: ConnectionSecrets = {
+    password: connectionSecrets?.password ?? fromConfig.password,
+    token: connectionSecrets?.token ?? fromConfig.token,
+    ssh_password: connectionSecrets?.ssh_password ?? fromConfig.ssh_password,
+    ssh_passphrase:
+      connectionSecrets?.ssh_passphrase ?? fromConfig.ssh_passphrase,
+  };
+
+  const tunnel =
+    config &&
+    (config.dialect === 'mysql' || config.dialect === 'postgres') &&
+    isRecord((config as Record<string, unknown>).ssh_tunnel)
+      ? ((config as Record<string, unknown>).ssh_tunnel as SshTunnelConfig)
+      : undefined;
+
+  if (tunnel?.profile_id && tunnel.enabled !== false) {
+    const profileSecrets = await getSshProfileSecrets(tunnel.profile_id);
+    return {
+      ...base,
+      // Profile secrets fill when connection does not override.
+      ssh_password: base.ssh_password ?? profileSecrets.ssh_password,
+      ssh_passphrase: base.ssh_passphrase ?? profileSecrets.ssh_passphrase,
+    };
+  }
+
+  return base;
 }
 
 export function pickSecrets(

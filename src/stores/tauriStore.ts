@@ -96,3 +96,7 @@ export const tauriFileStorage: StateStorage =
 export const connectionsFileStorage: StateStorage =
   createTauriFileStorage('connections.json');
 
+/** Global SSH tunnel profiles (no secrets) → ssh-profiles.json */
+export const sshProfilesFileStorage: StateStorage =
+  createTauriFileStorage('ssh-profiles.json');
+

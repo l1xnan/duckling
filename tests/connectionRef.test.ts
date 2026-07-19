@@ -26,8 +26,8 @@ describe('connectionRef', () => {
     expect(ref.host).toBeUndefined();
   });
 
-  it('toRegisterRequest strips secrets from payload and keeps them under secrets', () => {
-    const req = toRegisterRequest('conn-1', mysqlConfig);
+  it('toRegisterRequest strips secrets from payload and keeps them under secrets', async () => {
+    const req = await toRegisterRequest('conn-1', mysqlConfig);
     expect(req.id).toBe('conn-1');
     expect(req.payload.connectionId).toBe('conn-1');
     expect(req.payload.dialect).toBe('mysql');
@@ -36,8 +36,8 @@ describe('connectionRef', () => {
     expect(req.secrets).toEqual({ password: 'p@ss' });
   });
 
-  it('toRegisterRequest prefers explicit secrets over config fields', () => {
-    const req = toRegisterRequest('conn-1', mysqlConfig, {
+  it('toRegisterRequest prefers explicit secrets over config fields', async () => {
+    const req = await toRegisterRequest('conn-1', mysqlConfig, {
       password: 'from-form',
       token: 't',
     });
@@ -46,8 +46,8 @@ describe('connectionRef', () => {
     expect(req.payload.password).toBeUndefined();
   });
 
-  it('toRegisterRequest handles missing config', () => {
-    const req = toRegisterRequest('x', undefined);
+  it('toRegisterRequest handles missing config', async () => {
+    const req = await toRegisterRequest('x', undefined);
     expect(req.payload.dialect).toBe('duckdb');
     expect(req.payload.connectionId).toBe('x');
     expect(req.secrets).toEqual({});
