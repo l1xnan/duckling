@@ -2,6 +2,10 @@
  * Query history helpers: normalize runs, summarize SQL, group by connection.
  */
 
+import { msg } from '@lingui/core/macro';
+
+import { i18n } from '@/i18n';
+
 export type QueryHistoryItem = {
   id: string;
   type: 'query';
@@ -29,7 +33,7 @@ export function summarizeSql(stmt: string, maxLen = 72): string {
     .replace(/\/\*[\s\S]*?\*\//g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
-  if (!oneLine) return '(empty)';
+  if (!oneLine) return i18n._(msg`(empty)`);
   if (oneLine.length <= maxLen) return oneLine;
   return oneLine.slice(0, maxLen - 1) + '…';
 }
@@ -66,13 +70,13 @@ export function formatRelativeTime(
   if (!ts) return '';
   const diff = Math.max(0, now - ts);
   const sec = Math.floor(diff / 1000);
-  if (sec < 60) return `${sec}s ago`;
+  if (sec < 60) return i18n._(msg`${sec}s ago`);
   const min = Math.floor(sec / 60);
-  if (min < 60) return `${min}m ago`;
+  if (min < 60) return i18n._(msg`${min}m ago`);
   const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}h ago`;
+  if (hr < 24) return i18n._(msg`${hr}h ago`);
   const day = Math.floor(hr / 24);
-  if (day < 7) return `${day}d ago`;
+  if (day < 7) return i18n._(msg`${day}d ago`);
   return new Date(ts).toLocaleDateString();
 }
 

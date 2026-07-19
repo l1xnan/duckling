@@ -3,6 +3,8 @@
  * No external chart dependency.
  */
 
+import { Trans } from '@lingui/react/macro';
+
 export type BarDatum = {
   label: string;
   value: number;
@@ -20,7 +22,7 @@ export function SimpleBarChart({
   if (!data.length) {
     return (
       <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-        No data
+        <Trans>No data</Trans>
       </div>
     );
   }

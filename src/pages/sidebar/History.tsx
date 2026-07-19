@@ -31,8 +31,11 @@ import { useTabsStore } from '@/stores/tabs';
 
 import { Container } from './Favorite';
 
-function connectionLabel(dbId: string): string {
-  if (!dbId || dbId === '__unknown__') return 'Unknown';
+function connectionLabel(
+  dbId: string,
+  unknownLabel: string,
+): string {
+  if (!dbId || dbId === '__unknown__') return unknownLabel;
   const db = getStoredDB(dbId);
   if (!db) return dbId.slice(0, 8) + (dbId.length > 8 ? '…' : '');
   return db.displayName || db.dialect || dbId;
@@ -49,6 +52,7 @@ function HistoryItemRow({
   item: QueryHistoryItem;
   onOpen: (item: QueryHistoryItem) => void;
 }) {
+  const { t } = useLingui();
   const err = isHistoryError(item);
   const verb = sqlVerb(item.stmt);
   const summary = summarizeSql(item.stmt, 64);
@@ -57,7 +61,7 @@ function HistoryItemRow({
   const abs = formatAbsoluteTime(item.createdAt);
   const rows =
     item.total != null && !Number.isNaN(item.total)
-      ? `${item.total} rows`
+      ? t`${item.total} rows`
       : null;
 
   const detailParts = [
@@ -105,9 +109,11 @@ function HistoryItemRow({
               {elapsed !== '—' ? (
                 <span className="font-mono tabular-nums">{elapsed}</span>
               ) : (
-                <span className="italic opacity-70">pending</span>
+                <span className="italic opacity-70">{t`pending`}</span>
               )}
-              {rows ? <span className="font-mono tabular-nums">{rows}</span> : null}
+              {rows ? (
+                <span className="font-mono tabular-nums">{rows}</span>
+              ) : null}
               {err && item.message ? (
                 <span className="truncate text-destructive max-w-[12rem]">
                   {item.message}
@@ -134,7 +140,8 @@ function ConnectionGroup({
   onToggle: () => void;
   onOpen: (item: QueryHistoryItem) => void;
 }) {
-  const name = connectionLabel(dbId);
+  const { t } = useLingui();
+  const name = connectionLabel(dbId, t`Unknown`);
   const dialect = connectionDialect(dbId);
 
   return (

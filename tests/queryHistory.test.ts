@@ -24,6 +24,8 @@ describe('summarizeSql / sqlVerb', () => {
   it('collapses whitespace and truncates', () => {
     expect(summarizeSql('select   *\nfrom t', 20)).toBe('select * from t');
     expect(summarizeSql('x'.repeat(100), 10).endsWith('…')).toBe(true);
+    // Empty statement is non-empty after i18n (catalog or msgid fallback).
+    expect(summarizeSql('   ').length).toBeGreaterThan(0);
   });
 
   it('detects verb', () => {

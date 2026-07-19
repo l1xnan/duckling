@@ -87,7 +87,7 @@ export function Favorite() {
       id,
       dbId: b.dbId,
       type: 'editor',
-      displayName: b.title || 'Bookmark',
+      displayName: b.title || t`Bookmark`,
     });
     active(id);
   };

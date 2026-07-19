@@ -1,6 +1,6 @@
 import { docsAtom, runsAtom } from '@/stores/app';
 import { useTabsStore, type EditorContextType } from '@/stores/tabs';
-import { Trans } from '@lingui/react/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useSetAtom } from 'jotai';
 import { nanoid } from 'nanoid';
@@ -22,6 +22,7 @@ export function HistoryContextMenu({
   children,
   ctx,
 }: PropsWithChildren<{ ctx: QueryHistoryItem }>) {
+  const { t } = useLingui();
   const setItems = useSetAtom(runsAtom);
   const setDocs = useSetAtom(docsAtom);
   const append = useTabsStore((s) => s.append);
@@ -41,7 +42,7 @@ export function HistoryContextMenu({
   const handleOpenInEditor = () => {
     const stmt = ctx.stmt ?? '';
     if (!stmt.trim()) {
-      toast.error('Empty SQL');
+      toast.error(t`Empty SQL`);
       return;
     }
     const id = nanoid();
@@ -61,7 +62,7 @@ export function HistoryContextMenu({
   const handleFillEditor = () => {
     const stmt = ctx.stmt ?? '';
     if (!stmt.trim()) {
-      toast.error('Empty SQL');
+      toast.error(t`Empty SQL`);
       return;
     }
     const current = currentId ? tabs[currentId] : undefined;

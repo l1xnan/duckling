@@ -190,12 +190,13 @@ export function CountByQueryDialog({
           <>
             <div className="flex shrink-0 items-center justify-between text-xs text-muted-foreground">
               <span>
-                <Trans>
-                  {displayRows.length} distinct value(s)
-                  {displayRows.length >= 1000
-                    ? ' (capped at 1000)'
-                    : null}
-                </Trans>
+                {displayRows.length >= 1000 ? (
+                  <Trans>
+                    {displayRows.length} distinct value(s) (capped at 1000)
+                  </Trans>
+                ) : (
+                  <Trans>{displayRows.length} distinct value(s)</Trans>
+                )}
               </span>
               {elapsed != null ? (
                 <span>
