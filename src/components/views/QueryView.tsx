@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/resizable';
 import { Loading, SelectedCellType } from '@/components/views/TableView';
 import { usePrecision } from '@/stores/setting';
+import { isQueryErrorCode } from '@/lib/capabilities';
 import {
   cancelExecuteSQL,
   executeSQL,
@@ -65,7 +66,7 @@ export function QueryView({
       }
       const res = await executeSQL(current, { requestId });
       patch((prev) => ({ ...prev, ...res }));
-      if (res?.code && res.code !== 0 && res?.message) {
+      if (isQueryErrorCode(res?.code) && res?.message) {
         setError(res.message);
       } else if (res?.message) {
         setError(res.message);

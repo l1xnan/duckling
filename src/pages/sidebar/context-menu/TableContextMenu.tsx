@@ -20,7 +20,7 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { canDropTable, canFind } from '@/lib/capabilities';
+import { canDropTable, canFind, canMetadata } from '@/lib/capabilities';
 import { SearchDialog } from '@/pages/sidebar/dialog/SearchDialog';
 import { DBType, DialectConfig, getStoredDB, useDBListStore } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
@@ -43,6 +43,7 @@ export function TableContextMenu({
   const searchDialog = useDialog();
   const allowDrop = canDropTable(db.dialect);
   const allowFind = canFind(db.dialect);
+  const allowMetadata = canMetadata(db.dialect);
 
   const handleDropTable: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
     e.stopPropagation();
@@ -159,7 +160,10 @@ export function TableContextMenu({
           <ContextMenuItem onSelect={handleShowTable}>
             <Trans>Show table</Trans>
           </ContextMenuItem>
-          <ContextMenuItem onSelect={handleShowColumn}>
+          <ContextMenuItem
+            onSelect={allowMetadata ? handleShowColumn : undefined}
+            disabled={!allowMetadata}
+          >
             <Trans>Show columns</Trans>
           </ContextMenuItem>
           {db.dialect == 'folder' ? (

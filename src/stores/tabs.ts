@@ -16,6 +16,7 @@ import {
   TitleType,
 } from '@/api';
 
+import { isQueryErrorCode } from '@/lib/capabilities';
 import { connectionRef, type DialectRef } from '@/lib/connectionRef';
 
 import { Direction, SchemaType } from './dataset';
@@ -371,7 +372,7 @@ export async function execute(
   }
 
   console.log('data:', data);
-  if (data?.code && data.code !== 0 && data?.message) {
+  if (isQueryErrorCode(data?.code) && data?.message) {
     toast.warning(data.message);
   }
   return data;
@@ -392,8 +393,8 @@ export async function executeSQL(
   const data = await func(withId);
 
   console.log('data:', data);
-  // 401 legacy; also surface cancelled / unsupported via non-zero codes
-  if (data?.code && data.code !== 0 && data?.message) {
+  // Non-zero codes (sql/cancelled/unsupported/…) — caller may toast.
+  if (isQueryErrorCode(data?.code) && data?.message) {
     // toast handled by caller when needed
   }
   return data;

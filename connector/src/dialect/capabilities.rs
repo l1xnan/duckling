@@ -11,6 +11,7 @@ impl Caps {
   pub const EXPORT: Caps = Caps(1 << 3);
   pub const FIND: Caps = Caps(1 << 4);
   pub const DROP_TABLE: Caps = Caps(1 << 5);
+  /// Reserved for non-query SQL execution (DDL/DML). Not assigned to dialects yet.
   pub const EXECUTE: Caps = Caps(1 << 6);
   pub const TABLE_BROWSE: Caps = Caps(1 << 7);
 
@@ -161,6 +162,10 @@ mod tests {
     assert!(!caps_for_dialect("file").contains(Caps::FIND));
     assert!(!caps_for_dialect("sqlite").contains(Caps::DROP_TABLE));
     assert!(!caps_for_dialect("mysql").contains(Caps::FIND));
+    // EXECUTE is reserved; no dialect advertises it yet.
+    assert!(!caps_for_dialect("duckdb").contains(Caps::EXECUTE));
+    assert!(!caps_for_dialect("mysql").contains(Caps::EXECUTE));
+    assert!(!caps_for_dialect("file").contains(Caps::METADATA));
   }
 
   #[test]

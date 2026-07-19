@@ -4,8 +4,11 @@ import {
   canDropTable,
   canExport,
   canFind,
+  canMetadata,
+  canTableBrowse,
   capsForDialect,
   hasCapability,
+  isQueryErrorCode,
 } from '@/lib/capabilities';
 
 describe('capsForDialect', () => {
@@ -43,5 +46,19 @@ describe('capsForDialect', () => {
   it('handles empty dialect', () => {
     expect(hasCapability(undefined, 'query')).toBe(true);
     expect(canExport(null)).toBe(false);
+  });
+
+  it('metadata and table_browse flags', () => {
+    expect(canMetadata('mysql')).toBe(true);
+    expect(canMetadata('file')).toBe(false);
+    expect(canTableBrowse('sqlite')).toBe(true);
+    expect(canTableBrowse('unknown')).toBe(false);
+  });
+
+  it('isQueryErrorCode treats only non-zero as error', () => {
+    expect(isQueryErrorCode(0)).toBe(false);
+    expect(isQueryErrorCode(undefined)).toBe(false);
+    expect(isQueryErrorCode(400)).toBe(true);
+    expect(isQueryErrorCode(499)).toBe(true);
   });
 });

@@ -1,11 +1,14 @@
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useEffect, useState } from 'react';
+import { nanoid } from 'nanoid';
+import { useEffect, useRef, useState } from 'react';
 
-import { query } from '@/api';
+import { cancelQuery, query } from '@/api';
 import Dialog from '@/components/custom/Dialog';
 import { SimpleTable } from '@/components/tables';
+import { Button } from '@/components/ui/button';
 import { Loading } from '@/components/views/TableView';
+import { isQueryErrorCode } from '@/lib/capabilities';
 import { buildCountByColumnSql } from '@/lib/sql/countByColumn';
 import {
   getDatabase,
@@ -39,6 +42,17 @@ export function CountByColumnDialog({
   const [rows, setRows] = useState<CountRow[]>([]);
   const [sql, setSql] = useState<string>('');
   const [elapsed, setElapsed] = useState<number | undefined>();
+  const requestIdRef = useRef<string | null>(null);
+
+  const handleCancel = async () => {
+    const rid = requestIdRef.current;
+    if (!rid) return;
+    try {
+      await cancelQuery(rid);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   useEffect(() => {
     if (!open || !column) {
@@ -46,6 +60,8 @@ export function CountByColumnDialog({
     }
 
     let cancelled = false;
+    const requestId = nanoid();
+    requestIdRef.current = requestId;
 
     (async () => {
       setLoading(true);
@@ -87,11 +103,12 @@ export function CountByColumnDialog({
           dialect: param.dialect,
           limit: 0,
           offset: 0,
+          requestId,
         });
 
         if (cancelled) return;
 
-        if (res.code && res.code !== 0) {
+        if (isQueryErrorCode(res.code)) {
           setError(res.message || t`Query failed`);
           setElapsed(res.elapsed);
           return;
@@ -113,17 +130,30 @@ export function CountByColumnDialog({
         setElapsed(res.elapsed);
       } catch (e) {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : String(e));
+          const msgText = e instanceof Error ? e.message : String(e);
+          if (msgText.toLowerCase().includes('cancel')) {
+            setError(t`Query cancelled`);
+          } else {
+            setError(msgText);
+          }
         }
       } finally {
         if (!cancelled) {
           setLoading(false);
+        }
+        if (requestIdRef.current === requestId) {
+          requestIdRef.current = null;
         }
       }
     })();
 
     return () => {
       cancelled = true;
+      const rid = requestIdRef.current;
+      if (rid === requestId) {
+        void cancelQuery(rid).catch(() => {});
+        requestIdRef.current = null;
+      }
     };
   }, [open, column, context, sqlWhere, t]);
 
@@ -155,8 +185,18 @@ export function CountByColumnDialog({
         ) : null}
 
         {loading ? (
-          <div className="flex min-h-0 flex-1 items-center justify-center">
+          <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3">
             <Loading className="h-40" />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                void handleCancel();
+              }}
+            >
+              <Trans>Stop</Trans>
+            </Button>
           </div>
         ) : error ? (
           <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive select-text">

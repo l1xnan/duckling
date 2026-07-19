@@ -76,3 +76,16 @@ export function canDropTable(dialect: string | undefined | null): boolean {
 export function canFind(dialect: string | undefined | null): boolean {
   return hasCapability(dialect, 'find');
 }
+
+export function canMetadata(dialect: string | undefined | null): boolean {
+  return hasCapability(dialect, 'metadata');
+}
+
+export function canTableBrowse(dialect: string | undefined | null): boolean {
+  return hasCapability(dialect, 'table_browse');
+}
+
+/** Whether a non-zero ArrowResponse code should be treated as an error. */
+export function isQueryErrorCode(code: number | undefined | null): boolean {
+  return code != null && code !== 0;
+}
