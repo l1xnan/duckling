@@ -184,11 +184,21 @@ pub trait Connection: Sync + Send {
     file: &str,
     format: &str,
     options: &crate::utils::ExportOptions,
+    cancel: Option<&crate::cancel::CancelToken>,
   ) -> anyhow::Result<()> {
+    if let Some(t) = cancel {
+      t.check()?;
+    }
     if crate::utils::format_supports_streaming(format) {
-      self.export_batched(sql, file, format, options).await
+      self.export_batched(sql, file, format, options, cancel).await
     } else {
+      if let Some(t) = cancel {
+        t.check()?;
+      }
       let batch = self.query(sql, 0, 0).await?.batch;
+      if let Some(t) = cancel {
+        t.check()?;
+      }
       batch_write(file, &batch, format, options)?;
       Ok(())
     }
@@ -201,6 +211,7 @@ pub trait Connection: Sync + Send {
     file: &str,
     format: &str,
     options: &crate::utils::ExportOptions,
+    cancel: Option<&crate::cancel::CancelToken>,
   ) -> anyhow::Result<()> {
     use crate::utils::{EXPORT_BATCH_ROWS, StreamExporter};
 
@@ -211,6 +222,9 @@ pub trait Connection: Sync + Send {
     let page = EXPORT_BATCH_ROWS;
 
     loop {
+      if let Some(t) = cancel {
+        t.check()?;
+      }
       let page_sql = if let Some(ref s) = stmt {
         ast::limit_stmt(dialect, s, Some(page), Some(offset)).unwrap_or_else(|| {
           format!("select * from ({sql}) ____ limit {page} offset {offset}")

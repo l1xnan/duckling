@@ -152,9 +152,10 @@ impl Connection for PostgresConnection {
     file: &str,
     format: &str,
     options: &crate::utils::ExportOptions,
+    cancel: Option<&crate::cancel::CancelToken>,
   ) -> anyhow::Result<()> {
     // Batched LIMIT/OFFSET export to bound peak memory for large result sets.
-    self.export_batched(sql, file, format, options).await
+    self.export_batched(sql, file, format, options, cancel).await
   }
 
   fn start_quote(&self) -> &'static str {

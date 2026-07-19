@@ -296,11 +296,14 @@ pub async fn table_row_count(
 pub async fn export(
   registry: State<'_, ConnectionRegistry>,
   sessions: State<'_, SessionManager>,
+  inflight: State<'_, InflightQueries>,
   sql: String,
   file: String,
   format: Option<String>,
   options: Option<connector::utils::ExportOptions>,
   dialect: DialectPayload,
+  #[allow(non_snake_case)]
+  requestId: Option<String>,
 ) -> Result<(), String> {
   let d = resolve_connection(&registry, &sessions, dialect).await?;
   let format = if let Some(format) = format {
@@ -309,9 +312,16 @@ pub async fn export(
     file.split('.').next_back().unwrap_or("csv").to_string()
   };
   let options = options.unwrap_or_default();
-  d.export(&sql, &file, &format, &options)
-    .await
-    .map_err(|e| e.to_string())?;
+  if let Some(ref rid) = requestId.filter(|s| !s.trim().is_empty()) {
+    let (_guard, token) = InflightGuard::register(&inflight, rid)?;
+    d.export(&sql, &file, &format, &options, Some(&token))
+      .await
+      .map_err(|e| e.to_string())?;
+  } else {
+    d.export(&sql, &file, &format, &options, None)
+      .await
+      .map_err(|e| e.to_string())?;
+  }
   Ok(())
 }
 

@@ -173,6 +173,7 @@ export async function exportCsv(
     format?: ExportFormat;
     options?: ExportOptions;
     dbId?: string;
+    requestId?: string;
   },
 ): Promise<void> {
   console.debug('params:', params);

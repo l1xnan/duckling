@@ -323,12 +323,41 @@ mod contract_tests {
         header: Some(true),
         ..Default::default()
       },
+      None,
     )
     .await
     .unwrap();
     let content = std::fs::read_to_string(&out).unwrap();
     assert!(content.contains("id") || content.contains("1"));
     assert!(content.contains("a"));
+    let _ = std::fs::remove_file(path);
+    let _ = std::fs::remove_file(out);
+  }
+
+  #[tokio::test]
+  async fn export_respects_pre_cancel() {
+    use crate::cancel::CancelToken;
+    let (db, path) = temp_db();
+    let out = std::env::temp_dir().join(format!("duckling_sqlite_cancel_{}.csv", nanoid::nanoid!(6)));
+    let token = CancelToken::new();
+    token.cancel();
+    let err = match db
+      .export(
+        "SELECT id, name FROM items",
+        out.to_str().unwrap(),
+        "csv",
+        &crate::utils::ExportOptions::default(),
+        Some(&token),
+      )
+      .await
+    {
+      Ok(_) => panic!("expected cancelled"),
+      Err(e) => e,
+    };
+    assert!(
+      err.to_string().to_ascii_lowercase().contains("cancel"),
+      "got {err}"
+    );
     let _ = std::fs::remove_file(path);
     let _ = std::fs::remove_file(out);
   }

@@ -135,12 +135,17 @@ impl Connection for DuckDbConnection {
     file: &str,
     format: &str,
     options: &crate::utils::ExportOptions,
+    cancel: Option<&crate::cancel::CancelToken>,
   ) -> anyhow::Result<()> {
+    if let Some(t) = cancel {
+      t.check()?;
+    }
     let this = self.clone();
     let sql = sql.to_string();
     let file = file.to_string();
     let format = format.to_string();
     let options = options.clone();
+    // COPY is a single engine call; cooperative cancel is best-effort (pre-check only).
     crate::dialect::run_blocking(move || this.connect()?.export(&sql, &file, &format, &options))
       .await
   }

@@ -1,10 +1,11 @@
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import * as dialog from '@tauri-apps/plugin-dialog';
-import { useMemo, useState } from 'react';
+import { nanoid } from 'nanoid';
+import { useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import { ExportFormat, ExportOptions, exportCsv } from '@/api';
+import { ExportFormat, ExportOptions, cancelQuery, exportCsv } from '@/api';
 import Dialog from '@/components/custom/Dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -99,6 +100,7 @@ export function ExportDialog({
   const [compressionLevel, setCompressionLevel] = useState(3);
   const [jsonArray, setJsonArray] = useState(true);
   const [loading, setLoading] = useState(false);
+  const exportRequestIdRef = useRef<string | null>(null);
 
   const suggestedName = `${baseName}.${format}`;
 
@@ -171,7 +173,19 @@ export function ExportDialog({
     await runExport(target);
   };
 
+  const handleCancelExport = async () => {
+    const rid = exportRequestIdRef.current;
+    if (!rid) return;
+    try {
+      await cancelQuery(rid);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const runExport = async (file: string) => {
+    const requestId = nanoid();
+    exportRequestIdRef.current = requestId;
     setLoading(true);
     try {
       await exportCsv({
@@ -182,6 +196,7 @@ export function ExportDialog({
         offset: 0,
         format,
         options: buildOptions(),
+        requestId,
       });
       toast.success(t(EXPORT_COMPLETED));
       pushNotification({
@@ -192,8 +207,16 @@ export function ExportDialog({
       onOpenChange(false);
     } catch (error) {
       console.error(error);
-      toast.error(String(error));
+      const msgText = String(error);
+      if (msgText.toLowerCase().includes('cancel')) {
+        toast.message(t`Export cancelled`);
+      } else {
+        toast.error(msgText);
+      }
     } finally {
+      if (exportRequestIdRef.current === requestId) {
+        exportRequestIdRef.current = null;
+      }
       setLoading(false);
     }
   };
@@ -381,14 +404,25 @@ export function ExportDialog({
         )}
 
         <div className="flex justify-end gap-2 pt-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={loading}
-          >
-            <Trans>Cancel</Trans>
-          </Button>
+          {loading ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                void handleCancelExport();
+              }}
+            >
+              <Trans>Stop</Trans>
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              <Trans>Cancel</Trans>
+            </Button>
+          )}
           <Button
             type="button"
             disabled={loading || !sql || !exportAllowed}

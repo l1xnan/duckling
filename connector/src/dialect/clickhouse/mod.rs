@@ -82,7 +82,11 @@ impl Connection for ClickhouseConnection {
     file: &str,
     format: &str,
     _options: &crate::utils::ExportOptions,
+    cancel: Option<&crate::cancel::CancelToken>,
   ) -> anyhow::Result<()> {
+    if let Some(t) = cancel {
+      t.check()?;
+    }
     // Stream bytes from ClickHouse without buffering the full result set.
     let ch_format = match format.to_ascii_lowercase().as_str() {
       "tsv" => "TSVWithNames",
@@ -94,6 +98,9 @@ impl Connection for ClickhouseConnection {
     let mut cursor = client.query(sql).fetch_bytes(ch_format)?;
     let mut file = File::create(file)?;
     while let Some(bytes) = cursor.next().await? {
+      if let Some(t) = cancel {
+        t.check()?;
+      }
       file.write_all(&bytes)?;
     }
     Ok(())

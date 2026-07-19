@@ -125,7 +125,11 @@ impl Connection for FolderConnection {
     file: &str,
     format: &str,
     options: &crate::utils::ExportOptions,
+    cancel: Option<&crate::cancel::CancelToken>,
   ) -> anyhow::Result<()> {
+    if let Some(t) = cancel {
+      t.check()?;
+    }
     let path = self.path.clone();
     let sql = sql.to_string();
     let file = file.to_string();
