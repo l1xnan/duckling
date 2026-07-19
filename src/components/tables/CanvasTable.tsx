@@ -40,6 +40,7 @@ import {
   iconPinClear,
   iconPinLeft,
   iconPinRight,
+  iconPivot,
   iconProfile,
   iconSortAsc,
   iconSortClear,
@@ -66,6 +67,8 @@ export interface TableProps<T = unknown> {
   onCountByColumn?: (columnName: string) => void;
   /** Header context menu: column profile (null/distinct/min/max/top-N). */
   onProfileColumn?: (columnName: string) => void;
+  /** Header context menu: open pivot with this column as a row dimension. */
+  onPivotColumn?: (columnName: string) => void;
   /**
    * When set, header sort uses this callback (server-side) instead of
    * VTable client-side sorting.
@@ -111,6 +114,7 @@ const MENU_PIN_CLEAR = msg`Clear pinned`;
 const MENU_HIDDEN_COLUMN = msg`Hidden column`;
 const MENU_COUNT_BY_COLUMN = msg`Count by this column`;
 const MENU_COLUMN_PROFILE = msg`Column profile`;
+const MENU_PIVOT_COLUMN = msg`Pivot with this column`;
 const MENU_FILTER_BY_VALUE = msg`Filter by this value`;
 const MENU_COPY = msg`Copy`;
 const MENU_COPY_AS_CSV = msg`Copy as CSV`;
@@ -296,6 +300,7 @@ function CanvasTable_({
   onSelectedCellInfos,
   onCountByColumn,
   onProfileColumn,
+  onPivotColumn,
   onOrderByColumn,
   onDrillDown,
 }: TableProps) {
@@ -522,6 +527,15 @@ function CanvasTable_({
             },
           ]
         : []),
+      ...(onPivotColumn
+        ? [
+            {
+              menuKey: 'pivot-column',
+              text: i18n._(MENU_PIVOT_COLUMN),
+              customIcon: iconPivot,
+            },
+          ]
+        : []),
     ];
     const headerLayoutGroup: MenuEntry[] = [
       {
@@ -580,6 +594,9 @@ function CanvasTable_({
           } else if (menuKey === 'column-profile') {
             const col = String(field ?? '').replace(/\s*[↑↓]\s*$/, '').trim();
             onProfileColumn?.(col);
+          } else if (menuKey === 'pivot-column') {
+            const col = String(field ?? '').replace(/\s*[↑↓]\s*$/, '').trim();
+            if (col) onPivotColumn?.(col);
           } else if (menuKey == 'pin-to-left') {
             setLeftPinnedCols((v) => uniqueArray([...v, field as string]));
             setRightPinnedCols((v) => v.filter((key) => key != field));
@@ -619,6 +636,7 @@ function CanvasTable_({
     setHiddenColumns,
     onCountByColumn,
     onProfileColumn,
+    onPivotColumn,
     onOrderByColumn,
     onDrillDown,
     orderBy,

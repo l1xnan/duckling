@@ -28,6 +28,13 @@ export type PivotSource =
 
 export const DEFAULT_PIVOT_LIMIT = 5000;
 
+/** Warn when a column dimension has more distinct values than this. */
+export const COLUMN_CARDINALITY_WARN = 200;
+
+export function isNumericAgg(agg: PivotAgg): boolean {
+  return agg === 'sum' || agg === 'avg';
+}
+
 export function measureAlias(m: PivotMeasure): string {
   if (m.alias && m.alias.trim()) return m.alias.trim();
   if (m.agg === 'count' && (!m.field || m.field === '*')) {
@@ -178,4 +185,21 @@ export function buildPivotSql(
     ` GROUP BY ${groupBy}` +
     ` LIMIT ${lim}`
   );
+}
+
+/**
+ * COUNT(DISTINCT col) for column-dimension cardinality probe.
+ * Supports table or subquery sources (same as pivot).
+ */
+export function buildDistinctCountSql(
+  column: string,
+  source: PivotSource,
+  where?: string,
+): string {
+  const dialect = source.dialect || 'generic';
+  const col = quoteIdent(column, dialect);
+  const from = fromClause(source);
+  const whereClause =
+    where && where.trim().length > 0 ? ` WHERE ${where.trim()}` : '';
+  return `SELECT COUNT(DISTINCT ${col}) AS distinct_count FROM ${from}${whereClause}`;
 }

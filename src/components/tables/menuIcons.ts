@@ -59,6 +59,14 @@ export const iconCountBy = lucideSvg(
     '<path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
 );
 
+/** LayoutGrid — pivot table. */
+export const iconPivot = lucideSvg(
+  '<rect width="7" height="7" x="3" y="3" rx="1"/>' +
+    '<rect width="7" height="7" x="14" y="3" rx="1"/>' +
+    '<rect width="7" height="7" x="14" y="14" rx="1"/>' +
+    '<rect width="7" height="7" x="3" y="14" rx="1"/>',
+);
+
 /** ScanSearch — column profile. */
 export const iconProfile = lucideSvg(
   '<path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/>' +

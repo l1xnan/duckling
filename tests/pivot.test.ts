@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  buildDistinctCountSql,
   buildPivotSql,
+  isNumericAgg,
   measureAlias,
   measureTitle,
   validatePivotConfig,
@@ -131,5 +133,31 @@ describe('pivot SQL', () => {
         { kind: 'table', tableExpr: 't', dialect: 'duckdb' },
       ),
     ).toThrow(/measure/i);
+  });
+
+  it('builds distinct count probe SQL', () => {
+    const tableSql = buildDistinctCountSql(
+      'region',
+      { kind: 'table', tableExpr: 'public.orders', dialect: 'postgres' },
+      "status = 'ok'",
+    );
+    expect(tableSql).toBe(
+      `SELECT COUNT(DISTINCT "region") AS distinct_count FROM "public"."orders" WHERE status = 'ok'`,
+    );
+
+    const subSql = buildDistinctCountSql('year', {
+      kind: 'subquery',
+      sourceSql: 'SELECT * FROM t',
+      dialect: 'duckdb',
+    });
+    expect(subSql).toContain('COUNT(DISTINCT "year")');
+    expect(subSql).toContain('FROM (SELECT * FROM t) AS __pivot_src');
+  });
+
+  it('classifies numeric aggregations', () => {
+    expect(isNumericAgg('sum')).toBe(true);
+    expect(isNumericAgg('avg')).toBe(true);
+    expect(isNumericAgg('count')).toBe(false);
+    expect(isNumericAgg('min')).toBe(false);
   });
 });

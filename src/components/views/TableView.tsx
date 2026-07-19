@@ -113,6 +113,7 @@ export function TableView({ context }: { context: TabContextType }) {
   const pivotDialog = useDialog();
   const [resultFilter, setResultFilter] = useState('');
   const [profileColumn, setProfileColumn] = useState<string | undefined>();
+  const [pivotRowField, setPivotRowField] = useState<string | undefined>();
 
   const columnNames = useMemo(
     () => (tableSchema ?? []).map((c) => c.name),
@@ -188,6 +189,7 @@ export function TableView({ context }: { context: TabContextType }) {
         loading={loading}
         onCancel={handleCancel}
         onPivot={() => {
+          setPivotRowField(undefined);
           pivotDialog.trigger();
         }}
       />
@@ -227,6 +229,11 @@ export function TableView({ context }: { context: TabContextType }) {
                     if (!col) return;
                     setProfileColumn(col.replace(/\s*[↑↓]\s*$/, '').trim());
                     profileDialog.trigger();
+                  }}
+                  onPivotColumn={(col) => {
+                    if (!col) return;
+                    setPivotRowField(col.replace(/\s*[↑↓]\s*$/, '').trim());
+                    pivotDialog.trigger();
                   }}
                   onOrderByColumn={(col, options) => {
                     if (!col || !setOrderBy) return;
@@ -273,6 +280,7 @@ export function TableView({ context }: { context: TabContextType }) {
         columns={tableSchema ?? []}
         context={context as TableContextType}
         sqlWhere={sqlWhere}
+        initialRowField={pivotRowField}
       />
     </div>
   );

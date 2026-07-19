@@ -140,6 +140,7 @@ export function QueryView({
   >();
   const [resultFilter, setResultFilter] = useState('');
   const [countColumn, setCountColumn] = useState<string | undefined>();
+  const [pivotRowField, setPivotRowField] = useState<string | undefined>();
   const countByDialog = useDialog();
   const pivotDialog = useDialog();
 
@@ -222,6 +223,7 @@ export function QueryView({
         resultFilter={resultFilter}
         onResultFilterChange={setResultFilter}
         onPivot={() => {
+          setPivotRowField(undefined);
           pivotDialog.trigger();
         }}
       />
@@ -256,6 +258,11 @@ export function QueryView({
                 if (!col) return;
                 setCountColumn(col.replace(/\s*[↑↓]\s*$/, '').trim());
                 countByDialog.trigger();
+              }}
+              onPivotColumn={(col) => {
+                if (!col) return;
+                setPivotRowField(col.replace(/\s*[↑↓]\s*$/, '').trim());
+                pivotDialog.trigger();
               }}
             />
           </Suspense>
@@ -296,6 +303,7 @@ export function QueryView({
         columns={ctx.tableSchema ?? []}
         dbId={ctx.dbId}
         sourceSql={ctx.sql || ctx.stmt || ''}
+        initialRowField={pivotRowField}
       />
     </div>
   );

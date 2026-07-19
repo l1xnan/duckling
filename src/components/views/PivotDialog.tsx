@@ -1,8 +1,10 @@
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { PlusIcon, XIcon } from 'lucide-react';
+import { writeText } from '@tauri-apps/plugin-clipboard-manager';
+import { CopyIcon, PlusIcon, XIcon } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { cancelQuery, query } from '@/api';
 import Dialog from '@/components/custom/Dialog';
@@ -21,8 +23,11 @@ import { Loading } from '@/components/views/TableView';
 import { isQueryErrorCode } from '@/lib/capabilities';
 import { connectionRef, type DialectRef } from '@/lib/connectionRef';
 import {
+  buildDistinctCountSql,
   buildPivotSql,
+  COLUMN_CARDINALITY_WARN,
   DEFAULT_PIVOT_LIMIT,
+  isNumericAgg,
   validatePivotConfig,
   type PivotAgg,
   type PivotConfig,
@@ -68,6 +73,40 @@ function defaultMeasure(columns: SchemaType[]): PivotMeasure {
   return { field: '*', agg: 'count' };
 }
 
+function isNumericField(
+  field: string,
+  columns: SchemaType[],
+): boolean {
+  if (!field || field === '*') return false;
+  const col = columns.find((c) => c.name === field);
+  return col ? isNumberType(col.dataType) : false;
+}
+
+function coerceMeasure(
+  m: PivotMeasure,
+  columns: SchemaType[],
+): PivotMeasure {
+  if (!m.field || m.field === '*') {
+    return m.agg === 'count' ? m : { field: '*', agg: 'count' };
+  }
+  if (isNumericAgg(m.agg) && !isNumericField(m.field, columns)) {
+    return { ...m, agg: 'count' };
+  }
+  return m;
+}
+
+function parseDistinctCount(rows: unknown[]): number {
+  const row = (rows?.[0] ?? {}) as Record<string, unknown>;
+  const raw =
+    row.distinct_count ??
+    row.DISTINCT_COUNT ??
+    row.Distinct_count ??
+    Object.values(row)[0] ??
+    0;
+  if (typeof raw === 'bigint') return Number(raw);
+  return Number(raw) || 0;
+}
+
 function normalizeRecords(
   rows: unknown[],
 ): Record<string, unknown>[] {
@@ -103,6 +142,7 @@ export function PivotDialog({
   ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
   const [records, setRecords] = useState<Record<string, unknown>[]>([]);
   const [sql, setSql] = useState('');
   const [elapsed, setElapsed] = useState<number | undefined>();
@@ -112,6 +152,11 @@ export function PivotDialog({
 
   const fieldNames = useMemo(
     () => columns.map((c) => c.name),
+    [columns],
+  );
+
+  const numericFieldNames = useMemo(
+    () => columns.filter((c) => isNumberType(c.dataType)).map((c) => c.name),
     [columns],
   );
 
@@ -136,7 +181,19 @@ export function PivotDialog({
     [rows, colDims, measures, sqlWhere],
   );
 
-  const validation = useMemo(() => validatePivotConfig(config), [config]);
+  const validation = useMemo(() => {
+    const base = validatePivotConfig(config);
+    if (base) return base;
+    for (const m of config.measures) {
+      if (isNumericAgg(m.agg) && !isNumericField(m.field, columns)) {
+        return {
+          code: 'empty_field' as const,
+          message: t`${m.agg.toUpperCase()} requires a numeric field`,
+        };
+      }
+    }
+    return null;
+  }, [config, columns, t]);
 
   // Reset config when dialog opens
   useEffect(() => {
@@ -154,6 +211,7 @@ export function PivotDialog({
     setRecords([]);
     setSql('');
     setError(null);
+    setWarning(null);
     setElapsed(undefined);
     setRanConfig(null);
   }, [open, initialRowField, fieldNames, columns]);
@@ -197,7 +255,10 @@ export function PivotDialog({
 
   const updateMeasure = (index: number, patch: Partial<PivotMeasure>) => {
     setMeasures((prev) =>
-      prev.map((m, i) => (i === index ? { ...m, ...patch } : m)),
+      prev.map((m, i) => {
+        if (i !== index) return m;
+        return coerceMeasure({ ...m, ...patch }, columns);
+      }),
     );
   };
 
@@ -272,12 +333,46 @@ export function PivotDialog({
     requestIdRef.current = requestId;
     setLoading(true);
     setError(null);
+    setWarning(null);
     setRecords([]);
     setSql('');
     setElapsed(undefined);
 
     try {
       const { source, dialectConn } = await resolveSource();
+
+      // Probe column-dimension cardinality before full pivot
+      if (config.columns.length > 0) {
+        const highCards: { field: string; count: number }[] = [];
+        for (const col of config.columns) {
+          const probeSql = buildDistinctCountSql(col, source, sqlWhere);
+          const probeRes = await query({
+            sql: probeSql,
+            dialect: dialectConn,
+            limit: 0,
+            offset: 0,
+            requestId,
+          });
+          if (isQueryErrorCode(probeRes.code)) {
+            // Non-fatal: skip probe and continue
+            break;
+          }
+          const n = parseDistinctCount(probeRes.data ?? []);
+          if (n > COLUMN_CARDINALITY_WARN) {
+            highCards.push({ field: col, count: n });
+          }
+        }
+        if (highCards.length > 0) {
+          const parts = highCards
+            .map((h) => `${h.field} (${h.count})`)
+            .join(', ');
+          const cap = DEFAULT_PIVOT_LIMIT;
+          setWarning(
+            t`High column cardinality may produce a very wide pivot: ${parts}. Results are capped at ${cap} groups.`,
+          );
+        }
+      }
+
       const pivotSql = buildPivotSql(config, source);
       setSql(pivotSql);
       setRanConfig({ ...config });
@@ -313,17 +408,47 @@ export function PivotDialog({
     }
   };
 
+  const handleCopySql = async () => {
+    if (!sql) return;
+    try {
+      await writeText(sql);
+      toast.success(t`SQL copied`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    }
+  };
+
+  const capLimit = DEFAULT_PIVOT_LIMIT;
+
   const fieldSelectItems = useMemo(
     () => availableFields.map((f) => ({ value: f, label: f })),
     [availableFields],
   );
 
-  const allFieldItems = useMemo(
-    () => [
-      { value: '*', label: '*' },
-      ...fieldNames.map((f) => ({ value: f, label: f })),
-    ],
-    [fieldNames],
+  const measureFieldItems = useCallback(
+    (agg: PivotAgg) => {
+      if (isNumericAgg(agg)) {
+        return numericFieldNames.map((f) => ({ value: f, label: f }));
+      }
+      return [
+        { value: '*', label: '*' },
+        ...fieldNames.map((f) => ({ value: f, label: f })),
+      ];
+    },
+    [numericFieldNames, fieldNames],
+  );
+
+  const aggItemsForMeasure = useCallback(
+    (field: string) => {
+      if (!field || field === '*') {
+        return AGG_OPTIONS.filter((item) => item.value === 'count');
+      }
+      const allowNumeric = isNumericField(field, columns);
+      return AGG_OPTIONS.filter(
+        (item) => !isNumericAgg(item.value) || allowNumeric,
+      );
+    },
+    [columns],
   );
 
   return (
@@ -372,73 +497,73 @@ export function PivotDialog({
               </Button>
             </div>
             <div className="flex max-h-28 flex-col gap-1.5 overflow-auto">
-              {measures.map((m, i) => (
-                <div key={i} className="flex items-center gap-1">
-                  <Select
-                    value={m.agg}
-                    onValueChange={(v) => {
-                      const agg = (v as PivotAgg) ?? 'count';
-                      updateMeasure(i, {
-                        agg,
-                        field:
-                          agg === 'count' && !m.field ? '*' : m.field || '*',
-                      });
-                    }}
-                    items={AGG_OPTIONS}
-                  >
-                    <SelectTrigger size="sm" className="w-[88px] shrink-0">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {AGG_OPTIONS.map((item) => (
-                          <SelectItem
-                            key={item.value}
-                            value={item.value}
-                            label={item.label}
-                          >
-                            {item.label}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <Select
-                    value={m.field || '*'}
-                    onValueChange={(v) =>
-                      updateMeasure(i, { field: (v as string) ?? '*' })
-                    }
-                    items={allFieldItems}
-                  >
-                    <SelectTrigger size="sm" className="min-w-0 flex-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {allFieldItems.map((item) => (
-                          <SelectItem
-                            key={item.value}
-                            value={item.value}
-                            label={item.label}
-                          >
-                            {item.label}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xs"
-                    disabled={measures.length <= 1}
-                    onClick={() => removeMeasure(i)}
-                    aria-label={t`Remove measure`}
-                  >
-                    <XIcon className="size-3.5" />
-                  </Button>
-                </div>
-              ))}
+              {measures.map((m, i) => {
+                const fieldItems = measureFieldItems(m.agg);
+                const aggItems = aggItemsForMeasure(m.field);
+                return (
+                  <div key={i} className="flex items-center gap-1">
+                    <Select
+                      value={m.agg}
+                      onValueChange={(v) => {
+                        const agg = (v as PivotAgg) ?? 'count';
+                        updateMeasure(i, { agg });
+                      }}
+                      items={aggItems}
+                    >
+                      <SelectTrigger size="sm" className="w-[88px] shrink-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {aggItems.map((item) => (
+                            <SelectItem
+                              key={item.value}
+                              value={item.value}
+                              label={item.label}
+                            >
+                              {item.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    <Select
+                      value={m.field || '*'}
+                      onValueChange={(v) =>
+                        updateMeasure(i, { field: (v as string) ?? '*' })
+                      }
+                      items={fieldItems}
+                    >
+                      <SelectTrigger size="sm" className="min-w-0 flex-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {fieldItems.map((item) => (
+                            <SelectItem
+                              key={item.value}
+                              value={item.value}
+                              label={item.label}
+                            >
+                              {item.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      disabled={measures.length <= 1}
+                      onClick={() => removeMeasure(i)}
+                      aria-label={t`Remove measure`}
+                    >
+                      <XIcon className="size-3.5" />
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -469,7 +594,7 @@ export function PivotDialog({
                   {records.length >= DEFAULT_PIVOT_LIMIT ? (
                     <>
                       {' '}
-                      <Trans>(capped at {DEFAULT_PIVOT_LIMIT})</Trans>
+                      <Trans>(capped at {capLimit})</Trans>
                     </>
                   ) : null}
                 </>
@@ -478,9 +603,29 @@ export function PivotDialog({
           ) : null}
         </div>
 
+        {warning ? (
+          <div className="shrink-0 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-800 dark:text-amber-200 select-text">
+            {warning}
+          </div>
+        ) : null}
+
         {sql ? (
-          <div className="max-h-16 shrink-0 overflow-auto rounded-md border bg-muted/40 px-3 py-2 font-mono text-xs break-all select-text">
-            {sql}
+          <div className="flex max-h-16 shrink-0 items-start gap-1 rounded-md border bg-muted/40">
+            <div className="min-w-0 flex-1 overflow-auto px-3 py-2 font-mono text-xs break-all select-text">
+              {sql}
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              className="m-1 shrink-0"
+              onClick={() => {
+                void handleCopySql();
+              }}
+              aria-label={t`Copy SQL`}
+            >
+              <CopyIcon className="size-3.5" />
+            </Button>
           </div>
         ) : null}
 
