@@ -310,6 +310,28 @@ mod contract_tests {
     assert_eq!(n, 1);
     let _ = std::fs::remove_file(path);
   }
+
+  #[tokio::test]
+  async fn batched_export_csv() {
+    let (db, path) = temp_db();
+    let out = std::env::temp_dir().join(format!("duckling_sqlite_export_{}.csv", nanoid::nanoid!(6)));
+    db.export(
+      "SELECT id, name, score FROM items ORDER BY id",
+      out.to_str().unwrap(),
+      "csv",
+      &crate::utils::ExportOptions {
+        header: Some(true),
+        ..Default::default()
+      },
+    )
+    .await
+    .unwrap();
+    let content = std::fs::read_to_string(&out).unwrap();
+    assert!(content.contains("id") || content.contains("1"));
+    assert!(content.contains("a"));
+    let _ = std::fs::remove_file(path);
+    let _ = std::fs::remove_file(out);
+  }
 }
 
 #[tokio::test]

@@ -185,8 +185,54 @@ pub trait Connection: Sync + Send {
     format: &str,
     options: &crate::utils::ExportOptions,
   ) -> anyhow::Result<()> {
-    let batch = self.query(sql, 0, 0).await?.batch;
-    batch_write(file, &batch, format, options)?;
+    if crate::utils::format_supports_streaming(format) {
+      self.export_batched(sql, file, format, options).await
+    } else {
+      let batch = self.query(sql, 0, 0).await?.batch;
+      batch_write(file, &batch, format, options)?;
+      Ok(())
+    }
+  }
+
+  /// Export by paging through the result with LIMIT/OFFSET to bound peak memory.
+  async fn export_batched(
+    &self,
+    sql: &str,
+    file: &str,
+    format: &str,
+    options: &crate::utils::ExportOptions,
+  ) -> anyhow::Result<()> {
+    use crate::utils::{EXPORT_BATCH_ROWS, StreamExporter};
+
+    let dialect = self.dialect();
+    let stmt = first_stmt(dialect, sql);
+    let mut exporter = StreamExporter::create(file, format, options)?;
+    let mut offset = 0usize;
+    let page = EXPORT_BATCH_ROWS;
+
+    loop {
+      let page_sql = if let Some(ref s) = stmt {
+        ast::limit_stmt(dialect, s, Some(page), Some(offset)).unwrap_or_else(|| {
+          format!("select * from ({sql}) ____ limit {page} offset {offset}")
+        })
+      } else {
+        // Unparsed SQL: wrap as subquery (works for most engines).
+        format!("select * from ({sql}) ____ export_page limit {page} offset {offset}")
+      };
+
+      let batch = self.query(&page_sql, 0, 0).await?.batch;
+      let n = batch.num_rows();
+      if n == 0 {
+        break;
+      }
+      exporter.write_batch(&batch)?;
+      if n < page {
+        break;
+      }
+      offset = offset.saturating_add(page);
+    }
+
+    exporter.finish()?;
     Ok(())
   }
 

@@ -360,6 +360,273 @@ pub fn batch_write(
   Ok(())
 }
 
+/// Whether format supports multi-batch streaming export (not xlsx).
+pub fn format_supports_streaming(format: &str) -> bool {
+  matches!(
+    format.to_ascii_lowercase().as_str(),
+    "csv" | "tsv" | "json" | "parquet"
+  )
+}
+
+/// Streaming multi-batch writer for large exports without holding all rows.
+pub struct StreamExporter {
+  format: String,
+  options: ExportOptions,
+  first: bool,
+  csv_writer: Option<arrow::csv::Writer<File>>,
+  parquet_writer: Option<ArrowWriter<File>>,
+  json_file: Option<File>,
+  json_array: bool,
+  json_opened: bool,
+  path: String,
+}
+
+impl StreamExporter {
+  pub fn create(file: &str, format: &str, options: &ExportOptions) -> anyhow::Result<Self> {
+    let format = format.to_ascii_lowercase();
+    if !format_supports_streaming(&format) {
+      return Err(anyhow!(
+        "format '{format}' does not support streaming export; use single-batch export"
+      ));
+    }
+    Ok(Self {
+      format,
+      options: options.clone(),
+      first: true,
+      csv_writer: None,
+      parquet_writer: None,
+      json_file: None,
+      json_array: options.json_array.unwrap_or(true),
+      json_opened: false,
+      path: file.to_string(),
+    })
+  }
+
+  pub fn write_batch(&mut self, batch: &RecordBatch) -> anyhow::Result<()> {
+    if batch.num_rows() == 0 && !self.first {
+      return Ok(());
+    }
+    match self.format.as_str() {
+      "csv" | "tsv" => self.write_csv_batch(batch),
+      "parquet" => self.write_parquet_batch(batch),
+      "json" => self.write_json_batch(batch),
+      other => Err(anyhow!("unsupported streaming format: {other}")),
+    }
+  }
+
+  fn csv_writer_builder(options: &ExportOptions, format: &str, header: bool) -> WriterBuilder {
+    let mut opts = options.clone();
+    if format == "tsv" && opts.delimiter.is_none() {
+      opts.delimiter = Some("\t".to_string());
+    }
+    let delimiter = opts
+      .delimiter
+      .as_deref()
+      .map(parse_delimiter_byte)
+      .unwrap_or(b',');
+    let mut builder = WriterBuilder::new()
+      .with_header(header)
+      .with_delimiter(delimiter);
+    if let Some(quote) = opts.quote.as_deref() {
+      builder = builder.with_quote(parse_quote_byte(quote));
+    }
+    builder
+  }
+
+  fn write_csv_batch(&mut self, batch: &RecordBatch) -> anyhow::Result<()> {
+    if self.first {
+      let file = File::create(&self.path)?;
+      let header = self.options.header.unwrap_or(true);
+      let builder = Self::csv_writer_builder(&self.options, &self.format, header);
+      let mut writer = builder.build(file);
+      writer.write(batch)?;
+      // Drop to flush; subsequent batches append without header.
+      drop(writer);
+      self.first = false;
+      return Ok(());
+    }
+
+    let file = std::fs::OpenOptions::new()
+      .append(true)
+      .open(&self.path)?;
+    let builder = Self::csv_writer_builder(&self.options, &self.format, false);
+    let mut writer = builder.build(file);
+    writer.write(batch)?;
+    Ok(())
+  }
+
+  fn write_parquet_batch(&mut self, batch: &RecordBatch) -> anyhow::Result<()> {
+    if self.parquet_writer.is_none() {
+      let file = File::create(&self.path)?;
+      let compression = parquet_compression(
+        self.options.compression.as_deref().unwrap_or("zstd"),
+        self.options.compression_level,
+      )?;
+      let props = WriterProperties::builder()
+        .set_compression(compression)
+        .build();
+      self.parquet_writer = Some(ArrowWriter::try_new(
+        file,
+        batch.schema(),
+        Some(props),
+      )?);
+    }
+    if let Some(w) = self.parquet_writer.as_mut() {
+      w.write(batch)?;
+    }
+    self.first = false;
+    Ok(())
+  }
+
+  fn write_json_batch(&mut self, batch: &RecordBatch) -> anyhow::Result<()> {
+    if self.json_file.is_none() {
+      let mut f = File::create(&self.path)?;
+      if self.json_array {
+        f.write_all(b"[\n")?;
+      }
+      self.json_file = Some(f);
+      self.json_opened = true;
+    }
+    let schema = batch.schema();
+    let fmt_options = FormatOptions::default();
+    let formatters = batch
+      .columns()
+      .iter()
+      .map(|col| arrow::util::display::ArrayFormatter::try_new(col.as_ref(), &fmt_options))
+      .collect::<Result<Vec<_>, _>>()?;
+
+    let file = self
+      .json_file
+      .as_mut()
+      .ok_or_else(|| anyhow!("json export file missing"))?;
+
+    for row_idx in 0..batch.num_rows() {
+      if self.json_array && !self.first {
+        file.write_all(b",\n")?;
+      }
+      let mut obj = serde_json::Map::new();
+      for (col_idx, field) in schema.fields().iter().enumerate() {
+        if batch.column(col_idx).is_null(row_idx) {
+          obj.insert(field.name().clone(), serde_json::Value::Null);
+        } else {
+          let text = formatters[col_idx].value(row_idx).to_string();
+          obj.insert(field.name().clone(), serde_json::Value::String(text));
+        }
+      }
+      serde_json::to_writer(&mut *file, &serde_json::Value::Object(obj))?;
+      if !self.json_array {
+        file.write_all(b"\n")?;
+      }
+      self.first = false;
+    }
+    Ok(())
+  }
+
+  pub fn finish(mut self) -> anyhow::Result<()> {
+    if let Some(w) = self.parquet_writer.take() {
+      w.close()?;
+    }
+    self.csv_writer.take();
+    if let Some(mut f) = self.json_file.take() {
+      if self.json_array && self.json_opened {
+        if self.first {
+          f.write_all(b"]")?;
+        } else {
+          f.write_all(b"\n]")?;
+        }
+      }
+      f.flush()?;
+    } else if self.first {
+      // No rows written: still create an empty artifact for csv/tsv.
+      if matches!(self.format.as_str(), "csv" | "tsv") {
+        let _ = File::create(&self.path)?;
+      }
+    }
+    Ok(())
+  }
+}
+
+/// Default page size for LIMIT/OFFSET batched export.
+pub const EXPORT_BATCH_ROWS: usize = 5_000;
+
+#[cfg(test)]
+mod stream_export_tests {
+  use super::*;
+  use arrow::array::{Int64Array, StringArray};
+  use std::sync::Arc;
+
+  fn sample_batch(start: i64, n: usize) -> RecordBatch {
+    let ids: Vec<i64> = (start..start + n as i64).collect();
+    let names: Vec<String> = ids.iter().map(|i| format!("n{i}")).collect();
+    let schema = Arc::new(Schema::new(vec![
+      Field::new("id", DataType::Int64, false),
+      Field::new("name", DataType::Utf8, false),
+    ]));
+    RecordBatch::try_new(
+      schema,
+      vec![
+        Arc::new(Int64Array::from(ids)),
+        Arc::new(StringArray::from(names)),
+      ],
+    )
+    .unwrap()
+  }
+
+  #[test]
+  fn stream_csv_multiple_batches() {
+    let dir = std::env::temp_dir().join(format!("duckling_stream_{}", nanoid::nanoid!(6)));
+    let _ = std::fs::create_dir_all(&dir);
+    let path = dir.join("out.csv");
+    let path_str = path.to_str().unwrap();
+    let opts = ExportOptions {
+      header: Some(true),
+      ..Default::default()
+    };
+    let mut exp = StreamExporter::create(path_str, "csv", &opts).unwrap();
+    exp.write_batch(&sample_batch(1, 2)).unwrap();
+    exp.write_batch(&sample_batch(3, 2)).unwrap();
+    exp.finish().unwrap();
+    let content = std::fs::read_to_string(&path).unwrap();
+    assert!(content.contains("n1"));
+    assert!(content.contains("n4"));
+    // header line once
+    let header_hits = content
+      .lines()
+      .filter(|l| l.contains("id") && l.contains("name"))
+      .count();
+    assert_eq!(header_hits, 1, "expected single header line, got:\n{content}");
+    let _ = std::fs::remove_dir_all(&dir);
+  }
+
+  #[test]
+  fn stream_json_array_batches() {
+    let dir = std::env::temp_dir().join(format!("duckling_stream_j_{}", nanoid::nanoid!(6)));
+    let _ = std::fs::create_dir_all(&dir);
+    let path = dir.join("out.json");
+    let path_str = path.to_str().unwrap();
+    let opts = ExportOptions {
+      json_array: Some(true),
+      ..Default::default()
+    };
+    let mut exp = StreamExporter::create(path_str, "json", &opts).unwrap();
+    exp.write_batch(&sample_batch(1, 1)).unwrap();
+    exp.write_batch(&sample_batch(2, 1)).unwrap();
+    exp.finish().unwrap();
+    let content = std::fs::read_to_string(&path).unwrap();
+    let v: serde_json::Value = serde_json::from_str(&content).unwrap();
+    assert!(v.is_array());
+    assert_eq!(v.as_array().unwrap().len(), 2);
+    let _ = std::fs::remove_dir_all(&dir);
+  }
+
+  #[test]
+  fn format_supports_streaming_flags() {
+    assert!(format_supports_streaming("csv"));
+    assert!(format_supports_streaming("parquet"));
+    assert!(!format_supports_streaming("xlsx"));
+  }
+}
+
 pub fn date_to_days(t: &NaiveDate) -> i32 {
   t.signed_duration_since(NaiveDate::from_ymd_opt(1970, 1, 1).unwrap())
     .num_days() as i32

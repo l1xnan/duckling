@@ -176,6 +176,17 @@ impl Connection for MySqlConnection {
     crate::dialect::run_blocking(move || this._table_row_count(&table, &where_)).await
   }
 
+  async fn export(
+    &self,
+    sql: &str,
+    file: &str,
+    format: &str,
+    options: &crate::utils::ExportOptions,
+  ) -> anyhow::Result<()> {
+    // Batched LIMIT/OFFSET export to bound peak memory for large result sets.
+    self.export_batched(sql, file, format, options).await
+  }
+
   fn start_quote(&self) -> &'static str {
     "`"
   }

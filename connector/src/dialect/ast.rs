@@ -194,4 +194,11 @@ mod tests {
       let _ = convert_dialect(name);
     }
   }
+
+  #[test]
+  fn limit_sql_pages_for_export() {
+    let sql = limit_sql("select * from t", Some(5000), Some(10000));
+    assert!(sql.contains("limit 5000"));
+    assert!(sql.contains("offset 10000"));
+  }
 }
