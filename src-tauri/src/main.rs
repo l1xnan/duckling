@@ -147,6 +147,8 @@ fn main() {
       cmd::db::all_columns,
       cmd::db::connection_capabilities,
       cmd::db::cancel_query,
+      cmd::db::set_session_idle_ttl,
+      cmd::db::get_session_idle_ttl,
       cmd::app::format_sql,
       cmd::app::check_sqlfmt,
       cmd::app::format_sql_sqlfmt,

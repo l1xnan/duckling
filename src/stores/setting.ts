@@ -109,6 +109,11 @@ export type SettingState = {
   /** Updater endpoint source: official GitHub or China mirror. */
   updater_source?: UpdaterSource;
   csv?: CsvParam;
+  /**
+   * Idle minutes before a live DB session is dropped (MySQL/PG pool, SSH tunnel, …).
+   * `0` disables automatic eviction. Default 15.
+   */
+  session_idle_ttl_minutes?: number;
   /** SQL formatting engine used by the Monaco editor. */
   sql_formatter_engine?: SqlFormatterEngine;
   /**
@@ -150,11 +155,15 @@ export const defaultSqlfmtOptions: SqlfmtOptions = {
   dialect: 'polyglot',
 };
 
+/** Default idle session timeout in minutes (matches backend DEFAULT_IDLE_TTL). */
+export const DEFAULT_SESSION_IDLE_TTL_MINUTES = 15;
+
 export const defaultSettings: SettingState = {
   precision: 4,
   auto_update: false,
   locale: 'system',
   updater_source: 'official',
+  session_idle_ttl_minutes: DEFAULT_SESSION_IDLE_TTL_MINUTES,
   table_font_family: 'Consolas',
   table_font_size: 12,
   table_render: 'canvas',
@@ -228,6 +237,24 @@ export function setSettings(
   } else {
     useSettingStore.setState(partial);
   }
+}
+
+export function resolveSessionIdleTtlMinutes(
+  value: number | undefined | null,
+): number {
+  if (value == null || !Number.isFinite(value)) {
+    return DEFAULT_SESSION_IDLE_TTL_MINUTES;
+  }
+  // 0 = never; otherwise clamp 1–24h in minutes
+  if (value <= 0) return 0;
+  return Math.min(24 * 60, Math.max(1, Math.round(value)));
+}
+
+export function sessionIdleTtlMinutesToSecs(
+  minutes: number | undefined | null,
+): number {
+  const m = resolveSessionIdleTtlMinutes(minutes);
+  return m <= 0 ? 0 : m * 60;
 }
 
 export const usePrecision = () =>

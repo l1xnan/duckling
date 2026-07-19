@@ -173,6 +173,24 @@ pub async fn cancel_query(
   inflight.cancel(&request_id)
 }
 
+/// Update global session idle TTL. `secs == 0` disables automatic eviction.
+#[tauri::command]
+pub async fn set_session_idle_ttl(
+  sessions: State<'_, SessionManager>,
+  secs: u64,
+) -> Result<u64, String> {
+  sessions.set_idle_ttl_secs(secs);
+  Ok(sessions.idle_ttl_secs())
+}
+
+/// Current global session idle TTL in seconds (`0` = disabled).
+#[tauri::command]
+pub async fn get_session_idle_ttl(
+  sessions: State<'_, SessionManager>,
+) -> Result<u64, String> {
+  Ok(sessions.idle_ttl_secs())
+}
+
 #[tauri::command]
 pub async fn query(
   registry: State<'_, ConnectionRegistry>,

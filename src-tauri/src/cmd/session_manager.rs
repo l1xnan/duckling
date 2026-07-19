@@ -19,14 +19,15 @@ struct CachedSession {
 /// Process-lifetime live connections keyed by connection_id.
 pub struct SessionManager {
   sessions: Mutex<HashMap<String, CachedSession>>,
-  idle_ttl: Duration,
+  /// `None` or zero means never auto-evict by idle time.
+  idle_ttl: Mutex<Option<Duration>>,
 }
 
 impl Default for SessionManager {
   fn default() -> Self {
     Self {
       sessions: Mutex::new(HashMap::new()),
-      idle_ttl: DEFAULT_IDLE_TTL,
+      idle_ttl: Mutex::new(Some(DEFAULT_IDLE_TTL)),
     }
   }
 }
@@ -35,8 +36,29 @@ impl SessionManager {
   pub fn with_idle_ttl(idle_ttl: Duration) -> Self {
     Self {
       sessions: Mutex::new(HashMap::new()),
-      idle_ttl,
+      idle_ttl: Mutex::new(Some(idle_ttl).filter(|d| !d.is_zero())),
     }
+  }
+
+  /// Update idle TTL at runtime. `secs == 0` disables idle eviction.
+  pub fn set_idle_ttl_secs(&self, secs: u64) {
+    if let Ok(mut ttl) = self.idle_ttl.lock() {
+      *ttl = if secs == 0 {
+        None
+      } else {
+        Some(Duration::from_secs(secs))
+      };
+    }
+  }
+
+  pub fn idle_ttl_secs(&self) -> u64 {
+    self
+      .idle_ttl
+      .lock()
+      .ok()
+      .and_then(|g| *g)
+      .map(|d| d.as_secs())
+      .unwrap_or(0)
   }
 
   pub fn fingerprint(payload: &DialectPayload) -> u64 {
@@ -68,10 +90,13 @@ impl SessionManager {
   }
 
   fn evict_idle_at(&self, now: Instant) -> usize {
+    let ttl = match self.idle_ttl.lock().ok().and_then(|g| *g) {
+      Some(d) if !d.is_zero() => d,
+      _ => return 0,
+    };
     let Ok(mut map) = self.sessions.lock() else {
       return 0;
     };
-    let ttl = self.idle_ttl;
     let before = map.len();
     map.retain(|_, s| now.duration_since(s.last_used) < ttl);
     before.saturating_sub(map.len())
@@ -272,5 +297,33 @@ mod tests {
       .get_or_insert("new", &p2, || panic!("should reuse new"))
       .unwrap();
     assert_eq!(again.dialect(), "file");
+  }
+
+  #[test]
+  fn set_idle_ttl_secs_updates_and_zero_disables() {
+    let mgr = SessionManager::default();
+    assert_eq!(mgr.idle_ttl_secs(), 15 * 60);
+    mgr.set_idle_ttl_secs(120);
+    assert_eq!(mgr.idle_ttl_secs(), 120);
+
+    let p = file_payload("/tmp/a.csv");
+    let _ = mgr
+      .get_or_insert("c1", &p, || {
+        Ok(Box::new(FileConnection {
+          path: "/tmp/a.csv".into(),
+        }))
+      })
+      .unwrap();
+    mgr.set_last_used_for_test("c1", Instant::now() - Duration::from_secs(10));
+    // TTL 120s → not yet idle
+    assert_eq!(mgr.evict_idle(), 0);
+    assert_eq!(mgr.len(), 1);
+
+    mgr.set_idle_ttl_secs(0);
+    assert_eq!(mgr.idle_ttl_secs(), 0);
+    mgr.set_last_used_for_test("c1", Instant::now() - Duration::from_secs(3600));
+    // disabled eviction
+    assert_eq!(mgr.evict_idle(), 0);
+    assert_eq!(mgr.len(), 1);
   }
 }

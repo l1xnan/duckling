@@ -137,6 +137,15 @@ export async function connectionCapabilities(
   return invoke<CapabilitiesResponse>('connection_capabilities', { dialect });
 }
 
+/** Update backend session idle TTL (`0` disables eviction). Returns applied seconds. */
+export async function setSessionIdleTtl(secs: number): Promise<number> {
+  return invoke<number>('set_session_idle_ttl', { secs });
+}
+
+export async function getSessionIdleTtl(): Promise<number> {
+  return invoke<number>('get_session_idle_ttl');
+}
+
 export async function queryTable(
   params: QueryTableParams,
 ): Promise<ResultType> {

@@ -4,11 +4,12 @@ import { DevTools, DevToolsProps } from 'jotai-devtools';
 import css from 'jotai-devtools/styles.css?inline';
 import { useEffect } from 'react';
 
-import { checkAppUpdate } from '@/api';
+import { checkAppUpdate, setSessionIdleTtl } from '@/api';
 import { Toaster } from '@/components/ui/sonner';
 import { AppI18nProvider } from '@/i18n/AppI18nProvider';
 import { atomStore } from '@/stores';
 import {
+  sessionIdleTtlMinutesToSecs,
   useAutoUpdate,
   useMainFontFamily,
   useSettingStore,
@@ -30,6 +31,9 @@ function App() {
   const tableFontFamily = useTableFontFamily();
   const mainFontFamily = useMainFontFamily();
   const autoUpdate = useAutoUpdate();
+  const sessionIdleTtlMinutes = useSettingStore(
+    (s) => s.session_idle_ttl_minutes,
+  );
 
   useEffect(() => {
     const rootElement = document.documentElement;
@@ -37,6 +41,14 @@ function App() {
     rootElement.style.setProperty('--table-font-family', tableFontFamily);
     rootElement.style.setProperty('--main-font-family', mainFontFamily);
   }, [tableFontFamily, mainFontFamily]);
+
+  // Sync global session idle TTL to the Rust SessionManager.
+  useEffect(() => {
+    const secs = sessionIdleTtlMinutesToSecs(sessionIdleTtlMinutes);
+    void setSessionIdleTtl(secs).catch((err) =>
+      console.warn('setSessionIdleTtl failed', err),
+    );
+  }, [sessionIdleTtlMinutes]);
 
   useEffect(() => {
     if (!autoUpdate) {

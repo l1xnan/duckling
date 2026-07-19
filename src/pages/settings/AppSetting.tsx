@@ -57,6 +57,7 @@ import {
 } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
+import { setSessionIdleTtl } from '@/api';
 import {
   CsvParam,
   HolywellOptions,
@@ -70,8 +71,10 @@ import {
   defaultSqlfmtOptions,
   editorThemes,
   resolveHolywellOptions,
+  resolveSessionIdleTtlMinutes,
   resolveSqlFormatterOptions,
   resolveSqlfmtOptions,
+  sessionIdleTtlMinutesToSecs,
   setSettings,
   sqlCaseOptions,
   sqlFormatterEngines,
@@ -159,6 +162,9 @@ function Profile() {
   ];
 
   const onSubmit = (data: SettingState) => {
+    const session_idle_ttl_minutes = resolveSessionIdleTtlMinutes(
+      data.session_idle_ttl_minutes,
+    );
     setSettings((s) => ({
       ...s,
       locale: data.locale ?? 'system',
@@ -169,7 +175,11 @@ function Profile() {
       code_font_size: data.code_font_size,
       editor_theme: data.editor_theme,
       precision: data.precision,
+      session_idle_ttl_minutes,
     }));
+    void setSessionIdleTtl(sessionIdleTtlMinutesToSecs(session_idle_ttl_minutes)).catch(
+      (err) => console.warn('setSessionIdleTtl failed', err),
+    );
   };
 
   return (
@@ -417,6 +427,42 @@ function Profile() {
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="session_idle_ttl_minutes"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  <Trans>Session idle timeout (minutes)</Trans>
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={24 * 60}
+                    value={
+                      field.value ?? defaultSettings.session_idle_ttl_minutes
+                    }
+                    onChange={(e) => {
+                      const n = Number(e.target.value);
+                      field.onChange(
+                        Number.isFinite(n)
+                          ? resolveSessionIdleTtlMinutes(n)
+                          : defaultSettings.session_idle_ttl_minutes,
+                      );
+                    }}
+                  />
+                </FormControl>
+                <FormDescription>
+                  <Trans>
+                    Close idle database sessions (connection pools, SSH tunnels)
+                    after this many minutes. Use 0 to keep sessions until the
+                    app exits or the connection is removed.
+                  </Trans>
+                </FormDescription>
               </FormItem>
             )}
           />
