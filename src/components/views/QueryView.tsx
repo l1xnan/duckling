@@ -1,4 +1,5 @@
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
+import { nanoid } from 'nanoid';
 
 import { CanvasTable } from '@/components/tables/CanvasTable';
 import {
@@ -9,6 +10,7 @@ import {
 import { Loading, SelectedCellType } from '@/components/views/TableView';
 import { usePrecision } from '@/stores/setting';
 import {
+  cancelExecuteSQL,
   executeSQL,
   getQueryChild,
   useQuerySessionStore,
@@ -31,6 +33,7 @@ export function QueryView({
   const patchChild = useQuerySessionStore((s) => s.patchChild);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const requestIdRef = useRef<string | null>(null);
 
   const patch = (
     partial:
@@ -40,22 +43,40 @@ export function QueryView({
     patchChild(editorId, queryId, partial);
   };
 
+  const handleCancel = async () => {
+    const rid = requestIdRef.current;
+    if (!rid) return;
+    try {
+      await cancelExecuteSQL(rid);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleQuery = async (input?: QueryContextType) => {
+    const requestId = nanoid();
+    requestIdRef.current = requestId;
     try {
       setLoading(true);
+      setError(null);
       const current = input ?? getQueryChild(editorId, queryId);
       if (!current) {
         return;
       }
-      const res = await executeSQL(current);
+      const res = await executeSQL(current, { requestId });
       patch((prev) => ({ ...prev, ...res }));
-      if (res?.message) {
-        setError(res?.message);
+      if (res?.code && res.code !== 0 && res?.message) {
+        setError(res.message);
+      } else if (res?.message) {
+        setError(res.message);
       }
     } catch (error) {
       console.error(error);
       setError(error as string);
     } finally {
+      if (requestIdRef.current === requestId) {
+        requestIdRef.current = null;
+      }
       setLoading(false);
     }
   };
@@ -142,6 +163,8 @@ export function QueryView({
         setPagination={setPagination}
         setTranspose={handleTranspose}
         setCross={handleCross}
+        loading={loading}
+        onCancel={handleCancel}
       />
       <ResizablePanelGroup orientation={ctx.direction}>
         <ResizablePanel defaultSize={80}>

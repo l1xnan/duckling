@@ -1,9 +1,11 @@
+import { nanoid } from 'nanoid';
 import { isEmpty, shake } from 'radash';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import {
+  cancelQuery,
   exportCsv,
   pagingQuery,
   query,
@@ -369,20 +371,29 @@ export async function execute(
 
 export async function executeSQL(
   ctx: QueryParamType,
+  options?: { requestId?: string },
 ): Promise<ResultType | undefined> {
   const param = await getParams(ctx);
   if (!param) {
     return;
   }
 
+  const requestId = options?.requestId ?? nanoid();
+  const withId = { ...(param as QueryParams), requestId };
   const func = ctx.hasLimit ? pagingQuery : query;
-  const data = await func(param as QueryParams);
+  const data = await func(withId);
 
   console.log('data:', data);
-  if (data?.code == 401 && data?.message) {
-    // toast.warning(data?.message);
+  // 401 legacy; also surface cancelled / unsupported via non-zero codes
+  if (data?.code && data.code !== 0 && data?.message) {
+    // toast handled by caller when needed
   }
   return data;
+}
+
+/** Cancel a running SQL query started with the given requestId. */
+export async function cancelExecuteSQL(requestId: string): Promise<boolean> {
+  return cancelQuery(requestId);
 }
 
 type ExportTarget = {

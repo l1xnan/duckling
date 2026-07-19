@@ -9,6 +9,7 @@ import {
   DownloadIcon,
   EyeIcon,
   RefreshCw,
+  SquareIcon,
 } from 'lucide-react';
 
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
@@ -46,6 +47,9 @@ export interface DataViewToolbarProps {
   setCross?: () => void;
 
   setHiddenColumns?: (column: string, hidden: boolean) => void;
+  /** When true, show stop button instead of only refresh. */
+  loading?: boolean;
+  onCancel?: () => void;
 }
 
 export function elapsedRender(elapsed?: number) {
@@ -72,6 +76,8 @@ export function DataViewToolbar({
   setPagination,
   setTranspose,
   setCross,
+  loading,
+  onCancel,
 }: DataViewToolbarProps) {
   const { t } = useLingui();
   const exportDialog = useDialog();
@@ -95,13 +101,23 @@ export function DataViewToolbar({
           tooltip={t`Float precision`}
         />
 
-        <TooltipButton
-          icon={<RefreshCw />}
-          onClick={async () => {
-            await refresh();
-          }}
-          tooltip={t`Refresh`}
-        />
+        {loading && onCancel ? (
+          <TooltipButton
+            icon={<SquareIcon className="size-3.5 fill-current" />}
+            onClick={() => {
+              void onCancel();
+            }}
+            tooltip={t`Stop query`}
+          />
+        ) : (
+          <TooltipButton
+            icon={<RefreshCw />}
+            onClick={async () => {
+              await refresh();
+            }}
+            tooltip={t`Refresh`}
+          />
+        )}
         <div className="text-xs ml-6">
           <Trans>elapsed time: {elapsedRender(elapsed)}</Trans>
         </div>

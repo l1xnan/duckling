@@ -95,6 +95,8 @@ export type QueryParams = {
   limit: number;
   offset: number;
   dialect?: DialectRef;
+  /** When set, backend registers an inflight token; call `cancelQuery` with the same id. */
+  requestId?: string;
 };
 
 export type QueryTableParams = {
@@ -116,6 +118,23 @@ export async function pagingQuery(params: QueryParams): Promise<ResultType> {
   console.debug('query sql params:', params);
   const res = await invoke<ArrowResponse>('paging_query', params);
   return convert(res);
+}
+
+/** Cancel an in-flight query previously started with `requestId`. */
+export async function cancelQuery(requestId: string): Promise<boolean> {
+  return invoke<boolean>('cancel_query', { requestId });
+}
+
+export type CapabilitiesResponse = {
+  dialect: string;
+  capabilities: string[];
+};
+
+/** Capability flags for UI gating (export / find / drop_table / …). */
+export async function connectionCapabilities(
+  dialect: DialectRef | { dialect: string },
+): Promise<CapabilitiesResponse> {
+  return invoke<CapabilitiesResponse>('connection_capabilities', { dialect });
 }
 
 export async function queryTable(
