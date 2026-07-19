@@ -6,7 +6,6 @@ import * as dialog from '@tauri-apps/plugin-dialog';
 import { relaunch } from '@tauri-apps/plugin-process';
 import * as shell from '@tauri-apps/plugin-shell';
 import { Update } from '@tauri-apps/plugin-updater';
-import { atom, useAtom } from 'jotai';
 import { FolderOpenIcon, SettingsIcon } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
@@ -73,7 +72,7 @@ import {
   resolveHolywellOptions,
   resolveSqlFormatterOptions,
   resolveSqlfmtOptions,
-  settingAtom,
+  setSettings,
   sqlCaseOptions,
   sqlFormatterEngines,
   sqlIndentStyleOptions,
@@ -91,15 +90,13 @@ const NAV_ITEMS = [
   { key: 'update', title: msg`Software Update` },
 ] as const;
 
-export const navKeyAtom = atom('profile');
-
 export const Display = ({ hidden, children }: PropsWithChildren<{ hidden: boolean }>) => (
   <div className={hidden ? 'flex min-h-0 h-full flex-col' : 'hidden'}>{children}</div>
 );
 
 export default function AppSettingDialog() {
   const { t } = useLingui();
-  const [navKey, setNavKey] = useAtom(navKeyAtom);
+  const [navKey, setNavKey] = useState('profile');
   const items = useMemo(
     () => NAV_ITEMS.map((item) => ({ key: item.key, title: t(item.title) })),
     [t],
@@ -147,7 +144,7 @@ const lightItems = editorThemes
 
 function Profile() {
   const { t } = useLingui();
-  const [settings, setSettings] = useAtom(settingAtom);
+  const settings = useSettingStore();
   const form = useForm({
     defaultValues: {
       ...defaultSettings,
@@ -485,7 +482,7 @@ function numberFromInput(value: string, fallback: number) {
 
 function SqlFormatForm() {
   const { t } = useLingui();
-  const [settings, setSettings] = useAtom(settingAtom);
+  const settings = useSettingStore();
   const form = useForm<SqlFormatSettings>({
     defaultValues: {
       sql_formatter_engine:
@@ -1276,7 +1273,7 @@ const UpdateForm = () => {
     (state) => state.updater_source ?? defaultSettings.updater_source!,
   );
 
-  const [settings, setSettings] = useAtom(settingAtom);
+  const settings = useSettingStore();
   const form = useForm({
     defaultValues: {
       ...settings,
@@ -1573,7 +1570,7 @@ const UpdateForm = () => {
 const CSVForm = () => {
   // https://duckdb.org/docs/stable/data/csv/overview#parameters
   // https://duckdb.org/docs/stable/sql/statements/copy#csv-options
-  const [settings, setSettings] = useAtom(settingAtom);
+  const settings = useSettingStore();
   const form = useForm({
     defaultValues: settings.csv,
   });

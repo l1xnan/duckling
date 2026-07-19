@@ -1,10 +1,14 @@
 import { Editor, OnMount } from '@monaco-editor/react';
-import { useAtomValue } from 'jotai';
+
 import type { editor, IKeyboardEvent } from 'monaco-editor';
 import { useEffect, useImperativeHandle, useState } from 'react';
 
 import { CompleteMetaType } from '@/ast/analyze';
-import { codeFontFamilyAtom, codeFontSizeAtom, useEditorTheme } from '@/stores/setting';
+import {
+  useCodeFontFamily,
+  useCodeFontSize,
+  useEditorTheme,
+} from '@/stores/setting';
 
 import { useRegister } from './useRegister';
 
@@ -121,8 +125,8 @@ export function SingleLineEditor({
   };
 
   const theme = useEditorTheme();
-  const codeFontFamily = useAtomValue(codeFontFamilyAtom);
-  const codeFontSize = useAtomValue(codeFontSizeAtom);
+  const codeFontFamily = useCodeFontFamily();
+  const codeFontSize = useCodeFontSize();
   const lineHeight = Math.max(16, Math.round(codeFontSize * (20 / 13)));
 
   useEffect(() => {
@@ -196,8 +200,8 @@ interface SQLCodeViewerProps {
 
 export function SQLCodeViewer({ className, sql }: SQLCodeViewerProps) {
   const theme = useEditorTheme();
-  const codeFontFamily = useAtomValue(codeFontFamilyAtom);
-  const codeFontSize = useAtomValue(codeFontSizeAtom);
+  const codeFontFamily = useCodeFontFamily();
+  const codeFontSize = useCodeFontSize();
   return (
     <Editor
       theme={theme}

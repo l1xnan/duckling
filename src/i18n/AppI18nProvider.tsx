@@ -1,16 +1,15 @@
 import { I18nProvider } from '@lingui/react';
-import { useAtomValue } from 'jotai';
 import { PropsWithChildren, useEffect, useState } from 'react';
 
 import { activateLocale, i18n, resolveLocale } from '@/i18n';
-import { localePreferenceAtom } from '@/stores/setting';
+import { useLocalePreference } from '@/stores/setting';
 
 /**
  * Keeps Lingui catalog in sync with the persisted language preference
  * (including `system` → OS locale with English fallback).
  */
 export function AppI18nProvider({ children }: PropsWithChildren) {
-  const preference = useAtomValue(localePreferenceAtom);
+  const preference = useLocalePreference();
   const [ready, setReady] = useState(() => i18n.locale.length > 0);
 
   useEffect(() => {

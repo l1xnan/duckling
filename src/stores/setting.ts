@@ -1,10 +1,8 @@
 import type { MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
-import { useAtomValue } from 'jotai';
-import { atomWithStore } from 'jotai-zustand';
-import { selectAtom } from 'jotai/utils';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { useShallow } from 'zustand/shallow';
 
 import { useTheme } from '@/hooks/theme-provider';
 import { tauriFileStorage } from '@/stores/tauriStore';
@@ -212,59 +210,69 @@ export const store = create<SettingState>()(
 
 export const useSettingStore = createSelectors(store);
 
-export const settingAtom = atomWithStore(useSettingStore);
+/** Replace jotai settingAtom — subscribe to full settings snapshot. */
+export function useSettings() {
+  return useSettingStore();
+}
 
-export const precisionAtom = selectAtom(
-  settingAtom,
-  (s) => s.precision ?? defaultSettings['precision'],
-);
-export const tableFontFamilyAtom = selectAtom(
-  settingAtom,
-  (s) => s.table_font_family ?? defaultSettings['table_font_family'],
-);
-export const tableFontSizeAtom = selectAtom(
-  settingAtom,
-  (s) => s.table_font_size ?? defaultSettings.table_font_size!,
-);
-export const mainFontFamilyAtom = selectAtom(
-  settingAtom,
-  (s) => s.main_font_family ?? defaultSettings['main_font_family'],
-);
-export const codeFontFamilyAtom = selectAtom(
-  settingAtom,
-  (s) => s.code_font_family ?? defaultSettings.code_font_family!,
-);
-export const codeFontSizeAtom = selectAtom(
-  settingAtom,
-  (s) => s.code_font_size ?? defaultSettings.code_font_size!,
-);
+export function setSettings(
+  partial:
+    | Partial<SettingState>
+    | ((prev: SettingState) => Partial<SettingState> | SettingState),
+) {
+  if (typeof partial === 'function') {
+    useSettingStore.setState((s) => {
+      const next = partial(s);
+      return { ...s, ...next };
+    });
+  } else {
+    useSettingStore.setState(partial);
+  }
+}
 
-export const editorThemeAtom = selectAtom(settingAtom, (s) => ({
-  ...defaultSettings['editor_theme'],
-  ...s.editor_theme,
-}));
+export const usePrecision = () =>
+  useSettingStore((s) => s.precision ?? defaultSettings.precision);
 
-export const autoUpdateAtom = selectAtom(settingAtom, (s) => s.auto_update);
+export const useTableFontFamily = () =>
+  useSettingStore(
+    (s) => s.table_font_family ?? defaultSettings.table_font_family,
+  );
 
-export const localePreferenceAtom = selectAtom(
-  settingAtom,
-  (s) => s.locale ?? defaultSettings.locale!,
-);
+export const useTableFontSize = () =>
+  useSettingStore(
+    (s) => s.table_font_size ?? defaultSettings.table_font_size!,
+  );
 
-export const updaterSourceAtom = selectAtom(
-  settingAtom,
-  (s) => s.updater_source ?? defaultSettings.updater_source!,
-);
+export const useMainFontFamily = () =>
+  useSettingStore(
+    (s) => s.main_font_family ?? defaultSettings.main_font_family,
+  );
 
-export const sqlFormatterEngineAtom = selectAtom(
-  settingAtom,
-  (s) => s.sql_formatter_engine ?? defaultSettings.sql_formatter_engine!,
-);
+export const useCodeFontFamily = () =>
+  useSettingStore(
+    (s) => s.code_font_family ?? defaultSettings.code_font_family!,
+  );
 
-export const sqlfmtPathAtom = selectAtom(
-  settingAtom,
-  (s) => resolveSqlfmtOptions(s).path,
-);
+export const useCodeFontSize = () =>
+  useSettingStore((s) => s.code_font_size ?? defaultSettings.code_font_size!);
+
+export const useAutoUpdate = () => useSettingStore((s) => s.auto_update);
+
+export const useLocalePreference = () =>
+  useSettingStore((s) => s.locale ?? defaultSettings.locale!);
+
+export const useUpdaterSource = () =>
+  useSettingStore(
+    (s) => s.updater_source ?? defaultSettings.updater_source!,
+  );
+
+export const useSqlFormatterEngine = () =>
+  useSettingStore(
+    (s) => s.sql_formatter_engine ?? defaultSettings.sql_formatter_engine!,
+  );
+
+export const useSqlfmtPath = () =>
+  useSettingStore((s) => resolveSqlfmtOptions(s).path);
 
 export const sqlFormatterEngines: {
   name: string;
@@ -321,7 +329,13 @@ export const sqlfmtDialectOptions: {
 
 export const useEditorTheme = () => {
   const theme = useTheme();
-  const { light, dark } = useAtomValue(editorThemeAtom);
+  const { light, dark } = useSettingStore(
+    useShallow((s) => ({
+      light:
+        s.editor_theme?.light ?? defaultSettings.editor_theme?.light ?? '',
+      dark: s.editor_theme?.dark ?? defaultSettings.editor_theme?.dark ?? '',
+    })),
+  );
   return isDarkTheme(theme) ? dark : light;
 };
 

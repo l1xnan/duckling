@@ -1,4 +1,3 @@
-import { useAtomValue } from 'jotai';
 import { Suspense, useEffect, useState } from 'react';
 
 import { CanvasTable } from '@/components/tables/CanvasTable';
@@ -8,7 +7,7 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
 import { Loading, SelectedCellType } from '@/components/views/TableView';
-import { precisionAtom } from '@/stores/setting';
+import { usePrecision } from '@/stores/setting';
 import {
   executeSQL,
   getQueryChild,
@@ -69,7 +68,7 @@ export function QueryView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const precision = useAtomValue(precisionAtom);
+  const precision = usePrecision();
 
   const [selectedCell, setSelectCell] = useState<SelectedCellType | null>(null);
   const [selectedCellInfos, setSelectedCellInfos] = useState<

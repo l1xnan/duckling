@@ -1,5 +1,5 @@
 import { relaunch } from '@tauri-apps/plugin-process';
-import { Provider, useAtomValue } from 'jotai';
+import { Provider } from 'jotai';
 import { DevTools, DevToolsProps } from 'jotai-devtools';
 import css from 'jotai-devtools/styles.css?inline';
 import { useEffect } from 'react';
@@ -9,10 +9,10 @@ import { Toaster } from '@/components/ui/sonner';
 import { AppI18nProvider } from '@/i18n/AppI18nProvider';
 import { atomStore } from '@/stores';
 import {
-  autoUpdateAtom,
-  mainFontFamilyAtom,
-  tableFontFamilyAtom,
+  useAutoUpdate,
+  useMainFontFamily,
   useSettingStore,
+  useTableFontFamily,
 } from '@/stores/setting';
 
 import Home from './Home';
@@ -27,9 +27,9 @@ const JotaiDevTools = (props: DevToolsProps) =>
   ) : null;
 
 function App() {
-  const tableFontFamily = useAtomValue(tableFontFamilyAtom);
-  const mainFontFamily = useAtomValue(mainFontFamilyAtom);
-  const autoUpdate = useAtomValue(autoUpdateAtom);
+  const tableFontFamily = useTableFontFamily();
+  const mainFontFamily = useMainFontFamily();
+  const autoUpdate = useAutoUpdate();
 
   useEffect(() => {
     const rootElement = document.documentElement;

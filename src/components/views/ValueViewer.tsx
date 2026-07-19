@@ -3,7 +3,7 @@ import type { MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import MonacoEditor from '@monaco-editor/react';
-import { useAtomValue } from 'jotai';
+
 import { LetterTextIcon, PanelBottomIcon, PanelRightIcon, XIcon } from 'lucide-react';
 import { editor } from 'monaco-editor';
 import { useEffect, useRef, useState } from 'react';
@@ -17,7 +17,11 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { Direction } from '@/stores/dataset';
-import { codeFontFamilyAtom, codeFontSizeAtom, useEditorTheme } from '@/stores/setting';
+import {
+  useCodeFontFamily,
+  useCodeFontSize,
+  useEditorTheme,
+} from '@/stores/setting';
 import { DataFrame } from '@/utils/dataframe';
 
 import { SelectedCellType } from './TableView';
@@ -94,8 +98,8 @@ export function ValueViewer({
 }: ValueViewerProps) {
   const { t } = useLingui();
   const theme = useEditorTheme();
-  const codeFontFamily = useAtomValue(codeFontFamilyAtom);
-  const codeFontSize = useAtomValue(codeFontSizeAtom);
+  const codeFontFamily = useCodeFontFamily();
+  const codeFontSize = useCodeFontSize();
 
   const [type, setType] = useState('Raw');
   const editorRef = useRef<editor.IStandaloneCodeEditor>(null);

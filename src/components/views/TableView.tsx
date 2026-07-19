@@ -1,6 +1,5 @@
 import { Data as ArrowDataType } from '@apache-arrow/ts';
 import { toMerged } from 'es-toolkit/object';
-import { useAtomValue } from 'jotai';
 import { Loader2Icon } from 'lucide-react';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -20,7 +19,7 @@ import { usePageStore } from '@/hooks/context';
 import { cn } from '@/lib/utils';
 import { SchemaType } from '@/stores/dataset';
 import { useConnectionMeta } from '@/stores/dbList';
-import { precisionAtom } from '@/stores/setting';
+import { usePrecision } from '@/stores/setting';
 import { TabContextType, TableContextType, useTabsStore } from '@/stores/tabs';
 
 import { DataViewToolbar } from './DataViewToolbar';
@@ -74,7 +73,7 @@ export function TableView({ context }: { context: TabContextType }) {
       })();
     }
   }, [context.id, currentTab, refresh]);
-  const precision = useAtomValue(precisionAtom);
+  const precision = usePrecision();
 
   const [selectedCell, setSelectCell] = useState<SelectedCellType | null>();
   const [selectedCellInfos, setSelectedCellInfos] = useState<

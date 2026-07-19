@@ -26,7 +26,6 @@ vi.mock('@/stores/dbList', async (importOriginal) => {
 });
 
 vi.mock('@/stores/setting', () => ({
-  settingAtom: { toString: () => 'settingAtom' },
   useSettingStore: {
     getState: () => ({ csv: {} }),
   },

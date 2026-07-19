@@ -5,14 +5,18 @@ import {
   OnMount,
 } from '@monaco-editor/react';
 import { msg } from '@lingui/core/macro';
-import { useAtomValue } from 'jotai';
+
 import { ForwardedRef, forwardRef, useEffect, useImperativeHandle } from 'react';
 
 import { CompleteMetaType } from '@/ast/analyze';
 import { useRegister } from '@/components/editor/useRegister';
 import { i18n } from '@/i18n';
 import { DialectType } from '@/stores/dbList';
-import { codeFontFamilyAtom, codeFontSizeAtom, useEditorTheme } from '@/stores/setting';
+import {
+  useCodeFontFamily,
+  useCodeFontSize,
+  useEditorTheme,
+} from '@/stores/setting';
 
 export interface EditorRef {
   getSelectionText: () => string | undefined;
@@ -114,8 +118,8 @@ const MonacoEditor = forwardRef<
   }));
 
   const theme = useEditorTheme();
-  const codeFontFamily = useAtomValue(codeFontFamilyAtom);
-  const codeFontSize = useAtomValue(codeFontSizeAtom);
+  const codeFontFamily = useCodeFontFamily();
+  const codeFontSize = useCodeFontSize();
 
   useEffect(() => {
     editorRef.current?.updateOptions({
