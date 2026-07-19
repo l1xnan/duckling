@@ -10,6 +10,7 @@ import { Stack, ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
 
 import {
   AlignLeftIcon,
+  BookmarkPlusIcon,
   ListPlusIcon,
   PlayIcon,
   TextSelectIcon,
@@ -41,6 +42,8 @@ export function EditorToolbar({
   setSession,
   onFormat,
   canFormatSelection = false,
+  onBookmark,
+  onExplain,
 }: {
   onClick: (action?: string) => void;
   onHasLimit: (limit: boolean) => void;
@@ -49,6 +52,8 @@ export function EditorToolbar({
   setSession: (s: DBType) => void;
   onFormat?: (scope: 'document' | 'selection') => void;
   canFormatSelection?: boolean;
+  onBookmark?: () => void;
+  onExplain?: (analyze?: boolean) => void;
 }) {
   const { t } = useLingui();
 
@@ -96,6 +101,24 @@ export function EditorToolbar({
           >
             <TextSelectIcon fontSize="inherit" />
           </TooltipButton>
+          {onExplain ? (
+            <TooltipButton
+              tooltip={t`EXPLAIN`}
+              tooltipProps={tooltipProps}
+              onClick={() => onExplain(false)}
+            >
+              <span className="text-[10px] font-mono font-semibold px-0.5">EX</span>
+            </TooltipButton>
+          ) : null}
+          {onBookmark ? (
+            <TooltipButton
+              tooltip={t`Bookmark SQL`}
+              tooltipProps={tooltipProps}
+              onClick={onBookmark}
+            >
+              <BookmarkPlusIcon fontSize="inherit" />
+            </TooltipButton>
+          ) : null}
         </Stack>
         <Stack>
           <Connection content={session} setSession={setSession} />

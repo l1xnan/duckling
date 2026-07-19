@@ -1,11 +1,23 @@
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { HistoryContextMenu } from '@/pages/sidebar/context-menu/HistoryContextMenu';
-import { docsAtom, favoriteAtom, runsAtom } from '@/stores/app';
+import {
+  bookmarksAtom,
+  docsAtom,
+  favoriteAtom,
+  runsAtom,
+  type SqlBookmark,
+} from '@/stores/app';
 import { QueryContextType, TabContextType, useTabsStore } from '@/stores/tabs';
 import { useLingui } from '@lingui/react/macro';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { Code2Icon, SearchIcon, TableIcon } from 'lucide-react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import {
+  BookmarkIcon,
+  Code2Icon,
+  SearchIcon,
+  TableIcon,
+  Trash2Icon,
+} from 'lucide-react';
 import { nanoid } from 'nanoid';
 import React, { PropsWithChildren, ReactNode } from 'react';
 
@@ -60,11 +72,28 @@ export function Container({
 export function Favorite() {
   const { t } = useLingui();
   const items = useAtomValue(favoriteAtom);
+  const [bookmarks, setBookmarks] = useAtom(bookmarksAtom);
   const updateTab = useTabsStore((state) => state.update);
+  const setDocs = useSetAtom(docsAtom);
+  const append = useTabsStore((state) => state.append);
+  const active = useTabsStore((state) => state.active);
 
   const handleClick = (item: TabContextType) => {
     updateTab(item);
   };
+
+  const openBookmark = (b: SqlBookmark) => {
+    const id = nanoid();
+    setDocs((prev) => ({ ...prev, [id]: b.stmt }));
+    append({
+      id,
+      dbId: b.dbId,
+      type: 'editor',
+      displayName: b.title || 'Bookmark',
+    });
+    active(id);
+  };
+
   return (
     <Container title={t`Favorite`}>
       {items.map((item, i) => {
@@ -85,6 +114,34 @@ export function Favorite() {
           />
         );
       })}
+      {bookmarks.length > 0 ? (
+        <div className="mt-2 border-t pt-1">
+          <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
+            {t`SQL bookmarks`}
+          </div>
+          {bookmarks.map((b) => (
+            <div key={b.id} className="group flex items-center pr-1">
+              <div className="min-w-0 flex-1">
+                <ItemLabel
+                  content={b.title}
+                  icon={<BookmarkIcon className="size-4 min-w-4 mr-1" />}
+                  onClick={() => openBookmark(b)}
+                />
+              </div>
+              <button
+                type="button"
+                className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-destructive"
+                onClick={() =>
+                  setBookmarks((prev) => prev.filter((x) => x.id !== b.id))
+                }
+                aria-label={t`Delete bookmark`}
+              >
+                <Trash2Icon className="size-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : null}
     </Container>
   );
 }

@@ -7,7 +7,8 @@ import { useHotkeys } from 'react-hotkeys-hook';
 
 import MonacoEditor, { EditorRef } from '@/components/editor/MonacoEditor';
 import VerticalContainer from '@/components/VerticalContainer';
-import { docsAtom, runsAtom } from '@/stores/app';
+import { bookmarksAtom, docsAtom, runsAtom } from '@/stores/app';
+import { buildExplainSql } from '@/lib/sql/sample';
 import { DBType, useConnection, useConnectionMeta } from '@/stores/dbList';
 import {
   EditorContextType,
@@ -16,6 +17,7 @@ import {
   useQuerySessionStore,
   useTabsStore,
 } from '@/stores/tabs';
+import { toast } from 'sonner';
 
 import { EditorToolbar } from './EditorToolbar';
 import { QueryTabs } from './QueryTabs';
@@ -91,6 +93,38 @@ export default function Editor({ context }: { context: EditorContextType }) {
   };
 
   const setRuns = useSetAtom(runsAtom);
+  const setBookmarks = useSetAtom(bookmarksAtom);
+
+  const handleBookmark = () => {
+    const sql = getStmt() ?? stmt;
+    if (!sql?.trim()) {
+      toast.error(t`Empty SQL`);
+      return;
+    }
+    setBookmarks((prev) => [
+      {
+        id: nanoid(),
+        dbId,
+        stmt: sql,
+        title: sql.trim().slice(0, 48),
+        createdAt: Date.now(),
+      },
+      ...(prev ?? []),
+    ]);
+    toast.success(t`Bookmarked`);
+  };
+
+  const handleExplain = (analyze = false) => {
+    const sql = getStmt() ?? stmt;
+    if (!sql?.trim()) {
+      toast.error(t`Empty SQL`);
+      return;
+    }
+    const dialect = db?.dialect ?? 'generic';
+    const explained = buildExplainSql(sql, dialect, analyze);
+    setDocs((prev) => ({ ...prev, [id]: explained }));
+  };
+
   const handleClick = async (action?: string) => {
     const stmt = getStmt();
     const childId = `${id}@${nanoid()}`;
@@ -162,6 +196,8 @@ export default function Editor({ context }: { context: EditorContextType }) {
         hasLimit={hasLimit}
         onFormat={handleFormat}
         canFormatSelection={canFormatSelection}
+        onBookmark={handleBookmark}
+        onExplain={handleExplain}
       />
       <VerticalContainer bottom={childCount > 0 ? 300 : undefined}>
         <div className="h-full flex flex-col overflow-hidden border-b">

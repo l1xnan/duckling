@@ -42,6 +42,17 @@ export const docsAtom = atomWithStorage<Record<string, string>>('docs', {});
 /** Local SQL workspace folders shown in the Code sidebar. */
 export const sqlFoldersAtom = atomWithStorage<string[]>('sqlFolders', []);
 
+/** Saved SQL bookmarks (connection + statement + note). */
+export type SqlBookmark = {
+  id: string;
+  dbId: string;
+  stmt: string;
+  title: string;
+  note?: string;
+  createdAt: number;
+};
+export const bookmarksAtom = atomWithStorage<SqlBookmark[]>('sqlBookmarks', []);
+
 export const themeAtom = atomWithStorage<ThemeType>(
   'mode',
   'light',
