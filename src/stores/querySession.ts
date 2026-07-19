@@ -7,6 +7,10 @@ export type EditorSession = {
   children: QueryContextType[];
 };
 
+/** Stable fallbacks for selectors — never allocate in getSnapshot paths. */
+export const EMPTY_CHILDREN: QueryContextType[] = [];
+export const EMPTY_SESSION: EditorSession = { children: EMPTY_CHILDREN };
+
 const emptySession = (): EditorSession => ({ children: [] });
 
 type QuerySessionState = {

@@ -1,7 +1,7 @@
 import { PageTabs } from '@/components/PageTabs';
 import { QueryView } from '@/components/views';
 import { PageProvider } from '@/hooks/context';
-import { useQuerySessionStore } from '@/stores/tabs';
+import { EMPTY_CHILDREN, useQuerySessionStore } from '@/stores/tabs';
 
 export interface QueryTabsProps {
   editorId: string;
@@ -14,8 +14,9 @@ export function QueryTabs({
   activeKey,
   setActiveKey,
 }: QueryTabsProps) {
-  const tabs =
-    useQuerySessionStore((s) => s.byEditor[editorId]?.children) ?? [];
+  const tabs = useQuerySessionStore(
+    (s) => s.byEditor[editorId]?.children ?? EMPTY_CHILDREN,
+  );
   const removeChild = useQuerySessionStore((s) => s.removeChild);
 
   const items = tabs.map((tab) => {

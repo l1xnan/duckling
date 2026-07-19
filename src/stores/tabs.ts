@@ -21,7 +21,12 @@ import { getDbMap, getTableMap, whenRegistryReady } from './dbList';
 import { useQuerySessionStore } from './querySession';
 import { useSettingStore } from './setting';
 
-export { getQueryChild, useQuerySessionStore } from './querySession';
+export {
+  EMPTY_CHILDREN,
+  EMPTY_SESSION,
+  getQueryChild,
+  useQuerySessionStore,
+} from './querySession';
 export type { EditorSession } from './querySession';
 
 export type QueryParamType = {

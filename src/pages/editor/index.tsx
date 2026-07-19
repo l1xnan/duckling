@@ -10,6 +10,7 @@ import VerticalContainer from '@/components/VerticalContainer';
 import { docsAtom, runsAtom } from '@/stores/app';
 import { DBType, useSchemaMapStore } from '@/stores/dbList';
 import {
+  EMPTY_SESSION,
   EditorContextType,
   QueryContextType,
   TabContextType,
@@ -38,9 +39,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
   const [docs, setDocs] = useAtom(docsAtom);
   const currentTab = useTabsStore((s) => s.currentId);
 
-  const session = useQuerySessionStore(
-    (s) => s.byEditor[id] ?? { children: [] as QueryContextType[] },
-  );
+  const session = useQuerySessionStore((s) => s.byEditor[id] ?? EMPTY_SESSION);
   const setActiveKeyStore = useQuerySessionStore((s) => s.setActiveKey);
   const setChildren = useQuerySessionStore((s) => s.setChildren);
 
