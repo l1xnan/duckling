@@ -57,6 +57,8 @@ export interface TableProps<T = unknown> {
     columnName: string,
     options?: { desc?: boolean; clear?: boolean },
   ) => void;
+  /** Body cell: filter table by this cell value (drill-down). */
+  onDrillDown?: (columnName: string, value: unknown) => void;
 }
 
 function useTableTheme() {
@@ -92,6 +94,7 @@ const MENU_PIN_CLEAR = msg`Clear pinned`;
 const MENU_HIDDEN_COLUMN = msg`Hidden column`;
 const MENU_COUNT_BY_COLUMN = msg`Count by this column`;
 const MENU_COLUMN_PROFILE = msg`Column profile`;
+const MENU_FILTER_BY_VALUE = msg`Filter by this value`;
 const MENU_COPY = msg`Copy`;
 const MENU_COPY_AS_CSV = msg`Copy as CSV`;
 
@@ -277,6 +280,7 @@ function CanvasTable_({
   onCountByColumn,
   onProfileColumn,
   onOrderByColumn,
+  onDrillDown,
 }: TableProps) {
   const tableRef = useRef<ListTableAPI>(null);
 
@@ -429,6 +433,14 @@ function CanvasTable_({
           text: i18n._(MENU_COPY_AS_CSV),
           menuKey: 'copy-as-csv',
         },
+        ...(onDrillDown
+          ? [
+              {
+                text: i18n._(MENU_FILTER_BY_VALUE),
+                menuKey: 'filter-by-value',
+              },
+            ]
+          : []),
       ],
       headerCellMenuItems: [
         {
@@ -523,6 +535,21 @@ function CanvasTable_({
           await writeText(table?.getCopyValue() ?? '');
         } else if (menuKey == 'copy-as-csv') {
           await copySelectedAsCsv(table);
+        } else if (menuKey == 'filter-by-value' && onDrillDown) {
+          const value = table.getCellRawValue(e.colIndex, e.rowIndex);
+          const define = table.getBodyColumnDefine?.(
+            e.colIndex,
+            e.rowIndex,
+          ) as { field?: string; title?: string; key?: string } | undefined;
+          const fieldKey =
+            define?.field ??
+            define?.key ??
+            define?.title ??
+            table.getCellValue(e.colIndex, 0);
+          const colName = String(fieldKey ?? '')
+            .replace(/\s*[↑↓]\s*$/, '')
+            .trim();
+          if (colName) onDrillDown(colName, value);
         }
       },
     });
@@ -531,6 +558,7 @@ function CanvasTable_({
     onCountByColumn,
     onProfileColumn,
     onOrderByColumn,
+    onDrillDown,
     orderBy,
     i18n.locale,
   ]);

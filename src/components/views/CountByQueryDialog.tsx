@@ -4,9 +4,11 @@ import { nanoid } from 'nanoid';
 import { useEffect, useRef, useState } from 'react';
 
 import { cancelQuery, query } from '@/api';
+import { SimpleBarChart } from '@/components/charts/SimpleBarChart';
 import Dialog from '@/components/custom/Dialog';
 import { SimpleTable } from '@/components/tables';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loading } from '@/components/views/TableView';
 import { isQueryErrorCode } from '@/lib/capabilities';
 import { connectionRef } from '@/lib/connectionRef';
@@ -201,15 +203,40 @@ export function CountByQueryDialog({
                 </span>
               ) : null}
             </div>
-            <div className="min-h-0 flex-1 overflow-hidden rounded-md border">
-              {displayRows.length === 0 ? (
-                <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-                  <Trans>No rows</Trans>
-                </div>
-              ) : (
-                <SimpleTable data={displayRows} />
-              )}
-            </div>
+            <Tabs defaultValue="table" className="min-h-0 flex-1 flex flex-col">
+              <TabsList variant="line" className="shrink-0">
+                <TabsTrigger value="table">
+                  <Trans>Table</Trans>
+                </TabsTrigger>
+                <TabsTrigger value="chart">
+                  <Trans>Chart</Trans>
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent
+                value="table"
+                className="min-h-0 flex-1 overflow-hidden rounded-md border mt-2"
+              >
+                {displayRows.length === 0 ? (
+                  <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
+                    <Trans>No rows</Trans>
+                  </div>
+                ) : (
+                  <SimpleTable data={displayRows} />
+                )}
+              </TabsContent>
+              <TabsContent
+                value="chart"
+                className="min-h-0 flex-1 overflow-auto rounded-md border mt-2 p-2"
+              >
+                <SimpleBarChart
+                  data={displayRows.slice(0, 30).map((r) => ({
+                    label: r.value,
+                    value: r.count,
+                  }))}
+                  height={360}
+                />
+              </TabsContent>
+            </Tabs>
           </>
         )}
       </div>

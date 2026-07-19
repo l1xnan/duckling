@@ -19,6 +19,7 @@ import {
 import { usePageStore } from '@/hooks/context';
 import { buildQuickFilterWhere, filterRows } from '@/lib/filterRows';
 import { quoteIdent } from '@/lib/sql/countByColumn';
+import { buildCellPredicate, mergeWhere } from '@/lib/sql/drillDown';
 import { cn } from '@/lib/utils';
 import { SchemaType } from '@/stores/dataset';
 import { getStoredDB, useConnectionMeta } from '@/stores/dbList';
@@ -126,20 +127,26 @@ export function TableView({ context }: { context: TabContextType }) {
     [data, resultFilter, columnNames],
   );
 
+  const resolveDialect = () =>
+    getStoredDB(context.dbId)?.dialect ??
+    ((context as TableContextType).type === 'file' ? 'file' : 'generic');
+
   const handleApplyFilterToWhere = () => {
     if (!resultFilter.trim() || !columnNames.length) return;
-    const dialect =
-      getStoredDB(context.dbId)?.dialect ??
-      ((context as TableContextType).type === 'file' ? 'file' : 'generic');
     const clause = buildQuickFilterWhere(
       columnNames,
       resultFilter,
-      dialect,
+      resolveDialect(),
       quoteIdent,
     );
     if (!clause) return;
-    const prev = (sqlWhere ?? '').trim();
-    setSQLWhere(prev ? `(${prev}) AND (${clause})` : `(${clause})`);
+    setSQLWhere(mergeWhere(sqlWhere, clause));
+    void refresh();
+  };
+
+  const handleDrillDown = (column: string, value: unknown) => {
+    const predicate = buildCellPredicate(column, value, resolveDialect());
+    setSQLWhere(mergeWhere(sqlWhere, predicate));
     void refresh();
   };
 
@@ -221,6 +228,7 @@ export function TableView({ context }: { context: TabContextType }) {
                     const name = col.replace(/\s*[↑↓]\s*$/, '').trim();
                     setOrderBy(name, options);
                   }}
+                  onDrillDown={handleDrillDown}
                 />
               </Suspense>
             </div>
