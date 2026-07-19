@@ -3,39 +3,55 @@ use crate::dialect::duckdb::duckdb_sync::DuckDbSyncConnection;
 use crate::utils::{Metadata, RawArrowData, TreeNode};
 use async_trait::async_trait;
 use regex::Regex;
+use std::sync::OnceLock;
 
 pub mod duckdb_sync;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct DuckDbConnection {
   pub path: String,
   pub cwd: Option<String>,
 }
 
+fn fn_call_re() -> &'static Regex {
+  static RE: OnceLock<Regex> = OnceLock::new();
+  RE.get_or_init(|| Regex::new(r"^[a-zA-Z_][a-zA-Z0-9_]*\([^)]*\)$").unwrap())
+}
+
 #[async_trait]
 impl Connection for DuckDbConnection {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
-    Ok(self.connect()?.get_db()?)
+    let this = self.clone();
+    crate::dialect::run_blocking(move || this.connect()?.get_db()).await
   }
 
   async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
-    let (titles, batch) = self.connect()?.query(sql)?;
-    let total = batch.num_rows();
-    Ok(RawArrowData {
-      total,
-      batch,
-      titles: Some(titles),
-      sql: Some(sql.to_string()),
+    let this = self.clone();
+    let sql = sql.to_string();
+    crate::dialect::run_blocking(move || {
+      let (titles, batch) = this.connect()?.query(&sql)?;
+      let total = batch.num_rows();
+      Ok(RawArrowData {
+        total,
+        batch,
+        titles: Some(titles),
+        sql: Some(sql),
+      })
     })
+    .await
   }
 
-  #[allow(clippy::unused_async)]
   async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
-    let total = self
-      .connect()?
-      .inner
-      .query_row(sql, [], |row| row.get::<_, usize>(0))?;
-    Ok(total)
+    let this = self.clone();
+    let sql = sql.to_string();
+    crate::dialect::run_blocking(move || {
+      let total = this
+        .connect()?
+        .inner
+        .query_row(&sql, [], |row| row.get::<_, usize>(0))?;
+      Ok(total)
+    })
+    .await
   }
 
   fn dialect(&self) -> &'static str {
@@ -43,8 +59,13 @@ impl Connection for DuckDbConnection {
   }
 
   async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
-    let batch = self.connect()?.show_schema(schema)?;
-    Ok(RawArrowData::from_batch(batch))
+    let this = self.clone();
+    let schema = schema.to_string();
+    crate::dialect::run_blocking(move || {
+      let batch = this.connect()?.show_schema(&schema)?;
+      Ok(RawArrowData::from_batch(batch))
+    })
+    .await
   }
 
   async fn show_column(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
@@ -62,7 +83,8 @@ impl Connection for DuckDbConnection {
   }
 
   async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
-    Ok(self.connect()?.all_columns()?)
+    let this = self.clone();
+    crate::dialect::run_blocking(move || this.connect()?.all_columns()).await
   }
 
   async fn drop_table(&self, schema: Option<&str>, table: &str) -> anyhow::Result<String> {
@@ -78,17 +100,25 @@ impl Connection for DuckDbConnection {
     } else {
       format!("{db}.{tbl}")
     };
-    self.connect()?.drop_table(&table_name)?;
-    Ok(String::new())
+    let this = self.clone();
+    crate::dialect::run_blocking(move || {
+      this.connect()?.drop_table(&table_name)?;
+      Ok(String::new())
+    })
+    .await
   }
 
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
-    let conn = self.connect()?;
+    let this = self.clone();
     let sql = self._table_count_sql(table, r#where);
-    let total = conn
-      .inner
-      .query_row(&sql, [], |row| row.get::<_, usize>(0))?;
-    Ok(total)
+    crate::dialect::run_blocking(move || {
+      let total = this
+        .connect()?
+        .inner
+        .query_row(&sql, [], |row| row.get::<_, usize>(0))?;
+      Ok(total)
+    })
+    .await
   }
 
   fn normalize(&self, name: &str) -> String {
@@ -106,8 +136,13 @@ impl Connection for DuckDbConnection {
     format: &str,
     options: &crate::utils::ExportOptions,
   ) -> anyhow::Result<()> {
-    self.connect()?.export(sql, file, format, options)?;
-    Ok(())
+    let this = self.clone();
+    let sql = sql.to_string();
+    let file = file.to_string();
+    let format = format.to_string();
+    let options = options.clone();
+    crate::dialect::run_blocking(move || this.connect()?.export(&sql, &file, &format, &options))
+      .await
   }
   fn start_quote(&self) -> &'static str {
     "\""
@@ -124,10 +159,8 @@ impl Connection for DuckDbConnection {
       return true;
     }
 
-    if let Ok(res) = Regex::new(r"^[a-zA-Z_][a-zA-Z0-9_]*\([^)]*\)$") {
-      if res.is_match(id) {
-        return true;
-      }
+    if fn_call_re().is_match(id) {
+      return true;
     }
 
     let mut chars = id.chars();
@@ -149,6 +182,7 @@ impl DuckDbConnection {
 }
 
 #[tokio::test]
+#[ignore = "requires a local duckdb file"]
 async fn test_duckdb() {
   use arrow::util::pretty::print_batches;
   let conn = DuckDbSyncConnection::new(
@@ -156,9 +190,7 @@ async fn test_duckdb() {
     None,
   )
   .unwrap();
-  // let res = conn.query("select * from read_csv('D:/data_obs/sys_env.csv', auto_detect=true, union_by_name=true) limit 500");
   let res = conn.query("SELECT extension_name, installed, description FROM duckdb_extensions()");
-  println!("{:?}", res);
   let (_, batch) = res.unwrap();
   let _ = print_batches(&[batch]);
 }

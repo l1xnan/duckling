@@ -3,51 +3,70 @@ use crate::dialect::duckdb::duckdb_sync::DuckDbSyncConnection;
 use crate::utils::{Metadata, RawArrowData, Table, TreeNode, build_tree};
 use async_trait::async_trait;
 use regex::Regex;
+use std::sync::OnceLock;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct QuackConnection {
   pub uri: String,
   pub token: Option<String>,
   pub disable_ssl: bool,
 }
 
+fn fn_call_re() -> &'static Regex {
+  static RE: OnceLock<Regex> = OnceLock::new();
+  RE.get_or_init(|| Regex::new(r"^[a-zA-Z_][a-zA-Z0-9_]*\([^)]*\)$").unwrap())
+}
+
 #[async_trait]
 impl Connection for QuackConnection {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
-    let conn = self.connect()?;
-    let tables = self.get_tables(&conn)?;
-    Ok(TreeNode {
-      name: self.uri.clone(),
-      path: self.uri.clone(),
-      node_type: "root".to_string(),
-      schema: None,
-      children: Some(build_tree(tables)),
-      size: None,
-      comment: None,
+    let this = self.clone();
+    crate::dialect::run_blocking(move || {
+      let conn = this.connect()?;
+      let tables = this.get_tables(&conn)?;
+      Ok(TreeNode {
+        name: this.uri.clone(),
+        path: this.uri.clone(),
+        node_type: "root".to_string(),
+        schema: None,
+        children: Some(build_tree(tables)),
+        size: None,
+        comment: None,
+      })
     })
+    .await
   }
 
   async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
-    let conn = self.connect()?;
-    let wrapped = self.wrap_sql(sql);
-    let (titles, batch) = conn.query(&wrapped)?;
-    let total = batch.num_rows();
-    Ok(RawArrowData {
-      total,
-      batch,
-      titles: Some(titles),
-      sql: Some(sql.to_string()),
+    let this = self.clone();
+    let sql = sql.to_string();
+    crate::dialect::run_blocking(move || {
+      let conn = this.connect()?;
+      let wrapped = this.wrap_sql(&sql);
+      let (titles, batch) = conn.query(&wrapped)?;
+      let total = batch.num_rows();
+      Ok(RawArrowData {
+        total,
+        batch,
+        titles: Some(titles),
+        sql: Some(sql),
+      })
     })
+    .await
   }
 
-  #[allow(clippy::unused_async)]
   async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
-    let conn = self.connect()?;
-    let wrapped = self.wrap_sql(sql);
-    let total = conn
-      .inner
-      .query_row(&wrapped, [], |row| row.get::<_, usize>(0))?;
-    Ok(total)
+    let this = self.clone();
+    let sql = sql.to_string();
+    crate::dialect::run_blocking(move || {
+      let conn = this.connect()?;
+      let wrapped = this.wrap_sql(&sql);
+      let total = conn
+        .inner
+        .query_row(&wrapped, [], |row| row.get::<_, usize>(0))?;
+      Ok(total)
+    })
+    .await
   }
 
   fn dialect(&self) -> &'static str {
@@ -76,8 +95,12 @@ impl Connection for QuackConnection {
   }
 
   async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
-    let conn = self.connect()?;
-    self.fetch_all_columns(&conn)
+    let this = self.clone();
+    crate::dialect::run_blocking(move || {
+      let conn = this.connect()?;
+      this.fetch_all_columns(&conn)
+    })
+    .await
   }
 
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
@@ -100,10 +123,17 @@ impl Connection for QuackConnection {
     format: &str,
     options: &crate::utils::ExportOptions,
   ) -> anyhow::Result<()> {
-    let conn = self.connect()?;
-    let wrapped = self.wrap_sql(sql);
-    conn.export(&wrapped, file, format, options)?;
-    Ok(())
+    let this = self.clone();
+    let sql = sql.to_string();
+    let file = file.to_string();
+    let format = format.to_string();
+    let options = options.clone();
+    crate::dialect::run_blocking(move || {
+      let conn = this.connect()?;
+      let wrapped = this.wrap_sql(&sql);
+      conn.export(&wrapped, &file, &format, &options)
+    })
+    .await
   }
 
   fn start_quote(&self) -> &'static str {
@@ -123,10 +153,8 @@ impl Connection for QuackConnection {
       return true;
     }
 
-    if let Ok(res) = Regex::new(r"^[a-zA-Z_][a-zA-Z0-9_]*\([^)]*\)$") {
-      if res.is_match(id) {
-        return true;
-      }
+    if fn_call_re().is_match(id) {
+      return true;
     }
 
     let mut chars = id.chars();

@@ -11,7 +11,7 @@ use crate::dialect::Connection;
 use crate::dialect::duckdb::duckdb_sync;
 use crate::utils::{Metadata, RawArrowData, TreeNode};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct FolderConnection {
   pub path: String,
   pub cwd: Option<String>,
@@ -20,23 +20,39 @@ pub struct FolderConnection {
 #[async_trait]
 impl Connection for FolderConnection {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
-    directory_tree(&self.path).ok_or_else(|| anyhow::anyhow!("null"))
+    let path = self.path.clone();
+    crate::dialect::run_blocking(move || {
+      directory_tree(&path).ok_or_else(|| anyhow::anyhow!("null"))
+    })
+    .await
   }
 
-  async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
-    let conn = self.connect()?;
-    duckdb_sync::query(&conn, sql)
+  async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
+    let path = self.path.clone();
+    let sql = sql.to_string();
+    crate::dialect::run_blocking(move || {
+      let conn = duckdb::Connection::open_in_memory()?;
+      conn.execute(&format!("SET file_search_path='{path}'"), [])?;
+      duckdb_sync::query(&conn, &sql)
+    })
+    .await
   }
 
-  #[allow(clippy::unused_async)]
   async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
-    let conn = self.connect()?;
-    let total = conn.query_row(sql, [], |row| row.get::<_, i64>(0))? as usize;
-    Ok(total)
+    let path = self.path.clone();
+    let sql = sql.to_string();
+    crate::dialect::run_blocking(move || {
+      let conn = duckdb::Connection::open_in_memory()?;
+      conn.execute(&format!("SET file_search_path='{path}'"), [])?;
+      let total = conn.query_row(&sql, [], |row| row.get::<_, i64>(0))? as usize;
+      Ok(total)
+    })
+    .await
   }
 
   async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
-    self._all_columns()
+    let this = self.clone();
+    crate::dialect::run_blocking(move || this._all_columns()).await
   }
 
   async fn show_column(&self, _schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
@@ -84,11 +100,15 @@ impl Connection for FolderConnection {
     Ok(String::new())
   }
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
-    let conn = self.connect()?;
+    let path = self.path.clone();
     let sql = self._table_count_sql(table, r#where);
-    let total = conn.query_row(&sql, [], |row| row.get::<_, u32>(0))?;
-    let total = total.to_string().parse()?;
-    Ok(total)
+    crate::dialect::run_blocking(move || {
+      let conn = duckdb::Connection::open_in_memory()?;
+      conn.execute(&format!("SET file_search_path='{path}'"), [])?;
+      let total = conn.query_row(&sql, [], |row| row.get::<_, u32>(0))?;
+      Ok(total.to_string().parse()?)
+    })
+    .await
   }
 
   fn normalize(&self, name: &str) -> String {
@@ -102,9 +122,17 @@ impl Connection for FolderConnection {
     format: &str,
     options: &crate::utils::ExportOptions,
   ) -> anyhow::Result<()> {
-    let conn = self.connect()?;
-    duckdb_sync::export(&conn, sql, file, format, options)?;
-    Ok(())
+    let path = self.path.clone();
+    let sql = sql.to_string();
+    let file = file.to_string();
+    let format = format.to_string();
+    let options = options.clone();
+    crate::dialect::run_blocking(move || {
+      let conn = duckdb::Connection::open_in_memory()?;
+      conn.execute(&format!("SET file_search_path='{path}'"), [])?;
+      duckdb_sync::export(&conn, &sql, &file, &format, &options)
+    })
+    .await
   }
 
   #[allow(clippy::unused_async)]
@@ -183,12 +211,6 @@ impl FolderConnection {
       path: String::from(path),
       cwd: None,
     }
-  }
-
-  fn connect(&self) -> anyhow::Result<duckdb::Connection> {
-    let conn = duckdb::Connection::open_in_memory()?;
-    conn.execute(&format!("SET file_search_path='{}'", self.path.clone()), [])?;
-    Ok(conn)
   }
 
   fn _all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
@@ -372,6 +394,7 @@ fn sheet_names<P: AsRef<Path>>(path: P) -> Result<Vec<String>, calamine::Error> 
 }
 
 #[tokio::test]
+#[ignore = "requires local parquet-testing fixtures"]
 async fn test_table() {
   use arrow::util::pretty::print_batches;
   let _d = FolderConnection::new(r"D:\Code\duckdb\data\parquet-testing");
