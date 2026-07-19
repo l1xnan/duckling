@@ -115,10 +115,7 @@ impl Connection for PostgresConnection {
   }
 
   async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
-    let client = self.get_client(&self.database()).await?;
-    let row = client.query_one(sql, &[]).await?;
-    let total: u32 = row.get(0);
-    Ok(total as usize)
+    self.query_count_cancellable(sql, None).await
   }
 
   async fn show_schema(&self, schema: &str) -> anyhow::Result<RawArrowData> {
@@ -295,10 +292,57 @@ impl PostgresConnection {
   }
 
   async fn _query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
-    let client = self.get_client(&self.database()).await?;
+    self.query_cancellable(sql, None).await
+  }
 
-    let stmt = client.prepare(sql).await?;
-    let rows = client.query(&stmt, &[]).await?;
+  /// Run COUNT with optional cooperative cancellation.
+  pub async fn query_count_cancellable(
+    &self,
+    sql: &str,
+    cancel: Option<&crate::cancel::CancelToken>,
+  ) -> anyhow::Result<usize> {
+    let client = self.get_client(&self.database()).await?;
+    let row = crate::cancel::with_cancel(cancel, async {
+      client
+        .query_one(sql, &[])
+        .await
+        .map_err(|e| anyhow::anyhow!(e))
+    })
+    .await?;
+    let total: u32 = row.get(0);
+    Ok(total as usize)
+  }
+
+  /// Run a query with optional cooperative cancellation (select races cancel token).
+  pub async fn query_cancellable(
+    &self,
+    sql: &str,
+    cancel: Option<&crate::cancel::CancelToken>,
+  ) -> anyhow::Result<RawArrowData> {
+    if let Some(t) = cancel {
+      t.check()?;
+    }
+    let client = self.get_client(&self.database()).await?;
+    if let Some(t) = cancel {
+      t.check()?;
+    }
+
+    let stmt = crate::cancel::with_cancel(cancel, async {
+      client.prepare(sql).await.map_err(|e| anyhow::anyhow!(e))
+    })
+    .await?;
+
+    let rows = crate::cancel::with_cancel(cancel, async {
+      client
+        .query(&stmt, &[])
+        .await
+        .map_err(|e| anyhow::anyhow!(e))
+    })
+    .await?;
+
+    if let Some(t) = cancel {
+      t.check()?;
+    }
     let (titles, batch) = type_arrow::rows_to_arrow(stmt.columns(), &rows)?;
 
     Ok(RawArrowData {
@@ -331,3 +375,26 @@ async fn connect(s: &str) -> anyhow::Result<Client> {
 
 #[tokio::test]
 async fn test_database() {}
+
+#[tokio::test]
+async fn query_cancellable_respects_precheck() {
+  use crate::cancel::CancelToken;
+  let conn = PostgresConnection::new(
+    "127.0.0.1".into(),
+    "1".into(),
+    "u".into(),
+    "p".into(),
+    None,
+    None,
+  );
+  let token = CancelToken::new();
+  token.cancel();
+  let err = match conn.query_cancellable("select 1", Some(&token)).await {
+    Ok(_) => panic!("expected cancelled error"),
+    Err(e) => e,
+  };
+  assert!(
+    err.to_string().contains("cancel"),
+    "expected cancelled, got {err}"
+  );
+}

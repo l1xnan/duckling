@@ -3,7 +3,7 @@
 
 use std::env;
 
-use cmd::{ConnectionRegistry, OpenedFiles, SessionManager};
+use cmd::{ConnectionRegistry, InflightQueries, OpenedFiles, SessionManager};
 use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::Emitter;
@@ -106,6 +106,7 @@ fn main() {
     .manage(OpenedFiles(Mutex::default()))
     .manage(ConnectionRegistry::default())
     .manage(SessionManager::default())
+    .manage(InflightQueries::default())
     .plugin(tauri_plugin_clipboard_manager::init())
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_shell::init())
@@ -145,6 +146,7 @@ fn main() {
       cmd::db::drop_table,
       cmd::db::all_columns,
       cmd::db::connection_capabilities,
+      cmd::db::cancel_query,
       cmd::app::format_sql,
       cmd::app::check_sqlfmt,
       cmd::app::format_sql_sqlfmt,

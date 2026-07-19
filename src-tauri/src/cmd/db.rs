@@ -7,6 +7,7 @@ use tauri::State;
 
 use crate::api::ArrowResponse;
 use super::connection_registry::{self, ConnectionRegistry};
+use super::inflight::{InflightGuard, InflightQueries};
 use super::session_manager::SessionManager;
 use connector::ConnectionConfig;
 use connector::dialect::Connection;
@@ -163,18 +164,36 @@ pub async fn connection_capabilities(
   })
 }
 
+/// Cancel an in-flight query by `request_id` previously passed to query/paging_query.
+#[tauri::command]
+pub async fn cancel_query(
+  inflight: State<'_, InflightQueries>,
+  request_id: String,
+) -> Result<bool, String> {
+  inflight.cancel(&request_id)
+}
+
 #[tauri::command]
 pub async fn query(
   registry: State<'_, ConnectionRegistry>,
   sessions: State<'_, SessionManager>,
+  inflight: State<'_, InflightQueries>,
   sql: String,
   limit: usize,
   offset: usize,
   dialect: DialectPayload,
+  #[allow(non_snake_case)]
+  requestId: Option<String>,
 ) -> Result<ArrowResponse, String> {
   let d = resolve_connection(&registry, &sessions, dialect).await?;
   let start = Instant::now();
-  let res = d.query(&sql, limit, offset).await;
+  let res = if let Some(ref rid) = requestId.filter(|s| !s.trim().is_empty()) {
+    let (_guard, token) = InflightGuard::register(&inflight, rid)?;
+    // Race the dialect query against cancel (cooperative; best-effort for sync drivers).
+    connector::cancel::with_cancel(Some(&token), d.query(&sql, limit, offset)).await
+  } else {
+    d.query(&sql, limit, offset).await
+  };
   let duration = start.elapsed().as_millis();
   Ok(ArrowResponse::from_raw_data(res, Some(duration)))
 }
@@ -183,14 +202,26 @@ pub async fn query(
 pub async fn paging_query(
   registry: State<'_, ConnectionRegistry>,
   sessions: State<'_, SessionManager>,
+  inflight: State<'_, InflightQueries>,
   sql: String,
   limit: usize,
   offset: usize,
   dialect: DialectPayload,
+  #[allow(non_snake_case)]
+  requestId: Option<String>,
 ) -> Result<ArrowResponse, String> {
   let d = resolve_connection(&registry, &sessions, dialect).await?;
   let start = Instant::now();
-  let res = d.paging_query(&sql, Some(limit), Some(offset)).await;
+  let res = if let Some(ref rid) = requestId.filter(|s| !s.trim().is_empty()) {
+    let (_guard, token) = InflightGuard::register(&inflight, rid)?;
+    connector::cancel::with_cancel(
+      Some(&token),
+      d.paging_query(&sql, Some(limit), Some(offset)),
+    )
+    .await
+  } else {
+    d.paging_query(&sql, Some(limit), Some(offset)).await
+  };
   let duration = start.elapsed().as_millis();
   Ok(ArrowResponse::from_raw_data(res, Some(duration)))
 }
