@@ -29,6 +29,7 @@ import { TabContextType, TableContextType, useTabsStore } from '@/stores/tabs';
 import { ColumnProfileDialog } from './ColumnProfileDialog';
 import { CountByColumnDialog } from './CountByColumnDialog';
 import { DataViewToolbar } from './DataViewToolbar';
+import { PivotDialog } from './PivotDialog';
 import { ValueViewer } from './ValueViewer';
 
 export const Loading = ({ className }: { className?: string }) => {
@@ -109,6 +110,7 @@ export function TableView({ context }: { context: TabContextType }) {
 
   const countByDialog = useDialog();
   const profileDialog = useDialog();
+  const pivotDialog = useDialog();
   const [resultFilter, setResultFilter] = useState('');
   const [profileColumn, setProfileColumn] = useState<string | undefined>();
 
@@ -185,6 +187,9 @@ export function TableView({ context }: { context: TabContextType }) {
         setCross={setCross}
         loading={loading}
         onCancel={handleCancel}
+        onPivot={() => {
+          pivotDialog.trigger();
+        }}
       />
       <ResizablePanelGroup orientation={direction}>
         <ResizablePanel defaultSize={80} className="size-full">
@@ -260,6 +265,12 @@ export function TableView({ context }: { context: TabContextType }) {
       <ColumnProfileDialog
         {...profileDialog.props}
         column={profileColumn}
+        context={context as TableContextType}
+        sqlWhere={sqlWhere}
+      />
+      <PivotDialog
+        {...pivotDialog.props}
+        columns={tableSchema ?? []}
         context={context as TableContextType}
         sqlWhere={sqlWhere}
       />

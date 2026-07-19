@@ -8,6 +8,7 @@ import {
   CrossIcon,
   DownloadIcon,
   EyeIcon,
+  LayoutGridIcon,
   RefreshCw,
   SearchIcon,
   SquareIcon,
@@ -62,6 +63,8 @@ export interface DataViewToolbarProps {
   onResultFilterChange?: (value: string) => void;
   /** Optional: apply filter text into server WHERE. */
   onApplyFilterToWhere?: () => void;
+  /** Open pivot table dialog. */
+  onPivot?: () => void;
 }
 
 export function elapsedRender(elapsed?: number) {
@@ -94,6 +97,7 @@ export function DataViewToolbar({
   resultFilter,
   onResultFilterChange,
   onApplyFilterToWhere,
+  onPivot,
 }: DataViewToolbarProps) {
   const { t } = useLingui();
   const exportDialog = useDialog();
@@ -206,6 +210,13 @@ export function DataViewToolbar({
           tooltip={t`Transpose`}
           active={transpose}
         />
+        {onPivot ? (
+          <TooltipButton
+            icon={<LayoutGridIcon />}
+            onClick={onPivot}
+            tooltip={t`Pivot table`}
+          />
+        ) : null}
 
         <Popover>
           <PopoverTrigger

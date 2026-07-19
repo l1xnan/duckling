@@ -24,6 +24,7 @@ import {
 
 import { CountByQueryDialog } from './CountByQueryDialog';
 import { DataViewToolbar } from './DataViewToolbar';
+import { PivotDialog } from './PivotDialog';
 import { ValueViewer } from './ValueViewer';
 
 export function QueryView({
@@ -140,6 +141,7 @@ export function QueryView({
   const [resultFilter, setResultFilter] = useState('');
   const [countColumn, setCountColumn] = useState<string | undefined>();
   const countByDialog = useDialog();
+  const pivotDialog = useDialog();
 
   const handleRefresh = async () => {
     await handleQuery();
@@ -219,6 +221,9 @@ export function QueryView({
         onCancel={handleCancel}
         resultFilter={resultFilter}
         onResultFilterChange={setResultFilter}
+        onPivot={() => {
+          pivotDialog.trigger();
+        }}
       />
       <ResizablePanelGroup orientation={ctx.direction}>
         <ResizablePanel defaultSize={80}>
@@ -283,6 +288,12 @@ export function QueryView({
       <CountByQueryDialog
         {...countByDialog.props}
         column={countColumn}
+        dbId={ctx.dbId}
+        sourceSql={ctx.sql || ctx.stmt || ''}
+      />
+      <PivotDialog
+        {...pivotDialog.props}
+        columns={ctx.tableSchema ?? []}
         dbId={ctx.dbId}
         sourceSql={ctx.sql || ctx.stmt || ''}
       />
