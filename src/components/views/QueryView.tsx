@@ -1,6 +1,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { nanoid } from 'nanoid';
 
+import { useDialog } from '@/components/custom/use-dialog';
 import { CanvasTable } from '@/components/tables/CanvasTable';
 import {
   ResizableHandle,
@@ -8,8 +9,9 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
 import { Loading, SelectedCellType } from '@/components/views/TableView';
-import { usePrecision } from '@/stores/setting';
 import { isQueryErrorCode } from '@/lib/capabilities';
+import { filterRows } from '@/lib/filterRows';
+import { usePrecision } from '@/stores/setting';
 import {
   cancelExecuteSQL,
   executeSQL,
@@ -18,6 +20,7 @@ import {
   type QueryContextType,
 } from '@/stores/tabs';
 
+import { CountByQueryDialog } from './CountByQueryDialog';
 import { DataViewToolbar } from './DataViewToolbar';
 import { ValueViewer } from './ValueViewer';
 
@@ -96,6 +99,9 @@ export function QueryView({
   const [selectedCellInfos, setSelectedCellInfos] = useState<
     SelectedCellType[][] | null
   >();
+  const [resultFilter, setResultFilter] = useState('');
+  const [countColumn, setCountColumn] = useState<string | undefined>();
+  const countByDialog = useDialog();
 
   const handleRefresh = async () => {
     await handleQuery();
@@ -143,11 +149,18 @@ export function QueryView({
     });
   };
 
+  const columnNames = (ctx.tableSchema ?? []).map((c) => c.name);
+  const filteredData = filterRows(
+    (ctx.data ?? []) as Record<string, unknown>[],
+    resultFilter,
+    columnNames,
+  );
+
   return (
     <div className="h-full flex flex-col">
       <DataViewToolbar
         dbId={ctx.dbId}
-        length={ctx.data?.length ?? 0}
+        length={filteredData.length}
         page={ctx.page}
         perPage={ctx.perPage}
         total={ctx.total}
@@ -166,6 +179,8 @@ export function QueryView({
         setCross={handleCross}
         loading={loading}
         onCancel={handleCancel}
+        resultFilter={resultFilter}
+        onResultFilterChange={setResultFilter}
       />
       <ResizablePanelGroup orientation={ctx.direction}>
         <ResizablePanel defaultSize={80}>
@@ -180,7 +195,7 @@ export function QueryView({
                   ? { display: 'none' }
                   : undefined
               }
-              data={ctx.data ?? []}
+              data={filteredData}
               schema={ctx.tableSchema ?? []}
               hiddenColumns={ctx.hiddenColumns}
               setHiddenColumns={handleHiddenColumns}
@@ -193,6 +208,11 @@ export function QueryView({
               }}
               onSelectedCellInfos={(cells) => {
                 setSelectedCellInfos(cells);
+              }}
+              onCountByColumn={(col) => {
+                if (!col) return;
+                setCountColumn(col.replace(/\s*[↑↓]\s*$/, '').trim());
+                countByDialog.trigger();
               }}
             />
           </Suspense>
@@ -222,6 +242,12 @@ export function QueryView({
           </ResizablePanel>
         ) : null}
       </ResizablePanelGroup>
+      <CountByQueryDialog
+        {...countByDialog.props}
+        column={countColumn}
+        dbId={ctx.dbId}
+        sourceSql={ctx.sql || ctx.stmt || ''}
+      />
     </div>
   );
 }

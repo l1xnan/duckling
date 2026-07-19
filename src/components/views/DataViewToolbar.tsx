@@ -9,7 +9,9 @@ import {
   DownloadIcon,
   EyeIcon,
   RefreshCw,
+  SearchIcon,
   SquareIcon,
+  XIcon,
 } from 'lucide-react';
 
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
@@ -20,6 +22,7 @@ import { TooltipButton } from '@/components/custom/tooltip';
 import { useDialog } from '@/components/custom/use-dialog';
 import { SQLCodeViewer } from '@/components/editor/SingleLineEditor';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ExportDialog } from '@/components/views/ExportDialog';
 import { i18n } from '@/i18n';
@@ -54,6 +57,11 @@ export interface DataViewToolbarProps {
   /** When true, show stop button instead of only refresh. */
   loading?: boolean;
   onCancel?: () => void;
+  /** Client-side result filter (current page). */
+  resultFilter?: string;
+  onResultFilterChange?: (value: string) => void;
+  /** Optional: apply filter text into server WHERE. */
+  onApplyFilterToWhere?: () => void;
 }
 
 export function elapsedRender(elapsed?: number) {
@@ -83,6 +91,9 @@ export function DataViewToolbar({
   setCross,
   loading,
   onCancel,
+  resultFilter,
+  onResultFilterChange,
+  onApplyFilterToWhere,
 }: DataViewToolbarProps) {
   const { t } = useLingui();
   const exportDialog = useDialog();
@@ -101,6 +112,37 @@ export function DataViewToolbar({
             setPagination?.({ page, perPage });
           }}
         />
+
+        {onResultFilterChange ? (
+          <div className="flex items-center gap-1 ml-1">
+            <div className="relative flex items-center">
+              <SearchIcon className="absolute left-2 size-3.5 text-muted-foreground pointer-events-none" />
+              <Input
+                value={resultFilter ?? ''}
+                onChange={(e) => onResultFilterChange(e.target.value)}
+                placeholder={t`Filter results…`}
+                className="h-7 w-36 pl-7 pr-7 text-xs"
+              />
+              {resultFilter ? (
+                <button
+                  type="button"
+                  className="absolute right-1.5 text-muted-foreground hover:text-foreground"
+                  onClick={() => onResultFilterChange('')}
+                  aria-label={t`Clear filter`}
+                >
+                  <XIcon className="size-3.5" />
+                </button>
+              ) : null}
+            </div>
+            {onApplyFilterToWhere && resultFilter?.trim() ? (
+              <TooltipButton
+                icon={<CodeIcon className="size-3.5" />}
+                onClick={onApplyFilterToWhere}
+                tooltip={t`Apply filter to WHERE`}
+              />
+            ) : null}
+          </div>
+        ) : null}
 
         <TooltipButton
           icon={<IconDecimal className="size-5" />}

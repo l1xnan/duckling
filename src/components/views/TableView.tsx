@@ -1,7 +1,7 @@
 import { Data as ArrowDataType } from '@apache-arrow/ts';
 import { toMerged } from 'es-toolkit/object';
 import { Loader2Icon } from 'lucide-react';
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { useDialog } from '@/components/custom/use-dialog';
@@ -17,12 +17,15 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
 import { usePageStore } from '@/hooks/context';
+import { buildQuickFilterWhere, filterRows } from '@/lib/filterRows';
+import { quoteIdent } from '@/lib/sql/countByColumn';
 import { cn } from '@/lib/utils';
 import { SchemaType } from '@/stores/dataset';
-import { useConnectionMeta } from '@/stores/dbList';
+import { getStoredDB, useConnectionMeta } from '@/stores/dbList';
 import { usePrecision } from '@/stores/setting';
 import { TabContextType, TableContextType, useTabsStore } from '@/stores/tabs';
 
+import { ColumnProfileDialog } from './ColumnProfileDialog';
 import { CountByColumnDialog } from './CountByColumnDialog';
 import { DataViewToolbar } from './DataViewToolbar';
 import { ValueViewer } from './ValueViewer';
@@ -100,9 +103,45 @@ export function TableView({ context }: { context: TabContextType }) {
     setHiddenColumns,
     setCross,
     setDialogColumn,
+    setSQLWhere,
   } = usePageStore();
 
   const countByDialog = useDialog();
+  const profileDialog = useDialog();
+  const [resultFilter, setResultFilter] = useState('');
+  const [profileColumn, setProfileColumn] = useState<string | undefined>();
+
+  const columnNames = useMemo(
+    () => (tableSchema ?? []).map((c) => c.name),
+    [tableSchema],
+  );
+
+  const filteredData = useMemo(
+    () =>
+      filterRows(
+        (data ?? []) as Record<string, unknown>[],
+        resultFilter,
+        columnNames,
+      ),
+    [data, resultFilter, columnNames],
+  );
+
+  const handleApplyFilterToWhere = () => {
+    if (!resultFilter.trim() || !columnNames.length) return;
+    const dialect =
+      getStoredDB(context.dbId)?.dialect ??
+      ((context as TableContextType).type === 'file' ? 'file' : 'generic');
+    const clause = buildQuickFilterWhere(
+      columnNames,
+      resultFilter,
+      dialect,
+      quoteIdent,
+    );
+    if (!clause) return;
+    const prev = (sqlWhere ?? '').trim();
+    setSQLWhere(prev ? `(${prev}) AND (${clause})` : `(${clause})`);
+    void refresh();
+  };
 
   const handleCancel = async () => {
     try {
@@ -117,7 +156,7 @@ export function TableView({ context }: { context: TabContextType }) {
       <DataViewToolbar
         context={context as TableContextType}
         dbId={context.dbId}
-        length={data.length}
+        length={filteredData.length}
         page={page}
         perPage={perPage}
         total={total}
@@ -128,6 +167,9 @@ export function TableView({ context }: { context: TabContextType }) {
         columns={tableSchema}
         hiddenColumns={hiddenColumns}
         setHiddenColumns={setHiddenColumns}
+        resultFilter={resultFilter}
+        onResultFilterChange={setResultFilter}
+        onApplyFilterToWhere={handleApplyFilterToWhere}
         setShowValue={setShowValue}
         refresh={refresh}
         setBeautify={setBeautify}
@@ -149,7 +191,7 @@ export function TableView({ context }: { context: TabContextType }) {
                 {loading ? <Loading /> : null}
                 <CanvasTable
                   style={loading ? { display: 'none' } : undefined}
-                  data={data ?? []}
+                  data={filteredData}
                   schema={tableSchema ?? []}
                   hiddenColumns={hiddenColumns}
                   setHiddenColumns={setHiddenColumns}
@@ -168,6 +210,11 @@ export function TableView({ context }: { context: TabContextType }) {
                     if (!col) return;
                     setDialogColumn(col);
                     countByDialog.trigger();
+                  }}
+                  onProfileColumn={(col) => {
+                    if (!col) return;
+                    setProfileColumn(col.replace(/\s*[↑↓]\s*$/, '').trim());
+                    profileDialog.trigger();
                   }}
                   onOrderByColumn={(col, options) => {
                     if (!col || !setOrderBy) return;
@@ -199,6 +246,12 @@ export function TableView({ context }: { context: TabContextType }) {
       <CountByColumnDialog
         {...countByDialog.props}
         column={dialogColumn}
+        context={context as TableContextType}
+        sqlWhere={sqlWhere}
+      />
+      <ColumnProfileDialog
+        {...profileDialog.props}
+        column={profileColumn}
         context={context as TableContextType}
         sqlWhere={sqlWhere}
       />
