@@ -97,6 +97,7 @@ vi.mock('sonner', () => ({
 import {
   getDbMap,
   getSchemaMap,
+  getStoredDB,
   getTableMap,
   useDBListStore,
   useSelectedNodeStore,
@@ -121,7 +122,7 @@ describe('dbListStore connection lifecycle', () => {
       data: { name: 'MySQL', path: 'MySQL' },
     });
 
-    const stored = useDBListStore.getState().getDB('c1');
+    const stored = getStoredDB('c1');
     expect(stored?.config).toBeDefined();
     expect((stored?.config as { password?: string } | undefined)?.password).toBeUndefined();
     expect((stored?.config as { host?: string } | undefined)?.host).toBe(
@@ -153,7 +154,7 @@ describe('dbListStore connection lifecycle', () => {
 
     await useDBListStore.getState().setCwd('/new-cwd', 'c1');
 
-    const stored = useDBListStore.getState().getDB('c1');
+    const stored = getStoredDB('c1');
     expect((stored?.config as { cwd?: string } | undefined)?.cwd).toBe(
       '/new-cwd',
     );
@@ -218,7 +219,7 @@ describe('dbListStore connection lifecycle', () => {
       host: 'new-host',
     });
 
-    const stored = useDBListStore.getState().getDB('c1');
+    const stored = getStoredDB('c1');
     expect((stored?.config as { host?: string } | undefined)?.host).toBe(
       'new-host',
     );
@@ -259,7 +260,7 @@ describe('dbListStore connection lifecycle', () => {
     expect(getDB).toHaveBeenCalledWith({ connectionId: 'c1' }, 'c1');
     expect(setDbCache).toHaveBeenCalled();
 
-    const stored = useDBListStore.getState().getDB('c1');
+    const stored = getStoredDB('c1');
     expect(stored).toBeDefined();
     expect(
       (stored?.config as { password?: string } | undefined)?.password,
@@ -279,7 +280,7 @@ describe('dbListStore connection lifecycle', () => {
       },
     ]);
 
-    const stored = useDBListStore.getState().getDB('imp-1');
+    const stored = getStoredDB('imp-1');
     expect(stored?.displayName).toBe('Imported');
     expect(
       (stored?.config as { token?: string } | undefined)?.token,
@@ -430,5 +431,40 @@ describe('dbListStore connection lifecycle', () => {
     expect(useSelectedNodeStore.getState().selectedNode).toMatchObject({
       dbId: 'c2',
     });
+  });
+
+  it('append does not leave ghost row when register fails', async () => {
+    registerConnectionBackend.mockRejectedValueOnce(new Error('register down'));
+
+    await expect(
+      useDBListStore.getState().append({
+        id: 'ghost',
+        dialect: 'mysql',
+        displayName: 'Ghost',
+        config: mysqlConfig,
+        data: { name: 'Ghost', path: 'Ghost' },
+      }),
+    ).rejects.toThrow(/register down/);
+
+    expect(useDBListStore.getState().dbList).toHaveLength(0);
+    expect(getStoredDB('ghost')).toBeUndefined();
+  });
+
+  it('getStoredDB reads from store without action', () => {
+    useDBListStore.setState({
+      dbList: [
+        {
+          id: 'c1',
+          dialect: 'mysql',
+          displayName: 'x',
+          data: { name: 'x', path: 'x' },
+        },
+      ],
+    });
+    expect(getStoredDB('c1')?.displayName).toBe('x');
+    expect(getStoredDB('missing')).toBeUndefined();
+    expect(
+      (useDBListStore.getState() as { getDB?: unknown }).getDB,
+    ).toBeUndefined();
   });
 });

@@ -144,7 +144,6 @@ type DBListAction = {
   remove: (id: string) => void;
   rename: (id: string, displayName: string) => void;
   setCwd: (cwd: string, id: string) => Promise<void>;
-  getDB: (id: string) => DBType | undefined;
   setDB: (
     id: string,
     config: DialectConfig,
@@ -338,6 +337,14 @@ async function salvageSecretsFromLegacyIndexedDb(
   }
 }
 
+export const useSelectedNodeStore = create<{
+  selectedNode: NodeContextType | null;
+  setSelectedNode: (n: NodeContextType | null) => void;
+}>((set) => ({
+  selectedNode: null,
+  setSelectedNode: (selectedNode) => set({ selectedNode }),
+}));
+
 export const useDBListStore = create<DBListStore>()(
   persist(
     (set, get) => ({
@@ -348,18 +355,13 @@ export const useDBListStore = create<DBListStore>()(
         const profile = db.config
           ? stripSecrets(normalizeDialectConfig(db.config))
           : undefined;
-        set((state) => ({
-          dbList: [
-            ...state.dbList,
-            {
-              ...db,
-              config: profile,
-              data: db.data ?? emptyTree(db.displayName),
-            },
-          ],
-        }));
+        const entry: DBType = {
+          ...db,
+          config: profile,
+          data: db.data ?? emptyTree(db.displayName),
+        };
         try {
-          // Await so callers (e.g. updateByConfig) never race an empty registry.
+          // Register first so a failed backend never leaves a ghost list row.
           await registerConnectionBackend(db.id, profile, secrets);
         } catch (error) {
           console.warn('register_connection failed', error);
@@ -368,6 +370,9 @@ export const useDBListStore = create<DBListStore>()(
           );
           throw error;
         }
+        set((state) => ({
+          dbList: [...state.dbList, entry],
+        }));
       },
 
       remove: (id) => {
@@ -375,13 +380,14 @@ export const useDBListStore = create<DBListStore>()(
           console.warn('unregister_connection failed', error),
         );
         void deleteDbCache(id);
+        set((state) => ({
+          dbList: state.dbList.filter((item) => item.id !== id),
+        }));
+        // Side effects after set — keep updater pure.
         const sel = useSelectedNodeStore.getState().selectedNode;
         if (sel?.dbId === id) {
           useSelectedNodeStore.getState().setSelectedNode(null);
         }
-        set((state) => ({
-          dbList: state.dbList.filter((item) => item.id !== id),
-        }));
       },
 
       update: (id, { id: _id, ...db }) =>
@@ -438,10 +444,6 @@ export const useDBListStore = create<DBListStore>()(
             errorMessage(error, 'Failed to update connection working directory'),
           );
         }
-      },
-
-      getDB: (id: string) => {
-        return get().dbList.find((item) => item.id === id);
       },
 
       setDB: async (id, config, options) => {
@@ -616,10 +618,7 @@ export function getSchemaMap() {
   return schemaMapStore.getState();
 }
 
-export const useSelectedNodeStore = create<{
-  selectedNode: NodeContextType | null;
-  setSelectedNode: (n: NodeContextType | null) => void;
-}>((set) => ({
-  selectedNode: null,
-  setSelectedNode: (selectedNode) => set({ selectedNode }),
-}));
+/** Module-level lookup — not a store action (avoids polluting state keys). */
+export function getStoredDB(id: string): DBType | undefined {
+  return useDBListStore.getState().dbList.find((item) => item.id === id);
+}

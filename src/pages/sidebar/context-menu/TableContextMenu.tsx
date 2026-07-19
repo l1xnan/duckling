@@ -21,7 +21,7 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
 import { SearchDialog } from '@/pages/sidebar/dialog/SearchDialog';
-import { DBType, DialectConfig, useDBListStore } from '@/stores/dbList';
+import { DBType, DialectConfig, getStoredDB, useDBListStore } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { NodeElementType } from '@/types';
 import { Trans } from '@lingui/react/macro';
@@ -48,7 +48,7 @@ export function TableContextMenu({
   };
 
   const handleRefresh = async () => {
-    const latest = useDBListStore.getState().getDB(db.id);
+    const latest = getStoredDB(db.id);
     const config = latest?.config ?? db.config;
     if (config) {
       await updateDB(db.id, config);

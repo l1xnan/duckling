@@ -16,7 +16,7 @@ import {
 import { ConfigDialog } from '@/pages/sidebar/dialog/ConfigDialog';
 import { ConnectionTransferDialog } from '@/pages/sidebar/dialog/ConnectionTransferDialog';
 import { RenameDialog } from '@/pages/sidebar/dialog/RenameDialog';
-import { DBType, useDBListStore } from '@/stores/dbList';
+import { DBType, getStoredDB, useDBListStore } from '@/stores/dbList';
 import { useTabsStore } from '@/stores/tabs';
 
 export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
@@ -51,7 +51,7 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
   };
 
   const handleRefresh = async () => {
-    const latest = useDBListStore.getState().getDB(db.id);
+    const latest = getStoredDB(db.id);
     const config = latest?.config ?? db.config;
     if (config) {
       await updateDB(db.id, config);

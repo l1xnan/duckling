@@ -30,6 +30,7 @@ import { ConnectionTransferDialog } from '@/pages/sidebar/dialog/ConnectionTrans
 import { DatabaseDialog } from '@/pages/sidebar/dialog/DatabaseDialog';
 import {
   DialectType,
+  getStoredDB,
   useDBListStore,
   useDbMapStore,
   useSelectedNodeStore,
@@ -72,7 +73,7 @@ export function SideToolbar({
     if (selectedNode) {
       const root = selectedNode.dbId;
       // Fresh read from store — toolbar closure can hold a stale dbList snapshot.
-      const latest = useDBListStore.getState().getDB(root);
+      const latest = getStoredDB(root);
       if (latest) {
         await updateDB(
           root,

@@ -142,31 +142,31 @@ export const useTabsStore = create<TabsState & TabsAction>()(
       tabs: {},
       currentId: null,
       append: (tab: TabContextType) =>
-        set((state) => ({
-          tabs: { ...state.tabs, [tab.id]: tab },
-          ids: [...state.ids, tab.id],
-        })),
-      active: (id) =>
-        set(() => {
-          return { currentId: id };
-        }),
-      update: (item: TabContextType) => {
         set((state) => {
-          const { ids, tabs } = state;
-          if (ids.findIndex((id) => id === item.id) < 0) {
-            tabs[item.id] = item;
-            ids.push(item.id);
+          if (state.ids.includes(tab.id)) {
+            return {
+              tabs: { ...state.tabs, [tab.id]: tab },
+            };
           }
           return {
-            tabs,
-            ids,
+            tabs: { ...state.tabs, [tab.id]: tab },
+            ids: [...state.ids, tab.id],
+          };
+        }),
+      active: (id) => set({ currentId: id }),
+      update: (item: TabContextType) => {
+        set((state) => {
+          const exists = state.ids.includes(item.id);
+          return {
+            tabs: { ...state.tabs, [item.id]: item },
+            ids: exists ? state.ids : [...state.ids, item.id],
             currentId: item.id,
           };
         });
       },
       setSession: (item: TabContextType) => {
         set((state) => {
-          if (state.ids.findIndex((id) => id === item.id) < 0) {
+          if (!state.ids.includes(item.id)) {
             return state;
           }
           return {
@@ -192,15 +192,17 @@ export const useTabsStore = create<TabsState & TabsAction>()(
         });
       },
       remove: (key, force) => {
+        let clearSession = false;
         set((state) => {
           const ids = state.ids;
           let cur = state.currentId;
           const delIndex = ids.findIndex((id) => id === key);
-          const updatedIds = ids.filter((_tab, index) => {
-            return index !== delIndex;
-          });
+          const updatedIds =
+            delIndex < 0
+              ? ids
+              : ids.filter((_tab, index) => index !== delIndex);
 
-          if (key == cur) {
+          if (key == cur && delIndex >= 0) {
             cur = ids[delIndex - 1] || ids[delIndex + 1] || undefined;
           }
 
@@ -208,9 +210,7 @@ export const useTabsStore = create<TabsState & TabsAction>()(
             return a.id == key && (a.type != 'editor' || !!force);
           });
 
-          if (!(key in nextTabs)) {
-            useQuerySessionStore.getState().clearEditor(key);
-          }
+          clearSession = !(key in nextTabs);
 
           return {
             ids: updatedIds,
@@ -218,24 +218,30 @@ export const useTabsStore = create<TabsState & TabsAction>()(
             currentId: cur,
           };
         });
+        // Side effects after set — keep updater pure.
+        if (clearSession) {
+          useQuerySessionStore.getState().clearEditor(key);
+        }
       },
       removeOther: (key) => {
+        let clearedIds: string[] = [];
         set((state) => {
           const nextTabs = shake(state.tabs, (a) => {
             return a.id != key && a.type != 'editor';
           });
-          const session = useQuerySessionStore.getState();
-          for (const id of Object.keys(state.tabs)) {
-            if (!(id in nextTabs) && id !== key) {
-              session.clearEditor(id);
-            }
-          }
+          clearedIds = Object.keys(state.tabs).filter(
+            (id) => !(id in nextTabs) && id !== key,
+          );
           return {
             ids: [key],
             tabs: nextTabs,
             currentId: key,
           };
         });
+        const session = useQuerySessionStore.getState();
+        for (const id of clearedIds) {
+          session.clearEditor(id);
+        }
       },
     }),
     {
