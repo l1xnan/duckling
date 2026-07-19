@@ -6,10 +6,68 @@ use std::time::Duration;
 
 use anyhow::{Context, anyhow};
 use russh::client::{self, Handler};
-use russh::keys::{PrivateKeyWithHashAlg, PublicKey, load_secret_key};
+use russh::keys::{PrivateKeyWithHashAlg, PublicKey, check_known_hosts, load_secret_key};
+use russh::keys::known_hosts::learn_known_hosts;
 use tokio::net::TcpListener;
 use tokio::runtime::Runtime;
 use tokio::sync::oneshot;
+
+/// How to verify the SSH server host key.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum HostKeyPolicy {
+  /// Always accept (previous behavior). Default for compatibility.
+  #[default]
+  Insecure,
+  /// Accept and record unknown keys; reject changed keys.
+  AcceptNew,
+  /// Only accept keys already in known_hosts.
+  Strict,
+}
+
+impl HostKeyPolicy {
+  pub fn parse(s: &str) -> Self {
+    match s.trim().to_ascii_lowercase().as_str() {
+      "accept_new" | "accept-new" | "acceptnew" => Self::AcceptNew,
+      "strict" => Self::Strict,
+      _ => Self::Insecure,
+    }
+  }
+
+  pub fn as_str(self) -> &'static str {
+    match self {
+      Self::Insecure => "insecure",
+      Self::AcceptNew => "accept_new",
+      Self::Strict => "strict",
+    }
+  }
+}
+
+/// Verify `pubkey` for `host:port` according to `policy`.
+pub fn verify_host_key(
+  host: &str,
+  port: u16,
+  pubkey: &PublicKey,
+  policy: HostKeyPolicy,
+) -> anyhow::Result<bool> {
+  match policy {
+    HostKeyPolicy::Insecure => Ok(true),
+    HostKeyPolicy::Strict => check_known_hosts(host, port, pubkey)
+      .map_err(|e| anyhow!("SSH known_hosts check failed: {e}")),
+    HostKeyPolicy::AcceptNew => match check_known_hosts(host, port, pubkey) {
+      Ok(true) => Ok(true),
+      Ok(false) => {
+        learn_known_hosts(host, port, pubkey)
+          .map_err(|e| anyhow!("failed to write known_hosts: {e}"))?;
+        log::info!("SSH: recorded new host key for {host}:{port}");
+        Ok(true)
+      }
+      Err(e) => {
+        // Key changed or other known_hosts error — reject.
+        Err(anyhow!("SSH host key verification failed: {e}"))
+      }
+    },
+  }
+}
 
 #[derive(Debug, Clone, Default)]
 pub struct SshConfig {
@@ -19,6 +77,7 @@ pub struct SshConfig {
   pub password: Option<String>,
   pub private_key_path: Option<String>,
   pub passphrase: Option<String>,
+  pub host_key_policy: HostKeyPolicy,
 }
 
 impl SshConfig {
@@ -37,6 +96,8 @@ pub struct DbSshConfig {
   pub password: Option<String>,
   pub private_key_path: Option<String>,
   pub passphrase: Option<String>,
+  /// `insecure` | `accept_new` | `strict` (default insecure).
+  pub host_key_policy: Option<String>,
 }
 
 impl DbSshConfig {
@@ -51,6 +112,11 @@ impl DbSshConfig {
       password: self.password.clone(),
       private_key_path: self.private_key_path.clone(),
       passphrase: self.passphrase.clone(),
+      host_key_policy: self
+        .host_key_policy
+        .as_deref()
+        .map(HostKeyPolicy::parse)
+        .unwrap_or_default(),
     })
   }
 }
@@ -61,16 +127,24 @@ pub struct SshTunnel {
   thread: Option<JoinHandle<()>>,
 }
 
-struct SshClient;
+struct SshClient {
+  host: String,
+  port: u16,
+  policy: HostKeyPolicy,
+}
 
 impl Handler for SshClient {
   type Error = anyhow::Error;
 
   fn check_server_key(
     &mut self,
-    _server_public_key: &PublicKey,
+    server_public_key: &PublicKey,
   ) -> impl std::future::Future<Output = Result<bool, Self::Error>> + Send {
-    async { Ok(true) }
+    let host = self.host.clone();
+    let port = self.port;
+    let policy = self.policy;
+    let key = server_public_key.clone();
+    async move { verify_host_key(&host, port, &key, policy) }
   }
 }
 
@@ -182,7 +256,11 @@ async fn open_tunnel(
   let mut handle = client::connect(
     ssh_config,
     (config.host.as_str(), config.port),
-    SshClient,
+    SshClient {
+      host: config.host.clone(),
+      port: config.port,
+      policy: config.host_key_policy,
+    },
   )
   .await
   .with_context(|| format!("failed to connect to SSH server {}:{}", config.host, config.port))?;
@@ -255,4 +333,52 @@ async fn open_tunnel(
   });
 
   Ok((local_port, shutdown_tx, task))
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn host_key_policy_parse() {
+    assert_eq!(HostKeyPolicy::parse("insecure"), HostKeyPolicy::Insecure);
+    assert_eq!(HostKeyPolicy::parse("accept_new"), HostKeyPolicy::AcceptNew);
+    assert_eq!(HostKeyPolicy::parse("accept-new"), HostKeyPolicy::AcceptNew);
+    assert_eq!(HostKeyPolicy::parse("strict"), HostKeyPolicy::Strict);
+    assert_eq!(HostKeyPolicy::parse(""), HostKeyPolicy::Insecure);
+    assert_eq!(HostKeyPolicy::parse("unknown"), HostKeyPolicy::Insecure);
+  }
+
+  #[test]
+  fn insecure_always_accepts() {
+    // PublicKey construction is non-trivial; policy path only.
+    assert_eq!(HostKeyPolicy::Insecure.as_str(), "insecure");
+    assert_eq!(HostKeyPolicy::AcceptNew.as_str(), "accept_new");
+    assert_eq!(HostKeyPolicy::Strict.as_str(), "strict");
+  }
+
+  #[test]
+  fn db_ssh_config_maps_policy() {
+    let cfg = DbSshConfig {
+      enabled: true,
+      host: "bastion".into(),
+      port: "22".into(),
+      username: "u".into(),
+      host_key_policy: Some("strict".into()),
+      ..Default::default()
+    };
+    let tunnel = cfg.to_tunnel_config().unwrap();
+    assert_eq!(tunnel.host_key_policy, HostKeyPolicy::Strict);
+
+    let cfg2 = DbSshConfig {
+      enabled: true,
+      host: "h".into(),
+      username: "u".into(),
+      ..Default::default()
+    };
+    assert_eq!(
+      cfg2.to_tunnel_config().unwrap().host_key_policy,
+      HostKeyPolicy::Insecure
+    );
+  }
 }

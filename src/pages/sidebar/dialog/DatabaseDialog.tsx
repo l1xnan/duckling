@@ -715,6 +715,71 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="ssh_tunnel.host_key_policy"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center w-[62.5%]">
+                        <FormLabel className="w-1/5 mr-2 mt-2">
+                          <Trans>Host key</Trans>
+                        </FormLabel>
+                        <Select
+                          value={field.value ?? 'insecure'}
+                          onValueChange={(v) =>
+                            field.onChange(
+                              (typeof v === 'string' ? v : 'insecure') as
+                                | 'insecure'
+                                | 'accept_new'
+                                | 'strict',
+                            )
+                          }
+                          items={[
+                            {
+                              label: t`Trust all (insecure)`,
+                              value: 'insecure',
+                            },
+                            {
+                              label: t`Accept new keys`,
+                              value: 'accept_new',
+                            },
+                            {
+                              label: t`Strict (known_hosts)`,
+                              value: 'strict',
+                            },
+                          ]}
+                        >
+                          <FormControl className="w-4/5">
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem
+                                value="insecure"
+                                label={t`Trust all (insecure)`}
+                              >
+                                <Trans>Trust all (insecure)</Trans>
+                              </SelectItem>
+                              <SelectItem
+                                value="accept_new"
+                                label={t`Accept new keys`}
+                              >
+                                <Trans>Accept new keys</Trans>
+                              </SelectItem>
+                              <SelectItem
+                                value="strict"
+                                label={t`Strict (known_hosts)`}
+                              >
+                                <Trans>Strict (known_hosts)</Trans>
+                              </SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </>
               ) : null}
             </TabsContent>

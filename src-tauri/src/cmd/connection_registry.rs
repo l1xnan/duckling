@@ -73,6 +73,10 @@ fn apply_overrides(base: DialectPayload, overlay: &DialectPayload) -> DialectPay
       .clone()
       .or(base.ssh_private_key_path),
     ssh_passphrase: overlay.ssh_passphrase.clone().or(base.ssh_passphrase),
+    ssh_host_key_policy: overlay
+      .ssh_host_key_policy
+      .clone()
+      .or(base.ssh_host_key_policy),
   }
 }
 

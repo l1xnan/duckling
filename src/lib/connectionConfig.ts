@@ -139,6 +139,7 @@ export function flattenSshTunnelForBackend(
     record.ssh_password = tunnel.password;
     record.ssh_private_key_path = tunnel.private_key_path;
     record.ssh_passphrase = tunnel.passphrase;
+    record.ssh_host_key_policy = tunnel.host_key_policy ?? 'insecure';
   }
   return record;
 }

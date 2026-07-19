@@ -22,8 +22,31 @@ pub(crate) fn build_ssh_config(
   ssh_private_key_path: Option<String>,
   ssh_passphrase: Option<String>,
 ) -> Option<connector::ssh_tunnel::DbSshConfig> {
+  build_ssh_config_ex(
+    ssh_enabled,
+    ssh_host,
+    ssh_port,
+    ssh_username,
+    ssh_password,
+    ssh_private_key_path,
+    ssh_passphrase,
+    None,
+  )
+}
+
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn build_ssh_config_ex(
+  ssh_enabled: Option<bool>,
+  ssh_host: Option<String>,
+  ssh_port: Option<String>,
+  ssh_username: Option<String>,
+  ssh_password: Option<String>,
+  ssh_private_key_path: Option<String>,
+  ssh_passphrase: Option<String>,
+  ssh_host_key_policy: Option<String>,
+) -> Option<connector::ssh_tunnel::DbSshConfig> {
   ConnectionConfig::default()
-    .with_ssh(
+    .with_ssh_ex(
       ssh_enabled,
       ssh_host,
       ssh_port,
@@ -31,6 +54,7 @@ pub(crate) fn build_ssh_config(
       ssh_password,
       ssh_private_key_path,
       ssh_passphrase,
+      ssh_host_key_policy,
     )
     .ssh
 }
@@ -69,6 +93,9 @@ pub struct DialectPayload {
   pub ssh_private_key_path: Option<String>,
   #[serde(default, alias = "sshPassphrase")]
   pub ssh_passphrase: Option<String>,
+  /// `insecure` | `accept_new` | `strict`
+  #[serde(default, alias = "sshHostKeyPolicy")]
+  pub ssh_host_key_policy: Option<String>,
 }
 
 pub fn get_ast_dialect(dialect: &str) -> Box<dyn sqlparser::dialect::Dialect> {
@@ -110,7 +137,7 @@ fn payload_to_config(payload: DialectPayload) -> ConnectionConfig {
     disable_ssl: payload.disable_ssl,
     ssh: None,
   }
-  .with_ssh(
+  .with_ssh_ex(
     payload.ssh_enabled,
     payload.ssh_host,
     payload.ssh_port,
@@ -118,6 +145,7 @@ fn payload_to_config(payload: DialectPayload) -> ConnectionConfig {
     payload.ssh_password,
     payload.ssh_private_key_path,
     payload.ssh_passphrase,
+    payload.ssh_host_key_policy,
   )
 }
 

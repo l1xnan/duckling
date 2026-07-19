@@ -76,6 +76,11 @@ export type SshTunnelConfig = {
   passphrase?: string;
   /** Alias from ~/.ssh/config when filled from config picker. */
   config_host?: string;
+  /**
+   * Host key verification: `insecure` (default) | `accept_new` | `strict`.
+   * Matches connector HostKeyPolicy.
+   */
+  host_key_policy?: 'insecure' | 'accept_new' | 'strict';
 };
 
 export type PostgresDialectType = {

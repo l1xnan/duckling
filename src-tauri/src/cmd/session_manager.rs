@@ -81,6 +81,7 @@ impl SessionManager {
     payload.ssh_password.hash(&mut hasher);
     payload.ssh_private_key_path.hash(&mut hasher);
     payload.ssh_passphrase.hash(&mut hasher);
+    payload.ssh_host_key_policy.hash(&mut hasher);
     hasher.finish()
   }
 

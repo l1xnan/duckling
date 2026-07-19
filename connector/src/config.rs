@@ -37,6 +37,30 @@ impl ConnectionConfig {
     private_key_path: Option<String>,
     passphrase: Option<String>,
   ) -> Self {
+    self.with_ssh_ex(
+      enabled,
+      host,
+      port,
+      username,
+      password,
+      private_key_path,
+      passphrase,
+      None,
+    )
+  }
+
+  #[allow(clippy::too_many_arguments)]
+  pub fn with_ssh_ex(
+    mut self,
+    enabled: Option<bool>,
+    host: Option<String>,
+    port: Option<String>,
+    username: Option<String>,
+    password: Option<String>,
+    private_key_path: Option<String>,
+    passphrase: Option<String>,
+    host_key_policy: Option<String>,
+  ) -> Self {
     self.ssh = enabled.filter(|e| *e).map(|_| DbSshConfig {
       enabled: true,
       host: host.unwrap_or_default(),
@@ -45,6 +69,7 @@ impl ConnectionConfig {
       password,
       private_key_path,
       passphrase,
+      host_key_policy,
     });
     self
   }
