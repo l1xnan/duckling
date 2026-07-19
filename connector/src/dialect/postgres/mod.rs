@@ -1,19 +1,19 @@
 mod type_arrow;
+#[allow(dead_code)]
 mod type_json;
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
-use arrow::datatypes::{ArrowNativeType, Field, Schema};
+use arrow::datatypes::ArrowNativeType;
 use async_trait::async_trait;
 use futures_util::FutureExt;
 use tokio_postgres::{Client, NoTls};
 
 use crate::dialect::Connection;
 use crate::ssh_tunnel::{DbSshConfig, SshTunnel};
-use crate::utils::{RawArrowData, Table, Title, TreeNode, build_tree, json_to_arrow};
+use crate::utils::{RawArrowData, Table, TreeNode, build_tree};
 use anyhow::{Context, anyhow};
-use type_json::RowData;
 
 struct PostgresLive {
   _tunnel: Option<SshTunnel>,
@@ -294,33 +294,8 @@ impl PostgresConnection {
     let client = self.get_client(&self.database()).await?;
 
     let stmt = client.prepare(sql).await?;
-    let mut fields = vec![];
-    let mut titles = vec![];
-    for col in stmt.columns() {
-      titles.push(Title {
-        name: col.name().to_string(),
-        r#type: col.type_().name().to_string(),
-      });
-      let typ = type_arrow::col_to_arrow_type(col);
-      let field = Field::new(col.name(), typ, true);
-      fields.push(field);
-      log::debug!(
-        "{}={}, {}, {:?}",
-        col.name(),
-        col.type_().name(),
-        col.type_().oid(),
-        col.type_().kind()
-      );
-    }
-    let schema = Arc::new(Schema::new(fields));
-
-    let mut rows: Vec<RowData> = vec![];
-    for row in client.query(&stmt, &[]).await? {
-      let r = type_json::postgres_row_to_row_data(row)?;
-      rows.push(r);
-    }
-
-    let batch = json_to_arrow(&rows, schema)?;
+    let rows = client.query(&stmt, &[]).await?;
+    let (titles, batch) = type_arrow::rows_to_arrow(stmt.columns(), &rows)?;
 
     Ok(RawArrowData {
       total: batch.num_rows(),

@@ -138,6 +138,7 @@ pub trait Connection: Sync + Send {
   }
 
   fn _table_count_sql(&self, table: &str, where_: &str) -> String {
+    let table = self.quote_table_ref(table);
     let mut sql = format!("select count(*) as num from {table}");
     if !where_.trim().is_empty() {
       sql = format!("{sql} where {where_}");
@@ -146,19 +147,19 @@ pub trait Connection: Sync + Send {
   }
 
   fn normalize(&self, name: &str) -> String {
-    if name.contains(' ') {
-      format!("`{name}`")
-    } else {
-      name.to_string()
-    }
+    self.quote(name)
+  }
+
+  /// Quote a possibly-qualified table reference (`schema.table`).
+  fn quote_table_ref(&self, table: &str) -> String {
+    table
+      .split('.')
+      .map(|item| self.quote(item))
+      .join(".")
   }
 
   fn _table_query_sql(&self, table: &str, where_: &str, order_by: &str) -> String {
-    let table = table
-      .split(".")
-      .into_iter()
-      .map(|item| self.quote(item))
-      .join(".");
+    let table = self.quote_table_ref(table);
     let mut sql = format!("select * from {table}");
     if !where_.trim().is_empty() {
       sql = format!("{sql} where {where_}");
