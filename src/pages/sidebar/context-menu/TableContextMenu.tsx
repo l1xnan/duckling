@@ -20,6 +20,7 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
+import { canDropTable, canFind } from '@/lib/capabilities';
 import { SearchDialog } from '@/pages/sidebar/dialog/SearchDialog';
 import { DBType, DialectConfig, getStoredDB, useDBListStore } from '@/stores/dbList';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
@@ -40,9 +41,12 @@ export function TableContextMenu({
 
   const alertDialog = useDialog();
   const searchDialog = useDialog();
+  const allowDrop = canDropTable(db.dialect);
+  const allowFind = canFind(db.dialect);
 
   const handleDropTable: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
     e.stopPropagation();
+    if (!allowDrop) return;
     const { connectionRef } = await import('@/lib/connectionRef');
     await dropTable(node.path, connectionRef(db.id));
   };
@@ -132,7 +136,8 @@ export function TableContextMenu({
     updateTab!(item);
   };
 
-  const handleSearch = async (e: Event) => {
+  const handleSearch = async () => {
+    if (!allowFind) return;
     searchDialog.trigger();
   };
 
@@ -166,7 +171,10 @@ export function TableContextMenu({
                 <Trans>Show *.csv</Trans>
               </ContextMenuItem>
               <ContextMenuSeparator />
-              <ContextMenuItem onSelect={handleSearch}>
+              <ContextMenuItem
+                onSelect={handleSearch}
+                disabled={!allowFind}
+              >
                 <Trans>Search</Trans>
               </ContextMenuItem>
               <ContextMenuItem onSelect={handkeOpenPath}>
@@ -176,7 +184,10 @@ export function TableContextMenu({
           ) : null}
 
           <ContextMenuSeparator />
-          <ContextMenuItem onSelect={alertDialog.trigger}>
+          <ContextMenuItem
+            onSelect={allowDrop ? alertDialog.trigger : undefined}
+            disabled={!allowDrop}
+          >
             <Trans>Delete</Trans>
           </ContextMenuItem>
           <ContextMenuSeparator />

@@ -18,7 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { canExport } from '@/lib/capabilities';
 import { cn } from '@/lib/utils';
+import { getStoredDB } from '@/stores/dbList';
 import { pushNotification } from '@/stores/notification';
 
 const EXPORT_COMPLETED = msg`Export completed`;
@@ -59,6 +61,7 @@ export type ExportDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   dbId: string;
+  dialect?: string;
   sql?: string;
   defaultName?: string;
 };
@@ -67,10 +70,13 @@ export function ExportDialog({
   open,
   onOpenChange,
   dbId,
+  dialect,
   sql,
   defaultName,
 }: ExportDialogProps) {
   const { t } = useLingui();
+  const resolvedDialect = dialect ?? getStoredDB(dbId)?.dialect;
+  const exportAllowed = canExport(resolvedDialect);
   const compressionItems = useMemo(
     () =>
       COMPRESSION_CODECS.map((item) => ({
@@ -135,6 +141,10 @@ export function ExportDialog({
   };
 
   const handleExport = async () => {
+    if (!exportAllowed) {
+      toast.error(t`Export is not supported for this connection`);
+      return;
+    }
     if (!sql) {
       toast.error(t`No SQL to export`);
       return;
@@ -168,6 +178,8 @@ export function ExportDialog({
         file,
         dbId,
         sql: sql!,
+        limit: 0,
+        offset: 0,
         format,
         options: buildOptions(),
       });
@@ -379,7 +391,7 @@ export function ExportDialog({
           </Button>
           <Button
             type="button"
-            disabled={loading || !sql}
+            disabled={loading || !sql || !exportAllowed}
             className={cn(loading && 'opacity-80')}
             onClick={() => {
               void handleExport();

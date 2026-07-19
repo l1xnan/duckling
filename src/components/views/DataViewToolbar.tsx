@@ -23,12 +23,16 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { ExportDialog } from '@/components/views/ExportDialog';
 import { i18n } from '@/i18n';
+import { canExport } from '@/lib/capabilities';
 import { SchemaType } from '@/stores/dataset';
+import { getStoredDB } from '@/stores/dbList';
 import { TabContextType } from '@/stores/tabs';
 
 export interface DataViewToolbarProps {
   context?: TabContextType;
   dbId: string;
+  /** Dialect name for capability gating (falls back to stored connection). */
+  dialect?: string;
   length: number;
   page: number;
   perPage: number;
@@ -59,6 +63,7 @@ export function elapsedRender(elapsed?: number) {
 export function DataViewToolbar({
   context,
   dbId,
+  dialect,
   length,
   page,
   perPage,
@@ -81,6 +86,8 @@ export function DataViewToolbar({
 }: DataViewToolbarProps) {
   const { t } = useLingui();
   const exportDialog = useDialog();
+  const resolvedDialect = dialect ?? getStoredDB(dbId)?.dialect;
+  const exportAllowed = canExport(resolvedDialect);
 
   return (
     <ToolbarContainer>
@@ -170,8 +177,14 @@ export function DataViewToolbar({
         <TooltipButton icon={<EyeIcon />} onClick={setShowValue} tooltip={t`Value Viewer`} />
         <TooltipButton
           icon={<DownloadIcon />}
-          tooltip={t`Export data`}
-          disabled={!sql}
+          tooltip={
+            !exportAllowed
+              ? t`Export is not supported for this connection`
+              : !sql
+                ? t`No SQL to export`
+                : t`Export data`
+          }
+          disabled={!sql || !exportAllowed}
           onClick={exportDialog.trigger}
         />
       </Stack>
@@ -179,6 +192,7 @@ export function DataViewToolbar({
       <ExportDialog
         {...exportDialog.props}
         dbId={dbId}
+        dialect={resolvedDialect}
         sql={sql}
         defaultName={context?.displayName}
       />
