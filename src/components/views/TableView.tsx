@@ -50,6 +50,7 @@ export type SelectedCellType = {
 export function TableView({ context }: { context: TabContextType }) {
   const {
     refresh,
+    cancelRefresh,
     loading,
     data,
     tableSchema,
@@ -102,6 +103,14 @@ export function TableView({ context }: { context: TabContextType }) {
 
   const countByDialog = useDialog();
 
+  const handleCancel = async () => {
+    try {
+      await cancelRefresh();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <div className="h-full flex flex-col">
       <DataViewToolbar
@@ -124,6 +133,8 @@ export function TableView({ context }: { context: TabContextType }) {
         setPagination={setPagination}
         setTranspose={setTranspose}
         setCross={setCross}
+        loading={loading}
+        onCancel={handleCancel}
       />
       <ResizablePanelGroup orientation={direction}>
         <ResizablePanel defaultSize={80} className="size-full">

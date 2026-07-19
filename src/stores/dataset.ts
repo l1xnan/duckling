@@ -1,4 +1,5 @@
 import { DataType } from '@apache-arrow/ts';
+import { nanoid } from 'nanoid';
 import { createStore } from 'zustand';
 
 import { ResultType, TitleType } from '@/api';
@@ -7,6 +8,7 @@ import {
   QueryParamType,
   TabContextType,
   TableContextType,
+  cancelExecuteSQL,
   execute,
 } from './tabs';
 
@@ -59,6 +61,8 @@ export type DatasetState = {
   dialogColumn?: string;
   direction: Direction;
   hiddenColumns: Record<string, boolean>;
+  /** In-flight refresh request id for cancel. */
+  refreshRequestId?: string;
 };
 
 export type DatasetAction = {
@@ -72,6 +76,8 @@ export type DatasetAction = {
   setDialogColumn: (value: string) => void;
   setHiddenColumns: (key: string, value: boolean) => void;
   refresh: (stmt?: string) => Promise<ResultType | undefined>;
+  /** Cancel the in-flight table refresh started by `refresh`. */
+  cancelRefresh: () => Promise<void>;
   setBeautify: () => void;
   setShowValue: () => void;
   setDirection: () => void;
@@ -153,6 +159,7 @@ export const createDatasetStore = (context: TabContextType) =>
     refresh: async () => {
       const { page, perPage, sqlWhere, sqlOrderBy } = get();
       const context = get().context as TableContextType;
+      const requestId = nanoid();
 
       const ctx: QueryParamType = {
         type: context?.type,
@@ -164,15 +171,26 @@ export const createDatasetStore = (context: TabContextType) =>
         sqlWhere,
         sqlOrderBy,
       };
-      set({ loading: true });
+      set({ loading: true, message: undefined, refreshRequestId: requestId });
       try {
-        const data = await execute(ctx);
-        set({ ...data, loading: false });
+        const data = await execute(ctx, { requestId });
+        set({ ...data, loading: false, refreshRequestId: undefined });
         return data;
       } catch (e) {
         /* empty */
       } finally {
-        set({ loading: false });
+        if (get().refreshRequestId === requestId) {
+          set({ loading: false, refreshRequestId: undefined });
+        } else {
+          set({ loading: false });
+        }
+      }
+    },
+
+    cancelRefresh: async () => {
+      const rid = get().refreshRequestId;
+      if (rid) {
+        await cancelExecuteSQL(rid);
       }
     },
   }));

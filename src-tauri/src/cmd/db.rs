@@ -248,25 +248,32 @@ pub async fn paging_query(
 pub async fn query_table(
   registry: State<'_, ConnectionRegistry>,
   sessions: State<'_, SessionManager>,
+  inflight: State<'_, InflightQueries>,
   table: &str,
   limit: usize,
   offset: usize,
   #[allow(non_snake_case)] orderBy: Option<String>,
   r#where: Option<String>,
   dialect: DialectPayload,
+  #[allow(non_snake_case)]
+  requestId: Option<String>,
 ) -> Result<ArrowResponse, String> {
   let d = resolve_connection(&registry, &sessions, dialect).await?;
+  let where_s = r#where.unwrap_or_default();
+  let order_s = orderBy.unwrap_or_default();
 
   let start = Instant::now();
-  let res = d
-    .query_table(
-      table,
-      limit,
-      offset,
-      &r#where.clone().unwrap_or_default(),
-      &orderBy.clone().unwrap_or_default(),
+  let res = if let Some(ref rid) = requestId.filter(|s| !s.trim().is_empty()) {
+    let (_guard, token) = InflightGuard::register(&inflight, rid)?;
+    connector::cancel::with_cancel(
+      Some(&token),
+      d.query_table(table, limit, offset, &where_s, &order_s),
     )
-    .await;
+    .await
+  } else {
+    d.query_table(table, limit, offset, &where_s, &order_s)
+      .await
+  };
   let duration = start.elapsed().as_millis();
   Ok(ArrowResponse::from_raw_data(res, Some(duration)))
 }

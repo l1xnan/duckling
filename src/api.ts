@@ -106,6 +106,8 @@ export type QueryTableParams = {
   where?: string;
   orderBy?: string;
   dialect?: DialectRef;
+  /** When set, backend registers an inflight token; call `cancelQuery` with the same id. */
+  requestId?: string;
 };
 
 export async function query(params: QueryParams): Promise<ResultType> {

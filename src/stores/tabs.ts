@@ -350,21 +350,29 @@ export async function getParams(
 
 export async function execute(
   ctx: QueryParamType,
+  options?: { requestId?: string },
 ): Promise<ResultType | undefined> {
   const param = await getParams(ctx);
   if (!param) {
     return;
   }
+  const requestId = options?.requestId;
   let data;
   if (!ctx.stmt) {
-    data = await queryTable(param as QueryTableParams);
+    data = await queryTable({
+      ...(param as QueryTableParams),
+      ...(requestId ? { requestId } : {}),
+    });
   } else {
-    data = await query(param as QueryParams);
+    data = await query({
+      ...(param as QueryParams),
+      ...(requestId ? { requestId } : {}),
+    });
   }
 
   console.log('data:', data);
-  if (data?.code == 401 && data?.message) {
-    toast.warning(data?.message);
+  if (data?.code && data.code !== 0 && data?.message) {
+    toast.warning(data.message);
   }
   return data;
 }
