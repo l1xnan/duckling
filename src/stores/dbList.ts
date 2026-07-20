@@ -195,7 +195,7 @@ export function flattenTree(tree: TreeNode): Map<string, TreeNode> {
 }
 
 function emptyTree(name = ''): TreeNode {
-  return { name, path: name, children: [] };
+  return { name, path: name, type: 'database', children: [] };
 }
 
 /** Resolves when connections have been synced into the backend registry. */
