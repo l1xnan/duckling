@@ -700,6 +700,7 @@ function CanvasTable_({
   return (
     <div className="h-full select-text" style={style}>
       <ListTable
+        key={isDark ? 'dark' : 'light'}
         ref={tableRef}
         option={option}
         keepColumnWidthChange={true}

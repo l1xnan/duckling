@@ -4,93 +4,31 @@ import { assign } from 'radash';
 import { ComponentProps } from 'react';
 export type ITableThemeDefine = ComponentProps<typeof ListTable>['theme'];
 
-export const LIGHT_THEME: ITableThemeDefine = {
-  defaultStyle: {
-    borderColor: '#f2f2f2',
-    hover: {
-      cellBgColor: '#9cbef4',
-      inlineRowBgColor: '#9cbef4',
-      inlineColumnBgColor: '#9cbef4',
-    },
-  },
-  headerStyle: {
-    color: '#000',
-    select: {
-      inlineRowBgColor: 'rgb(210, 210, 252)',
-      inlineColumnBgColor: 'rgb(210, 210, 252)',
-    },
-  },
-  bodyStyle: {
-    bgColor: getLightBackgroundColor,
-    hover: {
-      cellBgColor: '#CCE0FF',
-      inlineRowBgColor: '#F3F8FF',
-      inlineColumnBgColor: '#F3F8FF',
-    },
-  },
-  frameStyle: {
-    borderColor: '#d1d5da',
-  },
-  frozenColumnLine: {
-    shadow: {
-      width: 1,
-      startColor: 'rgba(00, 24, 47, 0.05)',
-      endColor: 'rgba(00, 24, 47, 0)',
-      visible: 'scrolling',
-    },
-  },
+/**
+ * Color palette derived directly from isDark flag.
+ * These MUST stay in sync with globals.css values.
+ */
+const LIGHT_COLORS = {
+  background: '#ffffff',
+  backgroundAlt: '#fbfbfc',
+  foreground: '#0d0f12',          // hsl(220 10% 4%)
+  border: '#e2e5ea',              // hsl(220 13% 91%)
+  headerBg: '#f4f5f7',            // hsl(220 14% 96%)
+  cardBg: '#ffffff',
+  accentBg: '#fff7d6',            // hsl(48 100% 94%)
+  selectionBg: '#fff0c2',         // hsl(48 100% 88%)
 };
 
-export const DARK_THEME: ITableThemeDefine = {
-  underlayBackgroundColor: 'transparent',
-  defaultStyle: {
-    color: '#D3D5DA',
-    bgColor: '#373b45',
-    borderColor: '#444A54',
-  },
-  headerStyle: {
-    color: '#fff',
-    bgColor: '#2e2f32',
-    select: {
-      inlineRowBgColor: 'rgb(81, 81, 99)',
-      inlineColumnBgColor: 'rgb(81, 81, 99)',
-    },
-  },
-  bodyStyle: {
-    bgColor: getDarkBackgroundColor,
-  },
-  frameStyle: {
-    borderColor: '#454a54',
-  },
-  frozenColumnLine: {
-    shadow: {
-      width: 4,
-      startColor: 'rgba(00, 24, 47, 0.05)',
-      endColor: 'rgba(00, 24, 47, 0)',
-      visible: 'scrolling',
-    },
-  },
+const DARK_COLORS = {
+  background: '#171b21',          // hsl(220 10% 10%)
+  backgroundAlt: '#14171d',       // -1 lightness
+  foreground: '#f2f2f2',          // hsl(0 0% 95%)
+  border: '#3b414a',              // hsl(220 10% 22%)
+  headerBg: '#282d36',            // hsl(220 10% 17%)
+  cardBg: '#24282f',              // hsl(220 10% 14%)
+  accentBg: '#3d3520',            // hsl(48 50% 18%)
+  selectionBg: '#4a3f1f',         // hsl(48 80% 30%)
 };
-
-function getDarkBackgroundColor(args: TYPES.StylePropertyFunctionArg): string {
-  const { row, table } = args;
-  const index = row - table.frozenRowCount;
-
-  if (!(index & 1)) {
-    return '#2d3137';
-  }
-  return '#282a2e';
-}
-
-function getLightBackgroundColor(args: TYPES.StylePropertyFunctionArg): string {
-  const { row, table } = args;
-  const index = row - table.frozenRowCount;
-
-  if (!(index & 1)) {
-    return '#FFF';
-  }
-  return '#fbfbfc';
-}
 
 export function makeTableTheme(
   isDark: boolean,
@@ -99,6 +37,83 @@ export function makeTableTheme(
 ) {
   const fontSize = tableFontSize;
   const lineHeight = tableFontSize;
+  const c = isDark ? DARK_COLORS : LIGHT_COLORS;
+
+  const getBodyBgColor = (args: TYPES.StylePropertyFunctionArg): string => {
+    const { row, table } = args;
+    const index = row - table.frozenRowCount;
+    return (index & 1) ? c.backgroundAlt : c.background;
+  };
+
+  const colorTheme: ITableThemeDefine = isDark
+    ? {
+        underlayBackgroundColor: 'transparent',
+        defaultStyle: {
+          color: c.foreground,
+          bgColor: c.cardBg,
+          borderColor: c.border,
+        },
+        headerStyle: {
+          color: c.foreground,
+          bgColor: c.headerBg,
+          select: {
+            inlineRowBgColor: c.selectionBg,
+            inlineColumnBgColor: c.selectionBg,
+          },
+        },
+        bodyStyle: {
+          bgColor: getBodyBgColor,
+          hover: {
+            cellBgColor: c.accentBg,
+            inlineRowBgColor: c.accentBg,
+            inlineColumnBgColor: c.accentBg,
+          },
+        },
+        frameStyle: { borderColor: c.border },
+        frozenColumnLine: {
+          shadow: {
+            width: 4,
+            startColor: 'rgba(00, 24, 47, 0.05)',
+            endColor: 'rgba(00, 24, 47, 0)',
+            visible: 'scrolling',
+          },
+        },
+      }
+    : {
+        defaultStyle: {
+          borderColor: c.border,
+          hover: {
+            cellBgColor: c.accentBg,
+            inlineRowBgColor: c.accentBg,
+            inlineColumnBgColor: c.accentBg,
+          },
+        },
+        headerStyle: {
+          color: c.foreground,
+          select: {
+            inlineRowBgColor: c.selectionBg,
+            inlineColumnBgColor: c.selectionBg,
+          },
+        },
+        bodyStyle: {
+          bgColor: getBodyBgColor,
+          hover: {
+            cellBgColor: c.accentBg,
+            inlineRowBgColor: c.accentBg,
+            inlineColumnBgColor: c.accentBg,
+          },
+        },
+        frameStyle: { borderColor: c.border },
+        frozenColumnLine: {
+          shadow: {
+            width: 1,
+            startColor: 'rgba(00, 24, 47, 0.05)',
+            endColor: 'rgba(00, 24, 47, 0)',
+            visible: 'scrolling',
+          },
+        },
+      };
+
   const common: ITableThemeDefine = {
     cellInnerBorder: false,
     defaultStyle: {
@@ -149,8 +164,6 @@ export function makeTableTheme(
     },
   };
 
-  const [baseTheme, colorTheme] = isDark
-    ? [themes.DARK, DARK_THEME]
-    : [themes.ARCO, LIGHT_THEME];
+  const [baseTheme] = isDark ? [themes.DARK] : [themes.ARCO];
   return baseTheme.extends(assign(common, colorTheme as object));
 }
