@@ -108,7 +108,10 @@ export function ConfigDialog({
     }
     try {
       const databases = await listDatabases(toDialectConfig(values), db.id);
-      setAvailableDatabases(databases);
+      // Merge with existing visibleDatabases to preserve previously selected ones
+      const currentVisible = form.getValues('visibleDatabases') ?? [];
+      const merged = [...new Set([...databases, ...currentVisible])].sort((a, b) => a.localeCompare(b));
+      setAvailableDatabases(merged);
       // If no visibleDatabases set, select all by default
       if (!form.getValues('visibleDatabases') && databases.length > 0) {
         form.setValue('visibleDatabases', databases);

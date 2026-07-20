@@ -124,6 +124,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true, availableDataba
   const watchSshProfileId = form.watch('ssh_tunnel.profile_id');
   const watchedValues = form.watch();
   const [sshHosts, setSshHosts] = useState<SshConfigHost[]>([]);
+  const [dbSearch, setDbSearch] = useState('');
   const sshProfiles = useSshProfileStore((s) => s.profiles);
   const supportsSsh = watchDialect === 'mysql' || watchDialect === 'postgres';
   const useSshProfile =
@@ -980,62 +981,70 @@ export function DatabaseForm({ form, handleSubmit, isNew = true, availableDataba
             </TabsContent>
           ) : null}
 
-          {availableDatabases.length > 0 ? (
-            <TabsContent
-              value="databases"
-              className="mt-4 min-h-0 flex-1 space-y-4 overflow-y-auto"
-            >
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <FormLabel>
-                    <Trans>Select databases to display</Trans>
-                  </FormLabel>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 px-2 text-xs"
-                      onClick={() => form.setValue('visibleDatabases', [...availableDatabases].sort((a, b) => a.localeCompare(b)))}
-                    >
-                      <Trans>Select All</Trans>
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 px-2 text-xs"
-                      onClick={() => form.setValue('visibleDatabases', [])}
-                    >
-                      <Trans>Deselect All</Trans>
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 px-2 text-xs"
-                      onClick={() => {
-                        const current = form.getValues('visibleDatabases') ?? [];
-                        const inverted = availableDatabases.filter((db) => !current.includes(db));
-                        form.setValue('visibleDatabases', inverted);
-                      }}
-                    >
-                      <Trans>Invert</Trans>
-                    </Button>
-                    {onRefreshDatabases ? (
-                      <TooltipButton
-                        tooltip={t`Refresh database list`}
-                        icon={<RefreshCw />}
-                        onClick={onRefreshDatabases}
-                      />
-                    ) : null}
-                  </div>
+          <TabsContent
+            value="databases"
+            className="mt-4 min-h-0 flex-1 space-y-4 overflow-y-auto"
+          >
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <FormLabel>
+                  <Trans>Select databases to display</Trans>
+                </FormLabel>
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    onClick={() => form.setValue('visibleDatabases', [...availableDatabases].sort((a, b) => a.localeCompare(b)))}
+                  >
+                    <Trans>Select All</Trans>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    onClick={() => form.setValue('visibleDatabases', [])}
+                  >
+                    <Trans>Deselect All</Trans>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    onClick={() => {
+                      const current = form.getValues('visibleDatabases') ?? [];
+                      const inverted = availableDatabases.filter((db) => !current.includes(db));
+                      form.setValue('visibleDatabases', inverted);
+                    }}
+                  >
+                    <Trans>Invert</Trans>
+                  </Button>
+                  {onRefreshDatabases ? (
+                    <TooltipButton
+                      tooltip={t`Refresh database list`}
+                      icon={<RefreshCw />}
+                      onClick={onRefreshDatabases}
+                    />
+                  ) : null}
                 </div>
-                <FormDescription className="text-xs text-muted-foreground">
-                  <Trans>Only selected databases will be shown in the sidebar</Trans>
-                </FormDescription>
-                <div className="space-y-2 pt-2">
-                  {[...availableDatabases].sort((a, b) => a.localeCompare(b)).map((db) => (
+              </div>
+              <FormDescription className="text-xs text-muted-foreground">
+                <Trans>Only selected databases will be shown in the sidebar</Trans>
+              </FormDescription>
+              <Input
+                placeholder={t`Search databases...`}
+                value={dbSearch}
+                onChange={(e) => setDbSearch(e.target.value)}
+                className="h-8"
+              />
+              <div className="space-y-2 pt-2">
+                {availableDatabases
+                  .filter((db) => db.toLowerCase().includes(dbSearch.toLowerCase()))
+                  .sort((a, b) => a.localeCompare(b))
+                  .map((db) => (
                     <FormField
                       key={db}
                       control={form.control}
@@ -1062,10 +1071,14 @@ export function DatabaseForm({ form, handleSubmit, isNew = true, availableDataba
                       )}
                     />
                   ))}
-                </div>
+                {availableDatabases.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">
+                    <Trans>No databases available. Click refresh to fetch.</Trans>
+                  </p>
+                ) : null}
               </div>
-            </TabsContent>
-          ) : null}
+            </div>
+          </TabsContent>
         </Tabs>
       </form>
     </Form>
@@ -1140,7 +1153,10 @@ export function DatabaseDialog() {
     }
     try {
       const databases = await listDatabases(toDialectConfig(values));
-      setAvailableDatabases(databases);
+      // Merge with existing visibleDatabases to preserve previously selected ones
+      const currentVisible = form.getValues('visibleDatabases') ?? [];
+      const merged = [...new Set([...databases, ...currentVisible])].sort((a, b) => a.localeCompare(b));
+      setAvailableDatabases(merged);
       // If no visibleDatabases set, select all by default
       if (!form.getValues('visibleDatabases') && databases.length > 0) {
         form.setValue('visibleDatabases', databases);

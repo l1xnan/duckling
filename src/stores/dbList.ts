@@ -147,6 +147,7 @@ export type PersistedConnection = {
   dialect: DialectType;
   displayName: string;
   config?: DialectConfig;
+  visibleDatabases?: string[];
 };
 
 type DBListState = {
@@ -537,6 +538,7 @@ export const useDBListStore = create<DBListStore>()(
               config: db.config
                 ? stripSecrets(normalizeDialectConfig(db.config))
                 : undefined,
+              visibleDatabases: db.visibleDatabases,
             }),
           ),
         }) as unknown as DBListStore,

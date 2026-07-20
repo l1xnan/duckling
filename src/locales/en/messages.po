@@ -82,9 +82,9 @@ msgstr "{sec}s ago"
 #: src/pages/settings/SshProfilesForm.tsx:486
 #: src/pages/settings/SshProfilesForm.tsx:510
 #: src/pages/settings/SshProfilesForm.tsx:512
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:903
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:927
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:929
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:936
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:960
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:962
 msgid "Accept new keys"
 msgstr "Accept new keys"
 
@@ -93,7 +93,7 @@ msgstr "Accept new keys"
 msgid "Add"
 msgstr "Add"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1130
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1175
 msgid "Add data"
 msgstr "Add data"
 
@@ -176,7 +176,7 @@ msgstr "Calls the external <0>sqlfmt</0> binary via Tauri."
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:299
 #: src/pages/sidebar/dialog/ConfigDialog.tsx:132
 #: src/pages/sidebar/dialog/ConnectionTransferDialog.tsx:282
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1134
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1179
 #: src/pages/sidebar/dialog/RenameDialog.tsx:61
 #: src/pages/sidebar/dialog/SearchDialog.tsx:69
 #: src/pages/sidebar/SqlCode.tsx:527
@@ -307,12 +307,12 @@ msgstr "Confirm deletion of table: <0>{0}</0>"
 msgid "Confirm password"
 msgstr "Confirm password"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:203
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:233
 msgid "Connection"
 msgstr "Connection"
 
 #: src/pages/sidebar/dialog/ConfigDialog.tsx:97
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1097
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1142
 msgid "Connection failed"
 msgstr "Connection failed"
 
@@ -326,7 +326,7 @@ msgid "Connection properties"
 msgstr "Connection properties"
 
 #: src/pages/sidebar/dialog/ConfigDialog.tsx:93
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1093
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1138
 msgid "Connection successful"
 msgstr "Connection successful"
 
@@ -405,7 +405,7 @@ msgstr "Custom"
 msgid "Data Columns"
 msgstr "Data Columns"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:133
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:163
 msgid "Data Folder"
 msgstr "Data Folder"
 
@@ -414,7 +414,7 @@ msgid "Data type case"
 msgstr "Data type case"
 
 #: src/pages/sidebar/aside.tsx:73
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:332
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:365
 msgid "Database"
 msgstr "Database"
 
@@ -426,7 +426,7 @@ msgstr "Database Explorer"
 msgid "Database tree"
 msgstr "Database tree"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:212
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:242
 msgid "Databases"
 msgstr "Databases"
 
@@ -487,12 +487,12 @@ msgstr "Dense operators"
 msgid "Describe table"
 msgstr "Describe table"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:978
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1010
 msgid "Deselect All"
 msgstr "Deselect All"
 
 #: src/pages/settings/AppSetting.tsx:1268
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:246
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:276
 msgid "Dialect"
 msgstr "Dialect"
 
@@ -500,13 +500,13 @@ msgstr "Dialect"
 msgid "Dialect still follows the active connection. Defaults match previous behavior."
 msgstr "Dialect still follows the active connection. Defaults match previous behavior."
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:375
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:386
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:387
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:408
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:419
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:420
 msgid "Disable"
 msgstr "Disable"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:472
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:505
 msgid "Disable SSL"
 msgstr "Disable SSL"
 
@@ -559,7 +559,7 @@ msgstr "elapsed: {elapsed}ms"
 msgid "Empty SQL"
 msgstr "Empty SQL"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:556
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:589
 msgid "Enable SSH"
 msgstr "Enable SSH"
 
@@ -649,7 +649,7 @@ msgid "Failed to open settings folder: {message}"
 msgstr "Failed to open settings folder: {message}"
 
 #: src/pages/sidebar/dialog/ConfigDialog.tsx:119
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1119
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1164
 msgid "Failed to refresh databases"
 msgstr "Failed to refresh databases"
 
@@ -777,10 +777,10 @@ msgstr "Hidden Column"
 
 #: src/pages/settings/SshProfilesForm.tsx:387
 #: src/pages/settings/SshProfilesForm.tsx:455
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:417
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:458
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:804
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:872
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:450
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:491
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:837
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:905
 msgid "Hide password"
 msgstr "Hide password"
 
@@ -798,12 +798,12 @@ msgid "holywell options"
 msgstr "holywell options"
 
 #: src/pages/settings/SshProfilesForm.tsx:328
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:300
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:333
 msgid "Host"
 msgstr "Host"
 
 #: src/pages/settings/SshProfilesForm.tsx:468
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:885
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:918
 msgid "Host key"
 msgstr "Host key"
 
@@ -863,7 +863,7 @@ msgstr "Indent with tabs instead of spaces"
 msgid "Install with <0>uv tool install shandy-sqlfmt</0> or set the full path to the <1>sqlfmt</1> binary."
 msgstr "Install with <0>uv tool install shandy-sqlfmt</0> or set the full path to the <1>sqlfmt</1> binary."
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:991
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1023
 msgid "Invert"
 msgstr "Invert"
 
@@ -880,7 +880,7 @@ msgid "Keep unparseable statements as raw text instead of failing"
 msgstr "Keep unparseable statements as raw text instead of failing"
 
 #: src/pages/settings/SshProfilesForm.tsx:442
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:861
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:894
 msgid "Key Passphrase"
 msgstr "Key Passphrase"
 
@@ -905,10 +905,10 @@ msgstr "Leave empty for plain exports"
 
 #: src/pages/settings/SshProfilesForm.tsx:382
 #: src/pages/settings/SshProfilesForm.tsx:450
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:413
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:454
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:800
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:868
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:446
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:487
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:833
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:901
 msgid "Leave empty to keep current"
 msgstr "Leave empty to keep current"
 
@@ -945,22 +945,22 @@ msgstr "Lower"
 msgid "Main Font Family"
 msgstr "Main Font Family"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:648
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:681
 msgid "Manage reusable tunnels in Settings → SSH Profiles."
 msgstr "Manage reusable tunnels in Settings → SSH Profiles."
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:607
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:627
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:629
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:640
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:660
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:662
 msgid "Manual configuration"
 msgstr "Manual configuration"
 
 #: src/pages/settings/SshProfilesForm.tsx:282
 #: src/pages/settings/SshProfilesForm.tsx:300
 #: src/pages/settings/SshProfilesForm.tsx:302
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:694
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:712
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:714
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:727
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:745
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:747
 msgid "Manual Input"
 msgstr "Manual Input"
 
@@ -1018,12 +1018,12 @@ msgstr "N/A"
 
 #: src/components/PageTabs.tsx:408
 #: src/pages/settings/SshProfilesForm.tsx:244
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:227
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:257
 #: src/pages/sidebar/dialog/RenameDialog.tsx:51
 msgid "Name"
 msgstr "Name"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1128
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1173
 msgid "New Connection"
 msgstr "New Connection"
 
@@ -1042,6 +1042,10 @@ msgstr "No connections to export"
 #: src/components/charts/SimpleBarChart.tsx:25
 msgid "No data"
 msgstr "No data"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1076
+msgid "No databases available. Click refresh to fetch."
+msgstr "No databases available. Click refresh to fetch."
 
 #: src/components/custom/FontFamilyCombobox.tsx:176
 msgid "No matching fonts"
@@ -1114,13 +1118,13 @@ msgstr "Official uses GitHub Releases. China Mirror goes through gh-proxy.com fo
 
 #: src/components/PageTabs.tsx:422
 #: src/pages/sidebar/dialog/ConfigDialog.tsx:144
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1144
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1189
 #: src/pages/sidebar/dialog/RenameDialog.tsx:64
 #: src/pages/sidebar/dialog/SearchDialog.tsx:71
 msgid "Ok"
 msgstr "Ok"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1003
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1035
 msgid "Only selected databases will be shown in the sidebar"
 msgstr "Only selected databases will be shown in the sidebar"
 
@@ -1177,7 +1181,7 @@ msgid "Passed as <0>--line-length</0> (default 88)"
 msgstr "Passed as <0>--line-length</0> (default 88)"
 
 #: src/pages/settings/SshProfilesForm.tsx:374
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:406
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:439
 msgid "Password"
 msgstr "Password"
 
@@ -1193,7 +1197,7 @@ msgstr "Password is required to import encrypted secrets"
 msgid "Passwords do not match"
 msgstr "Passwords do not match"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:496
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:529
 msgid "Path"
 msgstr "Path"
 
@@ -1228,7 +1232,7 @@ msgid "Polyglot (default)"
 msgstr "Polyglot (default)"
 
 #: src/pages/settings/SshProfilesForm.tsx:343
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:316
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:349
 msgid "Port"
 msgstr "Port"
 
@@ -1245,7 +1249,7 @@ msgid "Press keys…"
 msgstr "Press keys…"
 
 #: src/pages/settings/SshProfilesForm.tsx:400
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:817
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:850
 msgid "Private Key"
 msgstr "Private Key"
 
@@ -1312,7 +1316,7 @@ msgstr "Reference: <0>Shiki TextMate Grammar & Theme Playground</0>."
 msgid "Refresh"
 msgstr "Refresh"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:995
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1027
 msgid "Refresh database list"
 msgstr "Refresh database list"
 
@@ -1339,9 +1343,9 @@ msgstr "Rename"
 msgid "Rename connection"
 msgstr "Rename connection"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:376
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:389
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:390
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:409
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:422
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:423
 msgid "Require"
 msgstr "Require"
 
@@ -1415,6 +1419,10 @@ msgstr "Schema"
 msgid "Search"
 msgstr "Search"
 
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1038
+msgid "Search databases..."
+msgstr "Search databases..."
+
 #: src/pages/sidebar/History.tsx:271
 msgid "Search history…"
 msgstr "Search history…"
@@ -1438,23 +1446,23 @@ msgstr "Search system fonts"
 msgid "Search: {0}"
 msgstr "Search: {0}"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:500
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:533
 msgid "Search..."
 msgstr "Search..."
 
 #: src/pages/settings/SshProfilesForm.tsx:428
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:502
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:515
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:847
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:535
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:548
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:880
 msgid "Select"
 msgstr "Select"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:269
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:299
 msgid "Select a dialect"
 msgstr "Select a dialect"
 
 #: src/pages/sidebar/dialog/ConfigDialog.tsx:87
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1080
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1125
 msgid "Select a dialect first"
 msgstr "Select a dialect first"
 
@@ -1462,15 +1470,15 @@ msgstr "Select a dialect first"
 msgid "Select a font"
 msgstr "Select a font"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:619
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:652
 msgid "Select a saved SSH profile"
 msgstr "Select a saved SSH profile"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:969
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1001
 msgid "Select All"
 msgstr "Select All"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:959
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:991
 msgid "Select databases to display"
 msgstr "Select databases to display"
 
@@ -1480,11 +1488,11 @@ msgid "Select editor theme"
 msgstr "Select editor theme"
 
 #: src/pages/settings/SshProfilesForm.tsx:292
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:704
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:737
 msgid "Select from ~/.ssh/config"
 msgstr "Select from ~/.ssh/config"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:827
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:860
 msgid "Select private key"
 msgstr "Select private key"
 
@@ -1542,10 +1550,10 @@ msgstr "Show Database"
 
 #: src/pages/settings/SshProfilesForm.tsx:386
 #: src/pages/settings/SshProfilesForm.tsx:454
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:416
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:457
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:803
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:871
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:449
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:490
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:836
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:904
 msgid "Show password"
 msgstr "Show password"
 
@@ -1622,11 +1630,11 @@ msgstr "sqlfmt (from PATH) or absolute path"
 msgid "sqlfmt Executable"
 msgstr "sqlfmt Executable"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:674
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:707
 msgid "SSH Config"
 msgstr "SSH Config"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:739
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:772
 msgid "SSH Host"
 msgstr "SSH Host"
 
@@ -1634,15 +1642,15 @@ msgstr "SSH Host"
 msgid "SSH host and username are required"
 msgstr "SSH host and username are required"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:793
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:826
 msgid "SSH Password"
 msgstr "SSH Password"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:758
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:791
 msgid "SSH Port"
 msgstr "SSH Port"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:576
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:609
 msgid "SSH Profile"
 msgstr "SSH Profile"
 
@@ -1662,7 +1670,7 @@ msgstr "SSH profile updated"
 msgid "SSH Profiles"
 msgstr "SSH Profiles"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:207
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:237
 msgid "SSH Tunnel"
 msgstr "SSH Tunnel"
 
@@ -1670,11 +1678,11 @@ msgstr "SSH Tunnel"
 msgid "SSH Tunnel Profiles"
 msgstr "SSH Tunnel Profiles"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:778
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:811
 msgid "SSH User"
 msgstr "SSH User"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:361
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:394
 msgid "SSL"
 msgstr "SSL"
 
@@ -1697,9 +1705,9 @@ msgstr "Stop query"
 #: src/pages/settings/SshProfilesForm.tsx:490
 #: src/pages/settings/SshProfilesForm.tsx:516
 #: src/pages/settings/SshProfilesForm.tsx:518
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:907
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:933
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:935
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:940
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:966
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:968
 msgid "Strict (known_hosts)"
 msgstr "Strict (known_hosts)"
 
@@ -1744,12 +1752,12 @@ msgid "Temporary Files"
 msgstr "Temporary Files"
 
 #: src/pages/sidebar/dialog/ConfigDialog.tsx:141
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1141
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1186
 msgid "Test Connection"
 msgstr "Test Connection"
 
 #: src/pages/sidebar/dialog/ConfigDialog.tsx:141
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1141
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1186
 msgid "Testing…"
 msgstr "Testing…"
 
@@ -1771,7 +1779,7 @@ msgstr "Toggle sidebar"
 msgid "Toggle Sidebar"
 msgstr "Toggle Sidebar"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:447
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:480
 msgid "Token"
 msgstr "Token"
 
@@ -1794,9 +1802,9 @@ msgstr "Tree view"
 #: src/pages/settings/SshProfilesForm.tsx:482
 #: src/pages/settings/SshProfilesForm.tsx:504
 #: src/pages/settings/SshProfilesForm.tsx:506
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:899
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:921
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:923
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:932
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:954
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:956
 msgid "Trust all (insecure)"
 msgstr "Trust all (insecure)"
 
@@ -1877,7 +1885,7 @@ msgid "Used by the Monaco SQL editor and other code viewers. Prefer monospace fo
 msgstr "Used by the Monaco SQL editor and other code viewers. Prefer monospace fonts."
 
 #: src/pages/settings/SshProfilesForm.tsx:359
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:346
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:379
 msgid "Username"
 msgstr "Username"
 
@@ -1889,7 +1897,7 @@ msgstr "Value"
 msgid "Value Viewer"
 msgstr "Value Viewer"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:532
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:565
 msgid "Work Path"
 msgstr "Work Path"
 
