@@ -996,7 +996,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true, availableDataba
                       variant="ghost"
                       size="sm"
                       className="h-7 px-2 text-xs"
-                      onClick={() => form.setValue('visibleDatabases', [...availableDatabases])}
+                      onClick={() => form.setValue('visibleDatabases', [...availableDatabases].sort((a, b) => a.localeCompare(b)))}
                     >
                       <Trans>Select All</Trans>
                     </Button>
@@ -1035,7 +1035,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true, availableDataba
                   <Trans>Only selected databases will be shown in the sidebar</Trans>
                 </FormDescription>
                 <div className="space-y-2 pt-2">
-                  {availableDatabases.map((db) => (
+                  {[...availableDatabases].sort((a, b) => a.localeCompare(b)).map((db) => (
                     <FormField
                       key={db}
                       control={form.control}
