@@ -27,6 +27,11 @@ impl Connection for FolderConnection {
     .await
   }
 
+  async fn list_databases(&self) -> anyhow::Result<Vec<String>> {
+    // Folder connection has no database concept; return empty.
+    Ok(vec![])
+  }
+
   fn dialect(&self) -> &'static str {
     "folder"
   }

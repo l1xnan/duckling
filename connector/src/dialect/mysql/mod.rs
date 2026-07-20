@@ -115,6 +115,11 @@ impl Connection for MySqlConnection {
     })
   }
 
+  async fn list_databases(&self) -> anyhow::Result<Vec<String>> {
+    let this = self.clone_config();
+    crate::dialect::run_blocking(move || this.databases()).await
+  }
+
   async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     let this = self.clone_config();
     let sql = sql.to_string();
@@ -299,6 +304,13 @@ impl MySqlConnection {
       },
     )?;
     Ok(tables)
+  }
+
+  pub fn databases(&self) -> anyhow::Result<Vec<String>> {
+    let mut conn = self.get_conn()?;
+    let sql = "SHOW DATABASES";
+    let names: Vec<String> = conn.query(sql)?;
+    Ok(names)
   }
 
   fn _all_columns(&self) -> anyhow::Result<Vec<Metadata>> {

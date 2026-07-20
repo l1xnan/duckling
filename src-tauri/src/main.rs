@@ -140,6 +140,7 @@ fn main() {
       cmd::db::table_row_count,
       cmd::db::find,
       cmd::db::get_db,
+      cmd::db::list_databases,
       cmd::db::test_connection,
       cmd::db::show_schema,
       cmd::db::show_column,

@@ -297,11 +297,23 @@ export function TreeView({ dbList, search, ref }: TreeViewProps) {
   const treeData = useMemo(() => {
     const _treeData = {
       id: ROOT,
-      children: dbList.map((db) => ({
-        ...convertId(db.data, db.id, db.displayName),
-        loading: db.loading,
-        icon: db.dialect,
-      })),
+      children: dbList.map((db) => {
+        let treeData = convertId(db.data, db.id, db.displayName);
+        // Apply visibleDatabases filter if set
+        if (db.visibleDatabases && db.visibleDatabases.length > 0) {
+          treeData = {
+            ...treeData,
+            children: treeData.children?.filter(
+              (child) => db.visibleDatabases!.includes(child.name)
+            ),
+          };
+        }
+        return {
+          ...treeData,
+          loading: db.loading,
+          icon: db.dialect,
+        };
+      }),
     };
 
     return convertTreeToMap(

@@ -32,6 +32,11 @@ impl Connection for FileConnection {
     })
   }
 
+  async fn list_databases(&self) -> anyhow::Result<Vec<String>> {
+    // File connection has no database concept; return empty.
+    Ok(vec![])
+  }
+
   fn dialect(&self) -> &'static str {
     "file"
   }

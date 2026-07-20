@@ -1,15 +1,17 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { IconDatabasePlus } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
+import { RefreshCw } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 
-import { listSshConfigHosts, SshConfigHost, testConnection } from '@/api';
+import { listDatabases, listSshConfigHosts, SshConfigHost, testConnection } from '@/api';
 import { Dialog } from '@/components/custom/Dialog';
 import { PasswordInput } from '@/components/custom/PasswordInput';
 import { TooltipButton } from '@/components/custom/button';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import { DialogClose, DialogFooter } from '@/components/ui/dialog';
 import {
   Form,
@@ -40,6 +42,7 @@ import { toast } from 'sonner';
 /** Form values: dialect config + optional connection display name. */
 export type ConnectionFormValues = DialectConfig & {
   displayName?: string;
+  visibleDatabases?: string[];
 };
 
 /** Derive a default connection name from the current form / config fields. */
@@ -87,7 +90,7 @@ export function resolveConnectionDisplayName(
 }
 
 export function toDialectConfig(values: ConnectionFormValues): DialectConfig {
-  const { displayName: _name, ...configFields } = values;
+  const { displayName: _name, visibleDatabases: _visible, ...configFields } = values;
   return configFields as DialectConfig;
 }
 
@@ -102,9 +105,11 @@ type DatabaseFormProps = {
   form: UseFormReturn<ConnectionFormValues>;
   handleSubmit: (values: ConnectionFormValues) => Promise<void>;
   isNew?: boolean;
+  availableDatabases?: string[];
+  onRefreshDatabases?: () => Promise<void>;
 };
 
-export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormProps) {
+export function DatabaseForm({ form, handleSubmit, isNew = true, availableDatabases = [], onRefreshDatabases }: DatabaseFormProps) {
   const { t } = useLingui();
   const watchDialect = form.watch('dialect');
   const watchSshEnabled = form.watch('ssh_tunnel.enabled');
@@ -200,6 +205,11 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
             {supportsSsh ? (
               <TabsTrigger value="ssh" className="flex-none px-3">
                 <Trans>SSH Tunnel</Trans>
+              </TabsTrigger>
+            ) : null}
+            {availableDatabases.length > 0 ? (
+              <TabsTrigger value="databases" className="flex-none px-3">
+                <Trans>Databases</Trans>
               </TabsTrigger>
             ) : null}
           </TabsList>
@@ -937,6 +947,93 @@ export function DatabaseForm({ form, handleSubmit, isNew = true }: DatabaseFormP
               ) : null}
             </TabsContent>
           ) : null}
+
+          {availableDatabases.length > 0 ? (
+            <TabsContent
+              value="databases"
+              className="mt-4 min-h-0 flex-1 space-y-4 overflow-y-auto"
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <FormLabel>
+                    <Trans>Select databases to display</Trans>
+                  </FormLabel>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 px-2 text-xs"
+                      onClick={() => form.setValue('visibleDatabases', [...availableDatabases])}
+                    >
+                      <Trans>Select All</Trans>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 px-2 text-xs"
+                      onClick={() => form.setValue('visibleDatabases', [])}
+                    >
+                      <Trans>Deselect All</Trans>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 px-2 text-xs"
+                      onClick={() => {
+                        const current = form.getValues('visibleDatabases') ?? [];
+                        const inverted = availableDatabases.filter((db) => !current.includes(db));
+                        form.setValue('visibleDatabases', inverted);
+                      }}
+                    >
+                      <Trans>Invert</Trans>
+                    </Button>
+                    {onRefreshDatabases ? (
+                      <TooltipButton
+                        tooltip={t`Refresh database list`}
+                        icon={<RefreshCw />}
+                        onClick={onRefreshDatabases}
+                      />
+                    ) : null}
+                  </div>
+                </div>
+                <FormDescription className="text-xs text-muted-foreground">
+                  <Trans>Only selected databases will be shown in the sidebar</Trans>
+                </FormDescription>
+                <div className="space-y-2 pt-2">
+                  {availableDatabases.map((db) => (
+                    <FormField
+                      key={db}
+                      control={form.control}
+                      name="visibleDatabases"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value?.includes(db) ?? false}
+                              onCheckedChange={(checked) => {
+                                const currentValue = field.value ?? [];
+                                if (checked) {
+                                  field.onChange([...currentValue, db]);
+                                } else {
+                                  field.onChange(currentValue.filter((v) => v !== db));
+                                }
+                              }}
+                            />
+                          </FormControl>
+                          <FormLabel className="font-normal cursor-pointer">
+                            {db}
+                          </FormLabel>
+                        </FormItem>
+                      )}
+                    />
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+          ) : null}
         </Tabs>
       </form>
     </Form>
@@ -947,6 +1044,7 @@ export function DatabaseDialog() {
   const { t } = useLingui();
   const [open, setOpen] = useState(false);
   const [testing, setTesting] = useState(false);
+  const [availableDatabases, setAvailableDatabases] = useState<string[]>([]);
   const form = useForm<ConnectionFormValues>({
     defaultValues: {
       disable_ssl: true,
@@ -985,6 +1083,13 @@ export function DatabaseDialog() {
     setTesting(true);
     try {
       await runConnectionTest(values);
+      // Fetch database list after successful connection (lightweight, no tables/columns)
+      const databases = await listDatabases(toDialectConfig(values));
+      setAvailableDatabases(databases);
+      // If no visibleDatabases set, select all by default
+      if (!form.getValues('visibleDatabases') && databases.length > 0) {
+        form.setValue('visibleDatabases', databases);
+      }
       toast.success(t`Connection successful`);
     } catch (error) {
       console.error(error);
@@ -996,6 +1101,26 @@ export function DatabaseDialog() {
     }
   }
 
+  async function handleRefreshDatabases() {
+    const values = form.getValues();
+    if (!values.dialect) {
+      return;
+    }
+    try {
+      const databases = await listDatabases(toDialectConfig(values));
+      setAvailableDatabases(databases);
+      // If no visibleDatabases set, select all by default
+      if (!form.getValues('visibleDatabases') && databases.length > 0) {
+        form.setValue('visibleDatabases', databases);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        error instanceof Error ? error.message : t`Failed to refresh databases`,
+      );
+    }
+  }
+
   return (
     <Dialog
       open={open}
@@ -1004,7 +1129,7 @@ export function DatabaseDialog() {
       className="min-w-[800px] min-h-[500px]"
       trigger={<TooltipButton tooltip={t`Add data`} icon={<IconDatabasePlus />} />}
     >
-      <DatabaseForm form={form} handleSubmit={handleSubmit} />
+      <DatabaseForm form={form} handleSubmit={handleSubmit} availableDatabases={availableDatabases} onRefreshDatabases={handleRefreshDatabases} />
       <DialogFooter>
         <DialogClose render={<Button variant="secondary"><Trans>Cancel</Trans></Button>}></DialogClose>
         <Button

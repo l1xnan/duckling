@@ -138,6 +138,8 @@ export type DBType = {
   defaultDatabase?: string;
   defaultSchema?: string;
   loading?: boolean;
+  /** List of database names to display (whitelist filter). */
+  visibleDatabases?: string[];
 };
 
 export type PersistedConnection = {

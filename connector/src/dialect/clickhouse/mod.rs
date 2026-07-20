@@ -35,6 +35,10 @@ impl Connection for ClickhouseConnection {
     })
   }
 
+  async fn list_databases(&self) -> anyhow::Result<Vec<String>> {
+    self.databases().await
+  }
+
   async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     self.fetch_all(sql).await
   }
@@ -187,6 +191,13 @@ impl ClickhouseConnection {
       });
     }
     Ok(tables)
+  }
+
+  async fn databases(&self) -> anyhow::Result<Vec<String>> {
+    let client = self.client().await?;
+    let sql = "SELECT name FROM system.databases ORDER BY name";
+    let names = client.query(sql).fetch_all::<String>().await?;
+    Ok(names)
   }
 
   async fn _all_columns(&self) -> anyhow::Result<Vec<Metadata>> {

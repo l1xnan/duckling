@@ -82,9 +82,9 @@ msgstr "{sec} 秒前"
 #: src/pages/settings/SshProfilesForm.tsx:486
 #: src/pages/settings/SshProfilesForm.tsx:510
 #: src/pages/settings/SshProfilesForm.tsx:512
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:893
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:917
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:919
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:903
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:927
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:929
 msgid "Accept new keys"
 msgstr "接受新密钥"
 
@@ -93,7 +93,7 @@ msgstr "接受新密钥"
 msgid "Add"
 msgstr "添加"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1005
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1130
 msgid "Add data"
 msgstr "添加数据"
 
@@ -174,9 +174,9 @@ msgstr "通过 Tauri 调用外部 <0>sqlfmt</0> 可执行文件。"
 #: src/pages/settings/AppSetting.tsx:1739
 #: src/pages/settings/SshProfilesForm.tsx:537
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:299
-#: src/pages/sidebar/dialog/ConfigDialog.tsx:100
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:132
 #: src/pages/sidebar/dialog/ConnectionTransferDialog.tsx:282
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1009
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1134
 #: src/pages/sidebar/dialog/RenameDialog.tsx:61
 #: src/pages/sidebar/dialog/SearchDialog.tsx:69
 #: src/pages/sidebar/SqlCode.tsx:527
@@ -307,12 +307,12 @@ msgstr "确认删除表：<0>{0}</0>"
 msgid "Confirm password"
 msgstr "确认密码"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:198
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:203
 msgid "Connection"
 msgstr "连接"
 
-#: src/pages/sidebar/dialog/ConfigDialog.tsx:85
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:992
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:97
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1097
 msgid "Connection failed"
 msgstr "连接失败"
 
@@ -325,8 +325,8 @@ msgstr "未找到连接"
 msgid "Connection properties"
 msgstr "连接属性"
 
-#: src/pages/sidebar/dialog/ConfigDialog.tsx:81
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:988
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:93
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1093
 msgid "Connection successful"
 msgstr "连接成功"
 
@@ -405,7 +405,7 @@ msgstr "自定义"
 msgid "Data Columns"
 msgstr "数据列"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:128
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:133
 msgid "Data Folder"
 msgstr "数据文件夹"
 
@@ -414,7 +414,7 @@ msgid "Data type case"
 msgstr "数据类型大小写"
 
 #: src/pages/sidebar/aside.tsx:73
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:322
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:332
 msgid "Database"
 msgstr "数据库"
 
@@ -425,6 +425,10 @@ msgstr "数据库资源管理器"
 #: src/hotkeys/registry.ts:149
 msgid "Database tree"
 msgstr "数据库树"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:212
+msgid "Databases"
+msgstr "数据库"
 
 #: src/pages/sidebar/SideToolbar.tsx:113
 msgid "DB setting"
@@ -483,8 +487,12 @@ msgstr "紧凑运算符"
 msgid "Describe table"
 msgstr "描述表"
 
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:978
+msgid "Deselect All"
+msgstr "取消全选"
+
 #: src/pages/settings/AppSetting.tsx:1268
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:236
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:246
 msgid "Dialect"
 msgstr "方言"
 
@@ -492,13 +500,13 @@ msgstr "方言"
 msgid "Dialect still follows the active connection. Defaults match previous behavior."
 msgstr "方言仍跟随当前连接。默认值与此前行为一致。"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:365
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:376
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:377
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:375
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:386
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:387
 msgid "Disable"
 msgstr "禁用"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:462
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:472
 msgid "Disable SSL"
 msgstr "禁用 SSL"
 
@@ -551,7 +559,7 @@ msgstr "耗时：{elapsed}ms"
 msgid "Empty SQL"
 msgstr "SQL 为空"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:546
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:556
 msgid "Enable SSH"
 msgstr "启用 SSH"
 
@@ -640,7 +648,12 @@ msgstr "外部 sqlfmt CLI（面向 dbt，经由 Tauri）"
 msgid "Failed to open settings folder: {message}"
 msgstr "无法打开设置文件夹：{message}"
 
-#: src/pages/sidebar/dialog/ConfigDialog.tsx:67
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:119
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1119
+msgid "Failed to refresh databases"
+msgstr "刷新数据库列表失败"
+
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:79
 msgid "Failed to save connection secrets"
 msgstr "保存连接密钥失败"
 
@@ -764,10 +777,10 @@ msgstr "隐藏列"
 
 #: src/pages/settings/SshProfilesForm.tsx:387
 #: src/pages/settings/SshProfilesForm.tsx:455
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:407
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:448
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:794
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:862
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:417
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:458
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:804
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:872
 msgid "Hide password"
 msgstr "隐藏密码"
 
@@ -785,12 +798,12 @@ msgid "holywell options"
 msgstr "holywell 选项"
 
 #: src/pages/settings/SshProfilesForm.tsx:328
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:290
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:300
 msgid "Host"
 msgstr "主机"
 
 #: src/pages/settings/SshProfilesForm.tsx:468
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:875
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:885
 msgid "Host key"
 msgstr "主机密钥"
 
@@ -850,6 +863,10 @@ msgstr "使用制表符而非空格缩进"
 msgid "Install with <0>uv tool install shandy-sqlfmt</0> or set the full path to the <1>sqlfmt</1> binary."
 msgstr "可用 <0>uv tool install shandy-sqlfmt</0> 安装，或设置 <1>sqlfmt</1> 可执行文件的完整路径。"
 
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:991
+msgid "Invert"
+msgstr "反选"
+
 #: src/pages/settings/AppSetting.tsx:1386
 msgid "It's the latest version"
 msgstr "已是最新版本"
@@ -863,7 +880,7 @@ msgid "Keep unparseable statements as raw text instead of failing"
 msgstr "无法解析的语句保留为原始文本，而不是失败"
 
 #: src/pages/settings/SshProfilesForm.tsx:442
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:851
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:861
 msgid "Key Passphrase"
 msgstr "密钥口令"
 
@@ -888,10 +905,10 @@ msgstr "明文导出可留空"
 
 #: src/pages/settings/SshProfilesForm.tsx:382
 #: src/pages/settings/SshProfilesForm.tsx:450
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:403
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:444
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:790
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:858
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:413
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:454
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:800
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:868
 msgid "Leave empty to keep current"
 msgstr "留空则保留现有密码"
 
@@ -928,22 +945,22 @@ msgstr "小写"
 msgid "Main Font Family"
 msgstr "界面字体"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:638
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:648
 msgid "Manage reusable tunnels in Settings → SSH Profiles."
 msgstr "可在 设置 → SSH 配置文件 中管理可复用隧道。"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:597
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:617
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:619
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:607
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:627
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:629
 msgid "Manual configuration"
 msgstr "手动配置"
 
 #: src/pages/settings/SshProfilesForm.tsx:282
 #: src/pages/settings/SshProfilesForm.tsx:300
 #: src/pages/settings/SshProfilesForm.tsx:302
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:684
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:702
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:704
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:694
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:712
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:714
 msgid "Manual Input"
 msgstr "手动输入"
 
@@ -1001,12 +1018,12 @@ msgstr "无"
 
 #: src/components/PageTabs.tsx:408
 #: src/pages/settings/SshProfilesForm.tsx:244
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:217
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:227
 #: src/pages/sidebar/dialog/RenameDialog.tsx:51
 msgid "Name"
 msgstr "名称"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1003
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1128
 msgid "New Connection"
 msgstr "新建连接"
 
@@ -1096,12 +1113,16 @@ msgid "Official uses GitHub Releases. China Mirror goes through gh-proxy.com for
 msgstr "官方源使用 GitHub Releases。国内镜像经 gh-proxy.com 转发，便于中国大陆访问。"
 
 #: src/components/PageTabs.tsx:422
-#: src/pages/sidebar/dialog/ConfigDialog.tsx:112
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1019
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:144
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1144
 #: src/pages/sidebar/dialog/RenameDialog.tsx:64
 #: src/pages/sidebar/dialog/SearchDialog.tsx:71
 msgid "Ok"
 msgstr "确定"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1003
+msgid "Only selected databases will be shown in the sidebar"
+msgstr "仅选中的数据库会显示在侧边栏中"
 
 #: src/pages/settings/AppSetting.tsx:1601
 msgid "Open"
@@ -1156,7 +1177,7 @@ msgid "Passed as <0>--line-length</0> (default 88)"
 msgstr "作为 <0>--line-length</0> 传入（默认 88）"
 
 #: src/pages/settings/SshProfilesForm.tsx:374
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:396
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:406
 msgid "Password"
 msgstr "密码"
 
@@ -1172,7 +1193,7 @@ msgstr "导入加密密钥需要主密码"
 msgid "Passwords do not match"
 msgstr "两次密码不一致"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:486
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:496
 msgid "Path"
 msgstr "路径"
 
@@ -1207,7 +1228,7 @@ msgid "Polyglot (default)"
 msgstr "Polyglot（默认）"
 
 #: src/pages/settings/SshProfilesForm.tsx:343
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:306
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:316
 msgid "Port"
 msgstr "端口"
 
@@ -1224,7 +1245,7 @@ msgid "Press keys…"
 msgstr "请按下按键…"
 
 #: src/pages/settings/SshProfilesForm.tsx:400
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:807
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:817
 msgid "Private Key"
 msgstr "私钥"
 
@@ -1291,6 +1312,10 @@ msgstr "参考：<0>Shiki TextMate Grammar & Theme Playground</0>。"
 msgid "Refresh"
 msgstr "刷新"
 
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:995
+msgid "Refresh database list"
+msgstr "刷新数据库列表"
+
 #: src/pages/sidebar/SideToolbar.tsx:120
 msgid "Refresh DB"
 msgstr "刷新数据库"
@@ -1314,9 +1339,9 @@ msgstr "重命名"
 msgid "Rename connection"
 msgstr "重命名连接"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:366
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:379
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:380
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:376
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:389
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:390
 msgid "Require"
 msgstr "要求"
 
@@ -1413,23 +1438,23 @@ msgstr "搜索系统字体"
 msgid "Search: {0}"
 msgstr "搜索：{0}"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:490
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:500
 msgid "Search..."
 msgstr "搜索..."
 
 #: src/pages/settings/SshProfilesForm.tsx:428
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:492
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:505
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:837
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:502
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:515
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:847
 msgid "Select"
 msgstr "选择"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:259
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:269
 msgid "Select a dialect"
 msgstr "选择方言"
 
-#: src/pages/sidebar/dialog/ConfigDialog.tsx:75
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:982
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:87
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1080
 msgid "Select a dialect first"
 msgstr "请先选择方言"
 
@@ -1437,9 +1462,17 @@ msgstr "请先选择方言"
 msgid "Select a font"
 msgstr "选择字体"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:609
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:619
 msgid "Select a saved SSH profile"
 msgstr "选择已保存的 SSH 配置"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:969
+msgid "Select All"
+msgstr "全选"
+
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:959
+msgid "Select databases to display"
+msgstr "选择要显示的数据库"
 
 #: src/pages/settings/AppSetting.tsx:375
 #: src/pages/settings/AppSetting.tsx:405
@@ -1447,11 +1480,11 @@ msgid "Select editor theme"
 msgstr "选择编辑器主题"
 
 #: src/pages/settings/SshProfilesForm.tsx:292
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:694
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:704
 msgid "Select from ~/.ssh/config"
 msgstr "从 ~/.ssh/config 选择"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:817
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:827
 msgid "Select private key"
 msgstr "选择私钥"
 
@@ -1509,10 +1542,10 @@ msgstr "显示数据库"
 
 #: src/pages/settings/SshProfilesForm.tsx:386
 #: src/pages/settings/SshProfilesForm.tsx:454
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:406
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:447
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:793
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:861
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:416
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:457
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:803
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:871
 msgid "Show password"
 msgstr "显示密码"
 
@@ -1589,11 +1622,11 @@ msgstr "sqlfmt（来自 PATH）或绝对路径"
 msgid "sqlfmt Executable"
 msgstr "sqlfmt 可执行文件"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:664
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:674
 msgid "SSH Config"
 msgstr "SSH 配置"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:729
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:739
 msgid "SSH Host"
 msgstr "SSH 主机"
 
@@ -1601,15 +1634,15 @@ msgstr "SSH 主机"
 msgid "SSH host and username are required"
 msgstr "SSH 主机和用户名为必填"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:783
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:793
 msgid "SSH Password"
 msgstr "SSH 密码"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:748
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:758
 msgid "SSH Port"
 msgstr "SSH 端口"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:566
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:576
 msgid "SSH Profile"
 msgstr "SSH 配置"
 
@@ -1629,7 +1662,7 @@ msgstr "SSH 配置已更新"
 msgid "SSH Profiles"
 msgstr "SSH 配置文件"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:202
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:207
 msgid "SSH Tunnel"
 msgstr "SSH 隧道"
 
@@ -1637,11 +1670,11 @@ msgstr "SSH 隧道"
 msgid "SSH Tunnel Profiles"
 msgstr "SSH 隧道配置"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:768
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:778
 msgid "SSH User"
 msgstr "SSH 用户"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:351
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:361
 msgid "SSL"
 msgstr "SSL"
 
@@ -1664,9 +1697,9 @@ msgstr "停止查询"
 #: src/pages/settings/SshProfilesForm.tsx:490
 #: src/pages/settings/SshProfilesForm.tsx:516
 #: src/pages/settings/SshProfilesForm.tsx:518
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:897
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:923
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:925
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:907
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:933
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:935
 msgid "Strict (known_hosts)"
 msgstr "严格（known_hosts）"
 
@@ -1710,13 +1743,13 @@ msgstr "右对齐表格"
 msgid "Temporary Files"
 msgstr "临时文件"
 
-#: src/pages/sidebar/dialog/ConfigDialog.tsx:109
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1016
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:141
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1141
 msgid "Test Connection"
 msgstr "测试连接"
 
-#: src/pages/sidebar/dialog/ConfigDialog.tsx:109
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1016
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:141
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1141
 msgid "Testing…"
 msgstr "测试中…"
 
@@ -1738,7 +1771,7 @@ msgstr "切换侧边栏"
 msgid "Toggle Sidebar"
 msgstr "切换侧边栏"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:437
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:447
 msgid "Token"
 msgstr "令牌"
 
@@ -1761,9 +1794,9 @@ msgstr "树形视图"
 #: src/pages/settings/SshProfilesForm.tsx:482
 #: src/pages/settings/SshProfilesForm.tsx:504
 #: src/pages/settings/SshProfilesForm.tsx:506
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:889
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:911
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:913
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:899
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:921
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:923
 msgid "Trust all (insecure)"
 msgstr "信任全部（不安全）"
 
@@ -1844,7 +1877,7 @@ msgid "Used by the Monaco SQL editor and other code viewers. Prefer monospace fo
 msgstr "用于 Monaco SQL 编辑器及其他代码查看器，建议选择等宽字体。"
 
 #: src/pages/settings/SshProfilesForm.tsx:359
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:336
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:346
 msgid "Username"
 msgstr "用户名"
 
@@ -1856,7 +1889,7 @@ msgstr "值"
 msgid "Value Viewer"
 msgstr "值查看器"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:522
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:532
 msgid "Work Path"
 msgstr "工作路径"
 

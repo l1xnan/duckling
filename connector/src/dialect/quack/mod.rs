@@ -37,6 +37,15 @@ impl Connection for QuackConnection {
     .await
   }
 
+  async fn list_databases(&self) -> anyhow::Result<Vec<String>> {
+    let this = self.clone();
+    crate::dialect::run_blocking(move || {
+      let conn = this.connect()?;
+      this.databases(&conn)
+    })
+    .await
+  }
+
   async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     let this = self.clone();
     let sql = sql.to_string();
@@ -220,9 +229,24 @@ impl QuackConnection {
           size: None,
         })
       })?
+        .flatten()
+        .collect();
+    Ok(tables)
+  }
+
+  fn databases(&self, conn: &DuckDbSyncConnection) -> anyhow::Result<Vec<String>> {
+    let sql = "
+      SELECT DISTINCT table_catalog
+      FROM information_schema.tables
+      ORDER BY table_catalog
+    ";
+    let wrapped = self.wrap_sql(sql);
+    let mut stmt = conn.inner.prepare(&wrapped)?;
+    let names = stmt
+      .query_map([], |row| row.get(0))?
       .flatten()
       .collect();
-    Ok(tables)
+    Ok(names)
   }
 
   fn fetch_all_columns(&self, conn: &DuckDbSyncConnection) -> anyhow::Result<Vec<Metadata>> {

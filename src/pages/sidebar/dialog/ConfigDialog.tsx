@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import { listDatabases } from '@/api';
 import { Dialog } from '@/components/custom/Dialog';
 import { Button } from '@/components/ui/button';
 import { DialogClose, DialogFooter } from '@/components/ui/dialog';
@@ -25,6 +26,9 @@ export function ConfigDialog({
 }: React.ComponentProps<typeof Dialog> & { ctx?: DBType }) {
   const { t } = useLingui();
   const [testing, setTesting] = useState(false);
+  const [availableDatabases, setAvailableDatabases] = useState<string[]>(
+    db?.meta ? Object.keys(db.meta) : [],
+  );
   const updateDBConfig = useDBListStore((state) => state.setDB);
   const rename = useDBListStore((state) => state.rename);
 
@@ -34,6 +38,7 @@ export function ConfigDialog({
       ? {
           ...stripSecrets(normalizeDialectConfig(db.config)),
           displayName: db.displayName,
+          visibleDatabases: db.visibleDatabases,
         }
       : undefined,
   });
@@ -44,10 +49,11 @@ export function ConfigDialog({
         ? {
             ...stripSecrets(normalizeDialectConfig(db.config)),
             displayName: db.displayName,
+            visibleDatabases: db.visibleDatabases,
           }
         : undefined,
     );
-  }, [db?.id, db?.displayName, form]);
+  }, [db?.id, db?.displayName, db?.visibleDatabases, form]);
 
   async function handleSubmit(values: ConnectionFormValues) {
     try {
@@ -57,6 +63,12 @@ export function ConfigDialog({
       const nextName = resolveConnectionDisplayName(values);
       if (nextName && nextName !== db!.displayName) {
         rename(db!.id, nextName);
+      }
+      // Save visibleDatabases filter
+      if (values.visibleDatabases !== undefined) {
+        useDBListStore.getState().update(db!.id, {
+          visibleDatabases: values.visibleDatabases,
+        });
       }
       props.onOpenChange?.(false);
     } catch (error) {
@@ -89,13 +101,33 @@ export function ConfigDialog({
     }
   }
 
+  async function handleRefreshDatabases() {
+    const values = form.getValues();
+    if (!values.dialect || !db?.id) {
+      return;
+    }
+    try {
+      const databases = await listDatabases(toDialectConfig(values), db.id);
+      setAvailableDatabases(databases);
+      // If no visibleDatabases set, select all by default
+      if (!form.getValues('visibleDatabases') && databases.length > 0) {
+        form.setValue('visibleDatabases', databases);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        error instanceof Error ? error.message : t`Failed to refresh databases`,
+      );
+    }
+  }
+
   return (
     <Dialog
       {...props}
       className="min-w-[800px] min-h-[500px]"
       title={db?.displayName ?? db?.id ?? ''}
     >
-      <DatabaseForm form={form} handleSubmit={handleSubmit} isNew={false} />
+      <DatabaseForm form={form} handleSubmit={handleSubmit} isNew={false} availableDatabases={availableDatabases} onRefreshDatabases={handleRefreshDatabases} />
       <DialogFooter>
         <DialogClose render={<Button variant="secondary"><Trans>Cancel</Trans></Button>}>
           

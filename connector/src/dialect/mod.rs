@@ -40,6 +40,12 @@ pub trait Connection: Sync + Send {
   }
 
   async fn get_db(&self) -> anyhow::Result<TreeNode>;
+  
+  /// List available database/schema names (lightweight, no table/column metadata).
+  async fn list_databases(&self) -> anyhow::Result<Vec<String>> {
+    Err(unsupported("list_databases"))
+  }
+  
   async fn query(&self, _sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     Err(unsupported("query"))
   }

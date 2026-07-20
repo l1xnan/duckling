@@ -47,6 +47,15 @@ impl Connection for SqliteConnection {
     .await
   }
 
+  async fn list_databases(&self) -> anyhow::Result<Vec<String>> {
+    let path = self.path.clone();
+    let name = std::path::Path::new(&path)
+      .file_stem()
+      .map(|n| n.to_string_lossy().to_string())
+      .unwrap_or_else(|| path.clone());
+    Ok(vec![name])
+  }
+
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
     let path = self.path.clone();
     let sql = sql.to_string();

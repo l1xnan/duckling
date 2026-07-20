@@ -314,6 +314,29 @@ export async function getDB(
   };
 }
 
+/**
+ * Lightweight: list database/schema names only (no tables or columns).
+ */
+export async function listDatabases(
+  dialect: DialectConfig | DialectRef,
+  connectionId?: string,
+): Promise<string[]> {
+  const id =
+    connectionId ??
+    ('connectionId' in dialect && dialect.connectionId
+      ? dialect.connectionId
+      : nanoid());
+
+  if (!('connectionId' in dialect && dialect.connectionId) && !connectionId) {
+    const full = dialect as DialectConfig;
+    const backendDialect = flattenSshTunnelForBackend(full);
+    return invoke('list_databases', { dialect: backendDialect });
+  }
+
+  const ref: DialectRef = { connectionId: id };
+  return invoke('list_databases', { dialect: ref });
+}
+
 export async function showSchema(
   schema: string,
   dialect: DialectRef,

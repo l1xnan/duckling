@@ -380,6 +380,17 @@ pub async fn get_db(
   d.get_db().await.map_err(|e| e.to_string())
 }
 
+/// Lightweight: list database/schema names only (no tables or columns).
+#[tauri::command]
+pub async fn list_databases(
+  registry: State<'_, ConnectionRegistry>,
+  sessions: State<'_, SessionManager>,
+  dialect: DialectPayload,
+) -> Result<Vec<String>, String> {
+  let d = resolve_connection(&registry, &sessions, dialect).await?;
+  d.list_databases().await.map_err(|e| e.to_string())
+}
+
 /// Lightweight connectivity check (no full schema load for SQL network dialects).
 #[tauri::command]
 pub async fn test_connection(

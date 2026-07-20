@@ -148,6 +148,11 @@ impl Connection for PostgresConnection {
       comment: None,
     })
   }
+
+  async fn list_databases(&self) -> anyhow::Result<Vec<String>> {
+    self.databases().await
+  }
+
   async fn query(&self, sql: &str, limit: usize, offset: usize) -> anyhow::Result<RawArrowData> {
     self._query(sql, limit, offset).await
   }
