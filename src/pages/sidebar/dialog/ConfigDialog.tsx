@@ -5,8 +5,8 @@ import { toast } from 'sonner';
 
 import { listDatabases } from '@/api';
 import { Dialog } from '@/components/custom/Dialog';
-import { Button } from '@/components/ui/button';
-import { DialogClose, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/custom/ui/button';
+import { DialogClose, DialogFooter } from '@/components/custom/ui/dialog';
 import {
   normalizeDialectConfig,
   stripSecrets,
@@ -23,7 +23,7 @@ import { DBType, useDBListStore } from '@/stores/dbList';
 export function ConfigDialog({
   ctx: db,
   ...props
-}: React.ComponentProps<typeof Dialog> & { ctx?: DBType }) {
+}: Omit<React.ComponentProps<typeof Dialog>, 'title' | 'children'> & { ctx?: DBType }) {
   const { t } = useLingui();
   const [testing, setTesting] = useState(false);
   const [availableDatabases, setAvailableDatabases] = useState<string[]>(

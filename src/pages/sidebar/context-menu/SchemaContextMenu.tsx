@@ -9,7 +9,7 @@ import {
   ContextMenuContent,
   ContextMenuSeparator,
   ContextMenuTrigger,
-} from '@/components/ui/context-menu';
+} from '@/components/custom/ui/context-menu';
 import { DBType } from '@/stores/dbList';
 import { SchemaContextType, useTabsStore } from '@/stores/tabs';
 import { TreeNode } from '@/types';

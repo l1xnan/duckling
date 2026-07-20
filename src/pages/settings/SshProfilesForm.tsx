@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 
 import { listSshConfigHosts, type SshConfigHost } from '@/api';
 import { PasswordInput } from '@/components/custom/PasswordInput';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/custom/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import {
   Form,
@@ -16,8 +16,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from '@/components/custom/ui/form';
+import { Input } from '@/components/custom/ui/input';
 import {
   Select,
   SelectContent,
@@ -25,7 +25,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/custom/ui/select';
 import {
   getSshProfileSecrets,
   setSshProfileSecrets,

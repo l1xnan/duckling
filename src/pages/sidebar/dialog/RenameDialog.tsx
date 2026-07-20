@@ -2,16 +2,16 @@ import { Trans } from '@lingui/react/macro';
 import { useForm } from 'react-hook-form';
 
 import Dialog from '@/components/custom/Dialog';
-import { Button } from '@/components/ui/button';
-import { DialogClose, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/custom/ui/button';
+import { DialogClose, DialogFooter } from '@/components/custom/ui/dialog';
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from '@/components/custom/ui/form';
+import { Input } from '@/components/custom/ui/input';
 import { DBType, useDBListStore } from '@/stores/dbList';
 import React, { useEffect } from 'react';
 
@@ -41,7 +41,7 @@ export const RenameDialog = React.memo(function RenameDialog(
   return (
     <Dialog open={props.open} onOpenChange={props.onOpenChange} title={<Trans>Rename</Trans>}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="name"

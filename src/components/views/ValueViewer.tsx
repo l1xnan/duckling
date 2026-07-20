@@ -9,12 +9,12 @@ import { editor } from 'monaco-editor';
 import { useEffect, useRef, useState } from 'react';
 
 import { arrowToJSON } from '@/api';
-import { TooltipButton } from '@/components/custom/button';
+import { TooltipButton } from '@/components/custom/tooltip';
 import { DropdownMenu, DropdownMenuItem } from '@/components/custom/dropdown-menu';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import { DropdownMenuContent } from '@/components/ui/dropdown-menu';
+import { DropdownMenuContent } from '@/components/custom/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/custom/ui/tabs';
 import { cn } from '@/lib/utils';
 import { Direction } from '@/stores/dataset';
 import {

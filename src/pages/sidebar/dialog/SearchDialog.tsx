@@ -4,9 +4,9 @@ import { useForm } from 'react-hook-form';
 
 import Dialog from '@/components/custom/Dialog';
 import { SearchInput } from '@/components/custom/search';
-import { Button } from '@/components/ui/button';
-import { DialogClose, DialogFooter } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import { Button } from '@/components/custom/ui/button';
+import { DialogClose, DialogFooter } from '@/components/custom/ui/dialog';
+import { Form, FormControl, FormField, FormItem } from '@/components/custom/ui/form';
 import { SearchContextType, useTabsStore } from '@/stores/tabs';
 import { NodeElementType } from '@/types';
 import { nanoid } from 'nanoid';
@@ -52,7 +52,7 @@ export function SearchDialog(
   return (
     <Dialog open={props.open} onOpenChange={props.onOpenChange} title={t`Search: ${ctx?.path}`}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="value"

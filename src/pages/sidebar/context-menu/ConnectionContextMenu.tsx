@@ -11,7 +11,7 @@ import {
   ContextMenuSeparator,
   ContextMenuShortcut,
   ContextMenuTrigger,
-} from '@/components/ui/context-menu';
+} from '@/components/custom/ui/context-menu';
 import { formatHotkey, getHotkey } from '@/hotkeys';
 import { ConfigDialog } from '@/pages/sidebar/dialog/ConfigDialog';
 import { ConnectionTransferDialog } from '@/pages/sidebar/dialog/ConnectionTransferDialog';

@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { cancelQuery, query } from '@/api';
 import Dialog from '@/components/custom/Dialog';
 import { SimpleTable } from '@/components/tables';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/custom/ui/button';
 import { Loading } from '@/components/views/TableView';
 import { isQueryErrorCode } from '@/lib/capabilities';
 import {

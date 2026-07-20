@@ -21,7 +21,7 @@ import {
 import { Dialog } from '@/components/custom/Dialog';
 import { FontFamilyCombobox } from '@/components/custom/FontFamilyCombobox';
 import { SidebarNav } from '@/components/custom/siderbar-nav';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/custom/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import {
   Combobox,
@@ -29,8 +29,8 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-} from '@/components/ui/combobox';
-import { DialogClose, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+} from '@/components/custom/ui/combobox';
+import { DialogClose, DialogDescription, DialogFooter } from '@/components/custom/ui/dialog';
 import {
   Form,
   FormControl,
@@ -38,10 +38,10 @@ import {
   FormField,
   FormItem,
   FormLabel,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from '@/components/custom/ui/form';
+import { Input } from '@/components/custom/ui/input';
 import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
-import { Label } from '@/components/ui/label';
+import { Label } from '@/components/custom/ui/label';
 import {
   Progress,
   ProgressLabel,
@@ -56,7 +56,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/custom/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { setSessionIdleTtl } from '@/api';
@@ -119,7 +119,7 @@ export default function AppSettingDialog() {
         </Button>
       }
     >
-      <div className="flex min-h-0 h-full flex-col gap-8 overflow-hidden lg:flex-row lg:gap-12">
+      <div className="flex min-h-0 h-full flex-col gap-6 overflow-hidden lg:flex-row lg:gap-8">
         <SidebarNav items={items} activeKey={navKey} setKey={setNavKey} />
 
         <div className="min-h-0 flex-1 overflow-hidden lg:max-w-2xl">

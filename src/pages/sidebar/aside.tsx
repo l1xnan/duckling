@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 
 import ToggleColorMode from '@/components/ToggleColorMode';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/custom/ui/button';
 import {
   Tooltip,
   TooltipContent,

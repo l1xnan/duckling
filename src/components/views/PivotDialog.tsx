@@ -9,8 +9,8 @@ import { toast } from 'sonner';
 import { cancelQuery, query } from '@/api';
 import Dialog from '@/components/custom/Dialog';
 import { PivotCanvasTable } from '@/components/tables/PivotCanvasTable';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/custom/ui/button';
+import { Label } from '@/components/custom/ui/label';
 import {
   Select,
   SelectContent,
@@ -18,7 +18,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/custom/ui/select';
 import { Loading } from '@/components/views/TableView';
 import { isQueryErrorCode } from '@/lib/capabilities';
 import { connectionRef, type DialectRef } from '@/lib/connectionRef';

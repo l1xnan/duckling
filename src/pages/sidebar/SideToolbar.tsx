@@ -17,14 +17,14 @@ import { useShallow } from 'zustand/shallow';
 
 import { getDB } from '@/api';
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
-import { TooltipButton } from '@/components/custom/button';
+import { TooltipButton } from '@/components/custom/tooltip';
 import { useDialog } from '@/components/custom/use-dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/custom/ui/dropdown-menu';
 import { ConfigDialog } from '@/pages/sidebar/dialog/ConfigDialog';
 import { ConnectionTransferDialog } from '@/pages/sidebar/dialog/ConnectionTransferDialog';
 import { DatabaseDialog } from '@/pages/sidebar/dialog/DatabaseDialog';

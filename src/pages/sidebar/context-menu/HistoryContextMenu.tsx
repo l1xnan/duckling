@@ -12,7 +12,7 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuTrigger,
-} from '@/components/ui/context-menu';
+} from '@/components/custom/ui/context-menu';
 import {
   summarizeSql,
   type QueryHistoryItem,

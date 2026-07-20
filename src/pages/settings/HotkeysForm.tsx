@@ -4,7 +4,7 @@ import { RotateCcwIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/custom/ui/button';
 import { formatHotkey } from '@/hotkeys/format';
 import {
   HOTKEY_CATEGORY_LABELS,

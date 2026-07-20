@@ -16,11 +16,11 @@ import {
   SqliteIcon,
 } from '@/components/custom/Icons';
 import { PasswordInput } from '@/components/custom/PasswordInput';
-import { TooltipButton } from '@/components/custom/button';
-import { Button } from '@/components/ui/button';
+import { TooltipButton } from '@/components/custom/tooltip';
+import { Button } from '@/components/custom/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import { Checkbox } from '@/components/ui/checkbox';
-import { DialogClose, DialogFooter } from '@/components/ui/dialog';
+import { DialogClose, DialogFooter } from '@/components/custom/ui/dialog';
 import {
   Form,
   FormControl,
@@ -29,8 +29,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from '@/components/custom/ui/form';
+import { Input } from '@/components/custom/ui/input';
 import {
   Select,
   SelectContent,
@@ -38,9 +38,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/custom/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/custom/ui/tabs';
 import { DialectConfig, DialectType, useDBListStore } from '@/stores/dbList';
 import { useSshProfileStore } from '@/stores/sshProfileList';
 import { TreeNode } from '@/types';

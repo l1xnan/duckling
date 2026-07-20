@@ -1,5 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { TooltipButton } from '@/components/custom/button';
+import { TooltipButton } from '@/components/custom/tooltip';
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -20,7 +20,7 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/custom/ui/dropdown-menu';
 import { TooltipContent } from '@/components/ui/tooltip';
 import { formatHotkey, getHotkey } from '@/hotkeys';
 import { DBType, useDBListStore } from '@/stores/dbList';

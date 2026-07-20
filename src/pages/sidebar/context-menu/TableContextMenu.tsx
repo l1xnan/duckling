@@ -12,14 +12,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/custom/ui/button';
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuSeparator,
   ContextMenuShortcut,
   ContextMenuTrigger,
-} from '@/components/ui/context-menu';
+} from '@/components/custom/ui/context-menu';
 import { formatHotkey, getHotkey } from '@/hotkeys';
 import { canDropTable, canFind, canMetadata } from '@/lib/capabilities';
 import { quoteTableExpr } from '@/lib/sql/countByColumn';

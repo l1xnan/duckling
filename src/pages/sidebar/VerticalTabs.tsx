@@ -6,7 +6,7 @@ import { useShallow } from 'zustand/shallow';
 import { getTypeIcon } from '@/components/custom/Icons';
 import { SearchInput } from '@/components/custom/search';
 import { TabItemProps, TabTypeIcon } from '@/components/PageTabs';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/custom/ui/button';
 import { cn } from '@/lib/utils';
 import { useDBListStore } from '@/stores/dbList';
 import { TabContextType, useTabsStore } from '@/stores/tabs';

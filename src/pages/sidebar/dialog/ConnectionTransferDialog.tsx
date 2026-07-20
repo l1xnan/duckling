@@ -10,10 +10,10 @@ import {
   writeTextFile,
 } from '@/api';
 import { Dialog } from '@/components/custom/Dialog';
-import { Button } from '@/components/ui/button';
-import { DialogClose, DialogFooter } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/custom/ui/button';
+import { DialogClose, DialogFooter } from '@/components/custom/ui/dialog';
+import { Input } from '@/components/custom/ui/input';
+import { Label } from '@/components/custom/ui/label';
 import { Switch } from '@/components/ui/switch';
 import {
   buildPlainExport,
