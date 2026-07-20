@@ -1,12 +1,20 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { IconDatabasePlus } from '@tabler/icons-react';
 import * as dialog from '@tauri-apps/plugin-dialog';
-import { RefreshCw } from 'lucide-react';
+import { FolderArchive, RefreshCw } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 
 import { listDatabases, listSshConfigHosts, SshConfigHost, testConnection } from '@/api';
 import { Dialog } from '@/components/custom/Dialog';
+import {
+  ClickhouseIcon,
+  DuckdbIcon,
+  MySqlIcon,
+  PostgresIcon,
+  QuackIcon,
+  SqliteIcon,
+} from '@/components/custom/Icons';
 import { PasswordInput } from '@/components/custom/PasswordInput';
 import { TooltipButton } from '@/components/custom/button';
 import { Button } from '@/components/ui/button';
@@ -125,6 +133,27 @@ export function DatabaseForm({ form, handleSubmit, isNew = true, availableDataba
     () => defaultConnectionName(watchedValues),
     [watchedValues],
   );
+
+  const getDialectIcon = (dialect: DialectType) => {
+    switch (dialect) {
+      case 'duckdb':
+        return <DuckdbIcon className="size-4" />;
+      case 'quack':
+        return <QuackIcon className="size-4" />;
+      case 'sqlite':
+        return <SqliteIcon className="size-4" />;
+      case 'mysql':
+        return <MySqlIcon className="size-4" />;
+      case 'postgres':
+        return <PostgresIcon className="size-4" />;
+      case 'clickhouse':
+        return <ClickhouseIcon className="size-4" />;
+      case 'folder':
+        return  <FolderArchive  className="size-4" />;
+      default:
+        return null;
+    }
+  };
 
   const dialectItems = useMemo(
     (): { label: string; value: DialectType }[] => [
@@ -277,7 +306,10 @@ export function DatabaseForm({ form, handleSubmit, isNew = true, availableDataba
                             value={item.value}
                             label={item.label}
                           >
-                            {item.label}
+                            <div className="flex items-center gap-2">
+                              {getDialectIcon(item.value)}
+                              {item.label}
+                            </div>
                           </SelectItem>
                         ))}
                       </SelectGroup>
