@@ -1,6 +1,6 @@
 import { useLingui } from '@lingui/react/macro';
 import { Stack } from '@/components/Toolbar';
-import { TooltipButton } from '@/components/custom/button';
+import { TooltipButton } from '@/components/custom/tooltip';
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -10,7 +10,7 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/custom/ui/dropdown-menu';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -105,7 +105,7 @@ export function Pagination({
           props?.onChange(page, pageSize);
         }}
       />
-      <span className="mr-1 text-sm">
+      <span className="mr-1 text-xs">
         {count < total ? t`of ${total}` : null}
       </span>
       <TooltipButton

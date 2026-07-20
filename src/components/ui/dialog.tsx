@@ -1,10 +1,10 @@
+"use client"
+
 import * as React from "react"
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
-import { msg } from '@lingui/core/macro'
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { i18n } from '@/i18n'
 import { XIcon } from "lucide-react"
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
@@ -72,7 +72,7 @@ function DialogContent({
           >
             <XIcon
             />
-            <span className="sr-only">{i18n._(msg`Close`)}</span>
+            <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
         )}
       </DialogPrimitive.Popup>

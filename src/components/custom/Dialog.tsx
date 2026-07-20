@@ -6,7 +6,7 @@ import {
   Dialog as DialogRoot,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from '@/components/custom/ui/dialog'
 import { cn } from '@/lib/utils'
 
 interface DialogProps {

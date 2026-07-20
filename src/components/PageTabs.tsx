@@ -22,18 +22,18 @@ import { Dialog } from '@/components/custom/Dialog';
 import { TitleTooltip } from '@/components/custom/tooltip';
 import { useDialog } from '@/components/custom/use-dialog';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/custom/ui/button';
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuSeparator,
   ContextMenuTrigger,
-} from '@/components/ui/context-menu';
-import { DialogFooter } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from '@/components/custom/ui/context-menu';
+import { DialogFooter } from '@/components/custom/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/custom/ui/form';
+import { Input } from '@/components/custom/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/custom/ui/tabs';
 import { cn } from '@/lib/utils';
 import { docsAtom, favoriteAtom } from '@/stores/app';
 import { TabContextType, useTabsStore } from '@/stores/tabs';
@@ -398,7 +398,7 @@ function RenameDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange} title={<Trans>Rename</Trans>}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="name"

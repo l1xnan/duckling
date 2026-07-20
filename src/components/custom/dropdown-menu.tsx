@@ -5,7 +5,7 @@ import {
   DropdownMenu as UIDropdownMenu,
   DropdownMenuItem as UIDropdownMenuItem,
   DropdownMenuLabel as UIDropdownMenuLabel,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/custom/ui/dropdown-menu';
 import {
   PaginationContent,
   PaginationItem,
@@ -43,10 +43,10 @@ export function DropdownMenuItem({
 }: ComponentProps<typeof UIDropdownMenuItem> & {
   onSelect?: ComponentProps<typeof UIDropdownMenuItem>['onClick'];
 }) {
-  return <UIDropdownMenuItem className="py-1 text-xs" onClick={onSelect} {...props} />;
+  return <UIDropdownMenuItem onClick={onSelect} {...props} />;
 }
 export function DropdownMenuLabel(
   props: ComponentProps<typeof UIDropdownMenuLabel>,
 ) {
-  return <UIDropdownMenuLabel className="py-1 text-xs" {...props} />;
+  return <UIDropdownMenuLabel {...props} />;
 }

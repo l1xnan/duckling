@@ -11,8 +11,8 @@ import {
   ComboboxList,
   ComboboxTrigger,
   ComboboxValue,
-} from '@/components/ui/combobox';
-import { FormControl } from '@/components/ui/form';
+} from '@/components/custom/ui/combobox';
+import { FormControl } from '@/components/custom/ui/form';
 import { cn } from '@/lib/utils';
 
 const FALLBACK_FONTS = [

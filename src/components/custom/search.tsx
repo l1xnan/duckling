@@ -1,4 +1,4 @@
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/custom/ui/input';
 import { cn } from '@/lib/utils';
 import { useLingui } from '@lingui/react/macro';
 import { Search } from 'lucide-react';

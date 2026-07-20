@@ -1,7 +1,7 @@
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import * as React from 'react';
 
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/custom/ui/input';
 import { cn } from '@/lib/utils';
 
 export type PasswordInputProps = Omit<

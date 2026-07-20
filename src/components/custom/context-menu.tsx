@@ -3,7 +3,7 @@ import { LucideIcon } from 'lucide-react';
 import {
   ContextMenuShortcut,
   ContextMenuItem as UIContextMenuItem,
-} from '@/components/ui/context-menu';
+} from '@/components/custom/ui/context-menu';
 
 import type { ComponentProps, ReactNode } from 'react';
 
@@ -23,7 +23,6 @@ export function ContextMenuItem({
 }: ContextMenuItemProps) {
   return (
     <UIContextMenuItem
-      className="py-1 text-xs"
       onClick={onSelect}
       {...props}
       inset={!IconComponent ? true : undefined}
