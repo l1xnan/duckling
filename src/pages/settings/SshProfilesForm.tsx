@@ -8,7 +8,6 @@ import { toast } from 'sonner';
 import { listSshConfigHosts, type SshConfigHost } from '@/api';
 import { PasswordInput } from '@/components/custom/PasswordInput';
 import { Button } from '@/components/custom/ui/button';
-import { ButtonGroup } from '@/components/ui/button-group';
 import {
   Form,
   FormControl,
@@ -26,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/custom/ui/select';
+import { ButtonGroup } from '@/components/ui/button-group';
 import {
   getSshProfileSecrets,
   setSshProfileSecrets,
@@ -181,7 +181,7 @@ export function SshProfilesForm() {
             </Trans>
           </p>
         </div>
-        <Button type="button" size="sm" onClick={startCreate}>
+        <Button type="button" onClick={startCreate}>
           <PlusIcon className="size-4" />
           <Trans>Add</Trans>
         </Button>
