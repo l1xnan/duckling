@@ -659,6 +659,101 @@ fn truncate_utf8_value(s: &str, max_bytes: usize) -> String {
   out
 }
 
+/// Truncate a UTF-8 string for grid preview (shared by dialects).
+pub fn truncate_utf8_for_preview(s: &str) -> String {
+  truncate_utf8_value(s, MAX_PREVIEW_CELL_BYTES)
+}
+
+/// Truncate binary cells for grid preview (shared by dialects).
+pub fn truncate_bytes_for_preview(bytes: &[u8]) -> Vec<u8> {
+  if bytes.len() <= MAX_PREVIEW_CELL_BYTES {
+    bytes.to_vec()
+  } else {
+    bytes[..MAX_PREVIEW_CELL_BYTES].to_vec()
+  }
+}
+
+/// Build a [`RecordBatch`] with schema/array consistency guards (Phase 1).
+///
+/// Fallback ladder:
+/// - L3: field type ≠ array type → rewrite field from array type + warn
+/// - L4: `try_new` still fails → coerce every column to Utf8 display strings
+pub fn record_batch_from_arrays(
+  fields: Vec<Field>,
+  arrays: Vec<ArrayRef>,
+) -> anyhow::Result<RecordBatch> {
+  if fields.len() != arrays.len() {
+    anyhow::bail!(
+      "column count mismatch: {} fields vs {} arrays",
+      fields.len(),
+      arrays.len()
+    );
+  }
+
+  let mut aligned_fields = Vec::with_capacity(fields.len());
+  for (field, array) in fields.iter().zip(arrays.iter()) {
+    if field.data_type() != array.data_type() {
+      log::warn!(
+        "preview schema mismatch on column '{}': field {:?} vs array {:?}; aligning field to array",
+        field.name(),
+        field.data_type(),
+        array.data_type()
+      );
+      aligned_fields.push(Field::new(
+        field.name(),
+        array.data_type().clone(),
+        field.is_nullable(),
+      ));
+    } else {
+      aligned_fields.push(field.clone());
+    }
+  }
+
+  let schema = Arc::new(Schema::new(aligned_fields));
+  match RecordBatch::try_new(schema.clone(), arrays.clone()) {
+    Ok(batch) => Ok(batch),
+    Err(err) => {
+      log::warn!(
+        "RecordBatch::try_new failed ({err}); coercing preview batch to Utf8 columns"
+      );
+      coerce_batch_all_utf8(schema.fields(), &arrays)
+    }
+  }
+}
+
+fn coerce_batch_all_utf8(
+  fields: &arrow::datatypes::Fields,
+  arrays: &[ArrayRef],
+) -> anyhow::Result<RecordBatch> {
+  let fmt_options = FormatOptions::default();
+  let mut out_fields = Vec::with_capacity(fields.len());
+  let mut out_arrays: Vec<ArrayRef> = Vec::with_capacity(arrays.len());
+
+  for (field, array) in fields.iter().zip(arrays.iter()) {
+    out_fields.push(Field::new(field.name(), DataType::Utf8, true));
+    let formatter = arrow::util::display::ArrayFormatter::try_new(array.as_ref(), &fmt_options)
+      .map_err(|e| anyhow::anyhow!("display format failed for '{}': {e}", field.name()))?;
+    let mut builder = StringBuilder::with_capacity(array.len(), array.len() * 8);
+    for i in 0..array.len() {
+      if array.is_null(i) {
+        builder.append_null();
+      } else {
+        let s = formatter.value(i).to_string();
+        builder.append_value(truncate_utf8_for_preview(&s));
+      }
+    }
+    out_arrays.push(Arc::new(builder.finish()));
+  }
+
+  let schema = Arc::new(Schema::new(out_fields));
+  Ok(RecordBatch::try_new(schema, out_arrays)?)
+}
+
+/// Truncate oversized cells (and apply shared preview caps) before IPC.
+pub fn finalize_preview_batch(batch: RecordBatch) -> anyhow::Result<RecordBatch> {
+  Ok(truncate_batch_for_preview(&batch, MAX_PREVIEW_CELL_BYTES)?)
+}
+
 /// Truncate oversized Utf8 / LargeUtf8 / Binary / LargeBinary cells for UI preview.
 pub fn truncate_batch_for_preview(
   batch: &RecordBatch,
@@ -798,5 +893,39 @@ mod preview_truncate_tests {
       .unwrap();
     assert!(arr.value(0).len() <= MAX_PREVIEW_CELL_BYTES + 3);
     assert_eq!(arr.value(1), "ok");
+  }
+
+  #[test]
+  fn record_batch_from_arrays_aligns_mismatched_field_type() {
+    // Classic MySQL bug: schema Binary, array Utf8.
+    let fields = vec![Field::new("c", DataType::Binary, true)];
+    let arrays: Vec<ArrayRef> = vec![Arc::new(StringArray::from(vec![Some("hello"), None]))];
+    let batch = record_batch_from_arrays(fields, arrays).unwrap();
+    assert_eq!(batch.num_rows(), 2);
+    assert_eq!(batch.schema().field(0).data_type(), &DataType::Utf8);
+    let arr = batch
+      .column(0)
+      .as_any()
+      .downcast_ref::<StringArray>()
+      .unwrap();
+    assert_eq!(arr.value(0), "hello");
+    assert!(arr.is_null(1));
+  }
+
+  #[test]
+  fn finalize_preview_batch_truncates() {
+    let big = "y".repeat(MAX_PREVIEW_CELL_BYTES + 50);
+    let batch = RecordBatch::try_new(
+      Arc::new(Schema::new(vec![Field::new("c", DataType::Utf8, true)])),
+      vec![Arc::new(StringArray::from(vec![Some(big.as_str())]))],
+    )
+    .unwrap();
+    let out = finalize_preview_batch(batch).unwrap();
+    let arr = out
+      .column(0)
+      .as_any()
+      .downcast_ref::<StringArray>()
+      .unwrap();
+    assert!(arr.value(0).len() <= MAX_PREVIEW_CELL_BYTES + 3);
   }
 }
