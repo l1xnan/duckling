@@ -108,6 +108,7 @@ interface IconButtonProps extends PropsWithChildren<
 
 export function TooltipButton({
   tooltip,
+  tooltipProps: _tooltipProps,
   icon,
   children,
   className,
