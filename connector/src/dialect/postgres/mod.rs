@@ -1,3 +1,5 @@
+mod decode;
+#[allow(dead_code)]
 mod type_arrow;
 #[allow(dead_code)]
 mod type_json;
@@ -402,14 +404,8 @@ impl PostgresConnection {
     if let Some(t) = cancel {
       t.check()?;
     }
-    let (titles, batch) = type_arrow::rows_to_arrow(stmt.columns(), &rows)?;
-
-    Ok(RawArrowData {
-      total: batch.num_rows(),
-      batch,
-      titles: Some(titles),
-      sql: Some(sql.to_string()),
-    })
+    let grid = decode::rows_to_grid(stmt.columns(), &rows, sql);
+    crate::preview::grid_to_raw_arrow_data(grid)
   }
 
   fn database(&self) -> String {
