@@ -2,62 +2,73 @@ use arrow::array::{ArrayRef, Float64Array, Int64Array, StringArray};
 use arrow::datatypes::{DataType, Field};
 use mysql::consts::ColumnType;
 use mysql::consts::ColumnType::*;
-use mysql::{Column, Value, from_value};
+use mysql::{Column, Value};
 use std::sync::Arc;
 
-/// Keep preview cells bounded so tables with large TEXT/BLOB columns do not OOM.
-const MAX_CELL_BYTES: usize = crate::utils::MAX_PREVIEW_CELL_BYTES;
+use crate::utils::{
+  finalize_preview_batch, record_batch_from_arrays, truncate_bytes_for_preview,
+  truncate_utf8_for_preview,
+};
 
-fn truncate_bytes(bytes: &[u8], max: usize) -> Vec<u8> {
-  if bytes.len() <= max {
-    bytes.to_vec()
-  } else {
-    bytes[..max].to_vec()
-  }
-}
-
+/// Safe cell decode: never panics; unreadable values become None (L1).
 fn convert_to_str(unknown_val: &Value) -> Option<String> {
   match unknown_val {
-    val @ Value::Bytes(..) => {
-      let val = from_value::<Vec<u8>>(val.clone());
-      let val = truncate_bytes(&val, MAX_CELL_BYTES);
-      match String::from_utf8(val) {
-        Ok(s) => Some(s),
-        Err(e) => Some(String::from_utf8_lossy(e.as_bytes()).into_owned()),
-      }
-    }
     Value::NULL => None,
-    other => Some(format!("{other:?}")),
+    Value::Bytes(bytes) => {
+      let truncated = truncate_bytes_for_preview(bytes);
+      let s = match String::from_utf8(truncated) {
+        Ok(s) => s,
+        Err(e) => String::from_utf8_lossy(e.as_bytes()).into_owned(),
+      };
+      Some(truncate_utf8_for_preview(&s))
+    }
+    Value::Int(i) => Some(i.to_string()),
+    Value::UInt(u) => Some(u.to_string()),
+    Value::Float(f) => Some(f.to_string()),
+    Value::Double(f) => Some(f.to_string()),
+    Value::Date(y, m, d, h, mi, s, us) => {
+      Some(format!("{y:04}-{m:02}-{d:02} {h:02}:{mi:02}:{s:02}.{us:06}"))
+    }
+    Value::Time(neg, d, h, mi, s, us) => {
+      let sign = if *neg { "-" } else { "" };
+      Some(format!("{sign}{d} {h:02}:{mi:02}:{s:02}.{us:06}"))
+    }
   }
 }
 
-pub fn convert_to_str_arr(values: &[Value]) -> Vec<Option<String>> {
+fn convert_to_str_arr(values: &[Value]) -> Vec<Option<String>> {
   values.iter().map(convert_to_str).collect()
 }
 
 fn convert_to_i64(unknown_val: &Value) -> Option<i64> {
   match unknown_val {
-    val @ Value::Int(..) => Some(from_value::<i64>(val.clone())),
-    val @ Value::UInt(..) => Some(from_value::<i64>(val.clone())),
-    val @ Value::Bytes(..) => Some(from_value::<i64>(val.clone())),
+    Value::NULL => None,
+    Value::Int(i) => Some(*i),
+    Value::UInt(u) => i64::try_from(*u).ok(),
+    Value::Bytes(bytes) => std::str::from_utf8(bytes).ok()?.parse().ok(),
+    Value::Float(f) => Some(*f as i64),
+    Value::Double(f) => Some(*f as i64),
     _ => None,
   }
 }
 
-pub fn convert_to_i64_arr(values: &[Value]) -> Vec<Option<i64>> {
+fn convert_to_i64_arr(values: &[Value]) -> Vec<Option<i64>> {
   values.iter().map(convert_to_i64).collect()
 }
 
 fn convert_to_f64(unknown_val: &Value) -> Option<f64> {
   match unknown_val {
-    val @ Value::Float(..) => Some(from_value::<f64>(val.clone())),
-    val @ Value::Double(..) => Some(from_value::<f64>(val.clone())),
-    val @ Value::Bytes(..) => Some(from_value::<f64>(val.clone())),
+    Value::NULL => None,
+    Value::Float(f) => Some(f64::from(*f)),
+    Value::Double(f) => Some(*f),
+    Value::Int(i) => Some(*i as f64),
+    Value::UInt(u) => Some(*u as f64),
+    Value::Bytes(bytes) => std::str::from_utf8(bytes).ok()?.parse().ok(),
     _ => None,
   }
 }
 
-pub fn convert_to_f64_arr(values: &[Value]) -> Vec<Option<f64>> {
+fn convert_to_f64_arr(values: &[Value]) -> Vec<Option<f64>> {
   values.iter().map(convert_to_f64).collect()
 }
 
@@ -129,13 +140,23 @@ pub fn convert_arrow(types: Vec<ColumnType>, tables: Vec<Vec<Value>>) -> Vec<Arr
   arrs
 }
 
+/// Build a finalized preview batch (shared schema guards + cell truncation).
+pub fn build_preview_batch(
+  fields: Vec<Field>,
+  types: Vec<ColumnType>,
+  tables: Vec<Vec<Value>>,
+) -> anyhow::Result<arrow::record_batch::RecordBatch> {
+  let arrays = convert_arrow(types, tables);
+  let batch = record_batch_from_arrays(fields, arrays)?;
+  finalize_preview_batch(batch)
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
 
   #[test]
   fn schema_and_array_types_agree_for_text_like_columns() {
-    // These used to map schema→Binary while convert_arrow built Utf8 arrays.
     for t in [
       MYSQL_TYPE_JSON,
       MYSQL_TYPE_ENUM,
@@ -160,5 +181,23 @@ mod tests {
   fn numeric_types_stay_numeric() {
     assert_eq!(mysql_to_arrow_type(MYSQL_TYPE_LONG), DataType::Int64);
     assert_eq!(mysql_to_arrow_type(MYSQL_TYPE_DOUBLE), DataType::Float64);
+  }
+
+  #[test]
+  fn unreadable_numeric_bytes_become_null() {
+    let bad = Value::Bytes(b"not-a-number".to_vec());
+    assert_eq!(convert_to_i64(&bad), None);
+    assert_eq!(convert_to_f64(&bad), None);
+    assert!(convert_to_str(&bad).is_some());
+  }
+
+  #[test]
+  fn build_preview_batch_handles_json_like_column() {
+    let fields = vec![Field::new("j", DataType::Utf8, true)];
+    let types = vec![MYSQL_TYPE_JSON];
+    let tables = vec![vec![Value::Bytes(br#"{"a":1}"#.to_vec()), Value::NULL]];
+    let batch = build_preview_batch(fields, types, tables).unwrap();
+    assert_eq!(batch.num_rows(), 2);
+    assert_eq!(batch.schema().field(0).data_type(), &DataType::Utf8);
   }
 }

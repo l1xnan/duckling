@@ -5,8 +5,6 @@ use crate::ssh_tunnel::{DbSshConfig, SshTunnel};
 use crate::utils::{Metadata, RawArrowData, Table, build_tree};
 use crate::utils::{Title, TreeNode};
 use anyhow::{Context, anyhow};
-use arrow::array::*;
-use arrow::datatypes::Schema;
 use async_trait::async_trait;
 use mysql::prelude::*;
 use mysql::*;
@@ -368,10 +366,7 @@ impl MySqlConnection {
       }
     }
 
-    let arrs = convert_arrow(types, tables);
-
-    let schema = Schema::new(fields);
-    let batch = RecordBatch::try_new(Arc::new(schema), arrs)?;
+    let batch = build_preview_batch(fields, types, tables)?;
     Ok(RawArrowData {
       total: batch.num_rows(),
       batch,
