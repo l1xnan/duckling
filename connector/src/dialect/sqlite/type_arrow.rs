@@ -75,7 +75,19 @@ pub fn db_result_to_arrow(stmt: &mut Statement) -> anyhow::Result<RecordBatch> {
             .append_option(value);
         }
         DataType::Utf8 => {
-          let value = convert_to_string(&val);
+          let value = convert_to_string(&val).map(|s| {
+            if s.len() <= crate::utils::MAX_PREVIEW_CELL_BYTES {
+              s
+            } else {
+              let mut end = crate::utils::MAX_PREVIEW_CELL_BYTES.min(s.len());
+              while end > 0 && !s.is_char_boundary(end) {
+                end -= 1;
+              }
+              let mut out = s[..end].to_string();
+              out.push('…');
+              out
+            }
+          });
           builders[idx]
             .as_any_mut()
             .downcast_mut::<StringBuilder>()
@@ -92,6 +104,13 @@ pub fn db_result_to_arrow(stmt: &mut Statement) -> anyhow::Result<RecordBatch> {
         }
         DataType::LargeBinary => {
           let value = row.get::<usize, Option<Vec<u8>>>(idx).unwrap_or(None);
+          let value = value.map(|b| {
+            if b.len() <= crate::utils::MAX_PREVIEW_CELL_BYTES {
+              b
+            } else {
+              b[..crate::utils::MAX_PREVIEW_CELL_BYTES].to_vec()
+            }
+          });
           builders[idx]
             .as_any_mut()
             .downcast_mut::<LargeBinaryBuilder>()

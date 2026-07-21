@@ -16,6 +16,7 @@ use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
+use std::sync::Arc;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TreeNode {
@@ -638,8 +639,164 @@ pub fn json_to_arrow<S: Serialize>(rows: &[S], schema: SchemaRef) -> anyhow::Res
   Ok(batch)
 }
 
+/// Max bytes kept per string/binary cell when sending a grid preview to the UI.
+/// Prevents OOM when browsing tables with large TEXT/BLOB columns.
+pub const MAX_PREVIEW_CELL_BYTES: usize = 64 * 1024;
+
+/// Soft cap on total IPC buffer size for a single preview payload (~256 MiB).
+pub const MAX_PREVIEW_IPC_BYTES: usize = 256 * 1024 * 1024;
+
+fn truncate_utf8_value(s: &str, max_bytes: usize) -> String {
+  if s.len() <= max_bytes {
+    return s.to_string();
+  }
+  let mut end = max_bytes.min(s.len());
+  while end > 0 && !s.is_char_boundary(end) {
+    end -= 1;
+  }
+  let mut out = s[..end].to_string();
+  out.push('…');
+  out
+}
+
+/// Truncate oversized Utf8 / LargeUtf8 / Binary / LargeBinary cells for UI preview.
+pub fn truncate_batch_for_preview(
+  batch: &RecordBatch,
+  max_cell_bytes: usize,
+) -> Result<RecordBatch, arrow::error::ArrowError> {
+  let schema = batch.schema();
+  let mut columns: Vec<ArrayRef> = Vec::with_capacity(batch.num_columns());
+  let mut changed = false;
+
+  for i in 0..batch.num_columns() {
+    let col = batch.column(i);
+    let next: ArrayRef = match col.data_type() {
+      DataType::Utf8 => {
+        let arr = col.as_any().downcast_ref::<StringArray>().unwrap();
+        let mut builder = StringBuilder::with_capacity(arr.len(), arr.len() * 16);
+        for j in 0..arr.len() {
+          if arr.is_null(j) {
+            builder.append_null();
+          } else {
+            let v = arr.value(j);
+            if v.len() > max_cell_bytes {
+              changed = true;
+              builder.append_value(truncate_utf8_value(v, max_cell_bytes));
+            } else {
+              builder.append_value(v);
+            }
+          }
+        }
+        Arc::new(builder.finish())
+      }
+      DataType::LargeUtf8 => {
+        let arr = col.as_any().downcast_ref::<LargeStringArray>().unwrap();
+        let mut builder = LargeStringBuilder::with_capacity(arr.len(), arr.len() * 16);
+        for j in 0..arr.len() {
+          if arr.is_null(j) {
+            builder.append_null();
+          } else {
+            let v = arr.value(j);
+            if v.len() > max_cell_bytes {
+              changed = true;
+              builder.append_value(truncate_utf8_value(v, max_cell_bytes));
+            } else {
+              builder.append_value(v);
+            }
+          }
+        }
+        Arc::new(builder.finish())
+      }
+      DataType::Binary => {
+        let arr = col.as_any().downcast_ref::<BinaryArray>().unwrap();
+        let mut builder = BinaryBuilder::with_capacity(arr.len(), arr.len() * 16);
+        for j in 0..arr.len() {
+          if arr.is_null(j) {
+            builder.append_null();
+          } else {
+            let v = arr.value(j);
+            if v.len() > max_cell_bytes {
+              changed = true;
+              builder.append_value(&v[..max_cell_bytes]);
+            } else {
+              builder.append_value(v);
+            }
+          }
+        }
+        Arc::new(builder.finish())
+      }
+      DataType::LargeBinary => {
+        let arr = col.as_any().downcast_ref::<LargeBinaryArray>().unwrap();
+        let mut builder = LargeBinaryBuilder::with_capacity(arr.len(), arr.len() * 16);
+        for j in 0..arr.len() {
+          if arr.is_null(j) {
+            builder.append_null();
+          } else {
+            let v = arr.value(j);
+            if v.len() > max_cell_bytes {
+              changed = true;
+              builder.append_value(&v[..max_cell_bytes]);
+            } else {
+              builder.append_value(v);
+            }
+          }
+        }
+        Arc::new(builder.finish())
+      }
+      _ => col.clone(),
+    };
+    columns.push(next);
+  }
+
+  if !changed {
+    return Ok(batch.clone());
+  }
+  RecordBatch::try_new(schema, columns)
+}
+
 pub fn serialize_preview(record: &RecordBatch) -> Result<Vec<u8>, arrow::error::ArrowError> {
-  let mut writer = StreamWriter::try_new(Vec::new(), &record.schema())?;
-  writer.write(record)?;
+  let preview = truncate_batch_for_preview(record, MAX_PREVIEW_CELL_BYTES)?;
+  // Guard against pathological row counts / wide tables still exceeding a soft budget.
+  let mut batch = preview;
+  while batch.num_rows() > 1 {
+    let est = batch
+      .columns()
+      .iter()
+      .map(|c| c.get_array_memory_size())
+      .sum::<usize>();
+    if est <= MAX_PREVIEW_IPC_BYTES {
+      break;
+    }
+    let keep = (batch.num_rows() / 2).max(1);
+    batch = batch.slice(0, keep);
+  }
+
+  let mut writer = StreamWriter::try_new(Vec::new(), &batch.schema())?;
+  writer.write(&batch)?;
   writer.into_inner()
+}
+
+#[cfg(test)]
+mod preview_truncate_tests {
+  use super::*;
+  use arrow::array::StringArray;
+
+  #[test]
+  fn truncates_oversized_utf8_cells() {
+    let big = "x".repeat(MAX_PREVIEW_CELL_BYTES + 100);
+    let schema = Arc::new(Schema::new(vec![Field::new("c", DataType::Utf8, true)]));
+    let batch = RecordBatch::try_new(
+      schema,
+      vec![Arc::new(StringArray::from(vec![Some(big.as_str()), Some("ok")]))],
+    )
+    .unwrap();
+    let out = truncate_batch_for_preview(&batch, MAX_PREVIEW_CELL_BYTES).unwrap();
+    let arr = out
+      .column(0)
+      .as_any()
+      .downcast_ref::<StringArray>()
+      .unwrap();
+    assert!(arr.value(0).len() <= MAX_PREVIEW_CELL_BYTES + 3);
+    assert_eq!(arr.value(1), "ok");
+  }
 }

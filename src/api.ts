@@ -82,12 +82,15 @@ function convert(res: ArrowResponse): ResultType {
       message,
     };
   }
+  // Keep sql on failure so the toolbar SQL viewer can show the failed statement.
   return {
     data: [],
     tableSchema: [],
     total: 0,
     code,
     message,
+    sql,
+    elapsed,
   };
 }
 

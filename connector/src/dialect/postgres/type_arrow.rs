@@ -8,7 +8,28 @@ use rust_decimal::Decimal;
 use tokio_postgres::types::Type;
 use tokio_postgres::{Column, Row};
 
-use crate::utils::Title;
+use crate::utils::{Title, MAX_PREVIEW_CELL_BYTES};
+
+fn truncate_str(s: String) -> String {
+  if s.len() <= MAX_PREVIEW_CELL_BYTES {
+    return s;
+  }
+  let mut end = MAX_PREVIEW_CELL_BYTES.min(s.len());
+  while end > 0 && !s.is_char_boundary(end) {
+    end -= 1;
+  }
+  let mut out = s[..end].to_string();
+  out.push('…');
+  out
+}
+
+fn truncate_bytes(bytes: Vec<u8>) -> Vec<u8> {
+  if bytes.len() <= MAX_PREVIEW_CELL_BYTES {
+    bytes
+  } else {
+    bytes[..MAX_PREVIEW_CELL_BYTES].to_vec()
+  }
+}
 
 pub fn col_to_arrow_type(column: &Column) -> DataType {
   match *column.type_() {
@@ -131,7 +152,12 @@ fn column_to_array(col: &Column, rows: &[Row], col_i: usize) -> anyhow::Result<A
     Type::BYTEA => {
       let values: Vec<Option<Vec<u8>>> = rows
         .iter()
-        .map(|r| r.try_get::<_, Option<Vec<u8>>>(col_i).ok().flatten())
+        .map(|r| {
+          r.try_get::<_, Option<Vec<u8>>>(col_i)
+            .ok()
+            .flatten()
+            .map(truncate_bytes)
+        })
         .collect();
       let mut builder = BinaryBuilder::new();
       for v in values {
@@ -173,7 +199,7 @@ fn column_to_array(col: &Column, rows: &[Row], col_i: usize) -> anyhow::Result<A
           r.try_get::<_, Option<serde_json::Value>>(col_i)
             .ok()
             .flatten()
-            .map(|v| v.to_string())
+            .map(|v| truncate_str(v.to_string()))
         })
         .collect();
       Arc::new(StringArray::from(values))
@@ -184,7 +210,7 @@ fn column_to_array(col: &Column, rows: &[Row], col_i: usize) -> anyhow::Result<A
         .iter()
         .map(|r| {
           if let Ok(v) = r.try_get::<_, Option<String>>(col_i) {
-            return v;
+            return v.map(truncate_str);
           }
           // last resort: empty/null
           None

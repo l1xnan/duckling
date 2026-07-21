@@ -220,9 +220,15 @@ export function DataViewToolbar({
 
         <Popover>
           <PopoverTrigger
-            render={<TooltipButton disabled={!sql} icon={<CodeIcon />} />}
+            render={
+              <TooltipButton
+                disabled={!sql}
+                icon={<CodeIcon />}
+                tooltip={sql ? t`Show SQL` : t`No SQL`}
+              />
+            }
           ></PopoverTrigger>
-          <PopoverContent className="h-[100px] pr-2">
+          <PopoverContent className="h-[160px] w-[min(90vw,32rem)] pr-2">
             <SQLCodeViewer className="text-sm" sql={sql ?? ''} />
           </PopoverContent>
         </Popover>

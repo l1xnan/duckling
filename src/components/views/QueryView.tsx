@@ -98,13 +98,19 @@ export function QueryView({
         return;
       }
       const res = await executeSQL(current, { requestId });
-      patch((prev) => ({ ...prev, ...res }));
+      // Preserve stmt-backed sql when the backend omits it on failure.
+      const failedSql = res?.sql || current.stmt || current.sql;
+      patch((prev) => ({
+        ...prev,
+        ...res,
+        sql: res?.sql || prev.sql || current.stmt,
+      }));
       patchHistoryResult(current.id ?? queryId, {
         elapsed: res?.elapsed,
         total: res?.total,
         code: res?.code,
         message: res?.message,
-        sql: res?.sql,
+        sql: failedSql,
       });
       if (isQueryErrorCode(res?.code) && res?.message) {
         setError(res.message);
@@ -115,7 +121,13 @@ export function QueryView({
       console.error(error);
       const msg = error instanceof Error ? error.message : String(error);
       setError(msg);
-      patchHistoryResult(queryId, { message: msg, code: -1 });
+      const current = getQueryChild(editorId, queryId);
+      patch({ sql: current?.stmt || current?.sql });
+      patchHistoryResult(queryId, {
+        message: msg,
+        code: -1,
+        sql: current?.stmt || current?.sql,
+      });
     } finally {
       if (requestIdRef.current === requestId) {
         requestIdRef.current = null;
@@ -205,7 +217,7 @@ export function QueryView({
         page={ctx.page}
         perPage={ctx.perPage}
         total={ctx.total}
-        sql={ctx.sql}
+        sql={ctx.sql || ctx.stmt}
         elapsed={ctx.elapsed}
         cross={ctx.cross}
         transpose={ctx.transpose}

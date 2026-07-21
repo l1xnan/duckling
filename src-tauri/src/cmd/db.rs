@@ -249,7 +249,11 @@ pub async fn query(
     d.query(&sql, limit, offset).await
   };
   let duration = start.elapsed().as_millis();
-  Ok(ArrowResponse::from_raw_data(res, Some(duration)))
+  Ok(ArrowResponse::from_raw_data(
+    res,
+    Some(duration),
+    Some(sql),
+  ))
 }
 
 #[tauri::command]
@@ -277,7 +281,11 @@ pub async fn paging_query(
     d.paging_query(&sql, Some(limit), Some(offset)).await
   };
   let duration = start.elapsed().as_millis();
-  Ok(ArrowResponse::from_raw_data(res, Some(duration)))
+  Ok(ArrowResponse::from_raw_data(
+    res,
+    Some(duration),
+    Some(sql),
+  ))
 }
 
 #[tauri::command]
@@ -311,7 +319,22 @@ pub async fn query_table(
       .await
   };
   let duration = start.elapsed().as_millis();
-  Ok(ArrowResponse::from_raw_data(res, Some(duration)))
+  // Prefer backend-built SQL on success; on failure still surface a browse-style SQL.
+  let fallback_sql = {
+    let mut s = format!("select * from {table}");
+    if !where_s.is_empty() {
+      s = format!("{s} where {where_s}");
+    }
+    if !order_s.is_empty() {
+      s = format!("{s} order by {order_s}");
+    }
+    Some(s)
+  };
+  Ok(ArrowResponse::from_raw_data(
+    res,
+    Some(duration),
+    fallback_sql,
+  ))
 }
 
 #[tauri::command]
@@ -371,7 +394,7 @@ pub async fn find(
 ) -> Result<ArrowResponse, String> {
   let d = resolve_connection(&registry, &sessions, dialect).await?;
   let res = d.find(value, path).await;
-  Ok(ArrowResponse::from_raw_data(res, None))
+  Ok(ArrowResponse::from_raw_data(res, None, None))
 }
 
 #[tauri::command]
@@ -429,7 +452,7 @@ pub async fn show_schema(
 ) -> Result<ArrowResponse, String> {
   let d = resolve_connection(&registry, &sessions, dialect).await?;
   let res = d.show_schema(schema).await;
-  Ok(ArrowResponse::from_raw_data(res, None))
+  Ok(ArrowResponse::from_raw_data(res, None, None))
 }
 
 #[tauri::command]
@@ -442,7 +465,7 @@ pub async fn show_column(
 ) -> Result<ArrowResponse, String> {
   let d = resolve_connection(&registry, &sessions, dialect).await?;
   let res = d.show_column(schema, table).await;
-  Ok(ArrowResponse::from_raw_data(res, None))
+  Ok(ArrowResponse::from_raw_data(res, None, None))
 }
 
 #[tauri::command]

@@ -5,11 +5,30 @@ use mysql::consts::ColumnType::*;
 use mysql::{Column, Value, from_value};
 use std::sync::Arc;
 
+/// Keep preview cells bounded so tables with large TEXT/BLOB columns do not OOM.
+const MAX_CELL_BYTES: usize = crate::utils::MAX_PREVIEW_CELL_BYTES;
+
+fn truncate_bytes(bytes: &[u8], max: usize) -> Vec<u8> {
+  if bytes.len() <= max {
+    bytes.to_vec()
+  } else {
+    bytes[..max].to_vec()
+  }
+}
+
 fn convert_to_str(unknown_val: &Value) -> Option<String> {
   match unknown_val {
     val @ Value::Bytes(..) => {
       let val = from_value::<Vec<u8>>(val.clone());
-      String::from_utf8(val).ok()
+      let val = truncate_bytes(&val, MAX_CELL_BYTES);
+      match String::from_utf8(val) {
+        Ok(s) => Some(s),
+        Err(e) => {
+          // Lossy fallback for binary-ish blobs stored as BLOB/TEXT.
+          let lossy = String::from_utf8_lossy(e.as_bytes()).into_owned();
+          Some(lossy)
+        }
+      }
     }
     _ => None,
   }

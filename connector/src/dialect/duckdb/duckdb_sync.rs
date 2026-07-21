@@ -231,6 +231,9 @@ pub fn query(conn: &duckdb::Connection, sql: &str) -> anyhow::Result<RawArrowDat
 
   let batch = arrow::compute::concat_batches(&schema, &records)?;
   let total = batch.num_rows();
+  // Cap oversized TEXT/BLOB cells before IPC so browsing wide tables does not OOM.
+  let batch =
+    crate::utils::truncate_batch_for_preview(&batch, crate::utils::MAX_PREVIEW_CELL_BYTES)?;
 
   Ok(RawArrowData {
     total,

@@ -223,7 +223,13 @@ export const createDatasetStore = (context: TabContextType) =>
       set({ loading: true, message: undefined, refreshRequestId: requestId });
       try {
         const data = await execute(ctx, { requestId });
-        set({ ...data, loading: false, refreshRequestId: undefined });
+        // Keep last known sql when the response omits it (e.g. older error paths).
+        set({
+          ...data,
+          sql: data?.sql ?? get().sql,
+          loading: false,
+          refreshRequestId: undefined,
+        });
         return data;
       } catch (e) {
         /* empty */
