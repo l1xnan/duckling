@@ -62,6 +62,29 @@ impl Connection for FileConnection {
     .await
   }
 
+  async fn show_column(&self, _schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
+    let source = if crate::dialect::duckdb::is_file_function(table) {
+      table.to_string()
+    } else {
+      // File path → build read_xxx() from extension
+      let ext = std::path::Path::new(table)
+        .extension()
+        .and_then(|e| e.to_str())
+        .unwrap_or("");
+      match ext {
+        "parquet" => format!("read_parquet('{table}')"),
+        "csv" => format!("read_csv('{table}', union_by_name=true)"),
+        "tsv" => format!("read_csv('{table}', union_by_name=true, delim='\\t')"),
+        "json" | "jsonl" => format!("read_json('{table}', union_by_name=true)"),
+        "xlsx" => format!("read_xlsx('{table}')"),
+        _ => format!("'{table}'"),
+      }
+    };
+    let sql = format!("DESCRIBE SELECT * FROM {source}");
+    log::info!("file show_column: {}", &sql);
+    self.query(&sql, 0, 0).await
+  }
+
   fn normalize(&self, name: &str) -> String {
     name.to_string()
   }

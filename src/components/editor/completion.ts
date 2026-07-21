@@ -5,11 +5,39 @@ import {
   makeSuggestions,
   ContextType as SqlContextType,
 } from '@/ast/analyze';
+import { showColumns } from '@/api';
 import { completionRegistry } from '@/components/editor/monacoConfig';
+import type { DialectRef } from '@/lib/connectionRef';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { Position } from 'monaco-editor/esm/vs/editor/editor.api';
 
 const parser = await Parser.load();
+
+// ── File columns cache ───────────────────────────────────────────────
+
+const fileColumnsCache = new Map<string, { name: string; type: string }[]>();
+
+async function getFileColumns(
+  tableExpr: string,
+  dialect: DialectRef,
+): Promise<{ name: string; type: string }[]> {
+  const cacheKey = `${(dialect as any).connectionId ?? ''}::${tableExpr}`;
+  const cached = fileColumnsCache.get(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const { data } = await showColumns(tableExpr, dialect);
+    const cols: { name: string; type: string }[] = data.map((row: any) => ({
+      name: row.column_name ?? row.name ?? Object.values(row)[0],
+      type: row.column_type ?? row.type ?? Object.values(row)[1],
+    }));
+    fileColumnsCache.set(cacheKey, cols);
+    return cols;
+  } catch (e) {
+    console.warn('getFileColumns failed:', e);
+    return [];
+  }
+}
 
 export function parseSqlAndFindTableNameAndAliases(sql: string) {
   const regex =
@@ -38,7 +66,7 @@ export function parseSqlAndFindTableNameAndAliases(sql: string) {
   return tables;
 }
 
-export function handleProvideCompletionItems(
+export async function handleProvideCompletionItems(
   model: monaco.editor.ITextModel,
   position: Position,
 ) {
@@ -71,7 +99,23 @@ export function handleProvideCompletionItems(
   if (!ctx || !completeMeta) {
     return;
   }
+
   const items = makeSuggestions(ctx, completeMeta);
+
+  // Append columns from file references (read_xxx('...')) if any
+  if (ctx.type === SqlContextType.COLUMN && completeMeta.dialect) {
+    const fileTables = ctx.tablesInScope?.filter((t) => t.fileFunction) ?? [];
+    if (fileTables.length > 0) {
+      const fileCols = await Promise.all(
+        fileTables.map((t) => getFileColumns(t.fileFunction!, completeMeta.dialect!)),
+      );
+      for (const cols of fileCols) {
+        for (const { name, type } of cols) {
+          items.push({ label: name, type: SqlContextType.COLUMN, insertText: name, detail: type });
+        }
+      }
+    }
+  }
 
   const suggestions = items.map(({ label, type, insertText, detail }) => {
     return {

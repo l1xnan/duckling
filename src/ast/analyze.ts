@@ -1,5 +1,6 @@
 import { Parser } from '@/ast';
 import { Node } from 'web-tree-sitter';
+import type { DialectRef } from '@/lib/connectionRef';
 
 /**
  * 表示 SQL 解析器在光标位置识别出的上下文类型。
@@ -43,6 +44,8 @@ export type CompleteMetaType = {
   keywords?: string[];
   functions?: string[];
   operators?: string[];
+  /** Connection reference for on-demand file column resolution. */
+  dialect?: DialectRef;
 };
 
 type TableType = {
@@ -51,6 +54,8 @@ type TableType = {
   schema?: string | null;
   name?: string | null;
   alias?: string | null;
+  /** Full table-function expression, e.g. `read_parquet('data.parquet')` */
+  fileFunction?: string | null;
 };
 
 export type SqlContext = {
@@ -75,7 +80,11 @@ export function get_tables(
   if (!from_clause) {
     return [];
   }
-  const source = `
+
+  const results: TableType[] = [];
+
+  // Query 1: Regular table references (existing)
+  const tableSource = `
   (
     (relation
       (object_reference
@@ -83,17 +92,15 @@ export function get_tables(
         schema: (identifier)? @schema
         name: (identifier)? @name
       )? @table
-      (table_path)? @path
       (_)*
       alias: (identifier)? @alias_name
     ) @relation
   )
   `;
-  const query = parser.query(source);
-  const captures = query.captures(from_clause);
+  const tableQuery = parser.query(tableSource);
+  const tableCaptures = tableQuery.captures(from_clause);
   let currentRelation: TableType = {};
-  const results = [];
-  for (const { name, node } of captures) {
+  for (const { name, node } of tableCaptures) {
     switch (name) {
       case 'relation':
         currentRelation = { table_reference: null, alias: null };
@@ -116,7 +123,107 @@ export function get_tables(
         break;
     }
   }
+
+  // Query 2: File function calls — `read_parquet('path')`, `read_csv('path')`, etc.
+  const fileFuncSource = `
+  (
+    (relation
+      (invocation
+        (object_reference
+          name: (identifier) @func_name
+        )
+        (term
+          value: (literal) @file_arg
+        )
+      ) @table
+      (_)*
+      alias: (identifier)? @alias_name
+    ) @relation
+  )
+  `;
+  const fileFuncQuery = parser.query(fileFuncSource);
+  const fileFuncCaptures = fileFuncQuery.captures(from_clause);
+  let currentFileFunc: TableType = {};
+  for (const { name, node } of fileFuncCaptures) {
+    switch (name) {
+      case 'relation':
+        currentFileFunc = { table_reference: null, alias: null };
+        results.push(currentFileFunc);
+        break;
+      case 'table':
+        currentFileFunc.table_reference = node.text;
+        break;
+      case 'func_name': {
+        // Store the full invocation expression as fileFunction
+        // The parent (invocation) node contains the full text like `read_parquet('path')`
+        const invocationNode = node.parent?.parent; // identifier -> object_reference -> invocation
+        if (invocationNode?.type === 'invocation') {
+          currentFileFunc.fileFunction = invocationNode.text;
+        }
+        currentFileFunc.name = node.text;
+        break;
+      }
+      case 'file_arg':
+        // The literal value (e.g., 'data.parquet') — used as the primary path source
+        // Already captured via func_name's invocation parent
+        break;
+      case 'alias_name':
+        currentFileFunc.alias = node.text;
+        break;
+    }
+  }
+
+  // Query 3: Path literals — `FROM 'path/to/file.parquet'`
+  const pathLiteralSource = `
+  (
+    (relation
+      (table_path
+        path: (identifier) @file_path
+      )
+    ) @relation
+  )
+  `;
+  const pathQuery = parser.query(pathLiteralSource);
+  const pathCaptures = pathQuery.captures(from_clause);
+  let currentPath: TableType = {};
+  for (const { name, node } of pathCaptures) {
+    switch (name) {
+      case 'relation':
+        currentPath = { table_reference: null, alias: null };
+        results.push(currentPath);
+        break;
+      case 'file_path': {
+        // table_path.path is an alias of _single_quote_string → text includes quotes
+        const raw = node.text;
+        const cleanPath = raw.replace(/^['"]|['"]$/g, '');
+        currentPath.fileFunction = file_path_to_function(cleanPath);
+        currentPath.name = cleanPath;
+        break;
+      }
+    }
+  }
+
   return results;
+}
+
+/** Convert a file path to the corresponding DuckDB read_xxx() expression. */
+export function file_path_to_function(path: string): string {
+  const ext = path.split('.').pop()?.toLowerCase() ?? '';
+  switch (ext) {
+    case 'parquet':
+      return `read_parquet('${path}')`;
+    case 'csv':
+      return `read_csv('${path}')`;
+    case 'tsv':
+      return `read_csv('${path}', delim='\\t')`;
+    case 'json':
+    case 'jsonl':
+      return `read_json('${path}')`;
+    case 'xlsx':
+      return `read_xlsx('${path}')`;
+    default:
+      return `'${path}'`;
+  }
 }
 
 export function insertUnderscore(text: string, offset: number): string {

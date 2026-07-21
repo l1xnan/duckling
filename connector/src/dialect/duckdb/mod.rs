@@ -18,6 +18,16 @@ fn fn_call_re() -> &'static Regex {
   RE.get_or_init(|| Regex::new(r"^[a-zA-Z_][a-zA-Z0-9_]*\([^)]*\)$").unwrap())
 }
 
+/// Check if `table` is a DuckDB table function call like `read_parquet('path')`.
+pub fn is_file_function(table: &str) -> bool {
+  let t = table.trim().to_lowercase();
+  (t.starts_with("read_parquet(")
+    || t.starts_with("read_csv(")
+    || t.starts_with("read_json(")
+    || t.starts_with("read_xlsx("))
+    && t.ends_with(')')
+}
+
 #[async_trait]
 impl Connection for DuckDbConnection {
   async fn get_db(&self) -> anyhow::Result<TreeNode> {
@@ -78,6 +88,21 @@ impl Connection for DuckDbConnection {
   }
 
   async fn show_column(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
+    // read_xxx() 函数表达式 → 用内存连接 DESCRIBE
+    if is_file_function(table) {
+      let sql = format!("DESCRIBE SELECT * FROM {table}");
+      log::info!("show columns (file): {}", &sql);
+      let cwd = self.cwd.clone();
+      return crate::dialect::run_blocking(move || {
+        let conn = duckdb::Connection::open_in_memory()?;
+        if let Some(ref cwd) = cwd {
+          conn.execute(&format!("SET file_search_path='{cwd}'"), [])?;
+        }
+        duckdb_sync::query(&conn, &sql)
+      })
+      .await;
+    }
+    // Regular table → query information_schema
     let (db, tbl) = if schema.is_none() && table.contains('.') {
       let parts: Vec<&str> = table.splitn(2, '.').collect();
       (parts[0], parts[1])
@@ -207,4 +232,24 @@ async fn test_duckdb() {
   let res = conn.query("SELECT extension_name, installed, description FROM duckdb_extensions()");
   let (_, batch) = res.unwrap();
   let _ = print_batches(&[batch]);
+}
+
+#[cfg(test)]
+mod file_function_tests {
+  use super::is_file_function;
+
+  #[test]
+  fn test_is_file_function() {
+    assert!(is_file_function("read_parquet('data.parquet')"));
+    assert!(is_file_function("read_csv('data.csv')"));
+    assert!(is_file_function("read_json('data.json')"));
+    assert!(is_file_function("read_xlsx('data.xlsx')"));
+    assert!(is_file_function("read_parquet('D:/path/to/file.parquet')"));
+    assert!(is_file_function("  read_csv('file.csv')  "));
+
+    assert!(!is_file_function("my_table"));
+    assert!(!is_file_function("read_parquet"));
+    assert!(!is_file_function("schema.read_parquet('f.parquet')"));
+    assert!(!is_file_function("SELECT read_parquet('f.parquet')"));
+  }
 }

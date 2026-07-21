@@ -7,6 +7,7 @@ import { useRef, useState } from 'react';
 import MonacoEditor, { EditorRef } from '@/components/editor/MonacoEditor';
 import VerticalContainer from '@/components/VerticalContainer';
 import { useAppHotkey } from '@/hotkeys';
+import { connectionRef } from '@/lib/connectionRef';
 import type { QueryHistoryItem } from '@/lib/queryHistory';
 import { buildExplainSql } from '@/lib/sql/sample';
 import { bookmarksAtom, docsAtom, runsAtom } from '@/stores/app';
@@ -233,6 +234,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
             completeMeta={{
               tables: tableSchema,
               defaultDatabase: db?.defaultDatabase,
+              dialect: connectionRef(dbId),
             }}
             onRun={handleClick}
             onMount={(editor) => {

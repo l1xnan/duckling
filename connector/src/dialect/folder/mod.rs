@@ -65,8 +65,14 @@ impl Connection for FolderConnection {
   }
 
   async fn show_column(&self, _schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
-    let path = Path::new(table);
+    // read_xxx() 函数表达式 → 直接透传
+    if crate::dialect::duckdb::is_file_function(table) {
+      let sql = format!("DESCRIBE SELECT * FROM {table}");
+      log::info!("show columns: {}", &sql);
+      return self.query(&sql, 0, 0).await;
+    }
 
+    let path = Path::new(table);
     let ext = path.extension().unwrap_or_default();
     let sql = if path.is_dir() {
       let mut tmp = vec![];
