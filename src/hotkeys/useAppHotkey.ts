@@ -25,6 +25,9 @@ export function useAppHotkey(
     },
     {
       preventDefault: true,
+      // Multiple Editor tabs each register the same binding; only one is
+      // typically `enabled`. Allow multi-registration without console noise.
+      conflictBehavior: 'allow',
       ...options,
       enabled: options?.enabled ?? true,
     },
