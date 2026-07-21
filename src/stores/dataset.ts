@@ -22,6 +22,9 @@ export type SchemaType = {
   type?: string;
 };
 
+/** Preview encoding from the backend. Default/omitted means arrow IPC. */
+export type PreviewFormat = 'arrow' | 'rows';
+
 export interface ArrowResponse {
   total: number;
   data: Array<number>;
@@ -30,6 +33,12 @@ export interface ArrowResponse {
   code: number;
   elapsed: number;
   message: string;
+  /** `arrow` (default) or `rows` fallback payload. */
+  format?: PreviewFormat;
+  /** Column metadata when format is rows. */
+  columns?: TitleType[];
+  /** Row objects when format is rows. */
+  rows?: Record<string, unknown>[];
 }
 export type Direction = 'horizontal' | 'vertical';
 

@@ -1,4 +1,4 @@
-import { Data, Table, tableFromIPC } from '@apache-arrow/ts';
+import { Data, Table, Utf8, tableFromIPC } from '@apache-arrow/ts';
 import { invoke } from '@tauri-apps/api/core';
 import { Update } from '@tauri-apps/plugin-updater';
 import { uniqBy } from 'es-toolkit';
@@ -70,9 +70,82 @@ export function convertArrow(arrowData: Array<number>, titles?: TitleType[]) {
   };
 }
 
+/** Convert backend rows payload into the same shape as convertArrow. */
+export function convertRows(
+  rows: Record<string, unknown>[] | undefined,
+  columns?: TitleType[],
+  titles?: TitleType[],
+): { data: Record<string, unknown>[]; tableSchema: SchemaType[] } {
+  const cols = columns?.length ? columns : titles ?? [];
+  const data = rows ?? [];
+  // Infer column names from first row if titles missing.
+  const names =
+    cols.length > 0
+      ? cols.map((c) => c.name)
+      : data[0]
+        ? Object.keys(data[0])
+        : [];
+  const typeByName = new Map(cols.map((c) => [c.name, c.type]));
+  const utf8 = new Utf8();
+  const tableSchema: SchemaType[] = names.map((name) => ({
+    name,
+    dataType: utf8,
+    nullable: true,
+    metadata: undefined,
+    type: typeByName.get(name) ?? 'utf8',
+  }));
+  return { data, tableSchema };
+}
+
 function convert(res: ArrowResponse): ResultType {
-  const { data, titles, sql, total, code, message, elapsed } = res;
+  const { data, titles, sql, total, code, message, elapsed, format, columns, rows } =
+    res;
+
+  // Prefer explicit rows format, or rows payload when IPC bytes are absent.
+  const useRows =
+    format === 'rows' || (rows != null && (!data || data.length === 0));
+
+  if (useRows) {
+    if (code !== 0 && (!rows || rows.length === 0)) {
+      return {
+        data: [],
+        tableSchema: [],
+        total: 0,
+        code,
+        message,
+        sql,
+        elapsed,
+      };
+    }
+    const converted = convertRows(rows, columns, titles);
+    return {
+      ...converted,
+      total: total ?? converted.data.length,
+      code: code === 0 ? 0 : code,
+      sql,
+      elapsed,
+      message,
+    };
+  }
+
   if (code === 0) {
+    if (!data?.length) {
+      return {
+        data: [],
+        tableSchema: (titles ?? []).map((t) => ({
+          name: t.name,
+          dataType: new Utf8(),
+          nullable: true,
+          metadata: undefined,
+          type: t.type,
+        })),
+        total: total ?? 0,
+        code,
+        sql,
+        elapsed,
+        message,
+      };
+    }
     return {
       ...convertArrow(data, titles),
       total: total ?? data.length,
@@ -82,6 +155,7 @@ function convert(res: ArrowResponse): ResultType {
       message,
     };
   }
+
   // Keep sql on failure so the toolbar SQL viewer can show the failed statement.
   return {
     data: [],
