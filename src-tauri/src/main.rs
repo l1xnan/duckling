@@ -120,6 +120,7 @@ fn main() {
         .level_for("russh_cryptovec", log::LevelFilter::Off)
         .level_for("ssh_key", log::LevelFilter::Off)
         .level_for("keyring", log::LevelFilter::Off)
+        .level_for("ssh2_config_rs", log::LevelFilter::Off)
         .target(Target::new(TargetKind::Webview))
         .target(Target::new(TargetKind::Stdout))
         .target(Target::new(TargetKind::LogDir {
