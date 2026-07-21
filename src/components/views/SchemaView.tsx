@@ -215,11 +215,13 @@ export function DatabaseSchemaView({
     }
   }, []);
 
+  const { t } = useLingui();
+
   const handleOpenTable = useCallback(
     (row: Record<string, unknown>) => {
       const tableId = resolveTableId(row, context.schema);
       if (!tableId) {
-        toast.error('Cannot resolve table name from row');
+        toast.error(t`Cannot resolve table name from row`);
         return;
       }
       const name =
@@ -233,7 +235,7 @@ export function DatabaseSchemaView({
       };
       updateTab(item);
     },
-    [context.dbId, context.schema, updateTab],
+    [context.dbId, context.schema, updateTab, t],
   );
 
   return (
@@ -363,11 +365,13 @@ export function SearchView({ context }: { context: TableContextType }) {
     }
   }, []);
 
+  const { t } = useLingui();
+
   const handleOpenTable = useCallback(
     (row: Record<string, unknown>) => {
       const tableId = resolveTableId(row);
       if (!tableId) {
-        toast.error('Cannot resolve table name from row');
+        toast.error(t`Cannot resolve table name from row`);
         return;
       }
       const name =
@@ -381,7 +385,7 @@ export function SearchView({ context }: { context: TableContextType }) {
       };
       updateTab(item);
     },
-    [context.dbId, updateTab],
+    [context.dbId, updateTab, t],
   );
 
   return (
