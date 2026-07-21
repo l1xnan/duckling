@@ -126,7 +126,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true, availableDataba
   const [sshHosts, setSshHosts] = useState<SshConfigHost[]>([]);
   const [dbSearch, setDbSearch] = useState('');
   const sshProfiles = useSshProfileStore((s) => s.profiles);
-  const supportsSsh = watchDialect === 'mysql' || watchDialect === 'postgres';
+  const supportsSsh = watchDialect === 'mysql' || watchDialect === 'postgres' || watchDialect === 'clickhouse';
   const useSshProfile =
     !!watchSshProfileId && watchSshProfileId !== '__manual__';
   const selectedSshProfile = sshProfiles.find((p) => p.id === watchSshProfileId);
@@ -284,7 +284,7 @@ export function DatabaseForm({ form, handleSubmit, isNew = true, availableDataba
                           form.getValues('disable_ssl') ?? true,
                         );
                       }
-                      if (value !== 'mysql' && value !== 'postgres') {
+                      if (value !== 'mysql' && value !== 'postgres' && value !== 'clickhouse') {
                         form.setValue('ssh_tunnel', undefined, {
                           shouldDirty: false,
                         });

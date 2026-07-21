@@ -1,8 +1,9 @@
 use std::fs::File;
 use std::io::Write;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use crate::dialect::Connection;
+use crate::ssh_tunnel::{DbSshConfig, SshTunnel};
 use crate::utils::{build_tree, json_to_arrow, Metadata, RawArrowData, Table, TreeNode};
 use arrow::datatypes::*;
 use async_trait::async_trait;
@@ -11,6 +12,17 @@ use serde::{Deserialize, Serialize};
 
 use crate::utils::Title;
 
+pub struct ClickhouseLive {
+  _tunnel: Option<SshTunnel>,
+  client: Client,
+}
+
+impl std::fmt::Debug for ClickhouseLive {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.debug_struct("ClickhouseLive").finish_non_exhaustive()
+  }
+}
+
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct ClickhouseConnection {
   pub host: String,
@@ -18,6 +30,24 @@ pub struct ClickhouseConnection {
   pub username: String,
   pub password: String,
   pub database: Option<String>,
+  #[serde(skip)]
+  pub ssh: Option<DbSshConfig>,
+  #[serde(skip)]
+  pub live: Option<Arc<Mutex<Option<ClickhouseLive>>>>,
+}
+
+impl Clone for ClickhouseConnection {
+  fn clone(&self) -> Self {
+    Self {
+      host: self.host.clone(),
+      port: self.port.clone(),
+      username: self.username.clone(),
+      password: self.password.clone(),
+      database: self.database.clone(),
+      ssh: self.ssh.clone(),
+      live: self.live.clone(),
+    }
+  }
 }
 
 #[async_trait]
@@ -44,7 +74,7 @@ impl Connection for ClickhouseConnection {
   }
 
   async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
-    let client = self.client().await?;
+    let client = self.get_client()?;
     let total = client.query(sql).fetch_one::<u64>().await?;
     Ok(total as usize)
   }
@@ -98,7 +128,7 @@ impl Connection for ClickhouseConnection {
       "parquet" => "Parquet",
       _ => "CSVWithNames",
     };
-    let client = self.client().await?;
+    let client = self.get_client()?;
     let mut cursor = client.query(sql).fetch_bytes(ch_format)?;
     let mut file = File::create(file)?;
     while let Some(bytes) = cursor.next().await? {
@@ -155,11 +185,57 @@ impl ClickhouseConnection {
       username: username.to_string(),
       password: password.to_string(),
       database: None,
+      ssh: None,
+      live: None,
     }
   }
 
-  async fn client(&self) -> anyhow::Result<Client> {
-    let url = if self.host.starts_with("http://") || self.host.starts_with("https://") {
+  fn ensure_live(&self) -> anyhow::Result<()> {
+    let live = self
+      .live
+      .as_ref()
+      .ok_or_else(|| anyhow::anyhow!("clickhouse live not initialized"))?;
+    let mut guard = live
+      .lock()
+      .map_err(|_| anyhow::anyhow!("clickhouse live lock poisoned"))?;
+    if guard.is_some() {
+      return Ok(());
+    }
+
+    let tunnel = if let Some(ssh_config) = self.ssh.as_ref().and_then(|s| s.to_tunnel_config()) {
+      let target_port: u16 = self.port.parse().unwrap_or(8123);
+      Some(SshTunnel::open(&ssh_config, &self.host, target_port)?)
+    } else {
+      None
+    };
+
+    let client = self.build_client(tunnel.as_ref())?;
+    *guard = Some(ClickhouseLive {
+      _tunnel: tunnel,
+      client,
+    });
+    Ok(())
+  }
+
+  fn get_client(&self) -> anyhow::Result<Client> {
+    self.ensure_live()?;
+    let live = self
+      .live
+      .as_ref()
+      .ok_or_else(|| anyhow::anyhow!("clickhouse live not initialized"))?;
+    let guard = live
+      .lock()
+      .map_err(|_| anyhow::anyhow!("clickhouse live lock poisoned"))?;
+    let live_ref = guard
+      .as_ref()
+      .ok_or_else(|| anyhow::anyhow!("clickhouse live missing"))?;
+    Ok(live_ref.client.clone())
+  }
+
+  fn build_client(&self, tunnel: Option<&SshTunnel>) -> anyhow::Result<Client> {
+    let url = if let Some(tunnel) = tunnel {
+      format!("http://127.0.0.1:{}", tunnel.local_port())
+    } else if self.host.starts_with("http://") || self.host.starts_with("https://") {
       self.host.clone()
     } else {
       format!("http://{}:{}", self.host, self.port)
@@ -179,7 +255,7 @@ impl ClickhouseConnection {
         if(engine='View', 'view', 'table') as type, total_bytes
       from system.tables order by database, table_type
       ";
-    let client = self.client().await?;
+    let client = self.get_client()?;
     let rows = client.query(sql).fetch_all::<TableRow>().await?;
     let mut tables = Vec::new();
     for row in rows {
@@ -196,14 +272,14 @@ impl ClickhouseConnection {
   }
 
   async fn databases(&self) -> anyhow::Result<Vec<String>> {
-    let client = self.client().await?;
+    let client = self.get_client()?;
     let sql = "SELECT name FROM system.databases ORDER BY name";
     let names = client.query(sql).fetch_all::<String>().await?;
     Ok(names)
   }
 
   async fn _all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
-    let client = self.client().await?;
+    let client = self.get_client()?;
     let sql = "
     select database, table, groupArray((name, type)) as columns from system.columns
     group by database, table
@@ -225,14 +301,14 @@ impl ClickhouseConnection {
     Ok(metadata)
   }
   async fn _table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
-    let conn = self.client().await?;
+    let conn = self.get_client()?;
     let sql = self._table_count_sql(table, r#where);
     let total = conn.query(&sql).fetch_one::<u64>().await?;
     Ok(total as usize)
   }
 
   async fn _fetch_all(&self, sql: &str) -> anyhow::Result<JSONColumnsWithMetadataResponse> {
-    let client = self.client().await?;
+    let client = self.get_client()?;
     // https://clickhouse.com/docs/interfaces/formats/JSONStrings
     let mut cursor = client.query(sql).fetch_bytes("JSONStrings")?;
     let bytes = cursor.collect().await?;

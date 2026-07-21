@@ -102,15 +102,22 @@ pub fn open(config: ConnectionConfig) -> anyhow::Result<Box<dyn Connection>> {
         .path
         .ok_or_else(|| anyhow::anyhow!("path required for sqlite"))?,
     })),
-    "clickhouse" => Ok(Box::new(ClickhouseConnection {
-      host: config
-        .host
-        .ok_or_else(|| anyhow::anyhow!("host required for clickhouse"))?,
-      port: config.port.unwrap_or_default(),
-      username: config.username.unwrap_or_default(),
-      password: config.password.unwrap_or_default(),
-      database: config.database,
-    })),
+    "clickhouse" => {
+      let mut conn = ClickhouseConnection {
+        host: config
+          .host
+          .ok_or_else(|| anyhow::anyhow!("host required for clickhouse"))?,
+        port: config.port.unwrap_or_default(),
+        username: config.username.unwrap_or_default(),
+        password: config.password.unwrap_or_default(),
+        database: config.database,
+        ssh: None,
+        live: None,
+      };
+      conn.ssh = config.ssh;
+      conn.live = Some(std::sync::Arc::new(std::sync::Mutex::new(None)));
+      Ok(Box::new(conn))
+    }
     "mysql" => Ok(Box::new(MySqlConnection::new(
       config
         .host

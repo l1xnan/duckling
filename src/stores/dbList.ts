@@ -63,6 +63,7 @@ export type ClickhouseDialectType = {
   username: string;
   database: string;
   dialect: DialectType;
+  ssh_tunnel?: SshTunnelConfig;
 };
 
 /**

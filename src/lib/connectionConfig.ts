@@ -95,7 +95,7 @@ export function normalizeDialectConfig<
   if (!config) {
     return config;
   }
-  if (config.dialect !== 'mysql' && config.dialect !== 'postgres') {
+  if (config.dialect !== 'mysql' && config.dialect !== 'postgres' && config.dialect !== 'clickhouse') {
     return config;
   }
 
