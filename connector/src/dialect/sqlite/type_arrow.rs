@@ -1,24 +1,27 @@
-use arrow::array::{ArrayBuilder, ArrayRef, BooleanBuilder, Float64Builder, Int64Builder, LargeBinaryBuilder, StringBuilder};
-use arrow::datatypes::{DataType, Field, Schema};
-use arrow::record_batch::RecordBatch;
+use arrow::array::{
+  ArrayBuilder, ArrayRef, BooleanBuilder, Float64Builder, Int64Builder, LargeBinaryBuilder,
+  StringBuilder,
+};
+use arrow::datatypes::{DataType, Field};
 use itertools::izip;
 use rusqlite::{types::Value, Statement};
-use std::sync::Arc;
+
+use crate::utils::{
+  finalize_preview_batch, record_batch_from_arrays, truncate_bytes_for_preview,
+  truncate_utf8_for_preview,
+};
 
 pub fn db_to_arrow_type(decl_type: Option<&str>) -> DataType {
   // https://sqlite.org/datatype3.html#determination_of_column_affinity
   if let Some(decl_type) = decl_type {
     match decl_type {
-      // INT, INTEGER
       ty if ty.contains("INT") => DataType::Int64,
       ty if ty.contains("REAL") || ty.contains("DOUB") || ty.contains("FLOA") => DataType::Float64,
-      // VARCHAR, NVARCHAR, TEXT, CLOB
       ty if ty.contains("CHAR") || ty.contains("CLOB") || ty.contains("TEXT") => DataType::Utf8,
       ty if ty.contains("NUMERIC") => DataType::Utf8,
       ty if ty.contains("BLOB") => DataType::LargeBinary,
       "DATE" | "DATETIME" | "TIME" => DataType::Utf8,
       "BOOLEAN" => DataType::Boolean,
-      // "NULL" => DataType::Null,
       _ => DataType::Utf8,
     }
   } else {
@@ -33,12 +36,13 @@ fn make_builder(data_type: &DataType) -> Box<dyn ArrayBuilder> {
     DataType::Utf8 => Box::new(StringBuilder::new()),
     DataType::Float64 => Box::new(Float64Builder::new()),
     DataType::Boolean => Box::new(BooleanBuilder::new()),
+    // Unknown → Utf8 builder so every cell can still be appended.
     _ => Box::new(StringBuilder::new()),
   }
 }
 
-pub fn db_result_to_arrow(stmt: &mut Statement) -> anyhow::Result<RecordBatch> {
-  // 获取列的数据类型映射（这里简单处理几种常见类型，可根据实际扩展）
+/// Every row/column must append exactly once (value or null).
+pub fn db_result_to_arrow(stmt: &mut Statement) -> anyhow::Result<arrow::record_batch::RecordBatch> {
   let data_types: Vec<DataType> = stmt
     .columns()
     .iter()
@@ -49,98 +53,104 @@ pub fn db_result_to_arrow(stmt: &mut Statement) -> anyhow::Result<RecordBatch> {
     .map(|(name, data_type)| Field::new(name, data_type.clone(), true))
     .collect();
 
-  let schema = Arc::new(Schema::new(fields));
-
   let mut builders: Vec<Box<dyn ArrayBuilder>> = data_types.iter().map(make_builder).collect();
 
   let mut rows = stmt.query([])?;
   while let Some(row) = rows.next()? {
     for (idx, data_type) in data_types.iter().enumerate() {
       let val = row.get::<_, Value>(idx).unwrap_or(Value::Null);
-      match data_type {
-        DataType::Int64 => {
-          let value = row.get::<usize, Option<i64>>(idx).unwrap_or(None);
-          builders[idx]
-            .as_any_mut()
-            .downcast_mut::<Int64Builder>()
-            .unwrap()
-            .append_option(value);
-        }
-        DataType::Float64 => {
-          let value = row.get::<usize, Option<f64>>(idx).unwrap_or(None);
-          builders[idx]
-            .as_any_mut()
-            .downcast_mut::<Float64Builder>()
-            .unwrap()
-            .append_option(value);
-        }
-        DataType::Utf8 => {
-          let value = convert_to_string(&val).map(|s| {
-            if s.len() <= crate::utils::MAX_PREVIEW_CELL_BYTES {
-              s
-            } else {
-              let mut end = crate::utils::MAX_PREVIEW_CELL_BYTES.min(s.len());
-              while end > 0 && !s.is_char_boundary(end) {
-                end -= 1;
-              }
-              let mut out = s[..end].to_string();
-              out.push('…');
-              out
-            }
-          });
-          builders[idx]
-            .as_any_mut()
-            .downcast_mut::<StringBuilder>()
-            .unwrap()
-            .append_option(value);
-        }
-        DataType::Boolean => {
-          let value = row.get::<usize, Option<bool>>(idx).unwrap_or(None);
-          builders[idx]
-            .as_any_mut()
-            .downcast_mut::<BooleanBuilder>()
-            .unwrap()
-            .append_option(value);
-        }
-        DataType::LargeBinary => {
-          let value = row.get::<usize, Option<Vec<u8>>>(idx).unwrap_or(None);
-          let value = value.map(|b| {
-            if b.len() <= crate::utils::MAX_PREVIEW_CELL_BYTES {
-              b
-            } else {
-              b[..crate::utils::MAX_PREVIEW_CELL_BYTES].to_vec()
-            }
-          });
-          builders[idx]
-            .as_any_mut()
-            .downcast_mut::<LargeBinaryBuilder>()
-            .unwrap()
-            .append_option(value);
-        }
-        _ => {}
-      }
+      append_cell(builders[idx].as_mut(), data_type, &val);
     }
   }
-  let mut columns: Vec<ArrayRef> = Vec::new();
+
+  let mut columns: Vec<ArrayRef> = Vec::with_capacity(builders.len());
   for mut builder in builders {
     columns.push(builder.finish());
   }
 
-  Ok(RecordBatch::try_new(schema, columns)?)
+  let batch = record_batch_from_arrays(fields, columns)?;
+  finalize_preview_batch(batch)
 }
 
-#[allow(dead_code)]
+fn append_cell(builder: &mut dyn ArrayBuilder, data_type: &DataType, val: &Value) {
+  match data_type {
+    DataType::Int64 => {
+      let value = match val {
+        Value::Integer(i) => Some(*i),
+        Value::Real(f) => Some(*f as i64),
+        Value::Text(s) => s.parse::<i64>().ok(),
+        _ => None,
+      };
+      builder
+        .as_any_mut()
+        .downcast_mut::<Int64Builder>()
+        .expect("Int64Builder")
+        .append_option(value);
+    }
+    DataType::Float64 => {
+      let value = match val {
+        Value::Real(f) => Some(*f),
+        Value::Integer(i) => Some(*i as f64),
+        Value::Text(s) => s.parse::<f64>().ok(),
+        _ => None,
+      };
+      builder
+        .as_any_mut()
+        .downcast_mut::<Float64Builder>()
+        .expect("Float64Builder")
+        .append_option(value);
+    }
+    DataType::Boolean => {
+      let value = match val {
+        Value::Integer(i) => Some(*i != 0),
+        Value::Text(s) => match s.to_ascii_lowercase().as_str() {
+          "1" | "true" | "t" | "yes" => Some(true),
+          "0" | "false" | "f" | "no" => Some(false),
+          _ => None,
+        },
+        _ => None,
+      };
+      builder
+        .as_any_mut()
+        .downcast_mut::<BooleanBuilder>()
+        .expect("BooleanBuilder")
+        .append_option(value);
+    }
+    DataType::LargeBinary => {
+      let value = match val {
+        Value::Blob(b) => Some(truncate_bytes_for_preview(b)),
+        Value::Text(s) => Some(truncate_bytes_for_preview(s.as_bytes())),
+        Value::Null => None,
+        other => convert_to_string(other).map(|s| truncate_bytes_for_preview(s.as_bytes())),
+      };
+      builder
+        .as_any_mut()
+        .downcast_mut::<LargeBinaryBuilder>()
+        .expect("LargeBinaryBuilder")
+        .append_option(value);
+    }
+    // Utf8 and any unexpected DataType (builder is StringBuilder).
+    _ => {
+      let value = convert_to_string(val).map(|s| truncate_utf8_for_preview(&s));
+      if let Some(sb) = builder.as_any_mut().downcast_mut::<StringBuilder>() {
+        sb.append_option(value);
+      } else {
+        // Should not happen if make_builder stays in sync; still avoid skip-append.
+        log::warn!("sqlite preview: unexpected builder for Utf8 column");
+      }
+    }
+  }
+}
+
 pub fn convert_to_string(value: &Value) -> Option<String> {
   match value {
     Value::Integer(i) => Some(i.to_string()),
     Value::Real(f) => Some(f.to_string()),
     Value::Text(s) => Some(s.clone()),
-    Value::Blob(b) => String::from_utf8(b.clone()).ok(),
-    Value::Null => None::<String>,
+    Value::Blob(b) => Some(String::from_utf8_lossy(b).into_owned()),
+    Value::Null => None,
   }
 }
-
-
 
 #[allow(dead_code)]
 pub fn convert_to_i64(value: &Value) -> Option<i64> {
@@ -148,30 +158,42 @@ pub fn convert_to_i64(value: &Value) -> Option<i64> {
     Value::Integer(i) => Some(*i),
     Value::Real(f) => Some(*f as i64),
     Value::Text(s) => s.parse::<i64>().ok(),
-    _ => None::<i64>,
+    _ => None,
   }
 }
 
+#[allow(dead_code)]
 pub fn convert_to_f64(value: &Value) -> Option<f64> {
   match value {
-    Value::Integer(i) => i.to_string().parse::<f64>().ok(),
+    Value::Integer(i) => Some(*i as f64),
     Value::Real(f) => Some(*f),
     Value::Text(s) => s.parse::<f64>().ok(),
-    _ => None::<f64>,
+    _ => None,
   }
 }
 
-#[allow(dead_code)]
-pub fn convert_to_strings(values: &[Value]) -> Vec<Option<String>> {
-  values.iter().map(convert_to_string).collect()
-}
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use arrow::array::Array;
 
-#[allow(dead_code)]
-pub fn convert_to_i64s(values: &[Value]) -> Vec<Option<i64>> {
-  values.iter().map(convert_to_i64).collect()
-}
+  #[test]
+  fn affinity_int_and_blob() {
+    assert_eq!(db_to_arrow_type(Some("INTEGER")), DataType::Int64);
+    assert_eq!(db_to_arrow_type(Some("BLOB")), DataType::LargeBinary);
+    assert_eq!(db_to_arrow_type(None), DataType::Utf8);
+  }
 
-#[allow(dead_code)]
-pub fn convert_to_f64s(values: &[Value]) -> Vec<Option<f64>> {
-  values.iter().map(convert_to_f64).collect()
+  #[test]
+  fn append_cell_always_extends_int_builder() {
+    let mut builder = Int64Builder::new();
+    append_cell(&mut builder, &DataType::Int64, &Value::Integer(1));
+    append_cell(&mut builder, &DataType::Int64, &Value::Text("x".into())); // → null
+    append_cell(&mut builder, &DataType::Int64, &Value::Null);
+    let arr = builder.finish();
+    assert_eq!(arr.len(), 3);
+    assert_eq!(arr.value(0), 1);
+    assert!(arr.is_null(1));
+    assert!(arr.is_null(2));
+  }
 }
