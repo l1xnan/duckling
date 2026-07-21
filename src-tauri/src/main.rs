@@ -115,6 +115,10 @@ fn main() {
     .plugin(tauri_plugin_store::Builder::default().build())
     .plugin(
       tauri_plugin_log::Builder::new()
+        .level_for("russh", log::LevelFilter::Off)
+        .level_for("russh_keys", log::LevelFilter::Off)
+        .level_for("russh_cryptovec", log::LevelFilter::Off)
+        .level_for("ssh_key", log::LevelFilter::Off)
         .target(Target::new(TargetKind::Webview))
         .target(Target::new(TargetKind::Stdout))
         .target(Target::new(TargetKind::LogDir {
