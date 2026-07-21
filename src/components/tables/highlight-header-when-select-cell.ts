@@ -22,7 +22,7 @@ export class HighlightHeaderWhenSelectCellPlugin
     TABLE_EVENT_TYPE.SELECTED_CELL,
     TABLE_EVENT_TYPE.MOUSEMOVE_TABLE,
   ];
-  table: BaseTableAPI;
+  table!: BaseTableAPI;
   pluginOptions: IHighlightHeaderWhenSelectCellPluginOptions;
   colHeaderRanges: CellRange[] = [];
   rowHeaderRanges: CellRange[] = [];
@@ -64,12 +64,12 @@ export class HighlightHeaderWhenSelectCellPlugin
   clearHighlight() {
     if (this.colHeaderRanges) {
       this.colHeaderRanges.forEach((range) => {
-        this.table.arrangeCustomCellStyle({ range }, undefined);
+        this.table.arrangeCustomCellStyle({ range }, undefined as any);
       });
     }
     if (this.rowHeaderRanges) {
       this.rowHeaderRanges.forEach((range) => {
-        this.table.arrangeCustomCellStyle({ range }, undefined);
+        this.table.arrangeCustomCellStyle({ range }, undefined as any);
       });
     }
     // clear range

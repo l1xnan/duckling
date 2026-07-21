@@ -309,7 +309,7 @@ export function TableContextMenu({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <SearchDialog {...searchDialog.props} ctx={node} />
+      <SearchDialog {...(searchDialog.props as any)} ctx={node} />
     </>
   );
 }

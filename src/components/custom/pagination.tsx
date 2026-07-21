@@ -109,7 +109,6 @@ export function Pagination({
         {count < total ? t`of ${total}` : null}
       </span>
       <TooltipButton
-        color="inherit"
         onClick={() => {
           setPage((prev) => {
             props?.onChange(prev + 1, pageSize);
@@ -120,7 +119,6 @@ export function Pagination({
         icon={<ChevronRightIcon size={16} />}
       />
       <TooltipButton
-        color="inherit"
         onClick={() => {
           setPage(last);
           props?.onChange(last, pageSize);

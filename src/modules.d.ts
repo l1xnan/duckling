@@ -25,6 +25,7 @@ declare module 'monaco-sql-languages/esm/_.contribution' {
 declare module 'monaco-sql-languages/esm/common/constants' {
   export const languageId: string;
   export const TokenClassConsts: Record<string, string>;
+  export const LanguageIdEnum: Record<string, string>;
 }
 
 declare module 'monaco-sql-languages/esm/setupLanguageFeatures' {
@@ -47,6 +48,7 @@ declare module 'monaco-sql-languages/esm/baseSQLWorker' {
 declare module 'dt-sql-parser/dist/parser/postgresql' {
   const parser: any;
   export default parser;
+  export const PostgreSQL: any;
 }
 
 // Wildcard declarations for monaco-sql-languages

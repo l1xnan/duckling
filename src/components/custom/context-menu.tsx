@@ -5,25 +5,30 @@ import {
   ContextMenuItem as UIContextMenuItem,
 } from '@/components/custom/ui/context-menu';
 
-import type { ComponentProps, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
-interface ContextMenuItemProps
-  extends Omit<ComponentProps<typeof UIContextMenuItem>, 'onClick'> {
+interface ContextMenuItemProps {
   icon?: LucideIcon;
   shortcut?: string;
-  onSelect?: ComponentProps<typeof UIContextMenuItem>['onClick'];
+  onSelect?: (event: any) => void;
+  onClick?: (event: any) => void;
   children: ReactNode | string;
+  inset?: boolean;
+  className?: string;
+  disabled?: boolean;
+  tabIndex?: number;
 }
 
 export function ContextMenuItem({
   shortcut,
   icon: IconComponent,
   onSelect,
+  onClick,
   ...props
 }: ContextMenuItemProps) {
   return (
     <UIContextMenuItem
-      onClick={onSelect}
+      onClick={onSelect ?? onClick}
       {...props}
       inset={!IconComponent ? true : undefined}
     >

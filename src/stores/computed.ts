@@ -32,7 +32,7 @@ const computedImpl: ComputedImpl = (create, compute) => (set, get, api) => {
           : update;
       const computedState = compute({ ...state, ...updated });
       return { ...updated, ...computedState } as T & S;
-    }, replace);
+    }, replace as true);
   };
   api.setState = setWithComputed;
   const state = create(setWithComputed, get, api);

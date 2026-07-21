@@ -614,15 +614,122 @@ export const CanvasTable = (props: TableProps) => {
   return <CanvasTable_ {...props} />;
 };
 
-export function SimpleTable({ data }: { data: unknown[] }) {
+export type SimpleTableProps = {
+  data: unknown[];
+  hiddenColumns?: Record<string, boolean>;
+  setHiddenColumns?: (col: string, hidden: boolean) => void;
+  /** Body context menu: open the selected row as a table tab. */
+  onOpenTable?: (row: Record<string, unknown>) => void;
+};
+
+export function SimpleTable({
+  data,
+  hiddenColumns,
+  setHiddenColumns,
+  onOpenTable,
+}: SimpleTableProps) {
   const tableRef = useRef<ListTableAPI>(null);
   const theme = useTableTheme();
+  const [plugins, setPlugins] = useState<IVTablePlugin[]>([]);
+
+  const columnKeys = useMemo(
+    () => Object.keys((data[0] as Record<string, unknown>) ?? {}),
+    [data],
+  );
+
+  const contextMenuPlugin = useMemo(() => {
+    type MenuEntry =
+      | string
+      | {
+          text: string;
+          menuKey: string;
+          shortcut?: string;
+          customIcon?: { svg: string; width?: number; height?: number };
+        };
+
+    const joinGroups = (...groups: MenuEntry[][]): MenuEntry[] => {
+      const out: MenuEntry[] = [];
+      for (const g of groups) {
+        if (!g.length) continue;
+        if (out.length) out.push('---');
+        out.push(...g);
+      }
+      return out;
+    };
+
+    const bodyCopyGroup: MenuEntry[] = [
+      {
+        text: i18n._(MENU_COPY),
+        menuKey: 'copy',
+        shortcut: formatHotkey(getHotkey('table.copy')),
+        customIcon: iconCopy,
+      },
+      {
+        text: i18n._(MENU_COPY_AS_CSV),
+        menuKey: 'copy-as-csv',
+        customIcon: iconCopyCsv,
+      },
+    ];
+    const bodyOpenGroup: MenuEntry[] = onOpenTable
+      ? [
+          {
+            text: i18n._(msg`Open table`),
+            menuKey: 'open-table',
+            customIcon: iconField,
+          },
+        ]
+      : [];
+    const headerCopyGroup: MenuEntry[] = [
+      {
+        menuKey: 'copy-field',
+        text: i18n._(MENU_COPY_FIELD),
+        customIcon: iconField,
+      },
+    ];
+    const headerLayoutGroup: MenuEntry[] = setHiddenColumns
+      ? [
+          {
+            menuKey: 'hidden_column',
+            text: i18n._(MENU_HIDDEN_COLUMN),
+            customIcon: iconHide,
+          },
+        ]
+      : [];
+
+    return new ContextMenuPlugin({
+      bodyCellMenuItems: joinGroups(bodyCopyGroup, bodyOpenGroup),
+      headerCellMenuItems: joinGroups(headerCopyGroup, headerLayoutGroup),
+      menuClickCallback: async (e: MenuClickEventArgs, table: ListTableAPI) => {
+        if (e.colIndex === undefined || e.rowIndex === undefined) {
+          return;
+        }
+        const menuKey = e.menuKey as string;
+        const field = table.getCellValue(e.colIndex, e.rowIndex);
+
+        if (menuKey === 'copy-field') {
+          await writeText(String(field ?? ''));
+        } else if (menuKey === 'hidden_column' && setHiddenColumns) {
+          const colName = String(field ?? '').trim();
+          if (colName) setHiddenColumns(colName, true);
+        } else if (menuKey === 'copy') {
+          await writeText(table?.getCopyValue() ?? '');
+        } else if (menuKey === 'copy-as-csv') {
+          await copySelectedAsCsv(table);
+        } else if (menuKey === 'open-table' && onOpenTable) {
+          const record = table.getRecordByCell?.(
+            e.colIndex,
+            e.rowIndex,
+          ) as Record<string, unknown> | undefined;
+          if (record) onOpenTable(record);
+        }
+      },
+    });
+  }, [setHiddenColumns, onOpenTable, i18n.locale]);
 
   const option: ListTableConstructorOptions = useMemo(
     () => ({
       records: data,
       limitMaxAutoWidth: 200,
-      // heightMode: 'autoHeight',
       heightMode: 'standard',
       defaultRowHeight: 28,
       widthMode: 'autoWidth',
@@ -634,7 +741,6 @@ export function SimpleTable({ data }: { data: unknown[] }) {
           title: '',
           dragHeader: false,
           disableSelect: true,
-          // disableHover: true,
           disableHeaderHover: true,
           disableHeaderSelect: true,
           disableColumnResize: true,
@@ -644,15 +750,17 @@ export function SimpleTable({ data }: { data: unknown[] }) {
             return row;
           },
         },
-        ...Object.keys(data[0] ?? {}).map((key) => {
+        ...columnKeys.map((key) => {
           return {
             field: key,
             title: key,
             dragHeader: true,
             sort: true,
+            hide: hiddenColumns?.[key],
           } as ColumnDefine;
         }),
       ],
+      menu: {},
       hover: {
         highlightMode: 'row',
       },
@@ -661,14 +769,23 @@ export function SimpleTable({ data }: { data: unknown[] }) {
         copySelected: true,
         pasteValueToCell: true,
       },
-      plugins: [],
+      plugins: plugins.length > 0 ? plugins : [],
     }),
-    [data, theme],
+    [data, theme, columnKeys, hiddenColumns, plugins],
   );
 
   return (
-    <div className="h-full">
-      <ListTable ref={tableRef} option={option} />
+    <div className="h-full select-text">
+      <ListTable
+        ref={tableRef}
+        option={option}
+        onReady={(tableInstance, isFirst) => {
+          if (isFirst) {
+            tableRef.current = tableInstance as ListTableAPI;
+            setPlugins([contextMenuPlugin]);
+          }
+        }}
+      />
     </div>
   );
 }

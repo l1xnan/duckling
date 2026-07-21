@@ -132,7 +132,7 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
-      <RenameDialog {...dialog.props} ctx={db} />
+      <RenameDialog {...(dialog.props as any)} ctx={db} />
       <ConfigDialog {...configDialog.props} ctx={db} />
       <ConnectionTransferDialog
         mode="export"

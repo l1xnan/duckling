@@ -7,7 +7,7 @@ import { worker } from 'monaco-sql-languages/esm/fillers/monaco-editor-core';
 
 export class DuckDBWorker extends BaseSQLWorker {
   protected _ctx: worker.IWorkerContext;
-  protected parser: PostgreSQL;
+  protected parser: any;
   constructor(ctx: worker.IWorkerContext, createData: ICreateData) {
     super(ctx, createData);
     this._ctx = ctx;
