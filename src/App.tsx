@@ -1,7 +1,5 @@
 import { relaunch } from '@tauri-apps/plugin-process';
 import { Provider } from 'jotai';
-import { DevTools, DevToolsProps } from 'jotai-devtools';
-import css from 'jotai-devtools/styles.css?inline';
 import { useEffect } from 'react';
 
 import { checkAppUpdate, setSessionIdleTtl } from '@/api';
@@ -20,13 +18,7 @@ import {
 import Home from './Home';
 import { ThemeProvider } from './hooks/theme-provider';
 
-const JotaiDevTools = (props: DevToolsProps) =>
-  process.env.NODE_ENV !== 'production' ? (
-    <>
-      <style>{css}</style>
-      <DevTools {...props} />
-    </>
-  ) : null;
+
 
 function App() {
   const tableFontFamily = useTableFontFamily();
@@ -75,7 +67,6 @@ function App() {
       <AppI18nProvider>
         <ThemeProvider>
           <HotkeysRoot>
-            <JotaiDevTools position="bottom-right" />
             <Home />
             <Toaster richColors />
           </HotkeysRoot>
