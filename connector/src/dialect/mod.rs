@@ -256,10 +256,10 @@ pub trait Connection: Sync + Send {
     Ok(())
   }
 
-  async fn find(&self, value: &str, path: &str) -> anyhow::Result<RawArrowData> {
+  async fn find(&self, _value: &str, _path: &str) -> anyhow::Result<RawArrowData> {
     Err(unsupported("find"))
   }
-  async fn execute(&self, sql: &str) -> anyhow::Result<usize> {
+  async fn execute(&self, _sql: &str) -> anyhow::Result<usize> {
     Err(unsupported("execute"))
   }
 

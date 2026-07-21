@@ -30,7 +30,7 @@ pub struct ConnectionConfig {
 
 impl ConnectionConfig {
   pub fn with_ssh(
-    mut self,
+    self,
     enabled: Option<bool>,
     host: Option<String>,
     port: Option<String>,

@@ -33,6 +33,7 @@ impl Default for SessionManager {
 }
 
 impl SessionManager {
+  #[allow(dead_code)]
   pub fn with_idle_ttl(idle_ttl: Duration) -> Self {
     Self {
       sessions: Mutex::new(HashMap::new()),
@@ -153,6 +154,7 @@ impl SessionManager {
     }
   }
 
+  #[allow(dead_code)]
   pub fn clear(&self) {
     if let Ok(mut map) = self.sessions.lock() {
       map.clear();

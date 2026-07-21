@@ -5,7 +5,6 @@ use std::sync::Arc;
 use arrow::datatypes::{Field, Schema};
 use async_trait::async_trait;
 use rusqlite::Statement;
-use rusqlite::fallible_iterator::FallibleIterator;
 
 use crate::dialect::Connection;
 use crate::dialect::sqlite::type_arrow::{db_result_to_arrow, db_to_arrow_type};

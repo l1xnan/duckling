@@ -13,6 +13,7 @@ use connector::ConnectionConfig;
 use connector::dialect::Connection;
 use connector::utils::{Metadata, TreeNode};
 
+#[allow(dead_code)]
 pub(crate) fn build_ssh_config(
   ssh_enabled: Option<bool>,
   ssh_host: Option<String>,
@@ -35,6 +36,7 @@ pub(crate) fn build_ssh_config(
 }
 
 #[allow(clippy::too_many_arguments)]
+#[allow(dead_code)]
 pub(crate) fn build_ssh_config_ex(
   ssh_enabled: Option<bool>,
   ssh_host: Option<String>,
@@ -101,6 +103,7 @@ pub struct DialectPayload {
   pub ssh_host_key_policy: Option<String>,
 }
 
+#[allow(dead_code)]
 pub fn get_ast_dialect(dialect: &str) -> Box<dyn sqlparser::dialect::Dialect> {
   connector::dialect::ast::convert_dialect(dialect)
 }
@@ -158,6 +161,7 @@ fn block_create(payload: DialectPayload) -> Result<Box<dyn Connection>, String> 
 }
 
 /// Build a connector from a fully-resolved payload (secrets already merged).
+#[allow(dead_code)]
 pub async fn get_dialect_from_payload(payload: DialectPayload) -> Option<Box<dyn Connection>> {
   block_create(payload).ok()
 }

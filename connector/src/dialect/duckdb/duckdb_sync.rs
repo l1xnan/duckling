@@ -3,7 +3,6 @@ use crate::utils::{Table, Title, TreeNode, build_tree, get_file_name};
 use arrow::array::RecordBatch;
 use arrow::datatypes::DataType;
 use arrow::datatypes::FieldRef;
-use log::log;
 use std::collections::HashMap;
 use std::fmt;
 
@@ -26,15 +25,6 @@ impl DuckDbSyncConnection {
       )?;
     }
     Ok(Self { path, inner, cwd })
-  }
-
-  pub(crate) fn set_cwd(&mut self, cwd: Option<String>) -> duckdb::Result<()> {
-    self.cwd = cwd.clone();
-    self.inner.execute(
-      format!("SET file_search_path='{}'", cwd.unwrap_or_default()).as_str(),
-      duckdb::params![],
-    )?;
-    Ok(())
   }
 
   pub(crate) fn show_schema(&self, schema: &str) -> anyhow::Result<RecordBatch> {
@@ -87,11 +77,6 @@ impl DuckDbSyncConnection {
     let sql = format!("DROP TABLE IF EXISTS {table}");
     log::warn!("drop: {}", &sql);
     self.inner.execute(&sql, [])?;
-    Ok(())
-  }
-
-  fn execute_batch(&self, sql: &str) -> anyhow::Result<()> {
-    self.inner.execute_batch(sql)?;
     Ok(())
   }
 

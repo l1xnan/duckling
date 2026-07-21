@@ -1,10 +1,9 @@
-use arrow::array::{ArrayBuilder, ArrayRef, BooleanBuilder, Float64Array, Float64Builder, Int64Array, Int64Builder, LargeBinaryArray, LargeBinaryBuilder, StringArray, StringBuilder};
+use arrow::array::{ArrayBuilder, ArrayRef, BooleanBuilder, Float64Builder, Int64Builder, LargeBinaryBuilder, StringBuilder};
 use arrow::datatypes::{DataType, Field, Schema};
 use arrow::record_batch::RecordBatch;
 use itertools::izip;
-use rusqlite::{types::Value, Connection, Statement};
+use rusqlite::{types::Value, Statement};
 use std::sync::Arc;
-use crate::dialect::sqlite;
 
 pub fn db_to_arrow_type(decl_type: Option<&str>) -> DataType {
   // https://sqlite.org/datatype3.html#determination_of_column_affinity
@@ -123,44 +122,6 @@ pub fn convert_to_string(value: &Value) -> Option<String> {
 }
 
 
-
-fn test() {
-  let conn = Connection::open("test.db").unwrap();
-  let sql = "SELECT * FROM your_table";
-  let mut stmt = conn.prepare(sql).unwrap();
-  match db_result_to_arrow(&mut stmt) {
-    Ok(record_batch) => println!("RecordBatch: {:?}", record_batch),
-    Err(e) => println!("error: {}", e),
-  }
-}
-
-pub fn convert_arrow(value: &Value, typ: &str) -> ArrayRef {
-  println!("{:?}", value);
-  match value {
-    Value::Integer(i) => {
-      if typ.starts_with("NUMERIC") || typ.is_empty() {
-        Arc::new(StringArray::from(vec![i.to_string()])) as ArrayRef
-      } else {
-        Arc::new(Int64Array::from(vec![(*i)])) as ArrayRef
-      }
-    }
-    Value::Real(f) => {
-      if typ.starts_with("NUMERIC") || typ.is_empty() {
-        Arc::new(StringArray::from(vec![f.to_string()])) as ArrayRef
-      } else {
-        Arc::new(Float64Array::from(vec![(*f)])) as ArrayRef
-      }
-    }
-    Value::Text(s) => Arc::new(StringArray::from(vec![s.clone()])) as ArrayRef,
-    Value::Blob(b) => Arc::new(LargeBinaryArray::from_vec(vec![b])) as ArrayRef,
-    Value::Null => match typ {
-      "TEXT" | "NUMERIC" => Arc::new(StringArray::from(vec![None::<String>])) as ArrayRef,
-      "INTEGER" => Arc::new(Int64Array::from(vec![None::<i64>])) as ArrayRef,
-      "BLOB" => Arc::new(LargeBinaryArray::from_opt_vec(vec![None::<&[u8]>])) as ArrayRef,
-      _ => Arc::new(StringArray::from(vec![None::<String>])) as ArrayRef,
-    },
-  }
-}
 
 #[allow(dead_code)]
 pub fn convert_to_i64(value: &Value) -> Option<i64> {

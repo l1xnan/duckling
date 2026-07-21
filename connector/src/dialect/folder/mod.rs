@@ -1,7 +1,6 @@
-use calamine::{Reader, Xlsx, open_workbook};
 use std::fs;
 use std::path::Path;
-use walkdir::{DirEntry, WalkDir};
+use walkdir::WalkDir;
 
 use arrow::array::{Array, StringArray};
 use async_trait::async_trait;
@@ -225,6 +224,7 @@ impl Connection for FolderConnection {
 static EXTENSIONS: &[&'static str] = &["csv", "tsv", "parquet", "xlsx", "json", "jsonl"];
 
 impl FolderConnection {
+  #[allow(dead_code)]
   fn new(path: &str) -> Self {
     Self {
       path: String::from(path),
@@ -407,10 +407,6 @@ fn exist_glob(pattern: &str) -> bool {
   false
 }
 
-fn sheet_names<P: AsRef<Path>>(path: P) -> Result<Vec<String>, calamine::Error> {
-  let mut workbook: Xlsx<_> = open_workbook(path)?; // 只读元数据，不解析数据
-  Ok(workbook.sheet_names())
-}
 
 #[tokio::test]
 #[ignore = "requires local parquet-testing fixtures"]

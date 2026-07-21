@@ -127,6 +127,7 @@ struct MetaRow {
   columns: Vec<(String, String)>,
 }
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct Statistics {
   bytes_read: u64,
   elapsed: f64,
@@ -137,6 +138,7 @@ struct MetaItem {
   r#type: String, // 注意: "type" 是 Rust 关键字，可使用 #[serde(rename = "type")]
 }
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct JSONColumnsWithMetadataResponse {
   meta: Vec<MetaItem>,
   rows: u32,
