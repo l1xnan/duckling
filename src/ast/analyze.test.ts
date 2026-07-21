@@ -1,7 +1,7 @@
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 
-import { file_path_to_function, type CompleteMetaType } from './analyze';
+import { file_path_to_function } from './analyze';
 
 // ── file_path_to_function ─────────────────────────────────────────
 
@@ -85,7 +85,7 @@ describe('get_tables', () => {
   it('detects read_parquet invocation', async () => {
     const parser = await setup();
     const sql = "select * from read_parquet('data.parquet')";
-    const tree = parser.parse(sql);
+    const tree = parser.parse(sql)!;
     const fromNode = tree.rootNode
       .descendantsOfType('from')
       .find((n) => n.parent?.type === 'statement');
@@ -102,7 +102,7 @@ describe('get_tables', () => {
   it('detects read_parquet with alias', async () => {
     const parser = await setup();
     const sql = "select t.* from read_parquet('data.parquet') AS t";
-    const tree = parser.parse(sql);
+    const tree = parser.parse(sql)!;
     const fromNode = tree.rootNode
       .descendantsOfType('from')
       .find((n) => n.parent?.type === 'statement');
@@ -118,7 +118,7 @@ describe('get_tables', () => {
   it('detects table_path literal', async () => {
     const parser = await setup();
     const sql = "select * from 'data.parquet'";
-    const tree = parser.parse(sql);
+    const tree = parser.parse(sql)!;
     const fromNode = tree.rootNode
       .descendantsOfType('from')
       .find((n) => n.parent?.type === 'statement');
@@ -133,7 +133,7 @@ describe('get_tables', () => {
   it('regular table has no fileFunction', async () => {
     const parser = await setup();
     const sql = 'select * from my_table';
-    const tree = parser.parse(sql);
+    const tree = parser.parse(sql)!;
     const fromNode = tree.rootNode
       .descendantsOfType('from')
       .find((n) => n.parent?.type === 'statement');
@@ -218,18 +218,17 @@ describe('analyzeContext with file references', () => {
 
   it('debug: inspect invocation AST', async () => {
     const p = await setup();
-    const tree = p.parse("select *, s_ from read_parquet('data.parquet')");
+    const tree = p.parse("select *, s_ from read_parquet('data.parquet')")!;
     const invocations = tree.rootNode.descendantsOfType('invocation');
     for (const inv of invocations) {
       console.log('invocation node:', inv.type, 'children:', inv.childCount);
       for (let i = 0; i < inv.childCount; i++) {
-        const child = inv.child(i);
+        const child = inv.child(i)!;
         const field = inv.fieldNameForChild(i);
         console.log(`  [${i}] type=${child.type} named=${child.isNamed} field=${field} text=${JSON.stringify(child.text)}`);
-        // Show children of object_reference and term
         if (child.type === 'object_reference' || child.type === 'term') {
           for (let j = 0; j < child.childCount; j++) {
-            const gc = child.child(j);
+            const gc = child.child(j)!;
             const gf = child.fieldNameForChild(j);
             console.log(`    [${j}] type=${gc.type} named=${gc.isNamed} field=${gf} text=${JSON.stringify(gc.text)}`);
           }

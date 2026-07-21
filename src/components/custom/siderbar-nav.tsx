@@ -20,11 +20,9 @@ interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
 
 
 export function SidebarNav({
-  className,
   items,
   activeKey,
   setKey,
-  ...props
 }: SidebarNavProps) {
   return (
     <SidebarProvider className="w-auto min-h-0">

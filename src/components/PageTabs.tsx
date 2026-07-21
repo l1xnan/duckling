@@ -228,7 +228,6 @@ export function PageTabs({
         </div>
       </ScrollArea>
       {items.map(({ tab: { id }, children }) => {
-        const isActive = id === activeKey;
         return (
           <TabsContent
             key={id}

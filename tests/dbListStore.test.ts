@@ -32,24 +32,24 @@ const {
 }));
 
 vi.mock('@/lib/connectionRef', () => ({
-  registerConnectionBackend: (...args: unknown[]) =>
-    registerConnectionBackend(...args),
-  unregisterConnectionBackend: (...args: unknown[]) =>
-    unregisterConnectionBackend(...args),
-  syncConnectionsBackend: (...args: unknown[]) =>
-    syncConnectionsBackend(...args),
+  registerConnectionBackend: (...args: any[]) =>
+    (registerConnectionBackend as any)(...args),
+  unregisterConnectionBackend: (...args: any[]) =>
+    (unregisterConnectionBackend as any)(...args),
+  syncConnectionsBackend: (...args: any[]) =>
+    (syncConnectionsBackend as any)(...args),
 }));
 
 vi.mock('@/stores/secretStore', () => ({
-  setConnectionSecrets: (...args: unknown[]) => setConnectionSecrets(...args),
+  setConnectionSecrets: (...args: any[]) => (setConnectionSecrets as any)(...args),
   getConnectionSecrets: vi.fn(async () => null),
   deleteConnectionSecrets: vi.fn(async () => undefined),
 }));
 
 vi.mock('@/stores/dbCache', () => ({
-  setDbCache: (...args: unknown[]) => setDbCache(...args),
-  deleteDbCache: (...args: unknown[]) => deleteDbCache(...args),
-  loadDbCaches: (...args: unknown[]) => loadDbCaches(...args),
+  setDbCache: (...args: any[]) => (setDbCache as any)(...args),
+  deleteDbCache: (...args: any[]) => (deleteDbCache as any)(...args),
+  loadDbCaches: (...args: any[]) => (loadDbCaches as any)(...args),
   getDbCache: vi.fn(async () => null),
 }));
 
@@ -83,7 +83,7 @@ vi.mock('@/stores/tauriStore', () => ({
 }));
 
 vi.mock('@/api', () => ({
-  getDB: (...args: unknown[]) => getDB(...args),
+  getDB: (...args: any[]) => (getDB as any)(...args),
 }));
 
 vi.mock('sonner', () => ({
@@ -130,9 +130,10 @@ describe('dbListStore connection lifecycle', () => {
     );
 
     expect(registerConnectionBackend).toHaveBeenCalled();
-    const [id, profile, secrets] = registerConnectionBackend.mock.calls[0];
+    const calls = registerConnectionBackend.mock.calls[0] as unknown[];
+    const [id, profile, secrets] = calls;
     expect(id).toBe('c1');
-    expect((profile as { password?: string }).password).toBeUndefined();
+    expect((profile as unknown as { password?: string }).password).toBeUndefined();
     expect(secrets).toMatchObject({
       password: 's3cret',
       ssh_password: 'ssh-pass',
@@ -228,9 +229,10 @@ describe('dbListStore connection lifecycle', () => {
     ).toBeUndefined();
 
     expect(registerConnectionBackend).toHaveBeenCalled();
-    const [, profile, secrets] = registerConnectionBackend.mock.calls.at(-1)!;
-    expect((profile as { host?: string }).host).toBe('new-host');
-    expect((profile as { password?: string }).password).toBeUndefined();
+    const calls = registerConnectionBackend.mock.calls.at(-1)! as unknown[];
+    const [, profile, secrets] = calls;
+    expect((profile as unknown as { host?: string }).host).toBe('new-host');
+    expect((profile as unknown as { password?: string }).password).toBeUndefined();
     expect(secrets).toMatchObject({ password: 's3cret' });
   });
 

@@ -13,8 +13,6 @@ import {
   MenuClickEventArgs
 } from '@visactor/vtable-plugins';
 import { IVTablePlugin } from '@visactor/vtable/es/plugins';
-import { FieldDef } from '@visactor/vtable/es/ts-types';
-import dayjs from 'dayjs';
 
 import type { ComponentProps } from 'react';
 import { CSSProperties, useMemo, useRef, useState } from 'react';
@@ -92,21 +90,6 @@ function useTableTheme() {
   );
 }
 
-const rowSeriesNumber = ({ transpose }: any) => ({
-  field: '__index__',
-  title: '',
-  dragHeader: false,
-  disableSelect: true,
-  // disableHover: true,
-  disableHeaderHover: true,
-  disableHeaderSelect: true,
-  disableColumnResize: true,
-  style: { color: '#96938f', fontSize: 10, textAlign: 'center' },
-  fieldFormat: (_r: any, col: number, row: number) => {
-    return transpose ? col : row;
-  },
-});
-
 const MENU_COPY_FIELD = msg`Copy Field Name`;
 const MENU_PIN_LEFT = msg`Pin to left`;
 const MENU_PIN_RIGHT = msg`Pin to right`;
@@ -118,49 +101,6 @@ const MENU_PIVOT_COLUMN = msg`Pivot with this column`;
 const MENU_FILTER_BY_VALUE = msg`Filter by this value`;
 const MENU_COPY = msg`Copy`;
 const MENU_COPY_AS_CSV = msg`Copy as CSV`;
-
-const contextMenuItems = (
-  _field: FieldDef,
-  row: number,
-  col: number,
-  table: ListTableAPI,
-) => {
-  const transpose = (table as ListTableAPI)?.transpose;
-  if ((!transpose && row == 0) || (transpose && col == 0)) {
-    return [
-      {
-        menuKey: 'copy-field',
-        text: i18n._(MENU_COPY_FIELD),
-      },
-      {
-        menuKey: 'pin-to-left',
-        text: i18n._(MENU_PIN_LEFT),
-      },
-      {
-        menuKey: 'pin-to-right',
-        text: i18n._(MENU_PIN_RIGHT),
-      },
-      {
-        menuKey: 'pin-to-clear',
-        text: i18n._(MENU_PIN_CLEAR),
-      },
-      {
-        menuKey: 'hidden-column',
-        text: i18n._(MENU_HIDDEN_COLUMN),
-      },
-    ];
-  }
-  return [
-    {
-      menuKey: 'copy',
-      text: i18n._(MENU_COPY),
-    },
-    {
-      menuKey: 'copy-as-csv',
-      text: i18n._(MENU_COPY_AS_CSV),
-    },
-  ];
-};
 
 const copySelectedAsCsv = async (table: ListTableAPI | null) => {
   if (!table) {
@@ -202,44 +142,6 @@ type FieldFormatParamsType = {
   type?: string;
   beautify?: boolean;
   precision?: number;
-};
-
-const _handleFieldFormat = (
-  record: any,
-  { key, dataType, type, beautify, precision }: FieldFormatParamsType,
-) => {
-  const value = record[key];
-  if (value === null) {
-    return '<null>';
-  }
-  if (DataType.isDecimal(dataType)) {
-    const { scale } = dataType;
-    return value
-      .toString()
-      .padStart(scale + 1, '0')
-      .replace(new RegExp(`(.{${scale}})$`), '.$1');
-  }
-
-  const templ = 'YYYY-MM-DD HH:mm:ss';
-  if (DataType.isDate(dataType) && type?.toLowerCase()?.includes('datetime')) {
-    return dayjs(value).format(templ);
-  } else if (DataType.isDate(dataType)) {
-    return dayjs(value).format('YYYY-MM-DD');
-  } else if (DataType.isTimestamp(dataType)) {
-    if (!dataType.timezone) {
-      return dayjs(value).utc().format(templ);
-    }
-    return dayjs(value).format(templ);
-  }
-
-  if (beautify && DataType.isFloat(dataType) && precision) {
-    try {
-      return (value as number)?.toFixed(precision);
-    } catch (_error) {
-      return value;
-    }
-  }
-  return value;
 };
 
 const handleColumnStyle = (
@@ -393,35 +295,6 @@ function CanvasTable_({
           arrowMark: false,
         },
       });
-    }
-  };
-
-  const handleDropdownMenuClick: ListTableProps['onDropdownMenuClick'] = async (
-    e,
-  ) => {
-    const table = tableRef.current;
-    const transpose = table?.transpose;
-    if ((!transpose && e.row == 0) || (transpose && e.col == 0)) {
-      if (e.menuKey == 'copy-field') {
-        await writeText((e?.field as string) ?? '');
-      } else if (e.menuKey == 'pin-to-left') {
-        setLeftPinnedCols((v) => uniqueArray([...v, e.field as string]));
-        setRightPinnedCols((v) => v.filter((key) => key != e.field));
-      } else if (e.menuKey == 'pin-to-right') {
-        setRightPinnedCols((v) => uniqueArray([e.field as string, ...v]));
-        setLeftPinnedCols((v) => v.filter((key) => key != e.field));
-      } else if (e.menuKey == 'pin-to-clear') {
-        setLeftPinnedCols([]);
-        setRightPinnedCols([]);
-      } else if (e.menuKey == 'hidden-column') {
-        setHiddenColumns(e.field as string, true);
-      }
-    } else {
-      if (e.menuKey == 'copy') {
-        await writeText(table?.getCopyValue() ?? '');
-      } else if (e.menuKey == 'copy-as-csv') {
-        await copySelectedAsCsv(table);
-      }
     }
   };
 
@@ -714,7 +587,6 @@ function CanvasTable_({
             onSelectedCell?.({ col, row, value });
           }
         }}
-        // onDropdownMenuClick={handleDropdownMenuClick}
         onMouseEnterCell={handleMouseEnterCell}
         onDragSelectEnd={handleDragSelectEnd}
         onResizeColumnEnd={() => {
