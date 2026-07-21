@@ -1,4 +1,4 @@
-import { DataType } from "apache-arrow";
+import { DataType } from "@apache-arrow/ts";
 import dayjs from "dayjs"; // 假设你使用了 dayjs
 import utc from "dayjs/plugin/utc"; // 如果没引入utc插件记得引入
 dayjs.extend(utc);
