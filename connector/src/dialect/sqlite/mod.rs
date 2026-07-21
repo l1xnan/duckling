@@ -1,3 +1,5 @@
+mod decode;
+#[allow(dead_code)]
 mod type_arrow;
 
 use std::sync::Arc;
@@ -7,7 +9,9 @@ use async_trait::async_trait;
 use rusqlite::Statement;
 
 use crate::dialect::Connection;
-use crate::dialect::sqlite::type_arrow::{db_result_to_arrow, db_to_arrow_type};
+use crate::dialect::sqlite::decode::statement_to_grid;
+use crate::dialect::sqlite::type_arrow::db_to_arrow_type;
+use crate::preview::grid_to_raw_arrow_data;
 use crate::utils::{Metadata, RawArrowData};
 use crate::utils::{Table, Title, TreeNode, build_tree, get_file_name};
 
@@ -145,15 +149,8 @@ impl SqliteConnection {
   fn _query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
     let conn = self.connect()?;
     let mut stmt = conn.prepare(sql)?;
-    let batch = db_result_to_arrow(&mut stmt)?;
-    let (titles, _schema) = Self::get_arrow_schema(&mut stmt);
-
-    Ok(RawArrowData {
-      total: batch.num_rows(),
-      batch,
-      titles: Some(titles),
-      sql: Some(sql.to_string()),
-    })
+    let grid = statement_to_grid(&mut stmt, sql)?;
+    grid_to_raw_arrow_data(grid)
   }
   fn _all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
     let table_names = self._all_table_names()?;
@@ -194,6 +191,7 @@ impl SqliteConnection {
     }
     Ok(table_names)
   }
+  #[allow(dead_code)]
   fn get_arrow_schema(stmt: &mut Statement) -> (Vec<Title>, Arc<Schema>) {
     let mut fields = vec![];
     let mut titles = vec![];
