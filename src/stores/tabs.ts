@@ -23,6 +23,24 @@ import { Direction, SchemaType } from './dataset';
 import { getDbMap, getTableMap, whenRegistryReady } from './dbList';
 import { useQuerySessionStore } from './querySession';
 import { useSettingStore } from './setting';
+import {
+  addTabToLeaf,
+  collectTabIds,
+  createDefaultLayout,
+  findLeaf,
+  findLeafByTab,
+  moveTab as moveTabInLayout,
+  removeTabFromLayout,
+  resolveCurrentId,
+  resolveFocusedPaneId,
+  setSplitSizes,
+  splitLeaf,
+  syncLayoutWithIds,
+  updateLeaf,
+  type PaneId,
+  type PaneNode,
+  type SplitDirection,
+} from './tabLayout';
 
 export {
   EMPTY_BY_ID,
@@ -34,6 +52,7 @@ export {
   useQuerySessionStore,
 } from './querySession';
 export type { EditorSession } from './querySession';
+export type { PaneId, PaneLeaf, PaneNode, PaneSplit, SplitDirection } from './tabLayout';
 
 export type QueryParamType = {
   dbId: string;
@@ -125,9 +144,12 @@ export type TabContextType =
   | QueryContextType;
 
 interface TabsState {
+  /** Flat tab order derived from layout (for sidebar / compat). */
   ids: string[];
   tabs: Record<string, TabContextType>;
   currentId?: string | null;
+  layout: PaneNode;
+  focusedPaneId: PaneId;
 }
 
 type TabsAction = {
@@ -138,7 +160,29 @@ type TabsAction = {
   remove: (key: string, force?: boolean) => void;
   removeOther: (key: string) => void;
   active: (idx: string) => void;
+  focusPane: (paneId: PaneId) => void;
+  split: (tabId: string, direction: SplitDirection) => void;
+  moveTab: (tabId: string, toPaneId: PaneId, index?: number) => void;
+  setPaneSizes: (splitId: PaneId, sizes: [number, number]) => void;
 };
+
+function withDerivedIds(
+  layout: PaneNode,
+  focusedPaneId: PaneId,
+  extra?: Partial<TabsState>,
+): Pick<TabsState, 'ids' | 'layout' | 'focusedPaneId' | 'currentId'> &
+  Partial<TabsState> {
+  const focus = resolveFocusedPaneId(layout, focusedPaneId);
+  return {
+    layout,
+    focusedPaneId: focus,
+    ids: collectTabIds(layout),
+    currentId: resolveCurrentId(layout, focus),
+    ...extra,
+  };
+}
+
+const defaultLeaf = createDefaultLayout();
 
 export const useTabsStore = create<TabsState & TabsAction>()(
   // immer(
@@ -147,6 +191,8 @@ export const useTabsStore = create<TabsState & TabsAction>()(
       ids: [],
       tabs: {},
       currentId: null,
+      layout: defaultLeaf,
+      focusedPaneId: defaultLeaf.id,
       append: (tab: TabContextType) =>
         set((state) => {
           if (state.ids.includes(tab.id)) {
@@ -154,19 +200,48 @@ export const useTabsStore = create<TabsState & TabsAction>()(
               tabs: { ...state.tabs, [tab.id]: tab },
             };
           }
+          const focus = resolveFocusedPaneId(state.layout, state.focusedPaneId);
+          const layout = updateLeaf(state.layout, focus, (leaf) =>
+            addTabToLeaf(leaf, tab.id, false),
+          );
           return {
             tabs: { ...state.tabs, [tab.id]: tab },
-            ids: [...state.ids, tab.id],
+            ...withDerivedIds(layout, focus),
           };
         }),
-      active: (id) => set({ currentId: id }),
+      active: (id) =>
+        set((state) => {
+          const leaf = findLeafByTab(state.layout, id);
+          if (!leaf) {
+            return { currentId: id };
+          }
+          const layout = updateLeaf(state.layout, leaf.id, (l) =>
+            addTabToLeaf(l, id, true),
+          );
+          return withDerivedIds(layout, leaf.id);
+        }),
       update: (item: TabContextType) => {
         set((state) => {
-          const exists = state.ids.includes(item.id);
+          const existingLeaf = findLeafByTab(state.layout, item.id);
+          const focus = existingLeaf
+            ? existingLeaf.id
+            : resolveFocusedPaneId(state.layout, state.focusedPaneId);
+          const layout = existingLeaf
+            ? updateLeaf(state.layout, existingLeaf.id, (leaf) =>
+                addTabToLeaf(leaf, item.id, true),
+              )
+            : updateLeaf(state.layout, focus, (leaf) =>
+                addTabToLeaf(leaf, item.id, true),
+              );
+          const derived = withDerivedIds(layout, focus);
+          // Preserve ids reference when order unchanged (upsert existing tab).
+          const sameIds =
+            derived.ids.length === state.ids.length &&
+            derived.ids.every((id, i) => id === state.ids[i]);
           return {
             tabs: { ...state.tabs, [item.id]: item },
-            ids: exists ? state.ids : [...state.ids, item.id],
-            currentId: item.id,
+            ...derived,
+            ids: sameIds ? state.ids : derived.ids,
           };
         });
       },
@@ -200,17 +275,7 @@ export const useTabsStore = create<TabsState & TabsAction>()(
       remove: (key, force) => {
         let clearSession = false;
         set((state) => {
-          const ids = state.ids;
-          let cur = state.currentId;
-          const delIndex = ids.findIndex((id) => id === key);
-          const updatedIds =
-            delIndex < 0
-              ? ids
-              : ids.filter((_tab, index) => index !== delIndex);
-
-          if (key == cur && delIndex >= 0) {
-            cur = ids[delIndex - 1] || ids[delIndex + 1] || undefined;
-          }
+          const { layout } = removeTabFromLayout(state.layout, key);
 
           const nextTabs = shake(state.tabs, (a) => {
             return a.id == key && (a.type != 'editor' || !!force);
@@ -218,10 +283,11 @@ export const useTabsStore = create<TabsState & TabsAction>()(
 
           clearSession = !(key in nextTabs);
 
+          // Soft-closed editors stay in tabs map but leave layout (ids).
+          const focus = resolveFocusedPaneId(layout, state.focusedPaneId);
           return {
-            ids: updatedIds,
             tabs: nextTabs,
-            currentId: cur,
+            ...withDerivedIds(layout, focus),
           };
         });
         // Side effects after set — keep updater pure.
@@ -238,10 +304,10 @@ export const useTabsStore = create<TabsState & TabsAction>()(
           clearedIds = Object.keys(state.tabs).filter(
             (id) => !(id in nextTabs) && id !== key,
           );
+          const leaf = createDefaultLayout([key], key);
           return {
-            ids: [key],
             tabs: nextTabs,
-            currentId: key,
+            ...withDerivedIds(leaf, leaf.id),
           };
         });
         const session = useQuerySessionStore.getState();
@@ -249,10 +315,74 @@ export const useTabsStore = create<TabsState & TabsAction>()(
           session.clearEditor(id);
         }
       },
+      focusPane: (paneId) =>
+        set((state) => {
+          if (!findLeaf(state.layout, paneId)) {
+            return state;
+          }
+          return withDerivedIds(state.layout, paneId);
+        }),
+      split: (tabId, direction) =>
+        set((state) => {
+          const leaf = findLeafByTab(state.layout, tabId);
+          if (!leaf) {
+            return state;
+          }
+          const result = splitLeaf(state.layout, leaf.id, tabId, direction);
+          if (!result) {
+            return state;
+          }
+          return withDerivedIds(result.layout, result.newPaneId);
+        }),
+      moveTab: (tabId, toPaneId, index) =>
+        set((state) => {
+          const layout = moveTabInLayout(state.layout, tabId, toPaneId, index);
+          const target = findLeaf(layout, toPaneId);
+          const focus = target?.tabIds.includes(tabId)
+            ? toPaneId
+            : resolveFocusedPaneId(layout, state.focusedPaneId);
+          const withActive = target?.tabIds.includes(tabId)
+            ? updateLeaf(layout, toPaneId, (l) => addTabToLeaf(l, tabId, true))
+            : layout;
+          return withDerivedIds(withActive, focus);
+        }),
+      setPaneSizes: (splitId, sizes) =>
+        set((state) => ({
+          layout: setSplitSizes(state.layout, splitId, sizes),
+        })),
     }),
     {
       name: 'tabs',
       storage: createJSONStorage(() => localStorage),
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<TabsState>;
+        const ids = p.ids ?? current.ids ?? [];
+        const tabs = p.tabs ?? current.tabs ?? {};
+        const currentId = p.currentId ?? current.currentId ?? null;
+
+        if (p.layout && p.focusedPaneId) {
+          const synced = syncLayoutWithIds(
+            p.layout,
+            ids.length ? ids : collectTabIds(p.layout),
+            currentId,
+            p.focusedPaneId,
+          );
+          return {
+            ...current,
+            ...p,
+            tabs,
+            ...synced,
+          };
+        }
+
+        const leaf = createDefaultLayout(ids, currentId);
+        return {
+          ...current,
+          ...p,
+          tabs,
+          ...withDerivedIds(leaf, leaf.id),
+        };
+      },
     },
   ),
   // ),

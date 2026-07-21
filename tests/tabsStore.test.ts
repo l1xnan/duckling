@@ -51,7 +51,19 @@ function tableTab(id: string): TabContextType {
 describe('tabsStore P0 invariants', () => {
   beforeEach(() => {
     memory.clear();
-    useTabsStore.setState({ ids: [], tabs: {}, currentId: null });
+    const leaf = {
+      type: 'leaf' as const,
+      id: 'pane-root',
+      tabIds: [] as string[],
+      activeId: null as string | null,
+    };
+    useTabsStore.setState({
+      ids: [],
+      tabs: {},
+      currentId: null,
+      layout: leaf,
+      focusedPaneId: leaf.id,
+    });
     useQuerySessionStore.setState({ byEditor: {} });
   });
 
@@ -140,5 +152,32 @@ describe('tabsStore P0 invariants', () => {
 
     expect(useTabsStore.getState().tabs.e1).toBeUndefined();
     expect(useQuerySessionStore.getState().byEditor.e1).toBeUndefined();
+  });
+
+  it('split right places tab in new focused pane', () => {
+    useTabsStore.getState().update(tableTab('t1'));
+    useTabsStore.getState().update(tableTab('t2'));
+    useTabsStore.getState().split('t2', 'right');
+
+    const state = useTabsStore.getState();
+    expect(state.layout.type).toBe('split');
+    expect(state.currentId).toBe('t2');
+    expect(state.ids.sort()).toEqual(['t1', 't2']);
+  });
+
+  it('moveTab updates layout and currentId', () => {
+    useTabsStore.getState().update(tableTab('t1'));
+    useTabsStore.getState().update(tableTab('t2'));
+    useTabsStore.getState().split('t2', 'right');
+    const focused = useTabsStore.getState().focusedPaneId;
+    const layout = useTabsStore.getState().layout;
+    const other =
+      layout.type === 'split'
+        ? layout.children.find((c: { id: string }) => c.id !== focused)?.id
+        : undefined;
+    expect(other).toBeTruthy();
+    useTabsStore.getState().moveTab('t2', other!);
+    expect(useTabsStore.getState().currentId).toBe('t2');
+    expect(useTabsStore.getState().focusedPaneId).toBe(other);
   });
 });

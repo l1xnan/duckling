@@ -1,5 +1,7 @@
 import 'react-horizontal-scrolling-menu/dist/styles.css';
 
+import { useDroppable } from '@dnd-kit/react';
+import { useSortable } from '@dnd-kit/react/sortable';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useSetAtom } from 'jotai';
@@ -12,7 +14,15 @@ import {
   XIcon,
 } from 'lucide-react';
 import { shake } from 'radash';
-import { JSX, PropsWithChildren, ReactNode, useContext, useEffect, useRef } from 'react';
+import {
+  JSX,
+  PropsWithChildren,
+  ReactNode,
+  useContext,
+  useEffect,
+  useId,
+  useRef,
+} from 'react';
 import { useForm } from 'react-hook-form';
 import { ScrollMenu, VisibilityContext, type publicApiType } from 'react-horizontal-scrolling-menu';
 import { useShallow } from 'zustand/shallow';
@@ -41,6 +51,10 @@ import { TabContextType, useTabsStore } from '@/stores/tabs';
 export interface PageTabsProps {
   items: { tab: TabContextType; children: ReactNode }[];
   activeKey: string;
+  /** When set, enables main-tab split/dnd for this pane. */
+  paneId?: string;
+  /** Whether this pane is the focused editor group (styles the active tab). */
+  paneFocused?: boolean;
   fallback?: ReactNode;
   indicator?: 'top' | 'bottom';
   onRemove?: (key: string) => void;
@@ -73,9 +87,10 @@ export function TabItemContextMenu({
   const setFavorite = useSetAtom(favoriteAtom);
   const setDocs = useSetAtom(docsAtom);
 
-  const { removeTab } = useTabsStore(
+  const { removeTab, split } = useTabsStore(
     useShallow((state) => ({
       removeTab: state.remove,
+      split: state.split,
     })),
   );
 
@@ -87,11 +102,7 @@ export function TabItemContextMenu({
 
   return (
     <>
-      <ContextMenu
-        onOpenChange={(open) => {
-          console.log(open);
-        }}
-      >
+      <ContextMenu>
         <ContextMenuTrigger className="w-full">{children}</ContextMenuTrigger>
         <ContextMenuContent className="w-64">
           <ContextMenuItem
@@ -107,6 +118,23 @@ export function TabItemContextMenu({
             }}
           >
             <Trans>Close Other</Trans>
+          </ContextMenuItem>
+
+          <ContextMenuSeparator />
+
+          <ContextMenuItem
+            onClick={() => {
+              split(tab.id, 'right');
+            }}
+          >
+            <Trans>Split Right</Trans>
+          </ContextMenuItem>
+          <ContextMenuItem
+            onClick={() => {
+              split(tab.id, 'down');
+            }}
+          >
+            <Trans>Split Down</Trans>
           </ContextMenuItem>
 
           <ContextMenuSeparator />
@@ -165,6 +193,8 @@ type ScrollVisibilityApiType = React.ContextType<typeof VisibilityContext>;
 export function PageTabs({
   items,
   activeKey,
+  paneId,
+  paneFocused = true,
   indicator,
   onChange,
   onRemove,
@@ -191,11 +221,21 @@ export function PageTabs({
     return () => {};
   }, [items, itemsPrev, activeKey]);
 
-  const tabsList = items.map(({ tab }) => {
+  const fallbackDropId = useId();
+  const { ref: paneDropRef, isDropTarget } = useDroppable({
+    id: paneId ? `pane:${paneId}` : fallbackDropId,
+    disabled: !paneId,
+    data: paneId ? { type: 'pane', paneId } : undefined,
+  });
+
+  const tabsList = items.map(({ tab }, index) => {
     return (
       <TabMenuItem
         key={tab.id}
         itemId={tab.id}
+        index={index}
+        paneId={paneId}
+        paneFocused={paneFocused}
         renderItem={renderItem}
         tab={tab}
         indicator={indicator}
@@ -209,24 +249,38 @@ export function PageTabs({
       value={activeKey}
       onValueChange={onChange}
     >
-      <ScrollArea className="w-full h-8 min-h-8 overflow-hidden">
-        <div className="w-full relative h-8 overflow-hidden">
-          <TabsList
-            variant="line"
-            className=" p-0 h-8 border-b w-max flex flex-row justify-stretch"
-          >
-            <ScrollMenu
-              apiRef={apiRef}
-              onWheel={onWheel}
-              // LeftArrow={LeftArrow}
-              // RightArrow={RightArrow}
+      <div
+        ref={paneId ? paneDropRef : undefined}
+        data-tab-bar=""
+        className={cn(
+          isDropTarget && 'bg-primary/10',
+          !paneFocused && paneId && 'opacity-70',
+        )}
+      >
+        <ScrollArea className="w-full h-8 min-h-8 overflow-hidden">
+          <div className="w-full relative h-8 overflow-hidden">
+            <TabsList
+              variant="line"
+              className=" p-0 h-8 border-b w-max flex flex-row justify-stretch"
             >
-              {tabsList}
-            </ScrollMenu>
-          </TabsList>
-          <ScrollBar orientation="horizontal" className="h-1.5" />
+              <ScrollMenu
+                apiRef={apiRef}
+                onWheel={onWheel}
+                // LeftArrow={LeftArrow}
+                // RightArrow={RightArrow}
+              >
+                {tabsList}
+              </ScrollMenu>
+            </TabsList>
+            <ScrollBar orientation="horizontal" className="h-1.5" />
+          </div>
+        </ScrollArea>
+      </div>
+      {items.length === 0 ? (
+        <div className="flex-1 min-h-0 flex items-center justify-center text-muted-foreground text-sm">
+          <Trans>No tabs in this pane</Trans>
         </div>
-      </ScrollArea>
+      ) : null}
       {items.map(({ tab: { id }, children }) => {
         return (
           <TabsContent
@@ -259,14 +313,39 @@ export interface TabItemProps {
 
 type TabItemMenuProps = {
   itemId: string;
+  index: number;
+  paneId?: string;
+  paneFocused?: boolean;
   renderItem: (({ tab }: { tab: TabContextType }) => JSX.Element) | undefined;
   tab: TabContextType;
   indicator: string | undefined;
   onRemove: ((key: string) => void) | undefined;
 };
 
-function TabMenuItem({ itemId, renderItem, tab, indicator, onRemove }: TabItemMenuProps) {
+function TabMenuItem({
+  itemId,
+  index,
+  paneId,
+  paneFocused = true,
+  renderItem,
+  tab,
+  indicator,
+  onRemove,
+}: TabItemMenuProps) {
   const Comp = renderItem;
+  const activateTab = useTabsStore((s) => s.active);
+  const { ref, isDragging, isDropTarget } = useSortable({
+    id: paneId ? `tab:${paneId}:${tab.id}` : `tab:${tab.id}`,
+    index,
+    group: paneId,
+    disabled: !paneId,
+    data: {
+      type: 'tab',
+      tabId: tab.id,
+      paneId,
+    },
+  });
+
   return (
     <TabsTrigger
       id={tab.id}
@@ -275,20 +354,30 @@ function TabMenuItem({ itemId, renderItem, tab, indicator, onRemove }: TabItemMe
       data-cy={itemId}
       nativeButton={false}
       className={cn(
-        'h-8 text-xs relative wm-200 pl-3 pr-1.5 rounded-none border-r',
+        'h-8 text-xs relative wm-200 pl-3 pr-1.5 rounded-none border-r cursor-pointer',
         'group',
-        'data-[active]:bg-muted',
-        'data-[active]:text-foreground',
         'data-[active]:shadow-none',
         'data-[active]:rounded-none',
+        // Focused pane: full active tab. Unfocused pane: muted "selected but not focused".
+        paneFocused
+          ? 'data-[active]:bg-muted data-[active]:text-foreground'
+          : 'data-[active]:bg-transparent data-[active]:text-muted-foreground',
+        isDragging && 'opacity-50',
+        isDropTarget && 'bg-primary/15',
       )}
+      // Activate on pointer down so cross-pane clicks don't need a second click
+      // (Tabs may not fire onValueChange when the leaf's active tab is already selected).
+      onPointerDown={() => {
+        if (paneId) {
+          activateTab(tab.id);
+        }
+      }}
       render={
-        <div>
+        <div ref={paneId ? ref : undefined} className="cursor-pointer">
           <div
             className={cn(
               'h-0.5 w-full absolute left-0 invisible z-6',
-              // 'bg-[#1976d2]',
-              'bg-foreground',
+              paneFocused ? 'bg-foreground' : 'bg-muted-foreground/50',
               'group-data-[active]:visible',
               {
                 'bottom-0': indicator != 'top',
