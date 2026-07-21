@@ -1,6 +1,10 @@
+mod decode;
+#[allow(dead_code)]
 mod type_arrow;
 
 use crate::dialect::Connection;
+use crate::dialect::mysql::decode::columns_to_grid;
+use crate::preview::grid_to_raw_arrow_data;
 use crate::ssh_tunnel::{DbSshConfig, SshTunnel};
 use crate::utils::{Metadata, RawArrowData, Table, build_tree};
 use crate::utils::{Title, TreeNode};
@@ -10,7 +14,6 @@ use mysql::prelude::*;
 use mysql::*;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-use type_arrow::*;
 
 pub type MySqlSshConfig = DbSshConfig;
 
@@ -350,31 +353,29 @@ impl MySqlConnection {
     let mut conn = self.get_conn()?;
 
     let mut result = conn.query_iter(sql)?;
-    let columns = result.columns();
-    let columns = columns.as_ref();
-    let k = columns.len();
+    let metas: Vec<decode::ColumnMeta> = result
+      .columns()
+      .as_ref()
+      .iter()
+      .map(decode::ColumnMeta::from_column)
+      .collect();
+    let k = metas.len();
 
-    let (fields, types) = get_fields(columns);
-    let titles = self.get_titles(columns);
     let mut tables: Vec<Vec<Value>> = (0..k).map(|_| vec![]).collect();
     while let Some(result_set) = result.iter() {
       for row in result_set.flatten() {
         for (i, _col) in row.columns_ref().iter().enumerate() {
-          let val = row.get::<Value, _>(i).unwrap();
+          let val = row.get::<Value, _>(i).unwrap_or(Value::NULL);
           tables[i].push(val);
         }
       }
     }
 
-    let batch = build_preview_batch(fields, types, tables)?;
-    Ok(RawArrowData {
-      total: batch.num_rows(),
-      batch,
-      titles: Some(titles.clone()),
-      sql: Some(sql.to_string()),
-    })
+    let grid = columns_to_grid(&metas, tables, sql);
+    grid_to_raw_arrow_data(grid)
   }
 
+  #[allow(dead_code)]
   fn get_titles(&self, columns: &[Column]) -> Vec<Title> {
     columns
       .iter()
