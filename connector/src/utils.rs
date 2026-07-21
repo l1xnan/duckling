@@ -754,6 +754,80 @@ pub fn finalize_preview_batch(batch: RecordBatch) -> anyhow::Result<RecordBatch>
   Ok(truncate_batch_for_preview(&batch, MAX_PREVIEW_CELL_BYTES)?)
 }
 
+/// Row-oriented preview payload (Phase 2 protocol `format=rows`).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PreviewRowsPayload {
+  pub columns: Vec<Title>,
+  /// One object per row; values are JSON null / bool / number / string.
+  pub rows: Vec<serde_json::Map<String, serde_json::Value>>,
+}
+
+/// Convert a preview [`RecordBatch`] into JSON-friendly row objects.
+/// Used when Arrow IPC serialization fails (protocol-level fallback).
+pub fn batch_to_preview_rows(batch: &RecordBatch) -> anyhow::Result<PreviewRowsPayload> {
+  let batch = truncate_batch_for_preview(batch, MAX_PREVIEW_CELL_BYTES)?;
+  let schema = batch.schema();
+  let fmt_options = FormatOptions::default();
+  let formatters = batch
+    .columns()
+    .iter()
+    .map(|col| arrow::util::display::ArrayFormatter::try_new(col.as_ref(), &fmt_options))
+    .collect::<Result<Vec<_>, _>>()?;
+
+  let columns: Vec<Title> = schema
+    .fields()
+    .iter()
+    .map(|f| Title {
+      name: f.name().clone(),
+      r#type: f.data_type().to_string(),
+    })
+    .collect();
+
+  let mut rows = Vec::with_capacity(batch.num_rows());
+  for row_idx in 0..batch.num_rows() {
+    let mut obj = serde_json::Map::with_capacity(schema.fields().len());
+    for (col_idx, field) in schema.fields().iter().enumerate() {
+      let col = batch.column(col_idx);
+      if col.is_null(row_idx) {
+        obj.insert(field.name().clone(), serde_json::Value::Null);
+        continue;
+      }
+      let text = formatters[col_idx].value(row_idx).to_string();
+      let truncated = truncate_utf8_for_preview(&text);
+      // Prefer JSON numbers for plain integer/float columns when parseable.
+      let value = match field.data_type() {
+        DataType::Int8
+        | DataType::Int16
+        | DataType::Int32
+        | DataType::Int64
+        | DataType::UInt8
+        | DataType::UInt16
+        | DataType::UInt32
+        | DataType::UInt64 => truncated
+          .parse::<i64>()
+          .map(|n| serde_json::Value::Number(n.into()))
+          .unwrap_or(serde_json::Value::String(truncated)),
+        DataType::Float16 | DataType::Float32 | DataType::Float64 => truncated
+          .parse::<f64>()
+          .ok()
+          .and_then(serde_json::Number::from_f64)
+          .map(serde_json::Value::Number)
+          .unwrap_or(serde_json::Value::String(truncated)),
+        DataType::Boolean => match truncated.as_str() {
+          "true" | "TRUE" | "1" => serde_json::Value::Bool(true),
+          "false" | "FALSE" | "0" => serde_json::Value::Bool(false),
+          _ => serde_json::Value::String(truncated),
+        },
+        _ => serde_json::Value::String(truncated),
+      };
+      obj.insert(field.name().clone(), value);
+    }
+    rows.push(obj);
+  }
+
+  Ok(PreviewRowsPayload { columns, rows })
+}
+
 /// Truncate oversized Utf8 / LargeUtf8 / Binary / LargeBinary cells for UI preview.
 pub fn truncate_batch_for_preview(
   batch: &RecordBatch,
@@ -927,5 +1001,24 @@ mod preview_truncate_tests {
       .downcast_ref::<StringArray>()
       .unwrap();
     assert!(arr.value(0).len() <= MAX_PREVIEW_CELL_BYTES + 3);
+  }
+
+  #[test]
+  fn batch_to_preview_rows_basic() {
+    let batch = RecordBatch::try_new(
+      Arc::new(Schema::new(vec![
+        Field::new("id", DataType::Int64, true),
+        Field::new("name", DataType::Utf8, true),
+      ])),
+      vec![
+        Arc::new(Int64Array::from(vec![Some(7), None])),
+        Arc::new(StringArray::from(vec![Some("x"), Some("y")])),
+      ],
+    )
+    .unwrap();
+    let payload = batch_to_preview_rows(&batch).unwrap();
+    assert_eq!(payload.rows.len(), 2);
+    assert_eq!(payload.rows[0].get("id").and_then(|v| v.as_i64()), Some(7));
+    assert!(payload.rows[1].get("id").unwrap().is_null());
   }
 }
