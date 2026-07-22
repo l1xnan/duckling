@@ -9,7 +9,7 @@
 .controls {
   width: 4px;
   opacity: 0;
-  z-index: 99;
+  z-index: 10;
   position: absolute;
   right: 0;
   height: 100%;
@@ -46,7 +46,7 @@
   height: 4px;
   width: 100%;
   opacity: 0;
-  z-index: 99;
+  z-index: 10;
   position: absolute;
   right: 0;
 }
