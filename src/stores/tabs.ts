@@ -336,14 +336,23 @@ export const useTabsStore = create<TabsState & TabsAction>()(
         }),
       moveTab: (tabId, toPaneId, index) =>
         set((state) => {
+          if (!findLeafByTab(state.layout, tabId) || !findLeaf(state.layout, toPaneId)) {
+            return state;
+          }
           const layout = moveTabInLayout(state.layout, tabId, toPaneId, index);
+          if (layout === state.layout) {
+            return state;
+          }
           const target = findLeaf(layout, toPaneId);
           const focus = target?.tabIds.includes(tabId)
             ? toPaneId
             : resolveFocusedPaneId(layout, state.focusedPaneId);
-          const withActive = target?.tabIds.includes(tabId)
-            ? updateLeaf(layout, toPaneId, (l) => addTabToLeaf(l, tabId, true))
-            : layout;
+          const withActive =
+            target && target.tabIds.includes(tabId)
+              ? updateLeaf(layout, toPaneId, (l) =>
+                  addTabToLeaf(l, tabId, true),
+                )
+              : layout;
           return withDerivedIds(withActive, focus);
         }),
       setPaneSizes: (splitId, sizes) =>

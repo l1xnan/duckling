@@ -270,19 +270,27 @@ export function moveTab(
     if (fromIdx < 0) {
       return node;
     }
-    const tabIds = [...fromLeaf.tabIds];
+    const original = fromLeaf.tabIds;
+    // index is insert-before in the pre-removal list; undefined = append.
+    const rawInsert =
+      index === undefined
+        ? original.length
+        : Math.max(0, Math.min(index, original.length));
+    // No-op if already in that slot (before self or after self).
+    if (rawInsert === fromIdx || rawInsert === fromIdx + 1) {
+      return node;
+    }
+    const tabIds = [...original];
     tabIds.splice(fromIdx, 1);
-    const insertAt = index === undefined ? tabIds.length : Math.max(0, Math.min(index, tabIds.length));
-    // Adjust index if removing before insert point
-    const adjusted =
-      fromIdx < insertAt ? insertAt - 1 : insertAt;
-    tabIds.splice(adjusted, 0, tabId);
+    // After removal, indices after fromIdx shift left by 1.
+    const insertAt = fromIdx < rawInsert ? rawInsert - 1 : rawInsert;
+    tabIds.splice(insertAt, 0, tabId);
     return updateLeaf(node, toPaneId, (leaf) =>
       ensureActive({ ...leaf, tabIds }, leaf.activeId),
     );
   }
 
-  // Cross pane
+  // Cross pane — remove from source first, then insert into target once.
   let layout = updateLeaf(node, fromLeaf.id, (leaf) => {
     const tabIds = leaf.tabIds.filter((id) => id !== tabId);
     let activeId = leaf.activeId;
@@ -294,12 +302,13 @@ export function moveTab(
   });
 
   layout = updateLeaf(layout, toPaneId, (leaf) => {
-    if (leaf.tabIds.includes(tabId)) {
-      return ensureActive(leaf, tabId);
-    }
-    const tabIds = [...leaf.tabIds];
+    // Defensive: never allow the same tab id twice in a leaf.
+    const without = leaf.tabIds.filter((id) => id !== tabId);
     const insertAt =
-      index === undefined ? tabIds.length : Math.max(0, Math.min(index, tabIds.length));
+      index === undefined
+        ? without.length
+        : Math.max(0, Math.min(index, without.length));
+    const tabIds = [...without];
     tabIds.splice(insertAt, 0, tabId);
     return ensureActive({ ...leaf, tabIds }, tabId);
   });

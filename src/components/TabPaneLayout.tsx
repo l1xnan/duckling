@@ -53,6 +53,7 @@ function PaneNodeView({
   if (isLeaf(node)) {
     return (
       <LeafPane
+        key={node.id}
         leaf={node}
         focused={node.id === focusedPaneId}
         renderPane={renderPane}
@@ -61,6 +62,7 @@ function PaneNodeView({
   }
   return (
     <SplitPane
+      key={node.id}
       split={node}
       focusedPaneId={focusedPaneId}
       setPaneSizes={setPaneSizes}
@@ -85,10 +87,7 @@ function LeafPane({
       className="size-full min-h-0 min-w-0 flex flex-col overflow-hidden"
       onMouseDownCapture={(e) => {
         if (focused) return;
-        // Tab bar activates via its own handler; focusing here re-renders and eats the click.
-        if ((e.target as HTMLElement).closest('[data-tab-bar]')) {
-          return;
-        }
+        if ((e.target as HTMLElement).closest('[data-tab-bar]')) return;
         focusPane(leaf.id);
       }}
     >

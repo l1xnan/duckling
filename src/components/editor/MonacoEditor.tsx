@@ -150,6 +150,7 @@ const MonacoEditor = forwardRef<
       defaultLanguage="sql"
       language={props.language ?? 'sql'}
       height="100%"
+      keepCurrentModel
       {...props}
       options={{
         minimap: {

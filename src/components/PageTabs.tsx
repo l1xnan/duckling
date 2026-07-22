@@ -1,6 +1,6 @@
 import 'react-horizontal-scrolling-menu/dist/styles.css';
 
-import { useDroppable } from '@dnd-kit/react';
+import { useDragDropMonitor, useDroppable } from '@dnd-kit/react';
 import { useSortable } from '@dnd-kit/react/sortable';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
@@ -15,13 +15,16 @@ import {
 } from 'lucide-react';
 import { shake } from 'radash';
 import {
+  createContext,
   JSX,
   PropsWithChildren,
   ReactNode,
   useContext,
   useEffect,
   useId,
+  useMemo,
   useRef,
+  useState,
 } from 'react';
 import { useForm } from 'react-hook-form';
 import { ScrollMenu, VisibilityContext, type publicApiType } from 'react-horizontal-scrolling-menu';
@@ -42,7 +45,6 @@ import {
 import { DialogFooter } from '@/components/custom/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/custom/ui/form';
 import { Input } from '@/components/custom/ui/input';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/custom/ui/tabs';
 import { cn } from '@/lib/utils';
 import { docsAtom, favoriteAtom } from '@/stores/app';
@@ -60,6 +62,182 @@ export interface PageTabsProps {
   onRemove?: (key: string) => void;
   onChange: (key: string) => void;
   renderItem?: ({ tab }: { tab: TabContextType }) => JSX.Element;
+}
+
+/** Insert-before index within a pane while dragging tabs (null = hidden). */
+type TabDropIndicator = { paneId: string; index: number } | null;
+
+const TabDropIndicatorContext = createContext<TabDropIndicator>(null);
+
+/** Last drop from dragOver — dragEnd target is often stale. */
+let lastResolvedDrop: ResolvedTabDrop | null = null;
+
+export function consumeLastResolvedDrop(): ResolvedTabDrop | null {
+  const drop = lastResolvedDrop;
+  lastResolvedDrop = null;
+  return drop;
+}
+
+export type ResolvedTabDrop = {
+  tabId: string;
+  toPaneId: string;
+  /** Insert-before index; undefined means append. */
+  index?: number;
+};
+
+function draggedTabLeft(
+  source: {
+    element?: Element | null;
+  },
+  operation?: {
+    position?: { current?: { x?: number }; x?: number };
+  },
+): number | null {
+  const el = source.element;
+  if (el instanceof Element) {
+    return el.getBoundingClientRect().left;
+  }
+  const pos = operation?.position;
+  if (!pos) return null;
+  if (typeof pos.current?.x === 'number') return pos.current.x;
+  if (typeof pos.x === 'number') return pos.x;
+  return null;
+}
+
+/** Drop destination + insert-before index (dragged left edge vs hover center). */
+export function resolveTabDrop(
+  source: unknown,
+  target: unknown,
+  operation?: { position?: { current?: { x?: number }; x?: number } },
+): ResolvedTabDrop | null {
+  if (!source || !target) return null;
+
+  const sourceAny = source as {
+    id?: string | number;
+    data?: { type?: string; tabId?: string; paneId?: string };
+    sortable?: { index?: number; group?: string };
+    group?: string | number;
+    element?: Element | null;
+  };
+  const targetAny = target as {
+    id?: string | number;
+    data?: { type?: string; tabId?: string; paneId?: string };
+    index?: number;
+    group?: string | number;
+    element?: Element | null;
+  };
+
+  const sourceData = sourceAny.data ?? {};
+  const tabId =
+    sourceData.tabId ||
+    (typeof sourceAny.id === 'string' ? sourceAny.id : undefined);
+  if (!tabId || (sourceData.type && sourceData.type !== 'tab')) {
+    return null;
+  }
+
+  const targetData = targetAny.data ?? {};
+  const toPaneId =
+    (typeof targetData.paneId === 'string' && targetData.paneId) ||
+    (typeof targetAny.group === 'string' ? targetAny.group : undefined) ||
+    (targetData.type === 'pane' && typeof targetAny.id === 'string'
+      ? targetAny.id
+      : undefined) ||
+    (typeof sourceAny.sortable?.group === 'string'
+      ? sourceAny.sortable.group
+      : undefined) ||
+    (typeof sourceAny.group === 'string' ? sourceAny.group : undefined);
+
+  if (!toPaneId) return null;
+
+  if (targetData.type === 'pane-end' || targetData.type === 'pane') {
+    return { tabId, toPaneId, index: undefined };
+  }
+
+  if (targetData.type === 'tab' && typeof targetAny.index === 'number') {
+    const hoverEl = targetAny.element;
+    const dragLeft = draggedTabLeft(sourceAny, operation);
+    let index = targetAny.index;
+    if (dragLeft != null && hoverEl instanceof Element) {
+      const rect = hoverEl.getBoundingClientRect();
+      const hoverCenter = rect.left + rect.width / 2;
+      if (dragLeft >= hoverCenter) {
+        index = targetAny.index + 1;
+      }
+    }
+    return { tabId, toPaneId, index };
+  }
+
+  if (typeof sourceAny.sortable?.index === 'number') {
+    return { tabId, toPaneId, index: sourceAny.sortable.index };
+  }
+
+  return { tabId, toPaneId, index: undefined };
+}
+
+export function TabDropIndicatorProvider({ children }: PropsWithChildren) {
+  const [indicator, setIndicator] = useState<TabDropIndicator>(null);
+
+  useDragDropMonitor({
+    onDragStart() {
+      lastResolvedDrop = null;
+      setIndicator(null);
+    },
+    onDragOver(event) {
+      const { source, target } = event.operation;
+      const drop = resolveTabDrop(source, target, event.operation as never);
+      if (!drop) {
+        setIndicator(null);
+        return;
+      }
+
+      lastResolvedDrop = drop;
+
+      const targetData = ((target as { data?: { type?: string; tabId?: string } })
+        ?.data ?? {}) as { type?: string; tabId?: string };
+      const sourceData = ((source as { data?: { paneId?: string; tabId?: string } })
+        ?.data ?? {}) as { paneId?: string; tabId?: string };
+      if (
+        targetData.type === 'tab' &&
+        targetData.tabId &&
+        sourceData.tabId === targetData.tabId &&
+        sourceData.paneId === drop.toPaneId &&
+        drop.index === (target as { index?: number }).index
+      ) {
+        setIndicator(null);
+        return;
+      }
+
+      setIndicator({
+        paneId: drop.toPaneId,
+        index:
+          drop.index === undefined
+            ? Number.MAX_SAFE_INTEGER
+            : drop.index,
+      });
+    },
+    onDragEnd() {
+      setIndicator(null);
+    },
+  });
+
+  return (
+    <TabDropIndicatorContext.Provider value={indicator}>
+      {children}
+    </TabDropIndicatorContext.Provider>
+  );
+}
+
+function TabInsertLine({ side }: { side: 'before' | 'after' }) {
+  return (
+    <div
+      aria-hidden
+      className={cn(
+        // Keep the line inside the hit box so it does not force a horizontal scrollbar.
+        'pointer-events-none absolute top-1 bottom-1 z-20 w-0.5 rounded-full bg-primary',
+        side === 'before' ? 'left-0' : 'right-0',
+      )}
+    />
+  );
 }
 
 export const TabTypeIcon = ({
@@ -223,19 +401,42 @@ export function PageTabs({
 
   const fallbackDropId = useId();
   const { ref: paneDropRef, isDropTarget } = useDroppable({
-    id: paneId ? `pane:${paneId}` : fallbackDropId,
+    id: paneId ?? fallbackDropId,
     disabled: !paneId,
+    type: 'pane',
+    accept: 'tab',
     data: paneId ? { type: 'pane', paneId } : undefined,
   });
+
+  const { ref: endDropRef, isDropTarget: isEndDropTarget } = useDroppable({
+    id: paneId ? `${paneId}:end` : `${fallbackDropId}:end`,
+    disabled: !paneId,
+    type: 'pane-end',
+    accept: 'tab',
+    data: paneId ? { type: 'pane-end', paneId } : undefined,
+  });
+
+  const dropIndicator = useContext(TabDropIndicatorContext);
+  const insertIndex = useMemo(() => {
+    if (!paneId || !dropIndicator || dropIndicator.paneId !== paneId) {
+      return null;
+    }
+    if (dropIndicator.index >= Number.MAX_SAFE_INTEGER / 2) {
+      return items.length;
+    }
+    return Math.max(0, Math.min(dropIndicator.index, items.length));
+  }, [dropIndicator, items.length, paneId]);
 
   const tabsList = items.map(({ tab }, index) => {
     return (
       <TabMenuItem
-        key={tab.id}
+        key={paneId ? `${paneId}:${tab.id}` : tab.id}
         itemId={tab.id}
         index={index}
         paneId={paneId}
         paneFocused={paneFocused}
+        // Append uses the end-zone line only — avoid a second line on the last tab.
+        showInsertBefore={insertIndex === index}
         renderItem={renderItem}
         tab={tab}
         indicator={indicator}
@@ -243,6 +444,16 @@ export function PageTabs({
       />
     );
   });
+
+  // Keep panel DOM order stable so same-pane tab reorder does not remount Monaco.
+  const contentItems = useMemo(
+    () => [...items].sort((a, b) => a.tab.id.localeCompare(b.tab.id)),
+    [items],
+  );
+
+  const showEndInsert =
+    paneId != null && insertIndex === items.length && items.length > 0;
+
   return (
     <Tabs
       className="size-full justify-start items-stretch gap-0 flex flex-col"
@@ -253,42 +464,77 @@ export function PageTabs({
         ref={paneId ? paneDropRef : undefined}
         data-tab-bar=""
         className={cn(
-          isDropTarget && 'bg-primary/10',
+          'relative h-8 min-h-8 w-full overflow-x-auto overflow-y-hidden overscroll-x-contain',
+          // Hide scrollbar chrome; wheel/trackpad still scrolls.
+          '[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden',
+          (isDropTarget || isEndDropTarget) &&
+            insertIndex === null &&
+            'bg-primary/10',
           !paneFocused && paneId && 'opacity-70',
         )}
       >
-        <ScrollArea className="w-full h-8 min-h-8 overflow-hidden">
-          <div className="w-full relative h-8 overflow-hidden">
-            <TabsList
-              variant="line"
-              className=" p-0 h-8 border-b w-max flex flex-row justify-stretch"
-            >
-              <ScrollMenu
-                apiRef={apiRef}
-                onWheel={onWheel}
-                // LeftArrow={LeftArrow}
-                // RightArrow={RightArrow}
-              >
-                {tabsList}
-              </ScrollMenu>
-            </TabsList>
-            <ScrollBar orientation="horizontal" className="h-1.5" />
+        <TabsList
+          variant="line"
+          className="p-0 h-8 border-b w-max max-w-none flex flex-row justify-stretch"
+        >
+          <ScrollMenu apiRef={apiRef} onWheel={onWheel}>
+            {tabsList}
+          </ScrollMenu>
+        </TabsList>
+        {paneId ? (
+          <div
+            ref={endDropRef}
+            className={cn(
+              'pointer-events-auto absolute inset-y-0 right-0 z-10 w-4',
+              isEndDropTarget && 'bg-primary/10',
+            )}
+            aria-hidden
+          >
+            {showEndInsert ? <TabInsertLine side="before" /> : null}
           </div>
-        </ScrollArea>
+        ) : null}
+        {paneId && items.length === 0 && insertIndex === 0 ? (
+          <div className="absolute inset-y-0 left-2 w-8">
+            <TabInsertLine side="before" />
+          </div>
+        ) : null}
       </div>
       {items.length === 0 ? (
         <div className="flex-1 min-h-0 flex items-center justify-center text-muted-foreground text-sm">
           <Trans>No tabs in this pane</Trans>
         </div>
       ) : null}
-      {items.map(({ tab: { id }, children }) => {
+      {contentItems.map(({ tab: { id }, children }) => {
+        const isActive = id === activeKey;
+        if (paneId) {
+          return (
+            <div
+              key={id}
+              role="tabpanel"
+              hidden={!isActive}
+              className={cn(
+                'min-h-0 flex-1 overflow-hidden outline-none',
+                !isActive && 'hidden',
+              )}
+            >
+              <ErrorBoundary
+                fallback={
+                  <p>
+                    <Trans>Something went wrong</Trans>
+                  </p>
+                }
+              >
+                {children}
+              </ErrorBoundary>
+            </div>
+          );
+        }
         return (
           <TabsContent
             key={id}
             value={id}
             keepMounted
             className="min-h-0"
-            // className={cn('h-full w-full mt-0 overflow-hidden', isActive ? 'flex-1' : 'hidden')}
           >
             <ErrorBoundary
               fallback={
@@ -316,6 +562,7 @@ type TabItemMenuProps = {
   index: number;
   paneId?: string;
   paneFocused?: boolean;
+  showInsertBefore?: boolean;
   renderItem: (({ tab }: { tab: TabContextType }) => JSX.Element) | undefined;
   tab: TabContextType;
   indicator: string | undefined;
@@ -327,6 +574,7 @@ function TabMenuItem({
   index,
   paneId,
   paneFocused = true,
+  showInsertBefore = false,
   renderItem,
   tab,
   indicator,
@@ -335,10 +583,13 @@ function TabMenuItem({
   const Comp = renderItem;
   const activateTab = useTabsStore((s) => s.active);
   const { ref, isDragging, isDropTarget } = useSortable({
-    id: paneId ? `tab:${paneId}:${tab.id}` : `tab:${tab.id}`,
+    id: tab.id,
     index,
     group: paneId,
+    type: 'tab',
+    accept: ['tab', 'pane', 'pane-end'],
     disabled: !paneId,
+    plugins: [],
     data: {
       type: 'tab',
       tabId: tab.id,
@@ -348,7 +599,7 @@ function TabMenuItem({
 
   return (
     <TabsTrigger
-      id={tab.id}
+      id={paneId ? `tab-trigger-${paneId}-${tab.id}` : tab.id}
       key={tab.id}
       value={tab.id}
       data-cy={itemId}
@@ -358,22 +609,20 @@ function TabMenuItem({
         'group',
         'data-[active]:shadow-none',
         'data-[active]:rounded-none',
-        // Focused pane: full active tab. Unfocused pane: muted "selected but not focused".
         paneFocused
           ? 'data-[active]:bg-muted data-[active]:text-foreground'
           : 'data-[active]:bg-transparent data-[active]:text-muted-foreground',
-        isDragging && 'opacity-50',
-        isDropTarget && 'bg-primary/15',
+        isDragging && 'opacity-40',
+        isDropTarget && !showInsertBefore && 'bg-primary/10',
       )}
-      // Activate on pointer down so cross-pane clicks don't need a second click
-      // (Tabs may not fire onValueChange when the leaf's active tab is already selected).
-      onPointerDown={() => {
+      onClick={() => {
         if (paneId) {
           activateTab(tab.id);
         }
       }}
       render={
-        <div ref={paneId ? ref : undefined} className="cursor-pointer">
+        <div ref={paneId ? ref : undefined} className="relative cursor-pointer overflow-visible">
+          {showInsertBefore ? <TabInsertLine side="before" /> : null}
           <div
             className={cn(
               'h-0.5 w-full absolute left-0 invisible z-6',

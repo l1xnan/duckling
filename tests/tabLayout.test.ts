@@ -42,6 +42,29 @@ describe('tabLayout', () => {
     expect(next.tabIds).toEqual(['c', 'a', 'b']);
   });
 
+  it('moveTab can move a tab to the end of the same pane', () => {
+    const leaf = createLeaf(['a', 'b', 'c'], 'a');
+    // insert-before index 3 (= append) and undefined both mean end
+    const byIndex = moveTab(leaf, 'a', leaf.id, 3);
+    expect(isLeaf(byIndex)).toBe(true);
+    if (isLeaf(byIndex)) {
+      expect(byIndex.tabIds).toEqual(['b', 'c', 'a']);
+    }
+    const byAppend = moveTab(leaf, 'a', leaf.id, undefined);
+    expect(isLeaf(byAppend)).toBe(true);
+    if (isLeaf(byAppend)) {
+      expect(byAppend.tabIds).toEqual(['b', 'c', 'a']);
+    }
+  });
+
+  it('moveTab append (undefined index) is not a no-op when tab is not last', () => {
+    const leaf = createLeaf(['a', 'b', 'c'], 'b');
+    const next = moveTab(leaf, 'b', leaf.id, undefined);
+    expect(isLeaf(next)).toBe(true);
+    if (!isLeaf(next)) return;
+    expect(next.tabIds).toEqual(['a', 'c', 'b']);
+  });
+
   it('moveTab moves across panes and collapses empty source', () => {
     const left = createLeaf(['a'], 'a', 'left');
     const right = createLeaf(['b'], 'b', 'right');
@@ -56,6 +79,24 @@ describe('tabLayout', () => {
     expect(isLeaf(next)).toBe(true);
     if (!isLeaf(next)) return;
     expect(next.tabIds).toEqual(['b', 'a']);
+  });
+
+  it('moveTab never duplicates a tab id in the target leaf', () => {
+    const left = createLeaf(['a', 'c'], 'a', 'left');
+    const right = createLeaf(['b'], 'b', 'right');
+    const split = {
+      type: 'split' as const,
+      id: 's1',
+      orientation: 'horizontal' as const,
+      sizes: [50, 50] as [number, number],
+      children: [left, right] as [typeof left, typeof right],
+    };
+    const next = moveTab(split, 'a', 'right', 0);
+    expect(collectTabIds(next).filter((id) => id === 'a')).toHaveLength(1);
+    if (!isSplit(next)) return;
+    const rightLeaf = next.children[1];
+    if (!isLeaf(rightLeaf)) return;
+    expect(rightLeaf.tabIds.filter((id) => id === 'a')).toHaveLength(1);
   });
 
   it('removeTabFromLayout collapses empty pane', () => {
