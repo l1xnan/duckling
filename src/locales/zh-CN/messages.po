@@ -93,7 +93,7 @@ msgstr "接受新密钥"
 msgid "Add"
 msgstr "添加"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1175
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1178
 msgid "Add data"
 msgstr "添加数据"
 
@@ -145,7 +145,7 @@ msgstr "书签"
 msgid "Bookmark SQL"
 msgstr "收藏 SQL"
 
-#: src/pages/editor/index.tsx:114
+#: src/pages/editor/index.tsx:115
 msgid "Bookmarked"
 msgstr "已收藏"
 
@@ -166,7 +166,7 @@ msgstr "计算"
 msgid "Calls the external <0>sqlfmt</0> binary via Tauri."
 msgstr "通过 Tauri 调用外部 <0>sqlfmt</0> 可执行文件。"
 
-#: src/components/PageTabs.tsx:419
+#: src/components/PageTabs.tsx:756
 #: src/components/views/ExportDialog.tsx:423
 #: src/pages/settings/AppSetting.tsx:514
 #: src/pages/settings/AppSetting.tsx:1312
@@ -174,14 +174,19 @@ msgstr "通过 Tauri 调用外部 <0>sqlfmt</0> 可执行文件。"
 #: src/pages/settings/AppSetting.tsx:1739
 #: src/pages/settings/SshProfilesForm.tsx:537
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:299
-#: src/pages/sidebar/dialog/ConfigDialog.tsx:132
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:135
 #: src/pages/sidebar/dialog/ConnectionTransferDialog.tsx:282
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1179
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1182
 #: src/pages/sidebar/dialog/RenameDialog.tsx:61
 #: src/pages/sidebar/dialog/SearchDialog.tsx:69
 #: src/pages/sidebar/SqlCode.tsx:527
 msgid "Cancel"
 msgstr "取消"
+
+#: src/components/views/SchemaView.tsx:224
+#: src/components/views/SchemaView.tsx:374
+msgid "Cannot resolve table name from row"
+msgstr "无法从行解析表名"
 
 #: src/components/views/CountByColumnDialog.tsx:231
 #: src/components/views/CountByQueryDialog.tsx:213
@@ -212,7 +217,7 @@ msgstr "清空全部历史"
 msgid "Clear filter"
 msgstr "清除筛选"
 
-#: src/components/tables/CanvasTable.tsx:113
+#: src/components/tables/CanvasTable.tsx:96
 msgid "Clear pinned"
 msgstr "取消固定"
 
@@ -220,7 +225,7 @@ msgstr "取消固定"
 msgid "Clear search"
 msgstr "清除搜索"
 
-#: src/components/tables/CanvasTable.tsx:510
+#: src/components/tables/CanvasTable.tsx:383
 msgid "Clear sort"
 msgstr "清除排序"
 
@@ -236,8 +241,7 @@ msgstr "点击更新"
 msgid "ClickHouse"
 msgstr "ClickHouse"
 
-#: src/components/PageTabs.tsx:102
-#: src/components/ui/dialog.tsx:75
+#: src/components/PageTabs.tsx:291
 #: src/components/ui/sheet.tsx:75
 #: src/components/views/ValueViewer.tsx:176
 msgid "Close"
@@ -247,7 +251,7 @@ msgstr "关闭"
 msgid "Close idle database sessions (connection pools, SSH tunnels) after this many minutes. Use 0 to keep sessions until the app exits or the connection is removed."
 msgstr "空闲多少分钟后关闭数据库会话（连接池、SSH 隧道）。设为 0 则保持到应用退出或连接被移除。"
 
-#: src/components/PageTabs.tsx:109
+#: src/components/PageTabs.tsx:298
 msgid "Close Other"
 msgstr "关闭其他"
 
@@ -272,7 +276,7 @@ msgstr "代码字体大小"
 msgid "Collapse All"
 msgstr "全部折叠"
 
-#: src/components/tables/CanvasTable.tsx:116
+#: src/components/tables/CanvasTable.tsx:99
 #: src/components/views/ColumnProfileDialog.tsx:238
 #: src/components/views/ColumnProfileDialog.tsx:344
 msgid "Column profile"
@@ -330,15 +334,15 @@ msgstr "连接属性"
 msgid "Connection successful"
 msgstr "连接成功"
 
-#: src/components/PageTabs.tsx:129
-#: src/components/tables/CanvasTable.tsx:119
+#: src/components/PageTabs.tsx:335
+#: src/components/tables/CanvasTable.tsx:102
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:95
 #: src/pages/sidebar/context-menu/SchemaContextMenu.tsx:51
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:269
 msgid "Copy"
 msgstr "复制"
 
-#: src/components/tables/CanvasTable.tsx:120
+#: src/components/tables/CanvasTable.tsx:103
 msgid "Copy as CSV"
 msgstr "复制为 CSV"
 
@@ -346,7 +350,7 @@ msgstr "复制为 CSV"
 msgid "Copy as Markdown"
 msgstr "复制为 Markdown"
 
-#: src/components/tables/CanvasTable.tsx:110
+#: src/components/tables/CanvasTable.tsx:93
 msgid "Copy Field Name"
 msgstr "复制字段名"
 
@@ -375,7 +379,7 @@ msgstr "按列计数"
 msgid "Count by column: <0>{column}</0>"
 msgstr "按列计数：<0>{column}</0>"
 
-#: src/components/tables/CanvasTable.tsx:115
+#: src/components/tables/CanvasTable.tsx:98
 #: src/components/views/CountByColumnDialog.tsx:267
 #: src/components/views/CountByQueryDialog.tsx:248
 msgid "Count by this column"
@@ -402,6 +406,7 @@ msgid "Custom"
 msgstr "自定义"
 
 #: src/components/views/DataViewToolbar.tsx:186
+#: src/components/views/SchemaView.tsx:152
 msgid "Data Columns"
 msgstr "数据列"
 
@@ -447,7 +452,7 @@ msgstr "默认：{0}"
 msgid "Default: 500"
 msgstr "默认：500"
 
-#: src/components/PageTabs.tsx:142
+#: src/components/PageTabs.tsx:348
 #: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:128
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:98
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:265
@@ -527,7 +532,7 @@ msgstr "正在下载"
 msgid "e.g. Production bastion"
 msgstr "例如：生产跳板机"
 
-#: src/components/PageTabs.tsx:318
+#: src/components/PageTabs.tsx:655
 #: src/hotkeys/registry.ts:147
 msgid "Editor"
 msgstr "编辑器"
@@ -552,8 +557,8 @@ msgstr "耗时：{0}"
 msgid "elapsed: {elapsed}ms"
 msgstr "耗时：{elapsed}ms"
 
-#: src/pages/editor/index.tsx:101
-#: src/pages/editor/index.tsx:120
+#: src/pages/editor/index.tsx:102
+#: src/pages/editor/index.tsx:121
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:45
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:65
 msgid "Empty SQL"
@@ -606,7 +611,7 @@ msgstr "导出连接"
 msgid "Export Connections"
 msgstr "导出连接"
 
-#: src/components/views/DataViewToolbar.tsx:238
+#: src/components/views/DataViewToolbar.tsx:244
 #: src/components/views/ExportDialog.tsx:228
 msgid "Export data"
 msgstr "导出数据"
@@ -615,7 +620,7 @@ msgstr "导出数据"
 msgid "Export failed"
 msgstr "导出失败"
 
-#: src/components/views/DataViewToolbar.tsx:235
+#: src/components/views/DataViewToolbar.tsx:241
 #: src/components/views/ExportDialog.tsx:147
 msgid "Export is not supported for this connection"
 msgstr "此连接不支持导出"
@@ -648,8 +653,8 @@ msgstr "外部 sqlfmt CLI（面向 dbt，经由 Tauri）"
 msgid "Failed to open settings folder: {message}"
 msgstr "无法打开设置文件夹：{message}"
 
-#: src/pages/sidebar/dialog/ConfigDialog.tsx:119
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1164
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:122
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1167
 msgid "Failed to refresh databases"
 msgstr "刷新数据库列表失败"
 
@@ -657,7 +662,7 @@ msgstr "刷新数据库列表失败"
 msgid "Failed to save connection secrets"
 msgstr "保存连接密钥失败"
 
-#: src/components/PageTabs.tsx:119
+#: src/components/PageTabs.tsx:325
 #: src/pages/sidebar/aside.tsx:74
 #: src/pages/sidebar/Favorite.tsx:96
 msgid "Favorite"
@@ -671,7 +676,7 @@ msgstr "字段"
 msgid "File path"
 msgstr "文件路径"
 
-#: src/components/tables/CanvasTable.tsx:118
+#: src/components/tables/CanvasTable.tsx:101
 msgid "Filter by this value"
 msgstr "按此值筛选"
 
@@ -767,11 +772,12 @@ msgstr "上一页"
 msgid "Help"
 msgstr "帮助"
 
-#: src/components/tables/CanvasTable.tsx:114
+#: src/components/tables/CanvasTable.tsx:97
 msgid "Hidden column"
 msgstr "隐藏列"
 
 #: src/components/views/DataViewToolbar.tsx:181
+#: src/components/views/SchemaView.tsx:145
 msgid "Hidden Column"
 msgstr "隐藏列"
 
@@ -1016,14 +1022,14 @@ msgstr "移到顶部"
 msgid "N/A"
 msgstr "无"
 
-#: src/components/PageTabs.tsx:408
+#: src/components/PageTabs.tsx:745
 #: src/pages/settings/SshProfilesForm.tsx:244
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:257
 #: src/pages/sidebar/dialog/RenameDialog.tsx:51
 msgid "Name"
 msgstr "名称"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1173
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1176
 msgid "New Connection"
 msgstr "新建连接"
 
@@ -1070,7 +1076,11 @@ msgstr "暂无查询历史"
 msgid "No rows"
 msgstr "无行"
 
-#: src/components/views/DataViewToolbar.tsx:237
+#: src/components/views/DataViewToolbar.tsx:227
+msgid "No SQL"
+msgstr "无 SQL"
+
+#: src/components/views/DataViewToolbar.tsx:243
 #: src/components/views/ExportDialog.tsx:151
 msgid "No SQL to export"
 msgstr "没有可导出的 SQL"
@@ -1078,6 +1088,10 @@ msgstr "没有可导出的 SQL"
 #: src/pages/settings/SshProfilesForm.tsx:193
 msgid "No SSH profiles yet."
 msgstr "暂无 SSH 配置文件。"
+
+#: src/components/PageTabs.tsx:504
+msgid "No tabs in this pane"
+msgstr "此窗格中没有标签页"
 
 #: src/components/views/PivotDialog.tsx:697
 msgid "None"
@@ -1116,9 +1130,9 @@ msgstr "官方 GitHub Releases 端点"
 msgid "Official uses GitHub Releases. China Mirror goes through gh-proxy.com for better connectivity in mainland China."
 msgstr "官方源使用 GitHub Releases。国内镜像经 gh-proxy.com 转发，便于中国大陆访问。"
 
-#: src/components/PageTabs.tsx:422
-#: src/pages/sidebar/dialog/ConfigDialog.tsx:144
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1189
+#: src/components/PageTabs.tsx:759
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:147
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1192
 #: src/pages/sidebar/dialog/RenameDialog.tsx:64
 #: src/pages/sidebar/dialog/SearchDialog.tsx:71
 msgid "Ok"
@@ -1159,6 +1173,10 @@ msgstr "打开 SQL 编辑器"
 #: src/pages/sidebar/SqlCode.tsx:412
 msgid "Open SQL folder"
 msgstr "打开 SQL 文件夹"
+
+#: src/components/tables/CanvasTable.tsx:676
+msgid "Open table"
+msgstr "打开表"
 
 #: src/pages/settings/AppSetting.tsx:485
 msgid "Open the local folder that stores app settings (settings.json)."
@@ -1205,11 +1223,11 @@ msgstr "路径"
 msgid "pending"
 msgstr "进行中"
 
-#: src/components/tables/CanvasTable.tsx:111
+#: src/components/tables/CanvasTable.tsx:94
 msgid "Pin to left"
 msgstr "固定到左侧"
 
-#: src/components/tables/CanvasTable.tsx:112
+#: src/components/tables/CanvasTable.tsx:95
 msgid "Pin to right"
 msgstr "固定到右侧"
 
@@ -1219,7 +1237,7 @@ msgstr "固定到右侧"
 msgid "Pivot table"
 msgstr "透视表"
 
-#: src/components/tables/CanvasTable.tsx:117
+#: src/components/tables/CanvasTable.tsx:100
 msgid "Pivot with this column"
 msgstr "用此列透视"
 
@@ -1265,7 +1283,7 @@ msgstr "使用主密码保护密钥。不勾选则不会导出密码。"
 msgid "Proxy"
 msgstr "代理"
 
-#: src/components/PageTabs.tsx:324
+#: src/components/PageTabs.tsx:661
 msgid "Query"
 msgstr "查询"
 
@@ -1332,8 +1350,8 @@ msgstr "移除"
 msgid "Remove measure"
 msgstr "移除度量"
 
-#: src/components/PageTabs.tsx:135
-#: src/components/PageTabs.tsx:399
+#: src/components/PageTabs.tsx:341
+#: src/components/PageTabs.tsx:736
 #: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:113
 #: src/pages/sidebar/dialog/RenameDialog.tsx:42
 msgid "Rename"
@@ -1358,8 +1376,8 @@ msgid "Reset to default"
 msgstr "恢复默认"
 
 #. placeholder {0}: childCount + 1
-#: src/pages/editor/index.tsx:148
-#: src/pages/editor/index.tsx:159
+#: src/pages/editor/index.tsx:149
+#: src/pages/editor/index.tsx:160
 msgid "Result{0}"
 msgstr "结果{0}"
 
@@ -1406,15 +1424,13 @@ msgstr "保存"
 msgid "Save bastion hosts once, then reuse them when adding MySQL or Postgres connections."
 msgstr "先保存跳板机，添加 MySQL 或 Postgres 连接时可复用。"
 
-#: src/components/PageTabs.tsx:322
+#: src/components/PageTabs.tsx:659
 msgid "Schema"
 msgstr "Schema"
 
 #: src/components/custom/search.tsx:22
-#: src/components/PageTabs.tsx:316
-#: src/components/views/SchemaView.tsx:63
-#: src/components/views/SchemaView.tsx:143
-#: src/components/views/SchemaView.tsx:224
+#: src/components/PageTabs.tsx:653
+#: src/components/views/SchemaView.tsx:133
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:252
 msgid "Search"
 msgstr "搜索"
@@ -1557,6 +1573,10 @@ msgstr "显示数据库"
 msgid "Show password"
 msgstr "显示密码"
 
+#: src/components/views/DataViewToolbar.tsx:227
+msgid "Show SQL"
+msgstr "显示 SQL"
+
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:225
 msgid "Show table"
 msgstr "显示表"
@@ -1573,16 +1593,17 @@ msgstr "软件更新"
 msgid "Some shortcuts share the same keys within a scope. Resolve conflicts by reassigning one of them."
 msgstr "同一作用域内存在冲突的快捷键，请重新分配其中一个。"
 
-#: src/components/PageTabs.tsx:243
+#: src/components/PageTabs.tsx:523
+#: src/components/PageTabs.tsx:542
 #: src/components/views/ValueViewer.tsx:211
 msgid "Something went wrong"
 msgstr "出错了"
 
-#: src/components/tables/CanvasTable.tsx:500
+#: src/components/tables/CanvasTable.tsx:373
 msgid "Sort ascending"
 msgstr "升序排序"
 
-#: src/components/tables/CanvasTable.tsx:505
+#: src/components/tables/CanvasTable.tsx:378
 msgid "Sort descending"
 msgstr "降序排序"
 
@@ -1597,6 +1618,14 @@ msgstr "指定文件每一行中分隔各列的字符串。"
 #: src/pages/settings/AppSetting.tsx:1705
 msgid "Specifies the string that should appear before a data character sequence that matches the quote value."
 msgstr "指定在与引号值匹配的数据字符序列前应出现的字符串。"
+
+#: src/components/PageTabs.tsx:315
+msgid "Split Down"
+msgstr "向下拆分"
+
+#: src/components/PageTabs.tsx:308
+msgid "Split Right"
+msgstr "向右拆分"
 
 #: src/pages/sidebar/Favorite.tsx:118
 msgid "SQL bookmarks"
@@ -1719,7 +1748,7 @@ msgstr "跟随系统"
 msgid "Tab width"
 msgstr "制表符宽度"
 
-#: src/components/PageTabs.tsx:320
+#: src/components/PageTabs.tsx:657
 #: src/components/views/CountByColumnDialog.tsx:228
 #: src/components/views/CountByQueryDialog.tsx:210
 msgid "Table"
@@ -1751,13 +1780,13 @@ msgstr "右对齐表格"
 msgid "Temporary Files"
 msgstr "临时文件"
 
-#: src/pages/sidebar/dialog/ConfigDialog.tsx:141
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1186
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:144
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1189
 msgid "Test Connection"
 msgstr "测试连接"
 
-#: src/pages/sidebar/dialog/ConfigDialog.tsx:141
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1186
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:144
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1189
 msgid "Testing…"
 msgstr "测试中…"
 
@@ -1893,7 +1922,7 @@ msgstr "用户名"
 msgid "Value"
 msgstr "值"
 
-#: src/components/views/DataViewToolbar.tsx:230
+#: src/components/views/DataViewToolbar.tsx:236
 msgid "Value Viewer"
 msgstr "值查看器"
 

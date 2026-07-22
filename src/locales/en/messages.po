@@ -93,7 +93,7 @@ msgstr "Accept new keys"
 msgid "Add"
 msgstr "Add"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1175
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1178
 msgid "Add data"
 msgstr "Add data"
 
@@ -145,7 +145,7 @@ msgstr "Bookmark"
 msgid "Bookmark SQL"
 msgstr "Bookmark SQL"
 
-#: src/pages/editor/index.tsx:114
+#: src/pages/editor/index.tsx:115
 msgid "Bookmarked"
 msgstr "Bookmarked"
 
@@ -166,7 +166,7 @@ msgstr "Calculate"
 msgid "Calls the external <0>sqlfmt</0> binary via Tauri."
 msgstr "Calls the external <0>sqlfmt</0> binary via Tauri."
 
-#: src/components/PageTabs.tsx:419
+#: src/components/PageTabs.tsx:756
 #: src/components/views/ExportDialog.tsx:423
 #: src/pages/settings/AppSetting.tsx:514
 #: src/pages/settings/AppSetting.tsx:1312
@@ -174,14 +174,19 @@ msgstr "Calls the external <0>sqlfmt</0> binary via Tauri."
 #: src/pages/settings/AppSetting.tsx:1739
 #: src/pages/settings/SshProfilesForm.tsx:537
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:299
-#: src/pages/sidebar/dialog/ConfigDialog.tsx:132
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:135
 #: src/pages/sidebar/dialog/ConnectionTransferDialog.tsx:282
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1179
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1182
 #: src/pages/sidebar/dialog/RenameDialog.tsx:61
 #: src/pages/sidebar/dialog/SearchDialog.tsx:69
 #: src/pages/sidebar/SqlCode.tsx:527
 msgid "Cancel"
 msgstr "Cancel"
+
+#: src/components/views/SchemaView.tsx:224
+#: src/components/views/SchemaView.tsx:374
+msgid "Cannot resolve table name from row"
+msgstr "Cannot resolve table name from row"
 
 #: src/components/views/CountByColumnDialog.tsx:231
 #: src/components/views/CountByQueryDialog.tsx:213
@@ -212,7 +217,7 @@ msgstr "Clear all history"
 msgid "Clear filter"
 msgstr "Clear filter"
 
-#: src/components/tables/CanvasTable.tsx:113
+#: src/components/tables/CanvasTable.tsx:96
 msgid "Clear pinned"
 msgstr "Clear pinned"
 
@@ -220,7 +225,7 @@ msgstr "Clear pinned"
 msgid "Clear search"
 msgstr "Clear search"
 
-#: src/components/tables/CanvasTable.tsx:510
+#: src/components/tables/CanvasTable.tsx:383
 msgid "Clear sort"
 msgstr "Clear sort"
 
@@ -236,8 +241,7 @@ msgstr "Click to update"
 msgid "ClickHouse"
 msgstr "ClickHouse"
 
-#: src/components/PageTabs.tsx:102
-#: src/components/ui/dialog.tsx:75
+#: src/components/PageTabs.tsx:291
 #: src/components/ui/sheet.tsx:75
 #: src/components/views/ValueViewer.tsx:176
 msgid "Close"
@@ -247,7 +251,7 @@ msgstr "Close"
 msgid "Close idle database sessions (connection pools, SSH tunnels) after this many minutes. Use 0 to keep sessions until the app exits or the connection is removed."
 msgstr "Close idle database sessions (connection pools, SSH tunnels) after this many minutes. Use 0 to keep sessions until the app exits or the connection is removed."
 
-#: src/components/PageTabs.tsx:109
+#: src/components/PageTabs.tsx:298
 msgid "Close Other"
 msgstr "Close Other"
 
@@ -272,7 +276,7 @@ msgstr "Code Font Size"
 msgid "Collapse All"
 msgstr "Collapse All"
 
-#: src/components/tables/CanvasTable.tsx:116
+#: src/components/tables/CanvasTable.tsx:99
 #: src/components/views/ColumnProfileDialog.tsx:238
 #: src/components/views/ColumnProfileDialog.tsx:344
 msgid "Column profile"
@@ -330,15 +334,15 @@ msgstr "Connection properties"
 msgid "Connection successful"
 msgstr "Connection successful"
 
-#: src/components/PageTabs.tsx:129
-#: src/components/tables/CanvasTable.tsx:119
+#: src/components/PageTabs.tsx:335
+#: src/components/tables/CanvasTable.tsx:102
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:95
 #: src/pages/sidebar/context-menu/SchemaContextMenu.tsx:51
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:269
 msgid "Copy"
 msgstr "Copy"
 
-#: src/components/tables/CanvasTable.tsx:120
+#: src/components/tables/CanvasTable.tsx:103
 msgid "Copy as CSV"
 msgstr "Copy as CSV"
 
@@ -346,7 +350,7 @@ msgstr "Copy as CSV"
 msgid "Copy as Markdown"
 msgstr "Copy as Markdown"
 
-#: src/components/tables/CanvasTable.tsx:110
+#: src/components/tables/CanvasTable.tsx:93
 msgid "Copy Field Name"
 msgstr "Copy Field Name"
 
@@ -375,7 +379,7 @@ msgstr "Count by column"
 msgid "Count by column: <0>{column}</0>"
 msgstr "Count by column: <0>{column}</0>"
 
-#: src/components/tables/CanvasTable.tsx:115
+#: src/components/tables/CanvasTable.tsx:98
 #: src/components/views/CountByColumnDialog.tsx:267
 #: src/components/views/CountByQueryDialog.tsx:248
 msgid "Count by this column"
@@ -402,6 +406,7 @@ msgid "Custom"
 msgstr "Custom"
 
 #: src/components/views/DataViewToolbar.tsx:186
+#: src/components/views/SchemaView.tsx:152
 msgid "Data Columns"
 msgstr "Data Columns"
 
@@ -447,7 +452,7 @@ msgstr "default: {0}"
 msgid "Default: 500"
 msgstr "Default: 500"
 
-#: src/components/PageTabs.tsx:142
+#: src/components/PageTabs.tsx:348
 #: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:128
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:98
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:265
@@ -527,7 +532,7 @@ msgstr "Downloading"
 msgid "e.g. Production bastion"
 msgstr "e.g. Production bastion"
 
-#: src/components/PageTabs.tsx:318
+#: src/components/PageTabs.tsx:655
 #: src/hotkeys/registry.ts:147
 msgid "Editor"
 msgstr "Editor"
@@ -552,8 +557,8 @@ msgstr "elapsed time: {0}"
 msgid "elapsed: {elapsed}ms"
 msgstr "elapsed: {elapsed}ms"
 
-#: src/pages/editor/index.tsx:101
-#: src/pages/editor/index.tsx:120
+#: src/pages/editor/index.tsx:102
+#: src/pages/editor/index.tsx:121
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:45
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:65
 msgid "Empty SQL"
@@ -606,7 +611,7 @@ msgstr "Export connections"
 msgid "Export Connections"
 msgstr "Export Connections"
 
-#: src/components/views/DataViewToolbar.tsx:238
+#: src/components/views/DataViewToolbar.tsx:244
 #: src/components/views/ExportDialog.tsx:228
 msgid "Export data"
 msgstr "Export data"
@@ -615,7 +620,7 @@ msgstr "Export data"
 msgid "Export failed"
 msgstr "Export failed"
 
-#: src/components/views/DataViewToolbar.tsx:235
+#: src/components/views/DataViewToolbar.tsx:241
 #: src/components/views/ExportDialog.tsx:147
 msgid "Export is not supported for this connection"
 msgstr "Export is not supported for this connection"
@@ -648,8 +653,8 @@ msgstr "External sqlfmt CLI (dbt-oriented, via Tauri)"
 msgid "Failed to open settings folder: {message}"
 msgstr "Failed to open settings folder: {message}"
 
-#: src/pages/sidebar/dialog/ConfigDialog.tsx:119
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1164
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:122
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1167
 msgid "Failed to refresh databases"
 msgstr "Failed to refresh databases"
 
@@ -657,7 +662,7 @@ msgstr "Failed to refresh databases"
 msgid "Failed to save connection secrets"
 msgstr "Failed to save connection secrets"
 
-#: src/components/PageTabs.tsx:119
+#: src/components/PageTabs.tsx:325
 #: src/pages/sidebar/aside.tsx:74
 #: src/pages/sidebar/Favorite.tsx:96
 msgid "Favorite"
@@ -671,7 +676,7 @@ msgstr "Field"
 msgid "File path"
 msgstr "File path"
 
-#: src/components/tables/CanvasTable.tsx:118
+#: src/components/tables/CanvasTable.tsx:101
 msgid "Filter by this value"
 msgstr "Filter by this value"
 
@@ -767,11 +772,12 @@ msgstr "Go to previous page"
 msgid "Help"
 msgstr "Help"
 
-#: src/components/tables/CanvasTable.tsx:114
+#: src/components/tables/CanvasTable.tsx:97
 msgid "Hidden column"
 msgstr "Hidden column"
 
 #: src/components/views/DataViewToolbar.tsx:181
+#: src/components/views/SchemaView.tsx:145
 msgid "Hidden Column"
 msgstr "Hidden Column"
 
@@ -1016,14 +1022,14 @@ msgstr "Move to the top"
 msgid "N/A"
 msgstr "N/A"
 
-#: src/components/PageTabs.tsx:408
+#: src/components/PageTabs.tsx:745
 #: src/pages/settings/SshProfilesForm.tsx:244
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:257
 #: src/pages/sidebar/dialog/RenameDialog.tsx:51
 msgid "Name"
 msgstr "Name"
 
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1173
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1176
 msgid "New Connection"
 msgstr "New Connection"
 
@@ -1070,7 +1076,11 @@ msgstr "No query history yet"
 msgid "No rows"
 msgstr "No rows"
 
-#: src/components/views/DataViewToolbar.tsx:237
+#: src/components/views/DataViewToolbar.tsx:227
+msgid "No SQL"
+msgstr "No SQL"
+
+#: src/components/views/DataViewToolbar.tsx:243
 #: src/components/views/ExportDialog.tsx:151
 msgid "No SQL to export"
 msgstr "No SQL to export"
@@ -1078,6 +1088,10 @@ msgstr "No SQL to export"
 #: src/pages/settings/SshProfilesForm.tsx:193
 msgid "No SSH profiles yet."
 msgstr "No SSH profiles yet."
+
+#: src/components/PageTabs.tsx:504
+msgid "No tabs in this pane"
+msgstr "No tabs in this pane"
 
 #: src/components/views/PivotDialog.tsx:697
 msgid "None"
@@ -1116,9 +1130,9 @@ msgstr "Official GitHub Releases endpoint"
 msgid "Official uses GitHub Releases. China Mirror goes through gh-proxy.com for better connectivity in mainland China."
 msgstr "Official uses GitHub Releases. China Mirror goes through gh-proxy.com for better connectivity in mainland China."
 
-#: src/components/PageTabs.tsx:422
-#: src/pages/sidebar/dialog/ConfigDialog.tsx:144
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1189
+#: src/components/PageTabs.tsx:759
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:147
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1192
 #: src/pages/sidebar/dialog/RenameDialog.tsx:64
 #: src/pages/sidebar/dialog/SearchDialog.tsx:71
 msgid "Ok"
@@ -1159,6 +1173,10 @@ msgstr "Open SQL editor"
 #: src/pages/sidebar/SqlCode.tsx:412
 msgid "Open SQL folder"
 msgstr "Open SQL folder"
+
+#: src/components/tables/CanvasTable.tsx:676
+msgid "Open table"
+msgstr "Open table"
 
 #: src/pages/settings/AppSetting.tsx:485
 msgid "Open the local folder that stores app settings (settings.json)."
@@ -1205,11 +1223,11 @@ msgstr "Path"
 msgid "pending"
 msgstr "pending"
 
-#: src/components/tables/CanvasTable.tsx:111
+#: src/components/tables/CanvasTable.tsx:94
 msgid "Pin to left"
 msgstr "Pin to left"
 
-#: src/components/tables/CanvasTable.tsx:112
+#: src/components/tables/CanvasTable.tsx:95
 msgid "Pin to right"
 msgstr "Pin to right"
 
@@ -1219,7 +1237,7 @@ msgstr "Pin to right"
 msgid "Pivot table"
 msgstr "Pivot table"
 
-#: src/components/tables/CanvasTable.tsx:117
+#: src/components/tables/CanvasTable.tsx:100
 msgid "Pivot with this column"
 msgstr "Pivot with this column"
 
@@ -1265,7 +1283,7 @@ msgstr "Protect secrets with a master password. Without this option, passwords a
 msgid "Proxy"
 msgstr "Proxy"
 
-#: src/components/PageTabs.tsx:324
+#: src/components/PageTabs.tsx:661
 msgid "Query"
 msgstr "Query"
 
@@ -1332,8 +1350,8 @@ msgstr "Remove"
 msgid "Remove measure"
 msgstr "Remove measure"
 
-#: src/components/PageTabs.tsx:135
-#: src/components/PageTabs.tsx:399
+#: src/components/PageTabs.tsx:341
+#: src/components/PageTabs.tsx:736
 #: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:113
 #: src/pages/sidebar/dialog/RenameDialog.tsx:42
 msgid "Rename"
@@ -1358,8 +1376,8 @@ msgid "Reset to default"
 msgstr "Reset to default"
 
 #. placeholder {0}: childCount + 1
-#: src/pages/editor/index.tsx:148
-#: src/pages/editor/index.tsx:159
+#: src/pages/editor/index.tsx:149
+#: src/pages/editor/index.tsx:160
 msgid "Result{0}"
 msgstr "Result{0}"
 
@@ -1406,15 +1424,13 @@ msgstr "Save"
 msgid "Save bastion hosts once, then reuse them when adding MySQL or Postgres connections."
 msgstr "Save bastion hosts once, then reuse them when adding MySQL or Postgres connections."
 
-#: src/components/PageTabs.tsx:322
+#: src/components/PageTabs.tsx:659
 msgid "Schema"
 msgstr "Schema"
 
 #: src/components/custom/search.tsx:22
-#: src/components/PageTabs.tsx:316
-#: src/components/views/SchemaView.tsx:63
-#: src/components/views/SchemaView.tsx:143
-#: src/components/views/SchemaView.tsx:224
+#: src/components/PageTabs.tsx:653
+#: src/components/views/SchemaView.tsx:133
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:252
 msgid "Search"
 msgstr "Search"
@@ -1557,6 +1573,10 @@ msgstr "Show Database"
 msgid "Show password"
 msgstr "Show password"
 
+#: src/components/views/DataViewToolbar.tsx:227
+msgid "Show SQL"
+msgstr "Show SQL"
+
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:225
 msgid "Show table"
 msgstr "Show table"
@@ -1573,16 +1593,17 @@ msgstr "Software Update"
 msgid "Some shortcuts share the same keys within a scope. Resolve conflicts by reassigning one of them."
 msgstr "Some shortcuts share the same keys within a scope. Resolve conflicts by reassigning one of them."
 
-#: src/components/PageTabs.tsx:243
+#: src/components/PageTabs.tsx:523
+#: src/components/PageTabs.tsx:542
 #: src/components/views/ValueViewer.tsx:211
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
-#: src/components/tables/CanvasTable.tsx:500
+#: src/components/tables/CanvasTable.tsx:373
 msgid "Sort ascending"
 msgstr "Sort ascending"
 
-#: src/components/tables/CanvasTable.tsx:505
+#: src/components/tables/CanvasTable.tsx:378
 msgid "Sort descending"
 msgstr "Sort descending"
 
@@ -1597,6 +1618,14 @@ msgstr "Specifies the string that separates columns within each row (line) of th
 #: src/pages/settings/AppSetting.tsx:1705
 msgid "Specifies the string that should appear before a data character sequence that matches the quote value."
 msgstr "Specifies the string that should appear before a data character sequence that matches the quote value."
+
+#: src/components/PageTabs.tsx:315
+msgid "Split Down"
+msgstr "Split Down"
+
+#: src/components/PageTabs.tsx:308
+msgid "Split Right"
+msgstr "Split Right"
 
 #: src/pages/sidebar/Favorite.tsx:118
 msgid "SQL bookmarks"
@@ -1719,7 +1748,7 @@ msgstr "System"
 msgid "Tab width"
 msgstr "Tab width"
 
-#: src/components/PageTabs.tsx:320
+#: src/components/PageTabs.tsx:657
 #: src/components/views/CountByColumnDialog.tsx:228
 #: src/components/views/CountByQueryDialog.tsx:210
 msgid "Table"
@@ -1751,13 +1780,13 @@ msgstr "Tabular right"
 msgid "Temporary Files"
 msgstr "Temporary Files"
 
-#: src/pages/sidebar/dialog/ConfigDialog.tsx:141
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1186
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:144
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1189
 msgid "Test Connection"
 msgstr "Test Connection"
 
-#: src/pages/sidebar/dialog/ConfigDialog.tsx:141
-#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1186
+#: src/pages/sidebar/dialog/ConfigDialog.tsx:144
+#: src/pages/sidebar/dialog/DatabaseDialog.tsx:1189
 msgid "Testing…"
 msgstr "Testing…"
 
@@ -1893,7 +1922,7 @@ msgstr "Username"
 msgid "Value"
 msgstr "Value"
 
-#: src/components/views/DataViewToolbar.tsx:230
+#: src/components/views/DataViewToolbar.tsx:236
 msgid "Value Viewer"
 msgstr "Value Viewer"
 
