@@ -3,6 +3,7 @@ import { isEmpty, shake } from 'radash';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { tabsFileStorage } from '@/stores/tauriStore';
 
 import {
   cancelQuery,
@@ -398,7 +399,8 @@ export const useTabsStore = create<TabsState & TabsAction>()(
     }),
     {
       name: 'tabs',
-      storage: createJSONStorage(() => localStorage),
+      // Persist to app data dir tabs.json (Tauri); falls back to localStorage on web.
+      storage: createJSONStorage(() => tabsFileStorage),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<TabsState>;
         const ids = p.ids ?? current.ids ?? [];
