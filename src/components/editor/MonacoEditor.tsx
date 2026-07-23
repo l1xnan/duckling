@@ -1,10 +1,5 @@
-import {
-  BeforeMount,
-  Editor,
-  EditorProps,
-  OnMount,
-} from '@monaco-editor/react';
 import { msg } from '@lingui/core/macro';
+import { BeforeMount, Editor, EditorProps, OnMount } from '@monaco-editor/react';
 
 import { ForwardedRef, forwardRef, useEffect, useImperativeHandle } from 'react';
 
@@ -12,11 +7,7 @@ import { CompleteMetaType } from '@/ast/analyze';
 import { useRegister } from '@/components/editor/useRegister';
 import { i18n } from '@/i18n';
 import { DialectType } from '@/stores/dbList';
-import {
-  useCodeFontFamily,
-  useCodeFontSize,
-  useEditorTheme,
-} from '@/stores/setting';
+import { useCodeFontFamily, useCodeFontSize, useEditorTheme } from '@/stores/setting';
 
 export interface EditorRef {
   getSelectionText: () => string | undefined;
@@ -36,10 +27,7 @@ const MonacoEditor = forwardRef<
     dialect?: DialectType;
     onRun: () => void;
   }
->(function MonacoEditor(
-  { completeMeta, dialect, ...props },
-  ref: ForwardedRef<EditorRef>,
-) {
+>(function MonacoEditor({ completeMeta, dialect, ...props }, ref: ForwardedRef<EditorRef>) {
   const { handleEditorDidMount, editorRef, instanceId } = useRegister({
     completeMeta,
     dialect,
@@ -65,9 +53,7 @@ const MonacoEditor = forwardRef<
       id: `${instanceId.current}.format`,
       label: i18n._(msg`Format SQL`),
       contextMenuGroupId: '1_modification',
-      keybindings: [
-        monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.KeyF,
-      ],
+      keybindings: [monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.KeyF],
       run: (ed) => {
         void ed.getAction('editor.action.formatDocument')?.run();
       },
@@ -158,6 +144,12 @@ const MonacoEditor = forwardRef<
         },
         fontFamily: codeFontFamily,
         fontSize: codeFontSize,
+        scrollbar: {
+          vertical: 'auto',
+          horizontal: 'auto',
+          verticalScrollbarSize: 6,
+          horizontalScrollbarSize: 6,
+        },
         ...props.options,
       }}
       beforeMount={handleBeforeMount}
