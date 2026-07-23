@@ -1,12 +1,19 @@
 import { msg } from '@lingui/core/macro';
 import { BeforeMount, Editor, EditorProps, OnMount } from '@monaco-editor/react';
 
-import { ForwardedRef, forwardRef, useEffect, useImperativeHandle } from 'react';
+import {
+  ForwardedRef,
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+} from 'react';
 
 import { CompleteMetaType } from '@/ast/analyze';
 import { useRegister } from '@/components/editor/useRegister';
 import { i18n } from '@/i18n';
+import { cursorStateFromMonaco } from '@/lib/editorCursorFormat';
 import { DialectType } from '@/stores/dbList';
+import { useEditorCursorStore } from '@/stores/editorCursor';
 import {
   useCodeEditorMinimap,
   useCodeFontFamily,
@@ -31,18 +38,77 @@ const MonacoEditor = forwardRef<
     completeMeta?: CompleteMetaType;
     dialect?: DialectType;
     onRun: () => void;
+    /** When set, cursor/selection is published for the status bar. */
+    editorId?: string;
   }
->(function MonacoEditor({ completeMeta, dialect, ...props }, ref: ForwardedRef<EditorRef>) {
+>(function MonacoEditor(
+  { completeMeta, dialect, editorId, ...props },
+  ref: ForwardedRef<EditorRef>,
+) {
   const { handleEditorDidMount, editorRef, instanceId } = useRegister({
     completeMeta,
     dialect,
   });
+
+  useEffect(() => {
+    if (!editorId) {
+      return;
+    }
+    return () => {
+      useEditorCursorStore.getState().clear(editorId);
+    };
+  }, [editorId]);
 
   const handleBeforeMount: BeforeMount = (_monaco) => {};
 
   const handleMount: OnMount = (editor, monaco) => {
     props.onMount?.(editor, monaco);
     handleEditorDidMount(editor, monaco);
+
+    if (editorId) {
+      let raf = 0;
+      const publish = () => {
+        const pos = editor.getPosition();
+        if (!pos) {
+          return;
+        }
+        const selection = editor.getSelection();
+        const model = editor.getModel();
+        const selectedText =
+          selection && !selection.isEmpty() && model
+            ? model.getValueInRange(selection)
+            : undefined;
+        useEditorCursorStore.getState().setCursor(
+          editorId,
+          cursorStateFromMonaco({
+            lineNumber: pos.lineNumber,
+            column: pos.column,
+            selection,
+            selectedText,
+          }),
+        );
+      };
+      const schedule = () => {
+        if (raf) {
+          cancelAnimationFrame(raf);
+        }
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          publish();
+        });
+      };
+      publish();
+      const d1 = editor.onDidChangeCursorPosition(schedule);
+      const d2 = editor.onDidChangeCursorSelection(schedule);
+      editor.onDidDispose(() => {
+        if (raf) {
+          cancelAnimationFrame(raf);
+        }
+        d1.dispose();
+        d2.dispose();
+        useEditorCursorStore.getState().clear(editorId);
+      });
+    }
 
     editor.addAction({
       id: `${instanceId.current}.run`,

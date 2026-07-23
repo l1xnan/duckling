@@ -269,7 +269,7 @@ msgstr "国内镜像"
 msgid "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 msgstr "选择一套预设主题。每套预设均包含浅色与深色变体，会跟随应用明暗模式；也可在下方自定义各颜色。"
 
-#: src/components/StatusBar.tsx:183
+#: src/components/StatusBar.tsx:214
 msgid "Clear all"
 msgstr "全部清除"
 
@@ -816,7 +816,7 @@ msgstr "格式化文档（{0}）"
 msgid "Format selection"
 msgstr "格式化选区"
 
-#: src/components/editor/MonacoEditor.tsx:70
+#: src/components/editor/MonacoEditor.tsx:136
 msgid "Format Selection"
 msgstr "格式化选区"
 
@@ -825,7 +825,7 @@ msgstr "格式化选区"
 msgid "Format selection ({0})"
 msgstr "格式化选区（{0}）"
 
-#: src/components/editor/MonacoEditor.tsx:59
+#: src/components/editor/MonacoEditor.tsx:125
 msgid "Format SQL"
 msgstr "格式化 SQL"
 
@@ -1031,6 +1031,26 @@ msgstr "行宽"
 msgid "Lines between queries"
 msgstr "查询间距行数"
 
+#. placeholder {0}: cursorParts.line
+#. placeholder {1}: cursorParts.endLine
+#. placeholder {2}: cursorParts.selectedChars
+#: src/components/StatusBar.tsx:166
+msgid "Ln {0}–{1} ({2} selected)"
+msgstr "第 {0}–{1} 行（已选 {2}）"
+
+#. placeholder {0}: cursorParts.line
+#. placeholder {1}: cursorParts.column
+#: src/components/StatusBar.tsx:162
+msgid "Ln {0}, Col {1}"
+msgstr "第 {0} 行，第 {1} 列"
+
+#. placeholder {0}: cursorParts.line
+#. placeholder {1}: cursorParts.column
+#. placeholder {2}: cursorParts.selectedChars
+#: src/components/StatusBar.tsx:171
+msgid "Ln {0}, Col {1} ({2} selected)"
+msgstr "第 {0} 行，第 {1} 列（已选 {2}）"
+
 #: src/components/ui/spinner.tsx:8
 msgid "Loading"
 msgstr "加载中"
@@ -1170,7 +1190,7 @@ msgstr "没有匹配的字体"
 msgid "No matching history"
 msgstr "无匹配历史"
 
-#: src/components/StatusBar.tsx:190
+#: src/components/StatusBar.tsx:221
 msgid "No notifications yet"
 msgstr "暂无通知"
 
@@ -1218,8 +1238,8 @@ msgstr "不限制"
 msgid "not selected"
 msgstr "未选择"
 
-#: src/components/StatusBar.tsx:159
-#: src/components/StatusBar.tsx:173
+#: src/components/StatusBar.tsx:190
+#: src/components/StatusBar.tsx:204
 msgid "Notifications"
 msgstr "通知"
 
@@ -1450,7 +1470,7 @@ msgstr "原始(JSON)"
 msgid "Read csv file parameters, see: <0>csv parameters</0>"
 msgstr "读取 CSV 文件参数，参见： <0>csv parameters</0>"
 
-#: src/components/StatusBar.tsx:143
+#: src/components/StatusBar.tsx:154
 msgid "Ready"
 msgstr "就绪"
 
@@ -1536,7 +1556,7 @@ msgstr "河式对齐风格；方言跟随当前连接。"
 msgid "Rows"
 msgstr "行维"
 
-#: src/components/editor/MonacoEditor.tsx:49
+#: src/components/editor/MonacoEditor.tsx:115
 #: src/components/views/PivotDialog.tsx:580
 msgid "Run"
 msgstr "运行"

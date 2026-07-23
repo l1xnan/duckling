@@ -331,6 +331,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
         <div className="h-full flex flex-col overflow-hidden border-b">
           <MonacoEditor
             ref={ref}
+            editorId={id}
             value={stmt}
             language="sql"
             onChange={handleChange}

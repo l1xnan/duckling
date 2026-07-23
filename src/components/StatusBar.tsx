@@ -17,9 +17,14 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  editorCursorFormatParts,
+  formatEditorCursorLabel,
+} from '@/lib/editorCursorFormat';
 import { buildStatusBarLeft } from '@/lib/statusBarContext';
 import { cn } from '@/lib/utils';
 import { getStoredDB } from '@/stores/dbList';
+import { useEditorCursorStore } from '@/stores/editorCursor';
 import {
   AppNotification,
   AppNotificationType,
@@ -128,6 +133,12 @@ export function StatusBar() {
     : undefined;
   const left = buildStatusBarLeft(currentTab, connection);
   const leftLabel = left.segments.join(' · ');
+  const isEditor = currentTab?.type === 'editor' && !!currentId;
+  const cursor = useEditorCursorStore((s) =>
+    isEditor && currentId ? s.byEditor[currentId] : undefined,
+  );
+  const cursorParts = cursor ? editorCursorFormatParts(cursor) : null;
+  const cursorTitle = cursor ? formatEditorCursorLabel(cursor) : undefined;
 
   const unread = notifications.filter((n) => !n.read).length;
 
@@ -144,64 +155,85 @@ export function StatusBar() {
           </span>
         )}
       </div>
-      <Popover
-        onOpenChange={(open) => {
-          if (open) markAllRead();
-        }}
-      >
-        <PopoverTrigger
-          render={
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xs"
-              className="relative size-5 rounded-sm"
-              aria-label={t`Notifications`}
-            >
-              <BellIcon className="size-3.5" />
-              {unread > 0 ? (
-                <span className="absolute -top-0.5 -right-0.5 flex size-3.5 items-center justify-center rounded-full bg-destructive text-[9px] leading-none text-destructive-foreground">
-                  {unread > 9 ? '9+' : unread}
-                </span>
-              ) : null}
-            </Button>
-          }
-        />
-        <PopoverContent side="top" align="end" sideOffset={6} className="w-80 gap-2 p-2">
-          <PopoverHeader className="flex flex-row items-center justify-between gap-2 px-1 pt-1">
-            <PopoverTitle>
-              <Trans>Notifications</Trans>
-            </PopoverTitle>
-            {notifications.length > 0 ? (
+      <div className="flex shrink-0 items-center gap-2">
+        {cursorParts ? (
+          <span className="tabular-nums whitespace-nowrap" title={cursorTitle}>
+            {cursorParts.kind === 'position' ? (
+              <Trans>
+                Ln {cursorParts.line}, Col {cursorParts.column}
+              </Trans>
+            ) : cursorParts.multiLine ? (
+              <Trans>
+                Ln {cursorParts.line}–{cursorParts.endLine} (
+                {cursorParts.selectedChars} selected)
+              </Trans>
+            ) : (
+              <Trans>
+                Ln {cursorParts.line}, Col {cursorParts.column} (
+                {cursorParts.selectedChars} selected)
+              </Trans>
+            )}
+          </span>
+        ) : null}
+        <Popover
+          onOpenChange={(open) => {
+            if (open) markAllRead();
+          }}
+        >
+          <PopoverTrigger
+            render={
               <Button
                 type="button"
                 variant="ghost"
-                size="xs"
-                className="h-6 px-1.5 text-xs text-muted-foreground"
-                onClick={() => clear()}
+                size="icon-xs"
+                className="relative size-5 rounded-sm"
+                aria-label={t`Notifications`}
               >
-                <Trans>Clear all</Trans>
+                <BellIcon className="size-3.5" />
+                {unread > 0 ? (
+                  <span className="absolute -top-0.5 -right-0.5 flex size-3.5 items-center justify-center rounded-full bg-destructive text-[9px] leading-none text-destructive-foreground">
+                    {unread > 9 ? '9+' : unread}
+                  </span>
+                ) : null}
               </Button>
-            ) : null}
-          </PopoverHeader>
-          <div className="max-h-72 space-y-1.5 overflow-y-auto pr-0.5">
-            {notifications.length === 0 ? (
-              <p className="px-2 py-6 text-center text-xs text-muted-foreground">
-                <Trans>No notifications yet</Trans>
-              </p>
-            ) : (
-              notifications.map((item) => (
-                <NotificationItem
-                  key={item.id}
-                  item={item}
-                  onRead={markRead}
-                  onRemove={remove}
-                />
-              ))
-            )}
-          </div>
-        </PopoverContent>
-      </Popover>
+            }
+          />
+          <PopoverContent side="top" align="end" sideOffset={6} className="w-80 gap-2 p-2">
+            <PopoverHeader className="flex flex-row items-center justify-between gap-2 px-1 pt-1">
+              <PopoverTitle>
+                <Trans>Notifications</Trans>
+              </PopoverTitle>
+              {notifications.length > 0 ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="xs"
+                  className="h-6 px-1.5 text-xs text-muted-foreground"
+                  onClick={() => clear()}
+                >
+                  <Trans>Clear all</Trans>
+                </Button>
+              ) : null}
+            </PopoverHeader>
+            <div className="max-h-72 space-y-1.5 overflow-y-auto pr-0.5">
+              {notifications.length === 0 ? (
+                <p className="px-2 py-6 text-center text-xs text-muted-foreground">
+                  <Trans>No notifications yet</Trans>
+                </p>
+              ) : (
+                notifications.map((item) => (
+                  <NotificationItem
+                    key={item.id}
+                    item={item}
+                    onRead={markRead}
+                    onRemove={remove}
+                  />
+                ))
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
     </footer>
   );
 }

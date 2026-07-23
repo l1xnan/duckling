@@ -269,7 +269,7 @@ msgstr "China Mirror"
 msgid "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 msgstr "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 
-#: src/components/StatusBar.tsx:183
+#: src/components/StatusBar.tsx:214
 msgid "Clear all"
 msgstr "Clear all"
 
@@ -816,7 +816,7 @@ msgstr "Format document ({0})"
 msgid "Format selection"
 msgstr "Format selection"
 
-#: src/components/editor/MonacoEditor.tsx:70
+#: src/components/editor/MonacoEditor.tsx:136
 msgid "Format Selection"
 msgstr "Format Selection"
 
@@ -825,7 +825,7 @@ msgstr "Format Selection"
 msgid "Format selection ({0})"
 msgstr "Format selection ({0})"
 
-#: src/components/editor/MonacoEditor.tsx:59
+#: src/components/editor/MonacoEditor.tsx:125
 msgid "Format SQL"
 msgstr "Format SQL"
 
@@ -1031,6 +1031,26 @@ msgstr "Line length"
 msgid "Lines between queries"
 msgstr "Lines between queries"
 
+#. placeholder {0}: cursorParts.line
+#. placeholder {1}: cursorParts.endLine
+#. placeholder {2}: cursorParts.selectedChars
+#: src/components/StatusBar.tsx:166
+msgid "Ln {0}–{1} ({2} selected)"
+msgstr "Ln {0}–{1} ({2} selected)"
+
+#. placeholder {0}: cursorParts.line
+#. placeholder {1}: cursorParts.column
+#: src/components/StatusBar.tsx:162
+msgid "Ln {0}, Col {1}"
+msgstr "Ln {0}, Col {1}"
+
+#. placeholder {0}: cursorParts.line
+#. placeholder {1}: cursorParts.column
+#. placeholder {2}: cursorParts.selectedChars
+#: src/components/StatusBar.tsx:171
+msgid "Ln {0}, Col {1} ({2} selected)"
+msgstr "Ln {0}, Col {1} ({2} selected)"
+
 #: src/components/ui/spinner.tsx:8
 msgid "Loading"
 msgstr "Loading"
@@ -1170,7 +1190,7 @@ msgstr "No matching fonts"
 msgid "No matching history"
 msgstr "No matching history"
 
-#: src/components/StatusBar.tsx:190
+#: src/components/StatusBar.tsx:221
 msgid "No notifications yet"
 msgstr "No notifications yet"
 
@@ -1218,8 +1238,8 @@ msgstr "not limit"
 msgid "not selected"
 msgstr "not selected"
 
-#: src/components/StatusBar.tsx:159
-#: src/components/StatusBar.tsx:173
+#: src/components/StatusBar.tsx:190
+#: src/components/StatusBar.tsx:204
 msgid "Notifications"
 msgstr "Notifications"
 
@@ -1450,7 +1470,7 @@ msgstr "Raw(JSON)"
 msgid "Read csv file parameters, see: <0>csv parameters</0>"
 msgstr "Read csv file parameters, see: <0>csv parameters</0>"
 
-#: src/components/StatusBar.tsx:143
+#: src/components/StatusBar.tsx:154
 msgid "Ready"
 msgstr "Ready"
 
@@ -1536,7 +1556,7 @@ msgstr "River-alignment style; dialect follows the active connection."
 msgid "Rows"
 msgstr "Rows"
 
-#: src/components/editor/MonacoEditor.tsx:49
+#: src/components/editor/MonacoEditor.tsx:115
 #: src/components/views/PivotDialog.tsx:580
 msgid "Run"
 msgstr "Run"
