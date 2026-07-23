@@ -101,6 +101,8 @@ export type SettingState = {
   table_font_size?: number;
   /** Font size (px) for Monaco / SQL code editors. */
   code_font_size?: number;
+  /** Whether Monaco shows the minimap. Default true. */
+  code_editor_minimap?: boolean;
   table_render: string;
   auto_update?: boolean;
   proxy?: string;
@@ -180,6 +182,7 @@ export const defaultSettings: SettingState = {
   table_render: 'canvas',
   code_font_family: "Consolas, 'Courier New', monospace",
   code_font_size: 13,
+  code_editor_minimap: true,
   main_font_family: [
     '-apple-system, BlinkMacSystemFont, PingFang SC, Hiragino Sans GB',
     'Segoe WPC, Segoe UI, Microsoft YaHei',
@@ -297,6 +300,11 @@ export const useCodeFontFamily = () =>
 
 export const useCodeFontSize = () =>
   useSettingStore((s) => s.code_font_size ?? defaultSettings.code_font_size!);
+
+export const useCodeEditorMinimap = () =>
+  useSettingStore(
+    (s) => s.code_editor_minimap ?? defaultSettings.code_editor_minimap!,
+  );
 
 export const useAutoUpdate = () => useSettingStore((s) => s.auto_update);
 

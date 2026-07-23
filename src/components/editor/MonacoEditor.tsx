@@ -7,7 +7,12 @@ import { CompleteMetaType } from '@/ast/analyze';
 import { useRegister } from '@/components/editor/useRegister';
 import { i18n } from '@/i18n';
 import { DialectType } from '@/stores/dbList';
-import { useCodeFontFamily, useCodeFontSize, useEditorTheme } from '@/stores/setting';
+import {
+  useCodeEditorMinimap,
+  useCodeFontFamily,
+  useCodeFontSize,
+  useEditorTheme,
+} from '@/stores/setting';
 
 export interface EditorRef {
   getSelectionText: () => string | undefined;
@@ -122,13 +127,15 @@ const MonacoEditor = forwardRef<
   const theme = useEditorTheme();
   const codeFontFamily = useCodeFontFamily();
   const codeFontSize = useCodeFontSize();
+  const codeEditorMinimap = useCodeEditorMinimap();
 
   useEffect(() => {
     editorRef.current?.updateOptions({
       fontFamily: codeFontFamily,
       fontSize: codeFontSize,
+      minimap: { enabled: codeEditorMinimap },
     });
-  }, [codeFontFamily, codeFontSize, editorRef]);
+  }, [codeFontFamily, codeFontSize, codeEditorMinimap, editorRef]);
 
   return (
     <Editor
@@ -140,15 +147,15 @@ const MonacoEditor = forwardRef<
       {...props}
       options={{
         minimap: {
-          enabled: true,
+          enabled: codeEditorMinimap,
         },
         fontFamily: codeFontFamily,
         fontSize: codeFontSize,
         scrollbar: {
           vertical: 'auto',
           horizontal: 'auto',
-          verticalScrollbarSize: 6,
-          horizontalScrollbarSize: 6,
+          verticalScrollbarSize: 10,
+          horizontalScrollbarSize: 10,
         },
         ...props.options,
       }}

@@ -184,6 +184,7 @@ function Profile() {
       table_font_size: data.table_font_size,
       code_font_family: data.code_font_family,
       code_font_size: data.code_font_size,
+      code_editor_minimap: data.code_editor_minimap ?? true,
       editor_theme: data.editor_theme,
       precision: data.precision,
       session_idle_ttl_minutes,
@@ -354,6 +355,30 @@ function Profile() {
                 <FormDescription>
                   <Trans>Font size in pixels for the Monaco editor (8–32).</Trans>
                 </FormDescription>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="code_editor_minimap"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between gap-4 rounded-lg border p-3">
+                <div className="space-y-0.5">
+                  <FormLabel>
+                    <Trans>Editor Minimap</Trans>
+                  </FormLabel>
+                  <FormDescription>
+                    <Trans>
+                      Show a minimap overview on the right side of the SQL editor.
+                    </Trans>
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value ?? true}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
               </FormItem>
             )}
           />
