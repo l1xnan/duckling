@@ -1,6 +1,6 @@
 import 'react-horizontal-scrolling-menu/dist/styles.css';
 
-import { useDragDropMonitor, useDroppable } from '@dnd-kit/react';
+import { useDroppable } from '@dnd-kit/react';
 import { useSortable } from '@dnd-kit/react/sortable';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 import { shake } from 'radash';
 import {
-  createContext,
   JSX,
   PropsWithChildren,
   ReactNode,
@@ -46,6 +45,7 @@ import { DialogFooter } from '@/components/custom/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/custom/ui/form';
 import { Input } from '@/components/custom/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/custom/ui/tabs';
+import { useTabDragSession } from '@/components/tabDragSession';
 import { cn } from '@/lib/utils';
 import { docsAtom, favoriteAtom } from '@/stores/app';
 import { TabContextType, useTabsStore } from '@/stores/tabs';
@@ -64,175 +64,11 @@ export interface PageTabsProps {
   renderItem?: ({ tab }: { tab: TabContextType }) => JSX.Element;
 }
 
-/** Insert-before index within a pane while dragging tabs (null = hidden). */
-type TabDropIndicator = { paneId: string; index: number } | null;
-
-const TabDropIndicatorContext = createContext<TabDropIndicator>(null);
-
-/** Last drop from dragOver — dragEnd target is often stale. */
-let lastResolvedDrop: ResolvedTabDrop | null = null;
-
-export function consumeLastResolvedDrop(): ResolvedTabDrop | null {
-  const drop = lastResolvedDrop;
-  lastResolvedDrop = null;
-  return drop;
-}
-
-export type ResolvedTabDrop = {
-  tabId: string;
-  toPaneId: string;
-  /** Insert-before index; undefined means append. */
-  index?: number;
-};
-
-function draggedTabLeft(
-  source: {
-    element?: Element | null;
-  },
-  operation?: {
-    position?: { current?: { x?: number }; x?: number };
-  },
-): number | null {
-  const el = source.element;
-  if (el instanceof Element) {
-    return el.getBoundingClientRect().left;
-  }
-  const pos = operation?.position;
-  if (!pos) return null;
-  if (typeof pos.current?.x === 'number') return pos.current.x;
-  if (typeof pos.x === 'number') return pos.x;
-  return null;
-}
-
-/** Drop destination + insert-before index (dragged left edge vs hover center). */
-export function resolveTabDrop(
-  source: unknown,
-  target: unknown,
-  operation?: { position?: { current?: { x?: number }; x?: number } },
-): ResolvedTabDrop | null {
-  if (!source || !target) return null;
-
-  const sourceAny = source as {
-    id?: string | number;
-    data?: { type?: string; tabId?: string; paneId?: string };
-    sortable?: { index?: number; group?: string };
-    group?: string | number;
-    element?: Element | null;
-  };
-  const targetAny = target as {
-    id?: string | number;
-    data?: { type?: string; tabId?: string; paneId?: string };
-    index?: number;
-    group?: string | number;
-    element?: Element | null;
-  };
-
-  const sourceData = sourceAny.data ?? {};
-  const tabId =
-    sourceData.tabId ||
-    (typeof sourceAny.id === 'string' ? sourceAny.id : undefined);
-  if (!tabId || (sourceData.type && sourceData.type !== 'tab')) {
-    return null;
-  }
-
-  const targetData = targetAny.data ?? {};
-  const toPaneId =
-    (typeof targetData.paneId === 'string' && targetData.paneId) ||
-    (typeof targetAny.group === 'string' ? targetAny.group : undefined) ||
-    (targetData.type === 'pane' && typeof targetAny.id === 'string'
-      ? targetAny.id
-      : undefined) ||
-    (typeof sourceAny.sortable?.group === 'string'
-      ? sourceAny.sortable.group
-      : undefined) ||
-    (typeof sourceAny.group === 'string' ? sourceAny.group : undefined);
-
-  if (!toPaneId) return null;
-
-  if (targetData.type === 'pane-end' || targetData.type === 'pane') {
-    return { tabId, toPaneId, index: undefined };
-  }
-
-  if (targetData.type === 'tab' && typeof targetAny.index === 'number') {
-    const hoverEl = targetAny.element;
-    const dragLeft = draggedTabLeft(sourceAny, operation);
-    let index = targetAny.index;
-    if (dragLeft != null && hoverEl instanceof Element) {
-      const rect = hoverEl.getBoundingClientRect();
-      const hoverCenter = rect.left + rect.width / 2;
-      if (dragLeft >= hoverCenter) {
-        index = targetAny.index + 1;
-      }
-    }
-    return { tabId, toPaneId, index };
-  }
-
-  if (typeof sourceAny.sortable?.index === 'number') {
-    return { tabId, toPaneId, index: sourceAny.sortable.index };
-  }
-
-  return { tabId, toPaneId, index: undefined };
-}
-
-export function TabDropIndicatorProvider({ children }: PropsWithChildren) {
-  const [indicator, setIndicator] = useState<TabDropIndicator>(null);
-
-  useDragDropMonitor({
-    onDragStart() {
-      lastResolvedDrop = null;
-      setIndicator(null);
-    },
-    onDragOver(event) {
-      const { source, target } = event.operation;
-      const drop = resolveTabDrop(source, target, event.operation as never);
-      if (!drop) {
-        setIndicator(null);
-        return;
-      }
-
-      lastResolvedDrop = drop;
-
-      const targetData = ((target as { data?: { type?: string; tabId?: string } })
-        ?.data ?? {}) as { type?: string; tabId?: string };
-      const sourceData = ((source as { data?: { paneId?: string; tabId?: string } })
-        ?.data ?? {}) as { paneId?: string; tabId?: string };
-      if (
-        targetData.type === 'tab' &&
-        targetData.tabId &&
-        sourceData.tabId === targetData.tabId &&
-        sourceData.paneId === drop.toPaneId &&
-        drop.index === (target as { index?: number }).index
-      ) {
-        setIndicator(null);
-        return;
-      }
-
-      setIndicator({
-        paneId: drop.toPaneId,
-        index:
-          drop.index === undefined
-            ? Number.MAX_SAFE_INTEGER
-            : drop.index,
-      });
-    },
-    onDragEnd() {
-      setIndicator(null);
-    },
-  });
-
-  return (
-    <TabDropIndicatorContext.Provider value={indicator}>
-      {children}
-    </TabDropIndicatorContext.Provider>
-  );
-}
-
 function TabInsertLine({ side }: { side: 'before' | 'after' }) {
   return (
     <div
       aria-hidden
       className={cn(
-        // Keep the line inside the hit box so it does not force a horizontal scrollbar.
         'pointer-events-none absolute top-1 bottom-1 z-20 w-0.5 rounded-full bg-primary',
         side === 'before' ? 'left-0' : 'right-0',
       )}
@@ -378,14 +214,34 @@ export function PageTabs({
   onRemove,
   renderItem,
 }: PageTabsProps) {
-  // Add item and scroll to it
-  const itemsPrev = usePrevious(items);
+  const { draftOrders, indicator: dropIndicator, activeTabId } =
+    useTabDragSession();
+
+  // Header follows draft order while dragging; content mount order stays stable.
+  const stripItems = useMemo(() => {
+    if (!paneId || !draftOrders?.[paneId]) {
+      return items;
+    }
+    const order = draftOrders[paneId];
+    const byId = new Map(items.map((i) => [i.tab.id, i]));
+    const ordered: typeof items = [];
+    for (const id of order) {
+      const item = byId.get(id);
+      if (item) ordered.push(item);
+    }
+    for (const item of items) {
+      if (!order.includes(item.tab.id)) ordered.push(item);
+    }
+    return ordered;
+  }, [draftOrders, items, paneId]);
+
+  const itemsPrev = usePrevious(stripItems);
   const apiRef = useRef({} as ScrollVisibilityApiType);
   useEffect(() => {
     if (!apiRef.current) {
       return () => {};
     }
-    if (items?.length > (itemsPrev?.length ?? 0)) {
+    if (stripItems?.length > (itemsPrev?.length ?? 0)) {
       const id = setTimeout(() => {
         const item = apiRef.current.getItemById(activeKey);
         apiRef.current.scrollToItem(item, 'auto', 'end');
@@ -397,7 +253,7 @@ export function PageTabs({
       apiRef.current.scrollToItem(item);
     }
     return () => {};
-  }, [items, itemsPrev, activeKey]);
+  }, [stripItems, itemsPrev, activeKey]);
 
   const fallbackDropId = useId();
   const { ref: paneDropRef, isDropTarget } = useDroppable({
@@ -416,18 +272,17 @@ export function PageTabs({
     data: paneId ? { type: 'pane-end', paneId } : undefined,
   });
 
-  const dropIndicator = useContext(TabDropIndicatorContext);
   const insertIndex = useMemo(() => {
     if (!paneId || !dropIndicator || dropIndicator.paneId !== paneId) {
       return null;
     }
     if (dropIndicator.index >= Number.MAX_SAFE_INTEGER / 2) {
-      return items.length;
+      return stripItems.length;
     }
-    return Math.max(0, Math.min(dropIndicator.index, items.length));
-  }, [dropIndicator, items.length, paneId]);
+    return Math.max(0, Math.min(dropIndicator.index, stripItems.length));
+  }, [dropIndicator, stripItems.length, paneId]);
 
-  const tabsList = items.map(({ tab }, index) => {
+  const tabsList = stripItems.map(({ tab }, index) => {
     return (
       <TabMenuItem
         key={paneId ? `${paneId}:${tab.id}` : tab.id}
@@ -435,8 +290,8 @@ export function PageTabs({
         index={index}
         paneId={paneId}
         paneFocused={paneFocused}
-        // Append uses the end-zone line only — avoid a second line on the last tab.
         showInsertBefore={insertIndex === index}
+        isDragSource={activeTabId === tab.id}
         renderItem={renderItem}
         tab={tab}
         indicator={indicator}
@@ -452,7 +307,7 @@ export function PageTabs({
   );
 
   const showEndInsert =
-    paneId != null && insertIndex === items.length && items.length > 0;
+    paneId != null && insertIndex === stripItems.length && stripItems.length > 0;
 
   return (
     <Tabs
@@ -499,7 +354,7 @@ export function PageTabs({
           </div>
         ) : null}
       </div>
-      {items.length === 0 ? (
+      {stripItems.length === 0 ? (
         <div className="flex-1 min-h-0 flex items-center justify-center text-muted-foreground text-sm">
           <Trans>No tabs in this pane</Trans>
         </div>
@@ -563,6 +418,7 @@ type TabItemMenuProps = {
   paneId?: string;
   paneFocused?: boolean;
   showInsertBefore?: boolean;
+  isDragSource?: boolean;
   renderItem: (({ tab }: { tab: TabContextType }) => JSX.Element) | undefined;
   tab: TabContextType;
   indicator: string | undefined;
@@ -575,6 +431,7 @@ function TabMenuItem({
   paneId,
   paneFocused = true,
   showInsertBefore = false,
+  isDragSource = false,
   renderItem,
   tab,
   indicator,
@@ -597,6 +454,8 @@ function TabMenuItem({
     },
   });
 
+  const dimmed = isDragging || isDragSource;
+
   return (
     <TabsTrigger
       id={paneId ? `tab-trigger-${paneId}-${tab.id}` : tab.id}
@@ -612,7 +471,7 @@ function TabMenuItem({
         paneFocused
           ? 'data-[active]:bg-muted data-[active]:text-foreground'
           : 'data-[active]:bg-transparent data-[active]:text-muted-foreground',
-        isDragging && 'opacity-40',
+        dimmed && 'opacity-30',
         isDropTarget && !showInsertBefore && 'bg-primary/10',
       )}
       onClick={() => {

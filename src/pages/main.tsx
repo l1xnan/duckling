@@ -4,13 +4,16 @@ import { useShallow } from 'zustand/shallow';
 
 import {
   CloseableItem,
-  consumeLastResolvedDrop,
   PageTabs,
-  resolveTabDrop,
-  TabDropIndicatorProvider,
   TabItemContextMenu,
 } from '@/components/PageTabs';
 import { TabPaneLayout } from '@/components/TabPaneLayout';
+import {
+  resolveTabDrop,
+  takePendingDrop,
+  TabDragSessionProvider,
+  type ResolvedTabDrop,
+} from '@/components/tabDragSession';
 import {
   ColumnSchemaView,
   DatabaseSchemaView,
@@ -76,11 +79,7 @@ function isAlreadyAtDrop(
   return index === fromIdx || index === fromIdx + 1;
 }
 
-function applyDrop(drop: {
-  tabId: string;
-  toPaneId: string;
-  index?: number;
-}) {
+function applyDrop(drop: ResolvedTabDrop) {
   const state = useTabsStore.getState();
   const from = findLeafByTab(state.layout, drop.tabId);
   if (!from) {
@@ -128,11 +127,11 @@ export function Main() {
       };
     }) => {
       if (event.canceled) {
-        consumeLastResolvedDrop();
+        takePendingDrop();
         return;
       }
       const { source, target } = event.operation;
-      const fromOver = consumeLastResolvedDrop();
+      const fromOver = takePendingDrop();
       const fromEnd =
         source && target
           ? resolveTabDrop(source, target, event.operation)
@@ -140,9 +139,9 @@ export function Main() {
       const drop = fromOver ?? fromEnd;
       if (!drop) return;
 
-      window.setTimeout(() => {
+      queueMicrotask(() => {
         applyDrop(drop);
-      }, 0);
+      });
     },
     [],
   );
@@ -188,9 +187,9 @@ export function Main() {
 
   return (
     <DragDropProvider onDragEnd={handleDragEnd as never}>
-      <TabDropIndicatorProvider>
+      <TabDragSessionProvider>
         <TabPaneLayout renderPane={renderPane} />
-      </TabDropIndicatorProvider>
+      </TabDragSessionProvider>
     </DragDropProvider>
   );
 }
