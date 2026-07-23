@@ -23,12 +23,12 @@ import {
 import { formatHotkey, getHotkey } from '@/hotkeys';
 import { canDropTable, canFind, canMetadata } from '@/lib/capabilities';
 import { quoteTableExpr } from '@/lib/sql/countByColumn';
+import { createScratchEditor } from '@/lib/scratchSql';
 import { buildSampleSql } from '@/lib/sql/sample';
 import { SearchDialog } from '@/pages/sidebar/dialog/SearchDialog';
 import { docsAtom } from '@/stores/app';
 import { DBType, DialectConfig, getStoredDB, useDBListStore } from '@/stores/dbList';
 import {
-  EditorContextType,
   TableContextType,
   useTabsStore,
 } from '@/stores/tabs';
@@ -160,17 +160,16 @@ export function TableContextMenu({
   };
 
   const openSqlInEditor = (sql: string, title: string) => {
-    const id = nanoid();
-    const tab: EditorContextType = {
-      id,
+    void createScratchEditor({
       dbId: db.id,
       tableId: node.path,
-      type: 'editor',
       displayName: title,
-    };
-    setDocs((prev) => ({ ...prev, [id]: sql }));
-    append(tab);
-    active(id);
+      content: sql,
+    }).then(({ tab, content }) => {
+      setDocs((prev) => ({ ...prev, [tab.id]: content }));
+      append(tab);
+      active(tab.id);
+    });
   };
 
   const handleSample = () => {

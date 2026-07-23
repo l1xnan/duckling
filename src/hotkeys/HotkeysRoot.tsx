@@ -1,9 +1,10 @@
 import { HotkeysProvider } from '@tanstack/react-hotkeys';
-import { useAtom } from 'jotai';
-import { nanoid } from 'nanoid';
+import { useAtom, useSetAtom } from 'jotai';
 import { useCallback, useState, type ReactNode } from 'react';
 
+import { createScratchEditor } from '@/lib/scratchSql';
 import { activeSideAtom } from '@/pages/sidebar/aside';
+import { docsAtom } from '@/stores/app';
 import {
   getStoredDB,
   useDBListStore,
@@ -39,6 +40,7 @@ function isConnectionRoot(node: NodeContextType | null): boolean {
 function HotkeysBindings({ children }: { children: ReactNode }) {
   const [helpOpen, setHelpOpen] = useState(false);
   const [, setActiveSide] = useAtom(activeSideAtom);
+  const setDocs = useSetAtom(docsAtom);
   const selectedNode = useSelectedNodeStore((s) => s.selectedNode);
   const updateDB = useDBListStore((s) => s.updateByConfig);
   const updateTab = useTabsStore((s) => s.update);
@@ -107,12 +109,14 @@ function HotkeysBindings({ children }: { children: ReactNode }) {
     'connection.editor',
     withTreeGuard(() => {
       if (!selectedNode?.dbId) return;
-      const db = getStoredDB(selectedNode.dbId);
-      updateTab({
-        id: nanoid(),
-        dbId: selectedNode.dbId,
-        displayName: db?.displayName ?? selectedNode.dbId,
-        type: 'editor',
+      const dbId = selectedNode.dbId;
+      const db = getStoredDB(dbId);
+      void createScratchEditor({
+        dbId,
+        displayName: db?.displayName ?? dbId,
+      }).then(({ tab, content }) => {
+        setDocs((prev) => ({ ...prev, [tab.id]: content }));
+        updateTab(tab);
       });
     }),
     { enabled: treeEnabled },

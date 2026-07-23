@@ -2,13 +2,19 @@ import { OnChange } from '@monaco-editor/react';
 import { useLingui } from '@lingui/react/macro';
 import { useAtom, useSetAtom } from 'jotai';
 import { nanoid } from 'nanoid';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import MonacoEditor, { EditorRef } from '@/components/editor/MonacoEditor';
 import VerticalContainer from '@/components/VerticalContainer';
 import { useAppHotkey } from '@/hotkeys';
 import { connectionRef } from '@/lib/connectionRef';
 import type { QueryHistoryItem } from '@/lib/queryHistory';
+import {
+  flushWriteScratch,
+  isScratchPath,
+  readScratch,
+  scheduleWriteScratch,
+} from '@/lib/scratchSql';
 import { buildExplainSql } from '@/lib/sql/sample';
 import { bookmarksAtom, docsAtom, runsAtom } from '@/stores/app';
 import { DBType, useConnection, useConnectionMeta } from '@/stores/dbList';
@@ -34,7 +40,7 @@ function createStore(item: Partial<QueryContextType>) {
 
 export default function Editor({ context }: { context: EditorContextType }) {
   const { t } = useLingui();
-  const { id, dbId } = context;
+  const { id, dbId, path } = context;
   const db = useConnection(dbId);
   const tableSchema = useConnectionMeta(dbId);
 
@@ -54,6 +60,31 @@ export default function Editor({ context }: { context: EditorContextType }) {
 
   const stmt = docs[id] ?? '';
   const ref = useRef<EditorRef | null>(null);
+  const scratch = isScratchPath(path);
+
+  useEffect(() => {
+    if (!scratch) {
+      return;
+    }
+    let cancelled = false;
+    // Reload from disk when memory cache is missing (e.g. localStorage cleared).
+    void (async () => {
+      const current = docs[id];
+      if (current != null) {
+        return;
+      }
+      const body = await readScratch(id);
+      if (cancelled) {
+        return;
+      }
+      setDocs((prev) => (prev[id] != null ? prev : { ...prev, [id]: body }));
+    })();
+    return () => {
+      cancelled = true;
+      void flushWriteScratch(id);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only on editor identity
+  }, [id, path, scratch]);
 
   const syncSelectionState = () => {
     setCanFormatSelection(!!ref.current?.hasSelection());
@@ -67,8 +98,15 @@ export default function Editor({ context }: { context: EditorContextType }) {
     }
   };
 
+  const persistDoc = (value: string) => {
+    setDocs((prev) => ({ ...prev, [id]: value }));
+    if (scratch) {
+      scheduleWriteScratch(id, value);
+    }
+  };
+
   const handleChange: OnChange = (value, _event) => {
-    setDocs((prev) => ({ ...prev, [id]: value ?? '' }));
+    persistDoc(value ?? '');
   };
 
   const setActiveKey = (key?: string) => {
@@ -123,7 +161,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
     }
     const dialect = db?.dialect ?? 'generic';
     const explained = buildExplainSql(sql, dialect, analyze);
-    setDocs((prev) => ({ ...prev, [id]: explained }));
+    persistDoc(explained);
   };
 
   const handleClick = async (action?: string) => {

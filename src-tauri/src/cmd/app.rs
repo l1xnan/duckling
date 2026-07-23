@@ -204,6 +204,111 @@ pub async fn write_text_file(path: &str, contents: String) -> Result<(), String>
   std::fs::write(p, contents).map_err(|e| e.to_string())
 }
 
+const SCRATCH_DIR: &str = "scratch";
+
+fn sanitize_scratch_id(id: &str) -> String {
+  id.chars()
+    .map(|c| {
+      if c.is_ascii_alphanumeric() || c == '-' || c == '_' {
+        c
+      } else {
+        '_'
+      }
+    })
+    .collect()
+}
+
+fn scratch_dir(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String> {
+  let dir = app
+    .path()
+    .app_data_dir()
+    .map_err(|e| e.to_string())?
+    .join(SCRATCH_DIR);
+  std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+  Ok(dir)
+}
+
+fn scratch_file_path(app: &tauri::AppHandle, id: &str) -> Result<std::path::PathBuf, String> {
+  let safe = sanitize_scratch_id(id);
+  if safe.is_empty() {
+    return Err("invalid scratch id".into());
+  }
+  Ok(scratch_dir(app)?.join(format!("{safe}.sql")))
+}
+
+/// Absolute path of the temporary SQL (scratch) directory under app data.
+#[tauri::command]
+pub async fn get_scratch_dir(app: tauri::AppHandle) -> Result<String, String> {
+  let dir = scratch_dir(&app)?;
+  Ok(dir.to_string_lossy().replace('\\', "/"))
+}
+
+#[tauri::command]
+pub async fn write_scratch_sql(
+  app: tauri::AppHandle,
+  id: String,
+  contents: String,
+) -> Result<String, String> {
+  let path = scratch_file_path(&app, &id)?;
+  std::fs::write(&path, contents).map_err(|e| e.to_string())?;
+  Ok(path.to_string_lossy().replace('\\', "/"))
+}
+
+#[tauri::command]
+pub async fn read_scratch_sql(app: tauri::AppHandle, id: String) -> Result<String, String> {
+  let path = scratch_file_path(&app, &id)?;
+  if !path.is_file() {
+    return Ok(String::new());
+  }
+  std::fs::read_to_string(&path).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn delete_scratch_sql(app: tauri::AppHandle, id: String) -> Result<(), String> {
+  let path = scratch_file_path(&app, &id)?;
+  if path.is_file() {
+    std::fs::remove_file(&path).map_err(|e| e.to_string())?;
+  }
+  Ok(())
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ScratchSqlEntry {
+  pub id: String,
+  pub path: String,
+}
+
+/// List `*.sql` files in the scratch directory (stem = id).
+#[tauri::command]
+pub async fn list_scratch_sql(app: tauri::AppHandle) -> Result<Vec<ScratchSqlEntry>, String> {
+  let dir = scratch_dir(&app)?;
+  let mut out = Vec::new();
+  let entries = std::fs::read_dir(&dir).map_err(|e| e.to_string())?;
+  for entry in entries.flatten() {
+    let path = entry.path();
+    if !path.is_file() {
+      continue;
+    }
+    let is_sql = path
+      .extension()
+      .and_then(|e| e.to_str())
+      .map(|e| e.eq_ignore_ascii_case("sql"))
+      .unwrap_or(false);
+    if !is_sql {
+      continue;
+    }
+    let Some(stem) = path.file_stem().and_then(|s| s.to_str()) else {
+      continue;
+    };
+    out.push(ScratchSqlEntry {
+      id: stem.to_string(),
+      path: path.to_string_lossy().replace('\\', "/"),
+    });
+  }
+  out.sort_by(|a, b| a.id.cmp(&b.id));
+  Ok(out)
+}
+
 #[tauri::command]
 pub async fn open_path(path: &str) -> Result<(), String> {
   let _path = Path::new(path);

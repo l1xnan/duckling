@@ -3,7 +3,6 @@ import { useTabsStore, type EditorContextType } from '@/stores/tabs';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useSetAtom } from 'jotai';
-import { nanoid } from 'nanoid';
 import { PropsWithChildren } from 'react';
 import { toast } from 'sonner';
 
@@ -17,6 +16,10 @@ import {
   summarizeSql,
   type QueryHistoryItem,
 } from '@/lib/queryHistory';
+import {
+  createScratchEditor,
+  persistEditorContent,
+} from '@/lib/scratchSql';
 
 export function HistoryContextMenu({
   children,
@@ -45,18 +48,17 @@ export function HistoryContextMenu({
       toast.error(t`Empty SQL`);
       return;
     }
-    const id = nanoid();
-    const tab: EditorContextType = {
-      id,
+    void createScratchEditor({
       dbId: ctx.dbId,
       schema: ctx.schema,
       tableId: ctx.tableId,
-      type: 'editor',
       displayName: summarizeSql(stmt, 40),
-    };
-    setDocs((prev) => ({ ...prev, [id]: stmt }));
-    append(tab);
-    active(id);
+      content: stmt,
+    }).then(({ tab, content }) => {
+      setDocs((prev) => ({ ...prev, [tab.id]: content }));
+      append(tab);
+      active(tab.id);
+    });
   };
 
   const handleFillEditor = () => {
@@ -68,6 +70,7 @@ export function HistoryContextMenu({
     const current = currentId ? tabs[currentId] : undefined;
     if (current?.type === 'editor') {
       setDocs((prev) => ({ ...prev, [current.id]: stmt }));
+      persistEditorContent(current, stmt);
       if (ctx.dbId && current.dbId !== ctx.dbId) {
         patch(current.id, {
           dbId: ctx.dbId,

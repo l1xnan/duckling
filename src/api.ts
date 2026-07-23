@@ -524,6 +524,34 @@ export async function writeTextFile(
   await invoke('write_text_file', { path, contents });
 }
 
+export type ScratchSqlEntry = {
+  id: string;
+  path: string;
+};
+
+export async function getScratchDir(): Promise<string> {
+  return invoke<string>('get_scratch_dir');
+}
+
+export async function writeScratchSql(
+  id: string,
+  contents: string,
+): Promise<string> {
+  return invoke<string>('write_scratch_sql', { id, contents });
+}
+
+export async function readScratchSql(id: string): Promise<string> {
+  return invoke<string>('read_scratch_sql', { id });
+}
+
+export async function deleteScratchSql(id: string): Promise<void> {
+  await invoke('delete_scratch_sql', { id });
+}
+
+export async function listScratchSql(): Promise<ScratchSqlEntry[]> {
+  return invoke<ScratchSqlEntry[]>('list_scratch_sql');
+}
+
 export type ConnectionSecretsDto = {
   password?: string;
   ssh_password?: string;

@@ -13,7 +13,6 @@ import {
   TableIcon,
   XIcon,
 } from 'lucide-react';
-import { shake } from 'radash';
 import {
   JSX,
   PropsWithChildren,
@@ -45,9 +44,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/
 import { Input } from '@/components/custom/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/custom/ui/tabs';
 import { useTabDragSession } from '@/components/tabDragSession';
+import { openPath } from '@/api';
+import { isScratchPath, removeScratch } from '@/lib/scratchSql';
 import { cn } from '@/lib/utils';
 import { docsAtom, favoriteAtom } from '@/stores/app';
-import { TabContextType, useTabsStore } from '@/stores/tabs';
+import { EditorContextType, TabContextType, useTabsStore } from '@/stores/tabs';
+import { toast } from 'sonner';
 
 export interface PageTabsProps {
   items: { tab: TabContextType; children: ReactNode }[];
@@ -109,7 +111,17 @@ export function TabItemContextMenu({
 
   const handleDeleteTab = (tab: TabContextType) => {
     removeTab(tab.id, true);
-    setDocs((prev) => shake(prev, (a) => a.id != tab.id));
+    setDocs((prev) => {
+      const next = { ...prev };
+      delete next[tab.id];
+      return next;
+    });
+    if (
+      tab.type === 'editor' &&
+      isScratchPath((tab as EditorContextType).path)
+    ) {
+      void removeScratch(tab.id);
+    }
   };
   const dialog = useDialog();
 
@@ -172,6 +184,23 @@ export function TabItemContextMenu({
           {tab.type == 'editor' ? (
             <>
               <ContextMenuSeparator />
+              {(tab as EditorContextType).path ? (
+                <ContextMenuItem
+                  onClick={async () => {
+                    const path = (tab as EditorContextType).path;
+                    if (!path) {
+                      return;
+                    }
+                    try {
+                      await openPath(path);
+                    } catch (e) {
+                      toast.error(String(e));
+                    }
+                  }}
+                >
+                  <Trans>Open Path</Trans>
+                </ContextMenuItem>
+              ) : null}
               <ContextMenuItem onClick={dialog.trigger}>
                 <Trans>Rename</Trans>
               </ContextMenuItem>

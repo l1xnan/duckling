@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/react/macro';
+import { useSetAtom } from 'jotai';
 import { Code, FileDown, RefreshCcw, Settings } from 'lucide-react';
-import { nanoid } from 'nanoid';
 import React, { PropsWithChildren, useEffect, useState } from 'react';
 
 import { ContextMenuItem } from '@/components/custom/context-menu';
@@ -13,9 +13,11 @@ import {
   ContextMenuTrigger,
 } from '@/components/custom/ui/context-menu';
 import { formatHotkey, getHotkey } from '@/hotkeys';
+import { createScratchEditor } from '@/lib/scratchSql';
 import { ConfigDialog } from '@/pages/sidebar/dialog/ConfigDialog';
 import { ConnectionTransferDialog } from '@/pages/sidebar/dialog/ConnectionTransferDialog';
 import { RenameDialog } from '@/pages/sidebar/dialog/RenameDialog';
+import { docsAtom } from '@/stores/app';
 import {
   DBType,
   getStoredDB,
@@ -38,21 +40,24 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
   const removeDB = useDBListStore((state) => state.remove);
   const updateDB = useDBListStore((state) => state.updateByConfig);
   const selectedNode = useSelectedNodeStore((s) => s.selectedNode);
+  const setDocs = useSetAtom(docsAtom);
 
   const dialog = useDialog();
   const configDialog = useDialog();
   const [exportOpen, setExportOpen] = useState(false);
 
   const handleEditor = () => {
-    if (db) {
-      const displayName = db?.displayName ?? '';
-      updateTab!({
-        id: nanoid(),
-        dbId: db.id,
-        displayName,
-        type: 'editor',
-      });
+    if (!db) {
+      return;
     }
+    const displayName = db.displayName ?? '';
+    void createScratchEditor({
+      dbId: db.id,
+      displayName,
+    }).then(({ tab, content }) => {
+      setDocs((prev) => ({ ...prev, [tab.id]: content }));
+      updateTab?.(tab);
+    });
   };
 
   const handleRemove = () => {

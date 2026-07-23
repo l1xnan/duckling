@@ -1,5 +1,6 @@
 import { Button } from '@/components/custom/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { createScratchEditor } from '@/lib/scratchSql';
 import {
   bookmarksAtom,
   docsAtom,
@@ -16,7 +17,6 @@ import {
   TableIcon,
   Trash2Icon,
 } from 'lucide-react';
-import { nanoid } from 'nanoid';
 import React, { PropsWithChildren, ReactNode } from 'react';
 
 interface ItemLabelProps {
@@ -81,15 +81,15 @@ export function Favorite() {
   };
 
   const openBookmark = (b: SqlBookmark) => {
-    const id = nanoid();
-    setDocs((prev) => ({ ...prev, [id]: b.stmt }));
-    append({
-      id,
+    void createScratchEditor({
       dbId: b.dbId,
-      type: 'editor',
       displayName: b.title || t`Bookmark`,
+      content: b.stmt,
+    }).then(({ tab, content }) => {
+      setDocs((prev) => ({ ...prev, [tab.id]: content }));
+      append(tab);
+      active(tab.id);
     });
-    active(id);
   };
 
   return (

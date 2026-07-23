@@ -110,7 +110,12 @@ export type EditorContextType = {
   type: string;
   displayName: string;
   docId?: string;
-  /** Absolute path when opened from a local SQL folder; absent for scratch editors. */
+  /**
+   * Absolute path on disk.
+   * - Local SQL folder files: user-chosen path
+   * - Scratch (temporary) editors: `{app_data}/scratch/{id}.sql`
+   * - Legacy: may be absent until migration
+   */
   path?: string;
 };
 

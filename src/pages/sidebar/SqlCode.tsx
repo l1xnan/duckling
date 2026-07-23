@@ -20,7 +20,14 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/custom/ui/button';
+import { migrateScratchSqlFromDocs } from '@/lib/migrateScratchSql';
+import {
+  isScratchPath,
+  readScratch,
+  removeScratch,
+} from '@/lib/scratchSql';
 import { cn } from '@/lib/utils';
+import { atomStore } from '@/stores';
 import { docsAtom, sqlFoldersAtom } from '@/stores/app';
 import { useDBListStore, useSelectedNodeStore } from '@/stores/dbList';
 import { EditorContextType, TabContextType, useTabsStore } from '@/stores/tabs';
@@ -314,6 +321,7 @@ export function SqlCode() {
 
   const [search, setSearch] = useState('');
   const [tempExpanded, setTempExpanded] = useState(true);
+  const [scratchDir, setScratchDir] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<EditorContextType | null>(
     null,
   );
@@ -321,9 +329,37 @@ export function SqlCode() {
   const query = search.trim().toLowerCase();
   const tempLabel = t`Temporary Files`;
 
+  // Migrate legacy localStorage docs → app_data/scratch/*.sql
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const result = await migrateScratchSqlFromDocs();
+        if (cancelled) {
+          return;
+        }
+        setScratchDir(result.scratchDir);
+        if (
+          result.migratedTabIds.length ||
+          result.migratedOrphanDocIds.length ||
+          result.rehydratedDiskIds.length
+        ) {
+          console.info('scratch sql migration', result);
+        }
+      } catch (e) {
+        console.warn('scratch sql migration failed', e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const scratchTabs = Object.values(tabs).filter(
     (tab): tab is EditorContextType =>
-      tab.type === 'editor' && !(tab as EditorContextType).path,
+      tab.type === 'editor' &&
+      (!(tab as EditorContextType).path ||
+        isScratchPath((tab as EditorContextType).path, scratchDir)),
   );
   const visibleScratchTabs = scratchTabs.filter((tab) =>
     matchesQuery(tab.displayName, query),
@@ -344,7 +380,21 @@ export function SqlCode() {
   };
 
   const handleScratchClick = (item: TabContextType) => {
-    updateTab(item);
+    void (async () => {
+      if (
+        item.type === 'editor' &&
+        isScratchPath((item as EditorContextType).path, scratchDir)
+      ) {
+        const docsSnap = atomStore.get(docsAtom) ?? {};
+        if (docsSnap[item.id] == null) {
+          const body = await readScratch(item.id);
+          setDocs((prev) =>
+            prev[item.id] != null ? prev : { ...prev, [item.id]: body },
+          );
+        }
+      }
+      updateTab(item);
+    })();
   };
 
   const requestDeleteScratch = (item: EditorContextType) => {
@@ -363,6 +413,7 @@ export function SqlCode() {
       delete next[id];
       return next;
     });
+    void removeScratch(id);
     setPendingDelete(null);
     deleteDialog.dismiss();
   };

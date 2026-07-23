@@ -8,10 +8,8 @@ import {
   Trash2Icon,
   XIcon,
 } from 'lucide-react';
-import { nanoid } from 'nanoid';
 
 import { Input } from '@/components/custom/ui/input';
-import { cn } from '@/lib/utils';
 import {
   filterHistory,
   formatAbsoluteTime,
@@ -24,6 +22,11 @@ import {
   summarizeSql,
   type QueryHistoryItem,
 } from '@/lib/queryHistory';
+import {
+  createScratchEditor,
+  persistEditorContent,
+} from '@/lib/scratchSql';
+import { cn } from '@/lib/utils';
 import { HistoryContextMenu } from '@/pages/sidebar/context-menu/HistoryContextMenu';
 import { docsAtom, runsAtom } from '@/stores/app';
 import { getStoredDB } from '@/stores/dbList';
@@ -217,6 +220,7 @@ export function History() {
     const current = currentId ? tabs[currentId] : undefined;
     if (current?.type === 'editor') {
       setDocs((prev) => ({ ...prev, [current.id]: stmt }));
+      persistEditorContent(current, stmt);
       if (item.dbId && current.dbId !== item.dbId) {
         patch(current.id, {
           dbId: item.dbId,
@@ -227,17 +231,17 @@ export function History() {
       active(current.id);
       return;
     }
-    const id = nanoid();
-    setDocs((prev) => ({ ...prev, [id]: stmt }));
-    append({
-      id,
+    void createScratchEditor({
       dbId: item.dbId,
       schema: item.schema,
       tableId: item.tableId,
-      type: 'editor',
       displayName: summarizeSql(stmt, 40),
+      content: stmt,
+    }).then(({ tab, content }) => {
+      setDocs((prev) => ({ ...prev, [tab.id]: content }));
+      append(tab);
+      active(tab.id);
     });
-    active(id);
   };
 
   const handleClearAll = () => {
