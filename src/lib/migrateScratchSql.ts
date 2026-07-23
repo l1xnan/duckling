@@ -66,6 +66,20 @@ function mergeDocs(
   return out;
 }
 
+/** Wait until tabs zustand persist has finished async rehydrate (tabs.json). */
+export async function waitForTabsHydration(): Promise<void> {
+  const api = useTabsStore.persist;
+  if (api.hasHydrated()) {
+    return;
+  }
+  await new Promise<void>((resolve) => {
+    const unsub = api.onFinishHydration(() => {
+      unsub();
+      resolve();
+    });
+  });
+}
+
 /**
  * Migrate localStorage `docs` scratch entries to `{app_data}/scratch/{id}.sql`
  * and attach `path` on editor tabs.
@@ -78,6 +92,10 @@ export async function migrateScratchSqlFromDocs(): Promise<{
   migratedOrphanDocIds: string[];
   rehydratedDiskIds: string[];
 }> {
+  // Tabs rehydrate async from tabs.json — must finish first or path-less editors
+  // are invisible and never get scratch files attached.
+  await waitForTabsHydration();
+
   const scratchDir = await resolveScratchDir();
   const migratedTabIds: string[] = [];
   const migratedOrphanDocIds: string[] = [];

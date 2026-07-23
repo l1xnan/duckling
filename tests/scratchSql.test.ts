@@ -9,6 +9,7 @@ import {
   normalizePath,
   scratchIdFromPath,
 } from '@/lib/scratchSql';
+import { readLegacyWorkspaceFromLocalStorage } from '@/stores/workspaceStore';
 
 describe('scratchSql path helpers', () => {
   it('normalizePath unifies separators and trims trailing slash', () => {
@@ -64,5 +65,52 @@ describe('scratchSql path helpers', () => {
     });
     localStorage.removeItem('docs');
     expect(readLegacyDocsFromLocalStorage()).toEqual({});
+  });
+
+  it('readLegacyWorkspaceFromLocalStorage merges jotai keys', () => {
+    const memory: Record<string, string> = {};
+    const ls = {
+      getItem: (k: string) => memory[k] ?? null,
+      setItem: (k: string, v: string) => {
+        memory[k] = v;
+      },
+      removeItem: (k: string) => {
+        delete memory[k];
+      },
+    };
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: ls,
+      configurable: true,
+    });
+
+    expect(readLegacyWorkspaceFromLocalStorage()).toBe(null);
+
+    localStorage.setItem('sqlFolders', JSON.stringify(['D:/sql']));
+    localStorage.setItem(
+      'sqlBookmarks',
+      JSON.stringify([
+        {
+          id: 'b1',
+          dbId: 'c1',
+          stmt: 'select 1',
+          title: 't',
+          createdAt: 1,
+        },
+      ]),
+    );
+    localStorage.setItem(
+      'runs',
+      JSON.stringify([{ id: 'r1', type: 'query', dbId: 'c1', stmt: 'x' }]),
+    );
+    localStorage.setItem(
+      'favorite',
+      JSON.stringify([{ id: 'e1', type: 'editor', dbId: 'c1', displayName: 'e' }]),
+    );
+
+    const w = readLegacyWorkspaceFromLocalStorage();
+    expect(w?.sqlFolders).toEqual(['D:/sql']);
+    expect(w?.bookmarks).toHaveLength(1);
+    expect(w?.runs).toHaveLength(1);
+    expect(w?.favorite).toHaveLength(1);
   });
 });

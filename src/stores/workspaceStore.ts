@@ -2,7 +2,11 @@ import type { QueryHistoryItem } from '@/lib/queryHistory';
 import type { TabContextType } from '@/stores/tabs';
 import { workspaceFileStorage } from '@/stores/tauriStore';
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
+import {
+  createJSONStorage,
+  persist,
+  type StateStorage,
+} from 'zustand/middleware';
 
 const MAX_RUNS = 500;
 
@@ -43,15 +47,15 @@ type WorkspaceAction = {
 
 export type WorkspaceStore = WorkspaceState & WorkspaceAction;
 
-function readLegacyJson<T>(key: string, fallback: T): T {
+function readLegacyJson<T>(key: string): T | undefined {
   try {
     const raw = localStorage.getItem(key);
     if (raw == null || raw === '') {
-      return fallback;
+      return undefined;
     }
     return JSON.parse(raw) as T;
   } catch {
-    return fallback;
+    return undefined;
   }
 }
 
@@ -69,6 +73,126 @@ function resolveNext<T>(
 ): T {
   return typeof next === 'function' ? (next as (p: T) => T)(prev) : next;
 }
+
+/**
+ * Build workspace state from pre-workspace localStorage keys written by jotai
+ * atomWithStorage (`sqlFolders`, `sqlBookmarks`, `runs`, `favorite`).
+ * Returns null when nothing legacy exists.
+ */
+export function readLegacyWorkspaceFromLocalStorage(): WorkspaceState | null {
+  const sqlFolders = readLegacyJson<string[]>('sqlFolders');
+  const bookmarks = readLegacyJson<SqlBookmark[]>('sqlBookmarks');
+  const runs = readLegacyJson<QueryHistoryItem[]>('runs');
+  const favorite = readLegacyJson<TabContextType[]>('favorite');
+
+  const hasAny =
+    sqlFolders != null ||
+    bookmarks != null ||
+    runs != null ||
+    favorite != null;
+  if (!hasAny) {
+    return null;
+  }
+
+  return {
+    sqlFolders: Array.isArray(sqlFolders) ? sqlFolders : [],
+    bookmarks: Array.isArray(bookmarks) ? bookmarks : [],
+    runs: trimRuns(Array.isArray(runs) ? runs : []),
+    favorite: Array.isArray(favorite) ? favorite : [],
+  };
+}
+
+const WORKSPACE_MIGRATED_FLAG = 'workspaceMigratedV1';
+
+function isEmptyWorkspaceState(state: Partial<WorkspaceState> | null | undefined): boolean {
+  if (!state) {
+    return true;
+  }
+  return (
+    !(state.sqlFolders?.length) &&
+    !(state.bookmarks?.length) &&
+    !(state.runs?.length) &&
+    !(state.favorite?.length)
+  );
+}
+
+function markWorkspaceMigrated() {
+  try {
+    localStorage.setItem(WORKSPACE_MIGRATED_FLAG, '1');
+  } catch {
+    // ignore
+  }
+}
+
+function hasWorkspaceMigratedFlag(): boolean {
+  try {
+    return localStorage.getItem(WORKSPACE_MIGRATED_FLAG) === '1';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Storage wrapper: when `workspace` file/key is missing (or empty before first
+ * successful migrate), one-shot migrate from legacy jotai LS keys.
+ *
+ * Critical: createTauriFileStorage only falls back to LS key === persist name
+ * (`workspace`), but legacy data lives under different keys (`sqlFolders`, …).
+ */
+const workspaceMigratingStorage: StateStorage = {
+  getItem: async (name) => {
+    const existing = await workspaceFileStorage.getItem(name);
+    const legacy = readLegacyWorkspaceFromLocalStorage();
+    const migrated = hasWorkspaceMigratedFlag();
+
+    if (existing != null) {
+      // Already migrated or has real data — use file as-is.
+      if (migrated) {
+        return existing;
+      }
+      // Broken first-boot may have written an empty workspace.json before legacy
+      // keys were imported. Recover once while flag is unset.
+      try {
+        const parsed = JSON.parse(existing) as {
+          state?: Partial<WorkspaceState>;
+          version?: number;
+        };
+        const state = parsed.state ?? (parsed as unknown as Partial<WorkspaceState>);
+        if (!isEmptyWorkspaceState(state) || !legacy) {
+          markWorkspaceMigrated();
+          return existing;
+        }
+        const payload = JSON.stringify({
+          state: legacy,
+          version: parsed.version ?? 0,
+        });
+        await workspaceFileStorage.setItem(name, payload);
+        markWorkspaceMigrated();
+        return payload;
+      } catch {
+        markWorkspaceMigrated();
+        return existing;
+      }
+    }
+
+    if (!legacy) {
+      markWorkspaceMigrated();
+      return null;
+    }
+
+    // zustand createJSONStorage expects `{ state, version }`.
+    const payload = JSON.stringify({ state: legacy, version: 0 });
+    try {
+      await workspaceFileStorage.setItem(name, payload);
+    } catch (e) {
+      console.warn('workspace legacy migrate write failed', e);
+    }
+    markWorkspaceMigrated();
+    return payload;
+  },
+  setItem: (name, value) => workspaceFileStorage.setItem(name, value),
+  removeItem: (name) => workspaceFileStorage.removeItem(name),
+};
 
 const defaultState: WorkspaceState = {
   sqlFolders: [],
@@ -92,7 +216,7 @@ export const useWorkspaceStore = create<WorkspaceStore>()(
     }),
     {
       name: 'workspace',
-      storage: createJSONStorage(() => workspaceFileStorage),
+      storage: createJSONStorage(() => workspaceMigratingStorage),
       partialize: (s) => ({
         sqlFolders: s.sqlFolders,
         bookmarks: s.bookmarks,
@@ -101,35 +225,20 @@ export const useWorkspaceStore = create<WorkspaceStore>()(
       }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<WorkspaceState>;
-        const hasFileData =
-          (p.sqlFolders?.length ?? 0) > 0 ||
-          (p.bookmarks?.length ?? 0) > 0 ||
-          (p.runs?.length ?? 0) > 0 ||
-          (p.favorite?.length ?? 0) > 0;
-
-        // First run / empty file: pull legacy localStorage keys.
-        const sqlFolders = hasFileData
-          ? (p.sqlFolders ?? current.sqlFolders)
-          : readLegacyJson<string[]>('sqlFolders', p.sqlFolders ?? []);
-        const bookmarks = hasFileData
-          ? (p.bookmarks ?? current.bookmarks)
-          : readLegacyJson<SqlBookmark[]>(
-              'sqlBookmarks',
-              p.bookmarks ?? [],
-            );
-        const runs = hasFileData
-          ? (p.runs ?? current.runs)
-          : readLegacyJson<QueryHistoryItem[]>('runs', p.runs ?? []);
-        const favorite = hasFileData
-          ? (p.favorite ?? current.favorite)
-          : readLegacyJson<TabContextType[]>('favorite', p.favorite ?? []);
-
         return {
           ...current,
-          sqlFolders: sqlFolders ?? [],
-          bookmarks: bookmarks ?? [],
-          runs: trimRuns(runs ?? []),
-          favorite: favorite ?? [],
+          sqlFolders: Array.isArray(p.sqlFolders)
+            ? p.sqlFolders
+            : current.sqlFolders,
+          bookmarks: Array.isArray(p.bookmarks)
+            ? p.bookmarks
+            : current.bookmarks,
+          runs: trimRuns(
+            Array.isArray(p.runs) ? p.runs : current.runs,
+          ),
+          favorite: Array.isArray(p.favorite)
+            ? p.favorite
+            : current.favorite,
         };
       },
     },
