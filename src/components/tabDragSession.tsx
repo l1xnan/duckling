@@ -340,7 +340,7 @@ export function TabDragSessionProvider({ children }: { children: ReactNode }) {
         {activeTab ? (
           <div
             className={cn(
-              'flex h-8 items-center gap-1 border-r bg-background pl-3 pr-1.5 text-xs shadow-md',
+              'flex h-8 items-center gap-1 border-r bg-background/70 pl-3 pr-1.5 text-xs shadow-md opacity-60',
               'pointer-events-none',
             )}
           >
