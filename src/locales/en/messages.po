@@ -269,7 +269,7 @@ msgstr "China Mirror"
 msgid "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 msgstr "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 
-#: src/components/StatusBar.tsx:162
+#: src/components/StatusBar.tsx:187
 msgid "Clear all"
 msgstr "Clear all"
 
@@ -378,6 +378,10 @@ msgstr "Confirm deletion of table: <0>{0}</0>"
 #: src/pages/sidebar/dialog/ConnectionTransferDialog.tsx:243
 msgid "Confirm password"
 msgstr "Confirm password"
+
+#: src/components/StatusBar.tsx:138
+msgid "Connected: {connectionLabel}"
+msgstr "Connected: {connectionLabel}"
 
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:233
 msgid "Connection"
@@ -1170,7 +1174,7 @@ msgstr "No matching fonts"
 msgid "No matching history"
 msgstr "No matching history"
 
-#: src/components/StatusBar.tsx:169
+#: src/components/StatusBar.tsx:194
 msgid "No notifications yet"
 msgstr "No notifications yet"
 
@@ -1218,8 +1222,8 @@ msgstr "not limit"
 msgid "not selected"
 msgstr "not selected"
 
-#: src/components/StatusBar.tsx:138
-#: src/components/StatusBar.tsx:152
+#: src/components/StatusBar.tsx:163
+#: src/components/StatusBar.tsx:177
 msgid "Notifications"
 msgstr "Notifications"
 
@@ -1449,6 +1453,10 @@ msgstr "Raw(JSON)"
 #: src/pages/settings/AppSetting.tsx:1668
 msgid "Read csv file parameters, see: <0>csv parameters</0>"
 msgstr "Read csv file parameters, see: <0>csv parameters</0>"
+
+#: src/components/StatusBar.tsx:142
+msgid "Ready"
+msgstr "Ready"
 
 #: src/pages/settings/AppSetting.tsx:1148
 msgid "Recover on parse errors"

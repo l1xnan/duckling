@@ -18,12 +18,14 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { getStoredDB } from '@/stores/dbList';
 import {
   AppNotification,
   AppNotificationType,
   NotificationText,
   useNotificationStore,
 } from '@/stores/notification';
+import { useTabsStore } from '@/stores/tabs';
 
 function typeIcon(type: AppNotificationType) {
   switch (type) {
@@ -117,12 +119,35 @@ export function StatusBar() {
   const markAllRead = useNotificationStore((s) => s.markAllRead);
   const remove = useNotificationStore((s) => s.remove);
   const clear = useNotificationStore((s) => s.clear);
+  const currentId = useTabsStore((s) => s.currentId);
+  const tabs = useTabsStore((s) => s.tabs);
+  const currentTab = currentId ? tabs[currentId] : undefined;
+  const connection = currentTab?.dbId ? getStoredDB(currentTab.dbId) : undefined;
+  const connectionLabel =
+    connection?.displayName ||
+    connection?.dialect ||
+    (currentTab?.dbId ? currentTab.dbId.slice(0, 8) : null);
 
   const unread = notifications.filter((n) => !n.read).length;
 
   return (
-    <footer className="w-full h-6 min-h-6 border-t flex flex-row justify-between items-center px-2">
-      <div />
+    <footer className="w-full h-6 min-h-6 border-t bg-muted/30 flex flex-row justify-between items-center px-2 text-xs tabular-nums text-muted-foreground">
+      <div className="flex min-w-0 flex-1 items-center gap-2 truncate">
+        {connectionLabel ? (
+          <span className="truncate">
+            <Trans>Connected: {connectionLabel}</Trans>
+          </span>
+        ) : (
+          <span>
+            <Trans>Ready</Trans>
+          </span>
+        )}
+        {currentTab?.displayName ? (
+          <span className="truncate text-foreground/70">
+            {currentTab.displayName}
+          </span>
+        ) : null}
+      </div>
       <Popover
         onOpenChange={(open) => {
           if (open) markAllRead();
