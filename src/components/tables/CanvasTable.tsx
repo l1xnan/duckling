@@ -532,6 +532,8 @@ function CanvasTable_({
       heightMode: 'standard',
       defaultRowHeight: 24,
       widthMode: 'autoWidth',
+      // Avoid subpixel container (e.g. 972.844px) vs integer canvas (973px) thrash.
+      tableSizeAntiJitter: true,
       showFrozenIcon: true,
       frozenColCount: transpose ? 2 : 1 + leftPinnedCols.length,
       rightFrozenColCount: rightPinnedCols.length,
@@ -577,7 +579,10 @@ function CanvasTable_({
   ]);
 
   return (
-    <div className="h-full w-full min-h-0 min-w-0 select-text" style={style}>
+    <div
+      className="h-full w-full min-h-0 min-w-0 overflow-hidden select-text"
+      style={style}
+    >
       <ListTable
         key={isDark ? 'dark' : 'light'}
         ref={tableRef}
@@ -740,6 +745,7 @@ export function SimpleTable({
       heightMode: 'standard',
       defaultRowHeight: 28,
       widthMode: 'autoWidth',
+      tableSizeAntiJitter: true,
       showFrozenIcon: true,
       theme,
       columns: [
@@ -782,7 +788,7 @@ export function SimpleTable({
   );
 
   return (
-    <div className="h-full w-full min-h-0 min-w-0 select-text">
+    <div className="h-full w-full min-h-0 min-w-0 overflow-hidden select-text">
       <ListTable
         ref={tableRef}
         style={{ width: '100%', height: '100%' }}
