@@ -269,7 +269,7 @@ msgstr "国内镜像"
 msgid "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 msgstr "选择一套预设主题。每套预设均包含浅色与深色变体，会跟随应用明暗模式；也可在下方自定义各颜色。"
 
-#: src/components/StatusBar.tsx:187
+#: src/components/StatusBar.tsx:183
 msgid "Clear all"
 msgstr "全部清除"
 
@@ -378,10 +378,6 @@ msgstr "确认删除表：<0>{0}</0>"
 #: src/pages/sidebar/dialog/ConnectionTransferDialog.tsx:243
 msgid "Confirm password"
 msgstr "确认密码"
-
-#: src/components/StatusBar.tsx:138
-msgid "Connected: {connectionLabel}"
-msgstr "已连接：{connectionLabel}"
 
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:233
 msgid "Connection"
@@ -1174,7 +1170,7 @@ msgstr "没有匹配的字体"
 msgid "No matching history"
 msgstr "无匹配历史"
 
-#: src/components/StatusBar.tsx:194
+#: src/components/StatusBar.tsx:190
 msgid "No notifications yet"
 msgstr "暂无通知"
 
@@ -1222,8 +1218,8 @@ msgstr "不限制"
 msgid "not selected"
 msgstr "未选择"
 
-#: src/components/StatusBar.tsx:163
-#: src/components/StatusBar.tsx:177
+#: src/components/StatusBar.tsx:159
+#: src/components/StatusBar.tsx:173
 msgid "Notifications"
 msgstr "通知"
 
@@ -1454,7 +1450,7 @@ msgstr "原始(JSON)"
 msgid "Read csv file parameters, see: <0>csv parameters</0>"
 msgstr "读取 CSV 文件参数，参见： <0>csv parameters</0>"
 
-#: src/components/StatusBar.tsx:142
+#: src/components/StatusBar.tsx:143
 msgid "Ready"
 msgstr "就绪"
 
