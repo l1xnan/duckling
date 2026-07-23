@@ -78,11 +78,13 @@ function createTauriFileStorage(fileName: string): StateStorage {
       try {
         await fileStore.delete(name);
         await fileStore.save();
+        localStorage.removeItem(name);
       } catch (error) {
         console.warn(
           `tauri store removeItem failed (${fileName}), falling back to localStorage`,
           error,
         );
+        localStorage.removeItem(name);
       }
     },
   };
@@ -99,4 +101,12 @@ export const connectionsFileStorage: StateStorage =
 /** Global SSH tunnel profiles (no secrets) → ssh-profiles.json */
 export const sshProfilesFileStorage: StateStorage =
   createTauriFileStorage('ssh-profiles.json');
+
+/** Open tabs / layout → tabs.json */
+export const tabsFileStorage: StateStorage =
+  createTauriFileStorage('tabs.json');
+
+/** sqlFolders, bookmarks, runs, favorite → workspace.json */
+export const workspaceFileStorage: StateStorage =
+  createTauriFileStorage('workspace.json');
 
