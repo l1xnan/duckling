@@ -16,9 +16,8 @@ import {
 } from '@/stores/setting';
 
 import Home from './Home';
+import { ColorThemeApplicator } from './hooks/use-color-theme';
 import { ThemeProvider } from './hooks/theme-provider';
-
-
 
 function App() {
   const tableFontFamily = useTableFontFamily();
@@ -66,6 +65,7 @@ function App() {
     <Provider store={atomStore}>
       <AppI18nProvider>
         <ThemeProvider>
+          <ColorThemeApplicator />
           <HotkeysRoot>
             <Home />
             <Toaster richColors />

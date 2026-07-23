@@ -19,6 +19,7 @@ import { CSSProperties, useMemo, useRef, useState } from 'react';
 
 import { SelectedCellType } from '@/components/views/TableView';
 import { useTheme } from '@/hooks/theme-provider';
+import { useResolvedColorTheme } from '@/hooks/use-color-theme';
 import { i18n } from '@/i18n';
 import { OrderByType, SchemaType } from '@/stores/dataset';
 import { useTableFontFamily, useTableFontSize } from '@/stores/setting';
@@ -80,13 +81,18 @@ export interface TableProps<T = unknown> {
 }
 
 function useTableTheme() {
-  const appTheme = useTheme();
-  const isDark = isDarkTheme(appTheme);
+  const { isDark, tokens } = useResolvedColorTheme();
   const tableFontFamily = useTableFontFamily();
   const tableFontSize = useTableFontSize();
   return useMemo(
-    () => makeTableTheme(isDark, tableFontFamily, tableFontSize),
-    [isDark, tableFontFamily, tableFontSize],
+    () =>
+      makeTableTheme({
+        isDark,
+        tokens,
+        tableFontFamily,
+        tableFontSize,
+      }),
+    [isDark, tokens, tableFontFamily, tableFontSize],
   );
 }
 

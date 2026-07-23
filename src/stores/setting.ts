@@ -7,6 +7,7 @@ import { useShallow } from 'zustand/shallow';
 import { useTheme } from '@/hooks/theme-provider';
 import { tauriFileStorage } from '@/stores/tauriStore';
 import { createSelectors } from '@/stores/utils';
+import type { ColorThemeConfig } from '@/themes/presets';
 import { isDarkTheme } from '@/utils';
 
 export type CsvParam = {
@@ -128,6 +129,11 @@ export type SettingState = {
     light: string;
   };
   /**
+   * UI color theme: preset id + optional per-mode token overrides.
+   * Applied live (not via the Appearance form submit).
+   */
+  color_theme?: ColorThemeConfig;
+  /**
    * User overrides for keyboard shortcuts (HotkeyId → TanStack hotkey string).
    * Missing keys fall back to the built-in registry defaults.
    */
@@ -189,6 +195,9 @@ export const defaultSettings: SettingState = {
   editor_theme: {
     light: 'vitesse-light',
     dark: 'vitesse-dark',
+  },
+  color_theme: {
+    preset: 'default',
   },
   hotkey_overrides: {},
 };
@@ -371,6 +380,11 @@ export const useEditorTheme = () => {
   );
   return isDarkTheme(theme) ? dark : light;
 };
+
+export const useColorThemeSetting = () =>
+  useSettingStore(
+    (s) => s.color_theme ?? defaultSettings.color_theme!,
+  );
 
 export const editorThemes = [
   { name: 'Andromeeda', id: 'andromeeda', type: 'dark' },

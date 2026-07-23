@@ -47,6 +47,7 @@ import {
   ProgressLabel,
   ProgressValue,
 } from '@/components/ui/progress';
+import { ColorThemePanel } from '@/pages/settings/ColorThemePanel';
 import { HotkeysForm } from '@/pages/settings/HotkeysForm';
 import { SshProfilesForm } from '@/pages/settings/SshProfilesForm';
 import {
@@ -196,6 +197,7 @@ function Profile() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex min-h-0 h-full flex-col">
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
+          <ColorThemePanel />
           <FormField
             control={form.control}
             name="locale"

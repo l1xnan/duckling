@@ -8,6 +8,7 @@ import { useMemo, useRef } from 'react';
 import { measureAlias, measureTitle, type PivotConfig } from '@/lib/sql/pivot';
 
 import { useTheme } from '@/hooks/theme-provider';
+import { useResolvedColorTheme } from '@/hooks/use-color-theme';
 import { useTableFontFamily, useTableFontSize } from '@/stores/setting';
 import { isDarkTheme } from '@/utils';
 
@@ -20,13 +21,18 @@ export type PivotCanvasTableProps = {
 };
 
 function useTableTheme() {
-  const appTheme = useTheme();
-  const isDark = isDarkTheme(appTheme);
+  const { isDark, tokens } = useResolvedColorTheme();
   const tableFontFamily = useTableFontFamily();
   const tableFontSize = useTableFontSize();
   return useMemo(
-    () => makeTableTheme(isDark, tableFontFamily, tableFontSize),
-    [isDark, tableFontFamily, tableFontSize],
+    () =>
+      makeTableTheme({
+        isDark,
+        tokens,
+        tableFontFamily,
+        tableFontSize,
+      }),
+    [isDark, tokens, tableFontFamily, tableFontSize],
   );
 }
 

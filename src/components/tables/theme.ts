@@ -1,75 +1,92 @@
 import { ListTable } from '@visactor/react-vtable';
 import { TYPES, themes } from '@visactor/vtable';
+import type { ThemeTokens } from '@/themes/presets';
 import { assign } from 'radash';
 import { ComponentProps } from 'react';
+
 export type ITableThemeDefine = ComponentProps<typeof ListTable>['theme'];
 
-/**
- * Color palette derived directly from isDark flag.
- * These MUST stay in sync with globals.css values.
- */
-const LIGHT_COLORS = {
-  background: '#ffffff',
-  backgroundAlt: '#fbfbfc',
-  foreground: '#0d0f12',          // hsl(220 10% 4%)
-  border: '#e2e5ea',              // hsl(220 13% 91%)
-  headerBg: '#f4f5f7',            // hsl(220 14% 96%)
-  cardBg: '#ffffff',
-  accentBg: '#fff7d6',            // hsl(48 100% 94%)
-  selectionBg: '#fff0c2',         // hsl(48 100% 88%)
+function parseHex(hex: string): [number, number, number] {
+  const h = hex.replace('#', '');
+  const full =
+    h.length === 3
+      ? h
+          .split('')
+          .map((c) => c + c)
+          .join('')
+      : h;
+  const n = Number.parseInt(full.slice(0, 6), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+/** Mix two opaque hex colors; `t` is weight of `b` in [0, 1]. */
+function mixHex(a: string, b: string, t: number): string {
+  const [ar, ag, ab] = parseHex(a);
+  const [br, bg, bb] = parseHex(b);
+  const r = Math.round(ar + (br - ar) * t);
+  const g = Math.round(ag + (bg - ag) * t);
+  const bl = Math.round(ab + (bb - ab) * t);
+  return `#${((1 << 24) | (r << 16) | (g << 8) | bl).toString(16).slice(1)}`;
+}
+
+export type MakeTableThemeOptions = {
+  isDark: boolean;
+  tokens: ThemeTokens;
+  tableFontFamily: string;
+  tableFontSize?: number;
 };
 
-const DARK_COLORS = {
-  background: '#171b21',          // hsl(220 10% 10%)
-  backgroundAlt: '#14171d',       // -1 lightness
-  foreground: '#f2f2f2',          // hsl(0 0% 95%)
-  border: '#3b414a',              // hsl(220 10% 22%)
-  headerBg: '#282d36',            // hsl(220 10% 17%)
-  cardBg: '#24282f',              // hsl(220 10% 14%)
-  accentBg: '#3d3520',            // hsl(48 50% 18%)
-  selectionBg: '#4a3f1f',         // hsl(48 80% 30%)
-};
-
-export function makeTableTheme(
-  isDark: boolean,
-  tableFontFamily: string,
+export function makeTableTheme({
+  isDark,
+  tokens,
+  tableFontFamily,
   tableFontSize = 12,
-) {
+}: MakeTableThemeOptions) {
   const fontSize = tableFontSize;
   const lineHeight = tableFontSize;
-  const c = isDark ? DARK_COLORS : LIGHT_COLORS;
+
+  const background = tokens.background;
+  const foreground = tokens.foreground;
+  const border = tokens.border;
+  const headerBg = tokens.muted;
+  const cardBg = tokens.card;
+  const accentBg = tokens.accent;
+  const selectionBg = tokens.selection;
+  const backgroundAlt = isDark
+    ? mixHex(background, '#000000', 0.06)
+    : mixHex(background, foreground, 0.03);
 
   const getBodyBgColor = (args: TYPES.StylePropertyFunctionArg): string => {
     const { row, table } = args;
     const index = row - table.frozenRowCount;
-    return (index & 1) ? c.backgroundAlt : c.background;
+    return index & 1 ? backgroundAlt : background;
   };
 
   const colorTheme: ITableThemeDefine = isDark
     ? {
         underlayBackgroundColor: 'transparent',
         defaultStyle: {
-          color: c.foreground,
-          bgColor: c.cardBg,
-          borderColor: c.border,
+          color: foreground,
+          bgColor: cardBg,
+          borderColor: border,
         },
         headerStyle: {
-          color: c.foreground,
-          bgColor: c.headerBg,
+          color: foreground,
+          bgColor: headerBg,
           select: {
-            inlineRowBgColor: c.selectionBg,
-            inlineColumnBgColor: c.selectionBg,
+            inlineRowBgColor: selectionBg,
+            inlineColumnBgColor: selectionBg,
           },
         },
         bodyStyle: {
           bgColor: getBodyBgColor,
           hover: {
-            cellBgColor: c.accentBg,
-            inlineRowBgColor: c.accentBg,
-            inlineColumnBgColor: c.accentBg,
+            cellBgColor: accentBg,
+            inlineRowBgColor: accentBg,
+            inlineColumnBgColor: accentBg,
           },
         },
-        frameStyle: { borderColor: c.border },
+        frameStyle: { borderColor: border },
         frozenColumnLine: {
           shadow: {
             width: 4,
@@ -81,29 +98,29 @@ export function makeTableTheme(
       }
     : {
         defaultStyle: {
-          borderColor: c.border,
+          borderColor: border,
           hover: {
-            cellBgColor: c.accentBg,
-            inlineRowBgColor: c.accentBg,
-            inlineColumnBgColor: c.accentBg,
+            cellBgColor: accentBg,
+            inlineRowBgColor: accentBg,
+            inlineColumnBgColor: accentBg,
           },
         },
         headerStyle: {
-          color: c.foreground,
+          color: foreground,
           select: {
-            inlineRowBgColor: c.selectionBg,
-            inlineColumnBgColor: c.selectionBg,
+            inlineRowBgColor: selectionBg,
+            inlineColumnBgColor: selectionBg,
           },
         },
         bodyStyle: {
           bgColor: getBodyBgColor,
           hover: {
-            cellBgColor: c.accentBg,
-            inlineRowBgColor: c.accentBg,
-            inlineColumnBgColor: c.accentBg,
+            cellBgColor: accentBg,
+            inlineRowBgColor: accentBg,
+            inlineColumnBgColor: accentBg,
           },
         },
-        frameStyle: { borderColor: c.border },
+        frameStyle: { borderColor: border },
         frozenColumnLine: {
           shadow: {
             width: 1,
