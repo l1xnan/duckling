@@ -1,3 +1,4 @@
+import { CollisionPriority } from '@dnd-kit/abstract';
 import { useDroppable } from '@dnd-kit/react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -49,6 +50,8 @@ export function PaneDropOverlay({ paneId }: { paneId: string }) {
     disabled: !activeTabId,
     type: 'pane-body',
     accept: 'tab',
+    // Prefer tab-strip targets when both collide (pointer over tab bar).
+    collisionPriority: CollisionPriority.Low,
     data: {
       type: 'pane-body',
       paneId,
@@ -91,7 +94,8 @@ export function PaneDropOverlay({ paneId }: { paneId: string }) {
   return (
     <div
       ref={setRefs}
-      className="absolute inset-0 z-20"
+      // Leave the tab strip (h-8) free so strip reorder wins without fighting body overlay.
+      className="absolute inset-x-0 bottom-0 top-8 z-20"
       data-pane-drop={paneId}
     >
       {isDropTarget ? (

@@ -45,7 +45,11 @@ export function useTabDragSession() {
   return useContext(TabDragSessionContext);
 }
 
-/** Last resolved drop from dragOver (dragEnd target is often stale). */
+/**
+ * Last resolved drop from dragOver (dragEnd target is often stale).
+ * Module scope is intentional: DragDropProvider.onDragEnd and
+ * useDragDropMonitor share one drag session per app shell.
+ */
 let pendingDrop: ResolvedTabDrop | null = null;
 
 export function takePendingDrop(): ResolvedTabDrop | null {

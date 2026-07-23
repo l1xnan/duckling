@@ -1,5 +1,6 @@
 import 'react-horizontal-scrolling-menu/dist/styles.css';
 
+import { CollisionPriority } from '@dnd-kit/abstract';
 import { useDroppable } from '@dnd-kit/react';
 import { useSortable } from '@dnd-kit/react/sortable';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -255,11 +256,13 @@ export function PageTabs({
   }, [stripItems, itemsPrev, activeKey]);
 
   const fallbackDropId = useId();
+  const stripScrollRef = useRef<HTMLDivElement | null>(null);
   const { ref: paneDropRef, isDropTarget } = useDroppable({
     id: paneId ?? fallbackDropId,
     disabled: !paneId,
     type: 'pane',
     accept: 'tab',
+    collisionPriority: CollisionPriority.High,
     data: paneId ? { type: 'pane', paneId } : undefined,
   });
 
@@ -268,8 +271,37 @@ export function PageTabs({
     disabled: !paneId,
     type: 'pane-end',
     accept: 'tab',
+    collisionPriority: CollisionPriority.High,
     data: paneId ? { type: 'pane-end', paneId } : undefined,
   });
+
+  // Auto-scroll tab strip when dragging near left/right edges.
+  useEffect(() => {
+    if (!activeTabId || !paneId) return;
+    let raf = 0;
+    const EDGE = 40;
+    const SPEED = 10;
+    const tick = (clientX: number) => {
+      const el = stripScrollRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      if (clientX < rect.left || clientX > rect.right) return;
+      if (clientX - rect.left < EDGE) {
+        el.scrollLeft -= SPEED;
+      } else if (rect.right - clientX < EDGE) {
+        el.scrollLeft += SPEED;
+      }
+    };
+    const onMove = (e: PointerEvent) => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => tick(e.clientX));
+    };
+    window.addEventListener('pointermove', onMove);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      cancelAnimationFrame(raf);
+    };
+  }, [activeTabId, paneId]);
 
   const insertIndex = useMemo(() => {
     if (!paneId || !dropIndicator || dropIndicator.paneId !== paneId) {
@@ -315,7 +347,12 @@ export function PageTabs({
       onValueChange={onChange}
     >
       <div
-        ref={paneId ? paneDropRef : undefined}
+        ref={(node) => {
+          stripScrollRef.current = node;
+          if (paneId) {
+            paneDropRef(node);
+          }
+        }}
         data-tab-bar=""
         className={cn(
           'relative h-8 min-h-8 w-full overflow-x-auto overflow-y-hidden overscroll-x-contain',
@@ -446,6 +483,7 @@ function TabMenuItem({
     accept: ['tab', 'pane', 'pane-end', 'pane-body'],
     disabled: !paneId,
     plugins: [],
+    collisionPriority: CollisionPriority.Highest,
     data: {
       type: 'tab',
       tabId: tab.id,

@@ -1,5 +1,6 @@
-import { DragDropProvider } from '@dnd-kit/react';
-import { useCallback, type ReactNode } from 'react';
+import { PointerActivationConstraints } from '@dnd-kit/dom';
+import { DragDropProvider, PointerSensor } from '@dnd-kit/react';
+import { useCallback, useMemo, type ReactNode } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import {
@@ -190,8 +191,22 @@ export function Main() {
     [activateTab, focusPane, removeOtherTab, removeTab, tabObj],
   );
 
+  const sensors = useMemo(
+    () => [
+      PointerSensor.configure({
+        activationConstraints: [
+          new PointerActivationConstraints.Distance({ value: 6 }),
+        ],
+      }),
+    ],
+    [],
+  );
+
   return (
-    <DragDropProvider onDragEnd={handleDragEnd as never}>
+    <DragDropProvider
+      sensors={sensors as never}
+      onDragEnd={handleDragEnd as never}
+    >
       <TabDragSessionProvider>
         <TabPaneLayout renderPane={renderPane} />
       </TabDragSessionProvider>
