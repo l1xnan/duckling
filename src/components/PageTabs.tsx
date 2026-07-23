@@ -48,6 +48,7 @@ import { openPath } from '@/api';
 import { isScratchPath, removeScratch } from '@/lib/scratchSql';
 import { cn } from '@/lib/utils';
 import { docsAtom, favoriteAtom } from '@/stores/app';
+import { useEditorDirtyStore } from '@/stores/editorDirty';
 import { EditorContextType, TabContextType, useTabsStore } from '@/stores/tabs';
 import { toast } from 'sonner';
 
@@ -586,6 +587,7 @@ function TabMenuItem({
 
 export function CloseableItem({ tab, onRemove }: TabItemProps) {
   const { t } = useLingui();
+  const dirty = useEditorDirtyStore((s) => !!s.dirty[tab.id]);
   const typeLabel =
     tab.type === 'search'
       ? t`Search`
@@ -598,13 +600,22 @@ export function CloseableItem({ tab, onRemove }: TabItemProps) {
             : tab.type === 'query'
               ? t`Query`
               : tab.type;
+  const title =
+    dirty && tab.type === 'editor'
+      ? `${tab.displayName} *`
+      : tab.displayName;
 
   return (
     <div className="flex items-center justify-between">
-      <TitleTooltip title={`${typeLabel}: ${tab.displayName}`}>
+      <TitleTooltip title={`${typeLabel}: ${title}`}>
         <div className="flex">
           <TabTypeIcon type={tab.type} className="size-4 mr-1" />
-          <div className="max-w-52 truncate">{tab.displayName}</div>
+          <div className="max-w-52 truncate">
+            {dirty && tab.type === 'editor' ? (
+              <span className="text-primary">*</span>
+            ) : null}
+            {tab.displayName}
+          </div>
         </div>
       </TitleTooltip>
       <Button

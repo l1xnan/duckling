@@ -17,6 +17,7 @@ export type HotkeyId =
   | 'editor.runNewTab'
   | 'editor.format'
   | 'editor.formatSelection'
+  | 'editor.save'
   | 'tab.close'
   | 'connection.rename'
   | 'connection.properties'
@@ -84,6 +85,13 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDef> = {
     category: 'editor',
     scope: 'editor',
     displayOnly: true,
+  },
+  'editor.save': {
+    id: 'editor.save',
+    hotkey: 'Mod+S',
+    label: msg`Save SQL file`,
+    category: 'editor',
+    scope: 'editor',
   },
   'tab.close': {
     id: 'tab.close',

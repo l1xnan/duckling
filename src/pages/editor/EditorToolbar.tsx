@@ -13,6 +13,7 @@ import {
   BookmarkPlusIcon,
   ListPlusIcon,
   PlayIcon,
+  SaveIcon,
   TextSelectIcon,
 } from 'lucide-react';
 
@@ -45,6 +46,9 @@ export function EditorToolbar({
   canFormatSelection = false,
   onBookmark,
   onExplain,
+  onSave,
+  canSave = false,
+  dirty = false,
 }: {
   onClick: (action?: string) => void;
   onHasLimit: (limit: boolean) => void;
@@ -55,6 +59,9 @@ export function EditorToolbar({
   canFormatSelection?: boolean;
   onBookmark?: () => void;
   onExplain?: (analyze?: boolean) => void;
+  onSave?: () => void;
+  canSave?: boolean;
+  dirty?: boolean;
 }) {
   const { t } = useLingui();
 
@@ -118,6 +125,20 @@ export function EditorToolbar({
               onClick={onBookmark}
             >
               <BookmarkPlusIcon fontSize="inherit" />
+            </TooltipButton>
+          ) : null}
+          {canSave ? (
+            <TooltipButton
+              tooltip={
+                dirty
+                  ? t`Save (${formatHotkey(getHotkey('editor.save'))})`
+                  : t`Saved`
+              }
+              tooltipProps={tooltipProps}
+              disabled={!dirty}
+              onClick={() => onSave?.()}
+            >
+              <SaveIcon fontSize="inherit" />
             </TooltipButton>
           ) : null}
         </Stack>

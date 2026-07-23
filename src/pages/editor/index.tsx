@@ -4,6 +4,7 @@ import { useAtom, useSetAtom } from 'jotai';
 import { nanoid } from 'nanoid';
 import { useEffect, useRef, useState } from 'react';
 
+import { writeTextFile } from '@/api';
 import MonacoEditor, { EditorRef } from '@/components/editor/MonacoEditor';
 import VerticalContainer from '@/components/VerticalContainer';
 import { useAppHotkey } from '@/hotkeys';
@@ -18,6 +19,7 @@ import {
 import { buildExplainSql } from '@/lib/sql/sample';
 import { bookmarksAtom, docsAtom, runsAtom } from '@/stores/app';
 import { DBType, useConnection, useConnectionMeta } from '@/stores/dbList';
+import { useEditorDirtyStore } from '@/stores/editorDirty';
 import {
   EditorContextType,
   QueryContextType,
@@ -57,17 +59,23 @@ export default function Editor({ context }: { context: EditorContextType }) {
 
   const [hasLimit, setHasLimit] = useState(true);
   const [canFormatSelection, setCanFormatSelection] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const stmt = docs[id] ?? '';
   const ref = useRef<EditorRef | null>(null);
+  const savedBaselineRef = useRef<string | null>(null);
   const scratch = isScratchPath(path);
+  /** User-owned SQL file from a local folder (explicit save). */
+  const fileBacked = !!path && !scratch;
+  const dirty = useEditorDirtyStore((s) => !!s.dirty[id]);
+  const setDirty = useEditorDirtyStore((s) => s.setDirty);
+  const clearDirty = useEditorDirtyStore((s) => s.clear);
 
   useEffect(() => {
     if (!scratch) {
       return;
     }
     let cancelled = false;
-    // Reload from disk when memory cache is missing (e.g. localStorage cleared).
     void (async () => {
       const current = docs[id];
       if (current != null) {
@@ -86,6 +94,27 @@ export default function Editor({ context }: { context: EditorContextType }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only on editor identity
   }, [id, path, scratch]);
 
+  // Folder SQL: capture baseline when content first appears in cache.
+  useEffect(() => {
+    if (!fileBacked) {
+      return;
+    }
+    if (savedBaselineRef.current != null) {
+      return;
+    }
+    if (docs[id] == null) {
+      return;
+    }
+    savedBaselineRef.current = docs[id];
+    setDirty(id, false);
+  }, [fileBacked, id, docs, setDirty]);
+
+  useEffect(() => {
+    return () => {
+      clearDirty(id);
+    };
+  }, [id, clearDirty]);
+
   const syncSelectionState = () => {
     setCanFormatSelection(!!ref.current?.hasSelection());
   };
@@ -102,11 +131,35 @@ export default function Editor({ context }: { context: EditorContextType }) {
     setDocs((prev) => ({ ...prev, [id]: value }));
     if (scratch) {
       scheduleWriteScratch(id, value);
+    } else if (fileBacked) {
+      if (savedBaselineRef.current == null) {
+        savedBaselineRef.current = value;
+      }
+      setDirty(id, value !== savedBaselineRef.current);
     }
   };
 
   const handleChange: OnChange = (value, _event) => {
     persistDoc(value ?? '');
+  };
+
+  const handleSave = async () => {
+    if (!fileBacked || !path || saving) {
+      return;
+    }
+    const content = ref.current?.getValue() ?? docs[id] ?? '';
+    setSaving(true);
+    try {
+      await writeTextFile(path, content);
+      savedBaselineRef.current = content;
+      setDocs((prev) => ({ ...prev, [id]: content }));
+      setDirty(id, false);
+      toast.success(t`Saved`);
+    } catch (e) {
+      toast.error(String(e));
+    } finally {
+      setSaving(false);
+    }
   };
 
   const setActiveKey = (key?: string) => {
@@ -239,6 +292,14 @@ export default function Editor({ context }: { context: EditorContextType }) {
     { enabled: currentTab === id },
   );
 
+  useAppHotkey(
+    'editor.save',
+    () => {
+      void handleSave();
+    },
+    { enabled: currentTab === id && fileBacked },
+  );
+
   const setSession = useTabsStore((s) => s.setSession);
   const handleSession = (db: DBType) => {
     setSession({
@@ -260,6 +321,11 @@ export default function Editor({ context }: { context: EditorContextType }) {
         canFormatSelection={canFormatSelection}
         onBookmark={handleBookmark}
         onExplain={handleExplain}
+        onSave={() => {
+          void handleSave();
+        }}
+        canSave={fileBacked}
+        dirty={dirty}
       />
       <VerticalContainer bottom={childCount > 0 ? 300 : undefined}>
         <div className="h-full flex flex-col overflow-hidden border-b">
