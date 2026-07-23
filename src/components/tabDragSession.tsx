@@ -9,13 +9,8 @@ import {
 } from 'react';
 
 import { cn } from '@/lib/utils';
-import {
-  collectLeaves,
-  moveTab as moveTabInLayout,
-} from '@/stores/tabLayout';
+import { findLeaf, type PaneDropZone } from '@/stores/tabLayout';
 import { useTabsStore, type TabContextType } from '@/stores/tabs';
-
-import type { PaneDropZone } from '@/stores/tabLayout';
 
 export type ResolvedTabDrop = {
   tabId: string;
@@ -29,14 +24,11 @@ export type ResolvedTabDrop = {
 type TabDropIndicator = { paneId: string; index: number } | null;
 
 type TabDragSessionValue = {
-  /** Live strip order per pane while dragging; null when idle. */
-  draftOrders: Record<string, string[]> | null;
   indicator: TabDropIndicator;
   activeTabId: string | null;
 };
 
 const TabDragSessionContext = createContext<TabDragSessionValue>({
-  draftOrders: null,
   indicator: null,
   activeTabId: null,
 });
@@ -45,12 +37,10 @@ export function useTabDragSession() {
   return useContext(TabDragSessionContext);
 }
 
-/**
- * Last resolved drop from dragOver (dragEnd target is often stale).
- * Module scope is intentional: DragDropProvider.onDragEnd and
- * useDragDropMonitor share one drag session per app shell.
- */
+/** Shared with DragDropProvider.onDragEnd (stale end target workaround). */
 let pendingDrop: ResolvedTabDrop | null = null;
+/** pointerX - source.left at drag start → ghostLeft = pointerX - grabOffsetX */
+let grabOffsetX = 0;
 
 export function takePendingDrop(): ResolvedTabDrop | null {
   const drop = pendingDrop;
@@ -58,37 +48,105 @@ export function takePendingDrop(): ResolvedTabDrop | null {
   return drop;
 }
 
-function pointerX(operation: {
-  position?: { current?: { x?: number }; x?: number };
-}): number | null {
-  const pos = operation.position;
+type OpPos = {
+  position?: {
+    current?: { x?: number; y?: number };
+    x?: number;
+    y?: number;
+  };
+};
+
+function pointerX(operation?: OpPos): number | null {
+  const pos = operation?.position;
   if (!pos) return null;
   if (typeof pos.current?.x === 'number') return pos.current.x;
   if (typeof pos.x === 'number') return pos.x;
   return null;
 }
 
-function draggedTabLeft(source: {
-  element?: Element | null;
-}): number | null {
-  const el = source.element;
-  if (el instanceof Element) {
-    return el.getBoundingClientRect().left;
+function pointerY(operation?: OpPos): number | null {
+  const pos = operation?.position;
+  if (!pos) return null;
+  if (typeof pos.current?.y === 'number') return pos.current.y;
+  if (typeof pos.y === 'number') return pos.y;
+  return null;
+}
+
+/** Virtual drag object left edge (DragOverlay). */
+function ghostLeftEdge(
+  source: { element?: Element | null },
+  operation?: OpPos,
+): number | null {
+  const x = pointerX(operation);
+  if (x != null) return x - grabOffsetX;
+  if (source.element instanceof Element) {
+    return source.element.getBoundingClientRect().left;
   }
   return null;
 }
 
-/** Drop destination + insert-before index (pointer vs hover center). */
+/**
+ * Insert-before from ghost left vs each other tab's center (store order).
+ * ghostLeft < center → before that tab; past all centers → append (len).
+ */
+function insertIndexFromGhostLeft(
+  paneId: string,
+  dragTabId: string,
+  ghostLeft: number,
+): number {
+  const leaf = findLeaf(useTabsStore.getState().layout, paneId);
+  const tabIds = leaf?.tabIds ?? [];
+  const prefix = `tab-trigger-${paneId}-`;
+
+  const others = tabIds
+    .filter((id) => id !== dragTabId)
+    .map((id) => {
+      const el = document.getElementById(`${prefix}${id}`);
+      if (!el) return null;
+      const rect = el.getBoundingClientRect();
+      return {
+        storeIndex: tabIds.indexOf(id),
+        center: rect.left + rect.width / 2,
+      };
+    })
+    .filter((t): t is { storeIndex: number; center: number } => t != null)
+    .sort((a, b) => a.center - b.center);
+
+  for (const t of others) {
+    if (ghostLeft < t.center) return t.storeIndex;
+  }
+  return tabIds.length;
+}
+
+function resolveBodyZone(
+  el: Element | null | undefined,
+  operation?: OpPos,
+  fallback: PaneDropZone = 'center',
+): PaneDropZone {
+  const x = pointerX(operation);
+  const y = pointerY(operation);
+  if (x == null || y == null || !(el instanceof Element)) return fallback;
+  const rect = el.getBoundingClientRect();
+  const lx = x - rect.left;
+  const ly = y - rect.top;
+  const edgeX = rect.width * 0.2;
+  const edgeY = rect.height * 0.2;
+  if (lx < edgeX) return 'left';
+  if (lx > rect.width - edgeX) return 'right';
+  if (ly < edgeY) return 'up';
+  if (ly > rect.height - edgeY) return 'down';
+  return 'center';
+}
+
+/**
+ * Drop destination. Tab strip rule:
+ *   ghost LEFT EDGE vs hover tab CENTER → before / after.
+ * Bar order is not mutated until dragEnd commits.
+ */
 export function resolveTabDrop(
   source: unknown,
   target: unknown,
-  operation?: {
-    position?: {
-      current?: { x?: number; y?: number };
-      x?: number;
-      y?: number;
-    };
-  },
+  operation?: OpPos,
 ): ResolvedTabDrop | null {
   if (!source || !target) return null;
 
@@ -101,7 +159,12 @@ export function resolveTabDrop(
   };
   const targetAny = target as {
     id?: string | number;
-    data?: { type?: string; tabId?: string; paneId?: string };
+    data?: {
+      type?: string;
+      tabId?: string;
+      paneId?: string;
+      zone?: PaneDropZone;
+    };
     index?: number;
     group?: string | number;
     element?: Element | null;
@@ -129,72 +192,69 @@ export function resolveTabDrop(
 
   if (!toPaneId) return null;
 
-  if (targetData.type === 'pane-end' || targetData.type === 'pane') {
+  if (targetData.type === 'pane-start') {
+    return { tabId, toPaneId, index: 0 };
+  }
+  if (targetData.type === 'pane-end') {
     return { tabId, toPaneId, index: undefined };
   }
-
   if (targetData.type === 'pane-body') {
-    const pos = operation?.position;
-    const x =
-      typeof pos?.current?.x === 'number'
-        ? pos.current.x
-        : typeof pos?.x === 'number'
-          ? pos.x
-          : null;
-    const y =
-      typeof pos?.current?.y === 'number'
-        ? pos.current.y
-        : typeof pos?.y === 'number'
-          ? pos.y
-          : null;
-    let bodyZone: PaneDropZone =
-      (targetData as { zone?: PaneDropZone }).zone ?? 'center';
-    const el = targetAny.element;
-    if (x != null && y != null && el instanceof Element) {
-      const rect = el.getBoundingClientRect();
-      const lx = x - rect.left;
-      const ly = y - rect.top;
-      const edgeX = rect.width * 0.2;
-      const edgeY = rect.height * 0.2;
-      if (lx < edgeX) bodyZone = 'left';
-      else if (lx > rect.width - edgeX) bodyZone = 'right';
-      else if (ly < edgeY) bodyZone = 'up';
-      else if (ly > rect.height - edgeY) bodyZone = 'down';
-      else bodyZone = 'center';
-    }
-    return { tabId, toPaneId, bodyZone };
+    return {
+      tabId,
+      toPaneId,
+      bodyZone: resolveBodyZone(
+        targetAny.element,
+        operation,
+        targetData.zone ?? 'center',
+      ),
+    };
   }
 
-  if (targetData.type === 'tab' && typeof targetAny.index === 'number') {
-    const hoverEl = targetAny.element;
-    const x =
-      (operation ? pointerX(operation) : null) ?? draggedTabLeft(sourceAny);
-    let index = targetAny.index;
-    if (x != null && hoverEl instanceof Element) {
-      const rect = hoverEl.getBoundingClientRect();
+  // pane bar, tab, or self: ghost left vs tab centers
+  if (
+    targetData.type === 'pane' ||
+    (targetData.type === 'tab' && targetData.tabId)
+  ) {
+    const ghostLeft = ghostLeftEdge(sourceAny, operation);
+    if (ghostLeft == null) return null;
+
+    const leaf = findLeaf(useTabsStore.getState().layout, toPaneId);
+    const len = leaf?.tabIds.length ?? 0;
+
+    // Explicit hover tab (not self): compare ghost left to that tab's center.
+    if (
+      targetData.type === 'tab' &&
+      targetData.tabId &&
+      targetData.tabId !== tabId &&
+      targetAny.element instanceof Element
+    ) {
+      const storeIndex = leaf?.tabIds.indexOf(targetData.tabId) ?? -1;
+      const baseIndex =
+        storeIndex >= 0
+          ? storeIndex
+          : typeof targetAny.index === 'number'
+            ? targetAny.index
+            : 0;
+      const rect = targetAny.element.getBoundingClientRect();
       const hoverCenter = rect.left + rect.width / 2;
-      if (x >= hoverCenter) {
-        index = targetAny.index + 1;
-      }
+      const index = ghostLeft < hoverCenter ? baseIndex : baseIndex + 1;
+      return {
+        tabId,
+        toPaneId,
+        index: index >= len ? undefined : index,
+      };
     }
-    return { tabId, toPaneId, index };
+
+    // Self / bare pane: scan all other tab centers.
+    const index = insertIndexFromGhostLeft(toPaneId, tabId, ghostLeft);
+    return {
+      tabId,
+      toPaneId,
+      index: index >= len ? undefined : index,
+    };
   }
 
-  if (typeof sourceAny.sortable?.index === 'number') {
-    return { tabId, toPaneId, index: sourceAny.sortable.index };
-  }
-
-  return { tabId, toPaneId, index: undefined };
-}
-
-function draftsFromLayout(
-  layout: Parameters<typeof collectLeaves>[0],
-): Record<string, string[]> {
-  const drafts: Record<string, string[]> = {};
-  for (const leaf of collectLeaves(layout)) {
-    drafts[leaf.id] = [...leaf.tabIds];
-  }
-  return drafts;
+  return null;
 }
 
 function OverlayIcon({ type }: { type: string }) {
@@ -203,15 +263,8 @@ function OverlayIcon({ type }: { type: string }) {
   return <TableIcon className="size-4 shrink-0" />;
 }
 
-/**
- * Live strip draft + insert indicator + overlay while dragging.
- * Header order updates on dragOver; store commits on dragEnd (caller).
- */
+/** Indicator + floating chip; bar order fixed until dragEnd. */
 export function TabDragSessionProvider({ children }: { children: ReactNode }) {
-  const [draftOrders, setDraftOrders] = useState<Record<
-    string,
-    string[]
-  > | null>(null);
   const [indicator, setIndicator] = useState<TabDropIndicator>(null);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const tabs = useTabsStore((s) => s.tabs);
@@ -221,6 +274,7 @@ export function TabDragSessionProvider({ children }: { children: ReactNode }) {
       const source = event.operation.source as {
         data?: { type?: string; tabId?: string };
         id?: string | number;
+        element?: Element | null;
       } | null;
       const data = source?.data ?? {};
       const tabId =
@@ -230,59 +284,43 @@ export function TabDragSessionProvider({ children }: { children: ReactNode }) {
       setActiveTabId(tabId);
       pendingDrop = null;
       setIndicator(null);
-      setDraftOrders(draftsFromLayout(useTabsStore.getState().layout));
+
+      const x = pointerX(event.operation as OpPos);
+      const el = source?.element;
+      grabOffsetX =
+        x != null && el instanceof Element
+          ? x - el.getBoundingClientRect().left
+          : 0;
     },
     onDragOver(event) {
       const { source, target } = event.operation;
-      const drop = resolveTabDrop(source, target, event.operation as never);
+      const drop = resolveTabDrop(source, target, event.operation as OpPos);
       if (!drop) {
-        setIndicator(null);
+        if (!target) {
+          pendingDrop = null;
+          setIndicator(null);
+        }
         return;
       }
 
       pendingDrop = drop;
-
-      // Body overlay: no strip draft reorder (zone highlight is enough).
       if (drop.bodyZone) {
         setIndicator(null);
-        setDraftOrders(draftsFromLayout(useTabsStore.getState().layout));
         return;
       }
 
-      const layout = useTabsStore.getState().layout;
-      setDraftOrders(
-        draftsFromLayout(
-          moveTabInLayout(layout, drop.tabId, drop.toPaneId, drop.index),
-        ),
+      const insertAt =
+        drop.index === undefined ? Number.MAX_SAFE_INTEGER : drop.index;
+      setIndicator((prev) =>
+        prev?.paneId === drop.toPaneId && prev.index === insertAt
+          ? prev
+          : { paneId: drop.toPaneId, index: insertAt },
       );
-
-      const targetData = ((target as { data?: { type?: string; tabId?: string } })
-        ?.data ?? {}) as { type?: string; tabId?: string };
-      const sourceData = ((source as { data?: { paneId?: string; tabId?: string } })
-        ?.data ?? {}) as { paneId?: string; tabId?: string };
-      if (
-        targetData.type === 'tab' &&
-        targetData.tabId &&
-        sourceData.tabId === targetData.tabId &&
-        sourceData.paneId === drop.toPaneId &&
-        drop.index === (target as { index?: number }).index
-      ) {
-        setIndicator(null);
-        return;
-      }
-
-      setIndicator({
-        paneId: drop.toPaneId,
-        index:
-          drop.index === undefined
-            ? Number.MAX_SAFE_INTEGER
-            : drop.index,
-      });
     },
     onDragEnd() {
       setActiveTabId(null);
-      setDraftOrders(null);
       setIndicator(null);
+      grabOffsetX = 0;
     },
   });
 
@@ -291,12 +329,8 @@ export function TabDragSessionProvider({ children }: { children: ReactNode }) {
     : undefined;
 
   const value = useMemo(
-    () => ({
-      draftOrders,
-      indicator,
-      activeTabId,
-    }),
-    [activeTabId, draftOrders, indicator],
+    () => ({ indicator, activeTabId }),
+    [activeTabId, indicator],
   );
 
   return (
@@ -306,7 +340,7 @@ export function TabDragSessionProvider({ children }: { children: ReactNode }) {
         {activeTab ? (
           <div
             className={cn(
-              'flex h-8 items-center gap-1 rounded-md border bg-background px-2 text-xs shadow-md',
+              'flex h-8 items-center gap-1 border-r bg-background pl-3 pr-1.5 text-xs shadow-md',
               'pointer-events-none',
             )}
           >

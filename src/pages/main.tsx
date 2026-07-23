@@ -190,8 +190,6 @@ export function Main() {
     [activateTab, focusPane, removeOtherTab, removeTab, tabObj],
   );
 
-  // Distance activation via sensor defaults (≈5px); avoid @dnd-kit/dom bare imports
-  // under Vite bundledDev which can leak unresolved package specifiers to the browser.
   const sensors = useMemo(() => [PointerSensor], []);
 
   return (

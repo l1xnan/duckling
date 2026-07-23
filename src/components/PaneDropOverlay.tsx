@@ -49,8 +49,7 @@ export function PaneDropOverlay({ paneId }: { paneId: string }) {
     disabled: !activeTabId,
     type: 'pane-body',
     accept: 'tab',
-    // Prefer tab-strip targets when both collide (pointer over tab bar).
-    // Low = 1 (CollisionPriority.Low) — avoid importing @dnd-kit/abstract.
+    // Lower than tab strip (3–4) so bar reorder wins over body.
     collisionPriority: 1,
     data: {
       type: 'pane-body',

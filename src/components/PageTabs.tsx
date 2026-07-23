@@ -213,34 +213,13 @@ export function PageTabs({
   onRemove,
   renderItem,
 }: PageTabsProps) {
-  const { draftOrders, indicator: dropIndicator, activeTabId } =
-    useTabDragSession();
-
-  // Header follows draft order while dragging; content mount order stays stable.
-  const stripItems = useMemo(() => {
-    if (!paneId || !draftOrders?.[paneId]) {
-      return items;
-    }
-    const order = draftOrders[paneId];
-    const byId = new Map(items.map((i) => [i.tab.id, i]));
-    const ordered: typeof items = [];
-    for (const id of order) {
-      const item = byId.get(id);
-      if (item) ordered.push(item);
-    }
-    for (const item of items) {
-      if (!order.includes(item.tab.id)) ordered.push(item);
-    }
-    return ordered;
-  }, [draftOrders, items, paneId]);
-
-  const itemsPrev = usePrevious(stripItems);
+  const { indicator: dropIndicator, activeTabId } = useTabDragSession();
+  const itemsPrev = usePrevious(items);
   const apiRef = useRef({} as ScrollVisibilityApiType);
   useEffect(() => {
-    if (!apiRef.current) {
-      return () => {};
-    }
-    if (stripItems?.length > (itemsPrev?.length ?? 0)) {
+    if (activeTabId) return;
+    if (!apiRef.current) return () => {};
+    if (items.length > (itemsPrev?.length ?? 0)) {
       const id = setTimeout(() => {
         const item = apiRef.current.getItemById(activeKey);
         apiRef.current.scrollToItem(item, 'auto', 'end');
@@ -248,11 +227,9 @@ export function PageTabs({
       return () => clearTimeout(id);
     }
     const item = apiRef.current.getItemById(activeKey);
-    if (!item?.visible) {
-      apiRef.current.scrollToItem(item);
-    }
+    if (!item?.visible) apiRef.current.scrollToItem(item);
     return () => {};
-  }, [stripItems, itemsPrev, activeKey]);
+  }, [items, itemsPrev, activeKey, activeTabId]);
 
   const fallbackDropId = useId();
   const stripScrollRef = useRef<HTMLDivElement | null>(null);
@@ -261,11 +238,17 @@ export function PageTabs({
     disabled: !paneId,
     type: 'pane',
     accept: 'tab',
-    // Numeric priorities (avoid bare @dnd-kit/abstract import under bundledDev).
     collisionPriority: 3,
     data: paneId ? { type: 'pane', paneId } : undefined,
   });
-
+  const { ref: startDropRef, isDropTarget: isStartDropTarget } = useDroppable({
+    id: paneId ? `${paneId}:start` : `${fallbackDropId}:start`,
+    disabled: !paneId,
+    type: 'pane-start',
+    accept: 'tab',
+    collisionPriority: 3,
+    data: paneId ? { type: 'pane-start', paneId } : undefined,
+  });
   const { ref: endDropRef, isDropTarget: isEndDropTarget } = useDroppable({
     id: paneId ? `${paneId}:end` : `${fallbackDropId}:end`,
     disabled: !paneId,
@@ -275,26 +258,28 @@ export function PageTabs({
     data: paneId ? { type: 'pane-end', paneId } : undefined,
   });
 
-  // Auto-scroll tab strip when dragging near left/right edges.
   useEffect(() => {
     if (!activeTabId || !paneId) return;
     let raf = 0;
-    const EDGE = 40;
-    const SPEED = 10;
-    const tick = (clientX: number) => {
-      const el = stripScrollRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      if (clientX < rect.left || clientX > rect.right) return;
-      if (clientX - rect.left < EDGE) {
-        el.scrollLeft -= SPEED;
-      } else if (rect.right - clientX < EDGE) {
-        el.scrollLeft += SPEED;
-      }
-    };
+    const EDGE = 48;
+    const SPEED = 14;
     const onMove = (e: PointerEvent) => {
       cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => tick(e.clientX));
+      raf = requestAnimationFrame(() => {
+        const el = stripScrollRef.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        if (
+          e.clientX < rect.left ||
+          e.clientX > rect.right ||
+          e.clientY < rect.top ||
+          e.clientY > rect.bottom
+        ) {
+          return;
+        }
+        if (e.clientX - rect.left < EDGE) el.scrollLeft -= SPEED;
+        else if (rect.right - e.clientX < EDGE) el.scrollLeft += SPEED;
+      });
     };
     window.addEventListener('pointermove', onMove);
     return () => {
@@ -308,12 +293,30 @@ export function PageTabs({
       return null;
     }
     if (dropIndicator.index >= Number.MAX_SAFE_INTEGER / 2) {
-      return stripItems.length;
+      return items.length;
     }
-    return Math.max(0, Math.min(dropIndicator.index, stripItems.length));
-  }, [dropIndicator, stripItems.length, paneId]);
+    return Math.max(0, Math.min(dropIndicator.index, items.length));
+  }, [dropIndicator, paneId, items.length]);
 
-  const tabsList = stripItems.map(({ tab }, index) => {
+  const tabsList = items.map(({ tab }, index) => {
+    const isSource = activeTabId === tab.id;
+    let showBefore = false;
+    let showAfter = false;
+    if (
+      insertIndex != null &&
+      insertIndex > 0 &&
+      insertIndex < items.length
+    ) {
+      if (insertIndex === index && !isSource) {
+        showBefore = true;
+      } else if (
+        insertIndex === index + 1 &&
+        !isSource &&
+        items[index + 1]?.tab.id === activeTabId
+      ) {
+        showAfter = true;
+      }
+    }
     return (
       <TabMenuItem
         key={paneId ? `${paneId}:${tab.id}` : tab.id}
@@ -321,8 +324,9 @@ export function PageTabs({
         index={index}
         paneId={paneId}
         paneFocused={paneFocused}
-        showInsertBefore={insertIndex === index}
-        isDragSource={activeTabId === tab.id}
+        showInsertBefore={showBefore}
+        showInsertAfter={showAfter}
+        isDragSource={isSource}
         renderItem={renderItem}
         tab={tab}
         indicator={indicator}
@@ -331,14 +335,14 @@ export function PageTabs({
     );
   });
 
-  // Keep panel DOM order stable so same-pane tab reorder does not remount Monaco.
   const contentItems = useMemo(
     () => [...items].sort((a, b) => a.tab.id.localeCompare(b.tab.id)),
     [items],
   );
 
+  const showStartInsert = paneId != null && insertIndex === 0;
   const showEndInsert =
-    paneId != null && insertIndex === stripItems.length && stripItems.length > 0;
+    paneId != null && insertIndex === items.length && items.length > 0;
 
   return (
     <Tabs
@@ -349,14 +353,11 @@ export function PageTabs({
       <div
         ref={(node) => {
           stripScrollRef.current = node;
-          if (paneId) {
-            paneDropRef(node);
-          }
+          if (paneId) paneDropRef(node);
         }}
         data-tab-bar=""
         className={cn(
           'relative h-8 min-h-8 w-full overflow-x-auto overflow-y-hidden overscroll-x-contain',
-          // Hide scrollbar chrome; wheel/trackpad still scrolls.
           '[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden',
           (isDropTarget || isEndDropTarget) &&
             insertIndex === null &&
@@ -364,6 +365,18 @@ export function PageTabs({
           !paneFocused && paneId && 'opacity-70',
         )}
       >
+        {paneId ? (
+          <div
+            ref={startDropRef}
+            className={cn(
+              'pointer-events-auto absolute inset-y-0 left-0 z-10 w-6',
+              (isStartDropTarget || showStartInsert) && 'bg-primary/10',
+            )}
+            aria-hidden
+          >
+            {showStartInsert ? <TabInsertLine side="before" /> : null}
+          </div>
+        ) : null}
         <TabsList
           variant="line"
           className="p-0 h-8 border-b w-max max-w-none flex flex-row justify-stretch"
@@ -384,13 +397,8 @@ export function PageTabs({
             {showEndInsert ? <TabInsertLine side="before" /> : null}
           </div>
         ) : null}
-        {paneId && items.length === 0 && insertIndex === 0 ? (
-          <div className="absolute inset-y-0 left-2 w-8">
-            <TabInsertLine side="before" />
-          </div>
-        ) : null}
       </div>
-      {stripItems.length === 0 ? (
+      {items.length === 0 ? (
         <div className="flex-1 min-h-0 flex items-center justify-center text-muted-foreground text-sm">
           <Trans>No tabs in this pane</Trans>
         </div>
@@ -421,12 +429,7 @@ export function PageTabs({
           );
         }
         return (
-          <TabsContent
-            key={id}
-            value={id}
-            keepMounted
-            className="min-h-0"
-          >
+          <TabsContent key={id} value={id} keepMounted className="min-h-0">
             <ErrorBoundary
               fallback={
                 <p>
@@ -454,6 +457,7 @@ type TabItemMenuProps = {
   paneId?: string;
   paneFocused?: boolean;
   showInsertBefore?: boolean;
+  showInsertAfter?: boolean;
   isDragSource?: boolean;
   renderItem: (({ tab }: { tab: TabContextType }) => JSX.Element) | undefined;
   tab: TabContextType;
@@ -467,6 +471,7 @@ function TabMenuItem({
   paneId,
   paneFocused = true,
   showInsertBefore = false,
+  showInsertAfter = false,
   isDragSource = false,
   renderItem,
   tab,
@@ -480,7 +485,7 @@ function TabMenuItem({
     index,
     group: paneId,
     type: 'tab',
-    accept: ['tab', 'pane', 'pane-end', 'pane-body'],
+    accept: ['tab', 'pane', 'pane-start', 'pane-end', 'pane-body'],
     disabled: !paneId,
     plugins: [],
     collisionPriority: 4,
@@ -508,17 +513,25 @@ function TabMenuItem({
         paneFocused
           ? 'data-[active]:bg-muted data-[active]:text-foreground'
           : 'data-[active]:bg-transparent data-[active]:text-muted-foreground',
-        dimmed && 'opacity-30',
-        isDropTarget && !showInsertBefore && 'bg-primary/10',
+        dimmed && 'opacity-30 pointer-events-none',
+        isDropTarget &&
+          !showInsertBefore &&
+          !showInsertAfter &&
+          'bg-primary/10',
       )}
       onClick={() => {
-        if (paneId) {
-          activateTab(tab.id);
-        }
+        if (paneId) activateTab(tab.id);
       }}
       render={
-        <div ref={paneId ? ref : undefined} className="relative cursor-pointer overflow-visible">
+        <div
+          ref={paneId ? ref : undefined}
+          className={cn(
+            'relative cursor-pointer overflow-visible',
+            dimmed && 'pointer-events-none',
+          )}
+        >
           {showInsertBefore ? <TabInsertLine side="before" /> : null}
+          {showInsertAfter ? <TabInsertLine side="after" /> : null}
           <div
             className={cn(
               'h-0.5 w-full absolute left-0 invisible z-6',
