@@ -577,10 +577,11 @@ function CanvasTable_({
   ]);
 
   return (
-    <div className="h-full select-text" style={style}>
+    <div className="h-full w-full min-h-0 min-w-0 select-text" style={style}>
       <ListTable
         key={isDark ? 'dark' : 'light'}
         ref={tableRef}
+        style={{ width: '100%', height: '100%' }}
         option={option}
         keepColumnWidthChange={true}
         onContextMenuCell={(arg) => {
@@ -781,9 +782,10 @@ export function SimpleTable({
   );
 
   return (
-    <div className="h-full select-text">
+    <div className="h-full w-full min-h-0 min-w-0 select-text">
       <ListTable
         ref={tableRef}
+        style={{ width: '100%', height: '100%' }}
         option={option}
         onReady={(tableInstance, isFirst) => {
           if (isFirst) {

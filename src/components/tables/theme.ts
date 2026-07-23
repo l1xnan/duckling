@@ -165,7 +165,9 @@ export function makeTableTheme({
       width: 10,
       visible: 'always',
       scrollSliderCornerRadius: 0,
-      hoverOn: false,
+      // Overlay bars so presence does not steal content size (avoids H/V gutter thrash
+      // while split panes resize and widthMode is autoWidth).
+      hoverOn: true,
       barToSide: true,
     },
     selectionStyle: {

@@ -162,7 +162,7 @@ export function TableView({ context }: { context: TabContextType }) {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full min-h-0 min-w-0 flex flex-col overflow-hidden">
       <DataViewToolbar
         context={context as TableContextType}
         dbId={context.dbId}
@@ -193,14 +193,20 @@ export function TableView({ context }: { context: TabContextType }) {
           pivotDialog.trigger();
         }}
       />
-      <ResizablePanelGroup orientation={direction}>
-        <ResizablePanel defaultSize={80} className="size-full">
-          <div className="h-full flex flex-col">
+      <ResizablePanelGroup
+        orientation={direction}
+        className="min-h-0 min-w-0 flex-1"
+      >
+        <ResizablePanel
+          defaultSize={80}
+          className="min-h-0 min-w-0 overflow-hidden"
+        >
+          <div className="h-full min-h-0 min-w-0 flex flex-col overflow-hidden">
             <InputToolbar
               context={context as TableContextType}
               schema={tableSchema ?? []}
             />
-            <div className="h-full flex-1 overflow-hidden mb-px">
+            <div className="h-full min-h-0 flex-1 overflow-hidden mb-px">
               <Suspense fallback={<Loading />}>
                 {loading ? <Loading /> : null}
                 <CanvasTable
@@ -249,8 +255,11 @@ export function TableView({ context }: { context: TabContextType }) {
         {showValue ? (
           <>
             <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={20}>
-              <div className="size-full">
+            <ResizablePanel
+              defaultSize={20}
+              className="min-h-0 min-w-0 overflow-hidden"
+            >
+              <div className="size-full min-h-0 min-w-0 overflow-hidden">
                 <ValueViewer
                   selectedCell={selectedCell}
                   selectedCellInfos={selectedCellInfos}

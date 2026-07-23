@@ -44,21 +44,40 @@ export const useResize = (
   const onMouseMove = (e: MouseEvent) => {
     if (targetRef.current) {
       targetRef.current.style.opacity = '60%';
+      // Prefer parent bounds so nested splits (editor groups) measure correctly.
+      const parent = targetRef.current.parentElement;
+      const parentRect = parent?.getBoundingClientRect();
       switch (type) {
         case 'top': {
-          callback(e.clientY);
+          if (parentRect) {
+            callback(Math.max(0, e.clientY - parentRect.top));
+          } else {
+            callback(e.clientY);
+          }
           break;
         }
         case 'bottom': {
-          callback(window.innerHeight - e.clientY);
+          if (parentRect) {
+            callback(Math.max(32, parentRect.bottom - e.clientY));
+          } else {
+            callback(window.innerHeight - e.clientY);
+          }
           break;
         }
         case 'right': {
-          callback(window.innerWidth - e.clientX);
+          if (parentRect) {
+            callback(Math.max(0, parentRect.right - e.clientX));
+          } else {
+            callback(window.innerWidth - e.clientX);
+          }
           break;
         }
         case 'left': {
-          callback(e.clientX);
+          if (parentRect) {
+            callback(Math.max(0, e.clientX - parentRect.left));
+          } else {
+            callback(e.clientX);
+          }
           break;
         }
         default:

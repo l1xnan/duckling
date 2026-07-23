@@ -210,7 +210,7 @@ export function QueryView({
   );
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full min-h-0 min-w-0 flex flex-col overflow-hidden">
       <DataViewToolbar
         dbId={ctx.dbId}
         length={filteredData.length}
@@ -239,53 +239,61 @@ export function QueryView({
           pivotDialog.trigger();
         }}
       />
-      <ResizablePanelGroup orientation={ctx.direction}>
-        <ResizablePanel defaultSize={80}>
-          <Suspense fallback={<Loading />}>
-            {loading ? <Loading /> : null}
-            {!ctx.data?.length && error ? (
-              <div className="font-mono text-sm select-text">{error}</div>
-            ) : null}
-            <CanvasTable
-              style={
-                loading || (!ctx.data?.length && error)
-                  ? { display: 'none' }
-                  : undefined
-              }
-              data={filteredData}
-              schema={ctx.tableSchema ?? []}
-              hiddenColumns={ctx.hiddenColumns}
-              setHiddenColumns={handleHiddenColumns}
-              precision={precision}
-              beautify={ctx.beautify}
-              transpose={ctx.transpose}
-              cross={ctx.cross}
-              onSelectedCell={(arg) => {
-                setSelectCell(arg);
-              }}
-              onSelectedCellInfos={(cells) => {
-                setSelectedCellInfos(cells);
-              }}
-              onCountByColumn={(col) => {
-                if (!col) return;
-                setCountColumn(col.replace(/\s*[↑↓]\s*$/, '').trim());
-                countByDialog.trigger();
-              }}
-              onPivotColumn={(col) => {
-                if (!col) return;
-                setPivotRowField(col.replace(/\s*[↑↓]\s*$/, '').trim());
-                pivotDialog.trigger();
-              }}
-            />
-          </Suspense>
+      <ResizablePanelGroup
+        orientation={ctx.direction}
+        className="min-h-0 min-w-0 flex-1"
+      >
+        <ResizablePanel
+          defaultSize={80}
+          className="min-h-0 min-w-0 overflow-hidden"
+        >
+          <div className="h-full min-h-0 min-w-0 overflow-hidden">
+            <Suspense fallback={<Loading />}>
+              {loading ? <Loading /> : null}
+              {!ctx.data?.length && error ? (
+                <div className="font-mono text-sm select-text">{error}</div>
+              ) : null}
+              <CanvasTable
+                style={
+                  loading || (!ctx.data?.length && error)
+                    ? { display: 'none' }
+                    : undefined
+                }
+                data={filteredData}
+                schema={ctx.tableSchema ?? []}
+                hiddenColumns={ctx.hiddenColumns}
+                setHiddenColumns={handleHiddenColumns}
+                precision={precision}
+                beautify={ctx.beautify}
+                transpose={ctx.transpose}
+                cross={ctx.cross}
+                onSelectedCell={(arg) => {
+                  setSelectCell(arg);
+                }}
+                onSelectedCellInfos={(cells) => {
+                  setSelectedCellInfos(cells);
+                }}
+                onCountByColumn={(col) => {
+                  if (!col) return;
+                  setCountColumn(col.replace(/\s*[↑↓]\s*$/, '').trim());
+                  countByDialog.trigger();
+                }}
+                onPivotColumn={(col) => {
+                  if (!col) return;
+                  setPivotRowField(col.replace(/\s*[↑↓]\s*$/, '').trim());
+                  pivotDialog.trigger();
+                }}
+              />
+            </Suspense>
+          </div>
         </ResizablePanel>
         <ResizableHandle />
         {ctx.showValue ? (
           <ResizablePanel
             defaultSize={20}
-            className="flex flex-row items-start"
+            className="flex min-h-0 min-w-0 flex-row items-start overflow-hidden"
           >
-            <div className="flex size-full">
+            <div className="flex size-full min-h-0 min-w-0 overflow-hidden">
               <ValueViewer
                 selectedCell={selectedCell}
                 selectedCellInfos={selectedCellInfos}

@@ -459,7 +459,12 @@ export function PageTabs({
           );
         }
         return (
-          <TabsContent key={id} value={id} keepMounted className="min-h-0">
+          <TabsContent
+            key={id}
+            value={id}
+            keepMounted
+            className="min-h-0 h-full flex-1 overflow-hidden"
+          >
             <ErrorBoundary
               fallback={
                 <p>
