@@ -4,6 +4,7 @@ import {
   collectTabIds,
   createDefaultLayout,
   createLeaf,
+  dropTabOnPane,
   findLeafByTab,
   isLeaf,
   isSplit,
@@ -119,5 +120,49 @@ describe('tabLayout', () => {
     const leaf = createDefaultLayout(['x', 'y'], 'y');
     expect(leaf.tabIds).toEqual(['x', 'y']);
     expect(leaf.activeId).toBe('y');
+  });
+
+  it('dropTabOnPane center merges into target', () => {
+    const left = createLeaf(['a'], 'a', 'left');
+    const right = createLeaf(['b'], 'b', 'right');
+    const split = {
+      type: 'split' as const,
+      id: 's1',
+      orientation: 'horizontal' as const,
+      sizes: [50, 50] as [number, number],
+      children: [left, right] as [typeof left, typeof right],
+    };
+    const result = dropTabOnPane(split, 'a', 'right', 'center');
+    expect(result).not.toBeNull();
+    expect(isLeaf(result!.layout)).toBe(true);
+    if (!isLeaf(result!.layout)) return;
+    expect(result!.layout.tabIds).toEqual(['b', 'a']);
+  });
+
+  it('dropTabOnPane right splits target with new leaf first or second', () => {
+    const left = createLeaf(['a', 'c'], 'a', 'left');
+    const right = createLeaf(['b'], 'b', 'right');
+    const split = {
+      type: 'split' as const,
+      id: 's1',
+      orientation: 'horizontal' as const,
+      sizes: [50, 50] as [number, number],
+      children: [left, right] as [typeof left, typeof right],
+    };
+    const result = dropTabOnPane(split, 'a', 'right', 'right');
+    expect(result).not.toBeNull();
+    expect(findLeafByTab(result!.layout, 'a')?.id).toBe(result!.focusPaneId);
+    expect(collectTabIds(result!.layout).sort()).toEqual(['a', 'b', 'c']);
+  });
+
+  it('splitLeaf left places new pane first', () => {
+    const leaf = createLeaf(['a', 'b'], 'a');
+    const result = splitLeaf(leaf, leaf.id, 'a', 'left');
+    expect(result).not.toBeNull();
+    if (!isSplit(result!.layout)) return;
+    expect(result!.layout.orientation).toBe('horizontal');
+    expect(isLeaf(result!.layout.children[0])).toBe(true);
+    if (!isLeaf(result!.layout.children[0])) return;
+    expect(result!.layout.children[0].tabIds).toEqual(['a']);
   });
 });

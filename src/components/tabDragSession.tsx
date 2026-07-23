@@ -15,11 +15,15 @@ import {
 } from '@/stores/tabLayout';
 import { useTabsStore, type TabContextType } from '@/stores/tabs';
 
+import type { PaneDropZone } from '@/stores/tabLayout';
+
 export type ResolvedTabDrop = {
   tabId: string;
   toPaneId: string;
   /** Insert-before index; undefined means append. */
   index?: number;
+  /** Body overlay zone — when set, use dropOnPane instead of moveTab. */
+  bodyZone?: PaneDropZone;
 };
 
 type TabDropIndicator = { paneId: string; index: number } | null;
@@ -74,7 +78,13 @@ function draggedTabLeft(source: {
 export function resolveTabDrop(
   source: unknown,
   target: unknown,
-  operation?: { position?: { current?: { x?: number }; x?: number } },
+  operation?: {
+    position?: {
+      current?: { x?: number; y?: number };
+      x?: number;
+      y?: number;
+    };
+  },
 ): ResolvedTabDrop | null {
   if (!source || !target) return null;
 
@@ -117,6 +127,38 @@ export function resolveTabDrop(
 
   if (targetData.type === 'pane-end' || targetData.type === 'pane') {
     return { tabId, toPaneId, index: undefined };
+  }
+
+  if (targetData.type === 'pane-body') {
+    const pos = operation?.position;
+    const x =
+      typeof pos?.current?.x === 'number'
+        ? pos.current.x
+        : typeof pos?.x === 'number'
+          ? pos.x
+          : null;
+    const y =
+      typeof pos?.current?.y === 'number'
+        ? pos.current.y
+        : typeof pos?.y === 'number'
+          ? pos.y
+          : null;
+    let bodyZone: PaneDropZone =
+      (targetData as { zone?: PaneDropZone }).zone ?? 'center';
+    const el = targetAny.element;
+    if (x != null && y != null && el instanceof Element) {
+      const rect = el.getBoundingClientRect();
+      const lx = x - rect.left;
+      const ly = y - rect.top;
+      const edgeX = rect.width * 0.2;
+      const edgeY = rect.height * 0.2;
+      if (lx < edgeX) bodyZone = 'left';
+      else if (lx > rect.width - edgeX) bodyZone = 'right';
+      else if (ly < edgeY) bodyZone = 'up';
+      else if (ly > rect.height - edgeY) bodyZone = 'down';
+      else bodyZone = 'center';
+    }
+    return { tabId, toPaneId, bodyZone };
   }
 
   if (targetData.type === 'tab' && typeof targetAny.index === 'number') {
@@ -195,6 +237,13 @@ export function TabDragSessionProvider({ children }: { children: ReactNode }) {
       }
 
       pendingDrop = drop;
+
+      // Body overlay: no strip draft reorder (zone highlight is enough).
+      if (drop.bodyZone) {
+        setIndicator(null);
+        setDraftOrders(draftsFromLayout(useTabsStore.getState().layout));
+        return;
+      }
 
       const layout = useTabsStore.getState().layout;
       setDraftOrders(

@@ -19,7 +19,10 @@ export type PaneSplit = {
 
 export type PaneNode = PaneLeaf | PaneSplit;
 
-export type SplitDirection = 'right' | 'down';
+export type SplitDirection = 'right' | 'down' | 'left' | 'up';
+
+/** Drop zone on a pane body (VS Code-style). */
+export type PaneDropZone = 'center' | 'left' | 'right' | 'up' | 'down';
 
 export function createLeaf(
   tabIds: string[] = [],
@@ -205,13 +208,26 @@ export function removeTabFromLayout(
   return { layout, removedFrom };
 }
 
+function splitOrientation(
+  direction: SplitDirection,
+): 'horizontal' | 'vertical' {
+  return direction === 'right' || direction === 'left'
+    ? 'horizontal'
+    : 'vertical';
+}
+
+/** Whether the new leaf is the first child (left/up) or second (right/down). */
+function newLeafFirst(direction: SplitDirection): boolean {
+  return direction === 'left' || direction === 'up';
+}
+
 export function splitLeaf(
   node: PaneNode,
   paneId: PaneId,
   tabId: string,
   direction: SplitDirection,
 ): { layout: PaneNode; newPaneId: PaneId } | null {
-  const orientation = direction === 'right' ? 'horizontal' : 'vertical';
+  const orientation = splitOrientation(direction);
   let newPaneId: PaneId | null = null;
 
   const walk = (n: PaneNode): PaneNode => {
@@ -225,15 +241,21 @@ export function splitLeaf(
 
       // Move tab into a new sibling pane; keep empty source leaf (collapsed only on close).
       const remaining = n.tabIds.filter((id) => id !== tabId);
-      const source = ensureActive({ ...n, tabIds: remaining }, n.activeId === tabId ? null : n.activeId);
+      const source = ensureActive(
+        { ...n, tabIds: remaining },
+        n.activeId === tabId ? null : n.activeId,
+      );
       const target = createLeaf([tabId], tabId);
       newPaneId = target.id;
+      const children: [PaneNode, PaneNode] = newLeafFirst(direction)
+        ? [target, source]
+        : [source, target];
       return {
         type: 'split',
         id: nanoid(),
         orientation,
         sizes: [50, 50],
-        children: [source, target],
+        children,
       };
     }
     return {
@@ -247,6 +269,63 @@ export function splitLeaf(
     return null;
   }
   return { layout, newPaneId };
+}
+
+/**
+ * Drop a tab onto a pane body zone: merge into pane, or split that pane
+ * and place the tab in the new sibling (VS Code editor drop).
+ */
+export function dropTabOnPane(
+  node: PaneNode,
+  tabId: string,
+  targetPaneId: PaneId,
+  zone: PaneDropZone,
+): { layout: PaneNode; focusPaneId: PaneId } | null {
+  if (!findLeafByTab(node, tabId)) {
+    return null;
+  }
+
+  if (zone === 'center') {
+    const layout = moveTab(node, tabId, targetPaneId, undefined);
+    const leaf =
+      findLeaf(layout, targetPaneId) ?? findLeafByTab(layout, tabId);
+    if (!leaf) return null;
+    const withActive = updateLeaf(layout, leaf.id, (l) =>
+      addTabToLeaf(l, tabId, true),
+    );
+    return { layout: withActive, focusPaneId: leaf.id };
+  }
+
+  const direction: SplitDirection =
+    zone === 'left'
+      ? 'left'
+      : zone === 'right'
+        ? 'right'
+        : zone === 'up'
+          ? 'up'
+          : 'down';
+
+  // Ensure tab is in the target pane so splitLeaf can move it into a sibling.
+  let layout = node;
+  const from = findLeafByTab(layout, tabId);
+  if (!from) return null;
+  if (from.id !== targetPaneId) {
+    layout = moveTab(layout, tabId, targetPaneId, undefined);
+  }
+
+  const target = findLeaf(layout, targetPaneId);
+  if (!target || !target.tabIds.includes(tabId)) {
+    return null;
+  }
+
+  const result = splitLeaf(layout, target.id, tabId, direction);
+  if (!result) {
+    return {
+      layout: updateLeaf(layout, target.id, (l) => addTabToLeaf(l, tabId, true)),
+      focusPaneId: target.id,
+    };
+  }
+  return { layout: result.layout, focusPaneId: result.newPaneId };
 }
 
 export function moveTab(

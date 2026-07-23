@@ -23,7 +23,6 @@ import {
   useId,
   useMemo,
   useRef,
-  useState,
 } from 'react';
 import { useForm } from 'react-hook-form';
 import { ScrollMenu, VisibilityContext, type publicApiType } from 'react-horizontal-scrolling-menu';
@@ -444,7 +443,7 @@ function TabMenuItem({
     index,
     group: paneId,
     type: 'tab',
-    accept: ['tab', 'pane', 'pane-end'],
+    accept: ['tab', 'pane', 'pane-end', 'pane-body'],
     disabled: !paneId,
     plugins: [],
     data: {

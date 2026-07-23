@@ -27,6 +27,7 @@ import {
   addTabToLeaf,
   collectTabIds,
   createDefaultLayout,
+  dropTabOnPane,
   findLeaf,
   findLeafByTab,
   moveTab as moveTabInLayout,
@@ -37,6 +38,7 @@ import {
   splitLeaf,
   syncLayoutWithIds,
   updateLeaf,
+  type PaneDropZone,
   type PaneId,
   type PaneNode,
   type SplitDirection,
@@ -52,7 +54,14 @@ export {
   useQuerySessionStore,
 } from './querySession';
 export type { EditorSession } from './querySession';
-export type { PaneId, PaneLeaf, PaneNode, PaneSplit, SplitDirection } from './tabLayout';
+export type {
+  PaneDropZone,
+  PaneId,
+  PaneLeaf,
+  PaneNode,
+  PaneSplit,
+  SplitDirection,
+} from './tabLayout';
 
 export type QueryParamType = {
   dbId: string;
@@ -163,6 +172,12 @@ type TabsAction = {
   focusPane: (paneId: PaneId) => void;
   split: (tabId: string, direction: SplitDirection) => void;
   moveTab: (tabId: string, toPaneId: PaneId, index?: number) => void;
+  /** Merge or split-drop a tab onto a pane body zone. */
+  dropOnPane: (
+    tabId: string,
+    targetPaneId: PaneId,
+    zone: PaneDropZone,
+  ) => void;
   setPaneSizes: (splitId: PaneId, sizes: [number, number]) => void;
 };
 
@@ -354,6 +369,22 @@ export const useTabsStore = create<TabsState & TabsAction>()(
                 )
               : layout;
           return withDerivedIds(withActive, focus);
+        }),
+      dropOnPane: (tabId, targetPaneId, zone) =>
+        set((state) => {
+          if (!findLeafByTab(state.layout, tabId)) {
+            return state;
+          }
+          const result = dropTabOnPane(
+            state.layout,
+            tabId,
+            targetPaneId,
+            zone,
+          );
+          if (!result) {
+            return state;
+          }
+          return withDerivedIds(result.layout, result.focusPaneId);
         }),
       setPaneSizes: (splitId, sizes) =>
         set((state) => ({

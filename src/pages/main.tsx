@@ -86,6 +86,11 @@ function applyDrop(drop: ResolvedTabDrop) {
     return;
   }
 
+  if (drop.bodyZone) {
+    state.dropOnPane(drop.tabId, drop.toPaneId, drop.bodyZone);
+    return;
+  }
+
   if (
     from.id === drop.toPaneId &&
     isAlreadyAtDrop(from.tabIds, drop.tabId, drop.index)

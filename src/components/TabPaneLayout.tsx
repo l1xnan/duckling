@@ -1,6 +1,7 @@
 import { useCallback, type ReactNode } from 'react';
 import { useShallow } from 'zustand/shallow';
 
+import { PaneDropOverlay } from '@/components/PaneDropOverlay';
 import {
   ResizableHandle,
   ResizablePanel,
@@ -84,7 +85,7 @@ function LeafPane({
 
   return (
     <div
-      className="size-full min-h-0 min-w-0 flex flex-col overflow-hidden"
+      className="relative size-full min-h-0 min-w-0 flex flex-col overflow-hidden"
       onMouseDownCapture={(e) => {
         if (focused) return;
         if ((e.target as HTMLElement).closest('[data-tab-bar]')) return;
@@ -92,6 +93,7 @@ function LeafPane({
       }}
     >
       {renderPane(leaf, focused)}
+      <PaneDropOverlay paneId={leaf.id} />
     </div>
   );
 }
