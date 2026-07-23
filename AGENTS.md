@@ -46,7 +46,7 @@ After user-visible string changes: **`pnpm i18n:extract`**, fill **zh-CN**, then
 - Use **pnpm** for all frontend dependencies and scripts.
 - Do not introduce `package-lock.json` / `yarn.lock` for the app.
 - Prefer existing deps (`radash`, `es-toolkit`, `nanoid`, `zod`, `sonner`) before adding new ones.
-- UI primitives: extend `@/components/ui/*` and `@/components/custom/*`; do not reintroduce Radix if Base UI already covers the case.
+- UI primitives: **do not edit** `@/components/ui/*` (upstream shadcn/Base UI). App-specific styling and behavior go in `@/components/custom/ui/*` (and `src/styles.css` for global slot overrides). Do not reintroduce Radix if Base UI already covers the case.
 
 ## TypeScript / React conventions
 
