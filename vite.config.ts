@@ -26,6 +26,15 @@ export default defineConfig({
       '@tabler/icons-react': '@tabler/icons-react/dist/esm/icons/index.mjs',
     },
   },
+  // Ensure dnd-kit packages are prebundled (bare specifiers break under bundledDev).
+  optimizeDeps: {
+    include: [
+      '@dnd-kit/react',
+      '@dnd-kit/react/sortable',
+      '@dnd-kit/dom',
+      '@dnd-kit/abstract',
+    ],
+  },
   test: {
     // Vitest configuration options
     globals: true, // Use global APIs like describe, it, expect

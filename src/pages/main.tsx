@@ -1,4 +1,3 @@
-import { PointerActivationConstraints } from '@dnd-kit/dom';
 import { DragDropProvider, PointerSensor } from '@dnd-kit/react';
 import { useCallback, useMemo, type ReactNode } from 'react';
 import { useShallow } from 'zustand/shallow';
@@ -191,16 +190,9 @@ export function Main() {
     [activateTab, focusPane, removeOtherTab, removeTab, tabObj],
   );
 
-  const sensors = useMemo(
-    () => [
-      PointerSensor.configure({
-        activationConstraints: [
-          new PointerActivationConstraints.Distance({ value: 6 }),
-        ],
-      }),
-    ],
-    [],
-  );
+  // Distance activation via sensor defaults (≈5px); avoid @dnd-kit/dom bare imports
+  // under Vite bundledDev which can leak unresolved package specifiers to the browser.
+  const sensors = useMemo(() => [PointerSensor], []);
 
   return (
     <DragDropProvider

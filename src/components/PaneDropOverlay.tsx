@@ -1,4 +1,3 @@
-import { CollisionPriority } from '@dnd-kit/abstract';
 import { useDroppable } from '@dnd-kit/react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -51,7 +50,8 @@ export function PaneDropOverlay({ paneId }: { paneId: string }) {
     type: 'pane-body',
     accept: 'tab',
     // Prefer tab-strip targets when both collide (pointer over tab bar).
-    collisionPriority: CollisionPriority.Low,
+    // Low = 1 (CollisionPriority.Low) — avoid importing @dnd-kit/abstract.
+    collisionPriority: 1,
     data: {
       type: 'pane-body',
       paneId,

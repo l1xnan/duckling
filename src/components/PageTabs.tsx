@@ -1,6 +1,5 @@
 import 'react-horizontal-scrolling-menu/dist/styles.css';
 
-import { CollisionPriority } from '@dnd-kit/abstract';
 import { useDroppable } from '@dnd-kit/react';
 import { useSortable } from '@dnd-kit/react/sortable';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -262,7 +261,8 @@ export function PageTabs({
     disabled: !paneId,
     type: 'pane',
     accept: 'tab',
-    collisionPriority: CollisionPriority.High,
+    // Numeric priorities (avoid bare @dnd-kit/abstract import under bundledDev).
+    collisionPriority: 3,
     data: paneId ? { type: 'pane', paneId } : undefined,
   });
 
@@ -271,7 +271,7 @@ export function PageTabs({
     disabled: !paneId,
     type: 'pane-end',
     accept: 'tab',
-    collisionPriority: CollisionPriority.High,
+    collisionPriority: 3,
     data: paneId ? { type: 'pane-end', paneId } : undefined,
   });
 
@@ -483,7 +483,7 @@ function TabMenuItem({
     accept: ['tab', 'pane', 'pane-end', 'pane-body'],
     disabled: !paneId,
     plugins: [],
-    collisionPriority: CollisionPriority.Highest,
+    collisionPriority: 4,
     data: {
       type: 'tab',
       tabId: tab.id,
