@@ -1,13 +1,19 @@
 import type { QueryHistoryItem } from '@/lib/queryHistory';
-import { TabContextType } from '@/stores/tabs';
+import {
+  useWorkspaceStore,
+  type SqlBookmark,
+} from '@/stores/workspaceStore';
 
 import { createSelectors } from '@/stores/utils';
 import { focusAtom } from 'jotai-optics';
 import { atomWithStore } from 'jotai-zustand';
 import { atomWithStorage } from 'jotai/utils';
+import { atom, type SetStateAction, type WritableAtom } from 'jotai';
 import { debounce } from 'radash';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+
+export type { SqlBookmark };
 
 type AppState = {
   size: number;
@@ -37,29 +43,69 @@ export const appAtom = atomWithStore(useAppStore);
 
 export const sizeAtom = focusAtom(appAtom, (optic) => optic.prop('size'));
 
-export const favoriteAtom = atomWithStorage<TabContextType[]>('favorite', []);
+/** Bridge a workspace store slice to a jotai writable atom (useAtom compatible). */
+function workspaceSliceAtom<T>(
+  getSlice: () => T,
+  setSlice: (next: T | ((prev: T) => T)) => void,
+  subscribe: (listener: () => void) => () => void,
+): WritableAtom<T, [SetStateAction<T>], void> {
+  const base = atom(getSlice());
+  base.onMount = (setAtom) => {
+    setAtom(getSlice());
+    return subscribe(() => {
+      setAtom(getSlice());
+    });
+  };
+  return atom(
+    (get) => get(base),
+    (_get, set, update: SetStateAction<T>) => {
+      const prev = getSlice();
+      const next =
+        typeof update === 'function'
+          ? (update as (p: T) => T)(prev)
+          : update;
+      setSlice(next);
+      set(base, next);
+    },
+  );
+}
+
+const workspaceSubscribe = (listener: () => void) =>
+  useWorkspaceStore.subscribe(listener);
+
+export const favoriteAtom = workspaceSliceAtom(
+  () => useWorkspaceStore.getState().favorite,
+  (next) => useWorkspaceStore.getState().setFavorite(next),
+  workspaceSubscribe,
+);
+
 /** Query run history (newest items typically appended; UI sorts by createdAt). */
-export const runsAtom = atomWithStorage<QueryHistoryItem[]>('runs', []);
-/** SQL editor bodies (scratch id → text, or absolute path → text). Hydrate on init for migration. */
+export const runsAtom = workspaceSliceAtom(
+  () => useWorkspaceStore.getState().runs,
+  (next) => useWorkspaceStore.getState().setRuns(next),
+  workspaceSubscribe,
+);
+
+/** SQL editor bodies (scratch id → text, or absolute path → text). Session cache. */
 export const docsAtom = atomWithStorage<Record<string, string>>(
   'docs',
   {},
   undefined,
   { getOnInit: true },
 );
-/** Local SQL workspace folders shown in the Code sidebar. */
-export const sqlFoldersAtom = atomWithStorage<string[]>('sqlFolders', []);
 
-/** Saved SQL bookmarks (connection + statement + note). */
-export type SqlBookmark = {
-  id: string;
-  dbId: string;
-  stmt: string;
-  title: string;
-  note?: string;
-  createdAt: number;
-};
-export const bookmarksAtom = atomWithStorage<SqlBookmark[]>('sqlBookmarks', []);
+/** Local SQL workspace folders shown in the Code sidebar. */
+export const sqlFoldersAtom = workspaceSliceAtom(
+  () => useWorkspaceStore.getState().sqlFolders,
+  (next) => useWorkspaceStore.getState().setSqlFolders(next),
+  workspaceSubscribe,
+);
+
+export const bookmarksAtom = workspaceSliceAtom(
+  () => useWorkspaceStore.getState().bookmarks,
+  (next) => useWorkspaceStore.getState().setBookmarks(next),
+  workspaceSubscribe,
+);
 
 export const themeAtom = atomWithStorage<ThemeType>(
   'mode',
@@ -71,3 +117,6 @@ export const themeAtom = atomWithStorage<ThemeType>(
 export type ThemeType = 'light' | 'dark' | 'system';
 
 export const isDev = import.meta.env.MODE === 'development';
+
+// Re-export type used by consumers that imported QueryHistoryItem via runs only
+export type { QueryHistoryItem };
