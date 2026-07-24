@@ -90,6 +90,73 @@ SELECT COUNT(*) FROM {{ schema }}.{{ table }}
 2. **缺变量** —— 如果某个占位符尚无值，会弹出对话框填写（每行一个值）。勾选「将变量以 @vars 注释写入 SQL 上方」会把填写的值写回 SQL 顶部的 `@vars` 块，下次运行无需弹窗。
 3. **工具栏 `{}` 按钮** —— 选中 SQL，点击工具栏中的 `{}` 按钮，自动为选中内容中的所有 `{{ name }}` 占位符生成 `@vars` 骨架。直接在编辑器里填写值即可。
 
+### 示例
+
+**单变量 — 跨表批量**
+
+```sql
+/*
+@vars
+table:
+  - customers
+  - orders
+  - products
+*/
+
+SELECT COUNT(*) AS cnt FROM {{ table }}
+```
+
+→ 3 个结果标签页，分别统计 `customers`、`orders`、`products` 的行数。
+
+**多变量 — 笛卡尔积**
+
+```sql
+/*
+@vars
+schema: public
+region:
+  - us
+  - eu
+*/
+
+SELECT region, COUNT(*) AS cnt
+FROM {{ schema }}.{{ table_prefix }}_{{ region }}
+GROUP BY region
+```
+
+`table_prefix` 在对话框中填为 `sales`，展开为 2 条 SQL（`public.sales_us`、`public.sales_eu`），各生成一个结果标签页。
+
+**WHERE 条件中的日期范围**
+
+```sql
+/*
+@vars
+table: events
+start_date: '2024-01-01'
+end_date: '2024-12-31'
+*/
+
+SELECT date, COUNT(*)
+FROM {{ table }}
+WHERE dt BETWEEN {{ start_date }} AND {{ end_date }}
+GROUP BY date
+```
+
+**聚合查询中的列名**
+
+```sql
+/*
+@vars
+measure: revenue
+segment: country
+*/
+
+SELECT {{ segment }}, SUM({{ measure }}) AS total
+FROM sales
+GROUP BY {{ segment }}
+ORDER BY total DESC
+```
+
 ### 语法
 
 | 结构 | 含义 |

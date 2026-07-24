@@ -90,6 +90,73 @@ SELECT COUNT(*) FROM {{ schema }}.{{ table }}
 2. **Missing variables** — If a placeholder has no value yet, a dialog pops up to fill in one value per line. Check "Save values as @vars comment above SQL" to write the filled values back as a `@vars` block — next run needs no dialog.
 3. **Toolbar `{}` button** — Select SQL, click `{}` in the toolbar to auto-generate an `@vars` scaffold for all `{{ name }}` placeholders found in the selection. Fill in values directly in the editor.
 
+### Examples
+
+**Single variable — batch across tables**
+
+```sql
+/*
+@vars
+table:
+  - customers
+  - orders
+  - products
+*/
+
+SELECT COUNT(*) AS cnt FROM {{ table }}
+```
+
+→ 3 result tabs: count of `customers`, `orders`, `products`.
+
+**Multiple variables — cartesian product**
+
+```sql
+/*
+@vars
+schema: public
+region:
+  - us
+  - eu
+*/
+
+SELECT region, COUNT(*) AS cnt
+FROM {{ schema }}.{{ table_prefix }}_{{ region }}
+GROUP BY region
+```
+
+With `table_prefix` set to `sales` in the dialog, this expands to 2 SQLs (`public.sales_us`, `public.sales_eu`), each producing one result tab.
+
+**Date range in WHERE**
+
+```sql
+/*
+@vars
+table: events
+start_date: '2024-01-01'
+end_date: '2024-12-31'
+*/
+
+SELECT date, COUNT(*)
+FROM {{ table }}
+WHERE dt BETWEEN {{ start_date }} AND {{ end_date }}
+GROUP BY date
+```
+
+**Column names in aggregation**
+
+```sql
+/*
+@vars
+measure: revenue
+segment: country
+*/
+
+SELECT {{ segment }}, SUM({{ measure }}) AS total
+FROM sales
+GROUP BY {{ segment }}
+ORDER BY total DESC
+```
+
 ### Syntax
 
 | Construct | Meaning |
