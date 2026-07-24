@@ -43,6 +43,8 @@ aes-gcm = "0.10"
 argon2 = "0.5"
 base64 = "0.22"
 rand = "0.8"
+minijinja = { version = "2", default-features = false, features = ["builtins", "serde", "debug", "std_collections", "deserialization"] }
+serde_yaml = "0.9"
 
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
 tauri-plugin-updater = "^2.10.0"

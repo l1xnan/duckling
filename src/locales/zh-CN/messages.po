@@ -161,11 +161,11 @@ msgstr "运算符之前"
 msgid "Bookmark"
 msgstr "书签"
 
-#: src/pages/editor/EditorToolbar.tsx:123
+#: src/pages/editor/EditorToolbar.tsx:135
 msgid "Bookmark SQL"
 msgstr "收藏 SQL"
 
-#: src/pages/editor/index.tsx:206
+#: src/pages/editor/index.tsx:273
 msgid "Bookmarked"
 msgstr "已收藏"
 
@@ -196,6 +196,7 @@ msgstr "通过 Tauri 调用外部 <0>sqlfmt</0> 可执行文件。"
 
 #: src/components/PageTabs.tsx:710
 #: src/components/views/ExportDialog.tsx:423
+#: src/components/views/MacroRunDialog.tsx:186
 #: src/pages/settings/AppSetting.tsx:541
 #: src/pages/settings/AppSetting.tsx:1339
 #: src/pages/settings/AppSetting.tsx:1639
@@ -646,8 +647,11 @@ msgstr "耗时：{0}"
 msgid "elapsed: {elapsed}ms"
 msgstr "耗时：{elapsed}ms"
 
-#: src/pages/editor/index.tsx:193
-#: src/pages/editor/index.tsx:212
+#: src/pages/editor/index.tsx:260
+#: src/pages/editor/index.tsx:280
+#: src/pages/editor/index.tsx:342
+#: src/pages/editor/index.tsx:482
+#: src/pages/editor/index.tsx:537
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:48
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:67
 msgid "Empty SQL"
@@ -665,7 +669,7 @@ msgstr "转义符"
 msgid "Expand All"
 msgstr "全部展开"
 
-#: src/pages/editor/EditorToolbar.tsx:114
+#: src/pages/editor/EditorToolbar.tsx:117
 msgid "EXPLAIN"
 msgstr "EXPLAIN"
 
@@ -808,7 +812,7 @@ msgid "Format document"
 msgstr "格式化文档"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.format'))
-#: src/pages/editor/EditorToolbar.tsx:98
+#: src/pages/editor/EditorToolbar.tsx:101
 msgid "Format document ({0})"
 msgstr "格式化文档（{0}）"
 
@@ -816,18 +820,22 @@ msgstr "格式化文档（{0}）"
 msgid "Format selection"
 msgstr "格式化选区"
 
-#: src/components/editor/MonacoEditor.tsx:136
+#: src/components/editor/MonacoEditor.tsx:181
 msgid "Format Selection"
 msgstr "格式化选区"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.formatSelection'))
-#: src/pages/editor/EditorToolbar.tsx:105
+#: src/pages/editor/EditorToolbar.tsx:108
 msgid "Format selection ({0})"
 msgstr "格式化选区（{0}）"
 
-#: src/components/editor/MonacoEditor.tsx:125
+#: src/components/editor/MonacoEditor.tsx:170
 msgid "Format SQL"
 msgstr "格式化 SQL"
+
+#: src/components/views/MacroRunDialog.tsx:129
+msgid "From @vars comment"
+msgstr "来自 @vars 注释"
 
 #: src/pages/settings/SshProfilesForm.tsx:263
 msgid "From ~/.ssh/config"
@@ -962,6 +970,14 @@ msgstr "使用制表符而非空格缩进"
 msgid "Input"
 msgstr "输入框"
 
+#: src/pages/editor/EditorToolbar.tsx:126
+msgid "Insert @vars template"
+msgstr "生成 @vars 变量模板"
+
+#: src/pages/editor/index.tsx:366
+msgid "Inserted @vars template"
+msgstr "已插入 @vars 模板"
+
 #: src/pages/settings/AppSetting.tsx:1228
 msgid "Install with <0>uv tool install shandy-sqlfmt</0> or set the full path to the <1>sqlfmt</1> binary."
 msgstr "可用 <0>uv tool install shandy-sqlfmt</0> 安装，或设置 <1>sqlfmt</1> 可执行文件的完整路径。"
@@ -1019,7 +1035,7 @@ msgstr "留空则保留现有密码"
 msgid "Light"
 msgstr "浅色"
 
-#: src/pages/editor/EditorToolbar.tsx:91
+#: src/pages/editor/EditorToolbar.tsx:94
 msgid "limit 500"
 msgstr "限制 500 行"
 
@@ -1222,6 +1238,10 @@ msgstr "暂无 SSH 配置文件。"
 msgid "No tabs in this pane"
 msgstr "此窗格中没有标签页"
 
+#: src/pages/editor/index.tsx:348
+msgid "No template variables found"
+msgstr "未发现模板变量"
+
 #: src/components/views/PivotDialog.tsx:697
 msgid "None"
 msgstr "无"
@@ -1230,7 +1250,7 @@ msgstr "无"
 msgid "Not available"
 msgstr "不可用"
 
-#: src/pages/editor/EditorToolbar.tsx:91
+#: src/pages/editor/EditorToolbar.tsx:94
 msgid "not limit"
 msgstr "不限制"
 
@@ -1266,6 +1286,14 @@ msgstr "官方源使用 GitHub Releases。国内镜像经 gh-proxy.com 转发，
 #: src/pages/sidebar/dialog/SearchDialog.tsx:71
 msgid "Ok"
 msgstr "确定"
+
+#: src/components/views/MacroRunDialog.tsx:159
+msgid "One value per line"
+msgstr "每行一个值"
+
+#: src/components/views/MacroRunDialog.tsx:120
+msgid "One value per line. Multiple lines run the query once per value (cartesian product when several variables have multiple values)."
+msgstr "每行一个值。多行会对每个值各执行一次（多个变量均为多值时做笛卡尔积）。"
 
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:1035
 msgid "Only selected databases will be shown in the sidebar"
@@ -1538,11 +1566,13 @@ msgstr "重置当前模式"
 msgid "Reset to default"
 msgstr "恢复默认"
 
-#. placeholder {0}: childCount + 1
-#: src/pages/editor/index.tsx:240
-#: src/pages/editor/index.tsx:251
-msgid "Result{0}"
-msgstr "结果{0}"
+#: src/pages/editor/index.tsx:408
+msgid "Result · {label}"
+msgstr "结果 · {label}"
+
+#: src/pages/editor/index.tsx:409
+msgid "Result{baseCount}"
+msgstr "结果{baseCount}"
 
 #: src/pages/settings/ColorThemePanel.tsx:84
 msgid "Ring"
@@ -1556,18 +1586,19 @@ msgstr "河式对齐风格；方言跟随当前连接。"
 msgid "Rows"
 msgstr "行维"
 
-#: src/components/editor/MonacoEditor.tsx:115
+#: src/components/editor/MonacoEditor.tsx:160
+#: src/components/views/MacroRunDialog.tsx:189
 #: src/components/views/PivotDialog.tsx:580
 msgid "Run"
 msgstr "运行"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.run'))
-#: src/pages/editor/EditorToolbar.tsx:74
+#: src/pages/editor/EditorToolbar.tsx:77
 msgid "Run ({0})"
 msgstr "运行（{0}）"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.runNewTab'))
-#: src/pages/editor/EditorToolbar.tsx:81
+#: src/pages/editor/EditorToolbar.tsx:84
 msgid "Run in new tab ({0})"
 msgstr "在新标签页运行（{0}）"
 
@@ -1579,6 +1610,10 @@ msgstr "运行 SQL"
 msgid "Run SQL in new tab"
 msgstr "在新标签页运行 SQL"
 
+#: src/components/views/MacroRunDialog.tsx:115
+msgid "Run with variables"
+msgstr "使用变量运行"
+
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:236
 msgid "Sample 100 rows"
 msgstr "采样 100 行"
@@ -1588,7 +1623,7 @@ msgid "Save"
 msgstr "保存"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.save'))
-#: src/pages/editor/EditorToolbar.tsx:134
+#: src/pages/editor/EditorToolbar.tsx:146
 msgid "Save ({0})"
 msgstr "保存（{0}）"
 
@@ -1600,8 +1635,12 @@ msgstr "先保存跳板机，添加 MySQL 或 Postgres 连接时可复用。"
 msgid "Save SQL file"
 msgstr "保存 SQL 文件"
 
-#: src/pages/editor/EditorToolbar.tsx:135
-#: src/pages/editor/index.tsx:157
+#: src/components/views/MacroRunDialog.tsx:171
+msgid "Save values as @vars comment above SQL"
+msgstr "将变量以 @vars 注释写入 SQL 上方"
+
+#: src/pages/editor/EditorToolbar.tsx:147
+#: src/pages/editor/index.tsx:189
 msgid "Saved"
 msgstr "已保存"
 
@@ -1709,7 +1748,7 @@ msgstr "选择 SQL 格式化器"
 msgid "Selection"
 msgstr "选中色"
 
-#: src/pages/editor/EditorToolbar.tsx:167
+#: src/pages/editor/EditorToolbar.tsx:179
 msgid "Session"
 msgstr "会话"
 
@@ -2031,6 +2070,11 @@ msgstr "此快捷键由编辑器或表格内置，无法修改。"
 msgid "This will permanently delete temporary SQL \"{pendingDisplayName}\". This action cannot be undone."
 msgstr "将永久删除临时 SQL “{pendingDisplayName}”。此操作无法撤销。"
 
+#. placeholder {0}: statements.length
+#: src/pages/editor/index.tsx:549
+msgid "This will run {0} queries. Continue?"
+msgstr "将执行 {0} 条查询，是否继续？"
+
 #: src/hotkeys/registry.ts:47
 msgid "Toggle sidebar"
 msgstr "切换侧边栏"
@@ -2044,6 +2088,11 @@ msgstr "切换侧边栏"
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:480
 msgid "Token"
 msgstr "令牌"
+
+#. placeholder {0}: statements.length
+#: src/pages/editor/index.tsx:543
+msgid "Too many combinations ({0}); limit is {limit}"
+msgstr "组合过多（{0}）；上限为 {limit}"
 
 #: src/components/views/ColumnProfileDialog.tsx:303
 msgid "Top values"
@@ -2086,7 +2135,7 @@ msgstr "取消勾选则导出 NDJSON（每行一个对象）。"
 msgid "Uncompressed"
 msgstr "不压缩"
 
-#: src/pages/editor/EditorToolbar.tsx:163
+#: src/pages/editor/EditorToolbar.tsx:175
 msgid "unknown"
 msgstr "未知"
 
@@ -2112,6 +2161,10 @@ msgstr "更新失败：{message}"
 #: src/pages/settings/AppSetting.tsx:1519
 msgid "Update source"
 msgstr "更新源"
+
+#: src/pages/editor/index.tsx:365
+msgid "Updated @vars template"
+msgstr "已更新 @vars 模板"
 
 #: src/stores/setting.ts:350
 msgid "Upper"
@@ -2158,6 +2211,14 @@ msgstr "值"
 #: src/components/views/DataViewToolbar.tsx:236
 msgid "Value Viewer"
 msgstr "值查看器"
+
+#: src/components/views/MacroRunDialog.tsx:94
+msgid "Variable \"{name}\" requires at least one value"
+msgstr "变量 \"{name}\" 至少需要一个值"
+
+#: src/components/views/MacroRunDialog.tsx:180
+msgid "Will run {comboHint} time(s)"
+msgstr "将执行 {comboHint} 次"
 
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:565
 msgid "Work Path"

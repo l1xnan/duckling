@@ -159,6 +159,8 @@ fn main() {
       cmd::app::format_sql,
       cmd::app::check_sqlfmt,
       cmd::app::format_sql_sqlfmt,
+      cmd::sql_template::analyze_sql_template,
+      cmd::sql_template::expand_sql_template,
       cmd::app::opened_files,
       cmd::app::list_sql_dir,
       cmd::app::read_text_file,

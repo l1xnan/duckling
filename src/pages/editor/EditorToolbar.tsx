@@ -11,6 +11,7 @@ import { Stack, ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
 import {
   AlignLeftIcon,
   BookmarkPlusIcon,
+  BracesIcon,
   ListPlusIcon,
   PlayIcon,
   SaveIcon,
@@ -46,6 +47,7 @@ export function EditorToolbar({
   canFormatSelection = false,
   onBookmark,
   onExplain,
+  onInsertVarsTemplate,
   onSave,
   canSave = false,
   dirty = false,
@@ -59,6 +61,7 @@ export function EditorToolbar({
   canFormatSelection?: boolean;
   onBookmark?: () => void;
   onExplain?: (analyze?: boolean) => void;
+  onInsertVarsTemplate?: () => void;
   onSave?: () => void;
   canSave?: boolean;
   dirty?: boolean;
@@ -116,6 +119,15 @@ export function EditorToolbar({
               onClick={() => onExplain(false)}
             >
               <span className="text-[10px] font-mono font-semibold px-0.5">EX</span>
+            </TooltipButton>
+          ) : null}
+          {onInsertVarsTemplate ? (
+            <TooltipButton
+              tooltip={t`Insert @vars template`}
+              tooltipProps={tooltipProps}
+              onClick={() => onInsertVarsTemplate()}
+            >
+              <BracesIcon fontSize="inherit" />
             </TooltipButton>
           ) : null}
           {onBookmark ? (

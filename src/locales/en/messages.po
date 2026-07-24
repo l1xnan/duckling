@@ -161,11 +161,11 @@ msgstr "Before operator"
 msgid "Bookmark"
 msgstr "Bookmark"
 
-#: src/pages/editor/EditorToolbar.tsx:123
+#: src/pages/editor/EditorToolbar.tsx:135
 msgid "Bookmark SQL"
 msgstr "Bookmark SQL"
 
-#: src/pages/editor/index.tsx:206
+#: src/pages/editor/index.tsx:273
 msgid "Bookmarked"
 msgstr "Bookmarked"
 
@@ -196,6 +196,7 @@ msgstr "Calls the external <0>sqlfmt</0> binary via Tauri."
 
 #: src/components/PageTabs.tsx:710
 #: src/components/views/ExportDialog.tsx:423
+#: src/components/views/MacroRunDialog.tsx:186
 #: src/pages/settings/AppSetting.tsx:541
 #: src/pages/settings/AppSetting.tsx:1339
 #: src/pages/settings/AppSetting.tsx:1639
@@ -646,8 +647,11 @@ msgstr "elapsed time: {0}"
 msgid "elapsed: {elapsed}ms"
 msgstr "elapsed: {elapsed}ms"
 
-#: src/pages/editor/index.tsx:193
-#: src/pages/editor/index.tsx:212
+#: src/pages/editor/index.tsx:260
+#: src/pages/editor/index.tsx:280
+#: src/pages/editor/index.tsx:342
+#: src/pages/editor/index.tsx:482
+#: src/pages/editor/index.tsx:537
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:48
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:67
 msgid "Empty SQL"
@@ -665,7 +669,7 @@ msgstr "Escape"
 msgid "Expand All"
 msgstr "Expand All"
 
-#: src/pages/editor/EditorToolbar.tsx:114
+#: src/pages/editor/EditorToolbar.tsx:117
 msgid "EXPLAIN"
 msgstr "EXPLAIN"
 
@@ -808,7 +812,7 @@ msgid "Format document"
 msgstr "Format document"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.format'))
-#: src/pages/editor/EditorToolbar.tsx:98
+#: src/pages/editor/EditorToolbar.tsx:101
 msgid "Format document ({0})"
 msgstr "Format document ({0})"
 
@@ -816,18 +820,22 @@ msgstr "Format document ({0})"
 msgid "Format selection"
 msgstr "Format selection"
 
-#: src/components/editor/MonacoEditor.tsx:136
+#: src/components/editor/MonacoEditor.tsx:181
 msgid "Format Selection"
 msgstr "Format Selection"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.formatSelection'))
-#: src/pages/editor/EditorToolbar.tsx:105
+#: src/pages/editor/EditorToolbar.tsx:108
 msgid "Format selection ({0})"
 msgstr "Format selection ({0})"
 
-#: src/components/editor/MonacoEditor.tsx:125
+#: src/components/editor/MonacoEditor.tsx:170
 msgid "Format SQL"
 msgstr "Format SQL"
+
+#: src/components/views/MacroRunDialog.tsx:129
+msgid "From @vars comment"
+msgstr "From @vars comment"
 
 #: src/pages/settings/SshProfilesForm.tsx:263
 msgid "From ~/.ssh/config"
@@ -962,6 +970,14 @@ msgstr "Indent with tabs instead of spaces"
 msgid "Input"
 msgstr "Input"
 
+#: src/pages/editor/EditorToolbar.tsx:126
+msgid "Insert @vars template"
+msgstr "Insert @vars template"
+
+#: src/pages/editor/index.tsx:366
+msgid "Inserted @vars template"
+msgstr "Inserted @vars template"
+
 #: src/pages/settings/AppSetting.tsx:1228
 msgid "Install with <0>uv tool install shandy-sqlfmt</0> or set the full path to the <1>sqlfmt</1> binary."
 msgstr "Install with <0>uv tool install shandy-sqlfmt</0> or set the full path to the <1>sqlfmt</1> binary."
@@ -1019,7 +1035,7 @@ msgstr "Leave empty to keep current"
 msgid "Light"
 msgstr "Light"
 
-#: src/pages/editor/EditorToolbar.tsx:91
+#: src/pages/editor/EditorToolbar.tsx:94
 msgid "limit 500"
 msgstr "limit 500"
 
@@ -1222,6 +1238,10 @@ msgstr "No SSH profiles yet."
 msgid "No tabs in this pane"
 msgstr "No tabs in this pane"
 
+#: src/pages/editor/index.tsx:348
+msgid "No template variables found"
+msgstr "No template variables found"
+
 #: src/components/views/PivotDialog.tsx:697
 msgid "None"
 msgstr "None"
@@ -1230,7 +1250,7 @@ msgstr "None"
 msgid "Not available"
 msgstr "Not available"
 
-#: src/pages/editor/EditorToolbar.tsx:91
+#: src/pages/editor/EditorToolbar.tsx:94
 msgid "not limit"
 msgstr "not limit"
 
@@ -1266,6 +1286,14 @@ msgstr "Official uses GitHub Releases. China Mirror goes through gh-proxy.com fo
 #: src/pages/sidebar/dialog/SearchDialog.tsx:71
 msgid "Ok"
 msgstr "Ok"
+
+#: src/components/views/MacroRunDialog.tsx:159
+msgid "One value per line"
+msgstr "One value per line"
+
+#: src/components/views/MacroRunDialog.tsx:120
+msgid "One value per line. Multiple lines run the query once per value (cartesian product when several variables have multiple values)."
+msgstr "One value per line. Multiple lines run the query once per value (cartesian product when several variables have multiple values)."
 
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:1035
 msgid "Only selected databases will be shown in the sidebar"
@@ -1538,11 +1566,13 @@ msgstr "Reset this mode"
 msgid "Reset to default"
 msgstr "Reset to default"
 
-#. placeholder {0}: childCount + 1
-#: src/pages/editor/index.tsx:240
-#: src/pages/editor/index.tsx:251
-msgid "Result{0}"
-msgstr "Result{0}"
+#: src/pages/editor/index.tsx:408
+msgid "Result · {label}"
+msgstr "Result · {label}"
+
+#: src/pages/editor/index.tsx:409
+msgid "Result{baseCount}"
+msgstr "Result{baseCount}"
 
 #: src/pages/settings/ColorThemePanel.tsx:84
 msgid "Ring"
@@ -1556,18 +1586,19 @@ msgstr "River-alignment style; dialect follows the active connection."
 msgid "Rows"
 msgstr "Rows"
 
-#: src/components/editor/MonacoEditor.tsx:115
+#: src/components/editor/MonacoEditor.tsx:160
+#: src/components/views/MacroRunDialog.tsx:189
 #: src/components/views/PivotDialog.tsx:580
 msgid "Run"
 msgstr "Run"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.run'))
-#: src/pages/editor/EditorToolbar.tsx:74
+#: src/pages/editor/EditorToolbar.tsx:77
 msgid "Run ({0})"
 msgstr "Run ({0})"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.runNewTab'))
-#: src/pages/editor/EditorToolbar.tsx:81
+#: src/pages/editor/EditorToolbar.tsx:84
 msgid "Run in new tab ({0})"
 msgstr "Run in new tab ({0})"
 
@@ -1579,6 +1610,10 @@ msgstr "Run SQL"
 msgid "Run SQL in new tab"
 msgstr "Run SQL in new tab"
 
+#: src/components/views/MacroRunDialog.tsx:115
+msgid "Run with variables"
+msgstr "Run with variables"
+
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:236
 msgid "Sample 100 rows"
 msgstr "Sample 100 rows"
@@ -1588,7 +1623,7 @@ msgid "Save"
 msgstr "Save"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.save'))
-#: src/pages/editor/EditorToolbar.tsx:134
+#: src/pages/editor/EditorToolbar.tsx:146
 msgid "Save ({0})"
 msgstr "Save ({0})"
 
@@ -1600,8 +1635,12 @@ msgstr "Save bastion hosts once, then reuse them when adding MySQL or Postgres c
 msgid "Save SQL file"
 msgstr "Save SQL file"
 
-#: src/pages/editor/EditorToolbar.tsx:135
-#: src/pages/editor/index.tsx:157
+#: src/components/views/MacroRunDialog.tsx:171
+msgid "Save values as @vars comment above SQL"
+msgstr "Save values as @vars comment above SQL"
+
+#: src/pages/editor/EditorToolbar.tsx:147
+#: src/pages/editor/index.tsx:189
 msgid "Saved"
 msgstr "Saved"
 
@@ -1709,7 +1748,7 @@ msgstr "Select SQL formatter"
 msgid "Selection"
 msgstr "Selection"
 
-#: src/pages/editor/EditorToolbar.tsx:167
+#: src/pages/editor/EditorToolbar.tsx:179
 msgid "Session"
 msgstr "Session"
 
@@ -2031,6 +2070,11 @@ msgstr "This shortcut is built into the editor or table and cannot be changed."
 msgid "This will permanently delete temporary SQL \"{pendingDisplayName}\". This action cannot be undone."
 msgstr "This will permanently delete temporary SQL \"{pendingDisplayName}\". This action cannot be undone."
 
+#. placeholder {0}: statements.length
+#: src/pages/editor/index.tsx:549
+msgid "This will run {0} queries. Continue?"
+msgstr "This will run {0} queries. Continue?"
+
 #: src/hotkeys/registry.ts:47
 msgid "Toggle sidebar"
 msgstr "Toggle sidebar"
@@ -2044,6 +2088,11 @@ msgstr "Toggle Sidebar"
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:480
 msgid "Token"
 msgstr "Token"
+
+#. placeholder {0}: statements.length
+#: src/pages/editor/index.tsx:543
+msgid "Too many combinations ({0}); limit is {limit}"
+msgstr "Too many combinations ({0}); limit is {limit}"
 
 #: src/components/views/ColumnProfileDialog.tsx:303
 msgid "Top values"
@@ -2086,7 +2135,7 @@ msgstr "Uncheck to export NDJSON (one object per line)."
 msgid "Uncompressed"
 msgstr "Uncompressed"
 
-#: src/pages/editor/EditorToolbar.tsx:163
+#: src/pages/editor/EditorToolbar.tsx:175
 msgid "unknown"
 msgstr "unknown"
 
@@ -2112,6 +2161,10 @@ msgstr "Update failed: {message}"
 #: src/pages/settings/AppSetting.tsx:1519
 msgid "Update source"
 msgstr "Update source"
+
+#: src/pages/editor/index.tsx:365
+msgid "Updated @vars template"
+msgstr "Updated @vars template"
 
 #: src/stores/setting.ts:350
 msgid "Upper"
@@ -2158,6 +2211,14 @@ msgstr "Value"
 #: src/components/views/DataViewToolbar.tsx:236
 msgid "Value Viewer"
 msgstr "Value Viewer"
+
+#: src/components/views/MacroRunDialog.tsx:94
+msgid "Variable \"{name}\" requires at least one value"
+msgstr "Variable \"{name}\" requires at least one value"
+
+#: src/components/views/MacroRunDialog.tsx:180
+msgid "Will run {comboHint} time(s)"
+msgstr "Will run {comboHint} time(s)"
 
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:565
 msgid "Work Path"

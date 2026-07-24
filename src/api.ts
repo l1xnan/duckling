@@ -229,6 +229,41 @@ export async function cancelQuery(requestId: string): Promise<boolean> {
   return invoke<boolean>('cancel_query', { requestId });
 }
 
+export type AnalyzeSqlTemplateResult = {
+  hasTemplate: boolean;
+  placeholders: string[];
+  provided: Record<string, string[]>;
+  missing: string[];
+  templateBody: string;
+};
+
+export type ExpandedStatement = {
+  sql: string;
+  binding: Record<string, string>;
+};
+
+export type ExpandSqlTemplateResult = {
+  statements: ExpandedStatement[];
+};
+
+/** Parse leading block-comment @vars YAML and Jinja {{ name }} placeholders. */
+export async function analyzeSqlTemplate(
+  sql: string,
+): Promise<AnalyzeSqlTemplateResult> {
+  return invoke<AnalyzeSqlTemplateResult>('analyze_sql_template', { sql });
+}
+
+/** Expand SQL template with comment vars + optional overrides (cartesian product). */
+export async function expandSqlTemplate(
+  sql: string,
+  overrides?: Record<string, string[]>,
+): Promise<ExpandSqlTemplateResult> {
+  return invoke<ExpandSqlTemplateResult>('expand_sql_template', {
+    sql,
+    overrides: overrides ?? null,
+  });
+}
+
 export type CapabilitiesResponse = {
   dialect: string;
   capabilities: string[];
