@@ -1,5 +1,6 @@
 import { msg } from '@lingui/core/macro';
 import { BeforeMount, Editor, EditorProps, OnMount } from '@monaco-editor/react';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 import {
   ForwardedRef,
@@ -14,6 +15,7 @@ import { i18n } from '@/i18n';
 import { cursorStateFromMonaco } from '@/lib/editorCursorFormat';
 import { DialectType } from '@/stores/dbList';
 import { useEditorCursorStore } from '@/stores/editorCursor';
+import { useEditorSqlErrorStore } from '@/stores/editorSqlError';
 import {
   useCodeEditorMinimap,
   useCodeFontFamily,
@@ -56,8 +58,51 @@ const MonacoEditor = forwardRef<
     }
     return () => {
       useEditorCursorStore.getState().clear(editorId);
+      useEditorSqlErrorStore.getState().clear(editorId);
     };
   }, [editorId]);
+
+  // Apply / clear SQL run-error markers from backend sqlparser location.
+  useEffect(() => {
+    if (!editorId) {
+      return;
+    }
+    const apply = (err: ReturnType<typeof useEditorSqlErrorStore.getState>['byEditor'][string] | undefined) => {
+      const editor = editorRef.current;
+      const model = editor?.getModel();
+      if (!editor || !model) {
+        return;
+      }
+      const owner = 'sql-run-error';
+      if (!err) {
+        monaco.editor.setModelMarkers(model, owner, []);
+        return;
+      }
+      const line = Math.min(err.line, model.getLineCount());
+      const maxCol = model.getLineMaxColumn(line);
+      const col = Math.min(Math.max(1, err.column), maxCol);
+      monaco.editor.setModelMarkers(model, owner, [
+        {
+          severity: monaco.MarkerSeverity.Error,
+          message: err.message,
+          startLineNumber: line,
+          startColumn: col,
+          endLineNumber: line,
+          endColumn: maxCol,
+        },
+      ]);
+      editor.revealLineInCenter(line);
+      editor.setPosition({ lineNumber: line, column: col });
+    };
+
+    apply(useEditorSqlErrorStore.getState().byEditor[editorId]);
+    return useEditorSqlErrorStore.subscribe((s, prev) => {
+      if (s.byEditor[editorId] === prev.byEditor[editorId]) {
+        return;
+      }
+      apply(s.byEditor[editorId]);
+    });
+  }, [editorId, editorRef]);
 
   const handleBeforeMount: BeforeMount = (_monaco) => {};
 

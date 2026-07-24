@@ -23,6 +23,12 @@ export type TitleType = {
   type: string;
 };
 
+export type SqlParseLocation = {
+  line: number;
+  column: number;
+  message?: string;
+};
+
 export type ResultType<T = unknown> = {
   total: number;
   data: T[];
@@ -31,6 +37,8 @@ export type ResultType<T = unknown> = {
   elapsed?: number;
   sql?: string;
   message: string;
+  /** sqlparser location relative to executed SQL (when parse fails on error). */
+  parseLocation?: SqlParseLocation;
 };
 
 function bigIntReplacer(_key: string, value: any) {
@@ -98,8 +106,19 @@ export function convertRows(
 }
 
 function convert(res: ArrowResponse): ResultType {
-  const { data, titles, sql, total, code, message, elapsed, format, columns, rows } =
-    res;
+  const {
+    data,
+    titles,
+    sql,
+    total,
+    code,
+    message,
+    elapsed,
+    format,
+    columns,
+    rows,
+    parseLocation,
+  } = res;
 
   // Prefer explicit rows format, or rows payload when IPC bytes are absent.
   const useRows =
@@ -115,6 +134,7 @@ function convert(res: ArrowResponse): ResultType {
         message,
         sql,
         elapsed,
+        parseLocation,
       };
     }
     const converted = convertRows(rows, columns, titles);
@@ -125,6 +145,7 @@ function convert(res: ArrowResponse): ResultType {
       sql,
       elapsed,
       message,
+      parseLocation,
     };
   }
 
@@ -144,6 +165,7 @@ function convert(res: ArrowResponse): ResultType {
         sql,
         elapsed,
         message,
+        parseLocation,
       };
     }
     return {
@@ -153,6 +175,7 @@ function convert(res: ArrowResponse): ResultType {
       sql,
       elapsed,
       message,
+      parseLocation,
     };
   }
 
@@ -165,6 +188,7 @@ function convert(res: ArrowResponse): ResultType {
     message,
     sql,
     elapsed,
+    parseLocation,
   };
 }
 

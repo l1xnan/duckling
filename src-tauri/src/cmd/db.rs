@@ -239,7 +239,13 @@ pub async fn query(
   #[allow(non_snake_case)]
   requestId: Option<String>,
 ) -> Result<ArrowResponse, String> {
-  let d = resolve_connection(&registry, &sessions, dialect).await?;
+  let resolved = connection_registry::resolve_payload(&registry, dialect)?;
+  let dname = if resolved.dialect.is_empty() {
+    "generic".to_string()
+  } else {
+    resolved.dialect.clone()
+  };
+  let d = resolve_connection(&registry, &sessions, resolved).await?;
   let start = Instant::now();
   let res = if let Some(ref rid) = requestId.filter(|s| !s.trim().is_empty()) {
     let (_guard, token) = InflightGuard::register(&inflight, rid)?;
@@ -249,10 +255,11 @@ pub async fn query(
     d.query(&sql, limit, offset).await
   };
   let duration = start.elapsed().as_millis();
-  Ok(ArrowResponse::from_raw_data(
+  Ok(ArrowResponse::from_raw_data_with_dialect(
     res,
     Some(duration),
     Some(sql),
+    Some(dname.as_str()),
   ))
 }
 
@@ -268,7 +275,13 @@ pub async fn paging_query(
   #[allow(non_snake_case)]
   requestId: Option<String>,
 ) -> Result<ArrowResponse, String> {
-  let d = resolve_connection(&registry, &sessions, dialect).await?;
+  let resolved = connection_registry::resolve_payload(&registry, dialect)?;
+  let dname = if resolved.dialect.is_empty() {
+    "generic".to_string()
+  } else {
+    resolved.dialect.clone()
+  };
+  let d = resolve_connection(&registry, &sessions, resolved).await?;
   let start = Instant::now();
   let res = if let Some(ref rid) = requestId.filter(|s| !s.trim().is_empty()) {
     let (_guard, token) = InflightGuard::register(&inflight, rid)?;
@@ -281,10 +294,11 @@ pub async fn paging_query(
     d.paging_query(&sql, Some(limit), Some(offset)).await
   };
   let duration = start.elapsed().as_millis();
-  Ok(ArrowResponse::from_raw_data(
+  Ok(ArrowResponse::from_raw_data_with_dialect(
     res,
     Some(duration),
     Some(sql),
+    Some(dname.as_str()),
   ))
 }
 

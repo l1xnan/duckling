@@ -13,6 +13,19 @@ pub enum PreviewFormat {
   Rows,
 }
 
+/// sqlparser failure location relative to the executed (pre-limit-wrap) SQL.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SqlParseLocationDto {
+  /// 1-based line within the SQL string that was executed.
+  pub line: u64,
+  /// 1-based column within that line.
+  pub column: u64,
+  /// Optional sqlparser error summary.
+  #[serde(default, skip_serializing_if = "Option::is_none")]
+  pub message: Option<String>,
+}
+
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct ArrowResponse {
   /// The total number of rows that were selected.
@@ -25,6 +38,15 @@ pub struct ArrowResponse {
   pub code: i32,
   pub message: String,
   pub elapsed: Option<u128>,
+
+  /// When query fails and the original SQL does not parse, location for editor markers.
+  #[serde(
+    default,
+    skip_serializing_if = "Option::is_none",
+    rename = "parseLocation",
+    alias = "parse_location"
+  )]
+  pub parse_location: Option<SqlParseLocationDto>,
 
   /// Preview encoding. Omitted/`arrow` keeps legacy clients working.
   #[serde(default)]
@@ -49,6 +71,16 @@ impl ArrowResponse {
     res: anyhow::Result<RawArrowData>,
     elapsed: Option<u128>,
     sql: Option<String>,
+  ) -> ArrowResponse {
+    Self::from_raw_data_with_dialect(res, elapsed, sql, None)
+  }
+
+  /// Same as [`from_raw_data`], optionally attaching sqlparser location for the user SQL.
+  pub fn from_raw_data_with_dialect(
+    res: anyhow::Result<RawArrowData>,
+    elapsed: Option<u128>,
+    sql: Option<String>,
+    dialect: Option<&str>,
   ) -> ArrowResponse {
     match res {
       Ok(raw) => {
@@ -91,6 +123,7 @@ impl ArrowResponse {
                   message: format!("preview fell back to rows: {err}"),
                   code: 0,
                   data: Vec::new(),
+                  parse_location: None,
                 }
               }
               Err(rows_err) => ArrowResponse {
@@ -110,11 +143,22 @@ impl ArrowResponse {
       Err(err) => {
         log::error!("Error processing RawArrowData: {}", err);
         let (code, message) = connector::error::arrow_error_parts(&err);
+        let parse_location = sql.as_deref().and_then(|s| {
+          let d = dialect.unwrap_or("generic");
+          connector::dialect::ast::locate_sql_parse_error(d, s).map(|loc| {
+            SqlParseLocationDto {
+              line: loc.line,
+              column: loc.column,
+              message: Some(loc.message),
+            }
+          })
+        });
         ArrowResponse {
           code,
           elapsed,
           message,
           sql,
+          parse_location,
           format: PreviewFormat::Arrow,
           ..Self::default()
         }
@@ -143,6 +187,7 @@ impl ArrowResponse {
       code: 0,
       message: String::new(),
       data: Vec::new(),
+      parse_location: None,
     }
   }
 }

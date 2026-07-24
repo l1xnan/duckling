@@ -110,6 +110,49 @@ pub fn convert_dialect(d: &str) -> Box<dyn sqlparser::dialect::Dialect> {
   }
 }
 
+/// 1-based line/column of a sqlparser failure on the given SQL text.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SqlParseLocation {
+  pub line: u64,
+  pub column: u64,
+  pub message: String,
+}
+
+/// If `sql` fails to parse under `dialect`, return the error location (relative to `sql`).
+/// On successful parse, returns `None` (caller should not mark syntax positions for pure semantic errors).
+pub fn locate_sql_parse_error(dialect: &str, sql: &str) -> Option<SqlParseLocation> {
+  let trimmed = sql.trim();
+  if trimmed.is_empty() {
+    return None;
+  }
+  let d = convert_dialect(dialect);
+  match Parser::parse_sql(&*d, sql) {
+    Ok(_) => None,
+    Err(err) => {
+      let message = err.to_string();
+      let (line, column) = parse_location_from_message(&message).unwrap_or((1, 1));
+      Some(SqlParseLocation {
+        line: line.max(1),
+        column: column.max(1),
+        message,
+      })
+    }
+  }
+}
+
+/// Extract `at Line: N, Column: M` from sqlparser error Display text.
+pub fn parse_location_from_message(message: &str) -> Option<(u64, u64)> {
+  // sqlparser Location Display: " at Line: {line}, Column: {column}"
+  let re = regex::Regex::new(
+    r"(?i)at\s+Line:\s*(\d+)\s*,\s*Column:\s*(\d+)",
+  )
+  .ok()?;
+  let caps = re.captures(message)?;
+  let line = caps.get(1)?.as_str().parse().ok()?;
+  let column = caps.get(2)?.as_str().parse().ok()?;
+  Some((line, column))
+}
+
 #[cfg(test)]
 mod tests {
 
@@ -173,5 +216,30 @@ mod tests {
     let sql = limit_sql("select * from t", Some(5000), Some(10000));
     assert!(sql.contains("limit 5000"));
     assert!(sql.contains("offset 10000"));
+  }
+
+  #[test]
+  fn locate_sql_parse_error_returns_none_for_valid_sql() {
+    assert!(
+      locate_sql_parse_error("generic", "select 1 as a")
+        .is_none()
+    );
+  }
+
+  #[test]
+  fn locate_sql_parse_error_finds_line_column() {
+    let sql = "select 1 as a\nselect from";
+    let loc = locate_sql_parse_error("generic", sql).expect("expected parse error");
+    assert!(loc.line >= 1);
+    assert!(loc.column >= 1);
+    assert!(!loc.message.is_empty());
+  }
+
+  #[test]
+  fn parse_location_from_message_reads_sqlparser_format() {
+    assert_eq!(
+      parse_location_from_message("Expected: something at Line: 3, Column: 12"),
+      Some((3, 12))
+    );
   }
 }

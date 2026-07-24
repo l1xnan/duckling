@@ -166,29 +166,64 @@ export default function Editor({ context }: { context: EditorContextType }) {
     setActiveKeyStore(id, key);
   };
 
-  const getStmt = () => {
+  const getStmt = ():
+    | {
+        stmt: string;
+        sourceRange: {
+          startLineNumber: number;
+          startColumn: number;
+          endLineNumber: number;
+          endColumn: number;
+        };
+      }
+    | undefined => {
     const editor = ref.current;
-    if (!editor) {
+    const monaco = editor?.editor();
+    const model = monaco?.getModel();
+    if (!editor || !monaco || !model) {
       return;
     }
 
-    let stmt = editor.getSelectionText() ?? '';
-
-    if (stmt.length === 0) {
-      stmt = editor.getValue() ?? '';
+    const selection = monaco.getSelection();
+    const hasSel = selection && !selection.isEmpty();
+    if (hasSel && selection) {
+      const stmt = model.getValueInRange(selection);
+      if (!stmt.trim()) {
+        return;
+      }
+      return {
+        stmt,
+        sourceRange: {
+          startLineNumber: selection.startLineNumber,
+          startColumn: selection.startColumn,
+          endLineNumber: selection.endLineNumber,
+          endColumn: selection.endColumn,
+        },
+      };
     }
 
-    if (stmt.length === 0) {
+    const stmt = editor.getValue() ?? '';
+    if (!stmt.trim()) {
       return;
     }
-    return stmt;
+    const lineCount = model.getLineCount();
+    return {
+      stmt,
+      sourceRange: {
+        startLineNumber: 1,
+        startColumn: 1,
+        endLineNumber: lineCount,
+        endColumn: model.getLineMaxColumn(lineCount),
+      },
+    };
   };
 
   const setRuns = useSetAtom(runsAtom);
   const setBookmarks = useSetAtom(bookmarksAtom);
 
   const handleBookmark = () => {
-    const sql = getStmt() ?? stmt;
+    const got = getStmt();
+    const sql = got?.stmt ?? stmt;
     if (!sql?.trim()) {
       toast.error(t`Empty SQL`);
       return;
@@ -207,7 +242,8 @@ export default function Editor({ context }: { context: EditorContextType }) {
   };
 
   const handleExplain = (analyze = false) => {
-    const sql = getStmt() ?? stmt;
+    const got = getStmt();
+    const sql = got?.stmt ?? stmt;
     if (!sql?.trim()) {
       toast.error(t`Empty SQL`);
       return;
@@ -218,7 +254,12 @@ export default function Editor({ context }: { context: EditorContextType }) {
   };
 
   const handleClick = async (action?: string) => {
-    const stmt = getStmt();
+    const got = getStmt();
+    if (!got?.stmt?.trim()) {
+      toast.error(t`Empty SQL`);
+      return;
+    }
+    const { stmt: runStmt, sourceRange } = got;
     const childId = `${id}@${nanoid()}`;
     const currentActive = useQuerySessionStore.getState().byEditor[id]
       ?.activeKey;
@@ -234,7 +275,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
       dbId,
       schema: context.schema,
       tableId: entry.tableId ?? context.tableId,
-      stmt: entry.stmt ?? stmt ?? '',
+      stmt: entry.stmt ?? runStmt,
       hasLimit: entry.hasLimit ?? hasLimit,
       createdAt: Date.now(),
       displayName: t`Result${childCount + 1}`,
@@ -246,12 +287,17 @@ export default function Editor({ context }: { context: EditorContextType }) {
         schema: context.schema,
         tableId: context.tableId,
         type: 'query',
-        stmt,
+        stmt: runStmt,
         hasLimit,
         displayName: t`Result${childCount + 1}`,
         id: childId,
+        editorId: id,
+        sourceRange,
       });
-      setRuns((prev) => [historyEntry({ id: childId, stmt }), ...(prev ?? [])]);
+      setRuns((prev) => [
+        historyEntry({ id: childId, stmt: runStmt }),
+        ...(prev ?? []),
+      ]);
       appendChild(id, subContext);
     } else {
       setChildren(id, (tabs) =>
@@ -259,12 +305,14 @@ export default function Editor({ context }: { context: EditorContextType }) {
           if (item.id == currentActive) {
             item = {
               ...item,
-              stmt,
+              stmt: runStmt,
               id: childId,
               dbId,
               page: 1,
               perPage: 500,
               hasLimit,
+              editorId: id,
+              sourceRange,
             };
             setRuns((prev) => [
               historyEntry({

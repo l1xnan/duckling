@@ -80,6 +80,14 @@ export type QueryParamType = {
   sqlWhere?: string;
   sqlOrderBy?: string;
 };
+/** Monaco range of the executed SQL fragment within the full editor document. */
+export type SqlSourceRange = {
+  startLineNumber: number;
+  startColumn: number;
+  endLineNumber: number;
+  endColumn: number;
+};
+
 export type QueryContextType = QueryParamType & {
   id: string;
   type: 'query';
@@ -102,6 +110,10 @@ export type QueryContextType = QueryParamType & {
   showValue?: boolean;
   cross: boolean;
   target?: 'export';
+  /** Editor tab that started this run (for SQL error markers). */
+  editorId?: string;
+  /** Range of `stmt` in the editor document when run from a selection/full buffer. */
+  sourceRange?: SqlSourceRange;
 };
 export type EditorContextType = {
   id: string;

@@ -25,6 +25,13 @@ export type SchemaType = {
 /** Preview encoding from the backend. Default/omitted means arrow IPC. */
 export type PreviewFormat = 'arrow' | 'rows';
 
+/** sqlparser failure location relative to the executed (pre-limit-wrap) SQL. */
+export type SqlParseLocation = {
+  line: number;
+  column: number;
+  message?: string;
+};
+
 export interface ArrowResponse {
   total: number;
   data: Array<number>;
@@ -33,6 +40,8 @@ export interface ArrowResponse {
   code: number;
   elapsed: number;
   message: string;
+  /** Present when the engine failed and the user SQL does not parse. */
+  parseLocation?: SqlParseLocation;
   /** `arrow` (default) or `rows` fallback payload. */
   format?: PreviewFormat;
   /** Column metadata when format is rows. */

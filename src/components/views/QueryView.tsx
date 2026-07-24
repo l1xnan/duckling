@@ -13,6 +13,10 @@ import { Loading, SelectedCellType } from '@/components/views/TableView';
 import { isQueryErrorCode } from '@/lib/capabilities';
 import { filterRows } from '@/lib/filterRows';
 import { runsAtom } from '@/stores/app';
+import {
+  mapParseLocationToDocument,
+  useEditorSqlErrorStore,
+} from '@/stores/editorSqlError';
 import { usePrecision } from '@/stores/setting';
 import {
   cancelExecuteSQL,
@@ -93,6 +97,7 @@ export function QueryView({
     try {
       setLoading(true);
       setError(null);
+      useEditorSqlErrorStore.getState().clear(editorId);
       const current = input ?? getQueryChild(editorId, queryId);
       if (!current) {
         return;
@@ -114,6 +119,15 @@ export function QueryView({
       });
       if (isQueryErrorCode(res?.code) && res?.message) {
         setError(res.message);
+        const loc = res.parseLocation;
+        if (loc && loc.line > 0) {
+          const mapped = mapParseLocationToDocument(loc, current.sourceRange);
+          useEditorSqlErrorStore.getState().setError(editorId, {
+            message: loc.message || res.message,
+            line: mapped.line,
+            column: mapped.column,
+          });
+        }
       } else if (res?.message) {
         setError(res.message);
       }
