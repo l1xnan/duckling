@@ -5,8 +5,8 @@ import { useShallow } from 'zustand/shallow';
 
 import { getTypeIcon } from '@/components/custom/Icons';
 import { SearchInput } from '@/components/custom/search';
-import { TabItemProps, TabTypeIcon } from '@/components/PageTabs';
 import { Button } from '@/components/custom/ui/button';
+import { TabItemProps, TabTypeIcon } from '@/components/PageTabs';
 import { cn } from '@/lib/utils';
 import { useDBListStore } from '@/stores/dbList';
 import { TabContextType, useTabsStore } from '@/stores/tabs';
@@ -85,7 +85,7 @@ function ConnectionGroup({
 }) {
   const q = search.toLowerCase();
   const visibleTabs = tabs.filter((tab) =>
-    tab.displayName.toLowerCase().includes(q),
+    tab.displayName?.toLowerCase()?.includes(q) ?? false,
   );
   const groupVisible =
     !q ||
