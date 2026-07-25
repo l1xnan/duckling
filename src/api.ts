@@ -285,6 +285,67 @@ export async function getSessionIdleTtl(): Promise<number> {
   return invoke<number>('get_session_idle_ttl');
 }
 
+export type ProcessMemorySnapshot = {
+  ducklingWsMb?: number | null;
+  ducklingPrivateMb?: number | null;
+  webviewWsMb?: number | null;
+  webviewPrivateMb?: number | null;
+  webviewCount: number;
+  totalWsMb?: number | null;
+  totalPrivateMb?: number | null;
+  dbSessions: number;
+  pid: number;
+};
+
+export type MemoryLogLine = ProcessMemorySnapshot & {
+  ts: string;
+  mainTabs: number;
+  softClosedEditors: number;
+  resultTabs: number;
+  resultRows: number;
+  resultEstKb: number;
+  openTableTabs: number;
+  notes?: string | null;
+};
+
+export async function getMemorySnapshot(): Promise<ProcessMemorySnapshot> {
+  return invoke<ProcessMemorySnapshot>('get_memory_snapshot');
+}
+
+export async function appendMemoryLog(metrics: {
+  mainTabs: number;
+  softClosedEditors: number;
+  resultTabs: number;
+  resultRows: number;
+  resultEstKb: number;
+  openTableTabs: number;
+  notes?: string;
+}): Promise<MemoryLogLine> {
+  return invoke<MemoryLogLine>('append_memory_log', {
+    mainTabs: metrics.mainTabs,
+    softClosedEditors: metrics.softClosedEditors,
+    resultTabs: metrics.resultTabs,
+    resultRows: metrics.resultRows,
+    resultEstKb: metrics.resultEstKb,
+    openTableTabs: metrics.openTableTabs,
+    notes: metrics.notes ?? null,
+  });
+}
+
+export async function readMemoryLogTail(
+  limit?: number,
+): Promise<MemoryLogLine[]> {
+  return invoke<MemoryLogLine[]>('read_memory_log_tail', { limit });
+}
+
+export async function clearMemoryLog(): Promise<void> {
+  await invoke('clear_memory_log');
+}
+
+export async function openDiagnosticsDir(): Promise<string> {
+  return invoke<string>('open_diagnostics_dir');
+}
+
 export async function queryTable(
   params: QueryTableParams,
 ): Promise<ResultType> {

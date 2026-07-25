@@ -161,7 +161,6 @@ impl SessionManager {
     }
   }
 
-  #[cfg(test)]
   pub fn len(&self) -> usize {
     self.sessions.lock().map(|m| m.len()).unwrap_or(0)
   }

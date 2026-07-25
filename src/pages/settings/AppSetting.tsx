@@ -48,6 +48,7 @@ import {
   ProgressValue,
 } from '@/components/ui/progress';
 import { ColorThemePanel } from '@/pages/settings/ColorThemePanel';
+import { DiagnosticsPanel } from '@/pages/settings/DiagnosticsPanel';
 import { HotkeysForm } from '@/pages/settings/HotkeysForm';
 import { SshProfilesForm } from '@/pages/settings/SshProfilesForm';
 import {
@@ -96,6 +97,7 @@ const NAV_ITEMS = [
   { key: 'sql-format', title: msg`SQL Formatting` },
   { key: 'csv', title: msg`Import/Export` },
   { key: 'update', title: msg`Software Update` },
+  { key: 'diagnostics', title: msg`Diagnostics` },
 ] as const;
 
 export const Display = ({ hidden, children }: PropsWithChildren<{ hidden: boolean }>) => (
@@ -141,6 +143,9 @@ export default function AppSettingDialog() {
           </Display>
           <Display hidden={navKey == 'update'}>
             <UpdateForm />
+          </Display>
+          <Display hidden={navKey == 'diagnostics'}>
+            <DiagnosticsPanel />
           </Display>
         </div>
       </div>

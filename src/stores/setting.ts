@@ -117,6 +117,15 @@ export type SettingState = {
    * `0` disables automatic eviction. Default 15.
    */
   session_idle_ttl_minutes?: number;
+  /**
+   * Optional memory diagnostics sampler (process + app metrics → app data JSONL).
+   * Default disabled.
+   */
+  memory_diagnostics?: {
+    enabled?: boolean;
+    /** Sample interval in seconds (clamped 15–600). Default 30. */
+    interval_sec?: number;
+  };
   /** SQL formatting engine used by the Monaco editor. */
   sql_formatter_engine?: SqlFormatterEngine;
   /**
@@ -177,6 +186,10 @@ export const defaultSettings: SettingState = {
   locale: 'system',
   updater_source: 'official',
   session_idle_ttl_minutes: DEFAULT_SESSION_IDLE_TTL_MINUTES,
+  memory_diagnostics: {
+    enabled: false,
+    interval_sec: 30,
+  },
   table_font_family: 'Consolas',
   table_font_size: 12,
   table_render: 'canvas',

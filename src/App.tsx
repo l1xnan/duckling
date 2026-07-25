@@ -18,6 +18,7 @@ import {
 import Home from './Home';
 import { ColorThemeApplicator } from './hooks/use-color-theme';
 import { ThemeProvider } from './hooks/theme-provider';
+import { useMemoryDiagnostics } from './hooks/useMemoryDiagnostics';
 
 function App() {
   const tableFontFamily = useTableFontFamily();
@@ -26,6 +27,7 @@ function App() {
   const sessionIdleTtlMinutes = useSettingStore(
     (s) => s.session_idle_ttl_minutes,
   );
+  useMemoryDiagnostics();
 
   useEffect(() => {
     const rootElement = document.documentElement;

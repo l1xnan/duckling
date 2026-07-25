@@ -1,6 +1,7 @@
 pub mod app;
 pub mod connection_registry;
 pub mod db;
+pub mod diagnostics;
 pub mod inflight;
 pub mod secret_store;
 pub mod session_manager;
