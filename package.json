@@ -1,7 +1,7 @@
 {
   "name": "duckling",
   "private": true,
-  "version": "0.56.0",
+  "version": "0.56.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
