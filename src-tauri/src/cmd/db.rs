@@ -81,6 +81,9 @@ pub struct DialectPayload {
   /// Frontend DialectConfig uses snake_case (`disable_ssl`); also accept camelCase.
   #[serde(default, alias = "disableSsl")]
   pub disable_ssl: Option<bool>,
+  /// Quack: glob pattern for file discovery.
+  #[serde(default)]
+  pub glob: Option<String>,
   /// Postgres TLS: `disable` | `require`
   #[serde(default, alias = "sslMode")]
   pub ssl_mode: Option<String>,
@@ -141,6 +144,7 @@ fn payload_to_config(payload: DialectPayload) -> ConnectionConfig {
     uri: payload.uri,
     token: payload.token,
     disable_ssl: payload.disable_ssl,
+    glob: payload.glob,
     ssl_mode: payload.ssl_mode,
     ssh: None,
   }

@@ -54,6 +54,17 @@ impl TreeNode {
       comment: None,
     }
   }
+  pub fn new_files(key: &str, children: Option<Vec<TreeNode>>) -> Self {
+    Self {
+      name: "files".to_string(),
+      path: format!("{key}-files"),
+      node_type: "path".to_string(),
+      children,
+      size: None,
+      schema: None,
+      comment: None,
+    }
+  }
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]

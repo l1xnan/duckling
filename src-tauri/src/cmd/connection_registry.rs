@@ -63,6 +63,7 @@ fn apply_overrides(base: DialectPayload, overlay: &DialectPayload) -> DialectPay
     uri: overlay.uri.clone().or(base.uri),
     token: overlay.token.clone().or(base.token),
     disable_ssl: overlay.disable_ssl.or(base.disable_ssl),
+    glob: overlay.glob.clone().or(base.glob),
     ssl_mode: overlay.ssl_mode.clone().or(base.ssl_mode),
     ssh_enabled: overlay.ssh_enabled.or(base.ssh_enabled),
     ssh_host: overlay.ssh_host.clone().or(base.ssh_host),

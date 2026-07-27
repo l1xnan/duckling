@@ -3,6 +3,8 @@ use crate::dialect::duckdb::duckdb_sync::DuckDbSyncConnection;
 use crate::utils::{Metadata, RawArrowData, Table, TreeNode, build_tree};
 use async_trait::async_trait;
 use regex::Regex;
+use std::collections::BTreeMap;
+use std::path::Path;
 use std::sync::OnceLock;
 
 #[derive(Debug, Default, Clone)]
@@ -10,6 +12,7 @@ pub struct QuackConnection {
   pub uri: String,
   pub token: Option<String>,
   pub disable_ssl: bool,
+  pub glob: Option<String>,
 }
 
 fn fn_call_re() -> &'static Regex {
@@ -24,12 +27,20 @@ impl Connection for QuackConnection {
     crate::dialect::run_blocking(move || {
       let conn = this.connect()?;
       let tables = this.get_tables(&conn)?;
+      let files = this.get_files(&conn).unwrap_or_default();
+      let mut children = build_tree(tables);
+      if !files.is_empty() {
+        let count = count_file_leaves(&files);
+        let mut node = TreeNode::new_files(&this.uri, Some(files));
+        node.name = format!("files ({count})");
+        children.push(node);
+      }
       Ok(TreeNode {
         name: this.uri.clone(),
         path: this.uri.clone(),
         node_type: "root".to_string(),
         schema: None,
-        children: Some(build_tree(tables)),
+        children: Some(children),
         size: None,
         comment: None,
       })
@@ -90,6 +101,13 @@ impl Connection for QuackConnection {
   }
 
   async fn show_column(&self, schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {
+    // Frontend already wraps file paths as read_xxx('path') — just DESCRIBE it.
+    if is_read_function(table) {
+      let sql = format!("DESCRIBE SELECT * FROM {table}");
+      log::info!("show columns (file function): {}", &sql);
+      return self.query(&sql, 0, 0).await;
+    }
+
     let (db, tbl) = if schema.is_none() && table.contains('.') {
       let parts: Vec<&str> = table.splitn(2, '.').collect();
       (parts[0], parts[1])
@@ -115,6 +133,19 @@ impl Connection for QuackConnection {
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     let sql = self._table_count_sql(table, r#where);
     self.query_count(&sql).await
+  }
+
+  /// Skip quoting for function calls like `read_parquet('path.parquet', ...)`.
+  fn quote_table_ref(&self, table: &str) -> String {
+    if is_read_function(table) {
+      return table.to_string();
+    }
+    // Default: split by '.' and quote each segment.
+    table
+      .split('.')
+      .map(|item| self.quote(item))
+      .collect::<Vec<_>>()
+      .join(".")
   }
 
   fn normalize(&self, name: &str) -> String {
@@ -177,6 +208,148 @@ impl Connection for QuackConnection {
     }
     chars.all(|c| c.is_ascii_alphanumeric() || c == '_')
   }
+}
+
+/// Recursively count leaf (file) nodes in a tree.
+fn count_file_leaves(nodes: &[TreeNode]) -> usize {
+  nodes.iter().map(|n| {
+    match &n.children {
+      Some(children) => count_file_leaves(children),
+      None => 1,
+    }
+  }).sum()
+}
+
+/// Map a file extension to a stable node_type string for icon matching.
+fn ext_to_node_type(ext: &str) -> &'static str {
+  match ext {
+    "parquet" => "parquet",
+    "csv" => "csv",
+    "tsv" => "tsv",
+    "json" => "json",
+    "jsonl" => "jsonl",
+    "xlsx" => "xlsx",
+    _ => "file",
+  }
+}
+
+/// Build a hierarchical directory tree from a flat list of file paths.
+///
+/// Given paths like `["a/b/c.parquet", "a/d.csv", "e.json"]`, produces:
+/// ```text
+/// a/
+///   b/
+///     c.parquet
+///   d.csv
+/// e.json
+/// ```
+fn build_file_tree(paths: Vec<String>) -> Vec<TreeNode> {
+  // Normalize separators to '/' and strip leading './' or '.'
+  let normalized: Vec<String> = paths
+    .iter()
+    .map(|p| {
+      let p = p.replace('\\', "/");
+      p.strip_prefix("./")
+        .or_else(|| p.strip_prefix('.'))
+        .unwrap_or(&p)
+        .to_string()
+    })
+    .collect();
+  let split: Vec<Vec<&str>> = normalized
+    .iter()
+    .map(|p| p.split('/').collect())
+    .collect();
+  build_tree_from_segments(&split, &normalized)
+}
+
+fn build_tree_from_segments(segments: &[Vec<&str>], full_paths: &[String]) -> Vec<TreeNode> {
+  if segments.is_empty() {
+    return vec![];
+  }
+
+  // Group by first segment
+  let mut groups: BTreeMap<&str, Vec<usize>> = BTreeMap::new();
+  for (i, segs) in segments.iter().enumerate() {
+    if let Some(first) = segs.first() {
+      groups.entry(first).or_default().push(i);
+    }
+  }
+
+  let mut nodes = Vec::new();
+
+  for (name, indices) in &groups {
+    // Check if all entries in this group are single-segment (i.e. leaf files)
+    let all_leaves = indices.iter().all(|&i| segments[i].len() == 1);
+
+    if all_leaves && indices.len() == 1 {
+      // Single file leaf
+      let idx = indices[0];
+      let ext = Path::new(name)
+        .extension()
+        .unwrap_or_default()
+        .to_string_lossy()
+        .to_lowercase();
+      nodes.push(TreeNode {
+        name: name.to_string(),
+        path: full_paths[idx].clone(),
+        node_type: ext_to_node_type(&ext).to_string(),
+        schema: None,
+        children: None,
+        size: None,
+        comment: None,
+      });
+    } else {
+      // Directory node: collect remaining segments for children
+      let child_segs: Vec<Vec<&str>> = indices
+        .iter()
+        .filter(|&&i| segments[i].len() > 1)
+        .map(|&i| segments[i][1..].to_vec())
+        .collect();
+      let child_paths: Vec<String> = indices
+        .iter()
+        .filter(|&&i| full_paths[i].len() > 1)
+        .map(|&i| full_paths[i].clone())
+        .collect();
+
+      // Determine the directory path from the common prefix
+      let dir_path = if child_paths.is_empty() {
+        name.to_string()
+      } else {
+        // Use the parent directory of the first child as the dir path
+        Path::new(&child_paths[0])
+          .parent()
+          .map(|p| p.to_string_lossy().to_string().replace('\\', "/"))
+          .unwrap_or_else(|| name.to_string())
+      };
+
+      let children = if child_segs.is_empty() {
+        None
+      } else {
+        Some(build_tree_from_segments(&child_segs, &child_paths))
+      };
+
+      nodes.push(TreeNode {
+        name: name.to_string(),
+        path: dir_path,
+        node_type: "path".to_string(),
+        schema: None,
+        children,
+        size: None,
+        comment: None,
+      });
+    }
+  }
+
+  nodes
+}
+
+/// Check if `table` is already a read_xxx() function call (frontend-prepared).
+fn is_read_function(table: &str) -> bool {
+  let t = table.trim_start();
+  t.starts_with("read_parquet(")
+    || t.starts_with("read_csv(")
+    || t.starts_with("read_json(")
+    || t.starts_with("read_xlsx(")
 }
 
 impl QuackConnection {
@@ -249,6 +422,27 @@ impl QuackConnection {
     Ok(names)
   }
 
+  fn get_files(&self, conn: &DuckDbSyncConnection) -> anyhow::Result<Vec<TreeNode>> {
+    let glob_pattern = match &self.glob {
+      Some(g) if !g.trim().is_empty() => g.trim().to_string(),
+      _ => return Ok(vec![]),
+    };
+    // Array expression starts with '[' → inline directly; otherwise quote as string.
+    let glob_expr = if glob_pattern.starts_with('[') {
+      glob_pattern.clone()
+    } else {
+      format!("'{glob_pattern}'")
+    };
+    let sql = format!("SELECT * FROM glob({glob_expr})");
+    let wrapped = self.wrap_sql(&sql);
+    let mut stmt = conn.inner.prepare(&wrapped)?;
+    let paths: Vec<String> = stmt
+      .query_map([], |row| row.get(0))?
+      .flatten()
+      .collect();
+    Ok(build_file_tree(paths))
+  }
+
   fn fetch_all_columns(&self, conn: &DuckDbSyncConnection) -> anyhow::Result<Vec<Metadata>> {
     use std::collections::HashMap;
 
@@ -313,6 +507,7 @@ mod tests {
       uri: "quack:remote.com".to_string(),
       token: Some("MY_QUACK_TOKEN_01234567890ABCDEF".to_string()),
       disable_ssl: true,
+      glob: None,
     };
     let wrapped = conn.wrap_sql("SELECT 42");
     assert_eq!(
@@ -327,11 +522,64 @@ mod tests {
       uri: "quack:localhost".to_string(),
       token: None,
       disable_ssl: false,
+      glob: None,
     };
     let wrapped = conn.wrap_sql("SELECT 1");
     assert_eq!(
       wrapped,
       "SELECT * FROM quack_query('quack:localhost', $$SELECT 1$$, disable_ssl => false)"
     );
+  }
+
+  #[test]
+  fn test_build_file_tree() {
+    let paths = vec![
+      "data/sales/2024.parquet".to_string(),
+      "data/sales/2025.parquet".to_string(),
+      "data/reports/q1.csv".to_string(),
+      "data/reports/q2.csv".to_string(),
+      "single.json".to_string(),
+    ];
+    let tree = build_file_tree(paths);
+    // top-level: "data" (dir) + "single.json" (file)
+    assert_eq!(tree.len(), 2);
+    assert_eq!(tree[1].name, "single.json");
+    assert_eq!(tree[1].node_type, "json");
+    // "data" dir
+    assert_eq!(tree[0].name, "data");
+    assert_eq!(tree[0].node_type, "path");
+    let data_children = tree[0].children.as_ref().unwrap();
+    assert_eq!(data_children.len(), 2); // "reports" + "sales"
+    // total leaf count
+    assert_eq!(count_file_leaves(&tree), 5);
+  }
+
+  #[test]
+  fn test_build_file_tree_strips_dot_prefix() {
+    let paths = vec![
+      "./data/a.parquet".to_string(),
+      "./data/b.parquet".to_string(),
+      "./root.csv".to_string(),
+    ];
+    let tree = build_file_tree(paths);
+    assert_eq!(tree.len(), 2);
+    assert_eq!(tree[0].name, "data");
+    assert_eq!(tree[0].node_type, "path");
+    assert_eq!(tree[1].name, "root.csv");
+    assert_eq!(count_file_leaves(&tree), 3);
+  }
+
+  #[test]
+  fn test_build_file_tree_flat() {
+    let paths = vec![
+      "a.parquet".to_string(),
+      "b.csv".to_string(),
+    ];
+    let tree = build_file_tree(paths);
+    assert_eq!(tree.len(), 2);
+    assert_eq!(tree[0].name, "a.parquet");
+    assert_eq!(tree[0].node_type, "parquet");
+    assert_eq!(tree[1].name, "b.csv");
+    assert_eq!(count_file_leaves(&tree), 2);
   }
 }

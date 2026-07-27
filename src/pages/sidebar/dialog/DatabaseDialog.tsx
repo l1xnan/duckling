@@ -514,6 +514,26 @@ export function DatabaseForm({ form, handleSubmit, isNew = true, availableDataba
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="glob"
+                  defaultValue={"['**/*.parquet', '**/*.csv', '**/*.json']"}
+                  render={({ field }) => (
+                    <FormItem className="flex items-center w-[62.5%]">
+                      <FormLabel className="w-1/5 mr-2 mt-2">
+                        <Trans>Glob</Trans>
+                      </FormLabel>
+                      <FormControl className="w-4/5">
+                        <Input
+                          placeholder="**/*.parquet or ['**/*.parquet', '**/*.csv']"
+                          {...field}
+                          value={field.value ?? ''}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </>
             ) : null}
             {watchDialect == 'duckdb' ||

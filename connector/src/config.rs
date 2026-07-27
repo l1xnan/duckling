@@ -23,6 +23,8 @@ pub struct ConnectionConfig {
   pub uri: Option<String>,
   pub token: Option<String>,
   pub disable_ssl: Option<bool>,
+  /// Quack: glob pattern(s) for file discovery via `SELECT * FROM glob(...)`.
+  pub glob: Option<String>,
   /// Postgres: `disable` | `require` (default disable).
   pub ssl_mode: Option<String>,
   pub ssh: Option<DbSshConfig>,
@@ -156,6 +158,7 @@ pub fn open(config: ConnectionConfig) -> anyhow::Result<Box<dyn Connection>> {
         .ok_or_else(|| anyhow::anyhow!("uri required for quack"))?,
       token: config.token,
       disable_ssl: config.disable_ssl.unwrap_or(false),
+      glob: config.glob,
     })),
     other => Err(anyhow::anyhow!("unsupported dialect: {other}")),
   }

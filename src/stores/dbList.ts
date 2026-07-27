@@ -116,6 +116,8 @@ export type QuackConfig = {
   uri: string;
   token?: string;
   disable_ssl?: boolean;
+  /** Glob pattern(s) for file discovery via `SELECT * FROM glob(...)`. */
+  glob?: string;
   dialect: 'quack';
 };
 
