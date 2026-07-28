@@ -340,7 +340,26 @@ fn build_tree_from_segments(segments: &[Vec<&str>], full_paths: &[String]) -> Ve
     }
   }
 
+  sort_file_tree_children(&mut nodes);
   nodes
+}
+
+/// Directories (`node_type == "path"`) before file leaves; names alphabetical within each group.
+fn sort_file_tree_children(nodes: &mut [TreeNode]) {
+  nodes.sort_by(|a, b| {
+    let a_dir = a.node_type == "path";
+    let b_dir = b.node_type == "path";
+    match (a_dir, b_dir) {
+      (true, false) => std::cmp::Ordering::Less,
+      (false, true) => std::cmp::Ordering::Greater,
+      _ => a.name.cmp(&b.name),
+    }
+  });
+  for n in nodes.iter_mut() {
+    if let Some(children) = n.children.as_mut() {
+      sort_file_tree_children(children);
+    }
+  }
 }
 
 /// Check if `table` is already a read_xxx() function call (frontend-prepared).
@@ -567,6 +586,23 @@ mod tests {
     assert_eq!(tree[0].node_type, "path");
     assert_eq!(tree[1].name, "root.csv");
     assert_eq!(count_file_leaves(&tree), 3);
+  }
+
+  #[test]
+  fn test_build_file_tree_folders_before_files() {
+    let paths = vec![
+      "zebra.csv".to_string(),
+      "alpha/x.parquet".to_string(),
+      "beta/y.json".to_string(),
+    ];
+    let tree = build_file_tree(paths);
+    assert_eq!(tree.len(), 3);
+    assert_eq!(tree[0].name, "alpha");
+    assert_eq!(tree[0].node_type, "path");
+    assert_eq!(tree[1].name, "beta");
+    assert_eq!(tree[1].node_type, "path");
+    assert_eq!(tree[2].name, "zebra.csv");
+    assert_eq!(tree[2].node_type, "csv");
   }
 
   #[test]
