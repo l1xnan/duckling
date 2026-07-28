@@ -63,6 +63,10 @@ import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { setSessionIdleTtl } from '@/api';
 import {
+  PAGINATION_PER_PAGE_OPTIONS,
+  resolveDefaultPerPage,
+} from '@/lib/pagination';
+import {
   CsvParam,
   HolywellOptions,
   LocalePreference,
@@ -192,6 +196,8 @@ function Profile() {
       code_editor_minimap: data.code_editor_minimap ?? true,
       editor_theme: data.editor_theme,
       precision: data.precision,
+      default_per_page: resolveDefaultPerPage(data.default_per_page),
+      default_beautify: data.default_beautify ?? true,
       session_idle_ttl_minutes,
     }));
     void setSessionIdleTtl(sessionIdleTtlMinutesToSecs(session_idle_ttl_minutes)).catch(
@@ -468,6 +474,78 @@ function Profile() {
                 </FormLabel>
                 <FormControl>
                   <Input {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="default_per_page"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  <Trans>Default page size</Trans>
+                </FormLabel>
+                <Select
+                  value={String(
+                    field.value ?? defaultSettings.default_per_page,
+                  )}
+                  onValueChange={(v) => field.onChange(Number(v))}
+                  items={PAGINATION_PER_PAGE_OPTIONS.map((n) => ({
+                    value: String(n),
+                    label: String(n),
+                  }))}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectGroup>
+                      {PAGINATION_PER_PAGE_OPTIONS.map((n) => (
+                        <SelectItem
+                          key={n}
+                          value={String(n)}
+                          label={String(n)}
+                        >
+                          {n}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  <Trans>
+                    Rows per page for newly opened data views and preview
+                    dialogs.
+                  </Trans>
+                </FormDescription>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="default_beautify"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between gap-4 rounded-lg border p-3">
+                <div className="space-y-0.5">
+                  <FormLabel>
+                    <Trans>Enable float precision display by default</Trans>
+                  </FormLabel>
+                  <FormDescription>
+                    <Trans>
+                      Format float columns using Float precision above in new
+                      results. You can still toggle this per view from the
+                      toolbar.
+                    </Trans>
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value ?? defaultSettings.default_beautify}
+                    onCheckedChange={field.onChange}
+                  />
                 </FormControl>
               </FormItem>
             )}

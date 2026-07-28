@@ -41,6 +41,7 @@ import {
   useQuerySessionStore,
   useTabsStore,
 } from '@/stores/tabs';
+import { getDefaultBeautify, getDefaultPerPage } from '@/stores/setting';
 import { toast } from 'sonner';
 
 import { EditorToolbar } from './EditorToolbar';
@@ -66,7 +67,8 @@ type MacroPromptState = {
 function createStore(item: Partial<QueryContextType>) {
   return {
     page: 1,
-    perPage: 500,
+    perPage: getDefaultPerPage(),
+    beautify: getDefaultBeautify(),
     totalCount: 0,
     ...item,
   } as QueryContextType;
@@ -425,7 +427,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
                   id: childId,
                   dbId,
                   page: 1,
-                  perPage: 500,
+                  perPage: getDefaultPerPage(),
                   hasLimit,
                   editorId: id,
                   sourceRange,

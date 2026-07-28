@@ -41,6 +41,7 @@ import {
   getParams,
   type TableContextType,
 } from '@/stores/tabs';
+import { getDefaultPerPage } from '@/stores/setting';
 import { isNumberType } from '@/utils';
 
 export type PivotDialogProps = {
@@ -301,7 +302,7 @@ export function PivotDialog({
       tableId: context.tableId,
       tableName: context.tableName,
       page: 1,
-      perPage: 500,
+      perPage: getDefaultPerPage(),
       sqlWhere,
     });
 

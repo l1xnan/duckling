@@ -4,6 +4,7 @@ import { createStore } from 'zustand';
 
 import { ResultType, TitleType } from '@/api';
 import { nextOrderBy, orderByClause } from '@/lib/sql/orderBy';
+import { getDefaultBeautify, getDefaultPerPage } from '@/stores/setting';
 
 import {
   QueryParamType,
@@ -130,7 +131,7 @@ export const createDatasetStore = (context: TabContextType) =>
     // state
     context,
     page: 1,
-    perPage: 500,
+    perPage: getDefaultPerPage(),
     total: 0,
     tableSchema: [],
     data: [],
@@ -140,7 +141,7 @@ export const createDatasetStore = (context: TabContextType) =>
     sqlOrderBy: undefined,
     code: 0,
     message: undefined,
-    beautify: true,
+    beautify: getDefaultBeautify(),
     transpose: false,
     direction: 'horizontal',
     cross: false,

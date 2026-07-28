@@ -1,6 +1,8 @@
 import { useLingui } from '@lingui/react/macro';
 import { Stack } from '@/components/Toolbar';
 import { TooltipButton } from '@/components/custom/tooltip';
+import { PAGINATION_PER_PAGE_OPTIONS } from '@/lib/pagination';
+import { useDefaultPerPage } from '@/stores/setting';
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -26,10 +28,11 @@ export interface DropdownProps {
 
 export function PaginationDropdown({ content, setPerPage }: DropdownProps) {
   const { t } = useLingui();
+  const defaultPerPage = useDefaultPerPage();
   return (
     <DropdownMenu content={content}>
       <DropdownMenuContent className="w-32">
-        {[10, 100, 500, 1000].map((item) => (
+        {PAGINATION_PER_PAGE_OPTIONS.map((item) => (
           <DropdownMenuItem
             key={item}
             onSelect={() => {
@@ -41,7 +44,7 @@ export function PaginationDropdown({ content, setPerPage }: DropdownProps) {
         ))}
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuLabel>{t`Default: 500`}</DropdownMenuLabel>
+          <DropdownMenuLabel>{t`Default: ${defaultPerPage}`}</DropdownMenuLabel>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

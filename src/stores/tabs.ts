@@ -23,7 +23,7 @@ import { connectionRef, type DialectRef } from '@/lib/connectionRef';
 import { Direction, SchemaType } from './dataset';
 import { getDbMap, getTableMap, whenRegistryReady } from './dbList';
 import { useQuerySessionStore } from './querySession';
-import { useSettingStore } from './setting';
+import { getDefaultPerPage, useSettingStore } from './setting';
 import {
   addTabToLeaf,
   collectTabIds,
@@ -462,7 +462,7 @@ export async function getParams(
 ): Promise<QueryParams | QueryTableParams | undefined> {
   const {
     page = 1,
-    perPage = 500,
+    perPage = getDefaultPerPage(),
     sqlWhere,
     sqlOrderBy,
     stmt,

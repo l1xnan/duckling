@@ -5,6 +5,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { useShallow } from 'zustand/shallow';
 
 import { useTheme } from '@/hooks/theme-provider';
+import { DEFAULT_PER_PAGE, resolveDefaultPerPage } from '@/lib/pagination';
 import { tauriFileStorage } from '@/stores/tauriStore';
 import { createSelectors } from '@/stores/utils';
 import type { ColorThemeConfig } from '@/themes/presets';
@@ -93,6 +94,10 @@ export function updaterEndpointForSource(source?: UpdaterSource | null): string 
 
 export type SettingState = {
   precision: number;
+  /** Default rows per page for new data views and previews. */
+  default_per_page?: number;
+  /** When true, new data views apply float precision formatting by default. */
+  default_beautify?: boolean;
   table_font_family: string;
   main_font_family: string;
   /** Font family for Monaco / SQL code editors. */
@@ -182,6 +187,8 @@ export const DEFAULT_SESSION_IDLE_TTL_MINUTES = 15;
 
 export const defaultSettings: SettingState = {
   precision: 4,
+  default_per_page: DEFAULT_PER_PAGE,
+  default_beautify: true,
   auto_update: false,
   locale: 'system',
   updater_source: 'official',
@@ -290,6 +297,25 @@ export function sessionIdleTtlMinutesToSecs(
 
 export const usePrecision = () =>
   useSettingStore((s) => s.precision ?? defaultSettings.precision);
+
+export function getDefaultPerPage(): number {
+  return resolveDefaultPerPage(useSettingStore.getState().default_per_page);
+}
+
+export function getDefaultBeautify(): boolean {
+  return (
+    useSettingStore.getState().default_beautify ??
+    defaultSettings.default_beautify!
+  );
+}
+
+export const useDefaultPerPage = () =>
+  useSettingStore((s) => resolveDefaultPerPage(s.default_per_page));
+
+export const useDefaultBeautify = () =>
+  useSettingStore(
+    (s) => s.default_beautify ?? defaultSettings.default_beautify!,
+  );
 
 export const useTableFontFamily = () =>
   useSettingStore(
