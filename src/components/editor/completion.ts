@@ -74,18 +74,13 @@ export async function handleProvideCompletionItems(
   const completeMeta = completionRegistry.get(modelUri);
   const { prefixCode = '' } = completeMeta ?? {};
 
-  console.log('completeMeta:', completeMeta);
   const word = model.getWordUntilPosition(position);
   const code = model.getValue();
 
   let offset = model.getOffsetAt(position);
-  console.log(`code: "${code}", offset: ${offset}`);
-  console.log(`word: `, word, `position:`, position);
 
   const sql = prefixCode + insertUnderscore(code, offset);
   offset += prefixCode.length;
-
-  console.log('sql:', sql);
 
   const range = {
     startLineNumber: position.lineNumber,
@@ -127,7 +122,6 @@ export async function handleProvideCompletionItems(
     };
   });
 
-  console.log(suggestions);
   return { suggestions };
 }
 

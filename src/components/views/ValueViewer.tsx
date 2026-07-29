@@ -6,7 +6,7 @@ import MonacoEditor from '@monaco-editor/react';
 
 import { LetterTextIcon, PanelBottomIcon, PanelRightIcon, XIcon } from 'lucide-react';
 import { editor } from 'monaco-editor';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { arrowToJSON } from '@/api';
 import { TooltipButton } from '@/components/custom/tooltip';
@@ -121,9 +121,12 @@ export function ValueViewer({
       console.error('格式化失败:', error);
     }
   };
-  
-  console.log(selectedCell, selectedCellInfos);
-  const value = displayValue(selectedCell?.value as Data, type);
+
+  const value = useMemo(
+    () => displayValue(selectedCell?.value as Data, type),
+    [selectedCell?.value, type],
+  );
+
   return (
     <Tabs defaultValue="value" className="size-full flex flex-col">
       <div className="flex flex-row items-center justify-between">

@@ -1,15 +1,8 @@
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSetAtom } from 'jotai';
 import { nanoid } from 'nanoid';
 
 import { useDialog } from '@/components/custom/use-dialog';
-import { CanvasTable } from '@/components/tables/CanvasTable';
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from '@/components/ui/resizable';
-import { Loading, SelectedCellType } from '@/components/views/TableView';
 import { isQueryErrorCode } from '@/lib/capabilities';
 import { filterRows } from '@/lib/filterRows';
 import { runsAtom } from '@/stores/app';
@@ -29,7 +22,7 @@ import {
 import { CountByQueryDialog } from './CountByQueryDialog';
 import { DataViewToolbar } from './DataViewToolbar';
 import { PivotDialog } from './PivotDialog';
-import { ValueViewer } from './ValueViewer';
+import { TableDataPanel } from './TableDataPanel';
 
 export function QueryView({
   editorId,
@@ -47,41 +40,47 @@ export function QueryView({
   const [error, setError] = useState<string | null>(null);
   const requestIdRef = useRef<string | null>(null);
 
-  const patch = (
-    partial:
-      | Partial<QueryContextType>
-      | ((prev: QueryContextType) => QueryContextType),
-  ) => {
-    patchChild(editorId, queryId, partial);
-  };
-
-  const patchHistoryResult = (
-    queryIdKey: string,
-    result: {
-      elapsed?: number;
-      total?: number;
-      code?: number;
-      message?: string;
-      sql?: string;
+  const patch = useCallback(
+    (
+      partial:
+        | Partial<QueryContextType>
+        | ((prev: QueryContextType) => QueryContextType),
+    ) => {
+      patchChild(editorId, queryId, partial);
     },
-  ) => {
-    setRuns((prev) =>
-      (prev ?? []).map((item) =>
-        item.id === queryIdKey
-          ? {
-              ...item,
-              elapsed: result.elapsed ?? item.elapsed,
-              total: result.total ?? item.total,
-              code: result.code ?? item.code,
-              message: result.message ?? item.message,
-              sql: result.sql ?? item.sql,
-            }
-          : item,
-      ),
-    );
-  };
+    [editorId, patchChild, queryId],
+  );
 
-  const handleCancel = async () => {
+  const patchHistoryResult = useCallback(
+    (
+      queryIdKey: string,
+      result: {
+        elapsed?: number;
+        total?: number;
+        code?: number;
+        message?: string;
+        sql?: string;
+      },
+    ) => {
+      setRuns((prev) =>
+        (prev ?? []).map((item) =>
+          item.id === queryIdKey
+            ? {
+                ...item,
+                elapsed: result.elapsed ?? item.elapsed,
+                total: result.total ?? item.total,
+                code: result.code ?? item.code,
+                message: result.message ?? item.message,
+                sql: result.sql ?? item.sql,
+              }
+            : item,
+        ),
+      );
+    },
+    [setRuns],
+  );
+
+  const handleCancel = useCallback(async () => {
     const rid = requestIdRef.current;
     if (!rid) return;
     try {
@@ -89,66 +88,68 @@ export function QueryView({
     } catch (e) {
       console.error(e);
     }
-  };
+  }, []);
 
-  const handleQuery = async (input?: QueryContextType) => {
-    const requestId = nanoid();
-    requestIdRef.current = requestId;
-    try {
-      setLoading(true);
-      setError(null);
-      useEditorSqlErrorStore.getState().clear(editorId);
-      const current = input ?? getQueryChild(editorId, queryId);
-      if (!current) {
-        return;
-      }
-      const res = await executeSQL(current, { requestId });
-      // Preserve stmt-backed sql when the backend omits it on failure.
-      const failedSql = res?.sql || current.stmt || current.sql;
-      patch((prev) => ({
-        ...prev,
-        ...res,
-        sql: res?.sql || prev.sql || current.stmt,
-      }));
-      patchHistoryResult(current.id ?? queryId, {
-        elapsed: res?.elapsed,
-        total: res?.total,
-        code: res?.code,
-        message: res?.message,
-        sql: failedSql,
-      });
-      if (isQueryErrorCode(res?.code) && res?.message) {
-        setError(res.message);
-        const loc = res.parseLocation;
-        if (loc && loc.line > 0) {
-          const mapped = mapParseLocationToDocument(loc, current.sourceRange);
-          useEditorSqlErrorStore.getState().setError(editorId, {
-            message: loc.message || res.message,
-            line: mapped.line,
-            column: mapped.column,
-          });
+  const handleQuery = useCallback(
+    async (input?: QueryContextType) => {
+      const requestId = nanoid();
+      requestIdRef.current = requestId;
+      try {
+        setLoading(true);
+        setError(null);
+        useEditorSqlErrorStore.getState().clear(editorId);
+        const current = input ?? getQueryChild(editorId, queryId);
+        if (!current) {
+          return;
         }
-      } else if (res?.message) {
-        setError(res.message);
+        const res = await executeSQL(current, { requestId });
+        const failedSql = res?.sql || current.stmt || current.sql;
+        patch((prev) => ({
+          ...prev,
+          ...res,
+          sql: res?.sql || prev.sql || current.stmt,
+        }));
+        patchHistoryResult(current.id ?? queryId, {
+          elapsed: res?.elapsed,
+          total: res?.total,
+          code: res?.code,
+          message: res?.message,
+          sql: failedSql,
+        });
+        if (isQueryErrorCode(res?.code) && res?.message) {
+          setError(res.message);
+          const loc = res.parseLocation;
+          if (loc && loc.line > 0) {
+            const mapped = mapParseLocationToDocument(loc, current.sourceRange);
+            useEditorSqlErrorStore.getState().setError(editorId, {
+              message: loc.message || res.message,
+              line: mapped.line,
+              column: mapped.column,
+            });
+          }
+        } else if (res?.message) {
+          setError(res.message);
+        }
+      } catch (err) {
+        console.error(err);
+        const msg = err instanceof Error ? err.message : String(err);
+        setError(msg);
+        const current = getQueryChild(editorId, queryId);
+        patch({ sql: current?.stmt || current?.sql });
+        patchHistoryResult(queryId, {
+          message: msg,
+          code: -1,
+          sql: current?.stmt || current?.sql,
+        });
+      } finally {
+        if (requestIdRef.current === requestId) {
+          requestIdRef.current = null;
+        }
+        setLoading(false);
       }
-    } catch (error) {
-      console.error(error);
-      const msg = error instanceof Error ? error.message : String(error);
-      setError(msg);
-      const current = getQueryChild(editorId, queryId);
-      patch({ sql: current?.stmt || current?.sql });
-      patchHistoryResult(queryId, {
-        message: msg,
-        code: -1,
-        sql: current?.stmt || current?.sql,
-      });
-    } finally {
-      if (requestIdRef.current === requestId) {
-        requestIdRef.current = null;
-      }
-      setLoading(false);
-    }
-  };
+    },
+    [editorId, patch, patchHistoryResult, queryId],
+  );
 
   useEffect(() => {
     const current = getQueryChild(editorId, queryId);
@@ -160,61 +161,88 @@ export function QueryView({
 
   const precision = usePrecision();
 
-  const [selectedCell, setSelectCell] = useState<SelectedCellType | null>(null);
-  const [selectedCellInfos, setSelectedCellInfos] = useState<
-    SelectedCellType[][] | null
-  >();
   const [resultFilter, setResultFilter] = useState('');
   const [countColumn, setCountColumn] = useState<string | undefined>();
   const [pivotRowField, setPivotRowField] = useState<string | undefined>();
   const countByDialog = useDialog();
   const pivotDialog = useDialog();
 
-  const handleRefresh = async () => {
+  const handleRefresh = useCallback(async () => {
     await handleQuery();
-  };
+  }, [handleQuery]);
 
-  const setPagination = async ({
-    page,
-    perPage,
-  }: {
-    page?: number;
-    perPage?: number;
-  }) => {
-    if (page !== undefined || perPage !== undefined) {
+  const setPagination = useCallback(
+    async ({
+      page,
+      perPage,
+    }: {
+      page?: number;
+      perPage?: number;
+    }) => {
+      if (page !== undefined || perPage !== undefined) {
+        patch({
+          ...(page !== undefined ? { page } : {}),
+          ...(perPage !== undefined ? { perPage } : {}),
+        });
+      }
+      await handleQuery();
+    },
+    [handleQuery, patch],
+  );
+
+  const handleShowValue = useCallback(() => {
+    patch({ showValue: !ctx?.showValue });
+  }, [ctx?.showValue, patch]);
+
+  const handleBeautify = useCallback(() => {
+    patch((prev) => ({ ...prev, beautify: !prev.beautify }));
+  }, [patch]);
+
+  const handleTranspose = useCallback(() => {
+    patch((prev) => ({ ...prev, transpose: !prev.transpose }));
+  }, [patch]);
+
+  const handleCross = useCallback(() => {
+    patch((prev) => ({ ...prev, cross: !prev.cross }));
+  }, [patch]);
+
+  const handleHiddenColumns = useCallback(
+    (key: string, value: boolean) => {
       patch({
-        ...(page !== undefined ? { page } : {}),
-        ...(perPage !== undefined ? { perPage } : {}),
+        hiddenColumns: { ...(ctx?.hiddenColumns ?? {}), [key]: value },
       });
-    }
-    await handleQuery();
-  };
+    },
+    [ctx?.hiddenColumns, patch],
+  );
+
+  const handleSetDirection = useCallback(() => {
+    patch({
+      direction:
+        ctx?.direction === 'horizontal' ? 'vertical' : 'horizontal',
+    });
+  }, [ctx?.direction, patch]);
+
+  const handleCountByColumn = useCallback(
+    (col?: string) => {
+      if (!col) return;
+      setCountColumn(col.replace(/\s*[↑↓]\s*$/, '').trim());
+      countByDialog.trigger();
+    },
+    [countByDialog],
+  );
+
+  const handlePivotColumn = useCallback(
+    (col?: string) => {
+      if (!col) return;
+      setPivotRowField(col.replace(/\s*[↑↓]\s*$/, '').trim());
+      pivotDialog.trigger();
+    },
+    [pivotDialog],
+  );
 
   if (!ctx) {
     return null;
   }
-
-  const handleShowValue = () => {
-    patch({ showValue: !ctx.showValue });
-  };
-
-  const handleBeautify = () => {
-    patch((prev) => ({ ...prev, beautify: !prev.beautify }));
-  };
-
-  const handleTranspose = () => {
-    patch((prev) => ({ ...prev, transpose: !prev.transpose }));
-  };
-
-  const handleCross = () => {
-    patch((prev) => ({ ...prev, cross: !prev.cross }));
-  };
-
-  const handleHiddenColumns = (key: string, value: boolean) => {
-    patch({
-      hiddenColumns: { ...ctx.hiddenColumns, [key]: value },
-    });
-  };
 
   const columnNames = (ctx.tableSchema ?? []).map((c) => c.name);
   const filteredData = filterRows(
@@ -223,8 +251,10 @@ export function QueryView({
     columnNames,
   );
 
+  const showErrorOnly = !ctx.data?.length && error;
+
   return (
-    <div className="h-full min-h-0 min-w-0 flex flex-col overflow-hidden">
+    <div className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden">
       <DataViewToolbar
         dbId={ctx.dbId}
         length={filteredData.length}
@@ -253,79 +283,28 @@ export function QueryView({
           pivotDialog.trigger();
         }}
       />
-      <ResizablePanelGroup
-        orientation={ctx.direction}
-        className="min-h-0 min-w-0 flex-1"
-      >
-        <ResizablePanel
-          defaultSize={80}
-          className="min-h-0 min-w-0 overflow-hidden"
-        >
-          <div className="h-full min-h-0 min-w-0 overflow-hidden">
-            <Suspense fallback={<Loading />}>
-              {loading ? <Loading /> : null}
-              {!ctx.data?.length && error ? (
-                <div className="font-mono text-sm select-text">{error}</div>
-              ) : null}
-              <CanvasTable
-                style={
-                  loading || (!ctx.data?.length && error)
-                    ? { display: 'none' }
-                    : undefined
-                }
-                data={filteredData}
-                schema={ctx.tableSchema ?? []}
-                hiddenColumns={ctx.hiddenColumns}
-                setHiddenColumns={handleHiddenColumns}
-                precision={precision}
-                beautify={ctx.beautify}
-                transpose={ctx.transpose}
-                cross={ctx.cross}
-                onSelectedCell={(arg) => {
-                  setSelectCell(arg);
-                }}
-                onSelectedCellInfos={(cells) => {
-                  setSelectedCellInfos(cells);
-                }}
-                onCountByColumn={(col) => {
-                  if (!col) return;
-                  setCountColumn(col.replace(/\s*[↑↓]\s*$/, '').trim());
-                  countByDialog.trigger();
-                }}
-                onPivotColumn={(col) => {
-                  if (!col) return;
-                  setPivotRowField(col.replace(/\s*[↑↓]\s*$/, '').trim());
-                  pivotDialog.trigger();
-                }}
-              />
-            </Suspense>
-          </div>
-        </ResizablePanel>
-        <ResizableHandle />
-        {ctx.showValue ? (
-          <ResizablePanel
-            defaultSize={20}
-            className="flex min-h-0 min-w-0 flex-row items-start overflow-hidden"
-          >
-            <div className="flex size-full min-h-0 min-w-0 overflow-hidden">
-              <ValueViewer
-                selectedCell={selectedCell}
-                selectedCellInfos={selectedCellInfos}
-                setShowValue={handleShowValue}
-                setDirection={() => {
-                  patch({
-                    direction:
-                      ctx.direction == 'horizontal'
-                        ? 'vertical'
-                        : 'horizontal',
-                  });
-                }}
-                direction={ctx.direction}
-              />
-            </div>
-          </ResizablePanel>
-        ) : null}
-      </ResizablePanelGroup>
+      <TableDataPanel
+        loading={loading}
+        data={filteredData}
+        schema={ctx.tableSchema ?? []}
+        hiddenColumns={ctx.hiddenColumns}
+        setHiddenColumns={handleHiddenColumns}
+        precision={precision}
+        beautify={ctx.beautify}
+        transpose={ctx.transpose}
+        cross={ctx.cross}
+        showValue={ctx.showValue}
+        direction={ctx.direction}
+        setShowValue={handleShowValue}
+        setDirection={handleSetDirection}
+        onCountByColumn={handleCountByColumn}
+        onPivotColumn={handlePivotColumn}
+        emptyOverlay={
+          showErrorOnly ? (
+            <div className="select-text font-mono text-sm">{error}</div>
+          ) : undefined
+        }
+      />
       <CountByQueryDialog
         {...countByDialog.props}
         column={countColumn}

@@ -1,28 +1,21 @@
 import { Data as ArrowDataType } from '@apache-arrow/ts';
-import { toMerged } from 'es-toolkit/object';
 import { Loader2Icon } from 'lucide-react';
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { useDialog } from '@/components/custom/use-dialog';
-import { SingleLineEditor } from '@/components/editor/SingleLineEditor';
 import {
   sqlComparisonOperators,
   sqlWhereKeywords,
 } from '@/components/editor/useRegister';
-import { CanvasTable } from '@/components/tables';
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from '@/components/ui/resizable';
+import { SingleLineEditor } from '@/components/editor/SingleLineEditor';
 import { usePageStore } from '@/hooks/context';
 import { buildQuickFilterWhere, filterRows } from '@/lib/filterRows';
 import { quoteIdent } from '@/lib/sql/countByColumn';
 import { buildCellPredicate, mergeWhere } from '@/lib/sql/drillDown';
 import { cn } from '@/lib/utils';
 import { SchemaType } from '@/stores/dataset';
-import { getStoredDB, useConnectionMeta } from '@/stores/dbList';
+import { getStoredDB } from '@/stores/dbList';
 import { usePrecision } from '@/stores/setting';
 import { TabContextType, TableContextType, useTabsStore } from '@/stores/tabs';
 
@@ -30,7 +23,7 @@ import { ColumnProfileDialog } from './ColumnProfileDialog';
 import { CountByColumnDialog } from './CountByColumnDialog';
 import { DataViewToolbar } from './DataViewToolbar';
 import { PivotDialog } from './PivotDialog';
-import { ValueViewer } from './ValueViewer';
+import { TableDataPanel } from './TableDataPanel';
 
 export const Loading = ({ className }: { className?: string }) => {
   return (
@@ -53,20 +46,36 @@ export type SelectedCellType = {
 };
 
 export function TableView({ context }: { context: TabContextType }) {
-  const {
-    refresh,
-    cancelRefresh,
-    loading,
-    data,
-    tableSchema,
-    beautify,
-    orderBy,
-    setOrderBy,
-    transpose,
-    cross,
-    showValue,
-    direction,
-  } = usePageStore();
+  const refresh = usePageStore((s) => s.refresh);
+  const cancelRefresh = usePageStore((s) => s.cancelRefresh);
+  const loading = usePageStore((s) => s.loading);
+  const data = usePageStore((s) => s.data);
+  const tableSchema = usePageStore((s) => s.tableSchema);
+  const beautify = usePageStore((s) => s.beautify);
+  const orderBy = usePageStore((s) => s.orderBy);
+  const setOrderBy = usePageStore((s) => s.setOrderBy);
+  const transpose = usePageStore((s) => s.transpose);
+  const cross = usePageStore((s) => s.cross);
+  const showValue = usePageStore((s) => s.showValue);
+  const direction = usePageStore((s) => s.direction);
+  const setShowValue = usePageStore((s) => s.setShowValue);
+  const setDirection = usePageStore((s) => s.setDirection);
+  const page = usePageStore((s) => s.page);
+  const perPage = usePageStore((s) => s.perPage);
+  const total = usePageStore((s) => s.total);
+  const sql = usePageStore((s) => s.sql);
+  const elapsed = usePageStore((s) => s.elapsed);
+  const sqlWhere = usePageStore((s) => s.sqlWhere);
+  const hiddenColumns = usePageStore((s) => s.hiddenColumns);
+  const dialogColumn = usePageStore((s) => s.dialogColumn);
+  const setBeautify = usePageStore((s) => s.setBeautify);
+  const setPagination = usePageStore((s) => s.setPagination);
+  const setTranspose = usePageStore((s) => s.setTranspose);
+  const setHiddenColumns = usePageStore((s) => s.setHiddenColumns);
+  const setCross = usePageStore((s) => s.setCross);
+  const setDialogColumn = usePageStore((s) => s.setDialogColumn);
+  const setSQLWhere = usePageStore((s) => s.setSQLWhere);
+
   const currentTab = useTabsStore((s) => s.currentId);
   const initialLoaded = useRef(false);
 
@@ -83,30 +92,6 @@ export function TableView({ context }: { context: TabContextType }) {
     }
   }, [context.id, currentTab, refresh]);
   const precision = usePrecision();
-
-  const [selectedCell, setSelectCell] = useState<SelectedCellType | null>();
-  const [selectedCellInfos, setSelectedCellInfos] = useState<
-    SelectedCellType[][] | null
-  >();
-  const { setShowValue, setDirection } = usePageStore();
-
-  const {
-    page,
-    perPage,
-    total,
-    sql,
-    elapsed,
-    sqlWhere,
-    hiddenColumns,
-    dialogColumn,
-    setBeautify,
-    setPagination,
-    setTranspose,
-    setHiddenColumns,
-    setCross,
-    setDialogColumn,
-    setSQLWhere,
-  } = usePageStore();
 
   const countByDialog = useDialog();
   const profileDialog = useDialog();
@@ -130,11 +115,14 @@ export function TableView({ context }: { context: TabContextType }) {
     [data, resultFilter, columnNames],
   );
 
-  const resolveDialect = () =>
-    getStoredDB(context.dbId)?.dialect ??
-    ((context as TableContextType).type === 'file' ? 'file' : 'generic');
+  const resolveDialect = useCallback(
+    () =>
+      getStoredDB(context.dbId)?.dialect ??
+      ((context as TableContextType).type === 'file' ? 'file' : 'generic'),
+    [context],
+  );
 
-  const handleApplyFilterToWhere = () => {
+  const handleApplyFilterToWhere = useCallback(() => {
     if (!resultFilter.trim() || !columnNames.length) return;
     const clause = buildQuickFilterWhere(
       columnNames,
@@ -145,26 +133,77 @@ export function TableView({ context }: { context: TabContextType }) {
     if (!clause) return;
     setSQLWhere(mergeWhere(sqlWhere, clause));
     void refresh();
-  };
+  }, [
+    columnNames,
+    refresh,
+    resolveDialect,
+    resultFilter,
+    setSQLWhere,
+    sqlWhere,
+  ]);
 
-  const handleDrillDown = (column: string, value: unknown) => {
-    const predicate = buildCellPredicate(column, value, resolveDialect());
-    setSQLWhere(mergeWhere(sqlWhere, predicate));
-    void refresh();
-  };
+  const handleDrillDown = useCallback(
+    (column: string, value: unknown) => {
+      const predicate = buildCellPredicate(column, value, resolveDialect());
+      setSQLWhere(mergeWhere(sqlWhere, predicate));
+      void refresh();
+    },
+    [refresh, resolveDialect, setSQLWhere, sqlWhere],
+  );
 
-  const handleCancel = async () => {
+  const handleCancel = useCallback(async () => {
     try {
       await cancelRefresh();
     } catch (e) {
       console.error(e);
     }
-  };
+  }, [cancelRefresh]);
+
+  const handleCountByColumn = useCallback(
+    (col?: string) => {
+      if (!col) return;
+      setDialogColumn(col);
+      countByDialog.trigger();
+    },
+    [countByDialog, setDialogColumn],
+  );
+
+  const handleProfileColumn = useCallback(
+    (col?: string) => {
+      if (!col) return;
+      setProfileColumn(col.replace(/\s*[↑↓]\s*$/, '').trim());
+      profileDialog.trigger();
+    },
+    [profileDialog],
+  );
+
+  const handlePivotColumn = useCallback(
+    (col?: string) => {
+      if (!col) return;
+      setPivotRowField(col.replace(/\s*[↑↓]\s*$/, '').trim());
+      pivotDialog.trigger();
+    },
+    [pivotDialog],
+  );
+
+  const handleOrderByColumn = useCallback(
+    (
+      col?: string,
+      options?: { desc?: boolean; clear?: boolean },
+    ) => {
+      if (!col || !setOrderBy) return;
+      const name = col.replace(/\s*[↑↓]\s*$/, '').trim();
+      setOrderBy(name, options);
+    },
+    [setOrderBy],
+  );
+
+  const tableContext = context as TableContextType;
 
   return (
-    <div className="h-full min-h-0 min-w-0 flex flex-col overflow-hidden">
+    <div className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden">
       <DataViewToolbar
-        context={context as TableContextType}
+        context={tableContext}
         dbId={context.dbId}
         length={filteredData.length}
         page={page}
@@ -193,101 +232,46 @@ export function TableView({ context }: { context: TabContextType }) {
           pivotDialog.trigger();
         }}
       />
-      <ResizablePanelGroup
-        orientation={direction}
-        className="min-h-0 min-w-0 flex-1"
-      >
-        <ResizablePanel
-          defaultSize={80}
-          className="min-h-0 min-w-0 overflow-hidden"
-        >
-          <div className="h-full min-h-0 min-w-0 flex flex-col overflow-hidden">
-            <InputToolbar
-              context={context as TableContextType}
-              schema={tableSchema ?? []}
-            />
-            <div className="h-full min-h-0 flex-1 overflow-hidden mb-px">
-              <Suspense fallback={<Loading />}>
-                {loading ? <Loading /> : null}
-                <CanvasTable
-                  style={loading ? { display: 'none' } : undefined}
-                  data={filteredData}
-                  schema={tableSchema ?? []}
-                  hiddenColumns={hiddenColumns}
-                  setHiddenColumns={setHiddenColumns}
-                  beautify={beautify}
-                  orderBy={orderBy}
-                  precision={precision}
-                  transpose={transpose}
-                  cross={cross}
-                  onSelectedCell={(arg: SelectedCellType | null) => {
-                    setSelectCell(arg);
-                  }}
-                  onSelectedCellInfos={(cells) => {
-                    setSelectedCellInfos(cells);
-                  }}
-                  onCountByColumn={(col) => {
-                    if (!col) return;
-                    setDialogColumn(col);
-                    countByDialog.trigger();
-                  }}
-                  onProfileColumn={(col) => {
-                    if (!col) return;
-                    setProfileColumn(col.replace(/\s*[↑↓]\s*$/, '').trim());
-                    profileDialog.trigger();
-                  }}
-                  onPivotColumn={(col) => {
-                    if (!col) return;
-                    setPivotRowField(col.replace(/\s*[↑↓]\s*$/, '').trim());
-                    pivotDialog.trigger();
-                  }}
-                  onOrderByColumn={(col, options) => {
-                    if (!col || !setOrderBy) return;
-                    const name = col.replace(/\s*[↑↓]\s*$/, '').trim();
-                    setOrderBy(name, options);
-                  }}
-                  onDrillDown={handleDrillDown}
-                />
-              </Suspense>
-            </div>
-          </div>
-        </ResizablePanel>
-        {showValue ? (
-          <>
-            <ResizableHandle withHandle />
-            <ResizablePanel
-              defaultSize={20}
-              className="min-h-0 min-w-0 overflow-hidden"
-            >
-              <div className="size-full min-h-0 min-w-0 overflow-hidden">
-                <ValueViewer
-                  selectedCell={selectedCell}
-                  selectedCellInfos={selectedCellInfos}
-                  setShowValue={setShowValue}
-                  setDirection={setDirection}
-                  direction={direction}
-                />
-              </div>
-            </ResizablePanel>
-          </>
-        ) : null}
-      </ResizablePanelGroup>
+      <TableDataPanel
+        loading={loading}
+        data={filteredData}
+        schema={tableSchema ?? []}
+        hiddenColumns={hiddenColumns}
+        setHiddenColumns={setHiddenColumns}
+        beautify={beautify}
+        orderBy={orderBy}
+        precision={precision}
+        transpose={transpose}
+        cross={cross}
+        showValue={showValue}
+        direction={direction}
+        setShowValue={setShowValue}
+        setDirection={setDirection}
+        onCountByColumn={handleCountByColumn}
+        onProfileColumn={handleProfileColumn}
+        onPivotColumn={handlePivotColumn}
+        onOrderByColumn={handleOrderByColumn}
+        onDrillDown={handleDrillDown}
+        beforeTable={
+          <InputToolbar context={tableContext} schema={tableSchema ?? []} />
+        }
+      />
       <CountByColumnDialog
         {...countByDialog.props}
         column={dialogColumn}
-        context={context as TableContextType}
+        context={tableContext}
         sqlWhere={sqlWhere}
       />
       <ColumnProfileDialog
         {...profileDialog.props}
         column={profileColumn}
-        context={context as TableContextType}
+        context={tableContext}
         sqlWhere={sqlWhere}
       />
       <PivotDialog
         {...pivotDialog.props}
         columns={tableSchema ?? []}
-        context={context as TableContextType}
+        context={tableContext}
         sqlWhere={sqlWhere}
         initialRowField={pivotRowField}
       />
@@ -295,77 +279,90 @@ export function TableView({ context }: { context: TabContextType }) {
   );
 }
 
-export function InputToolbar({
-  context,
+const TMP_TABLE_NAME = '__tmp__';
+
+export const InputToolbar = memo(function InputToolbar({
+  context: _context,
   schema,
 }: {
   context: TableContextType;
   schema: SchemaType[];
 }) {
-  const { setSQLWhere, setSQLOrderBy, refresh, sqlWhere, sqlOrderBy } =
-    usePageStore();
+  const setSQLWhere = usePageStore((s) => s.setSQLWhere);
+  const setSQLOrderBy = usePageStore((s) => s.setSQLOrderBy);
+  const refresh = usePageStore((s) => s.refresh);
+  const sqlWhere = usePageStore((s) => s.sqlWhere);
+  const sqlOrderBy = usePageStore((s) => s.sqlOrderBy);
 
-  const { dbId, tableId } = context;
-  const tableSchema = useConnectionMeta(dbId);
-
-  const handleEnterDown = async (_value: string) => {
+  const handleEnterDown = useCallback(async () => {
     await refresh();
-  };
+  }, [refresh]);
 
-  const tmpTableName = '__tmp__';
-  const current = {
-    '': {
-      [tmpTableName]: schema.map(({ name, type }) => ({ name, type })),
-    },
-  };
+  const columnMeta = useMemo(
+    () => schema.map(({ name, type }) => ({ name, type: type ?? '' })),
+    [schema],
+  );
 
-  console.log('tableId:', tableId);
+  const completeMetaBase = useMemo(
+    () => ({
+      tables: {
+        '': {
+          [TMP_TABLE_NAME]: columnMeta,
+        },
+      },
+      keywords: sqlWhereKeywords,
+      operators: sqlComparisonOperators,
+      functions: [] as string[],
+    }),
+    [columnMeta],
+  );
 
-  const completeMeta = {
-    tables: toMerged(tableSchema ?? {}, current),
-    keywords: sqlWhereKeywords,
-    operators: sqlComparisonOperators,
-    functions: [],
-  };
+  const whereCompleteMeta = useMemo(
+    () => ({
+      ...completeMetaBase,
+      prefixCode: `select * from ${TMP_TABLE_NAME} where `,
+    }),
+    [completeMetaBase],
+  );
+
+  const orderCompleteMeta = useMemo(
+    () => ({
+      ...completeMetaBase,
+      prefixCode: `select * from ${TMP_TABLE_NAME} order by `,
+    }),
+    [completeMetaBase],
+  );
 
   return (
-    <div className="flex flex-row items-center h-8 min-h-8 w-full overflow-hidden bg-background/40 border-b font-mono">
-      <ResizablePanelGroup orientation="horizontal" className="min-w-0">
-        <ResizablePanel defaultSize={50} className="flex flex-row items-center min-w-0 overflow-hidden">
-          <div className="mx-2 min-w-fit text-muted-foreground text-sm">
-            WHERE
-          </div>
-          <div className="w-full min-w-0 overflow-hidden">
-            <SingleLineEditor
-              className="text-sm"
-              initialValue={sqlWhere}
-              onChange={setSQLWhere}
-              onEnterDown={handleEnterDown}
-              completeMeta={{
-                ...completeMeta,
-                prefixCode: `select * from ${tmpTableName} where `,
-              }}
-            />
-          </div>
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel defaultSize={50} className="flex flex-row items-center min-w-0 overflow-hidden">
-          <div className="mx-2 min-w-fit text-muted-foreground text-sm">
-            ORDER BY
-          </div>
-          <div className="w-full min-w-0 overflow-hidden">
-            <SingleLineEditor
-              initialValue={sqlOrderBy}
-              onChange={setSQLOrderBy}
-              onEnterDown={handleEnterDown}
-              completeMeta={{
-                ...completeMeta,
-                prefixCode: `select * from ${tmpTableName} order by `,
-              }}
-            />
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+    <div className="flex h-8 min-h-8 w-full flex-row items-center overflow-hidden border-b bg-background/40 font-mono">
+      <div className="flex min-w-0 flex-1 flex-row items-center overflow-hidden">
+        <div className="mx-2 min-w-fit text-sm text-muted-foreground">
+          WHERE
+        </div>
+        <div className="min-w-0 flex-1 overflow-hidden">
+          <SingleLineEditor
+            className="text-sm"
+            initialValue={sqlWhere}
+            onChange={setSQLWhere}
+            onEnterDown={handleEnterDown}
+            completeMeta={whereCompleteMeta}
+          />
+        </div>
+      </div>
+      <div className="mx-2 h-5 w-px shrink-0 bg-border" />
+      <div className="flex min-w-0 flex-1 flex-row items-center overflow-hidden">
+        <div className="mx-2 min-w-fit text-sm text-muted-foreground">
+          ORDER BY
+        </div>
+        <div className="min-w-0 flex-1 overflow-hidden">
+          <SingleLineEditor
+            initialValue={sqlOrderBy}
+            onChange={setSQLOrderBy}
+            onEnterDown={handleEnterDown}
+            completeMeta={orderCompleteMeta}
+          />
+        </div>
+      </div>
     </div>
   );
-}
+});

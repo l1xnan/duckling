@@ -5,6 +5,8 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { DialectType } from '@/stores/dbList';
 
+import type { CompleteMetaType } from '@/ast/analyze';
+
 import {
   registerSqlFormattingProvider,
   registerUriBasedCompletionProvider,
@@ -28,19 +30,47 @@ export const sqlWhereKeywords = [
 ];
 export const sqlComparisonOperators = ['=', '>', '<', '>=', '<=', '<>', '!='];
 
+function completionMetaFingerprint(meta: CompleteMetaType): string {
+  const tables = meta.tables ?? {};
+  const parts: string[] = [];
+  for (const [db, tbls] of Object.entries(tables)) {
+    for (const [table, cols] of Object.entries(tbls ?? {})) {
+      const colSig = (cols ?? [])
+        .map((c) => `${c.name}:${c.type ?? ''}`)
+        .join(',');
+      parts.push(`${db}\0${table}\0${colSig}`);
+    }
+  }
+  parts.sort();
+  return `${meta.prefixCode ?? ''}|${parts.join('|')}`;
+}
+
 export function useRegister({
   language = 'sql',
   completeMeta = {},
   dialect,
 }: {
   language?: string;
-  completeMeta?: object;
+  completeMeta?: CompleteMetaType;
   dialect?: DialectType;
 }) {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(null);
   const instanceId = useRef(nanoid());
   const monacoApi = useMonaco();
   const modelUriRef = useRef<string | null>(null);
+  const metaFingerprintRef = useRef<string>('');
+
+  const applyCompleteMeta = useCallback(
+    (uri: string, meta: CompleteMetaType) => {
+      const fp = completionMetaFingerprint(meta);
+      if (fp === metaFingerprintRef.current) {
+        return;
+      }
+      metaFingerprintRef.current = fp;
+      setCompletionsForUri(uri, meta);
+    },
+    [],
+  );
 
   useEffect(() => {
     if (monacoApi) {
@@ -58,18 +88,18 @@ export function useRegister({
       if (model) {
         const uri = model.uri.toString();
         modelUriRef.current = uri;
-        setCompletionsForUri(uri, completeMeta);
+        applyCompleteMeta(uri, completeMeta as CompleteMetaType);
         setDialectForUri(uri, dialect);
       }
     },
-    [completeMeta, dialect],
+    [applyCompleteMeta, completeMeta, dialect],
   );
 
   useEffect(() => {
     if (modelUriRef.current) {
-      setCompletionsForUri(modelUriRef.current, completeMeta);
+      applyCompleteMeta(modelUriRef.current, completeMeta as CompleteMetaType);
     }
-  }, [completeMeta]);
+  }, [applyCompleteMeta, completeMeta]);
 
   useEffect(() => {
     if (modelUriRef.current) {

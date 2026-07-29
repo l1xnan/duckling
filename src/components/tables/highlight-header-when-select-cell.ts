@@ -20,7 +20,6 @@ export class HighlightHeaderWhenSelectCellPlugin
     TABLE_EVENT_TYPE.INITIALIZED,
     TABLE_EVENT_TYPE.SELECTED_CLEAR,
     TABLE_EVENT_TYPE.SELECTED_CELL,
-    TABLE_EVENT_TYPE.MOUSEMOVE_TABLE,
   ];
   table!: BaseTableAPI;
   pluginOptions: IHighlightHeaderWhenSelectCellPluginOptions;
@@ -41,8 +40,6 @@ export class HighlightHeaderWhenSelectCellPlugin
     if (runTime === TABLE_EVENT_TYPE.SELECTED_CLEAR) {
       this.clearHighlight();
     } else if (runTime === TABLE_EVENT_TYPE.SELECTED_CELL) {
-      this.updateHighlight();
-    } else if (runTime === TABLE_EVENT_TYPE.MOUSEMOVE_TABLE) {
       this.updateHighlight();
     } else if (runTime === TABLE_EVENT_TYPE.INITIALIZED) {
       this.registerStyle();

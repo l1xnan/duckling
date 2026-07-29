@@ -256,11 +256,6 @@ export function analyzeContext(
   }
   const _node = rootNode.descendantForIndex(position, position);
   const fieldName = getFieldNameOfNode(_node);
-  console.log(
-    `fieldName: ${fieldName}, `,
-    `leafNode: ${_node?.toString()}, `,
-    formatPosition(_node),
-  );
   if (fieldName == 'alias') {
     return null;
   }
@@ -382,8 +377,6 @@ export function makeSuggestions(ctx: SqlContext, meta: CompleteMetaType) {
     return [];
   }
 
-  console.log('SqlContext:', ctx);
-
   const suggestions: SuggestionType[] = [];
   if (ctx?.type === ContextType.TABLE) {
     Object.entries(tableSchema).forEach(([db, tables]) => {
@@ -433,7 +426,6 @@ export function makeSuggestions(ctx: SqlContext, meta: CompleteMetaType) {
     //
   }
 
-  console.log('suggestionsRaw', suggestions);
   return suggestions;
 }
 

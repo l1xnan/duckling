@@ -15,7 +15,7 @@ import {
 import { IVTablePlugin } from '@visactor/vtable/es/plugins';
 
 import type { ComponentProps } from 'react';
-import { CSSProperties, useMemo, useRef, useState } from 'react';
+import { CSSProperties, memo, useMemo, useRef, useState } from 'react';
 
 import { SelectedCellType } from '@/components/views/TableView';
 import { useTheme } from '@/hooks/theme-provider';
@@ -525,7 +525,6 @@ function CanvasTable_({
   const [plugins, setPlugins] = useState<IVTablePlugin[]>([highlightPlugin]);
 
   const option: ListTableConstructorOptions = useMemo(() => {
-    console.log('plugins:', plugins);
     return {
       records: data,
       limitMaxAutoWidth: 200,
@@ -589,9 +588,7 @@ function CanvasTable_({
         style={{ width: '100%', height: '100%' }}
         option={option}
         keepColumnWidthChange={true}
-        onContextMenuCell={(arg) => {
-          console.log('context', arg);
-        }}
+        onContextMenuCell={() => {}}
         onMouseDownCell={({ col, row }) => {
           const table = tableRef.current;
           if (table) {
@@ -601,17 +598,11 @@ function CanvasTable_({
         }}
         onMouseEnterCell={handleMouseEnterCell}
         onDragSelectEnd={handleDragSelectEnd}
-        onResizeColumnEnd={() => {
-          const widths = tableRef.current?.colWidthsMap;
-          console.log('new widths', widths);
-        }}
+        onResizeColumnEnd={() => {}}
         onReady={(tableInstance, isFirst) => {
-          console.log('表格初始化完成');
-          console.log(tableInstance);
           if (isFirst) {
             tableRef.current = tableInstance as ListTableAPI;
             setPlugins([highlightPlugin, contextMenuPlugin]);
-            console.log('表格首次初始化');
           }
         }}
       />
@@ -619,11 +610,13 @@ function CanvasTable_({
   );
 }
 
+const CanvasTableInner = memo(CanvasTable_);
+
 export const CanvasTable = (props: TableProps) => {
   if ((props.schema?.length ?? 0) == 0) {
     return null;
   }
-  return <CanvasTable_ {...props} />;
+  return <CanvasTableInner {...props} />;
 };
 
 export type SimpleTableProps = {

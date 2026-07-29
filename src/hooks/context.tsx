@@ -29,10 +29,19 @@ export const PageProvider = ({
   );
 };
 
-export const usePageStore = () => {
+export function usePageStore(): DatasetState & DatasetAction;
+export function usePageStore<T>(
+  selector: (state: DatasetState & DatasetAction) => T,
+): T;
+export function usePageStore<T>(
+  selector?: (state: DatasetState & DatasetAction) => T,
+): (DatasetState & DatasetAction) | T {
   const store = useContext(PageContext);
   if (store === null) {
     throw new Error('no provider');
   }
+  if (selector) {
+    return useStore(store, selector);
+  }
   return useStore(store);
-};
+}
