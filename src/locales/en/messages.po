@@ -186,7 +186,7 @@ msgstr "Browse"
 msgid "Built-in"
 msgstr "Built-in"
 
-#: src/components/views/ValueViewer.tsx:133
+#: src/components/views/ValueViewer.tsx:265
 msgid "Calculate"
 msgstr "Calculate"
 
@@ -286,7 +286,7 @@ msgstr "Clear filter"
 msgid "Clear log"
 msgstr "Clear log"
 
-#: src/components/tables/CanvasTable.tsx:102
+#: src/components/tables/CanvasTable.tsx:96
 msgid "Clear pinned"
 msgstr "Clear pinned"
 
@@ -294,7 +294,7 @@ msgstr "Clear pinned"
 msgid "Clear search"
 msgstr "Clear search"
 
-#: src/components/tables/CanvasTable.tsx:389
+#: src/components/tables/CanvasTable.tsx:368
 msgid "Clear sort"
 msgstr "Clear sort"
 
@@ -312,7 +312,7 @@ msgstr "ClickHouse"
 
 #: src/components/PageTabs.tsx:139
 #: src/components/ui/sheet.tsx:75
-#: src/components/views/ValueViewer.tsx:176
+#: src/components/views/ValueViewer.tsx:330
 msgid "Close"
 msgstr "Close"
 
@@ -349,7 +349,7 @@ msgstr "Collapse All"
 msgid "Color theme"
 msgstr "Color theme"
 
-#: src/components/tables/CanvasTable.tsx:105
+#: src/components/tables/CanvasTable.tsx:99
 #: src/components/views/ColumnProfileDialog.tsx:239
 #: src/components/views/ColumnProfileDialog.tsx:345
 msgid "Column profile"
@@ -408,22 +408,22 @@ msgid "Connection successful"
 msgstr "Connection successful"
 
 #: src/components/PageTabs.tsx:183
-#: src/components/tables/CanvasTable.tsx:108
+#: src/components/tables/CanvasTable.tsx:102
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:98
 #: src/pages/sidebar/context-menu/SchemaContextMenu.tsx:51
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:268
 msgid "Copy"
 msgstr "Copy"
 
-#: src/components/tables/CanvasTable.tsx:109
+#: src/components/tables/CanvasTable.tsx:103
 msgid "Copy as CSV"
 msgstr "Copy as CSV"
 
-#: src/components/views/ValueViewer.tsx:249
+#: src/components/views/ValueViewer.tsx:422
 msgid "Copy as Markdown"
 msgstr "Copy as Markdown"
 
-#: src/components/tables/CanvasTable.tsx:99
+#: src/components/tables/CanvasTable.tsx:93
 msgid "Copy Field Name"
 msgstr "Copy Field Name"
 
@@ -452,7 +452,7 @@ msgstr "Count by column"
 msgid "Count by column: <0>{column}</0>"
 msgstr "Count by column: <0>{column}</0>"
 
-#: src/components/tables/CanvasTable.tsx:104
+#: src/components/tables/CanvasTable.tsx:98
 #: src/components/views/CountByColumnDialog.tsx:268
 #: src/components/views/CountByQueryDialog.tsx:248
 msgid "Count by this column"
@@ -697,6 +697,10 @@ msgstr "Escape"
 msgid "Est. result"
 msgstr "Est. result"
 
+#: src/components/views/ValueViewer.tsx:302
+msgid "Expand all"
+msgstr "Expand all"
+
 #: src/pages/sidebar/SideToolbar.tsx:95
 msgid "Expand All"
 msgstr "Expand All"
@@ -809,7 +813,7 @@ msgstr "Failed to save connection secrets"
 msgid "Favorite"
 msgstr "Favorite"
 
-#: src/components/views/ValueViewer.tsx:256
+#: src/components/views/ValueViewer.tsx:429
 msgid "Field"
 msgstr "Field"
 
@@ -817,7 +821,7 @@ msgstr "Field"
 msgid "File path"
 msgstr "File path"
 
-#: src/components/tables/CanvasTable.tsx:107
+#: src/components/tables/CanvasTable.tsx:101
 msgid "Filter by this value"
 msgstr "Filter by this value"
 
@@ -833,6 +837,10 @@ msgstr "Flat view"
 #: src/pages/settings/AppSetting.tsx:473
 msgid "Float precision"
 msgstr "Float precision"
+
+#: src/components/views/ValueViewer.tsx:302
+msgid "Fold nested fields"
+msgstr "Fold nested fields"
 
 #: src/pages/settings/AppSetting.tsx:242
 msgid "Follow the system language when available; otherwise fall back to English."
@@ -851,7 +859,7 @@ msgid "Foreground"
 msgstr "Foreground"
 
 #: src/components/views/ExportDialog.tsx:234
-#: src/components/views/ValueViewer.tsx:150
+#: src/components/views/ValueViewer.tsx:284
 msgid "Format"
 msgstr "Format"
 
@@ -929,7 +937,7 @@ msgstr "Go to previous page"
 msgid "Help"
 msgstr "Help"
 
-#: src/components/tables/CanvasTable.tsx:103
+#: src/components/tables/CanvasTable.tsx:97
 msgid "Hidden column"
 msgstr "Hidden column"
 
@@ -1219,11 +1227,11 @@ msgstr "Move to columns"
 msgid "Move to rows"
 msgstr "Move to rows"
 
-#: src/components/views/ValueViewer.tsx:159
+#: src/components/views/ValueViewer.tsx:313
 msgid "Move to the bottom"
 msgstr "Move to the bottom"
 
-#: src/components/views/ValueViewer.tsx:167
+#: src/components/views/ValueViewer.tsx:321
 msgid "Move to the top"
 msgstr "Move to the top"
 
@@ -1330,7 +1338,8 @@ msgstr "Not available"
 msgid "not limit"
 msgstr "not limit"
 
-#: src/components/views/ValueViewer.tsx:183
+#: src/components/views/ValueViewer.tsx:337
+#: src/components/views/ValueViewer.tsx:363
 msgid "not selected"
 msgstr "not selected"
 
@@ -1409,7 +1418,7 @@ msgstr "Open SQL editor"
 msgid "Open SQL folder"
 msgstr "Open SQL folder"
 
-#: src/components/tables/CanvasTable.tsx:688
+#: src/components/tables/CanvasTable.tsx:668
 msgid "Open table"
 msgstr "Open table"
 
@@ -1462,11 +1471,11 @@ msgstr "Path"
 msgid "pending"
 msgstr "pending"
 
-#: src/components/tables/CanvasTable.tsx:100
+#: src/components/tables/CanvasTable.tsx:94
 msgid "Pin to left"
 msgstr "Pin to left"
 
-#: src/components/tables/CanvasTable.tsx:101
+#: src/components/tables/CanvasTable.tsx:95
 msgid "Pin to right"
 msgstr "Pin to right"
 
@@ -1476,7 +1485,7 @@ msgstr "Pin to right"
 msgid "Pivot table"
 msgstr "Pivot table"
 
-#: src/components/tables/CanvasTable.tsx:106
+#: src/components/tables/CanvasTable.tsx:100
 msgid "Pivot with this column"
 msgstr "Pivot with this column"
 
@@ -1563,11 +1572,11 @@ msgstr "Query failed"
 msgid "Quote"
 msgstr "Quote"
 
-#: src/components/views/ValueViewer.tsx:30
+#: src/components/views/ValueViewer.tsx:31
 msgid "Raw"
 msgstr "Raw"
 
-#: src/components/views/ValueViewer.tsx:32
+#: src/components/views/ValueViewer.tsx:33
 msgid "Raw(JSON)"
 msgstr "Raw(JSON)"
 
@@ -1578,6 +1587,10 @@ msgstr "Read csv file parameters, see: <0>csv parameters</0>"
 #: src/components/StatusBar.tsx:154
 msgid "Ready"
 msgstr "Ready"
+
+#: src/components/views/ValueViewer.tsx:264
+msgid "Record"
+msgstr "Record"
 
 #: src/pages/settings/AppSetting.tsx:1231
 msgid "Recover on parse errors"
@@ -1978,15 +1991,15 @@ msgstr "Some shortcuts share the same keys within a scope. Resolve conflicts by 
 
 #: src/components/PageTabs.tsx:452
 #: src/components/PageTabs.tsx:471
-#: src/components/views/ValueViewer.tsx:211
+#: src/components/views/ValueViewer.tsx:384
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
-#: src/components/tables/CanvasTable.tsx:379
+#: src/components/tables/CanvasTable.tsx:358
 msgid "Sort ascending"
 msgstr "Sort ascending"
 
-#: src/components/tables/CanvasTable.tsx:384
+#: src/components/tables/CanvasTable.tsx:363
 msgid "Sort descending"
 msgstr "Sort descending"
 
@@ -2324,7 +2337,7 @@ msgstr "Used by the Monaco SQL editor and other code viewers. Prefer monospace f
 msgid "Username"
 msgstr "Username"
 
-#: src/components/views/ValueViewer.tsx:132
+#: src/components/views/ValueViewer.tsx:263
 msgid "Value"
 msgstr "Value"
 

@@ -186,7 +186,7 @@ msgstr "浏览"
 msgid "Built-in"
 msgstr "内置"
 
-#: src/components/views/ValueViewer.tsx:133
+#: src/components/views/ValueViewer.tsx:265
 msgid "Calculate"
 msgstr "计算"
 
@@ -286,7 +286,7 @@ msgstr "清除筛选"
 msgid "Clear log"
 msgstr "清空日志"
 
-#: src/components/tables/CanvasTable.tsx:102
+#: src/components/tables/CanvasTable.tsx:96
 msgid "Clear pinned"
 msgstr "取消固定"
 
@@ -294,7 +294,7 @@ msgstr "取消固定"
 msgid "Clear search"
 msgstr "清除搜索"
 
-#: src/components/tables/CanvasTable.tsx:389
+#: src/components/tables/CanvasTable.tsx:368
 msgid "Clear sort"
 msgstr "清除排序"
 
@@ -312,7 +312,7 @@ msgstr "ClickHouse"
 
 #: src/components/PageTabs.tsx:139
 #: src/components/ui/sheet.tsx:75
-#: src/components/views/ValueViewer.tsx:176
+#: src/components/views/ValueViewer.tsx:330
 msgid "Close"
 msgstr "关闭"
 
@@ -349,7 +349,7 @@ msgstr "全部折叠"
 msgid "Color theme"
 msgstr "配色主题"
 
-#: src/components/tables/CanvasTable.tsx:105
+#: src/components/tables/CanvasTable.tsx:99
 #: src/components/views/ColumnProfileDialog.tsx:239
 #: src/components/views/ColumnProfileDialog.tsx:345
 msgid "Column profile"
@@ -408,22 +408,22 @@ msgid "Connection successful"
 msgstr "连接成功"
 
 #: src/components/PageTabs.tsx:183
-#: src/components/tables/CanvasTable.tsx:108
+#: src/components/tables/CanvasTable.tsx:102
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:98
 #: src/pages/sidebar/context-menu/SchemaContextMenu.tsx:51
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:268
 msgid "Copy"
 msgstr "复制"
 
-#: src/components/tables/CanvasTable.tsx:109
+#: src/components/tables/CanvasTable.tsx:103
 msgid "Copy as CSV"
 msgstr "复制为 CSV"
 
-#: src/components/views/ValueViewer.tsx:249
+#: src/components/views/ValueViewer.tsx:422
 msgid "Copy as Markdown"
 msgstr "复制为 Markdown"
 
-#: src/components/tables/CanvasTable.tsx:99
+#: src/components/tables/CanvasTable.tsx:93
 msgid "Copy Field Name"
 msgstr "复制字段名"
 
@@ -452,7 +452,7 @@ msgstr "按列计数"
 msgid "Count by column: <0>{column}</0>"
 msgstr "按列计数：<0>{column}</0>"
 
-#: src/components/tables/CanvasTable.tsx:104
+#: src/components/tables/CanvasTable.tsx:98
 #: src/components/views/CountByColumnDialog.tsx:268
 #: src/components/views/CountByQueryDialog.tsx:248
 msgid "Count by this column"
@@ -697,6 +697,10 @@ msgstr "转义符"
 msgid "Est. result"
 msgstr "结果估算"
 
+#: src/components/views/ValueViewer.tsx:302
+msgid "Expand all"
+msgstr "全部展开"
+
 #: src/pages/sidebar/SideToolbar.tsx:95
 msgid "Expand All"
 msgstr "全部展开"
@@ -809,7 +813,7 @@ msgstr "保存连接密钥失败"
 msgid "Favorite"
 msgstr "收藏"
 
-#: src/components/views/ValueViewer.tsx:256
+#: src/components/views/ValueViewer.tsx:429
 msgid "Field"
 msgstr "字段"
 
@@ -817,7 +821,7 @@ msgstr "字段"
 msgid "File path"
 msgstr "文件路径"
 
-#: src/components/tables/CanvasTable.tsx:107
+#: src/components/tables/CanvasTable.tsx:101
 msgid "Filter by this value"
 msgstr "按此值筛选"
 
@@ -833,6 +837,10 @@ msgstr "平铺视图"
 #: src/pages/settings/AppSetting.tsx:473
 msgid "Float precision"
 msgstr "浮点精度"
+
+#: src/components/views/ValueViewer.tsx:302
+msgid "Fold nested fields"
+msgstr "折叠嵌套字段"
 
 #: src/pages/settings/AppSetting.tsx:242
 msgid "Follow the system language when available; otherwise fall back to English."
@@ -851,7 +859,7 @@ msgid "Foreground"
 msgstr "前景色"
 
 #: src/components/views/ExportDialog.tsx:234
-#: src/components/views/ValueViewer.tsx:150
+#: src/components/views/ValueViewer.tsx:284
 msgid "Format"
 msgstr "格式"
 
@@ -915,7 +923,7 @@ msgstr "GitHub（官方）"
 
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:524
 msgid "Glob"
-msgstr ""
+msgstr "通配符"
 
 #: src/components/ui/pagination.tsx:92
 msgid "Go to next page"
@@ -929,7 +937,7 @@ msgstr "上一页"
 msgid "Help"
 msgstr "帮助"
 
-#: src/components/tables/CanvasTable.tsx:103
+#: src/components/tables/CanvasTable.tsx:97
 msgid "Hidden column"
 msgstr "隐藏列"
 
@@ -1219,11 +1227,11 @@ msgstr "移到列维"
 msgid "Move to rows"
 msgstr "移到行维"
 
-#: src/components/views/ValueViewer.tsx:159
+#: src/components/views/ValueViewer.tsx:313
 msgid "Move to the bottom"
 msgstr "移到底部"
 
-#: src/components/views/ValueViewer.tsx:167
+#: src/components/views/ValueViewer.tsx:321
 msgid "Move to the top"
 msgstr "移到顶部"
 
@@ -1330,7 +1338,8 @@ msgstr "不可用"
 msgid "not limit"
 msgstr "不限制"
 
-#: src/components/views/ValueViewer.tsx:183
+#: src/components/views/ValueViewer.tsx:337
+#: src/components/views/ValueViewer.tsx:363
 msgid "not selected"
 msgstr "未选择"
 
@@ -1409,7 +1418,7 @@ msgstr "打开 SQL 编辑器"
 msgid "Open SQL folder"
 msgstr "打开 SQL 文件夹"
 
-#: src/components/tables/CanvasTable.tsx:688
+#: src/components/tables/CanvasTable.tsx:668
 msgid "Open table"
 msgstr "打开表"
 
@@ -1462,11 +1471,11 @@ msgstr "路径"
 msgid "pending"
 msgstr "进行中"
 
-#: src/components/tables/CanvasTable.tsx:100
+#: src/components/tables/CanvasTable.tsx:94
 msgid "Pin to left"
 msgstr "固定到左侧"
 
-#: src/components/tables/CanvasTable.tsx:101
+#: src/components/tables/CanvasTable.tsx:95
 msgid "Pin to right"
 msgstr "固定到右侧"
 
@@ -1476,7 +1485,7 @@ msgstr "固定到右侧"
 msgid "Pivot table"
 msgstr "透视表"
 
-#: src/components/tables/CanvasTable.tsx:106
+#: src/components/tables/CanvasTable.tsx:100
 msgid "Pivot with this column"
 msgstr "用此列透视"
 
@@ -1563,11 +1572,11 @@ msgstr "查询失败"
 msgid "Quote"
 msgstr "引号"
 
-#: src/components/views/ValueViewer.tsx:30
+#: src/components/views/ValueViewer.tsx:31
 msgid "Raw"
 msgstr "原始"
 
-#: src/components/views/ValueViewer.tsx:32
+#: src/components/views/ValueViewer.tsx:33
 msgid "Raw(JSON)"
 msgstr "原始(JSON)"
 
@@ -1578,6 +1587,10 @@ msgstr "读取 CSV 文件参数，参见： <0>csv parameters</0>"
 #: src/components/StatusBar.tsx:154
 msgid "Ready"
 msgstr "就绪"
+
+#: src/components/views/ValueViewer.tsx:264
+msgid "Record"
+msgstr "记录"
 
 #: src/pages/settings/AppSetting.tsx:1231
 msgid "Recover on parse errors"
@@ -1978,15 +1991,15 @@ msgstr "同一作用域内存在冲突的快捷键，请重新分配其中一个
 
 #: src/components/PageTabs.tsx:452
 #: src/components/PageTabs.tsx:471
-#: src/components/views/ValueViewer.tsx:211
+#: src/components/views/ValueViewer.tsx:384
 msgid "Something went wrong"
 msgstr "出错了"
 
-#: src/components/tables/CanvasTable.tsx:379
+#: src/components/tables/CanvasTable.tsx:358
 msgid "Sort ascending"
 msgstr "升序排序"
 
-#: src/components/tables/CanvasTable.tsx:384
+#: src/components/tables/CanvasTable.tsx:363
 msgid "Sort descending"
 msgstr "降序排序"
 
@@ -2324,7 +2337,7 @@ msgstr "用于 Monaco SQL 编辑器及其他代码查看器，建议选择等宽
 msgid "Username"
 msgstr "用户名"
 
-#: src/components/views/ValueViewer.tsx:132
+#: src/components/views/ValueViewer.tsx:263
 msgid "Value"
 msgstr "值"
 

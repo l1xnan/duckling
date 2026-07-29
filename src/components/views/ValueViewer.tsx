@@ -4,17 +4,18 @@ import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import MonacoEditor from '@monaco-editor/react';
 
-import { LetterTextIcon, PanelBottomIcon, PanelRightIcon, XIcon } from 'lucide-react';
+import { ChevronsDownUpIcon, ChevronsUpDownIcon, LetterTextIcon, PanelBottomIcon, PanelRightIcon, XIcon } from 'lucide-react';
 import { editor } from 'monaco-editor';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { arrowToJSON } from '@/api';
-import { TooltipButton } from '@/components/custom/tooltip';
 import { DropdownMenu, DropdownMenuItem } from '@/components/custom/dropdown-menu';
-import ErrorBoundary from '@/components/ErrorBoundary';
+import { TooltipButton } from '@/components/custom/tooltip';
 import { DropdownMenuContent } from '@/components/custom/ui/dropdown-menu';
-import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/custom/ui/tabs';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
+import { formatRecordAsJson } from '@/lib/recordJson';
 import { cn } from '@/lib/utils';
 import { Direction } from '@/stores/dataset';
 import {
@@ -31,6 +32,82 @@ const FORMAT_OPTIONS: { value: string; label: MessageDescriptor | string }[] = [
   { value: 'JSON', label: 'JSON' },
   { value: 'Raw(JSON)', label: msg`Raw(JSON)` },
 ];
+
+type ViewerTab = 'value' | 'record' | 'calculate';
+
+const RECORD_JSON_FOLD_LEVEL = 2;
+const FOLDING_CONTROLLER_ID = 'editor.contrib.folding';
+
+type FoldingContribution = {
+  getFoldingModel(): Promise<{ regions: { length: number } } | null> | null;
+};
+
+function getFoldingRegionCount(ed: editor.IStandaloneCodeEditor): Promise<number> {
+  const contribution = ed.getContribution(
+    FOLDING_CONTROLLER_ID,
+  ) as FoldingContribution | null;
+  const promise = contribution?.getFoldingModel();
+  if (!promise) return Promise.resolve(0);
+  return promise.then((model) => model?.regions.length ?? 0);
+}
+
+type RecordJsonFoldMode = 'compact' | 'expanded';
+
+function runRecordJsonFolding(
+  ed: editor.IStandaloneCodeEditor,
+  mode: RecordJsonFoldMode,
+): () => void {
+  let cancelled = false;
+
+  const run = async (attempt: number) => {
+    if (cancelled) return;
+
+    ed.layout();
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    });
+
+    const regionCount = await getFoldingRegionCount(ed);
+
+    if (regionCount === 0 && attempt < 12) {
+      await new Promise((r) => setTimeout(r, Math.min(80 * (attempt + 1), 400)));
+      return run(attempt + 1);
+    }
+    if (cancelled) return;
+
+    const model = ed.getModel();
+    if (mode === 'compact') {
+      if (model) {
+        const lastLine = model.getLineCount();
+        const lastColumn = model.getLineMaxColumn(lastLine);
+        ed.setSelection({
+          startLineNumber: lastLine,
+          startColumn: lastColumn,
+          endLineNumber: lastLine,
+          endColumn: lastColumn,
+        });
+      }
+      await ed.getAction(`editor.foldLevel${RECORD_JSON_FOLD_LEVEL}`)?.run();
+    } else {
+      await ed.getAction('editor.unfoldAll')?.run();
+    }
+
+    if (model) {
+      ed.setSelection({
+        startLineNumber: 1,
+        startColumn: 1,
+        endLineNumber: 1,
+        endColumn: 1,
+      });
+      ed.revealLine(1);
+    }
+  };
+
+  void run(0);
+  return () => {
+    cancelled = true;
+  };
+}
 
 interface FormatTypeDropdownProps {
   type: string;
@@ -89,6 +166,12 @@ function displayValue(value: Data, type: string) {
   return value.toString();
 }
 
+const monacoBaseOptions: editor.IStandaloneEditorConstructionOptions = {
+  minimap: { enabled: false },
+  wordWrap: 'on',
+  tabSize: 2,
+};
+
 export function ValueViewer({
   selectedCell,
   selectedCellInfos,
@@ -101,22 +184,27 @@ export function ValueViewer({
   const codeFontFamily = useCodeFontFamily();
   const codeFontSize = useCodeFontSize();
 
+  const [activeTab, setActiveTab] = useState<ViewerTab>('value');
   const [type, setType] = useState('Raw');
-  const editorRef = useRef<editor.IStandaloneCodeEditor>(null);
+  const [recordFoldMode, setRecordFoldMode] = useState<RecordJsonFoldMode>('expanded');
+  const valueEditorRef = useRef<editor.IStandaloneCodeEditor>(null);
+  const recordEditorRef = useRef<editor.IStandaloneCodeEditor>(null);
 
   useEffect(() => {
-    editorRef.current?.updateOptions({
+    valueEditorRef.current?.updateOptions({
+      fontFamily: codeFontFamily,
+      fontSize: codeFontSize,
+    });
+    recordEditorRef.current?.updateOptions({
       fontFamily: codeFontFamily,
       fontSize: codeFontSize,
     });
   }, [codeFontFamily, codeFontSize]);
 
   const handleFormat = () => {
-    if (!editorRef.current) return;
-
+    if (!valueEditorRef.current) return;
     try {
-      // 触发 Monaco 内置的格式化命令
-      editorRef.current?.getAction('editor.action.formatDocument')?.run();
+      valueEditorRef.current?.getAction('editor.action.formatDocument')?.run();
     } catch (error) {
       console.error('格式化失败:', error);
     }
@@ -127,13 +215,54 @@ export function ValueViewer({
     [selectedCell?.value, type],
   );
 
+  const recordJson = useMemo(() => {
+    const record = selectedCell?.record;
+    if (!record || typeof record !== 'object') {
+      return '';
+    }
+    return formatRecordAsJson(record);
+  }, [selectedCell?.record]);
+
+  useEffect(() => {
+    setRecordFoldMode('expanded');
+  }, [recordJson]);
+
+  const mountRecordEditor = useCallback(
+    (ed: editor.IStandaloneCodeEditor) => {
+      recordEditorRef.current = ed;
+      ed.updateOptions({
+        fontFamily: codeFontFamily,
+        fontSize: codeFontSize,
+      });
+      if (activeTab === 'record' && recordJson) {
+        runRecordJsonFolding(ed, recordFoldMode);
+      }
+    },
+    [activeTab, recordJson, recordFoldMode, codeFontFamily, codeFontSize],
+  );
+
+  useEffect(() => {
+    if (activeTab !== 'record' || !recordJson) return;
+    const ed = recordEditorRef.current;
+    if (!ed) return;
+    return runRecordJsonFolding(ed, recordFoldMode);
+  }, [activeTab, recordJson, recordFoldMode]);
+
+  const showValueTools = activeTab === 'value';
+  const showRecordFoldToggle = activeTab === 'record' && Boolean(selectedCell?.record);
+
   return (
-    <Tabs defaultValue="value" className="size-full flex flex-col">
+    <Tabs
+      value={activeTab}
+      onValueChange={(v) => setActiveTab(v as ViewerTab)}
+      className="flex size-full flex-col"
+    >
       <div className="flex flex-row items-center justify-between">
         <TabsList variant="line">
           {[
-            { key: 'value', label: t`Value` },
-            { key: 'calculate', label: t`Calculate` },
+            { key: 'value' as const, label: t`Value` },
+            { key: 'record' as const, label: t`Record` },
+            { key: 'calculate' as const, label: t`Calculate` },
           ].map(({ key, label }) => (
             <TabsTrigger
               key={key}
@@ -145,13 +274,35 @@ export function ValueViewer({
           ))}
         </TabsList>
         <div className="flex flex-row items-center">
-          <FormatTypeDropdown type={type} setType={setType} />
-          <TooltipButton
-            icon={<LetterTextIcon className="size-5" />}
-            disabled={!type.includes('JSON')}
-            onClick={handleFormat}
-            tooltip={t`Format`}
-          />
+          {showValueTools ? (
+            <>
+              <FormatTypeDropdown type={type} setType={setType} />
+              <TooltipButton
+                icon={<LetterTextIcon className="size-5" />}
+                disabled={!type.includes('JSON')}
+                onClick={handleFormat}
+                tooltip={t`Format`}
+              />
+            </>
+          ) : null}
+
+          {showRecordFoldToggle ? (
+            <TooltipButton
+              icon={
+                recordFoldMode === 'compact' ? (
+                  <ChevronsUpDownIcon className="size-5" />
+                ) : (
+                  <ChevronsDownUpIcon className="size-5" />
+                )
+              }
+              onClick={() => {
+                setRecordFoldMode((m) => (m === 'compact' ? 'expanded' : 'compact'));
+              }}
+              tooltip={
+                recordFoldMode === 'compact' ? t`Expand all` : t`Fold nested fields`
+              }
+            />
+          ) : null}
 
           {direction == 'horizontal' ? (
             <TooltipButton
@@ -182,7 +333,7 @@ export function ValueViewer({
       </div>
       <TabsContent value="value" className="size-full">
         {selectedCell === null ? (
-          <pre className="size-full flex items-center justify-center">
+          <pre className="flex size-full items-center justify-center">
             <Trans>not selected</Trans>
           </pre>
         ) : (
@@ -190,20 +341,39 @@ export function ValueViewer({
             theme={theme}
             language={type.includes('JSON') ? 'json' : 'plaintext'}
             value={value}
-            onMount={(editor) => {
-              editorRef.current = editor;
-              editor.updateOptions({
+            onMount={(ed) => {
+              valueEditorRef.current = ed;
+              ed.updateOptions({
                 fontFamily: codeFontFamily,
                 fontSize: codeFontSize,
               });
             }}
             options={{
-              minimap: {
-                enabled: false,
-              },
+              ...monacoBaseOptions,
               lineNumbers: 'off',
-              wordWrap: 'on',
-              tabSize: 2,
+              fontFamily: codeFontFamily,
+              fontSize: codeFontSize,
+            }}
+          />
+        )}
+      </TabsContent>
+      <TabsContent value="record" className="size-full min-h-0">
+        {!selectedCell?.record ? (
+          <pre className="flex size-full items-center justify-center">
+            <Trans>not selected</Trans>
+          </pre>
+        ) : (
+          <MonacoEditor
+            theme={theme}
+            language="json"
+            value={recordJson}
+            onMount={mountRecordEditor}
+            options={{
+              ...monacoBaseOptions,
+              readOnly: true,
+              folding: true,
+              foldingHighlight: true,
+              lineNumbers: 'on',
               fontFamily: codeFontFamily,
               fontSize: codeFontSize,
             }}
@@ -255,12 +425,12 @@ function CalcViewer({ cells }: { cells?: SelectedCellType[][] | null }) {
       <Table className="text-xs font-mono">
         <TableHeader>
           <TableRow>
-            <TableCell className="p-1 w-20 pl-4">
+            <TableCell className="w-20 p-1 pl-4">
               <Trans>Field</Trans>
             </TableCell>
             {df.inds.map((k) => {
               return (
-                <TableCell key={k} className="p-1 w-10">
+                <TableCell key={k} className="w-10 p-1">
                   {k.toUpperCase()}
                 </TableCell>
               );
@@ -271,7 +441,7 @@ function CalcViewer({ cells }: { cells?: SelectedCellType[][] | null }) {
           {statsArr.map((row, i) => {
             return (
               <TableRow key={i}>
-                <TableCell className="p-1 w-20 pl-4">
+                <TableCell className="w-20 p-1 pl-4">
                   {row?.['field'] as string}
                 </TableCell>
                 {df.inds.map((k) => {
@@ -281,7 +451,7 @@ function CalcViewer({ cells }: { cells?: SelectedCellType[][] | null }) {
                       ? '—'
                       : String(v);
                   return (
-                    <TableCell key={k} className="p-1 w-10">
+                    <TableCell key={k} className="w-10 p-1">
                       {display}
                     </TableCell>
                   );

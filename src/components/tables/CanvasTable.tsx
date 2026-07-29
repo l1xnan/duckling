@@ -580,7 +580,10 @@ function CanvasTable_({
           const table = tableRef.current;
           if (table) {
             const value = table.getCellRawValue(col, row);
-            onSelectedCell?.({ col, row, value });
+            const record = table.getRecordByCell?.(col, row) as
+              | Record<string, unknown>
+              | undefined;
+            onSelectedCell?.({ col, row, value, record });
           }
         }}
         onMouseEnterCell={handleMouseEnterCell}

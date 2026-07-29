@@ -43,6 +43,7 @@ export type SelectedCellType = {
   field?: string;
   col: number;
   row: number;
+  record?: Record<string, unknown>;
 };
 
 export function TableView({ context }: { context: TabContextType }) {
