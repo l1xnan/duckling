@@ -8,10 +8,7 @@ import {
   ListTableConstructorOptions,
   TYPES,
 } from '@visactor/vtable';
-import {
-  ContextMenuPlugin,
-  MenuClickEventArgs
-} from '@visactor/vtable-plugins';
+import { ContextMenuPlugin, MenuClickEventArgs } from '@visactor/vtable-plugins';
 import { IVTablePlugin } from '@visactor/vtable/es/plugins';
 
 import type { ComponentProps } from 'react';
@@ -72,10 +69,7 @@ export interface TableProps<T = unknown> {
    * When set, header sort uses this callback (server-side) instead of
    * VTable client-side sorting.
    */
-  onOrderByColumn?: (
-    columnName: string,
-    options?: { desc?: boolean; clear?: boolean },
-  ) => void;
+  onOrderByColumn?: (columnName: string, options?: { desc?: boolean; clear?: boolean }) => void;
   /** Body cell: filter table by this cell value (drill-down). */
   onDrillDown?: (columnName: string, value: unknown) => void;
 }
@@ -122,9 +116,7 @@ const copySelectedAsCsv = async (table: ListTableAPI | null) => {
     (!transpose && firstRow.some((cell) => cell.row === 0)) ||
     (!!transpose && firstRow.some((cell) => cell.col === 0));
 
-  const rows = cellInfos.map((row) =>
-    row.map((item) => item.dataValue).join(','),
-  );
+  const rows = cellInfos.map((row) => row.map((item) => item.dataValue).join(','));
 
   if (includesHeader) {
     await writeText(rows.join('\n'));
@@ -132,11 +124,7 @@ const copySelectedAsCsv = async (table: ListTableAPI | null) => {
   }
 
   const headerRow = firstRow
-    .map((cell) =>
-      transpose
-        ? table.getCellValue(0, cell.row)
-        : table.getCellValue(cell.col, 0),
-    )
+    .map((cell) => (transpose ? table.getCellValue(0, cell.row) : table.getCellValue(cell.col, 0)))
     .join(',');
 
   await writeText([headerRow, ...rows].join('\n'));
@@ -163,10 +151,7 @@ const handleColumnStyle = (
   } else if (arg.dataValue === '') {
     style['color'] = '#c2410c';
     style['fontStyle'] = 'italic';
-  } else if (
-    typeof arg.dataValue === 'number' &&
-    !Number.isFinite(arg.dataValue)
-  ) {
+  } else if (typeof arg.dataValue === 'number' && !Number.isFinite(arg.dataValue)) {
     style['color'] = '#dc2626';
     style['fontWeight'] = 'bold';
   }
@@ -236,15 +221,11 @@ function CanvasTable_({
         key,
         field: name,
         fieldKey: key,
-        title: isSorted
-          ? `${name} ${orderBy?.desc ? '↓' : '↑'}`
-          : name,
+        title: isSorted ? `${name} ${orderBy?.desc ? '↓' : '↑'}` : name,
         dragHeader: true,
         hide: hiddenColumns?.[name],
         // Disable VTable client sort when server-side handler is provided.
-        sort: onOrderByColumn
-          ? false
-          : true,
+        sort: onOrderByColumn ? false : true,
         style: (arg) => handleColumnStyle(arg, { key, dataType, type }),
         fieldFormat: (record) =>
           handleFieldFormat(record, {
@@ -254,9 +235,7 @@ function CanvasTable_({
             beautify,
             precision,
           }),
-        headerStyle: isSorted
-          ? { fontWeight: 'bold' as const }
-          : undefined,
+        headerStyle: isSorted ? { fontWeight: 'bold' as const } : undefined,
       } as ColumnDefine;
     });
   }, [
@@ -459,22 +438,34 @@ function CanvasTable_({
           if (menuKey === 'copy-field') {
             await writeText((field as string) ?? '');
           } else if (menuKey === 'sort-asc') {
-            const col = String(field ?? '').replace(/\s*[↑↓]\s*$/, '').trim();
+            const col = String(field ?? '')
+              .replace(/\s*[↑↓]\s*$/, '')
+              .trim();
             if (col) onOrderByColumn?.(col, { desc: false });
           } else if (menuKey === 'sort-desc') {
-            const col = String(field ?? '').replace(/\s*[↑↓]\s*$/, '').trim();
+            const col = String(field ?? '')
+              .replace(/\s*[↑↓]\s*$/, '')
+              .trim();
             if (col) onOrderByColumn?.(col, { desc: true });
           } else if (menuKey === 'sort-clear') {
-            const col = String(field ?? '').replace(/\s*[↑↓]\s*$/, '').trim();
+            const col = String(field ?? '')
+              .replace(/\s*[↑↓]\s*$/, '')
+              .trim();
             if (col) onOrderByColumn?.(col, { clear: true });
           } else if (menuKey === 'count-by-column') {
-            const col = String(field ?? '').replace(/\s*[↑↓]\s*$/, '').trim();
+            const col = String(field ?? '')
+              .replace(/\s*[↑↓]\s*$/, '')
+              .trim();
             onCountByColumn?.(col);
           } else if (menuKey === 'column-profile') {
-            const col = String(field ?? '').replace(/\s*[↑↓]\s*$/, '').trim();
+            const col = String(field ?? '')
+              .replace(/\s*[↑↓]\s*$/, '')
+              .trim();
             onProfileColumn?.(col);
           } else if (menuKey === 'pivot-column') {
-            const col = String(field ?? '').replace(/\s*[↑↓]\s*$/, '').trim();
+            const col = String(field ?? '')
+              .replace(/\s*[↑↓]\s*$/, '')
+              .trim();
             if (col) onPivotColumn?.(col);
           } else if (menuKey == 'pin-to-left') {
             setLeftPinnedCols((v) => uniqueArray([...v, field as string]));
@@ -495,15 +486,11 @@ function CanvasTable_({
           await copySelectedAsCsv(table);
         } else if (menuKey == 'filter-by-value' && onDrillDown) {
           const value = table.getCellRawValue(e.colIndex, e.rowIndex);
-          const define = table.getBodyColumnDefine?.(
-            e.colIndex,
-            e.rowIndex,
-          ) as { field?: string; title?: string; key?: string } | undefined;
+          const define = table.getBodyColumnDefine?.(e.colIndex, e.rowIndex) as
+            | { field?: string; title?: string; key?: string }
+            | undefined;
           const fieldKey =
-            define?.field ??
-            define?.key ??
-            define?.title ??
-            table.getCellValue(e.colIndex, 0);
+            define?.field ?? define?.key ?? define?.title ?? table.getCellValue(e.colIndex, 0);
           const colName = String(fieldKey ?? '')
             .replace(/\s*[↑↓]\s*$/, '')
             .trim();
@@ -531,6 +518,9 @@ function CanvasTable_({
       heightMode: 'standard',
       defaultRowHeight: 24,
       widthMode: 'autoWidth',
+      resize: {
+        columnResizeMode: 'header',
+      },
       // Avoid subpixel container (e.g. 972.844px) vs integer canvas (973px) thrash.
       tableSizeAntiJitter: true,
       showFrozenIcon: true,
@@ -578,10 +568,7 @@ function CanvasTable_({
   ]);
 
   return (
-    <div
-      className="h-full w-full min-h-0 min-w-0 overflow-hidden select-text"
-      style={style}
-    >
+    <div className="h-full w-full min-h-0 min-w-0 overflow-hidden select-text" style={style}>
       <ListTable
         key={isDark ? 'dark' : 'light'}
         ref={tableRef}
@@ -637,10 +624,7 @@ export function SimpleTable({
   const theme = useTableTheme();
   const [plugins, setPlugins] = useState<IVTablePlugin[]>([]);
 
-  const columnKeys = useMemo(
-    () => Object.keys((data[0] as Record<string, unknown>) ?? {}),
-    [data],
-  );
+  const columnKeys = useMemo(() => Object.keys((data[0] as Record<string, unknown>) ?? {}), [data]);
 
   const contextMenuPlugin = useMemo(() => {
     type MenuEntry =
@@ -721,10 +705,9 @@ export function SimpleTable({
         } else if (menuKey === 'copy-as-csv') {
           await copySelectedAsCsv(table);
         } else if (menuKey === 'open-table' && onOpenTable) {
-          const record = table.getRecordByCell?.(
-            e.colIndex,
-            e.rowIndex,
-          ) as Record<string, unknown> | undefined;
+          const record = table.getRecordByCell?.(e.colIndex, e.rowIndex) as
+            | Record<string, unknown>
+            | undefined;
           if (record) onOpenTable(record);
         }
       },
@@ -737,6 +720,9 @@ export function SimpleTable({
       limitMaxAutoWidth: 200,
       heightMode: 'standard',
       defaultRowHeight: 28,
+      resize: {
+        columnResizeMode: 'header',
+      },
       widthMode: 'autoWidth',
       tableSizeAntiJitter: true,
       showFrozenIcon: true,
