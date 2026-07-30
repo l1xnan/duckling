@@ -79,3 +79,17 @@ body .vtable__bubble-tooltip-element__content {
 .vtable-context-menu-item:hover {
   background-color: var(--accent) !important;
 }
+
+body .monaco-editor .sql-current-statement {
+  background-color: color-mix(in oklch, var(--primary) 12%, transparent);
+  border-left: 1px solid color-mix(in oklch, var(--primary) 45%, transparent);
+  border-right: 1px solid color-mix(in oklch, var(--primary) 45%, transparent);
+}
+
+body .monaco-editor .sql-current-statement-top {
+  border-top: 1px solid color-mix(in oklch, var(--primary) 45%, transparent);
+}
+
+body .monaco-editor .sql-current-statement-bottom {
+  border-bottom: 1px solid color-mix(in oklch, var(--primary) 45%, transparent);
+}

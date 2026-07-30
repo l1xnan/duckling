@@ -161,11 +161,11 @@ msgstr "Before operator"
 msgid "Bookmark"
 msgstr "Bookmark"
 
-#: src/pages/editor/EditorToolbar.tsx:135
+#: src/pages/editor/EditorToolbar.tsx:154
 msgid "Bookmark SQL"
 msgstr "Bookmark SQL"
 
-#: src/pages/editor/index.tsx:275
+#: src/pages/editor/index.tsx:310
 msgid "Bookmarked"
 msgstr "Bookmarked"
 
@@ -667,11 +667,11 @@ msgstr "elapsed time: {0}"
 msgid "elapsed: {elapsed}ms"
 msgstr "elapsed: {elapsed}ms"
 
-#: src/pages/editor/index.tsx:262
-#: src/pages/editor/index.tsx:282
-#: src/pages/editor/index.tsx:344
-#: src/pages/editor/index.tsx:484
-#: src/pages/editor/index.tsx:539
+#: src/pages/editor/index.tsx:297
+#: src/pages/editor/index.tsx:317
+#: src/pages/editor/index.tsx:379
+#: src/pages/editor/index.tsx:519
+#: src/pages/editor/index.tsx:574
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:48
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:67
 msgid "Empty SQL"
@@ -705,7 +705,7 @@ msgstr "Expand all"
 msgid "Expand All"
 msgstr "Expand All"
 
-#: src/pages/editor/EditorToolbar.tsx:117
+#: src/pages/editor/EditorToolbar.tsx:136
 msgid "EXPLAIN"
 msgstr "EXPLAIN"
 
@@ -868,7 +868,7 @@ msgid "Format document"
 msgstr "Format document"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.format'))
-#: src/pages/editor/EditorToolbar.tsx:101
+#: src/pages/editor/EditorToolbar.tsx:120
 msgid "Format document ({0})"
 msgstr "Format document ({0})"
 
@@ -880,16 +880,16 @@ msgstr "Format float columns using Float precision above in new results. You can
 msgid "Format selection"
 msgstr "Format selection"
 
-#: src/components/editor/MonacoEditor.tsx:181
+#: src/components/editor/MonacoEditor.tsx:274
 msgid "Format Selection"
 msgstr "Format Selection"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.formatSelection'))
-#: src/pages/editor/EditorToolbar.tsx:108
+#: src/pages/editor/EditorToolbar.tsx:127
 msgid "Format selection ({0})"
 msgstr "Format selection ({0})"
 
-#: src/components/editor/MonacoEditor.tsx:170
+#: src/components/editor/MonacoEditor.tsx:263
 msgid "Format SQL"
 msgstr "Format SQL"
 
@@ -1034,11 +1034,11 @@ msgstr "Indent with tabs instead of spaces"
 msgid "Input"
 msgstr "Input"
 
-#: src/pages/editor/EditorToolbar.tsx:126
+#: src/pages/editor/EditorToolbar.tsx:145
 msgid "Insert @vars template"
 msgstr "Insert @vars template"
 
-#: src/pages/editor/index.tsx:368
+#: src/pages/editor/index.tsx:403
 msgid "Inserted @vars template"
 msgstr "Inserted @vars template"
 
@@ -1103,7 +1103,7 @@ msgstr "Leave empty to keep current"
 msgid "Light"
 msgstr "Light"
 
-#: src/pages/editor/EditorToolbar.tsx:94
+#: src/pages/editor/EditorToolbar.tsx:98
 msgid "limit 500"
 msgstr "limit 500"
 
@@ -1322,7 +1322,7 @@ msgstr "No SSH profiles yet."
 msgid "No tabs in this pane"
 msgstr "No tabs in this pane"
 
-#: src/pages/editor/index.tsx:350
+#: src/pages/editor/index.tsx:385
 msgid "No template variables found"
 msgstr "No template variables found"
 
@@ -1334,7 +1334,7 @@ msgstr "None"
 msgid "Not available"
 msgstr "Not available"
 
-#: src/pages/editor/EditorToolbar.tsx:94
+#: src/pages/editor/EditorToolbar.tsx:98
 msgid "not limit"
 msgstr "not limit"
 
@@ -1657,7 +1657,7 @@ msgstr "Reset this mode"
 msgid "Reset to default"
 msgstr "Reset to default"
 
-#: src/pages/editor/index.tsx:410
+#: src/pages/editor/index.tsx:445
 msgid "Result · {label}"
 msgstr "Result · {label}"
 
@@ -1669,7 +1669,7 @@ msgstr "Result rows"
 msgid "Result tabs"
 msgstr "Result tabs"
 
-#: src/pages/editor/index.tsx:411
+#: src/pages/editor/index.tsx:446
 msgid "Result{baseCount}"
 msgstr "Result{baseCount}"
 
@@ -1694,19 +1694,19 @@ msgstr "Rows"
 msgid "Rows per page for newly opened data views and preview dialogs."
 msgstr "Rows per page for newly opened data views and preview dialogs."
 
-#: src/components/editor/MonacoEditor.tsx:160
+#: src/components/editor/MonacoEditor.tsx:253
 #: src/components/views/MacroRunDialog.tsx:189
 #: src/components/views/PivotDialog.tsx:581
 msgid "Run"
 msgstr "Run"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.run'))
-#: src/pages/editor/EditorToolbar.tsx:77
+#: src/pages/editor/EditorToolbar.tsx:81
 msgid "Run ({0})"
 msgstr "Run ({0})"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.runNewTab'))
-#: src/pages/editor/EditorToolbar.tsx:84
+#: src/pages/editor/EditorToolbar.tsx:88
 msgid "Run in new tab ({0})"
 msgstr "Run in new tab ({0})"
 
@@ -1743,7 +1743,7 @@ msgid "Save"
 msgstr "Save"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.save'))
-#: src/pages/editor/EditorToolbar.tsx:146
+#: src/pages/editor/EditorToolbar.tsx:165
 msgid "Save ({0})"
 msgstr "Save ({0})"
 
@@ -1759,8 +1759,8 @@ msgstr "Save SQL file"
 msgid "Save values as @vars comment above SQL"
 msgstr "Save values as @vars comment above SQL"
 
-#: src/pages/editor/EditorToolbar.tsx:147
-#: src/pages/editor/index.tsx:191
+#: src/pages/editor/EditorToolbar.tsx:166
+#: src/pages/editor/index.tsx:205
 msgid "Saved"
 msgstr "Saved"
 
@@ -1868,7 +1868,7 @@ msgstr "Select SQL formatter"
 msgid "Selection"
 msgstr "Selection"
 
-#: src/pages/editor/EditorToolbar.tsx:179
+#: src/pages/editor/EditorToolbar.tsx:198
 msgid "Session"
 msgstr "Session"
 
@@ -2115,6 +2115,14 @@ msgstr "SSL"
 msgid "Standard"
 msgstr "Standard"
 
+#: src/pages/editor/EditorToolbar.tsx:110
+msgid "Statement split: current statement"
+msgstr "Statement split: current statement"
+
+#: src/pages/editor/EditorToolbar.tsx:111
+msgid "Statement split: entire buffer"
+msgstr "Statement split: entire buffer"
+
 #: src/components/views/ColumnProfileDialog.tsx:262
 #: src/components/views/CountByColumnDialog.tsx:201
 #: src/components/views/CountByQueryDialog.tsx:182
@@ -2195,7 +2203,7 @@ msgid "This will permanently delete temporary SQL \"{pendingDisplayName}\". This
 msgstr "This will permanently delete temporary SQL \"{pendingDisplayName}\". This action cannot be undone."
 
 #. placeholder {0}: statements.length
-#: src/pages/editor/index.tsx:551
+#: src/pages/editor/index.tsx:586
 msgid "This will run {0} queries. Continue?"
 msgstr "This will run {0} queries. Continue?"
 
@@ -2218,7 +2226,7 @@ msgid "Token"
 msgstr "Token"
 
 #. placeholder {0}: statements.length
-#: src/pages/editor/index.tsx:545
+#: src/pages/editor/index.tsx:580
 msgid "Too many combinations ({0}); limit is {limit}"
 msgstr "Too many combinations ({0}); limit is {limit}"
 
@@ -2268,7 +2276,7 @@ msgstr "Uncheck to export NDJSON (one object per line)."
 msgid "Uncompressed"
 msgstr "Uncompressed"
 
-#: src/pages/editor/EditorToolbar.tsx:175
+#: src/pages/editor/EditorToolbar.tsx:194
 msgid "unknown"
 msgstr "unknown"
 
@@ -2295,7 +2303,7 @@ msgstr "Update failed: {message}"
 msgid "Update source"
 msgstr "Update source"
 
-#: src/pages/editor/index.tsx:367
+#: src/pages/editor/index.tsx:402
 msgid "Updated @vars template"
 msgstr "Updated @vars template"
 

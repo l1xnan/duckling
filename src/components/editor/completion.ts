@@ -1,17 +1,17 @@
-import { Parser } from '@/ast';
 import {
   analyzeContext,
   insertUnderscore,
   makeSuggestions,
   ContextType as SqlContextType,
 } from '@/ast/analyze';
+import { getSqlParser } from '@/ast/parserSingleton';
 import { showColumns } from '@/api';
 import { completionRegistry } from '@/components/editor/monacoConfig';
 import type { DialectRef } from '@/lib/connectionRef';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { Position } from 'monaco-editor/esm/vs/editor/editor.api';
 
-const parser = await Parser.load();
+const parser = await getSqlParser();
 
 // ── File columns cache ───────────────────────────────────────────────
 

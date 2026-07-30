@@ -18,7 +18,7 @@ Note: The current objective of this project is not to develop a fully functional
 ## Features
 
 - **Data browsing** — Canvas-rendered result grid with pagination, column hiding, transpose, result filtering, and per-cell value inspection.
-- **SQL editor** — Monaco-based editor with schema-aware autocomplete, run / format / `EXPLAIN` actions, and SQL bookmarks.
+- **SQL editor** — Monaco-based editor with schema-aware autocomplete, run / format / `EXPLAIN` actions, SQL bookmarks, and an optional per-statement split mode (toolbar toggle; default off).
 - **SQL template variables** — Write Jinja2-style `{{ variable }}` placeholders in SQL, declare values via a `/* @vars */` YAML block comment, and run multi-value queries (cartesian product → multiple result tabs) in one click. See [SQL Templates](#sql-templates) below.
 - **Pivot table** — Build pivots from row/column dimensions and measures (`count` / `sum` / `avg` / `min` / `max`), with high-cardinality warnings and copy-SQL support.
 - **Column profile** — Per-column statistics: total, null ratio, distinct count, min/max, and top values.
@@ -177,6 +177,44 @@ ORDER BY total DESC
 
 When a variable has multiple values (YAML list or multi-line in dialog), the system generates one statement per combination and opens a result tab for each. All tabs execute in parallel. A soft limit (20) asks for confirmation; a hard limit (50) rejects.
 
+## Current statement execution
+
+Write multiple SQL statements in one editor and use the toolbar toggle to choose whether runs and highlighting **split by statement** (default **off**).
+
+### Toolbar toggle
+
+Click the **statement split** button (forked-arrows icon) next to Run:
+
+| State | Run (`Mod+Enter` / ▶) | Highlight |
+|-------|------------------------|-----------|
+| **Off** (default) | Execute the entire editor buffer | No current-statement highlight |
+| **On** | Execute only the statement at the cursor | Rectangle around that statement (width follows the widest line of text, not full editor width) |
+
+- With a **non-empty selection**, the selection is always executed (toggle ignored).
+- Toggle state applies to the current editor tab; refreshing the app resets to off.
+
+### How statements are bounded
+
+When split is on, a **semicolon lexer** (ignoring `;` inside strings, line comments, `#` comments, block comments, and `$tag$` dollar quotes) is combined with **tree-sitter** to locate `statement` nodes. When tree-sitter truncates complex SQL (Chinese paths, `read_parquet(...)`, WITH/CTE, etc.), the lexer result is preferred so half-statements are not executed.
+
+Statements must be separated by **`;`**. Multiple statements separated only by blank lines are **not** split (treated as one block).
+
+### Examples
+
+```sql
+SELECT 1;
+SELECT 2;
+```
+
+With the cursor on the second line, Run executes only `SELECT 2` and highlights that statement.
+
+```sql
+WITH a AS (SELECT * FROM t)
+SELECT * FROM a;
+```
+
+With the cursor on the outer `SELECT`, the full outer statement including `WITH` is highlighted and executed (not just the inner CTE subquery).
+
 ### Toolbar button
 
 The `{}` button (next to EXPLAIN) scans the current selection (or the full buffer if no selection) for `{{ name }}` placeholders, then inserts or updates a `/* @vars */` block with empty values for missing variables. Edit the values directly and run — no dialog.
@@ -185,7 +223,7 @@ The `{}` button (next to EXPLAIN) scans the current selection (or the full buffe
 
 - `Mod+B` — toggle sidebar
 - `Mod+/` — keyboard shortcuts help
-- `Mod+Enter` — run SQL
+- `Mod+Enter` — run SQL (split off: full buffer; split on: current statement)
 - `Mod+Shift+Enter` — run SQL in a new tab
 - `Shift+Alt+F` — format document
 - `Mod+K` then `Mod+F` — format selection

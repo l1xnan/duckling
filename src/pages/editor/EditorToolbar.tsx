@@ -26,7 +26,7 @@ import {
 import { TooltipContent } from '@/components/ui/tooltip';
 import { formatHotkey, getHotkey } from '@/hotkeys';
 import { DBType, useDBListStore } from '@/stores/dbList';
-import { IconInfinity, IconInfinityOff } from '@tabler/icons-react';
+import { IconArrowsSplit, IconInfinity, IconInfinityOff } from '@tabler/icons-react';
 import React from 'react';
 
 const tooltipProps = {
@@ -42,6 +42,8 @@ export function EditorToolbar({
   session,
   onHasLimit,
   hasLimit,
+  onSplitStatements,
+  splitStatements,
   setSession,
   onFormat,
   canFormatSelection = false,
@@ -56,6 +58,8 @@ export function EditorToolbar({
   onHasLimit: (limit: boolean) => void;
   session?: string;
   hasLimit?: boolean;
+  onSplitStatements?: (enabled: boolean) => void;
+  splitStatements?: boolean;
   setSession: (s: DBType) => void;
   onFormat?: (scope: 'document' | 'selection') => void;
   canFormatSelection?: boolean;
@@ -96,6 +100,21 @@ export function EditorToolbar({
           >
             {hasLimit ? <IconInfinityOff /> : <IconInfinity />}
           </TooltipButton>
+
+          {onSplitStatements ? (
+            <TooltipButton
+              className={splitStatements ? 'text-primary' : undefined}
+              onClick={() => onSplitStatements(!splitStatements)}
+              tooltip={
+                splitStatements
+                  ? t`Statement split: current statement`
+                  : t`Statement split: entire buffer`
+              }
+              tooltipProps={tooltipProps}
+            >
+              <IconArrowsSplit />
+            </TooltipButton>
+          ) : null}
 
           <TooltipButton
             tooltip={t`Format document (${formatHotkey(getHotkey('editor.format'))})`}

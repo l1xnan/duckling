@@ -7,12 +7,19 @@ import {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useRef,
 } from 'react';
 
+import type { Parser } from '@/ast';
+import { getSqlParser } from '@/ast/parserSingleton';
 import { CompleteMetaType } from '@/ast/analyze';
 import { useRegister } from '@/components/editor/useRegister';
 import { i18n } from '@/i18n';
 import { cursorStateFromMonaco } from '@/lib/editorCursorFormat';
+import {
+  findStatementAtOffset,
+  statementHighlightBounds,
+} from '@/lib/sql/splitStatements';
 import { DialectType } from '@/stores/dbList';
 import { useEditorCursorStore } from '@/stores/editorCursor';
 import { useEditorSqlErrorStore } from '@/stores/editorSqlError';
@@ -42,15 +49,38 @@ const MonacoEditor = forwardRef<
     onRun: () => void;
     /** When set, cursor/selection is published for the status bar. */
     editorId?: string;
+    /** Highlight and run only the statement at the cursor (when no selection). */
+    statementSplitEnabled?: boolean;
   }
 >(function MonacoEditor(
-  { completeMeta, dialect, editorId, ...props },
+  {
+    completeMeta,
+    dialect,
+    editorId,
+    statementSplitEnabled = false,
+    ...props
+  },
   ref: ForwardedRef<EditorRef>,
 ) {
   const { handleEditorDidMount, editorRef, instanceId } = useRegister({
     completeMeta,
     dialect,
   });
+  const sqlParserRef = useRef<Parser | null>(null);
+  const refreshStatementHighlightRef = useRef<(() => void) | null>(null);
+  const statementSplitEnabledRef = useRef(statementSplitEnabled);
+  statementSplitEnabledRef.current = statementSplitEnabled;
+
+  useEffect(() => {
+    void getSqlParser().then((p) => {
+      sqlParserRef.current = p;
+      refreshStatementHighlightRef.current?.();
+    });
+  }, []);
+
+  useEffect(() => {
+    refreshStatementHighlightRef.current?.();
+  }, [statementSplitEnabled]);
 
   useEffect(() => {
     if (!editorId) {
@@ -112,6 +142,64 @@ const MonacoEditor = forwardRef<
 
     if (editorId) {
       let raf = 0;
+      const stmtDecorations = editor.createDecorationsCollection([]);
+      const updateStatementHighlight = () => {
+        if (!statementSplitEnabledRef.current) {
+          stmtDecorations.clear();
+          return;
+        }
+        const pos = editor.getPosition();
+        const model = editor.getModel();
+        if (!pos || !model) {
+          stmtDecorations.clear();
+          return;
+        }
+        const selection = editor.getSelection();
+        if (selection && !selection.isEmpty()) {
+          stmtDecorations.clear();
+          return;
+        }
+        const sql = model.getValue();
+        const offset = model.getOffsetAt(pos);
+        const slice = findStatementAtOffset(
+          sql,
+          offset,
+          sqlParserRef.current ?? undefined,
+        );
+        if (!slice?.text) {
+          stmtDecorations.clear();
+          return;
+        }
+        const bounds = statementHighlightBounds(model, slice);
+        const decorations = [];
+        for (
+          let line = bounds.startLineNumber;
+          line <= bounds.endLineNumber;
+          line += 1
+        ) {
+          const classes = ['sql-current-statement'];
+          if (line === bounds.startLineNumber) {
+            classes.push('sql-current-statement-top');
+          }
+          if (line === bounds.endLineNumber) {
+            classes.push('sql-current-statement-bottom');
+          }
+          decorations.push({
+            range: new monaco.Range(
+              line,
+              bounds.startColumn,
+              line,
+              bounds.endColumn,
+            ),
+            options: {
+              className: classes.join(' '),
+              isWholeLine: false,
+            },
+          });
+        }
+        stmtDecorations.set(decorations);
+      };
+      refreshStatementHighlightRef.current = updateStatementHighlight;
       const publish = () => {
         const pos = editor.getPosition();
         if (!pos) {
@@ -132,6 +220,7 @@ const MonacoEditor = forwardRef<
             selectedText,
           }),
         );
+        updateStatementHighlight();
       };
       const schedule = () => {
         if (raf) {
@@ -145,12 +234,16 @@ const MonacoEditor = forwardRef<
       publish();
       const d1 = editor.onDidChangeCursorPosition(schedule);
       const d2 = editor.onDidChangeCursorSelection(schedule);
+      const d3 = editor.onDidChangeModelContent(schedule);
       editor.onDidDispose(() => {
         if (raf) {
           cancelAnimationFrame(raf);
         }
         d1.dispose();
         d2.dispose();
+        d3.dispose();
+        stmtDecorations.clear();
+        refreshStatementHighlightRef.current = null;
         useEditorCursorStore.getState().clear(editorId);
       });
     }

@@ -432,7 +432,10 @@ export function makeSuggestions(ctx: SqlContext, meta: CompleteMetaType) {
 export const normalize = (name: string) =>
   /\s/.test(name) ? `\`${name}\`` : name;
 
-function findParentNode(startNode: Node, type = 'statement') {
+export function findParentNode(startNode: Node | null, type = 'statement') {
+  if (!startNode) {
+    return null;
+  }
   let currentNode = startNode.parent; // 从父节点开始查找
 
   while (currentNode) {

@@ -10,6 +10,8 @@ import {
   writeTextFile,
   type ExpandedStatement,
 } from '@/api';
+import type { Parser } from '@/ast';
+import { getSqlParser } from '@/ast/parserSingleton';
 import MonacoEditor, { EditorRef } from '@/components/editor/MonacoEditor';
 import {
   MacroRunDialog,
@@ -18,6 +20,10 @@ import {
 import VerticalContainer from '@/components/VerticalContainer';
 import { useAppHotkey } from '@/hotkeys';
 import { connectionRef } from '@/lib/connectionRef';
+import {
+  findStatementAtOffset,
+  statementSliceToSourceRange,
+} from '@/lib/sql/splitStatements';
 import type { QueryHistoryItem } from '@/lib/queryHistory';
 import {
   flushWriteScratch,
@@ -92,11 +98,13 @@ export default function Editor({ context }: { context: EditorContextType }) {
   const appendChild = useQuerySessionStore((s) => s.appendChild);
 
   const [hasLimit, setHasLimit] = useState(true);
+  const [splitStatements, setSplitStatements] = useState(false);
   const [canFormatSelection, setCanFormatSelection] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const stmt = docs[id] ?? '';
   const ref = useRef<EditorRef | null>(null);
+  const sqlParserRef = useRef<Parser | null>(null);
   const savedBaselineRef = useRef<string | null>(null);
   const scratch = isScratchPath(path);
   /** User-owned SQL file from a local folder (explicit save). */
@@ -104,6 +112,12 @@ export default function Editor({ context }: { context: EditorContextType }) {
   const dirty = useEditorDirtyStore((s) => !!s.dirty[id]);
   const setDirty = useEditorDirtyStore((s) => s.setDirty);
   const clearDirty = useEditorDirtyStore((s) => s.clear);
+
+  useEffect(() => {
+    void getSqlParser().then((p) => {
+      sqlParserRef.current = p;
+    });
+  }, []);
 
   useEffect(() => {
     if (!scratch) {
@@ -236,19 +250,40 @@ export default function Editor({ context }: { context: EditorContextType }) {
       };
     }
 
-    const stmt = editor.getValue() ?? '';
-    if (!stmt.trim()) {
+    const position = monaco.getPosition();
+    if (!position) {
       return;
     }
-    const lineCount = model.getLineCount();
+
+    const full = model.getValue();
+    if (!splitStatements) {
+      if (!full.trim()) {
+        return;
+      }
+      const lineCount = model.getLineCount();
+      return {
+        stmt: full,
+        sourceRange: {
+          startLineNumber: 1,
+          startColumn: 1,
+          endLineNumber: lineCount,
+          endColumn: model.getLineMaxColumn(lineCount),
+        },
+      };
+    }
+
+    const offset = model.getOffsetAt(position);
+    const slice = findStatementAtOffset(
+      full,
+      offset,
+      sqlParserRef.current ?? undefined,
+    );
+    if (!slice?.text) {
+      return;
+    }
     return {
-      stmt,
-      sourceRange: {
-        startLineNumber: 1,
-        startColumn: 1,
-        endLineNumber: lineCount,
-        endColumn: model.getLineMaxColumn(lineCount),
-      },
+      stmt: slice.text,
+      sourceRange: statementSliceToSourceRange(model, slice),
     };
   };
 
@@ -598,6 +633,8 @@ export default function Editor({ context }: { context: EditorContextType }) {
         setSession={handleSession}
         onHasLimit={setHasLimit}
         hasLimit={hasLimit}
+        onSplitStatements={setSplitStatements}
+        splitStatements={splitStatements}
         onFormat={handleFormat}
         canFormatSelection={canFormatSelection}
         onBookmark={handleBookmark}
@@ -626,6 +663,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
               dialect: connectionRef(dbId),
             }}
             onRun={handleClick}
+            statementSplitEnabled={splitStatements}
             onMount={(editor) => {
               syncSelectionState();
               editor.onDidChangeCursorSelection(() => {
