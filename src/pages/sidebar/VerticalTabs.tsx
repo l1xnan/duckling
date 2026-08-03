@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
-import { ChevronRight, List, ListTree, XIcon } from 'lucide-react';
+import { AlignRight, ChevronRight, List, ListTree, XIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
@@ -22,11 +22,13 @@ export function Node({
   onClick,
   visiable = true,
   indent = 0,
+  alignEnd = false,
 }: TabItemProps & {
   activate: boolean;
   visiable: boolean;
   onClick: () => void;
   indent?: number;
+  alignEnd?: boolean;
 }) {
   return (
     <div
@@ -41,7 +43,12 @@ export function Node({
       <div className="flex shrink-0 items-center px-1">
         <TabTypeIcon type={tab.type} className="size-4" />
       </div>
-      <div className="truncate font-mono min-w-0 flex-1">
+      <div
+        className={cn(
+          'truncate font-mono min-w-0 flex-1',
+          alignEnd && 'text-right [direction:rtl]',
+        )}
+      >
         {tab.displayName}
       </div>
       <Button
@@ -72,6 +79,7 @@ function ConnectionGroup({
   currentId,
   activateTab,
   removeTab,
+  alignEnd = false,
 }: {
   label: string;
   dialect?: string;
@@ -82,6 +90,7 @@ function ConnectionGroup({
   currentId?: string | null;
   activateTab: (id: string) => void;
   removeTab: (id: string) => void;
+  alignEnd?: boolean;
 }) {
   const q = search.toLowerCase();
   const visibleTabs = tabs.filter((tab) =>
@@ -123,6 +132,7 @@ function ConnectionGroup({
               tab={tab}
               indent={20}
               visiable
+              alignEnd={alignEnd}
               onRemove={removeTab}
               activate={tab.id === currentId}
               onClick={() => {
@@ -151,6 +161,7 @@ export function VerticalTabs() {
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('tree');
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const [alignEnd, setAlignEnd] = useState(false);
 
   const groups = useMemo(() => {
     const dbMap = new Map(dbList.map((db) => [db.id, db]));
@@ -205,6 +216,15 @@ export function VerticalTabs() {
           >
             <ListTree className="size-3.5" />
           </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn('size-6 rounded-md', alignEnd && 'bg-muted')}
+            aria-label={t`Right align tab text`}
+            onClick={() => setAlignEnd((v) => !v)}
+          >
+            <AlignRight className="size-3.5" />
+          </Button>
         </div>
       }
     >
@@ -226,6 +246,7 @@ export function VerticalTabs() {
               <Node
                 key={id}
                 tab={tab}
+                alignEnd={alignEnd}
                 visiable={tab.displayName
                   .toLowerCase()
                   .includes(search.toLowerCase())}
@@ -254,6 +275,7 @@ export function VerticalTabs() {
               currentId={currentId}
               activateTab={activateTab}
               removeTab={removeTab}
+              alignEnd={alignEnd}
             />
           ))}
     </Container>

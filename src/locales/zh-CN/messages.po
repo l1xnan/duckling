@@ -829,7 +829,7 @@ msgstr "按此值筛选"
 msgid "Filter results…"
 msgstr "筛选结果…"
 
-#: src/pages/sidebar/VerticalTabs.tsx:194
+#: src/pages/sidebar/VerticalTabs.tsx:203
 msgid "Flat view"
 msgstr "平铺视图"
 
@@ -1677,6 +1677,10 @@ msgstr "结果{baseCount}"
 msgid "Results"
 msgstr "结果"
 
+#: src/pages/sidebar/VerticalTabs.tsx:221
+msgid "Right align tab text"
+msgstr "右对齐标签文字"
+
 #: src/pages/settings/ColorThemePanel.tsx:84
 msgid "Ring"
 msgstr "焦点环"
@@ -2168,7 +2172,7 @@ msgstr "表格字体大小"
 
 #: src/hotkeys/registry.ts:156
 #: src/pages/sidebar/aside.tsx:77
-#: src/pages/sidebar/VerticalTabs.tsx:187
+#: src/pages/sidebar/VerticalTabs.tsx:196
 msgid "Tabs"
 msgstr "标签页"
 
@@ -2247,7 +2251,7 @@ msgstr "总工作集"
 msgid "Transpose"
 msgstr "转置"
 
-#: src/pages/sidebar/VerticalTabs.tsx:203
+#: src/pages/sidebar/VerticalTabs.tsx:212
 msgid "Tree view"
 msgstr "树形视图"
 
