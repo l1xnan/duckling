@@ -1,9 +1,11 @@
 import { defineConfig } from '@rspress/core';
 import * as path from 'node:path';
 
+// GitHub Pages serves project sites under /<repo>/; keep dev/preview at root.
+const base = process.env.GITHUB_ACTIONS === 'true' ? '/duckling/' : '/';
+
 export default defineConfig({
-  // GitHub Pages serves project sites under /<repo>/; keep dev/preview at root.
-  base: process.env.GITHUB_ACTIONS === 'true' ? '/duckling/' : '/',
+  base,
   root: path.join(__dirname, 'docs'),
   title: 'Duckling',
   description:
@@ -11,8 +13,8 @@ export default defineConfig({
   lang: 'en',
   icon: '/logo.svg',
   logo: {
-    light: '/duckling-light.png',
-    dark: '/duckling-dark.png',
+    light: `${base}duckling-light.png`,
+    dark: `${base}duckling-dark.png`,
   },
   locales: [
     {
