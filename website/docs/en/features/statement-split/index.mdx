@@ -1,0 +1,46 @@
+---
+title: Current Statement Execution
+description: Run only the SQL statement at the cursor, with the toolbar statement-split toggle.
+---
+
+# Current Statement Execution
+
+Write multiple SQL statements in one editor and use the toolbar toggle to choose whether runs and highlighting **split by statement** (default **off**).
+
+## Toolbar toggle
+
+Click the **statement split** button (forked-arrows icon) next to Run:
+
+| State             | Run (`Mod+Enter` / ▶)                    | Highlight                                                                                      |
+| ----------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| **Off** (default) | Execute the entire editor buffer         | No current-statement highlight                                                                 |
+| **On**            | Execute only the statement at the cursor | Rectangle around that statement (width follows the widest line of text, not full editor width) |
+
+- With a **non-empty selection**, the selection is always executed (toggle ignored).
+- Toggle state applies to the current editor tab; refreshing the app resets to off.
+
+## How statements are bounded
+
+When split is on, a **semicolon lexer** (ignoring `;` inside strings, line comments, `#` comments, block comments, and `$tag$` dollar quotes) is combined with **tree-sitter** to locate `statement` nodes. When tree-sitter truncates complex SQL (Chinese paths, `read_parquet(...)`, WITH/CTE, etc.), the lexer result is preferred so half-statements are not executed.
+
+Statements must be separated by **`;`**. Multiple statements separated only by blank lines are **not** split (treated as one block).
+
+## Examples
+
+```sql
+SELECT 1;
+SELECT 2;
+```
+
+With the cursor on the second line, Run executes only `SELECT 2` and highlights that statement.
+
+```sql
+WITH a AS (SELECT * FROM t)
+SELECT * FROM a;
+```
+
+With the cursor on the outer `SELECT`, the full outer statement including `WITH` is highlighted and executed (not just the inner CTE subquery).
+
+## Toolbar button
+
+The `{}` button (next to EXPLAIN) scans the current selection (or the full buffer if no selection) for `{{ name }}` placeholders, then inserts or updates a `/* @vars */` block with empty values for missing variables. Edit the values directly and run — no dialog. See [SQL Templates](/features/sql-templates/).

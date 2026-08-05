@@ -1,0 +1,49 @@
+---
+title: 架构
+description: 仓库布局、Rust 工作区以及持久化与密钥处理方式。
+---
+
+# 架构
+
+Duckling 是一款 **Tauri 2** 桌面应用：Rust 后端（`src-tauri`）加 `connector` crate 负责数据库方言，前端为 React + TypeScript。
+
+## 仓库布局
+
+```
+src/                  # 前端：React 组件、页面、store、lib
+  api.ts              # Tauri invoke 封装
+  components/         # UI（ui/ 基础组件、custom/、editor/、tables/、views/）
+  pages/              # 功能界面（editor、sidebar、settings）
+  stores/             # Zustand / Jotai / tauri 存储适配器
+  lib/                # 纯函数帮助库（sql、scratch、history……）
+  hotkeys/            # 热键注册与绑定
+  locales/            # Lingui 目录（.po）
+src-tauri/            # Tauri 命令（src/cmd）、capabilities
+connector/            # Rust 数据库连接器（dialect/、preview/）
+tests/                # Vitest 测试套件
+website/              # 本 Rspress 文档站点（工作区包）
+```
+
+- 新增 Tauri 命令：在 `src-tauri` 中实现，在 `main.rs` 注册，并在 `src/api.ts` 暴露薄封装。
+- 保持 IPC DTO 可序列化且不含密钥，除非经由 `secret_store`。
+- `connector` 以小型、经过测试的纯函数实现方言 SQL/行为。
+
+## 持久化与密钥
+
+持久化应用数据位于 Tauri 应用数据目录（Windows：`%APPDATA%\com.duckling.dev\`）。
+
+| 数据                         | 机制                                       |
+| ---------------------------- | ------------------------------------------ |
+| 设置                         | 通过 `tauriFileStorage` 的 `settings.json` |
+| 连接（不含密钥）             | `connections.json`                         |
+| SSH 配置（不含密钥）         | `ssh-profiles.json`                        |
+| 标签页 / 布局                | `tabs.json`                                |
+| 文件夹、书签、运行记录、收藏 | `workspace.json`                           |
+| 草稿 SQL                     | `scratch/{id}.sql`                         |
+| 密钥                         | 系统钥匙串 + 应用数据下的 vault            |
+
+密钥**绝不**存储在明文连接配置或仅 localStorage 的 blob 中；密码保存在操作系统钥匙串中。
+
+## SQL 模板变量
+
+模板在**后端**渲染（Rust + minijinja，`UndefinedBehavior::Strict` + `AutoEscape::None`）；**前端**提供纯函数帮助库（`src/lib/sql/macros.ts`）负责 YAML 块格式化与对话框值合并。详见 [SQL 模板](/features/sql-templates/)。

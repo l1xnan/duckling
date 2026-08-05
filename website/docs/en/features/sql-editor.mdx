@@ -1,0 +1,23 @@
+---
+title: SQL Editor
+description: Monaco-based editor with schema-aware autocomplete, run, format, EXPLAIN, bookmarks, and statement split.
+---
+
+# SQL Editor
+
+The editor is based on [Monaco](https://microsoft.github.io/monaco-editor/) and includes schema-aware autocomplete so tables and columns from the connected source are suggested as you type.
+
+## Actions
+
+- **Run** — `Mod+Enter` or the toolbar ▶ button executes the query (fastest path is a new tab with `Mod+Shift+Enter`).
+- **Format** — `Shift+Alt+F` formats the document; `Mod+K` then `Mod+F` formats the selection.
+- **EXPLAIN** — inspect the execution plan of the current query.
+- **SQL bookmarks** — save and jump between marked statements.
+
+## Statement split
+
+An optional **per-statement split mode** (toolbar toggle, default **off**) runs and highlights only the statement at the cursor. When split is on, a semicolon lexer combined with tree-sitter locates `statement` nodes, and complex SQL that tree-sitter truncates safely falls back to the lexer result. See the [Statement Split](/features/statement-split/) guide for details.
+
+## Toolbar helpers
+
+- **`{}` button** — scans the current selection (or the full buffer) for `{{ name }}` placeholders and inserts or updates a `/* @vars */` block. See [SQL Templates](/features/sql-templates/).

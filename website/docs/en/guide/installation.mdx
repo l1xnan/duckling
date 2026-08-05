@@ -1,0 +1,22 @@
+---
+title: Installation
+description: How to install Duckling on Windows, macOS, and Linux.
+---
+
+# Installation
+
+Download the latest installer for your platform from the [releases](https://github.com/l1xnan/Duckling/releases) page.
+
+## Windows WebView2
+
+On Windows, if you cannot install WebView2 due to network issues, you can [install WebView2 offline](https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section).
+
+## Note on the installation path
+
+When selecting an installation path, choose an **empty folder** or create a new one. Do not place data files in the installation path and avoid selecting a non-empty folder.
+
+During uninstallation, if you choose to clear data files, **the entire folder is deleted** — including files that do not belong to the software.
+
+## Q&A
+
+On Windows, DuckDB requires the [Microsoft Visual C++ Redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170) at **runtime**. If DuckDB-related features misbehave, this dependency is the likely cause — download and repair it. See [Building DuckDB on Windows](https://duckdb.org/docs/stable/dev/building/windows).

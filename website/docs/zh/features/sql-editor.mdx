@@ -1,0 +1,23 @@
+---
+title: SQL 编辑器
+description: 基于 Monaco 的编辑器，具备表/列感知自动补全、运行、格式化、EXPLAIN、书签与语句分割。
+---
+
+# SQL 编辑器
+
+编辑器基于 [Monaco](https://microsoft.github.io/monaco-editor/)，具备**表/列感知的自动补全**：输入时自动提示所连数据源的表与列。
+
+## 操作
+
+- **运行** — `Mod+Enter` 或工具栏 ▶ 按钮执行查询（`Mod+Shift+Enter` 在新标签页中运行）。
+- **格式化** — `Shift+Alt+F` 格式化文档；`Mod+K` 后按 `Mod+F` 格式化选区。
+- **EXPLAIN** — 查看当前查询的执行计划。
+- **SQL 书签** — 保存并在标记的语句之间跳转。
+
+## 语句分割
+
+可选的**按语句分割**模式（工具栏开关，默认**关闭**）仅运行并高亮光标所在的语句。开启后，由分号 lexer 与 tree-sitter 共同定位 `statement` 节点，tree-sitter 截断复杂 SQL 时安全回退到 lexer 结果。详见[语句分割](/features/statement-split/)指南。
+
+## 工具栏辅助
+
+- **`{}` 按钮** — 扫描当前选区（无选区则为全文）中的 `{{ name }}` 占位符，插入或更新 `/* @vars */` 块。详见 [SQL 模板](/features/sql-templates/)。

@@ -1,0 +1,6 @@
+[
+  { "type": "file", "name": "index", "label": "Overview" },
+  "local-files",
+  "database-servers",
+  "access"
+]

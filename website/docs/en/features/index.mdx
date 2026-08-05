@@ -1,0 +1,18 @@
+---
+title: Feature Overview
+description: An overview of everything Duckling can do: browsing, SQL, analysis, export, and more.
+---
+
+# Feature Overview
+
+- **Data browsing** — a Canvas-rendered result grid with pagination, column hiding, transpose, result filtering, and per-cell value inspection. See [Data browsing](/features/data-browsing).
+- **SQL editor** — a Monaco-based editor with schema-aware autocomplete, run / format / `EXPLAIN` actions, SQL bookmarks, and an optional per-statement split mode. See [SQL editor](/features/sql-editor).
+- **SQL template variables** — write Jinja2-style `{{ variable }}` placeholders, declare values via a `/* @vars */` YAML block comment, and run multi-value queries (cartesian product → multiple result tabs) in one click. See [SQL Templates](/features/sql-templates/).
+- **Pivot table** — build pivots from row / column dimensions and measures (`count` / `sum` / `avg` / `min` / `max`), with high-cardinality warnings and copy-SQL support.
+- **Column profile** — per-column statistics: total, null ratio, distinct count, min/max, and top values.
+- **Count by column** — value distribution for a column, shown as a table plus a bar chart.
+- **Value viewer** — inspect a cell in raw / JSON form, with a "Calculate" tab for per-selection statistics (min/max/mean/…) exported as Markdown.
+- **Export** — export the current result to CSV / TSV / JSON / Parquet / XLSX with delimiter, header, and compression options. See [Export](/features/export).
+- **Sidebar** — database explorer, query history, and favorites (pinned tables + saved SQL), all searchable. See [Sidebar](/features/sidebar).
+- **Settings suite** — appearance & language, SSH profiles, keyboard shortcuts, SQL formatting, import/export options, and in-app updates. See [Settings](/features/settings).
+- **Keyboard shortcuts** — a categorized shortcut overlay (`Mod+/`) and a reconfigurable hotkey settings page.

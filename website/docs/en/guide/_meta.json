@@ -1,0 +1,6 @@
+[
+  { "type": "file", "name": "index", "label": "Introduction" },
+  "installation",
+  "quick-start",
+  { "type": "dir", "name": "data-sources", "label": "Data Sources" }
+]

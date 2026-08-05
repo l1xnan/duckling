@@ -28,6 +28,8 @@ duckdb.dll
 .tauri
 target
 .env
+# Rspress docs build output
+doc_build
 # Lingui: compile on the fly via @lingui/vite-plugin; commit .po only
 src/locales/**/*.mjs
 src/locales/**/*.js

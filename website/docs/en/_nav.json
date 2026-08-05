@@ -1,0 +1,17 @@
+[
+  {
+    "text": "Guide",
+    "link": "/guide/",
+    "activeMatch": "/guide/"
+  },
+  {
+    "text": "Features",
+    "link": "/features/",
+    "activeMatch": "/features/"
+  },
+  {
+    "text": "Development",
+    "link": "/development/",
+    "activeMatch": "/development/"
+  }
+]

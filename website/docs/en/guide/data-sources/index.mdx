@@ -1,0 +1,25 @@
+---
+title: Data Sources
+description: All supported data sources in Duckling, including file-based and database connectors.
+---
+
+# Data Sources
+
+## Native support
+
+- **DuckDB** — open a `*.duckdb` file (plus an optional working path).
+- **DuckDB (Quack)** — connect via URI + token (in-memory / remote Quack).
+- **Data folder** — pick a directory to browse `parquet` / `csv` / etc.
+- **SQLite** — open a database file.
+
+## Server databases
+
+- **MySQL** — host / port / database / user / password.
+- **PostgreSQL** — host / port / database / user / password + SSL mode.
+- **ClickHouse** — host / port / database / user / password (HTTP interface, usually port `8123`).
+
+## Experimental
+
+- **Doris / StarRocks** — via the MySQL protocol, usually port `9030`. Not heavily tested.
+
+See [Local files](/guide/data-sources/local-files), [Database servers](/guide/data-sources/database-servers), and [Access](/guide/data-sources/access) for details.

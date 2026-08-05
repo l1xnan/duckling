@@ -1,0 +1,22 @@
+---
+title: 本地文件
+description: DuckDB、DuckDB (Quack)、数据文件夹与 SQLite 连接。
+---
+
+# 本地文件
+
+## DuckDB
+
+直接打开 `*.duckdb` 文件。可附加**工作路径**，让查询中的相对路径保持一致解析。
+
+## DuckDB（Quack）
+
+通过 **URI + token** 连接 Quack 实例——内存或远程 Quack。
+
+## 数据文件夹
+
+选择目录浏览 `parquet`、`csv`、`json` 等文件，无需数据库。Duckling 将文件夹作为数据源读取，便于快速探索。
+
+## SQLite
+
+打开 `.db` / `.sqlite` / `.sqlite3` 等数据库文件。

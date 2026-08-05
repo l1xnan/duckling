@@ -1,0 +1,17 @@
+[
+  {
+    "text": "指南",
+    "link": "/guide/",
+    "activeMatch": "/guide/"
+  },
+  {
+    "text": "功能",
+    "link": "/features/",
+    "activeMatch": "/features/"
+  },
+  {
+    "text": "开发",
+    "link": "/development/",
+    "activeMatch": "/development/"
+  }
+]

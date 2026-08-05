@@ -1,0 +1,11 @@
+[
+  { "type": "file", "name": "index", "label": "Overview" },
+  "data-browsing",
+  "sql-editor",
+  { "type": "dir", "name": "sql-templates", "label": "SQL Templates" },
+  { "type": "dir", "name": "statement-split", "label": "Statement Split" },
+  "analysis",
+  "export",
+  "sidebar",
+  "settings"
+]

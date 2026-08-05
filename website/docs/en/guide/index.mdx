@@ -1,0 +1,30 @@
+---
+title: Introduction
+description: What Duckling is, its goals, and the tech stack it is built on.
+---
+
+# Introduction
+
+Duckling is a lightweight desktop application built on [Tauri](https://v2.tauri.app/) for quickly browsing `parquet` / `csv` / `json` file data and various databases. Beyond browsing, it ships with a SQL editor, pivot tables, column profiling, value inspection, and data export, so you can explore and analyze data without leaving the app.
+
+## What you can do
+
+- **Browse files and databases** — open a data folder, a `*.duckdb` file, or a database connection.
+- **Run SQL** — a Monaco-based editor with schema-aware autocomplete, formatting, and `EXPLAIN`.
+- **Analyze** — pivot tables, per-column statistics, value distributions, and per-cell value inspection.
+- **Export** — send the current result to CSV, TSV, JSON, Parquet, or XLSX.
+- **Work faster** — query history, favorites, and a reconfigurable shortcut overlay.
+
+## Project goal
+
+The objective of this project is **not** to build a fully functional database management tool, but to make it easy to quickly browse and lightly analyze many kinds of data.
+
+Duckling supports [DuckDB](https://github.com/duckdb/duckdb) and SQLite natively, with experimental (not heavily tested) support for PostgreSQL, MySQL, ClickHouse, and Doris / StarRocks. See [Data Sources](/guide/data-sources/).
+
+## Tech stack
+
+- Tauri 2 (Rust workspace) · React 19 + TypeScript + Vite
+- Monaco editor · VisActor VTable (Apache Arrow transport)
+- Zustand + Jotai · Tailwind CSS v4
+- Lingui i18n (English / Simplified Chinese)
+- Cross-platform: Windows / macOS / Linux

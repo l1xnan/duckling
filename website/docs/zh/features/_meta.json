@@ -1,0 +1,11 @@
+[
+  { "type": "file", "name": "index", "label": "总览" },
+  "data-browsing",
+  "sql-editor",
+  { "type": "dir", "name": "sql-templates", "label": "SQL 模板" },
+  { "type": "dir", "name": "statement-split", "label": "语句分割" },
+  "analysis",
+  "export",
+  "sidebar",
+  "settings"
+]

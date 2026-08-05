@@ -1,0 +1,41 @@
+---
+title: 开发
+description: 开发 Duckling 的前置依赖、命令与技术栈。
+---
+
+# 开发
+
+## 前置依赖
+
+- **Node.js 与 pnpm** — 仓库使用 `pnpm-lock.yaml`，`npm` / `yarn` 会失败。
+- 用于 Tauri 的 **Rust 工具链**（`cargo`）。
+
+## 命令
+
+```bash
+pnpm install            # 安装依赖（仅限 pnpm）
+pnpm dev                # 启动 Vite 开发服务器（http://localhost:5173）
+pnpm tauri dev          # 以开发模式运行 Tauri 应用
+pnpm build              # 构建前端（Vite -> dist）
+pnpm tauri build        # 构建可安装应用
+pnpm test               # 运行 Vitest 测试套件
+pnpm lint               # 类型检查（tsc）
+pnpm i18n:extract       # 提取 i18n 文案（Lingui）
+pnpm i18n:compile       # 编译 i18n 目录（Lingui）
+```
+
+文档（本站，位于 `website/` 工作区包）：
+
+```bash
+pnpm docs:dev           # Rspress 开发服务器
+pnpm docs:build         # 静态站点构建
+pnpm docs:preview       # 预览构建产物
+```
+
+可选：若要使用 `shandy-sqlfmt` SQL 格式化引擎，请用 `uv tool install shandy-sqlfmt` 安装。
+
+## 技术栈
+
+Tauri 2（Rust workspace）· React 19 + TypeScript + Vite · Monaco 编辑器 · VisActor VTable（基于 Apache Arrow 传输） · Zustand + Jotai · Tailwind CSS v4 · Lingui i18n（英文 / 简体中文） · 跨平台（Windows / macOS / Linux）。
+
+仓库布局详见[架构](/development/architecture)。

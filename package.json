@@ -11,7 +11,10 @@
     "tauri": "tauri",
     "test": "vitest",
     "i18n:extract": "lingui extract --clean",
-    "i18n:compile": "lingui compile"
+    "i18n:compile": "lingui compile",
+    "docs:dev": "pnpm --filter website run dev",
+    "docs:build": "pnpm --filter website run build",
+    "docs:preview": "pnpm --filter website run preview"
   },
   "dependencies": {
     "@apache-arrow/ts": "^21.2.0",

@@ -1,0 +1,49 @@
+---
+title: Architecture
+description: Repository layout, the Rust workspace, and how persistence and secrets are handled.
+---
+
+# Architecture
+
+Duckling is a **Tauri 2** desktop app: a Rust backend (`src-tauri`) with a `connector` crate for database dialects, and a React + TypeScript frontend.
+
+## Repository layout
+
+```
+src/                  # Frontend: React components, pages, stores, lib
+  api.ts              # Tauri invoke wrappers
+  components/         # UI (ui/ primitives, custom/, editor/, tables/, views/)
+  pages/              # Feature screens (editor, sidebar, settings)
+  stores/             # Zustand / Jotai / tauri storage adapters
+  lib/                # Pure helpers (sql, scratch, history, ...)
+  hotkeys/            # Hotkey registry + bindings
+  locales/            # Lingui catalogs (.po)
+src-tauri/            # Tauri commands (src/cmd), capabilities
+connector/            # Rust DB connectors (dialect/, preview/)
+tests/                # Vitest suite
+website/              # This Rspress docs site (workspace package)
+```
+
+- New Tauri commands: implement in `src-tauri`, register in `main.rs`, expose thin wrappers in `src/api.ts`.
+- Keep IPC DTOs serializable and free of secrets unless going through `secret_store`.
+- `connector` holds small, tested pure functions for dialect SQL/behavior.
+
+## Persistence & secrets
+
+Durable app data lives under the Tauri app data dir (Windows: `%APPDATA%\com.duckling.dev\`).
+
+| Data                                | Mechanism                              |
+| ----------------------------------- | -------------------------------------- |
+| Settings                            | `settings.json` via `tauriFileStorage` |
+| Connections (no secrets)            | `connections.json`                     |
+| SSH profiles (no secrets)           | `ssh-profiles.json`                    |
+| Tabs / layout                       | `tabs.json`                            |
+| Folders, bookmarks, runs, favorites | `workspace.json`                       |
+| Scratch SQL                         | `scratch/{id}.sql`                     |
+| Secrets                             | OS keyring + vault under app data      |
+
+Secrets are **never** stored in plain connection profiles or localStorage-only blobs; passwords live in the OS keyring.
+
+## SQL template variables
+
+Templates are rendered on the **backend** (Rust + minijinja) with `UndefinedBehavior::Strict` and `AutoEscape::None`; the **frontend** provides pure helpers (`src/lib/sql/macros.ts`) for YAML block formatting and dialog merging. See [SQL Templates](/features/sql-templates/).

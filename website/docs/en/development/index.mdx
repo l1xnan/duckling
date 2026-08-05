@@ -1,0 +1,41 @@
+---
+title: Development
+description: Prerequisites, commands, and tech stack for developing Duckling.
+---
+
+# Development
+
+## Prerequisites
+
+- **Node.js and pnpm** — the repo uses `pnpm-lock.yaml`; `npm` / `yarn` will fail.
+- **Rust toolchain** for Tauri (`cargo`).
+
+## Commands
+
+```bash
+pnpm install            # install dependencies (pnpm only)
+pnpm dev                # start the Vite dev server (http://localhost:5173)
+pnpm tauri dev          # run the Tauri app in development
+pnpm build              # build the frontend (Vite -> dist)
+pnpm tauri build        # build the installable app
+pnpm test               # run the Vitest test suite
+pnpm lint               # type-check (tsc)
+pnpm i18n:extract       # extract i18n messages (Lingui)
+pnpm i18n:compile       # compile i18n catalogs (Lingui)
+```
+
+Docs (this site, a workspace package under `website/`):
+
+```bash
+pnpm docs:dev           # Rspress dev server
+pnpm docs:build         # static site build
+pnpm docs:preview       # preview the built site
+```
+
+Optional: to use the `shandy-sqlfmt` SQL formatting engine, install it with `uv tool install shandy-sqlfmt`.
+
+## Tech stack
+
+Tauri 2 (Rust workspace) · React 19 + TypeScript + Vite · Monaco editor · VisActor VTable (Apache Arrow transport) · Zustand + Jotai · Tailwind CSS v4 · Lingui i18n (English / Simplified Chinese) · cross-platform (Windows / macOS / Linux).
+
+See [Architecture](/development/architecture) for the repository layout.

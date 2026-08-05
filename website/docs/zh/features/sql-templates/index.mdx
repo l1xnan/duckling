@@ -1,0 +1,114 @@
+---
+title: SQL 模板
+description: 通过 @vars 块编写 Jinja2 风格的 SQL 模板，实现批量与多值查询。
+---
+
+# SQL 模板
+
+一次编写模板，针对不同的表或值多次运行，无需重复复制 SQL。
+
+## 快速开始
+
+```sql
+/*
+@vars
+schema: public
+table:
+  - orders
+  - order_items
+  - payments
+*/
+
+SELECT COUNT(*) FROM {{ schema }}.{{ table }}
+```
+
+1. **直接运行**（`Mod+Enter` / 工具栏 ▶）—— 后端读取 `@vars`，找到 `{{ schema }}` 和 `{{ table }}`，对每种组合展开 SQL，每个组合生成一个结果标签页。
+2. **缺变量** —— 如果某个占位符尚无值，会弹出对话框填写（每行一个值）。勾选「将变量以 @vars 注释写入 SQL 上方」会把填写的值写回 SQL 顶部的 `@vars` 块，下次运行无需弹窗。
+3. **工具栏 `{}` 按钮** —— 选中 SQL，点击工具栏中的 `{}` 按钮，自动为选中内容中的所有 `{{ name }}` 占位符生成 `@vars` 骨架。直接在编辑器里填写值即可。
+
+## 示例
+
+**单变量 — 跨表批量**
+
+```sql
+/*
+@vars
+table:
+  - customers
+  - orders
+  - products
+*/
+
+SELECT COUNT(*) AS cnt FROM {{ table }}
+```
+
+→ 3 个结果标签页，分别统计 `customers`、`orders`、`products` 的行数。
+
+**多变量 — 笛卡尔积**
+
+```sql
+/*
+@vars
+schema: public
+region:
+  - us
+  - eu
+*/
+
+SELECT region, COUNT(*) AS cnt
+FROM {{ schema }}.{{ table_prefix }}_{{ region }}
+GROUP BY region
+```
+
+`table_prefix` 在对话框中填为 `sales`，展开为 2 条 SQL（`public.sales_us`、`public.sales_eu`），各生成一个结果标签页。
+
+**WHERE 条件中的日期范围**
+
+```sql
+/*
+@vars
+table: events
+start_date: '2024-01-01'
+end_date: '2024-12-31'
+*/
+
+SELECT date, COUNT(*)
+FROM {{ table }}
+WHERE dt BETWEEN {{ start_date }} AND {{ end_date }}
+GROUP BY date
+```
+
+**聚合查询中的列名**
+
+```sql
+/*
+@vars
+measure: revenue
+segment: country
+*/
+
+SELECT {{ segment }}, SUM({{ measure }}) AS total
+FROM sales
+GROUP BY {{ segment }}
+ORDER BY total DESC
+```
+
+## 语法
+
+| 结构              | 含义                                                                 |
+| ----------------- | -------------------------------------------------------------------- |
+| `{{ name }}`      | 变量占位符（Jinja2 插值语法）。名称必须为简单标识符。                |
+| `/* @vars` … `*/` | 前导块注释，声明 YAML 格式的变量值。支持标量（单值）和序列（多值）。 |
+| 单值              | `table: orders`                                                      |
+| 多值              | `table:` 后跟 `  - orders` / `  - items`（每行一个，YAML 列表）      |
+| 空骨架            | `table: ''` —— `{}` 按钮在尚无值时生成                               |
+
+## 工作原理
+
+- **后端**（Rust + minijinja）：解析 `@vars` YAML 块，以 `UndefinedBehavior::Strict` + `AutoEscape::None` 渲染 Jinja 模板，多个变量各有多个值时做笛卡尔积（上限 50 种组合）。
+- **前端**（TypeScript）：纯函数帮助库（`src/lib/sql/macros.ts`）负责格式化 YAML 块、合并对话框填写值、构建空骨架。
+- 不含 `{{ }}` 占位符的 SQL 不受影响，行为与原来完全一致。
+
+## 批量执行
+
+当某个变量有多个值时（YAML 列表或对话框中多行），系统为每种组合生成一条 SQL 并打开一个结果标签页。所有标签页并行执行。软上限（20）会询问确认；硬上限（50）直接拒绝。

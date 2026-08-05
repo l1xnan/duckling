@@ -1,0 +1,25 @@
+---
+title: 数据源
+description: Duckling 支持的全部数据源，包括文件型与数据库连接器。
+---
+
+# 数据源
+
+## 原生支持
+
+- **DuckDB** — 打开 `*.duckdb` 文件（可附加工作路径）。
+- **DuckDB（Quack）** — 通过 URI + token 连接（内存 / 远程 Quack）。
+- **数据文件夹** — 选择目录浏览 `parquet` / `csv` 等文件。
+- **SQLite** — 打开数据库文件。
+
+## 数据库服务器
+
+- **MySQL** — 主机 / 端口 / 数据库 / 用户名 / 密码。
+- **PostgreSQL** — 主机 / 端口 / 数据库 / 用户名 / 密码 + SSL 模式。
+- **ClickHouse** — 主机 / 端口 / 数据库 / 用户名 / 密码（HTTP 接口，端口一般为 `8123`）。
+
+## 实验性
+
+- **Doris / StarRocks** — 通过 MySQL 协议，端口默认为 `9030`。未充分测试。
+
+详见[本地文件](/guide/data-sources/local-files)、[数据库服务器](/guide/data-sources/database-servers)与[访问与传输](/guide/data-sources/access)。
