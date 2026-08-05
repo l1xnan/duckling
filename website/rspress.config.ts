@@ -9,10 +9,10 @@ export default defineConfig({
   description:
     'Lightweight desktop app for browsing parquet/csv/json files and databases, with a built-in SQL editor and analysis tools.',
   lang: 'en',
-  icon: '/logo1.png',
+  icon: '/logo.svg',
   logo: {
-    light: '/duckling-light1.png',
-    dark: '/duckling-dark1.png',
+    light: '/duckling-light.png',
+    dark: '/duckling-dark.png',
   },
   locales: [
     {
