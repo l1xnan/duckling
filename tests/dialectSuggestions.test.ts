@@ -69,11 +69,12 @@ describe('dialectSuggestions functions', () => {
 });
 
 describe('builders and merge', () => {
-  it('builds keyword suggestions with KEYWORD type', () => {
-    const items = buildKeywordSuggestions(['SELECT', 'FROM']);
+  it('builds keyword suggestions with trailing space (except value literals)', () => {
+    const items = buildKeywordSuggestions(['SELECT', 'NULL', 'FROM']);
     expect(items).toEqual([
-      { type: ContextType.KEYWORD, label: 'SELECT', insertText: 'SELECT' },
-      { type: ContextType.KEYWORD, label: 'FROM', insertText: 'FROM' },
+      { type: ContextType.KEYWORD, label: 'SELECT', insertText: 'SELECT ' },
+      { type: ContextType.KEYWORD, label: 'NULL', insertText: 'NULL' },
+      { type: ContextType.KEYWORD, label: 'FROM', insertText: 'FROM ' },
     ]);
   });
 

@@ -181,12 +181,23 @@ export function functionsForDialect(dialect?: string): string[] {
   return DIALECT_FUNCTIONS[d] ?? DIALECT_FUNCTIONS.duckdb;
 }
 
+/** Keywords used as values/literals; no trailing space after insert. */
+const NO_TRAILING_SPACE = new Set([
+  'NULL',
+  'TRUE',
+  'FALSE',
+  'ISNULL',
+  'NOTNULL',
+  'CURRENT_DATE',
+  'CURRENT_TIME',
+]);
+
 export function buildKeywordSuggestions(keywords?: string[]): SuggestionType[] {
   const list = keywords && keywords.length > 0 ? keywords : SQL_KEYWORDS;
   return list.map((kw) => ({
     type: ContextType.KEYWORD,
     label: kw,
-    insertText: kw,
+    insertText: NO_TRAILING_SPACE.has(kw) ? kw : `${kw} `,
   }));
 }
 
