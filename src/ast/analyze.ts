@@ -71,6 +71,8 @@ export type SuggestionType = {
   label: string;
   insertText?: string;
   detail?: string;
+  /** Insert as snippet (cursor placed on `$0`). */
+  snippet?: boolean;
 };
 
 export function get_tables(

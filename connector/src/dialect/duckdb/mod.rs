@@ -1,6 +1,6 @@
 use crate::dialect::Connection;
 use crate::dialect::duckdb::duckdb_sync::DuckDbSyncConnection;
-use crate::utils::{Metadata, RawArrowData, TreeNode};
+use crate::utils::{FunctionMeta, Metadata, RawArrowData, TreeNode};
 use async_trait::async_trait;
 use regex::Regex;
 use std::sync::OnceLock;
@@ -119,6 +119,11 @@ impl Connection for DuckDbConnection {
   async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
     let this = self.clone();
     crate::dialect::run_blocking(move || this.connect()?.all_columns()).await
+  }
+
+  async fn functions(&self) -> anyhow::Result<Vec<FunctionMeta>> {
+    let this = self.clone();
+    crate::dialect::run_blocking(move || this.connect()?.functions()).await
   }
 
   async fn drop_table(&self, schema: Option<&str>, table: &str) -> anyhow::Result<String> {

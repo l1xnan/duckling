@@ -6,7 +6,7 @@ use crate::dialect::Connection;
 use crate::dialect::mysql::decode::columns_to_grid;
 use crate::preview::grid_to_raw_arrow_data;
 use crate::ssh_tunnel::{DbSshConfig, SshTunnel};
-use crate::utils::{Metadata, RawArrowData, Table, build_tree};
+use crate::utils::{FunctionMeta, Metadata, RawArrowData, Table, build_tree};
 use crate::utils::{Title, TreeNode};
 use anyhow::{Context, anyhow};
 use async_trait::async_trait;
@@ -172,6 +172,11 @@ impl Connection for MySqlConnection {
   async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
     let this = self.clone_config();
     crate::dialect::run_blocking(move || this._all_columns()).await
+  }
+
+  async fn functions(&self) -> anyhow::Result<Vec<FunctionMeta>> {
+    let this = self.clone_config();
+    crate::dialect::run_blocking(move || this._functions()).await
   }
 
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
@@ -347,6 +352,30 @@ impl MySqlConnection {
       .collect();
 
     Ok(metadata_list)
+  }
+
+  /// MySQL catalogs only expose stored routines (built-in functions are not
+  /// enumerable) — the frontend unions curated built-ins on top of these.
+  fn _functions(&self) -> anyhow::Result<Vec<FunctionMeta>> {
+    let mut conn = self.get_conn()?;
+    let sql = "
+    SELECT ROUTINE_NAME, ROUTINE_TYPE
+    FROM information_schema.ROUTINES
+    WHERE ROUTINE_SCHEMA = DATABASE()
+    ORDER BY ROUTINE_NAME
+    ";
+    let rows: Vec<(String, String)> = conn.query(sql)?;
+    let mut seen = std::collections::HashSet::new();
+    let mut out = Vec::new();
+    for (name, kind) in rows {
+      if seen.insert(name.to_lowercase()) {
+        out.push(FunctionMeta {
+          name,
+          kind: Some(kind),
+        });
+      }
+    }
+    Ok(out)
   }
 
   fn _query(&self, sql: &str) -> anyhow::Result<RawArrowData> {

@@ -80,6 +80,12 @@ pub struct Metadata {
   pub columns: Vec<(String, String)>,
 }
 
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct FunctionMeta {
+  pub name: String,
+  pub kind: Option<String>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Table {
   pub table_name: String,

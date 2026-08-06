@@ -9,9 +9,9 @@ import babel from '@rolldown/plugin-babel';
 import { defineConfig } from 'vite';
 // https://vitejs.dev/config/
 export default defineConfig({
-  experimental: {
-    bundledDev: true,
-  },
+  // Rolldown dev bundler for the app; disabled under vitest because it
+  // chokes on legacy CJS deps (rimraf@2 octal literals) in test transforms.
+  experimental: process.env.VITEST ? undefined : { bundledDev: true },
   plugins: [
     tailwindcss(),
     react(),

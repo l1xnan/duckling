@@ -8,7 +8,7 @@ use glob::glob;
 
 use crate::dialect::Connection;
 use crate::dialect::duckdb::duckdb_sync;
-use crate::utils::{Metadata, RawArrowData, TreeNode};
+use crate::utils::{FunctionMeta, Metadata, RawArrowData, TreeNode};
 
 #[derive(Debug, Default, Clone)]
 pub struct FolderConnection {
@@ -61,6 +61,16 @@ impl Connection for FolderConnection {
   async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
     let this = self.clone();
     crate::dialect::run_blocking(move || this._all_columns()).await
+  }
+
+  async fn functions(&self) -> anyhow::Result<Vec<FunctionMeta>> {
+    let path = self.path.clone();
+    crate::dialect::run_blocking(move || {
+      let conn = duckdb::Connection::open_in_memory()?;
+      conn.execute(&format!("SET file_search_path='{path}'"), [])?;
+      duckdb_sync::list_functions(&conn)
+    })
+    .await
   }
 
   async fn show_column(&self, _schema: Option<&str>, table: &str) -> anyhow::Result<RawArrowData> {

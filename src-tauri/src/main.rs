@@ -152,6 +152,7 @@ fn main() {
       cmd::db::show_column,
       cmd::db::drop_table,
       cmd::db::all_columns,
+      cmd::db::list_functions,
       cmd::db::connection_capabilities,
       cmd::db::cancel_query,
       cmd::db::set_session_idle_ttl,

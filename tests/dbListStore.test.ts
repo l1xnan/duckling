@@ -26,6 +26,7 @@ const {
     data: { name: 'host', path: 'host', children: [] },
     meta: {},
     defaultDatabase: 'app',
+    functions: [] as { name: string; kind?: string }[],
   })),
   idb: new Map<string, string>(),
   fileMem: new Map<string, string>(),
@@ -269,6 +270,57 @@ describe('dbListStore connection lifecycle', () => {
     ).toBeUndefined();
     expect(stored?.defaultDatabase).toBe('app');
     expect(stored?.loading).toBe(false);
+  });
+
+  it('updateByConfig stores functions from getDB into dbList and cache', async () => {
+    useDBListStore.setState({
+      dbList: [
+        {
+          id: 'c1',
+          dialect: 'mysql',
+          displayName: 'x',
+          data: { name: 'x', path: 'x' },
+          config: {
+            dialect: 'mysql',
+            host: 'h',
+            port: '3306',
+            username: 'u',
+            password: '',
+            database: 'd',
+          },
+        },
+      ],
+    });
+
+    vi.mocked(getDB).mockResolvedValueOnce({
+      id: 'c1',
+      dialect: 'mysql',
+      displayName: 'x',
+      data: { name: 'x', path: 'x', children: [] },
+      meta: {},
+      defaultDatabase: 'app',
+      functions: [
+        { name: 'CONCAT', kind: 'FUNCTION' },
+        { name: 'NOW', kind: 'FUNCTION' },
+      ],
+    });
+
+    await useDBListStore.getState().updateByConfig('c1', mysqlConfig);
+
+    const stored = getStoredDB('c1');
+    expect(stored?.functions).toEqual([
+      { name: 'CONCAT', kind: 'FUNCTION' },
+      { name: 'NOW', kind: 'FUNCTION' },
+    ]);
+    expect(setDbCache).toHaveBeenCalledWith(
+      'c1',
+      expect.objectContaining({
+        functions: [
+          { name: 'CONCAT', kind: 'FUNCTION' },
+          { name: 'NOW', kind: 'FUNCTION' },
+        ],
+      }),
+    );
   });
 
   it('importConnections strips secrets and registers each item', async () => {

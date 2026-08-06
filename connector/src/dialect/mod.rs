@@ -1,5 +1,5 @@
 use crate::dialect::ast::first_stmt;
-use crate::utils::{Metadata, RawArrowData};
+use crate::utils::{FunctionMeta, Metadata, RawArrowData};
 use crate::utils::{TreeNode, batch_write};
 use async_trait::async_trait;
 use itertools::Itertools;
@@ -140,6 +140,12 @@ pub trait Connection: Sync + Send {
   }
 
   async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
+    Ok(vec![])
+  }
+
+  /// List functions available on the connected database (name + kind hint).
+  /// Returns an empty list when the dialect cannot enumerate functions.
+  async fn functions(&self) -> anyhow::Result<Vec<FunctionMeta>> {
     Ok(vec![])
   }
 

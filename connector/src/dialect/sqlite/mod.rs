@@ -12,7 +12,7 @@ use crate::dialect::Connection;
 use crate::dialect::sqlite::decode::statement_to_grid;
 use crate::dialect::sqlite::type_arrow::db_to_arrow_type;
 use crate::preview::grid_to_raw_arrow_data;
-use crate::utils::{Metadata, RawArrowData};
+use crate::utils::{FunctionMeta, Metadata, RawArrowData};
 use crate::utils::{Table, Title, TreeNode, build_tree, get_file_name};
 
 #[derive(Debug, Default)]
@@ -102,6 +102,27 @@ impl Connection for SqliteConnection {
     crate::dialect::run_blocking(move || {
       let conn = SqliteConnection { path };
       conn._all_columns()
+    })
+    .await
+  }
+
+  async fn functions(&self) -> anyhow::Result<Vec<FunctionMeta>> {
+    let path = self.path.clone();
+    crate::dialect::run_blocking(move || {
+      let conn = rusqlite::Connection::open(&path)?;
+      let mut stmt = conn.prepare("PRAGMA function_list")?;
+      let rows = stmt.query_map([], |row| row.get::<_, String>(0))?;
+      let mut seen = std::collections::HashSet::new();
+      let mut out = Vec::new();
+      for name in rows.flatten() {
+        if seen.insert(name.to_lowercase()) {
+          out.push(FunctionMeta {
+            name,
+            kind: None,
+          });
+        }
+      }
+      Ok(out)
     })
     .await
   }

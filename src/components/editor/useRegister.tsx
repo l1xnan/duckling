@@ -42,7 +42,8 @@ function completionMetaFingerprint(meta: CompleteMetaType): string {
     }
   }
   parts.sort();
-  return `${meta.prefixCode ?? ''}|${parts.join('|')}`;
+  const funcs = (meta.functions ?? []).join(',');
+  return `${meta.prefixCode ?? ''}|${parts.join('|')}|${funcs}`;
 }
 
 export function useRegister({

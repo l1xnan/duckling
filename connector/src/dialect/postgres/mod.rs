@@ -14,7 +14,7 @@ use tokio_postgres::{Client, NoTls};
 
 use crate::dialect::Connection;
 use crate::ssh_tunnel::{DbSshConfig, SshTunnel};
-use crate::utils::{RawArrowData, Table, TreeNode, build_tree};
+use crate::utils::{FunctionMeta, RawArrowData, Table, TreeNode, build_tree};
 use anyhow::{Context, anyhow};
 
 /// TLS mode for Postgres connections.
@@ -193,6 +193,31 @@ impl Connection for PostgresConnection {
 
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
     self._table_row_count(table, r#where).await
+  }
+
+  async fn functions(&self) -> anyhow::Result<Vec<FunctionMeta>> {
+    let client = self.get_client(&self.database()).await?;
+    let sql = "
+      select p.proname, pg_get_function_result(p.oid)
+      from pg_proc p
+      join pg_namespace n on n.oid = p.pronamespace
+      where n.nspname in ('pg_catalog', 'public')
+        and p.prokind in ('f', 'a', 'w')
+      order by p.proname
+    ";
+    let mut seen = std::collections::HashSet::new();
+    let mut out = Vec::new();
+    for row in client.query(sql, &[]).await? {
+      let name: String = row.get(0);
+      let return_type: Option<String> = row.get(1);
+      if seen.insert(name.to_lowercase()) {
+        out.push(FunctionMeta {
+          name,
+          kind: return_type,
+        });
+      }
+    }
+    Ok(out)
   }
 
   async fn export(

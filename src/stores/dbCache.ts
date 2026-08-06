@@ -1,10 +1,13 @@
 import type { TreeNode } from '@/types';
 
+import { type FunctionMetaDto } from '@/api';
+
 import { indexDBStorage } from './indexdb';
 
 export type DbCacheEntry = {
   data: TreeNode;
   meta?: Record<string, Record<string, { name: string; type: string }[]>>;
+  functions?: FunctionMetaDto[];
   defaultDatabase?: string;
   defaultSchema?: string;
   cachedAt: number;
@@ -35,6 +38,7 @@ export async function setDbCache(
   const value: DbCacheEntry = {
     data: entry.data,
     meta: entry.meta,
+    functions: entry.functions,
     defaultDatabase: entry.defaultDatabase,
     defaultSchema: entry.defaultSchema,
     cachedAt: entry.cachedAt ?? Date.now(),

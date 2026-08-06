@@ -5,7 +5,7 @@ use async_trait::async_trait;
 use crate::utils::RawArrowData;
 use crate::dialect::Connection;
 use crate::dialect::duckdb::duckdb_sync;
-use crate::utils::{TreeNode, get_file_name};
+use crate::utils::{FunctionMeta, TreeNode, get_file_name};
 
 #[derive(Debug, Default)]
 pub struct FileConnection {
@@ -48,6 +48,14 @@ impl Connection for FileConnection {
       let conn = duckdb::Connection::open_in_memory()?;
       let _ = path;
       duckdb_sync::query(&conn, &sql)
+    })
+    .await
+  }
+
+  async fn functions(&self) -> anyhow::Result<Vec<FunctionMeta>> {
+    crate::dialect::run_blocking(move || {
+      let conn = duckdb::Connection::open_in_memory()?;
+      duckdb_sync::list_functions(&conn)
     })
     .await
   }

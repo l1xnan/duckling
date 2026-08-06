@@ -11,7 +11,7 @@ use super::inflight::{InflightGuard, InflightQueries};
 use super::session_manager::SessionManager;
 use connector::ConnectionConfig;
 use connector::dialect::Connection;
-use connector::utils::{Metadata, TreeNode};
+use connector::utils::{FunctionMeta, Metadata, TreeNode};
 
 #[allow(dead_code)]
 pub(crate) fn build_ssh_config(
@@ -509,6 +509,17 @@ pub async fn all_columns(
   let d = resolve_connection(&registry, &sessions, dialect).await?;
   let s = d.all_columns().await;
   s.map_err(|e| format!("not support dialect {}", e))
+}
+
+/// List functions available on the connected database (for editor completion).
+#[tauri::command]
+pub async fn list_functions(
+  registry: State<'_, ConnectionRegistry>,
+  sessions: State<'_, SessionManager>,
+  dialect: DialectPayload,
+) -> Result<Vec<FunctionMeta>, String> {
+  let d = resolve_connection(&registry, &sessions, dialect).await?;
+  d.functions().await.map_err(|e| format!("not support dialect {}", e))
 }
 
 #[cfg(test)]

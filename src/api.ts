@@ -390,6 +390,11 @@ export type MetadataType = {
   columns: [string, string][];
 };
 
+export type FunctionMetaDto = {
+  name: string;
+  kind?: string | null;
+};
+
 const convertMeta = (data: MetadataType[]) => {
   return data.reduce(
     (acc, { database, table, columns }) => {
@@ -459,10 +464,11 @@ export async function getDB(
     const full = dialect as DialectConfig;
     // Backend DialectPayload expects flat `ssh_*` fields.
     const backendDialect = flattenSshTunnelForBackend(full);
-    const tree: TreeNode = await invoke('get_db', { dialect: backendDialect });
-    const colMeta: MetadataType[] = await invoke('all_columns', {
-      dialect: backendDialect,
-    });
+    const [tree, colMeta, functions] = await Promise.all([
+      invoke<TreeNode>('get_db', { dialect: backendDialect }),
+      invoke<MetadataType[]>('all_columns', { dialect: backendDialect }),
+      listFunctionsSafe(backendDialect),
+    ]);
     await registerConnectionBackend(id, full);
 
     let defaultDatabase = '';
@@ -477,16 +483,18 @@ export async function getDB(
       // Never return plaintext secrets to frontend state.
       config: stripSecrets(full),
       meta,
+      functions,
       displayName: tree.name,
       defaultDatabase,
     };
   }
 
   const ref: DialectRef = { connectionId: id };
-  const tree: TreeNode = await invoke('get_db', { dialect: ref });
-  const colMeta: MetadataType[] = await invoke('all_columns', {
-    dialect: ref,
-  });
+  const [tree, colMeta, functions] = await Promise.all([
+    invoke<TreeNode>('get_db', { dialect: ref }),
+    invoke<MetadataType[]>('all_columns', { dialect: ref }),
+    listFunctionsSafe(ref),
+  ]);
 
   let defaultDatabase = '';
   if (uniqBy(colMeta, (item) => item.database).length == 1) {
@@ -506,9 +514,22 @@ export async function getDB(
         ? stripSecrets(dialect as DialectConfig)
         : undefined,
     meta,
+    functions,
     displayName: tree.name,
     defaultDatabase,
   };
+}
+
+/** Fetch functions for editor completion; fail soft → curated fallback. */
+async function listFunctionsSafe(
+  dialect: DialectConfig | DialectRef | Record<string, unknown>,
+): Promise<FunctionMetaDto[]> {
+  try {
+    return await invoke<FunctionMetaDto[]>('list_functions', { dialect });
+  } catch (e) {
+    console.warn('list_functions failed:', e);
+    return [];
+  }
 }
 
 /**

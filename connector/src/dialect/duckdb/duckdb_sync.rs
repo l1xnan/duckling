@@ -1,4 +1,4 @@
-use crate::utils::{Metadata, RawArrowData};
+use crate::utils::{FunctionMeta, Metadata, RawArrowData};
 use crate::utils::{Table, Title, TreeNode, build_tree, get_file_name};
 use arrow::array::RecordBatch;
 use arrow::datatypes::DataType;
@@ -115,6 +115,10 @@ impl DuckDbSyncConnection {
       comment: None,
     })
   }
+
+  pub fn functions(&self) -> anyhow::Result<Vec<FunctionMeta>> {
+    list_functions(&self.inner)
+  }
   pub fn query(&self, sql: &str) -> anyhow::Result<(Vec<Title>, RecordBatch)> {
     let mut stmt = self.inner.prepare(sql)?;
     let frames = stmt.query_arrow(duckdb::params![])?;
@@ -209,6 +213,36 @@ impl fmt::Display for MyDataType {
       _ => write!(f, "{:?}", self.0),
     }
   }
+}
+
+/// List all functions (incl. extension/table functions) from `duckdb_functions()`.
+pub(crate) fn list_functions(conn: &duckdb::Connection) -> anyhow::Result<Vec<FunctionMeta>> {
+  let sql = "
+    select function_name, function_type
+    from duckdb_functions()
+    group by function_name, function_type
+    order by function_name
+  ";
+  let mut stmt = conn.prepare(sql)?;
+  let rows = stmt.query_map([], |row| {
+    Ok((
+      row.get::<_, String>(0)?,
+      row.get::<_, String>(1)?,
+    ))
+  })?;
+
+  let mut seen = std::collections::HashSet::new();
+  let mut out = Vec::new();
+  for row in rows {
+    let (name, kind) = row?;
+    if seen.insert(name.to_lowercase()) {
+      out.push(FunctionMeta {
+        name,
+        kind: Some(kind),
+      });
+    }
+  }
+  Ok(out)
 }
 
 pub fn query(conn: &duckdb::Connection, sql: &str) -> anyhow::Result<RawArrowData> {
@@ -350,6 +384,21 @@ fn test_duckdb_cwd() {
     .query_row(sql, [], |row| row.get::<_, String>(0))
     .unwrap();
   assert_eq!(value, "/path/to");
+}
+
+#[test]
+fn test_duckdb_functions_lists_builtins() {
+  let conn = DuckDbSyncConnection::new(None, None).unwrap();
+  let fns = conn.functions().unwrap();
+  assert!(fns.len() > 50);
+  let names: std::collections::HashSet<&str> =
+    fns.iter().map(|f| f.name.as_str()).collect();
+  for required in ["sum", "count", "strftime", "date_diff", "read_parquet"] {
+    assert!(
+      names.contains(required),
+      "duckdb_functions() missing {required}"
+    );
+  }
 }
 
 #[test]

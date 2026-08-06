@@ -661,6 +661,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
               tables: tableSchema,
               defaultDatabase: db?.defaultDatabase,
               dialect: connectionRef(dbId),
+              functions: db?.functions?.map((f) => f.name),
             }}
             onRun={handleClick}
             statementSplitEnabled={splitStatements}

@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { create, useStore } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { getDB } from '@/api';
+import { getDB, type FunctionMetaDto } from '@/api';
 import {
   normalizeDialectConfig,
   pickSecrets,
@@ -136,6 +136,8 @@ export type DBType = {
   displayName: string;
   data: TreeNode;
   meta?: Record<string, Record<string, { name: string; type: string }[]>>;
+  /** Functions reported by the connected database (editor completion). */
+  functions?: FunctionMetaDto[];
   /** Non-secret connection profile only (passwords live in backend registry). */
   config?: DialectConfig;
   defaultDatabase?: string;
@@ -237,6 +239,7 @@ async function hydrateCaches(list: DBType[]): Promise<DBType[]> {
       ...db,
       data: cache.data ?? db.data,
       meta: cache.meta ?? db.meta,
+      functions: cache.functions ?? db.functions,
       defaultDatabase: cache.defaultDatabase ?? db.defaultDatabase,
       defaultSchema: cache.defaultSchema ?? db.defaultSchema,
     };
@@ -426,12 +429,12 @@ export const useDBListStore = create<DBListStore>()(
           await registerConnectionBackend(id, profile, secrets);
           updateDB(id, { loading: true, config: profile });
           // Query by connection id only — backend supplies credentials.
-          const { data, meta, defaultDatabase } = await getDB(
+          const { data, meta, functions, defaultDatabase } = await getDB(
             { connectionId: id },
             id,
           );
-          updateDB(id, { data, meta, defaultDatabase, loading: false });
-          await setDbCache(id, { data, meta, defaultDatabase });
+          updateDB(id, { data, meta, functions, defaultDatabase, loading: false });
+          await setDbCache(id, { data, meta, functions, defaultDatabase });
         } catch (error) {
           console.error(error);
           toast.error(

@@ -1,6 +1,6 @@
 use crate::dialect::Connection;
 use crate::dialect::duckdb::duckdb_sync::DuckDbSyncConnection;
-use crate::utils::{Metadata, RawArrowData, Table, TreeNode, build_tree};
+use crate::utils::{FunctionMeta, Metadata, RawArrowData, Table, TreeNode, build_tree};
 use async_trait::async_trait;
 use regex::Regex;
 use std::collections::BTreeMap;
@@ -126,6 +126,15 @@ impl Connection for QuackConnection {
     crate::dialect::run_blocking(move || {
       let conn = this.connect()?;
       this.fetch_all_columns(&conn)
+    })
+    .await
+  }
+
+  async fn functions(&self) -> anyhow::Result<Vec<FunctionMeta>> {
+    let this = self.clone();
+    crate::dialect::run_blocking(move || {
+      let conn = this.connect()?;
+      conn.functions()
     })
     .await
   }

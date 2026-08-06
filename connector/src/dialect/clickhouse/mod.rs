@@ -4,7 +4,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::dialect::Connection;
 use crate::ssh_tunnel::{DbSshConfig, SshTunnel};
-use crate::utils::{build_tree, json_to_arrow, Metadata, RawArrowData, Table, TreeNode};
+use crate::utils::{build_tree, json_to_arrow, FunctionMeta, Metadata, RawArrowData, Table, TreeNode};
 use arrow::datatypes::*;
 use async_trait::async_trait;
 use clickhouse::{Client, Row};
@@ -104,6 +104,24 @@ impl Connection for ClickhouseConnection {
 
   async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
     Ok(self._all_columns().await?)
+  }
+
+  async fn functions(&self) -> anyhow::Result<Vec<FunctionMeta>> {
+    // ClickHouse function names are case-sensitive — keep names verbatim.
+    let client = self.get_client()?;
+    let sql = "
+      select name, if(is_aggregate, 'AGGREGATE', 'SCALAR')
+      from system.functions
+      order by name
+    ";
+    let rows = client.query(sql).fetch_all::<(String, String)>().await?;
+    Ok(rows
+      .into_iter()
+      .map(|(name, kind)| FunctionMeta {
+        name,
+        kind: Some(kind),
+      })
+      .collect())
   }
 
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
