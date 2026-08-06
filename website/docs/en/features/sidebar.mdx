@@ -1,14 +1,25 @@
 ---
 title: Sidebar
-description: Database explorer, query history, and favorites, all searchable.
+description: Database explorer, query history, favorites, and tabs — dockable on either side.
 ---
 
 # Sidebar
 
-The sidebar (toggle with `Mod+B`) provides:
+The sidebar (toggle with `Mod+B`) is organized as an activity bar with five panels:
 
 - **Database explorer** — browse databases, schemas, tables, and columns of the connected source.
-- **Query history** — previously run queries, searchable.
 - **Favorites** — pinned tables and saved SQL for one-click access, searchable.
+- **Code** — local SQL workspace folders and files.
+- **Query history** — previously run queries, searchable.
+- **Tabs** — a vertical list of open editor tabs grouped by connection. Built for many-tab sessions, with built-in search to find a tab by name.
+
+## Position
+
+The whole sidebar (activity bar + panel) can be docked on the **left** or the **right**:
+
+- Right-click the activity bar background and pick a side under **Sidebar position**.
+- Each panel can also be docked independently: right-click its activity bar button and choose **Left**, **Right**, or **Follow sidebar**.
+- Left and right panels can be open at the same time — one per side — each with its own resizable width.
+- Position and widths are persisted and restored on the next launch.
 
 Right-click a connection to **rename** (`F2`), edit its **properties** (`F3`), open a fresh **SQL editor** (`F4`), **refresh** (`F5`), or **delete** (`Delete`).
