@@ -117,7 +117,7 @@ msgstr "添加数据文件夹"
 msgid "Add field…"
 msgstr "添加字段…"
 
-#: src/stores/setting.ts:408
+#: src/stores/setting.ts:468
 msgid "After operator"
 msgstr "运算符之后"
 
@@ -153,7 +153,7 @@ msgstr "背景"
 msgid "Base"
 msgstr "基础"
 
-#: src/stores/setting.ts:407
+#: src/stores/setting.ts:467
 msgid "Before operator"
 msgstr "运算符之前"
 
@@ -262,7 +262,7 @@ msgstr "检查"
 msgid "Check for updates"
 msgstr "检查更新"
 
-#: src/stores/setting.ts:85
+#: src/stores/setting.ts:98
 msgid "China Mirror"
 msgstr "国内镜像"
 
@@ -306,7 +306,7 @@ msgstr "点击快捷键开始录制新组合。编辑器与表格内置快捷键
 msgid "Click to update"
 msgstr "点击更新"
 
-#: src/stores/setting.ts:416
+#: src/stores/setting.ts:476
 msgid "ClickHouse"
 msgstr "ClickHouse"
 
@@ -328,7 +328,7 @@ msgstr "关闭其他"
 msgid "Close tab"
 msgstr "关闭标签页"
 
-#: src/pages/sidebar/aside.tsx:75
+#: src/pages/sidebar/aside.tsx:140
 #: src/pages/sidebar/SqlCode.tsx:457
 msgid "Code"
 msgstr "代码"
@@ -500,7 +500,7 @@ msgstr "数据文件夹"
 msgid "Data type case"
 msgstr "数据类型大小写"
 
-#: src/pages/sidebar/aside.tsx:73
+#: src/pages/sidebar/aside.tsx:138
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:365
 msgid "Database"
 msgstr "数据库"
@@ -774,7 +774,7 @@ msgstr "正在导出…"
 msgid "Expression width"
 msgstr "表达式宽度"
 
-#: src/stores/setting.ts:384
+#: src/stores/setting.ts:444
 msgid "External sqlfmt CLI (dbt-oriented, via Tauri)"
 msgstr "外部 sqlfmt CLI（面向 dbt，经由 Tauri）"
 
@@ -808,7 +808,7 @@ msgid "Failed to save connection secrets"
 msgstr "保存连接密钥失败"
 
 #: src/components/PageTabs.tsx:173
-#: src/pages/sidebar/aside.tsx:74
+#: src/pages/sidebar/aside.tsx:139
 #: src/pages/sidebar/Favorite.tsx:96
 msgid "Favorite"
 msgstr "收藏"
@@ -829,7 +829,7 @@ msgstr "按此值筛选"
 msgid "Filter results…"
 msgstr "筛选结果…"
 
-#: src/pages/sidebar/VerticalTabs.tsx:203
+#: src/pages/sidebar/VerticalTabs.tsx:205
 msgid "Flat view"
 msgstr "平铺视图"
 
@@ -841,6 +841,10 @@ msgstr "浮点精度"
 #: src/components/views/ValueViewer.tsx:302
 msgid "Fold nested fields"
 msgstr "折叠嵌套字段"
+
+#: src/pages/sidebar/aside.tsx:71
+msgid "Follow sidebar"
+msgstr "跟随侧边栏位置"
 
 #: src/pages/settings/AppSetting.tsx:242
 msgid "Follow the system language when available; otherwise fall back to English."
@@ -909,15 +913,15 @@ msgstr "函数大小写"
 msgid "General"
 msgstr "通用"
 
-#: src/stores/setting.ts:374
+#: src/stores/setting.ts:434
 msgid "General-purpose SQL formatter"
 msgstr "通用 SQL 格式化器"
 
-#: src/stores/setting.ts:86
+#: src/stores/setting.ts:99
 msgid "gh-proxy.com mirror for mainland China"
 msgstr "面向中国大陆的 gh-proxy.com 镜像"
 
-#: src/stores/setting.ts:79
+#: src/stores/setting.ts:92
 msgid "GitHub (Official)"
 msgstr "GitHub（官方）"
 
@@ -933,7 +937,7 @@ msgstr "下一页"
 msgid "Go to previous page"
 msgstr "上一页"
 
-#: src/pages/sidebar/aside.tsx:98
+#: src/pages/sidebar/aside.tsx:175
 msgid "Help"
 msgstr "帮助"
 
@@ -959,7 +963,7 @@ msgstr "隐藏密码"
 msgid "High column cardinality may produce a very wide pivot: {parts}. Results are capped at {cap} groups."
 msgstr "列维基数过高可能导致透视结果过宽：{parts}。结果上限为 {cap} 个分组。"
 
-#: src/pages/sidebar/aside.tsx:76
+#: src/pages/sidebar/aside.tsx:141
 #: src/pages/sidebar/History.tsx:254
 msgid "History"
 msgstr "历史"
@@ -1099,6 +1103,11 @@ msgstr "明文导出可留空"
 msgid "Leave empty to keep current"
 msgstr "留空则保留现有密码"
 
+#: src/pages/sidebar/aside.tsx:73
+#: src/pages/sidebar/aside.tsx:193
+msgid "Left"
+msgstr "左侧"
+
 #: src/pages/settings/ColorThemePanel.tsx:399
 msgid "Light"
 msgstr "浅色"
@@ -1148,7 +1157,7 @@ msgstr "正在加载字体…"
 msgid "Logical operator newline"
 msgstr "逻辑运算符换行"
 
-#: src/stores/setting.ts:390
+#: src/stores/setting.ts:450
 msgid "Lower"
 msgstr "小写"
 
@@ -1356,7 +1365,7 @@ msgstr "空值"
 msgid "of {total}"
 msgstr "共 {total}"
 
-#: src/stores/setting.ts:80
+#: src/stores/setting.ts:93
 msgid "Official GitHub Releases endpoint"
 msgstr "官方 GitHub Releases 端点"
 
@@ -1493,7 +1502,7 @@ msgstr "用此列透视"
 msgid "Place `;` on its own line"
 msgstr "将 `;` 单独放在一行"
 
-#: src/stores/setting.ts:415
+#: src/stores/setting.ts:475
 msgid "Polyglot (default)"
 msgstr "Polyglot（默认）"
 
@@ -1514,7 +1523,7 @@ msgstr "端口"
 msgid "Preferred maximum output width in display columns."
 msgstr "首选最大输出宽度（按显示列计）。"
 
-#: src/stores/setting.ts:391
+#: src/stores/setting.ts:451
 msgid "Preserve"
 msgstr "保持原样"
 
@@ -1649,6 +1658,10 @@ msgstr "全部重置"
 msgid "Reset all overrides"
 msgstr "重置全部覆盖"
 
+#: src/pages/sidebar/aside.tsx:200
+msgid "Reset panel positions"
+msgstr "重置面板位置"
+
 #: src/pages/settings/ColorThemePanel.tsx:430
 msgid "Reset this mode"
 msgstr "重置当前模式"
@@ -1677,7 +1690,12 @@ msgstr "结果{baseCount}"
 msgid "Results"
 msgstr "结果"
 
-#: src/pages/sidebar/VerticalTabs.tsx:221
+#: src/pages/sidebar/aside.tsx:74
+#: src/pages/sidebar/aside.tsx:195
+msgid "Right"
+msgstr "右侧"
+
+#: src/pages/sidebar/VerticalTabs.tsx:223
 msgid "Right align tab text"
 msgstr "右对齐标签文字"
 
@@ -1965,6 +1983,10 @@ msgstr "侧边栏边框"
 msgid "Sidebar foreground"
 msgstr "侧边栏前景色"
 
+#: src/pages/sidebar/aside.tsx:188
+msgid "Sidebar position"
+msgstr "侧边栏位置"
+
 #: src/pages/settings/ColorThemePanel.tsx:94
 msgid "Sidebar primary"
 msgstr "侧边栏主色"
@@ -1977,7 +1999,7 @@ msgstr "侧边栏主色前景"
 msgid "Sidebar ring"
 msgstr "侧边栏焦点环"
 
-#: src/stores/setting.ts:379
+#: src/stores/setting.ts:439
 msgid "Simon Holywell's sqlstyle.guide (river alignment)"
 msgstr "Simon Holywell 的 sqlstyle.guide（河式对齐）"
 
@@ -2115,7 +2137,7 @@ msgstr "SSH 用户"
 msgid "SSL"
 msgstr "SSL"
 
-#: src/stores/setting.ts:398
+#: src/stores/setting.ts:458
 msgid "Standard"
 msgstr "标准"
 
@@ -2171,16 +2193,16 @@ msgid "Table Font Size"
 msgstr "表格字体大小"
 
 #: src/hotkeys/registry.ts:156
-#: src/pages/sidebar/aside.tsx:77
-#: src/pages/sidebar/VerticalTabs.tsx:196
+#: src/pages/sidebar/aside.tsx:142
+#: src/pages/sidebar/VerticalTabs.tsx:198
 msgid "Tabs"
 msgstr "标签页"
 
-#: src/stores/setting.ts:399
+#: src/stores/setting.ts:459
 msgid "Tabular left"
 msgstr "左对齐表格"
 
-#: src/stores/setting.ts:400
+#: src/stores/setting.ts:460
 msgid "Tabular right"
 msgstr "右对齐表格"
 
@@ -2251,7 +2273,7 @@ msgstr "总工作集"
 msgid "Transpose"
 msgstr "转置"
 
-#: src/pages/sidebar/VerticalTabs.tsx:212
+#: src/pages/sidebar/VerticalTabs.tsx:214
 msgid "Tree view"
 msgstr "树形视图"
 
@@ -2311,7 +2333,7 @@ msgstr "更新源"
 msgid "Updated @vars template"
 msgstr "已更新 @vars 模板"
 
-#: src/stores/setting.ts:389
+#: src/stores/setting.ts:449
 msgid "Upper"
 msgstr "大写"
 

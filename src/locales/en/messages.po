@@ -117,7 +117,7 @@ msgstr "Add data folder"
 msgid "Add field…"
 msgstr "Add field…"
 
-#: src/stores/setting.ts:408
+#: src/stores/setting.ts:468
 msgid "After operator"
 msgstr "After operator"
 
@@ -153,7 +153,7 @@ msgstr "Background"
 msgid "Base"
 msgstr "Base"
 
-#: src/stores/setting.ts:407
+#: src/stores/setting.ts:467
 msgid "Before operator"
 msgstr "Before operator"
 
@@ -262,7 +262,7 @@ msgstr "Check"
 msgid "Check for updates"
 msgstr "Check for updates"
 
-#: src/stores/setting.ts:85
+#: src/stores/setting.ts:98
 msgid "China Mirror"
 msgstr "China Mirror"
 
@@ -306,7 +306,7 @@ msgstr "Click a shortcut to record a new combination. Built-in editor and table 
 msgid "Click to update"
 msgstr "Click to update"
 
-#: src/stores/setting.ts:416
+#: src/stores/setting.ts:476
 msgid "ClickHouse"
 msgstr "ClickHouse"
 
@@ -328,7 +328,7 @@ msgstr "Close Other"
 msgid "Close tab"
 msgstr "Close tab"
 
-#: src/pages/sidebar/aside.tsx:75
+#: src/pages/sidebar/aside.tsx:140
 #: src/pages/sidebar/SqlCode.tsx:457
 msgid "Code"
 msgstr "Code"
@@ -500,7 +500,7 @@ msgstr "Data Folder"
 msgid "Data type case"
 msgstr "Data type case"
 
-#: src/pages/sidebar/aside.tsx:73
+#: src/pages/sidebar/aside.tsx:138
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:365
 msgid "Database"
 msgstr "Database"
@@ -774,7 +774,7 @@ msgstr "Exporting…"
 msgid "Expression width"
 msgstr "Expression width"
 
-#: src/stores/setting.ts:384
+#: src/stores/setting.ts:444
 msgid "External sqlfmt CLI (dbt-oriented, via Tauri)"
 msgstr "External sqlfmt CLI (dbt-oriented, via Tauri)"
 
@@ -808,7 +808,7 @@ msgid "Failed to save connection secrets"
 msgstr "Failed to save connection secrets"
 
 #: src/components/PageTabs.tsx:173
-#: src/pages/sidebar/aside.tsx:74
+#: src/pages/sidebar/aside.tsx:139
 #: src/pages/sidebar/Favorite.tsx:96
 msgid "Favorite"
 msgstr "Favorite"
@@ -829,7 +829,7 @@ msgstr "Filter by this value"
 msgid "Filter results…"
 msgstr "Filter results…"
 
-#: src/pages/sidebar/VerticalTabs.tsx:203
+#: src/pages/sidebar/VerticalTabs.tsx:205
 msgid "Flat view"
 msgstr "Flat view"
 
@@ -841,6 +841,10 @@ msgstr "Float precision"
 #: src/components/views/ValueViewer.tsx:302
 msgid "Fold nested fields"
 msgstr "Fold nested fields"
+
+#: src/pages/sidebar/aside.tsx:71
+msgid "Follow sidebar"
+msgstr "Follow sidebar"
 
 #: src/pages/settings/AppSetting.tsx:242
 msgid "Follow the system language when available; otherwise fall back to English."
@@ -909,15 +913,15 @@ msgstr "Function case"
 msgid "General"
 msgstr "General"
 
-#: src/stores/setting.ts:374
+#: src/stores/setting.ts:434
 msgid "General-purpose SQL formatter"
 msgstr "General-purpose SQL formatter"
 
-#: src/stores/setting.ts:86
+#: src/stores/setting.ts:99
 msgid "gh-proxy.com mirror for mainland China"
 msgstr "gh-proxy.com mirror for mainland China"
 
-#: src/stores/setting.ts:79
+#: src/stores/setting.ts:92
 msgid "GitHub (Official)"
 msgstr "GitHub (Official)"
 
@@ -933,7 +937,7 @@ msgstr "Go to next page"
 msgid "Go to previous page"
 msgstr "Go to previous page"
 
-#: src/pages/sidebar/aside.tsx:98
+#: src/pages/sidebar/aside.tsx:175
 msgid "Help"
 msgstr "Help"
 
@@ -959,7 +963,7 @@ msgstr "Hide password"
 msgid "High column cardinality may produce a very wide pivot: {parts}. Results are capped at {cap} groups."
 msgstr "High column cardinality may produce a very wide pivot: {parts}. Results are capped at {cap} groups."
 
-#: src/pages/sidebar/aside.tsx:76
+#: src/pages/sidebar/aside.tsx:141
 #: src/pages/sidebar/History.tsx:254
 msgid "History"
 msgstr "History"
@@ -1099,6 +1103,11 @@ msgstr "Leave empty for plain exports"
 msgid "Leave empty to keep current"
 msgstr "Leave empty to keep current"
 
+#: src/pages/sidebar/aside.tsx:73
+#: src/pages/sidebar/aside.tsx:193
+msgid "Left"
+msgstr "Left"
+
 #: src/pages/settings/ColorThemePanel.tsx:399
 msgid "Light"
 msgstr "Light"
@@ -1148,7 +1157,7 @@ msgstr "Loading fonts..."
 msgid "Logical operator newline"
 msgstr "Logical operator newline"
 
-#: src/stores/setting.ts:390
+#: src/stores/setting.ts:450
 msgid "Lower"
 msgstr "Lower"
 
@@ -1356,7 +1365,7 @@ msgstr "Nulls"
 msgid "of {total}"
 msgstr "of {total}"
 
-#: src/stores/setting.ts:80
+#: src/stores/setting.ts:93
 msgid "Official GitHub Releases endpoint"
 msgstr "Official GitHub Releases endpoint"
 
@@ -1493,7 +1502,7 @@ msgstr "Pivot with this column"
 msgid "Place `;` on its own line"
 msgstr "Place `;` on its own line"
 
-#: src/stores/setting.ts:415
+#: src/stores/setting.ts:475
 msgid "Polyglot (default)"
 msgstr "Polyglot (default)"
 
@@ -1514,7 +1523,7 @@ msgstr "Port"
 msgid "Preferred maximum output width in display columns."
 msgstr "Preferred maximum output width in display columns."
 
-#: src/stores/setting.ts:391
+#: src/stores/setting.ts:451
 msgid "Preserve"
 msgstr "Preserve"
 
@@ -1649,6 +1658,10 @@ msgstr "Reset all"
 msgid "Reset all overrides"
 msgstr "Reset all overrides"
 
+#: src/pages/sidebar/aside.tsx:200
+msgid "Reset panel positions"
+msgstr "Reset panel positions"
+
 #: src/pages/settings/ColorThemePanel.tsx:430
 msgid "Reset this mode"
 msgstr "Reset this mode"
@@ -1677,7 +1690,12 @@ msgstr "Result{baseCount}"
 msgid "Results"
 msgstr "Results"
 
-#: src/pages/sidebar/VerticalTabs.tsx:221
+#: src/pages/sidebar/aside.tsx:74
+#: src/pages/sidebar/aside.tsx:195
+msgid "Right"
+msgstr "Right"
+
+#: src/pages/sidebar/VerticalTabs.tsx:223
 msgid "Right align tab text"
 msgstr "Right align tab text"
 
@@ -1965,6 +1983,10 @@ msgstr "Sidebar border"
 msgid "Sidebar foreground"
 msgstr "Sidebar foreground"
 
+#: src/pages/sidebar/aside.tsx:188
+msgid "Sidebar position"
+msgstr "Sidebar position"
+
 #: src/pages/settings/ColorThemePanel.tsx:94
 msgid "Sidebar primary"
 msgstr "Sidebar primary"
@@ -1977,7 +1999,7 @@ msgstr "Sidebar primary foreground"
 msgid "Sidebar ring"
 msgstr "Sidebar ring"
 
-#: src/stores/setting.ts:379
+#: src/stores/setting.ts:439
 msgid "Simon Holywell's sqlstyle.guide (river alignment)"
 msgstr "Simon Holywell's sqlstyle.guide (river alignment)"
 
@@ -2115,7 +2137,7 @@ msgstr "SSH User"
 msgid "SSL"
 msgstr "SSL"
 
-#: src/stores/setting.ts:398
+#: src/stores/setting.ts:458
 msgid "Standard"
 msgstr "Standard"
 
@@ -2171,16 +2193,16 @@ msgid "Table Font Size"
 msgstr "Table Font Size"
 
 #: src/hotkeys/registry.ts:156
-#: src/pages/sidebar/aside.tsx:77
-#: src/pages/sidebar/VerticalTabs.tsx:196
+#: src/pages/sidebar/aside.tsx:142
+#: src/pages/sidebar/VerticalTabs.tsx:198
 msgid "Tabs"
 msgstr "Tabs"
 
-#: src/stores/setting.ts:399
+#: src/stores/setting.ts:459
 msgid "Tabular left"
 msgstr "Tabular left"
 
-#: src/stores/setting.ts:400
+#: src/stores/setting.ts:460
 msgid "Tabular right"
 msgstr "Tabular right"
 
@@ -2251,7 +2273,7 @@ msgstr "Total WS"
 msgid "Transpose"
 msgstr "Transpose"
 
-#: src/pages/sidebar/VerticalTabs.tsx:212
+#: src/pages/sidebar/VerticalTabs.tsx:214
 msgid "Tree view"
 msgstr "Tree view"
 
@@ -2311,7 +2333,7 @@ msgstr "Update source"
 msgid "Updated @vars template"
 msgstr "Updated @vars template"
 
-#: src/stores/setting.ts:389
+#: src/stores/setting.ts:449
 msgid "Upper"
 msgstr "Upper"
 

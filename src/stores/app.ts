@@ -17,10 +17,12 @@ export type { SqlBookmark };
 
 type AppState = {
   size: number;
+  sizeRight: number;
 };
 
 type AppAction = {
   setSize: (size: number) => void;
+  setSizeRight: (size: number) => void;
 };
 
 type AppStore = AppState & AppAction;
@@ -29,7 +31,11 @@ export const store = create<AppStore>()(
   persist<AppStore>(
     (set, _get) => ({
       size: 300,
+      sizeRight: 250,
       setSize: debounce({ delay: 300 }, (size) => set((_) => ({ size }))),
+      setSizeRight: debounce({ delay: 300 }, (sizeRight) =>
+        set((_) => ({ sizeRight })),
+      ),
     }),
     {
       name: 'app',
@@ -42,6 +48,10 @@ const useAppStore = createSelectors(store);
 export const appAtom = atomWithStore(useAppStore);
 
 export const sizeAtom = focusAtom(appAtom, (optic) => optic.prop('size'));
+
+export const sizeRightAtom = focusAtom(appAtom, (optic) =>
+  optic.prop('sizeRight'),
+);
 
 /** Bridge a workspace store slice to a jotai writable atom (useAtom compatible). */
 function workspaceSliceAtom<T>(

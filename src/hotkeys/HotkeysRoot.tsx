@@ -1,9 +1,9 @@
 import { HotkeysProvider } from '@tanstack/react-hotkeys';
-import { useAtom, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useCallback, useState, type ReactNode } from 'react';
 
 import { createScratchEditor } from '@/lib/scratchSql';
-import { activeSideAtom } from '@/pages/sidebar/aside';
+import { activePanelsAtom } from '@/pages/sidebar/aside';
 import { docsAtom } from '@/stores/app';
 import {
   getStoredDB,
@@ -11,6 +11,10 @@ import {
   useSelectedNodeStore,
   type NodeContextType,
 } from '@/stores/dbList';
+import {
+  getSidebarLayout,
+  resolvePanelSide,
+} from '@/stores/setting';
 import { useTabsStore } from '@/stores/tabs';
 
 import { HotkeysHelpDialog } from './HotkeysHelpDialog';
@@ -39,7 +43,7 @@ function isConnectionRoot(node: NodeContextType | null): boolean {
  */
 function HotkeysBindings({ children }: { children: ReactNode }) {
   const [helpOpen, setHelpOpen] = useState(false);
-  const [, setActiveSide] = useAtom(activeSideAtom);
+  const setActivePanels = useSetAtom(activePanelsAtom);
   const setDocs = useSetAtom(docsAtom);
   const selectedNode = useSelectedNodeStore((s) => s.selectedNode);
   const updateDB = useDBListStore((s) => s.updateByConfig);
@@ -51,7 +55,18 @@ function HotkeysBindings({ children }: { children: ReactNode }) {
   const treeEnabled = !!selectedNode && !helpOpen;
 
   useAppHotkey('sidebar.toggle', () => {
-    setActiveSide((prev) => (prev == null ? 'database' : null));
+    setActivePanels((prev) => {
+      const layout = getSidebarLayout();
+      const side = resolvePanelSide(
+        layout.panelSides,
+        'database',
+        layout.side,
+      );
+      return {
+        ...prev,
+        [side]: prev[side] === 'database' ? null : 'database',
+      };
+    });
   });
 
   useAppHotkey('hotkeys.help', () => {

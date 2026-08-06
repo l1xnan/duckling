@@ -62,6 +62,19 @@ export type UpdaterSource = 'official' | 'china';
 /** Persisted UI language preference. `system` follows OS locale with English fallback. */
 export type LocalePreference = 'system' | 'en' | 'zh-CN';
 
+/** Dock side for the sidebar rail and/or an individual panel. */
+export type DockSide = 'left' | 'right';
+
+/** Sidebar activity panel ids (matches SIDE_ITEMS in the activity bar). */
+export type SidePanelId = 'database' | 'favorite' | 'code' | 'history' | 'tabs';
+
+/** Per-panel dock overrides. Omitted ids follow the global `side`. */
+export type SidebarLayout = {
+  /** Global dock side for the whole sidebar (rail + panels). Default 'left'. */
+  side: DockSide;
+  panelSides?: Partial<Record<SidePanelId, DockSide>>;
+};
+
 export const UPDATER_ENDPOINT_OFFICIAL =
   'https://github.com/l1xnan/duckling/releases/latest/download/latest.json';
 
@@ -116,6 +129,8 @@ export type SettingState = {
   locale?: LocalePreference;
   /** Updater endpoint source: official GitHub or China mirror. */
   updater_source?: UpdaterSource;
+  /** Sidebar dock layout: global rail side + optional per-panel overrides. */
+  sidebar?: SidebarLayout;
   csv?: CsvParam;
   /**
    * Idle minutes before a live DB session is dropped (MySQL/PG pool, SSH tunnel, …).
@@ -185,6 +200,11 @@ export const defaultSqlfmtOptions: SqlfmtOptions = {
 /** Default idle session timeout in minutes (matches backend DEFAULT_IDLE_TTL). */
 export const DEFAULT_SESSION_IDLE_TTL_MINUTES = 15;
 
+export const defaultSidebarLayout: SidebarLayout = {
+  side: 'left',
+  panelSides: {},
+};
+
 export const defaultSettings: SettingState = {
   precision: 4,
   default_per_page: DEFAULT_PER_PAGE,
@@ -192,6 +212,7 @@ export const defaultSettings: SettingState = {
   auto_update: false,
   locale: 'system',
   updater_source: 'official',
+  sidebar: defaultSidebarLayout,
   session_idle_ttl_minutes: DEFAULT_SESSION_IDLE_TTL_MINUTES,
   memory_diagnostics: {
     enabled: false,
@@ -275,6 +296,73 @@ export function setSettings(
   } else {
     useSettingStore.setState(partial);
   }
+}
+
+export function resolveSidebarLayout(
+  layout?: Partial<SidebarLayout> | null,
+): SidebarLayout {
+  return {
+    side: layout?.side ?? defaultSidebarLayout.side,
+    panelSides: {
+      ...defaultSidebarLayout.panelSides,
+      ...layout?.panelSides,
+    },
+  };
+}
+
+export function resolvePanelSide(
+  panelSides: Partial<Record<SidePanelId, DockSide>> | undefined | null,
+  id: SidePanelId,
+  global: DockSide,
+): DockSide {
+  return panelSides?.[id] ?? global;
+}
+
+export function getSidebarLayout(): SidebarLayout {
+  return resolveSidebarLayout(useSettingStore.getState().sidebar);
+}
+
+/** Which panel is shown on each side given the open slots + current layout. */
+export function resolveActiveSlots(
+  active: Record<DockSide, string | null>,
+  layout: SidebarLayout,
+): Record<DockSide, string | null> {
+  const ids = new Set(
+    [active.left, active.right].filter((v): v is string => v != null),
+  );
+  const slots: Record<DockSide, string | null> = { left: null, right: null };
+  for (const id of ids) {
+    const s = resolvePanelSide(layout.panelSides, id as SidePanelId, layout.side);
+    if (slots[s] == null) {
+      slots[s] = id;
+    }
+  }
+  return slots;
+}
+
+export function setSidebarSide(side: DockSide) {
+  setSettings((s) => ({
+    sidebar: { ...resolveSidebarLayout(s.sidebar), side },
+  }));
+}
+
+/** `null` clears the per-panel override (falls back to the global side). */
+export function setPanelSide(id: SidePanelId, side: DockSide | null) {
+  setSettings((s) => {
+    const panelSides = { ...resolveSidebarLayout(s.sidebar).panelSides };
+    if (side == null) {
+      delete panelSides[id];
+    } else {
+      panelSides[id] = side;
+    }
+    return { sidebar: { ...resolveSidebarLayout(s.sidebar), panelSides } };
+  });
+}
+
+export function resetPanelSides() {
+  setSettings((s) => ({
+    sidebar: { ...resolveSidebarLayout(s.sidebar), panelSides: {} },
+  }));
 }
 
 export function resolveSessionIdleTtlMinutes(
