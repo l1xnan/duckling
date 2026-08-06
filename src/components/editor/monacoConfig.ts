@@ -25,7 +25,7 @@ export function registerUriBasedCompletionProvider(languageId: string) {
     {
       triggerCharacters: ['.', ' ', '(', "'", '"', '`', '\n'],
       provideCompletionItems: (model, position, _context, _token) => {
-        return handleProvideCompletionItems(model, position);
+        return handleProvideCompletionItems(model, position, _context);
       },
     },
   );

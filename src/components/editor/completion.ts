@@ -75,6 +75,7 @@ export function parseSqlAndFindTableNameAndAliases(sql: string) {
 export async function handleProvideCompletionItems(
   model: monaco.editor.ITextModel,
   position: Position,
+  context?: monaco.languages.CompletionContext,
 ) {
   const modelUri = model.uri.toString();
   const completeMeta = completionRegistry.get(modelUri);
@@ -114,6 +115,14 @@ export async function handleProvideCompletionItems(
   // No recognizable clause context (statement start, bare keyword, etc.) →
   // fall back to keywords + functions so typing `SEL` / `read_` still pops.
   if (!ctx) {
+    // Avoid auto-popping on Enter/space on an empty line (no word to match);
+    // explicit Ctrl+Space still shows the fallback list.
+    if (
+      word.word === '' &&
+      context?.triggerKind !== monaco.languages.CompletionTriggerKind.Invoke
+    ) {
+      return { suggestions: [] };
+    }
     return {
       suggestions: toCompletionItems(
         unionSuggestions(functionItems, keywordItems),
