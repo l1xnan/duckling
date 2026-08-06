@@ -3,7 +3,7 @@ import { Activity, RefObject } from 'react';
 
 import { Content, Sidebar } from '@/components/Layout';
 import { StatusBar } from '@/components/StatusBar';
-import { useResize } from '@/hooks';
+import { MIN_SIDEBAR_WIDTH, useResize } from '@/hooks';
 import classes from '@/hooks/resize.module.css';
 import { Main } from '@/pages/main';
 import { DBTree } from '@/pages/sidebar';
@@ -52,11 +52,14 @@ function Home() {
     setRightSize,
   );
 
+  const leftWidth = Math.max(MIN_SIDEBAR_WIDTH, sizeLeft);
+  const rightWidth = Math.max(MIN_SIDEBAR_WIDTH, sizeRight);
+
   const leftReserve =
-    (leftPanelId != null ? sizeLeft : 0) +
+    (leftPanelId != null ? leftWidth : 0) +
     (layout.side === 'left' && leftPanelId == null ? RAIL_WIDTH : 0);
   const rightReserve =
-    (rightPanelId != null ? sizeRight : 0) +
+    (rightPanelId != null ? rightWidth : 0) +
     (layout.side === 'right' && rightPanelId == null ? RAIL_WIDTH : 0);
 
   return (
@@ -67,7 +70,7 @@ function Home() {
           <div
             ref={targetRefLeft as RefObject<HTMLDivElement>}
             className="h-full top-0 absolute pl-9 left-0 flex flex-row overflow-hidden"
-            style={{ width: sizeLeft }}
+            style={{ width: leftWidth }}
           >
             <Sidebar side="left">
               {ACTIVITIES.filter(({ id }) => id === leftPanelId).map(
@@ -87,7 +90,7 @@ function Home() {
           <div
             ref={targetRefRight as RefObject<HTMLDivElement>}
             className="h-full flex flex-row overflow-hidden top-0 absolute right-0 pr-1"
-            style={{ width: sizeRight }}
+            style={{ width: rightWidth }}
           >
             <Sidebar side="right">
               {ACTIVITIES.filter(({ id }) => id === rightPanelId).map(

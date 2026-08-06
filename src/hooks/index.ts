@@ -7,6 +7,9 @@ import {
 
 type ResizeType = 'top' | 'bottom' | 'right' | 'left';
 
+/** Minimum width for left/right docked sidebars (incl. the 36px activity rail). */
+export const MIN_SIDEBAR_WIDTH = 100;
+
 export const useResize = (
   initialSize: number,
   type: ResizeType,
@@ -66,17 +69,17 @@ export const useResize = (
         }
         case 'right': {
           if (parentRect) {
-            callback(Math.max(0, parentRect.right - e.clientX));
+            callback(Math.max(MIN_SIDEBAR_WIDTH, parentRect.right - e.clientX));
           } else {
-            callback(window.innerWidth - e.clientX);
+            callback(Math.max(MIN_SIDEBAR_WIDTH, window.innerWidth - e.clientX));
           }
           break;
         }
         case 'left': {
           if (parentRect) {
-            callback(Math.max(0, e.clientX - parentRect.left));
+            callback(Math.max(MIN_SIDEBAR_WIDTH, e.clientX - parentRect.left));
           } else {
-            callback(e.clientX);
+            callback(Math.max(MIN_SIDEBAR_WIDTH, e.clientX));
           }
           break;
         }
