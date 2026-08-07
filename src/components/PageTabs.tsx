@@ -376,19 +376,15 @@ export function PageTabs({
 
   return (
     <Tabs
-      className="size-full justify-start items-stretch gap-0 flex flex-col"
+      className="size-full min-w-0 justify-start items-stretch gap-0 flex flex-col"
       value={activeKey}
       onValueChange={onChange}
     >
       <div
-        ref={(node) => {
-          stripScrollRef.current = node;
-          if (paneId) paneDropRef(node);
-        }}
+        ref={paneId ? paneDropRef : undefined}
         data-tab-bar=""
         className={cn(
-          'relative h-8 min-h-8 w-full overflow-x-auto overflow-y-hidden overscroll-x-contain',
-          '[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden',
+          'relative h-8 min-h-8 min-w-0 w-full overflow-hidden',
           (isDropTarget || isEndDropTarget) &&
             insertIndex === null &&
             'bg-primary/10',
@@ -409,9 +405,18 @@ export function PageTabs({
         ) : null}
         <TabsList
           variant="line"
-          className="p-0 h-8 border-b w-max max-w-none flex flex-row justify-stretch"
+          className="p-0 h-8 min-w-0 w-full border-b flex flex-row justify-stretch"
         >
-          <ScrollMenu apiRef={apiRef} onWheel={onWheel}>
+          <ScrollMenu
+            apiRef={apiRef}
+            containerRef={stripScrollRef}
+            onWheel={onWheel}
+            wrapperClassName="min-w-0 w-full"
+            scrollContainerClassName={cn(
+              'overflow-x-auto overflow-y-hidden overscroll-x-contain',
+              '[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden',
+            )}
+          >
             {tabsList}
           </ScrollMenu>
         </TabsList>
@@ -720,16 +725,18 @@ function RenameDialog({
 }
 
 function onWheel(apiObj: publicApiType, ev: React.WheelEvent): void {
-  // NOTE: no good standard way to distinguish touchpad scrolling gestures
-  // but can assume that gesture will affect X axis, mouse scroll only Y axis
-  // of if deltaY too small probably is it touchpad
+  const el = apiObj.scrollContainer.current;
+  if (!el) return;
+
   const isTouchpad = Math.abs(ev.deltaX) !== 0 || Math.abs(ev.deltaY) < 15;
 
   if (isTouchpad) {
-    ev.stopPropagation();
+    el.scrollLeft += ev.deltaX + ev.deltaY;
+    ev.preventDefault();
     return;
   }
 
+  ev.preventDefault();
   if (ev.deltaY > 0) {
     apiObj.scrollNext();
   } else {
