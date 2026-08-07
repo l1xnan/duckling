@@ -57,7 +57,26 @@ From the [releases](https://github.com/l1xnan/Duckling/releases) page, download 
 
 For Windows, if you cannot install WebView2 due to network issues, you can [install WebView2 offline](https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section).
 
+For **macOS**, the app is **unsigned** (not notarized), so Gatekeeper blocks the first launch. Clear the quarantine attribute once:
+
+```bash
+sudo xattr -rd com.apple.quarantine /Applications/Duckling.app
+```
+
+(Use the actual `.app` path if you placed it elsewhere.)
+
 **Note**: When selecting an installation path, choose an empty folder or create a new one. Do not put data files in the installation path, and avoid selecting a non-empty folder. During uninstallation, if you choose to clear data files, the entire folder is deleted — even files that do not belong to the software.
+
+## Updating
+
+Duckling can update itself in two ways:
+
+- **Automatic updates (default on)** — on startup the app checks for a new version, downloads, installs, and relaunches automatically. Disable via **Settings → Updates → Automatic updates**.
+- **Manual in-app check** — open **Settings → Updates → Check for updates**, then **Click to update** when a new version is found.
+
+Both use a signed release manifest. The update source is configurable in the same dialog: **Official** (GitHub Releases) or **China Mirror** (gh-proxy.com, better connectivity in mainland China), plus an optional proxy for updater requests.
+
+Alternatively, download the latest installer manually from the [releases](https://github.com/l1xnan/Duckling/releases) page and run it to replace the previous version.
 
 ## Usage
 

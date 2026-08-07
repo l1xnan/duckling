@@ -1,6 +1,7 @@
 [
   { "type": "file", "name": "index", "label": "介绍" },
   "installation",
+  "updates",
   "quick-start",
   { "type": "dir", "name": "data-sources", "label": "数据源" }
 ]

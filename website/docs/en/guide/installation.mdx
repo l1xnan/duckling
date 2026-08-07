@@ -7,9 +7,23 @@ description: How to install Duckling on Windows, macOS, and Linux.
 
 Download the latest installer for your platform from the [releases](https://github.com/l1xnan/Duckling/releases) page.
 
+> Already installed? See [Updating software](./updates) for automatic and manual update options.
+
 ## Windows WebView2
 
 On Windows, if you cannot install WebView2 due to network issues, you can [install WebView2 offline](https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section).
+
+## macOS — unsigned app (Gatekeeper)
+
+Duckling for macOS is **not notarized/signed**, so Gatekeeper blocks the first launch with a “damaged” or “cannot verify developer” warning. To allow it, remove the quarantine attribute:
+
+```bash
+sudo xattr -rd com.apple.quarantine /Applications/Duckling.app
+```
+
+Substitute the path where you actually placed the app (`.app` bundle) if it is not in `/Applications`.
+
+> The `-rd` flag rewrites the attribute **recursively**, clearing it on the bundle and every file inside it. You only need to run this once per downloaded copy. Alternatively, right-click the app in Finder and choose **Open** to approve it.
 
 ## Note on the installation path
 

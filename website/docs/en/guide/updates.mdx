@@ -1,0 +1,65 @@
+---
+title: Updating software
+description: How to update Duckling — manual download, automatic in-app updates, and update sources.
+---
+
+# Updating software
+
+Duckling offers two ways to get a newer version: **automatic in-app updates** and **manual installers** from the [releases](https://github.com/l1xnan/Duckling/releases) page.
+
+## Update sources
+
+Updates are fetched from a signed `latest.json` manifest that points at the matching installer for your platform. Two endpoints are built in:
+
+| Source | Endpoint |
+|--------|----------|
+| Official (default) | `https://github.com/l1xnan/Duckling/releases/latest/download/latest.json` |
+| China Mirror | `https://gh-proxy.com/github.com/l1xnan/Duckling/releases/latest/download/latest.json` (better connectivity in mainland China) |
+
+You can switch the source in **Settings → Updates → Update source**. The setting applies to both the automatic and the manual check. A custom **Proxy** entered in the same dialog is used for every updater request.
+
+## Automatic updates
+
+By default the app checks for a new version **at startup**. When an update is found, it is downloaded, installed, and the app restarts automatically.
+
+To disable this behavior, turn off **Settings → Updates → Automatic updates**. You can still check manually with the steps below.
+
+## Manual in-app check
+
+1. Open **Settings → Updates**.
+2. Click **Check for updates**.
+3. If a newer version exists, the version number is shown and the button becomes **Click to update**; a progress bar follows the download.
+4. After the download finishes the app installs and relaunches.
+
+If the check or download fails, an error toast is shown and nothing is changed.
+
+## Manual installer (bypass the updater)
+
+Choose the asset matching your OS and architecture from the [releases](https://github.com/l1xnan/Duckling/releases) page. Each version ships these artifacts:
+
+**Windows**
+
+| Asset | Use it when |
+| --- | --- |
+| `Duckling_<version>_x64-setup.exe` | Standard install (NSIS installer) for x64 Windows. |
+| `Duckling_<version>_x64_en-US.msi` | MSI package (enterprise deployment / silent install). |
+
+**macOS** — choose the build matching your chip (unsigned; see [macOS — unsigned app](../guide/installation#macos--unsigned-app-gatekeeper)):
+
+| Asset | Use it when |
+| --- | --- |
+| `Duckling_<version>_aarch64.dmg` (or `.app.tar.gz`) | Apple Silicon — M1, M2, M3, and later. |
+| `Duckling_<version>_x64.dmg` (or `.app.tar.gz`) | Intel Mac (pre-M1). |
+
+**Linux**
+
+| Asset | Use it when |
+| --- | --- |
+| `Duckling_<version>_amd64.deb` | Debian / Ubuntu / Mint and other apt-based distros. |
+| `Duckling_<version>_amd64.AppImage` | Most other Linux distributions (x86_64). |
+| `Duckling-<version>-1.x86_64.rpm` | Fedora / RHEL / openSUSE and other rpm-based distros. |
+
+Steps:
+1. Download the right installer for your platform from the [releases](https://github.com/l1xnan/Duckling/releases) page.
+2. Close Duckling (an open instance can lock files and the install may fail).
+3. Run the installer as usual and follow the steps; always install into an **empty/new folder** (`WebView2` and `Visual C++` notes).

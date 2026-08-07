@@ -1,6 +1,7 @@
 [
   { "type": "file", "name": "index", "label": "Introduction" },
   "installation",
+  "updates",
   "quick-start",
   { "type": "dir", "name": "data-sources", "label": "Data Sources" }
 ]

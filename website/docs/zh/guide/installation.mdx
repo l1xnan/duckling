@@ -7,9 +7,23 @@ description: 如何在 Windows、macOS 与 Linux 上安装 Duckling。
 
 从 [releases](https://github.com/l1xnan/Duckling/releases) 页面下载对应平台的最新安装包进行安装。
 
+> 已安装过？参见[《软件更新》](./updates)了解自动更新与手动更新方式。
+
 ## Windows WebView2
 
 对于 Windows 平台，如果因网络问题无法安装 WebView2，可以[离线下载安装 WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section)。
+
+## macOS —— 未签名应用（Gatekeeper）
+
+macOS 版 Duckling **未签名 / 未公证**，Gatekeeper 会在首次启动时拦截并提示“已损坏”或“无法验证开发者”。请移除隔离属性以允许运行：
+
+```bash
+sudo xattr -rd com.apple.quarantine /Applications/Duckling.app
+```
+
+如果应用（`.app` 包）不在 `/Applications` 中，请替换为实际安装路径。
+
+> `-rd` 参数表示**递归**重写属性，会清除应用包及其内部所有文件的隔离标记；每个下载副本只需执行一次。另一种方式是右键点击 Finder 中的应用并选择**打开**来手动批准。
 
 ## 安装路径注意事项
 

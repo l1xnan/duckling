@@ -1,0 +1,65 @@
+---
+title: 软件更新
+description: 如何更新 Duckling —— 手动下载、应用内自动更新与更新源设置。
+---
+
+# 软件更新
+
+Duckling 提供两种方式获取新版本：**应用内自动更新** 与从 [releases](https://github.com/l1xnan/Duckling/releases) 页面**手动下载安装包**。
+
+## 更新源
+
+更新通过一份签名的 `latest.json` 清单获取，该清单指向与你平台匹配的安装包。内置两个端点：
+
+| 更新源 | 端点 |
+|--------|------|
+| 官方（默认） | `https://github.com/l1xnan/Duckling/releases/latest/download/latest.json` |
+| 国内镜像 | `https://gh-proxy.com/github.com/l1xnan/Duckling/releases/latest/download/latest.json`（在中国大陆连接更稳定） |
+
+在 **设置 → 更新 → 更新源** 中切换。该设置同时作用于自动更新和手动检查。同一对话框中的 **代理** 设置会用于所有更新请求。
+
+## 自动更新
+
+默认情况下，应用在**启动时**检查新版本。发现新版本后会自动下载、安装并重启应用。
+
+如需关闭此行为，可在 **设置 → 更新 → 自动更新** 中关闭开关。你仍可按照下面的步骤手动检查。
+
+## 应用内手动检查
+
+1. 打开 **设置 → 更新**。
+2. 点击 **检查更新**。
+3. 若存在新版本，会显示版本号，按钮变为 **点击更新**；下载过程会有进度条。
+4. 下载完成后应用会自动安装并重启。
+
+如果检查或下载失败，会显示错误提示，且不会更改任何内容。
+
+## 手动下载安装（不经过更新器）
+
+从 [releases](https://github.com/l1xnan/Duckling/releases) 页面，根据操作系统与 CPU 架构选择对应安装包。每个版本会提供以下产物：
+
+**Windows**
+
+| 文件 | 使用场景 |
+| --- | --- |
+| `Duckling_<版本号>_x64-setup.exe` | x64 Windows 标准安装包（NSIS 安装器）。 |
+| `Duckling_<版本号>_x64_en-US.msi` | MSI 安装包（企业部署 / 静默安装）。 |
+
+**macOS** —— 根据芯片选择对应构建（未签名，参见[《macOS 未签名应用》](../guide/installation#macos--未签名应用gatekeeper)）：
+
+| 文件 | 使用场景 |
+| --- | --- |
+| `Duckling_<版本号>_aarch64.dmg`（或 `.app.tar.gz`） | Apple Silicon —— M1、M2、M3 及更新机型。 |
+| `Duckling_<版本号>_x64.dmg`（或 `.app.tar.gz`） | Intel Mac（M1 之前）。 |
+
+**Linux**
+
+| 文件 | 使用场景 |
+| --- | --- |
+| `Duckling_<版本号>_amd64.deb` | Debian / Ubuntu / Mint 等基于 apt 的发行版。 |
+| `Duckling_<版本号>_amd64.AppImage` | 大多数其他 Linux 发行版（x86_64）。 |
+| `Duckling-<版本号>-1.x86_64.rpm` | Fedora / RHEL / openSUSE 等基于 rpm 的发行版。 |
+
+步骤：
+1. 从 [releases](https://github.com/l1xnan/Duckling/releases) 页面下载对应平台的安装包。
+2. 关闭 Duckling（应用运行中可能锁定文件导致安装失败）。
+3. 按照普通流程运行安装包并完成安装；始终安装到**空白 / 新建文件夹**（注意 WebView2 与 Visual C++ 的说明）。

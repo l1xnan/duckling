@@ -57,7 +57,26 @@ Duckling 是使用 [Tauri](https://v2.tauri.app/) 构建的轻量级桌面应用
 
 对于 Windows 平台，如果因网络问题无法安装 WebView2，可以[离线下载安装 WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section)。
 
+对于 **macOS**，应用**未签名**（未公证），Gatekeeper 会阻止首次启动。请执行以下命令清除隔离属性（仅需一次）：
+
+```bash
+sudo xattr -rd com.apple.quarantine /Applications/Duckling.app
+```
+
+（若 `.app` 不在 `/Applications`，请替换为实际路径。）
+
 **注意**：软件安装路径要选择空白文件夹或者新建文件夹，不要选择非空文件夹，也不要将数据文件放到安装路径中，否则卸载时，如果选择了清空数据文件，整个文件夹会被删除，即使不是软件自己的文件。
+
+## 更新软件
+
+Duckling 支持两种更新方式：
+
+- **自动更新（默认开启）** — 应用启动时检查新版本，发现后自动下载、安装并重启。可在 **设置 → 更新 → 自动更新** 中关闭。
+- **应用内手动检查** — 打开 **设置 → 更新 → 检查更新**，发现新版本后点击 **点击更新**。
+
+两者均使用签名的发布清单。可在同一对话框中切换更新源：**官方**（GitHub Releases）或 **国内镜像**（gh-proxy.com，在中国大陆连接更稳定），并可设置更新请求使用的代理。
+
+也可以从 [releases](https://github.com/l1xnan/Duckling/releases) 页面手动下载最新安装包，运行后覆盖旧版本。
 
 ## 使用
 
