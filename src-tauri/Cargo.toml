@@ -48,6 +48,7 @@ serde_yaml = "0.9"
 
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
 tauri-plugin-updater = "^2.10.0"
+reqwest = { version = "0.13", default-features = false, features = ["json", "rustls"] }
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

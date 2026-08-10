@@ -189,7 +189,7 @@ fn main() {
       cmd::connection_registry::unregister_connection,
       cmd::connection_registry::sync_connections,
       #[cfg(desktop)]
-      cmd::app::check_app_update,
+      cmd::updater::check_app_update,
     ])
     .build(tauri::generate_context!())
     .expect("error while running tauri application")

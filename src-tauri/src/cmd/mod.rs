@@ -6,6 +6,7 @@ pub mod inflight;
 pub mod secret_store;
 pub mod session_manager;
 pub mod sql_template;
+pub mod updater;
 
 pub use app::OpenedFiles;
 pub use connection_registry::ConnectionRegistry;
