@@ -61,6 +61,33 @@ describe('splitSqlBySemicolon', () => {
     expect(slices[0].text).toBe('SELECT $$a;b$$');
     expect(slices[1].text).toBe('SELECT 2');
   });
+
+  it('ignores semicolon in hash line comment', () => {
+    const sql = 'SELECT 1 # ; not a split\n; SELECT 2';
+    const slices = splitSqlBySemicolon(sql);
+    expect(slices.length).toBe(2);
+    expect(slices[0].text).toBe('SELECT 1 # ; not a split');
+    expect(slices[1].text).toBe('SELECT 2');
+  });
+
+  it('splits pivot statement before following select', () => {
+    const sql = `with rank as (
+  select 1
+) pivot rank on month
+using sum(c)
+group by model # note
+;
+
+select distinct 2
+;`;
+    const slices = splitSqlBySemicolon(sql);
+    expect(slices.length).toBe(2);
+    expect(slices[0].text).toContain('pivot rank');
+    expect(slices[0].text).toContain('# note');
+    expect(slices[1].text).toBe('select distinct 2');
+    const offset = sql.indexOf('# note');
+    expect(findStatementAtOffset(sql, offset)?.text).toBe(slices[0].text);
+  });
 });
 
 describe('findStatementAtOffset (lexer)', () => {
@@ -71,11 +98,30 @@ describe('findStatementAtOffset (lexer)', () => {
     expect(slice?.text).toBe('SELECT 2');
   });
 
-  it('finds first statement when cursor in whitespace gap', () => {
+  it('finds first statement when cursor on same line after semicolon', () => {
+    const sql = 'select 1;';
+    const offset = sql.length - 1;
+    expect(findStatementAtOffset(sql, offset)?.text).toBe('select 1');
+  });
+
+  it('finds first statement at end of line after semicolon before next line', () => {
+    const sql = 'select 1;\nselect 2;';
+    const offset = sql.indexOf(';') + 1;
+    expect(findStatementAtOffset(sql, offset)?.text).toBe('select 1');
+  });
+
+  it('finds first statement when cursor in same-line whitespace after semicolon', () => {
     const sql = 'SELECT 1;   SELECT 2';
     const gap = sql.indexOf(';') + 1;
     const slice = findStatementAtOffset(sql, gap + 1);
     expect(slice?.text).toBe('SELECT 1');
+  });
+
+  it('finds next statement when cursor on blank line after semicolon', () => {
+    const sql = 'select 1;\n\n\nselect 2;';
+    const offset = sql.indexOf(';') + 2;
+    const slice = findStatementAtOffset(sql, offset);
+    expect(slice?.text).toBe('select 2');
   });
 
   it('finds second statement when cursor after gap with no prior stmt', () => {
@@ -229,5 +275,29 @@ group by all
     expect(slice?.text).toContain('from a');
     expect(slice?.text).toContain('group by all');
     expect(slice?.text).toContain('with');
+  });
+
+  it('does not merge pivot statement with following select when tree-sitter spans both', async () => {
+    const p = await setup();
+    const sql = `with rank as (
+  select filename, count(*) as c
+  from read_parquet('/tmp/example/*.parquet', union_by_name = true)
+  where rank = 1
+  group by all
+  order by c desc
+) pivot rank on month
+using sum(c)
+group by model # note
+;
+
+
+select distinct id, val, filename[-22:-17] as eval_month
+from read_parquet('/tmp/example/*_error.parquet', union_by_name = True)
+;`;
+    const offset = sql.indexOf('# note');
+    const slice = findStatementAtOffset(sql, offset, p);
+    expect(slice?.text).toContain('pivot rank');
+    expect(slice?.text).toContain('# note');
+    expect(slice?.text).not.toContain('select distinct id');
   });
 });

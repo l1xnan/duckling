@@ -244,32 +244,66 @@ function findViaTreeSitter(
   return slice.text ? slice : undefined;
 }
 
+function firstNonWhitespaceIndex(sql: string, start: number, end: number): number {
+  let i = start;
+  while (i < end && /\s/.test(sql[i]!)) {
+    i += 1;
+  }
+  return i;
+}
+
+function gapBetweenStatementsOwner(
+  sql: string,
+  sliceStart: number,
+  contentStart: number,
+  offset: number,
+): 'previous' | 'current' {
+  if (offset >= contentStart) {
+    return 'current';
+  }
+  const gap = sql.slice(sliceStart, contentStart);
+  if (!/[\r\n]/.test(gap)) {
+    return 'previous';
+  }
+  const firstNl = gap.search(/\r\n|\n|\r/);
+  if (firstNl < 0) {
+    return 'previous';
+  }
+  const nlLen = gap.startsWith('\r\n', firstNl) ? 2 : 1;
+  const throughFirstLineEnd = sliceStart + firstNl + nlLen;
+  if (offset < throughFirstLineEnd) {
+    return 'previous';
+  }
+  return 'current';
+}
+
 function findStatementInSplits(
   slices: SqlStatementSlice[],
   offset: number,
+  sql: string,
 ): SqlStatementSlice | undefined {
   const nonEmpty = slices.filter((s) => s.text.length > 0);
   if (nonEmpty.length === 0) {
     return undefined;
   }
 
-  for (const s of nonEmpty) {
-    if (offset >= s.trimmedStart && offset <= s.trimmedEnd) {
-      return s;
-    }
-  }
-
-  let prev: SqlStatementSlice | undefined;
-  for (const s of nonEmpty) {
-    if (s.trimmedEnd < offset) {
-      prev = s;
+  for (let i = 0; i < nonEmpty.length; i++) {
+    const s = nonEmpty[i]!;
+    if (offset < s.start || offset >= s.end) {
       continue;
     }
-    if (s.trimmedStart > offset) {
-      return prev ?? s;
+    if (i > 0) {
+      const contentStart = firstNonWhitespaceIndex(sql, s.start, s.end);
+      if (offset < contentStart) {
+        if (gapBetweenStatementsOwner(sql, s.start, contentStart, offset) === 'previous') {
+          return nonEmpty[i - 1];
+        }
+      }
     }
+    return s;
   }
-  return prev ?? nonEmpty[nonEmpty.length - 1];
+
+  return nonEmpty[nonEmpty.length - 1];
 }
 
 /** List all statements — tree-sitter when parser given, else semicolon lexer. */
@@ -298,15 +332,18 @@ function preferLexerWhenWider(
     return lexerSlice;
   }
   const offsetInLexer =
-    offset >= lexerSlice.trimmedStart && offset <= lexerSlice.trimmedEnd;
+    offset >= lexerSlice.start && offset < lexerSlice.end;
   if (!offsetInLexer) {
     return treeSlice;
   }
+  // Semicolon boundaries are authoritative when the cursor sits in the lexer slice.
+  // Tree-sitter may truncate complex SQL or merge multiple statements when the
+  // grammar does not recognize syntax (e.g. DuckDB PIVOT).
+  if (lexerSlice.text.length !== treeSlice.text.length) {
+    return lexerSlice;
+  }
   const treeTrim = treeSlice.text.trim();
-  if (
-    lexerSlice.text.length > treeSlice.text.length ||
-    lexerSlice.text.includes(treeTrim)
-  ) {
+  if (lexerSlice.text.includes(treeTrim)) {
     return lexerSlice;
   }
   return treeSlice;
@@ -322,7 +359,7 @@ export function findStatementAtOffset(
     return undefined;
   }
   const clamped = Math.max(0, Math.min(offset, sql.length));
-  const lexerSlice = findStatementInSplits(splitSqlBySemicolon(sql), clamped);
+  const lexerSlice = findStatementInSplits(splitSqlBySemicolon(sql), clamped, sql);
 
   if (parser) {
     const treeSlice = findViaTreeSitter(parser, sql, clamped);
