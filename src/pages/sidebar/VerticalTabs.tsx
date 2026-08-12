@@ -6,7 +6,7 @@ import { useShallow } from 'zustand/shallow';
 import { getTypeIcon } from '@/components/custom/Icons';
 import { SearchInput } from '@/components/custom/search';
 import { Button } from '@/components/custom/ui/button';
-import { TabItemProps, TabTypeIcon } from '@/components/PageTabs';
+import { TabItemContextMenu, TabItemProps, TabTypeIcon } from '@/components/PageTabs';
 import { cn } from '@/lib/utils';
 import { useDBListStore } from '@/stores/dbList';
 import { TabContextType, useTabsStore } from '@/stores/tabs';
@@ -18,6 +18,7 @@ type ViewMode = 'flat' | 'tree';
 export function Node({
   tab,
   onRemove,
+  onRemoveOther,
   activate,
   onClick,
   visiable = true,
@@ -27,45 +28,52 @@ export function Node({
   activate: boolean;
   visiable: boolean;
   onClick: () => void;
+  onRemoveOther: (id: string) => void;
   indent?: number;
   alignEnd?: boolean;
 }) {
   return (
-    <div
-      className={cn(
-        'group flex items-center justify-between h-6 pr-1 min-w-0 hover:bg-accent',
-        activate ? 'bg-accent' : null,
-        visiable ? null : 'hidden',
-      )}
-      style={{ paddingLeft: indent ? `${indent}px` : undefined }}
-      onClick={onClick}
+    <TabItemContextMenu
+      tab={tab}
+      onRemove={onRemove ?? (() => {})}
+      onRemoveOther={onRemoveOther}
     >
-      <div className="flex shrink-0 items-center px-1">
-        <TabTypeIcon type={tab.type} className="size-4" />
-      </div>
       <div
         className={cn(
-          'truncate font-mono min-w-0 flex-1',
-          alignEnd && 'text-right [direction:rtl]',
+          'group flex items-center justify-between h-6 pr-1 min-w-0 hover:bg-accent',
+          activate ? 'bg-accent' : null,
+          visiable ? null : 'hidden',
         )}
+        style={{ paddingLeft: indent ? `${indent}px` : undefined }}
+        onClick={onClick}
       >
-        {tab.displayName}
+        <div className="flex shrink-0 items-center px-1">
+          <TabTypeIcon type={tab.type} className="size-4" />
+        </div>
+        <div
+          className={cn(
+            'truncate font-mono min-w-0 flex-1',
+            alignEnd && 'text-right [direction:rtl]',
+          )}
+        >
+          {tab.displayName}
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn(
+            'hidden group-hover:block rounded-lg size-5 ml-1 shrink-0',
+            'hover:bg-selection',
+          )}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            onRemove?.(tab.id);
+          }}
+        >
+          <XIcon className="size-5 p-0.5" />
+        </Button>
       </div>
-      <Button
-        variant="ghost"
-        size="icon"
-        className={cn(
-          'hidden group-hover:block rounded-lg size-5 ml-1 shrink-0',
-          'hover:bg-selection',
-        )}
-        onPointerDown={(e) => {
-          e.stopPropagation();
-          onRemove?.(tab.id);
-        }}
-      >
-        <XIcon className="size-5 p-0.5" />
-      </Button>
-    </div>
+    </TabItemContextMenu>
   );
 }
 
@@ -79,6 +87,7 @@ function ConnectionGroup({
   currentId,
   activateTab,
   removeTab,
+  removeOtherTab,
   alignEnd = false,
 }: {
   label: string;
@@ -90,6 +99,7 @@ function ConnectionGroup({
   currentId?: string | null;
   activateTab: (id: string) => void;
   removeTab: (id: string) => void;
+  removeOtherTab: (id: string) => void;
   alignEnd?: boolean;
 }) {
   const q = search.toLowerCase();
@@ -134,6 +144,7 @@ function ConnectionGroup({
               visiable
               alignEnd={alignEnd}
               onRemove={removeTab}
+              onRemoveOther={removeOtherTab}
               activate={tab.id === currentId}
               onClick={() => {
                 activateTab(tab.id);
@@ -147,10 +158,11 @@ function ConnectionGroup({
 
 export function VerticalTabs() {
   const { t } = useLingui();
-  const { activateTab, removeTab, tabObj, ids, currentId } = useTabsStore(
+  const { activateTab, removeTab, removeOtherTab, tabObj, ids, currentId } = useTabsStore(
     useShallow((s) => ({
       activateTab: s.active,
       removeTab: s.remove,
+      removeOtherTab: s.removeOther,
       tabObj: s.tabs,
       currentId: s.currentId,
       ids: s.ids,
@@ -251,6 +263,7 @@ export function VerticalTabs() {
                   .toLowerCase()
                   .includes(search.toLowerCase())}
                 onRemove={removeTab}
+                onRemoveOther={removeOtherTab}
                 activate={id === currentId}
                 onClick={() => {
                   activateTab(id);
@@ -275,6 +288,7 @@ export function VerticalTabs() {
               currentId={currentId}
               activateTab={activateTab}
               removeTab={removeTab}
+              removeOtherTab={removeOtherTab}
               alignEnd={alignEnd}
             />
           ))}
