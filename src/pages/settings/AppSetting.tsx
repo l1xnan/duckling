@@ -198,6 +198,7 @@ function Profile() {
       precision: data.precision,
       default_per_page: resolveDefaultPerPage(data.default_per_page),
       default_beautify: data.default_beautify ?? true,
+      default_statement_split: data.default_statement_split ?? false,
       session_idle_ttl_minutes,
     }));
     void setSessionIdleTtl(sessionIdleTtlMinutesToSecs(session_idle_ttl_minutes)).catch(
@@ -387,6 +388,34 @@ function Profile() {
                 <FormControl>
                   <Switch
                     checked={field.value ?? true}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="default_statement_split"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between gap-4 rounded-lg border p-3">
+                <div className="space-y-0.5">
+                  <FormLabel>
+                    <Trans>Enable statement split by default</Trans>
+                  </FormLabel>
+                  <FormDescription>
+                    <Trans>
+                      When enabled, new SQL editor tabs run and highlight only the
+                      statement at the cursor. You can still toggle this per tab from
+                      the toolbar.
+                    </Trans>
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={
+                      field.value ?? defaultSettings.default_statement_split
+                    }
                     onCheckedChange={field.onChange}
                   />
                 </FormControl>

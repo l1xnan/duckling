@@ -25,6 +25,7 @@ import {
   statementSliceToSourceRange,
 } from '@/lib/sql/splitStatements';
 import type { QueryHistoryItem } from '@/lib/queryHistory';
+import { useDefaultStatementSplit } from '@/stores/setting';
 import {
   flushWriteScratch,
   isScratchPath,
@@ -97,8 +98,9 @@ export default function Editor({ context }: { context: EditorContextType }) {
   const setChildren = useQuerySessionStore((s) => s.setChildren);
   const appendChild = useQuerySessionStore((s) => s.appendChild);
 
+  const defaultStatementSplit = useDefaultStatementSplit();
   const [hasLimit, setHasLimit] = useState(true);
-  const [splitStatements, setSplitStatements] = useState(false);
+  const [splitStatements, setSplitStatements] = useState(defaultStatementSplit);
   const [canFormatSelection, setCanFormatSelection] = useState(false);
   const [saving, setSaving] = useState(false);
 

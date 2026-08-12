@@ -111,6 +111,8 @@ export type SettingState = {
   default_per_page?: number;
   /** When true, new data views apply float precision formatting by default. */
   default_beautify?: boolean;
+  /** When true, new SQL editor tabs start with statement split enabled. */
+  default_statement_split?: boolean;
   table_font_family: string;
   main_font_family: string;
   /** Font family for Monaco / SQL code editors. */
@@ -209,6 +211,7 @@ export const defaultSettings: SettingState = {
   precision: 4,
   default_per_page: DEFAULT_PER_PAGE,
   default_beautify: true,
+  default_statement_split: false,
   auto_update: false,
   locale: 'system',
   updater_source: 'official',
@@ -397,12 +400,24 @@ export function getDefaultBeautify(): boolean {
   );
 }
 
+export function getDefaultStatementSplit(): boolean {
+  return (
+    useSettingStore.getState().default_statement_split ??
+    defaultSettings.default_statement_split!
+  );
+}
+
 export const useDefaultPerPage = () =>
   useSettingStore((s) => resolveDefaultPerPage(s.default_per_page));
 
 export const useDefaultBeautify = () =>
   useSettingStore(
     (s) => s.default_beautify ?? defaultSettings.default_beautify!,
+  );
+
+export const useDefaultStatementSplit = () =>
+  useSettingStore(
+    (s) => s.default_statement_split ?? defaultSettings.default_statement_split!,
   );
 
 export const useTableFontFamily = () =>
