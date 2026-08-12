@@ -12,7 +12,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/custom/ui
 import { Loading } from '@/components/views/TableView';
 import { isQueryErrorCode } from '@/lib/capabilities';
 import { connectionRef } from '@/lib/connectionRef';
-import { buildCountBySubquerySql } from '@/lib/sql/countBySubquery';
+import {
+  mapCountByRows,
+  parseScalarCountResult,
+  resolveAllRowsTotal,
+  toCountByDisplayRows,
+} from '@/lib/sql/countByColumn';
+import {
+  buildCountBySubquerySql,
+  buildSubqueryRowCountSql,
+} from '@/lib/sql/countBySubquery';
 import { getDatabase } from '@/stores/tabs';
 
 export type CountByQueryDialogProps = {
@@ -22,6 +31,8 @@ export type CountByQueryDialogProps = {
   dbId: string;
   /** Original result SQL (preferred) or editor statement. */
   sourceSql: string;
+  /** All matching rows in the parent query result (denominator for percent). */
+  rowTotal?: number;
 };
 
 type CountRow = {
@@ -35,11 +46,13 @@ export function CountByQueryDialog({
   column,
   dbId,
   sourceSql,
+  rowTotal,
 }: CountByQueryDialogProps) {
   const { t } = useLingui();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rows, setRows] = useState<CountRow[]>([]);
+  const [allRowsTotal, setAllRowsTotal] = useState(0);
   const [sql, setSql] = useState<string>('');
   const [elapsed, setElapsed] = useState<number | undefined>();
   const requestIdRef = useRef<string | null>(null);
@@ -67,6 +80,7 @@ export function CountByQueryDialog({
       setLoading(true);
       setError(null);
       setRows([]);
+      setAllRowsTotal(0);
       setSql('');
       setElapsed(undefined);
 
@@ -100,19 +114,26 @@ export function CountByQueryDialog({
           return;
         }
 
-        const data = (res.data ?? []).map((row) => {
-          const r = row as Record<string, unknown>;
-          const value = r.value ?? r.VALUE ?? r.Value ?? Object.values(r)[0];
-          const countRaw =
-            r.count ?? r.COUNT ?? r.Count ?? Object.values(r)[1] ?? 0;
-          const count =
-            typeof countRaw === 'bigint'
-              ? Number(countRaw)
-              : Number(countRaw) || 0;
-          return { value, count };
+        const data = mapCountByRows(res.data ?? []);
+        const total = await resolveAllRowsTotal(data, rowTotal, async () => {
+          const totalSql = buildSubqueryRowCountSql(sourceSql);
+          const totalRes = await query({
+            sql: totalSql,
+            dialect: connectionRef(dbId),
+            limit: 0,
+            offset: 0,
+            requestId: `${requestId}-total`,
+          });
+          if (isQueryErrorCode(totalRes.code)) {
+            throw new Error(totalRes.message || t`Query failed`);
+          }
+          return parseScalarCountResult(totalRes.data ?? []);
         });
 
+        if (cancelled) return;
+
         setRows(data);
+        setAllRowsTotal(total);
         setElapsed(res.elapsed);
       } catch (e) {
         if (!cancelled) {
@@ -139,12 +160,10 @@ export function CountByQueryDialog({
         requestIdRef.current = null;
       }
     };
-  }, [open, column, dbId, sourceSql, t]);
+  }, [open, column, dbId, sourceSql, rowTotal, t]);
 
-  const displayRows = rows.map((r) => ({
-    value: r.value == null || r.value === '' ? '<null>' : String(r.value),
-    count: r.count,
-  }));
+  const displayRows = toCountByDisplayRows(rows, allRowsTotal);
+  const capped = displayRows.length >= 1000;
 
   return (
     <Dialog
@@ -188,19 +207,29 @@ export function CountByQueryDialog({
           </div>
         ) : (
           <>
-            <div className="flex shrink-0 items-center justify-between text-xs text-muted-foreground">
-              <span>
-                {displayRows.length >= 1000 ? (
-                  <Trans>
-                    {displayRows.length} distinct value(s) (capped at 1000)
-                  </Trans>
-                ) : (
-                  <Trans>{displayRows.length} distinct value(s)</Trans>
-                )}
-              </span>
-              {elapsed != null ? (
+            <div className="flex shrink-0 flex-col gap-1 text-xs text-muted-foreground">
+              <div className="flex items-center justify-between">
                 <span>
-                  <Trans>elapsed: {elapsed}ms</Trans>
+                  {capped ? (
+                    <Trans>
+                      {displayRows.length} distinct value(s) (capped at 1000)
+                    </Trans>
+                  ) : (
+                    <Trans>{displayRows.length} distinct value(s)</Trans>
+                  )}
+                </span>
+                {elapsed != null ? (
+                  <span>
+                    <Trans>elapsed: {elapsed}ms</Trans>
+                  </span>
+                ) : null}
+              </div>
+              {capped ? (
+                <span>
+                  <Trans>
+                    Percent is relative to all matching rows ({allRowsTotal});
+                    shown groups may sum to less than 100%.
+                  </Trans>
                 </span>
               ) : null}
             </div>

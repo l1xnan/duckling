@@ -22,14 +22,14 @@ msgid "(empty)"
 msgstr "（空）"
 
 #. placeholder {0}: displayRows.length
-#: src/components/views/CountByColumnDialog.tsx:228
-#: src/components/views/CountByQueryDialog.tsx:198
+#: src/components/views/CountByColumnDialog.tsx:252
+#: src/components/views/CountByQueryDialog.tsx:218
 msgid "{0} distinct value(s)"
 msgstr "{0} 个不同值"
 
 #. placeholder {0}: displayRows.length
-#: src/components/views/CountByColumnDialog.tsx:224
-#: src/components/views/CountByQueryDialog.tsx:194
+#: src/components/views/CountByColumnDialog.tsx:248
+#: src/components/views/CountByQueryDialog.tsx:214
 msgid "{0} distinct value(s) (capped at 1000)"
 msgstr "{0} 个不同值（上限 1000）"
 
@@ -243,8 +243,8 @@ msgstr "卡片"
 msgid "Card foreground"
 msgstr "卡片前景色"
 
-#: src/components/views/CountByColumnDialog.tsx:243
-#: src/components/views/CountByQueryDialog.tsx:213
+#: src/components/views/CountByColumnDialog.tsx:276
+#: src/components/views/CountByQueryDialog.tsx:242
 msgid "Chart"
 msgstr "图表"
 
@@ -422,7 +422,7 @@ msgstr "连接"
 msgid "Connection failed"
 msgstr "连接失败"
 
-#: src/components/views/CountByQueryDialog.tsx:76
+#: src/components/views/CountByQueryDialog.tsx:90
 #: src/components/views/PivotDialog.tsx:289
 msgid "Connection not found"
 msgstr "未找到连接"
@@ -465,25 +465,25 @@ msgid "Copy SQL"
 msgstr "复制 SQL"
 
 #: src/components/views/ColumnProfileDialog.tsx:113
-#: src/components/views/CountByColumnDialog.tsx:95
+#: src/components/views/CountByColumnDialog.tsx:107
 #: src/components/views/PivotDialog.tsx:302
 #: src/components/views/PivotDialog.tsx:317
 msgid "Could not resolve table for this view"
 msgstr "无法解析此视图的表"
 
-#: src/components/views/CountByColumnDialog.tsx:189
-#: src/components/views/CountByQueryDialog.tsx:159
+#: src/components/views/CountByColumnDialog.tsx:212
+#: src/components/views/CountByQueryDialog.tsx:178
 msgid "Count by column"
 msgstr "按列计数"
 
-#: src/components/views/CountByColumnDialog.tsx:185
-#: src/components/views/CountByQueryDialog.tsx:155
+#: src/components/views/CountByColumnDialog.tsx:208
+#: src/components/views/CountByQueryDialog.tsx:174
 msgid "Count by column: <0>{column}</0>"
 msgstr "按列计数：<0>{column}</0>"
 
 #: src/components/tables/CanvasTable.tsx:98
-#: src/components/views/CountByColumnDialog.tsx:279
-#: src/components/views/CountByQueryDialog.tsx:248
+#: src/components/views/CountByColumnDialog.tsx:312
+#: src/components/views/CountByQueryDialog.tsx:277
 msgid "Count by this column"
 msgstr "按此列计数"
 
@@ -691,8 +691,8 @@ msgid "elapsed time: {0}"
 msgstr "耗时：{0}"
 
 #: src/components/views/ColumnProfileDialog.tsx:321
-#: src/components/views/CountByColumnDialog.tsx:233
-#: src/components/views/CountByQueryDialog.tsx:203
+#: src/components/views/CountByColumnDialog.tsx:257
+#: src/components/views/CountByQueryDialog.tsx:223
 #: src/components/views/PivotDialog.tsx:601
 msgid "elapsed: {elapsed}ms"
 msgstr "耗时：{elapsed}ms"
@@ -1338,8 +1338,8 @@ msgid "No query history yet"
 msgstr "暂无查询历史"
 
 #: src/components/views/ColumnProfileDialog.tsx:328
-#: src/components/views/CountByColumnDialog.tsx:252
-#: src/components/views/CountByQueryDialog.tsx:222
+#: src/components/views/CountByColumnDialog.tsx:285
+#: src/components/views/CountByQueryDialog.tsx:251
 #: src/components/views/PivotDialog.tsx:669
 msgid "No rows"
 msgstr "无行"
@@ -1514,6 +1514,11 @@ msgstr "路径"
 msgid "pending"
 msgstr "进行中"
 
+#: src/components/views/CountByColumnDialog.tsx:263
+#: src/components/views/CountByQueryDialog.tsx:229
+msgid "Percent is relative to all matching rows ({allRowsTotal}); shown groups may sum to less than 100%."
+msgstr "占比相对于全部匹配行（{allRowsTotal}）；因仅展示部分分组，各组占比之和可能小于 100%。"
+
 #: src/components/tables/CanvasTable.tsx:94
 msgid "Pin to left"
 msgstr "固定到左侧"
@@ -1596,16 +1601,18 @@ msgid "Query"
 msgstr "查询"
 
 #: src/components/views/ColumnProfileDialog.tsx:208
-#: src/components/views/CountByColumnDialog.tsx:149
-#: src/components/views/CountByQueryDialog.tsx:121
+#: src/components/views/CountByColumnDialog.tsx:174
+#: src/components/views/CountByQueryDialog.tsx:142
 #: src/components/views/PivotDialog.tsx:411
 msgid "Query cancelled"
 msgstr "查询已取消"
 
 #: src/components/views/ColumnProfileDialog.tsx:161
 #: src/components/views/ColumnProfileDialog.tsx:166
-#: src/components/views/CountByColumnDialog.tsx:126
-#: src/components/views/CountByQueryDialog.tsx:98
+#: src/components/views/CountByColumnDialog.tsx:140
+#: src/components/views/CountByColumnDialog.tsx:160
+#: src/components/views/CountByQueryDialog.tsx:112
+#: src/components/views/CountByQueryDialog.tsx:128
 #: src/components/views/PivotDialog.tsx:401
 msgid "Query failed"
 msgstr "查询失败"
@@ -2188,8 +2195,8 @@ msgid "Statement split: entire buffer"
 msgstr "语句分割：整个编辑器"
 
 #: src/components/views/ColumnProfileDialog.tsx:275
-#: src/components/views/CountByColumnDialog.tsx:212
-#: src/components/views/CountByQueryDialog.tsx:182
+#: src/components/views/CountByColumnDialog.tsx:235
+#: src/components/views/CountByQueryDialog.tsx:201
 #: src/components/views/ExportDialog.tsx:415
 #: src/components/views/PivotDialog.tsx:657
 msgid "Stop"
@@ -2217,8 +2224,8 @@ msgid "Tab width"
 msgstr "制表符宽度"
 
 #: src/components/PageTabs.tsx:607
-#: src/components/views/CountByColumnDialog.tsx:240
-#: src/components/views/CountByQueryDialog.tsx:210
+#: src/components/views/CountByColumnDialog.tsx:273
+#: src/components/views/CountByQueryDialog.tsx:239
 msgid "Table"
 msgstr "表"
 

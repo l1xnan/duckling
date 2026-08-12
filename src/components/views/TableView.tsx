@@ -269,6 +269,7 @@ export function TableView({ context }: { context: TabContextType }) {
         context={tableContext}
         sqlWhere={sqlWhere}
         computedColumns={computedColumns}
+        rowTotal={total}
       />
       <ColumnProfileDialog
         {...profileDialog.props}

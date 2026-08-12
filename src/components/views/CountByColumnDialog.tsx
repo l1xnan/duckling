@@ -11,7 +11,14 @@ import { Button } from '@/components/custom/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/custom/ui/tabs';
 import { Loading } from '@/components/views/TableView';
 import { isQueryErrorCode } from '@/lib/capabilities';
-import { buildCountByColumnSql } from '@/lib/sql/countByColumn';
+import {
+  buildCountByColumnSql,
+  buildTableRowCountSql,
+  mapCountByRows,
+  parseScalarCountResult,
+  resolveAllRowsTotal,
+  toCountByDisplayRows,
+} from '@/lib/sql/countByColumn';
 import {
   type ComputedColumn,
   resolveAnalysisTableExpr,
@@ -30,6 +37,8 @@ export type CountByColumnDialogProps = {
   context: TableContextType;
   sqlWhere?: string;
   computedColumns?: ComputedColumn[];
+  /** All matching rows in the parent table view (denominator for percent). */
+  rowTotal?: number;
 };
 
 type CountRow = {
@@ -44,11 +53,13 @@ export function CountByColumnDialog({
   context,
   sqlWhere,
   computedColumns,
+  rowTotal,
 }: CountByColumnDialogProps) {
   const { t } = useLingui();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rows, setRows] = useState<CountRow[]>([]);
+  const [allRowsTotal, setAllRowsTotal] = useState(0);
   const [sql, setSql] = useState<string>('');
   const [elapsed, setElapsed] = useState<number | undefined>();
   const requestIdRef = useRef<string | null>(null);
@@ -76,6 +87,7 @@ export function CountByColumnDialog({
       setLoading(true);
       setError(null);
       setRows([]);
+      setAllRowsTotal(0);
       setSql('');
       setElapsed(undefined);
 
@@ -99,12 +111,14 @@ export function CountByColumnDialog({
           getDatabase(context.dbId)?.dialect ??
           (context.type === 'file' ? 'file' : 'generic');
 
+        const tableExpr = resolveAnalysisTableExpr(
+          param.table,
+          computedColumns,
+          dialectName,
+        );
+
         const countSql = buildCountByColumnSql({
-          tableExpr: resolveAnalysisTableExpr(
-            param.table,
-            computedColumns,
-            dialectName,
-          ),
+          tableExpr,
           column,
           dialect: dialectName,
           where: sqlWhere,
@@ -128,19 +142,30 @@ export function CountByColumnDialog({
           return;
         }
 
-        const data = (res.data ?? []).map((row) => {
-          const r = row as Record<string, unknown>;
-          const value = r.value ?? r.VALUE ?? r.Value ?? Object.values(r)[0];
-          const countRaw =
-            r.count ?? r.COUNT ?? r.Count ?? Object.values(r)[1] ?? 0;
-          const count =
-            typeof countRaw === 'bigint'
-              ? Number(countRaw)
-              : Number(countRaw) || 0;
-          return { value, count };
+        const data = mapCountByRows(res.data ?? []);
+        const total = await resolveAllRowsTotal(data, rowTotal, async () => {
+          const totalSql = buildTableRowCountSql({
+            tableExpr,
+            dialect: dialectName,
+            where: sqlWhere,
+          });
+          const totalRes = await query({
+            sql: totalSql,
+            dialect: param.dialect,
+            limit: 0,
+            offset: 0,
+            requestId: `${requestId}-total`,
+          });
+          if (isQueryErrorCode(totalRes.code)) {
+            throw new Error(totalRes.message || t`Query failed`);
+          }
+          return parseScalarCountResult(totalRes.data ?? []);
         });
 
+        if (cancelled) return;
+
         setRows(data);
+        setAllRowsTotal(total);
         setElapsed(res.elapsed);
       } catch (e) {
         if (!cancelled) {
@@ -169,12 +194,10 @@ export function CountByColumnDialog({
         requestIdRef.current = null;
       }
     };
-  }, [open, column, context, sqlWhere, t]);
+  }, [open, column, context, sqlWhere, computedColumns, rowTotal, t]);
 
-  const displayRows = rows.map((r) => ({
-    value: r.value == null || r.value === '' ? '<null>' : String(r.value),
-    count: r.count,
-  }));
+  const displayRows = toCountByDisplayRows(rows, allRowsTotal);
+  const capped = displayRows.length >= 1000;
 
   return (
     <Dialog
@@ -218,19 +241,29 @@ export function CountByColumnDialog({
           </div>
         ) : (
           <>
-            <div className="flex shrink-0 items-center justify-between text-xs text-muted-foreground">
-              <span>
-                {displayRows.length >= 1000 ? (
-                  <Trans>
-                    {displayRows.length} distinct value(s) (capped at 1000)
-                  </Trans>
-                ) : (
-                  <Trans>{displayRows.length} distinct value(s)</Trans>
-                )}
-              </span>
-              {elapsed != null ? (
+            <div className="flex shrink-0 flex-col gap-1 text-xs text-muted-foreground">
+              <div className="flex items-center justify-between">
                 <span>
-                  <Trans>elapsed: {elapsed}ms</Trans>
+                  {capped ? (
+                    <Trans>
+                      {displayRows.length} distinct value(s) (capped at 1000)
+                    </Trans>
+                  ) : (
+                    <Trans>{displayRows.length} distinct value(s)</Trans>
+                  )}
+                </span>
+                {elapsed != null ? (
+                  <span>
+                    <Trans>elapsed: {elapsed}ms</Trans>
+                  </span>
+                ) : null}
+              </div>
+              {capped ? (
+                <span>
+                  <Trans>
+                    Percent is relative to all matching rows ({allRowsTotal});
+                    shown groups may sum to less than 100%.
+                  </Trans>
                 </span>
               ) : null}
             </div>

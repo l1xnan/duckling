@@ -310,6 +310,7 @@ export function QueryView({
         column={countColumn}
         dbId={ctx.dbId}
         sourceSql={ctx.sql || ctx.stmt || ''}
+        rowTotal={ctx.total}
       />
       <PivotDialog
         {...pivotDialog.props}

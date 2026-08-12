@@ -12,6 +12,7 @@ The result grid is rendered on Canvas for performance, and includes:
 - **Computed columns** — in table browse, add SQL expressions such as `a + 1 AS a1` from the toolbar; the grid runs `SELECT *, … FROM table`. Filtering follows your database’s SQL rules: `SELECT` aliases are often unavailable in `WHERE` (use the full expression, e.g. `a + 1 > 0`); `ORDER BY` may accept aliases depending on the dialect.
 - **Transpose** — flip rows and columns for a different view of the dataset.
 - **Result filtering** — filter within the loaded result set.
+- **Column analysis** — from a column header menu, open [Count by column](/features/analysis#count-by-column), column profile, or pivot.
 - **Per-cell value inspection** — open any cell in the [Value viewer](/features/analysis#value-viewer) for raw / JSON views and statistics.
 
 ## Value viewer

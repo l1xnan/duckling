@@ -21,7 +21,14 @@ Per-column statistics:
 
 ## Count by column
 
-Show the value distribution for a single column as a **table plus a bar chart**.
+Show the value distribution for a single column as a **table plus a bar chart**:
+
+- **Columns** — distinct value, row count, and **percent** of all matching rows (two decimal places, e.g. `12.35%`).
+- **Denominator** — percent uses the same row set as the parent view (table browse or query result), including any **WHERE** / result filter. Duckling reuses the view’s total row count when available; otherwise it runs a separate `COUNT(*)`.
+- **Cap** — results are limited to the top **1000** distinct values (by count). When capped, a note explains that percent is still relative to **all** matching rows, so the shown groups may sum to less than 100%. When not capped, group percents should add up to about 100%.
+- **Chart** — the bar chart still plots **count** (not percent).
+
+Available from the column header menu in table browse and query results.
 
 ## Value viewer
 

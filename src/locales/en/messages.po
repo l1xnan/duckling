@@ -22,14 +22,14 @@ msgid "(empty)"
 msgstr "(empty)"
 
 #. placeholder {0}: displayRows.length
-#: src/components/views/CountByColumnDialog.tsx:228
-#: src/components/views/CountByQueryDialog.tsx:198
+#: src/components/views/CountByColumnDialog.tsx:252
+#: src/components/views/CountByQueryDialog.tsx:218
 msgid "{0} distinct value(s)"
 msgstr "{0} distinct value(s)"
 
 #. placeholder {0}: displayRows.length
-#: src/components/views/CountByColumnDialog.tsx:224
-#: src/components/views/CountByQueryDialog.tsx:194
+#: src/components/views/CountByColumnDialog.tsx:248
+#: src/components/views/CountByQueryDialog.tsx:214
 msgid "{0} distinct value(s) (capped at 1000)"
 msgstr "{0} distinct value(s) (capped at 1000)"
 
@@ -243,8 +243,8 @@ msgstr "Card"
 msgid "Card foreground"
 msgstr "Card foreground"
 
-#: src/components/views/CountByColumnDialog.tsx:243
-#: src/components/views/CountByQueryDialog.tsx:213
+#: src/components/views/CountByColumnDialog.tsx:276
+#: src/components/views/CountByQueryDialog.tsx:242
 msgid "Chart"
 msgstr "Chart"
 
@@ -422,7 +422,7 @@ msgstr "Connection"
 msgid "Connection failed"
 msgstr "Connection failed"
 
-#: src/components/views/CountByQueryDialog.tsx:76
+#: src/components/views/CountByQueryDialog.tsx:90
 #: src/components/views/PivotDialog.tsx:289
 msgid "Connection not found"
 msgstr "Connection not found"
@@ -465,25 +465,25 @@ msgid "Copy SQL"
 msgstr "Copy SQL"
 
 #: src/components/views/ColumnProfileDialog.tsx:113
-#: src/components/views/CountByColumnDialog.tsx:95
+#: src/components/views/CountByColumnDialog.tsx:107
 #: src/components/views/PivotDialog.tsx:302
 #: src/components/views/PivotDialog.tsx:317
 msgid "Could not resolve table for this view"
 msgstr "Could not resolve table for this view"
 
-#: src/components/views/CountByColumnDialog.tsx:189
-#: src/components/views/CountByQueryDialog.tsx:159
+#: src/components/views/CountByColumnDialog.tsx:212
+#: src/components/views/CountByQueryDialog.tsx:178
 msgid "Count by column"
 msgstr "Count by column"
 
-#: src/components/views/CountByColumnDialog.tsx:185
-#: src/components/views/CountByQueryDialog.tsx:155
+#: src/components/views/CountByColumnDialog.tsx:208
+#: src/components/views/CountByQueryDialog.tsx:174
 msgid "Count by column: <0>{column}</0>"
 msgstr "Count by column: <0>{column}</0>"
 
 #: src/components/tables/CanvasTable.tsx:98
-#: src/components/views/CountByColumnDialog.tsx:279
-#: src/components/views/CountByQueryDialog.tsx:248
+#: src/components/views/CountByColumnDialog.tsx:312
+#: src/components/views/CountByQueryDialog.tsx:277
 msgid "Count by this column"
 msgstr "Count by this column"
 
@@ -691,8 +691,8 @@ msgid "elapsed time: {0}"
 msgstr "elapsed time: {0}"
 
 #: src/components/views/ColumnProfileDialog.tsx:321
-#: src/components/views/CountByColumnDialog.tsx:233
-#: src/components/views/CountByQueryDialog.tsx:203
+#: src/components/views/CountByColumnDialog.tsx:257
+#: src/components/views/CountByQueryDialog.tsx:223
 #: src/components/views/PivotDialog.tsx:601
 msgid "elapsed: {elapsed}ms"
 msgstr "elapsed: {elapsed}ms"
@@ -1338,8 +1338,8 @@ msgid "No query history yet"
 msgstr "No query history yet"
 
 #: src/components/views/ColumnProfileDialog.tsx:328
-#: src/components/views/CountByColumnDialog.tsx:252
-#: src/components/views/CountByQueryDialog.tsx:222
+#: src/components/views/CountByColumnDialog.tsx:285
+#: src/components/views/CountByQueryDialog.tsx:251
 #: src/components/views/PivotDialog.tsx:669
 msgid "No rows"
 msgstr "No rows"
@@ -1514,6 +1514,11 @@ msgstr "Path"
 msgid "pending"
 msgstr "pending"
 
+#: src/components/views/CountByColumnDialog.tsx:263
+#: src/components/views/CountByQueryDialog.tsx:229
+msgid "Percent is relative to all matching rows ({allRowsTotal}); shown groups may sum to less than 100%."
+msgstr "Percent is relative to all matching rows ({allRowsTotal}); shown groups may sum to less than 100%."
+
 #: src/components/tables/CanvasTable.tsx:94
 msgid "Pin to left"
 msgstr "Pin to left"
@@ -1596,16 +1601,18 @@ msgid "Query"
 msgstr "Query"
 
 #: src/components/views/ColumnProfileDialog.tsx:208
-#: src/components/views/CountByColumnDialog.tsx:149
-#: src/components/views/CountByQueryDialog.tsx:121
+#: src/components/views/CountByColumnDialog.tsx:174
+#: src/components/views/CountByQueryDialog.tsx:142
 #: src/components/views/PivotDialog.tsx:411
 msgid "Query cancelled"
 msgstr "Query cancelled"
 
 #: src/components/views/ColumnProfileDialog.tsx:161
 #: src/components/views/ColumnProfileDialog.tsx:166
-#: src/components/views/CountByColumnDialog.tsx:126
-#: src/components/views/CountByQueryDialog.tsx:98
+#: src/components/views/CountByColumnDialog.tsx:140
+#: src/components/views/CountByColumnDialog.tsx:160
+#: src/components/views/CountByQueryDialog.tsx:112
+#: src/components/views/CountByQueryDialog.tsx:128
 #: src/components/views/PivotDialog.tsx:401
 msgid "Query failed"
 msgstr "Query failed"
@@ -2188,8 +2195,8 @@ msgid "Statement split: entire buffer"
 msgstr "Statement split: entire buffer"
 
 #: src/components/views/ColumnProfileDialog.tsx:275
-#: src/components/views/CountByColumnDialog.tsx:212
-#: src/components/views/CountByQueryDialog.tsx:182
+#: src/components/views/CountByColumnDialog.tsx:235
+#: src/components/views/CountByQueryDialog.tsx:201
 #: src/components/views/ExportDialog.tsx:415
 #: src/components/views/PivotDialog.tsx:657
 msgid "Stop"
@@ -2217,8 +2224,8 @@ msgid "Tab width"
 msgstr "Tab width"
 
 #: src/components/PageTabs.tsx:607
-#: src/components/views/CountByColumnDialog.tsx:240
-#: src/components/views/CountByQueryDialog.tsx:210
+#: src/components/views/CountByColumnDialog.tsx:273
+#: src/components/views/CountByQueryDialog.tsx:239
 msgid "Table"
 msgstr "Table"
 

@@ -22,3 +22,9 @@ export function buildCountBySubquerySql(opts: {
     ` LIMIT ${lim}`
   );
 }
+
+/** Row count for the same subquery as count-by (denominator for percent). */
+export function buildSubqueryRowCountSql(sourceSql: string): string {
+  const inner = sourceSql.trim().replace(/;+\s*$/, '');
+  return `SELECT COUNT(*) AS count FROM (${inner}) AS __count_src`;
+}
