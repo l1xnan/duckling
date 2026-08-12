@@ -26,7 +26,7 @@ Note: The current objective of this project is not to develop a fully functional
 - **Value viewer** — Inspect a cell in raw / JSON form, with a "Calculate" tab for per-selection statistics (min/max/mean/…) exported as Markdown.
 - **Export** — Export the current result to CSV / TSV / JSON / Parquet / XLSX with delimiter, header, and compression options.
 - **Sidebar** — Database explorer, query history, and favorites (pinned tables + saved SQL), all searchable.
-- **Settings suite** — Appearance & language, SSH profiles, keyboard shortcuts, SQL formatting, import/export options, and in-app updates.
+- **Settings suite** — Appearance, editor, SSH profiles, keyboard shortcuts, SQL formatting, import/export options, and in-app updates.
 - **Keyboard shortcuts** — A categorized shortcut overlay (`Mod+/`) and a reconfigurable hotkey settings page.
 
 ## Supported data sources

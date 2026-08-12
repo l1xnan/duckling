@@ -49,6 +49,7 @@ import {
 } from '@/components/ui/progress';
 import { ColorThemePanel } from '@/pages/settings/ColorThemePanel';
 import { DiagnosticsPanel } from '@/pages/settings/DiagnosticsPanel';
+import { EditorForm } from '@/pages/settings/EditorForm';
 import { HotkeysForm } from '@/pages/settings/HotkeysForm';
 import { SshProfilesForm } from '@/pages/settings/SshProfilesForm';
 import {
@@ -77,7 +78,6 @@ import {
   defaultSettings,
   defaultSqlFormatterOptions,
   defaultSqlfmtOptions,
-  editorThemes,
   resolveHolywellOptions,
   resolveSessionIdleTtlMinutes,
   resolveSqlFormatterOptions,
@@ -96,6 +96,7 @@ import { isEmpty } from 'radash';
 
 const NAV_ITEMS = [
   { key: 'profile', title: msg`Appearance` },
+  { key: 'editor', title: msg`Editor` },
   { key: 'ssh', title: msg`SSH Profiles` },
   { key: 'hotkeys', title: msg`Keyboard shortcuts` },
   { key: 'sql-format', title: msg`SQL Formatting` },
@@ -119,7 +120,7 @@ export default function AppSettingDialog() {
   return (
     <Dialog
       title={<Trans>Setting</Trans>}
-      className="min-w-[800px] h-[min(600px,calc(100dvh-2rem))] max-h-[calc(100dvh-2rem)] overflow-hidden"
+      className="min-w-[960px] w-[min(1040px,calc(100vw-2rem))] h-[min(760px,calc(100dvh-2rem))] max-h-[min(92vh,800px)] overflow-hidden"
       trigger={
         <Button variant="ghost" size="icon" className="size-8 rounded-lg">
           <SettingsIcon className="size-4" />
@@ -129,9 +130,12 @@ export default function AppSettingDialog() {
       <div className="flex min-h-0 h-full flex-col gap-6 overflow-hidden lg:flex-row lg:gap-8">
         <SidebarNav items={items} activeKey={navKey} setKey={setNavKey} />
 
-        <div className="min-h-0 flex-1 overflow-hidden lg:max-w-2xl">
+        <div className="min-h-0 flex-1 overflow-hidden">
           <Display hidden={navKey == 'profile'}>
             <Profile />
+          </Display>
+          <Display hidden={navKey == 'editor'}>
+            <EditorForm />
           </Display>
           <Display hidden={navKey == 'ssh'}>
             <SshProfilesForm />
@@ -156,14 +160,6 @@ export default function AppSettingDialog() {
     </Dialog>
   );
 }
-
-const darkItems = editorThemes
-  .filter((t) => t.type == 'dark')
-  .map((t) => ({ label: t.name, value: t.id }));
-
-const lightItems = editorThemes
-  .filter((t) => t.type == 'light')
-  .map((t) => ({ label: t.name, value: t.id }));
 
 function Profile() {
   const { t } = useLingui();
@@ -191,14 +187,9 @@ function Profile() {
       main_font_family: data.main_font_family,
       table_font_family: data.table_font_family,
       table_font_size: data.table_font_size,
-      code_font_family: data.code_font_family,
-      code_font_size: data.code_font_size,
-      code_editor_minimap: data.code_editor_minimap ?? true,
-      editor_theme: data.editor_theme,
       precision: data.precision,
       default_per_page: resolveDefaultPerPage(data.default_per_page),
       default_beautify: data.default_beautify ?? true,
-      default_statement_split: data.default_statement_split ?? false,
       session_idle_ttl_minutes,
     }));
     void setSessionIdleTtl(sessionIdleTtlMinutesToSecs(session_idle_ttl_minutes)).catch(
@@ -315,180 +306,6 @@ function Profile() {
                 </FormControl>
                 <FormDescription>
                   <Trans>Font size in pixels for the data table (8–32).</Trans>
-                </FormDescription>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="code_font_family"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  <Trans>Code Font Family</Trans>
-                </FormLabel>
-                <FontFamilyCombobox
-                  value={field.value ?? ''}
-                  onChange={field.onChange}
-                  placeholder={t`Search system fonts`}
-                />
-                <FormDescription>
-                  <Trans>
-                    Used by the Monaco SQL editor and other code viewers. Prefer monospace fonts.
-                  </Trans>
-                </FormDescription>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="code_font_size"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  <Trans>Code Font Size</Trans>
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min={8}
-                    max={32}
-                    value={field.value ?? defaultSettings.code_font_size}
-                    onChange={(e) => {
-                      const n = Number(e.target.value);
-                      field.onChange(
-                        Number.isFinite(n)
-                          ? Math.min(32, Math.max(8, n))
-                          : defaultSettings.code_font_size,
-                      );
-                    }}
-                  />
-                </FormControl>
-                <FormDescription>
-                  <Trans>Font size in pixels for the Monaco editor (8–32).</Trans>
-                </FormDescription>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="code_editor_minimap"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between gap-4 rounded-lg border p-3">
-                <div className="space-y-0.5">
-                  <FormLabel>
-                    <Trans>Editor Minimap</Trans>
-                  </FormLabel>
-                  <FormDescription>
-                    <Trans>
-                      Show a minimap overview on the right side of the SQL editor.
-                    </Trans>
-                  </FormDescription>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value ?? true}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="default_statement_split"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between gap-4 rounded-lg border p-3">
-                <div className="space-y-0.5">
-                  <FormLabel>
-                    <Trans>Enable statement split by default</Trans>
-                  </FormLabel>
-                  <FormDescription>
-                    <Trans>
-                      When enabled, new SQL editor tabs run and highlight only the
-                      statement at the cursor. You can still toggle this per tab from
-                      the toolbar.
-                    </Trans>
-                  </FormDescription>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={
-                      field.value ?? defaultSettings.default_statement_split
-                    }
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="editor_theme.light"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  <Trans>Editor Light Theme</Trans>
-                </FormLabel>
-
-                <Combobox
-                  value={lightItems.find((i) => i.value === field.value) ?? null}
-                  onValueChange={(v) => field.onChange(v?.value ?? '')}
-                  items={lightItems}
-                  itemToStringValue={(item) => item?.label}
-                >
-                  <FormControl>
-                    <ComboboxInput placeholder={t`Select editor theme`} />
-                  </FormControl>
-                  <ComboboxContent>
-                    <ComboboxList>
-                      {lightItems.map(({ label, value }) => (
-                        <ComboboxItem key={value} value={{ label, value }}>
-                          {label}
-                        </ComboboxItem>
-                      ))}
-                    </ComboboxList>
-                  </ComboboxContent>
-                </Combobox>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="editor_theme.dark"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  <Trans>Editor Dark Theme</Trans>
-                </FormLabel>
-                <Combobox
-                  value={darkItems.find((i) => i.value === field.value) ?? null}
-                  onValueChange={(v) => field.onChange(v?.value ?? '')}
-                  items={darkItems}
-                  itemToStringValue={(item) => item?.label}
-                >
-                  <FormControl>
-                    <ComboboxInput placeholder={t`Select editor theme`} />
-                  </FormControl>
-                  <ComboboxContent>
-                    <ComboboxList>
-                      {darkItems.map(({ label, value }) => (
-                        <ComboboxItem key={value} value={{ label, value }}>
-                          {label}
-                        </ComboboxItem>
-                      ))}
-                    </ComboboxList>
-                  </ComboboxContent>
-                </Combobox>
-                <FormDescription>
-                  <Trans>
-                    Reference:{' '}
-                    <a href="https://textmate-grammars-themes.netlify.app/" target="_blank">
-                      Shiki TextMate Grammar & Theme Playground
-                    </a>
-                    .
-                  </Trans>
                 </FormDescription>
               </FormItem>
             )}
