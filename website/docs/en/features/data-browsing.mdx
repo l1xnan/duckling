@@ -9,6 +9,7 @@ The result grid is rendered on Canvas for performance, and includes:
 
 - **Pagination** — when a source is opened (or a SQL query without automatic results), the grid pages through the data.
 - **Column hiding** — show or hide columns to focus on what matters.
+- **Computed columns** — in table browse, add SQL expressions such as `a + 1 AS a1` from the toolbar; the grid runs `SELECT *, … FROM table`. Filtering follows your database’s SQL rules: `SELECT` aliases are often unavailable in `WHERE` (use the full expression, e.g. `a + 1 > 0`); `ORDER BY` may accept aliases depending on the dialect.
 - **Transpose** — flip rows and columns for a different view of the dataset.
 - **Result filtering** — filter within the loaded result set.
 - **Per-cell value inspection** — open any cell in the [Value viewer](/features/analysis#value-viewer) for raw / JSON views and statistics.

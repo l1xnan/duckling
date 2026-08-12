@@ -13,6 +13,10 @@ import { Loading } from '@/components/views/TableView';
 import { isQueryErrorCode } from '@/lib/capabilities';
 import { buildCountByColumnSql } from '@/lib/sql/countByColumn';
 import {
+  type ComputedColumn,
+  resolveAnalysisTableExpr,
+} from '@/lib/sql/computedColumns';
+import {
   getDatabase,
   getParams,
   type TableContextType,
@@ -25,6 +29,7 @@ export type CountByColumnDialogProps = {
   column?: string;
   context: TableContextType;
   sqlWhere?: string;
+  computedColumns?: ComputedColumn[];
 };
 
 type CountRow = {
@@ -38,6 +43,7 @@ export function CountByColumnDialog({
   column,
   context,
   sqlWhere,
+  computedColumns,
 }: CountByColumnDialogProps) {
   const { t } = useLingui();
   const [loading, setLoading] = useState(false);
@@ -82,6 +88,7 @@ export function CountByColumnDialog({
           page: 1,
           perPage: getDefaultPerPage(),
           sqlWhere,
+          computedColumns,
         });
 
         if (!param || !('table' in param) || !param.table) {
@@ -93,7 +100,11 @@ export function CountByColumnDialog({
           (context.type === 'file' ? 'file' : 'generic');
 
         const countSql = buildCountByColumnSql({
-          tableExpr: param.table,
+          tableExpr: resolveAnalysisTableExpr(
+            param.table,
+            computedColumns,
+            dialectName,
+          ),
           column,
           dialect: dialectName,
           where: sqlWhere,

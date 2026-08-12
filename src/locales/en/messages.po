@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/components/views/PivotDialog.tsx:598
+#: src/components/views/PivotDialog.tsx:609
 msgid "(capped at {capLimit})"
 msgstr "(capped at {capLimit})"
 
@@ -22,19 +22,19 @@ msgid "(empty)"
 msgstr "(empty)"
 
 #. placeholder {0}: displayRows.length
-#: src/components/views/CountByColumnDialog.tsx:217
+#: src/components/views/CountByColumnDialog.tsx:228
 #: src/components/views/CountByQueryDialog.tsx:198
 msgid "{0} distinct value(s)"
 msgstr "{0} distinct value(s)"
 
 #. placeholder {0}: displayRows.length
-#: src/components/views/CountByColumnDialog.tsx:213
+#: src/components/views/CountByColumnDialog.tsx:224
 #: src/components/views/CountByQueryDialog.tsx:194
 msgid "{0} distinct value(s) (capped at 1000)"
 msgstr "{0} distinct value(s) (capped at 1000)"
 
 #. placeholder {0}: records.length
-#: src/components/views/PivotDialog.tsx:594
+#: src/components/views/PivotDialog.tsx:605
 msgid "{0} group(s)"
 msgstr "{0} group(s)"
 
@@ -45,7 +45,7 @@ msgid "{0} of {1} runs"
 msgstr "{0} of {1} runs"
 
 #. placeholder {0}: m.agg.toUpperCase()
-#: src/components/views/PivotDialog.tsx:192
+#: src/components/views/PivotDialog.tsx:198
 msgid "{0} requires a numeric field"
 msgstr "{0} requires a numeric field"
 
@@ -79,6 +79,10 @@ msgstr "{min}m ago"
 msgid "{sec}s ago"
 msgstr "{sec}s ago"
 
+#: src/components/views/ComputedColumnsDialog.tsx:103
+msgid "a + 1 AS a1"
+msgstr "a + 1 AS a1"
+
 #: src/pages/settings/ColorThemePanel.tsx:74
 msgid "Accent"
 msgstr "Accent"
@@ -100,10 +104,14 @@ msgstr "Accent foreground"
 msgid "Accept new keys"
 msgstr "Accept new keys"
 
-#: src/components/views/PivotDialog.tsx:497
+#: src/components/views/PivotDialog.tsx:508
 #: src/pages/settings/SshProfilesForm.tsx:186
 msgid "Add"
 msgstr "Add"
+
+#: src/components/views/ComputedColumnsDialog.tsx:123
+msgid "Add column"
+msgstr "Add column"
 
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:1198
 msgid "Add data"
@@ -113,9 +121,13 @@ msgstr "Add data"
 msgid "Add data folder"
 msgstr "Add data folder"
 
-#: src/components/views/PivotDialog.tsx:736
+#: src/components/views/PivotDialog.tsx:747
 msgid "Add field…"
 msgstr "Add field…"
+
+#: src/components/views/ComputedColumnsDialog.tsx:80
+msgid "Add SQL select items with an alias, for example <0>a + 1 AS a1</0>. Filtering follows your database’s SQL rules: aliases are often unavailable in WHERE (use the full expression); ORDER BY may accept aliases depending on the dialect."
+msgstr "Add SQL select items with an alias, for example <0>a + 1 AS a1</0>. Filtering follows your database’s SQL rules: aliases are often unavailable in WHERE (use the full expression); ORDER BY may accept aliases depending on the dialect."
 
 #: src/stores/setting.ts:511
 msgid "After operator"
@@ -129,7 +141,11 @@ msgstr "All Files"
 msgid "Appearance"
 msgstr "Appearance"
 
-#: src/components/views/DataViewToolbar.tsx:145
+#: src/components/views/ComputedColumnsDialog.tsx:135
+msgid "Apply"
+msgstr "Apply"
+
+#: src/components/views/DataViewToolbar.tsx:151
 msgid "Apply filter to WHERE"
 msgstr "Apply filter to WHERE"
 
@@ -195,6 +211,7 @@ msgid "Calls the external <0>sqlfmt</0> binary via Tauri."
 msgstr "Calls the external <0>sqlfmt</0> binary via Tauri."
 
 #: src/components/PageTabs.tsx:715
+#: src/components/views/ComputedColumnsDialog.tsx:127
 #: src/components/views/ExportDialog.tsx:423
 #: src/components/views/MacroRunDialog.tsx:186
 #: src/pages/settings/AppSetting.tsx:470
@@ -226,7 +243,7 @@ msgstr "Card"
 msgid "Card foreground"
 msgstr "Card foreground"
 
-#: src/components/views/CountByColumnDialog.tsx:232
+#: src/components/views/CountByColumnDialog.tsx:243
 #: src/components/views/CountByQueryDialog.tsx:213
 msgid "Chart"
 msgstr "Chart"
@@ -272,6 +289,7 @@ msgid "Choose a preset. Each preset includes light and dark variants that follow
 msgstr "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 
 #: src/components/StatusBar.tsx:214
+#: src/components/views/ComputedColumnsDialog.tsx:131
 msgid "Clear all"
 msgstr "Clear all"
 
@@ -279,7 +297,7 @@ msgstr "Clear all"
 msgid "Clear all history"
 msgstr "Clear all history"
 
-#: src/components/views/DataViewToolbar.tsx:135
+#: src/components/views/DataViewToolbar.tsx:141
 msgid "Clear filter"
 msgstr "Clear filter"
 
@@ -351,16 +369,16 @@ msgid "Color theme"
 msgstr "Color theme"
 
 #: src/components/tables/CanvasTable.tsx:99
-#: src/components/views/ColumnProfileDialog.tsx:239
-#: src/components/views/ColumnProfileDialog.tsx:345
+#: src/components/views/ColumnProfileDialog.tsx:252
+#: src/components/views/ColumnProfileDialog.tsx:358
 msgid "Column profile"
 msgstr "Column profile"
 
-#: src/components/views/ColumnProfileDialog.tsx:235
+#: src/components/views/ColumnProfileDialog.tsx:248
 msgid "Column profile: <0>{column}</0>"
 msgstr "Column profile: <0>{column}</0>"
 
-#: src/components/views/PivotDialog.tsx:476
+#: src/components/views/PivotDialog.tsx:487
 msgid "Columns"
 msgstr "Columns"
 
@@ -372,7 +390,17 @@ msgstr "Compression"
 msgid "Compression level"
 msgstr "Compression level"
 
-#: src/components/views/PivotDialog.tsx:660
+#. placeholder {0}: index + 1
+#: src/components/views/ComputedColumnsDialog.tsx:93
+msgid "Computed column {0}"
+msgstr "Computed column {0}"
+
+#: src/components/views/ComputedColumnsDialog.tsx:75
+#: src/components/views/DataViewToolbar.tsx:216
+msgid "Computed columns"
+msgstr "Computed columns"
+
+#: src/components/views/PivotDialog.tsx:671
 msgid "Configure dimensions and measures, then run"
 msgstr "Configure dimensions and measures, then run"
 
@@ -395,7 +423,7 @@ msgid "Connection failed"
 msgstr "Connection failed"
 
 #: src/components/views/CountByQueryDialog.tsx:76
-#: src/components/views/PivotDialog.tsx:283
+#: src/components/views/PivotDialog.tsx:289
 msgid "Connection not found"
 msgstr "Connection not found"
 
@@ -432,29 +460,29 @@ msgstr "Copy Field Name"
 msgid "Copy selection"
 msgstr "Copy selection"
 
-#: src/components/views/PivotDialog.tsx:626
+#: src/components/views/PivotDialog.tsx:637
 msgid "Copy SQL"
 msgstr "Copy SQL"
 
-#: src/components/views/ColumnProfileDialog.tsx:106
-#: src/components/views/CountByColumnDialog.tsx:88
-#: src/components/views/PivotDialog.tsx:296
-#: src/components/views/PivotDialog.tsx:310
+#: src/components/views/ColumnProfileDialog.tsx:113
+#: src/components/views/CountByColumnDialog.tsx:95
+#: src/components/views/PivotDialog.tsx:302
+#: src/components/views/PivotDialog.tsx:317
 msgid "Could not resolve table for this view"
 msgstr "Could not resolve table for this view"
 
-#: src/components/views/CountByColumnDialog.tsx:178
+#: src/components/views/CountByColumnDialog.tsx:189
 #: src/components/views/CountByQueryDialog.tsx:159
 msgid "Count by column"
 msgstr "Count by column"
 
-#: src/components/views/CountByColumnDialog.tsx:174
+#: src/components/views/CountByColumnDialog.tsx:185
 #: src/components/views/CountByQueryDialog.tsx:155
 msgid "Count by column: <0>{column}</0>"
 msgstr "Count by column: <0>{column}</0>"
 
 #: src/components/tables/CanvasTable.tsx:98
-#: src/components/views/CountByColumnDialog.tsx:268
+#: src/components/views/CountByColumnDialog.tsx:279
 #: src/components/views/CountByQueryDialog.tsx:248
 msgid "Count by this column"
 msgstr "Count by this column"
@@ -463,7 +491,7 @@ msgstr "Count by this column"
 msgid "Create"
 msgstr "Create"
 
-#: src/components/views/DataViewToolbar.tsx:206
+#: src/components/views/DataViewToolbar.tsx:221
 msgid "Cross"
 msgstr "Cross"
 
@@ -488,7 +516,7 @@ msgstr "Customize colors"
 msgid "Dark"
 msgstr "Dark"
 
-#: src/components/views/DataViewToolbar.tsx:186
+#: src/components/views/DataViewToolbar.tsx:192
 #: src/components/views/SchemaView.tsx:152
 msgid "Data Columns"
 msgstr "Data Columns"
@@ -623,7 +651,7 @@ msgstr "Disable SSL"
 msgid "Discover new version: {0}"
 msgstr "Discover new version: {0}"
 
-#: src/components/views/ColumnProfileDialog.tsx:282
+#: src/components/views/ColumnProfileDialog.tsx:295
 msgid "Distinct"
 msgstr "Distinct"
 
@@ -658,14 +686,14 @@ msgid "Editor Minimap"
 msgstr "Editor Minimap"
 
 #. placeholder {0}: elapsedRender(elapsed)
-#: src/components/views/DataViewToolbar.tsx:175
+#: src/components/views/DataViewToolbar.tsx:181
 msgid "elapsed time: {0}"
 msgstr "elapsed time: {0}"
 
-#: src/components/views/ColumnProfileDialog.tsx:308
-#: src/components/views/CountByColumnDialog.tsx:222
+#: src/components/views/ColumnProfileDialog.tsx:321
+#: src/components/views/CountByColumnDialog.tsx:233
 #: src/components/views/CountByQueryDialog.tsx:203
-#: src/components/views/PivotDialog.tsx:590
+#: src/components/views/PivotDialog.tsx:601
 msgid "elapsed: {elapsed}ms"
 msgstr "elapsed: {elapsed}ms"
 
@@ -746,7 +774,7 @@ msgstr "Export connections"
 msgid "Export Connections"
 msgstr "Export Connections"
 
-#: src/components/views/DataViewToolbar.tsx:244
+#: src/components/views/DataViewToolbar.tsx:259
 #: src/components/views/ExportDialog.tsx:228
 msgid "Export data"
 msgstr "Export data"
@@ -755,7 +783,7 @@ msgstr "Export data"
 msgid "Export failed"
 msgstr "Export failed"
 
-#: src/components/views/DataViewToolbar.tsx:241
+#: src/components/views/DataViewToolbar.tsx:256
 #: src/components/views/ExportDialog.tsx:147
 msgid "Export is not supported for this connection"
 msgstr "Export is not supported for this connection"
@@ -831,7 +859,7 @@ msgstr "File path"
 msgid "Filter by this value"
 msgstr "Filter by this value"
 
-#: src/components/views/DataViewToolbar.tsx:127
+#: src/components/views/DataViewToolbar.tsx:133
 msgid "Filter results…"
 msgstr "Filter results…"
 
@@ -839,7 +867,7 @@ msgstr "Filter results…"
 msgid "Flat view"
 msgstr "Flat view"
 
-#: src/components/views/DataViewToolbar.tsx:154
+#: src/components/views/DataViewToolbar.tsx:160
 #: src/pages/settings/AppSetting.tsx:319
 msgid "Float precision"
 msgstr "Float precision"
@@ -951,7 +979,7 @@ msgstr "Help"
 msgid "Hidden column"
 msgstr "Hidden column"
 
-#: src/components/views/DataViewToolbar.tsx:181
+#: src/components/views/DataViewToolbar.tsx:187
 #: src/components/views/SchemaView.tsx:145
 msgid "Hidden Column"
 msgstr "Hidden Column"
@@ -965,7 +993,7 @@ msgstr "Hidden Column"
 msgid "Hide password"
 msgstr "Hide password"
 
-#: src/components/views/PivotDialog.tsx:372
+#: src/components/views/PivotDialog.tsx:383
 msgid "High column cardinality may produce a very wide pivot: {parts}. Results are capped at {cap} groups."
 msgstr "High column cardinality may produce a very wide pivot: {parts}. Results are capped at {cap} groups."
 
@@ -1202,7 +1230,7 @@ msgstr "Master password"
 msgid "Master password (if file is encrypted)"
 msgstr "Master password (if file is encrypted)"
 
-#: src/components/views/ColumnProfileDialog.tsx:294
+#: src/components/views/ColumnProfileDialog.tsx:307
 msgid "Max"
 msgstr "Max"
 
@@ -1210,7 +1238,7 @@ msgstr "Max"
 msgid "Max line length"
 msgstr "Max line length"
 
-#: src/components/views/PivotDialog.tsx:488
+#: src/components/views/PivotDialog.tsx:499
 msgid "Measures"
 msgstr "Measures"
 
@@ -1222,7 +1250,7 @@ msgstr "Memory diagnostics"
 msgid "Memory log cleared"
 msgstr "Memory log cleared"
 
-#: src/components/views/ColumnProfileDialog.tsx:286
+#: src/components/views/ColumnProfileDialog.tsx:299
 msgid "Min"
 msgstr "Min"
 
@@ -1234,11 +1262,11 @@ msgstr "More actions"
 msgid "More pages"
 msgstr "More pages"
 
-#: src/components/views/PivotDialog.tsx:473
+#: src/components/views/PivotDialog.tsx:484
 msgid "Move to columns"
 msgstr "Move to columns"
 
-#: src/components/views/PivotDialog.tsx:483
+#: src/components/views/PivotDialog.tsx:494
 msgid "Move to rows"
 msgstr "Move to rows"
 
@@ -1258,7 +1286,7 @@ msgstr "Muted"
 msgid "Muted foreground"
 msgstr "Muted foreground"
 
-#: src/components/views/DataViewToolbar.tsx:71
+#: src/components/views/DataViewToolbar.tsx:75
 msgid "N/A"
 msgstr "N/A"
 
@@ -1309,10 +1337,10 @@ msgstr "No notifications yet"
 msgid "No query history yet"
 msgstr "No query history yet"
 
-#: src/components/views/ColumnProfileDialog.tsx:315
-#: src/components/views/CountByColumnDialog.tsx:241
+#: src/components/views/ColumnProfileDialog.tsx:328
+#: src/components/views/CountByColumnDialog.tsx:252
 #: src/components/views/CountByQueryDialog.tsx:222
-#: src/components/views/PivotDialog.tsx:658
+#: src/components/views/PivotDialog.tsx:669
 msgid "No rows"
 msgstr "No rows"
 
@@ -1320,11 +1348,11 @@ msgstr "No rows"
 msgid "No samples yet. Enable sampling or click Sample now."
 msgstr "No samples yet. Enable sampling or click Sample now."
 
-#: src/components/views/DataViewToolbar.tsx:227
+#: src/components/views/DataViewToolbar.tsx:242
 msgid "No SQL"
 msgstr "No SQL"
 
-#: src/components/views/DataViewToolbar.tsx:243
+#: src/components/views/DataViewToolbar.tsx:258
 #: src/components/views/ExportDialog.tsx:151
 msgid "No SQL to export"
 msgstr "No SQL to export"
@@ -1341,7 +1369,7 @@ msgstr "No tabs in this pane"
 msgid "No template variables found"
 msgstr "No template variables found"
 
-#: src/components/views/PivotDialog.tsx:698
+#: src/components/views/PivotDialog.tsx:709
 msgid "None"
 msgstr "None"
 
@@ -1363,7 +1391,7 @@ msgstr "not selected"
 msgid "Notifications"
 msgstr "Notifications"
 
-#: src/components/views/ColumnProfileDialog.tsx:274
+#: src/components/views/ColumnProfileDialog.tsx:287
 msgid "Nulls"
 msgstr "Nulls"
 
@@ -1494,9 +1522,9 @@ msgstr "Pin to left"
 msgid "Pin to right"
 msgstr "Pin to right"
 
-#: src/components/views/DataViewToolbar.tsx:217
-#: src/components/views/PivotDialog.tsx:459
-#: src/components/views/PivotDialog.tsx:773
+#: src/components/views/DataViewToolbar.tsx:232
+#: src/components/views/PivotDialog.tsx:470
+#: src/components/views/PivotDialog.tsx:784
 msgid "Pivot table"
 msgstr "Pivot table"
 
@@ -1567,18 +1595,18 @@ msgstr "Proxy"
 msgid "Query"
 msgstr "Query"
 
-#: src/components/views/ColumnProfileDialog.tsx:195
-#: src/components/views/CountByColumnDialog.tsx:138
+#: src/components/views/ColumnProfileDialog.tsx:208
+#: src/components/views/CountByColumnDialog.tsx:149
 #: src/components/views/CountByQueryDialog.tsx:121
-#: src/components/views/PivotDialog.tsx:400
+#: src/components/views/PivotDialog.tsx:411
 msgid "Query cancelled"
 msgstr "Query cancelled"
 
-#: src/components/views/ColumnProfileDialog.tsx:148
-#: src/components/views/ColumnProfileDialog.tsx:153
-#: src/components/views/CountByColumnDialog.tsx:115
+#: src/components/views/ColumnProfileDialog.tsx:161
+#: src/components/views/ColumnProfileDialog.tsx:166
+#: src/components/views/CountByColumnDialog.tsx:126
 #: src/components/views/CountByQueryDialog.tsx:98
-#: src/components/views/PivotDialog.tsx:390
+#: src/components/views/PivotDialog.tsx:401
 msgid "Query failed"
 msgstr "Query failed"
 
@@ -1615,7 +1643,7 @@ msgstr "Recover on parse errors"
 msgid "Reference: <0>Shiki TextMate Grammar & Theme Playground</0>."
 msgstr "Reference: <0>Shiki TextMate Grammar & Theme Playground</0>."
 
-#: src/components/views/DataViewToolbar.tsx:171
+#: src/components/views/DataViewToolbar.tsx:177
 #: src/hotkeys/registry.ts:127
 #: src/pages/settings/DiagnosticsPanel.tsx:197
 #: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:124
@@ -1631,11 +1659,15 @@ msgstr "Refresh database list"
 msgid "Refresh DB"
 msgstr "Refresh DB"
 
-#: src/components/views/PivotDialog.tsx:720
+#: src/components/views/PivotDialog.tsx:731
 msgid "Remove"
 msgstr "Remove"
 
-#: src/components/views/PivotDialog.tsx:561
+#: src/components/views/ComputedColumnsDialog.tsx:114
+msgid "Remove computed column"
+msgstr "Remove computed column"
+
+#: src/components/views/PivotDialog.tsx:572
 msgid "Remove measure"
 msgstr "Remove measure"
 
@@ -1713,7 +1745,7 @@ msgstr "Ring"
 msgid "River-alignment style; dialect follows the active connection."
 msgstr "River-alignment style; dialect follows the active connection."
 
-#: src/components/views/PivotDialog.tsx:466
+#: src/components/views/PivotDialog.tsx:477
 #: src/pages/settings/DiagnosticsPanel.tsx:293
 msgid "Rows"
 msgstr "Rows"
@@ -1724,7 +1756,7 @@ msgstr "Rows per page for newly opened data views and preview dialogs."
 
 #: src/components/editor/MonacoEditor.tsx:253
 #: src/components/views/MacroRunDialog.tsx:189
-#: src/components/views/PivotDialog.tsx:581
+#: src/components/views/PivotDialog.tsx:592
 msgid "Run"
 msgstr "Run"
 
@@ -1957,7 +1989,7 @@ msgstr "Show Database"
 msgid "Show password"
 msgstr "Show password"
 
-#: src/components/views/DataViewToolbar.tsx:227
+#: src/components/views/DataViewToolbar.tsx:242
 msgid "Show SQL"
 msgstr "Show SQL"
 
@@ -2059,7 +2091,7 @@ msgstr "Split Right"
 msgid "SQL bookmarks"
 msgstr "SQL bookmarks"
 
-#: src/components/views/PivotDialog.tsx:416
+#: src/components/views/PivotDialog.tsx:427
 msgid "SQL copied"
 msgstr "SQL copied"
 
@@ -2155,15 +2187,15 @@ msgstr "Statement split: current statement"
 msgid "Statement split: entire buffer"
 msgstr "Statement split: entire buffer"
 
-#: src/components/views/ColumnProfileDialog.tsx:262
-#: src/components/views/CountByColumnDialog.tsx:201
+#: src/components/views/ColumnProfileDialog.tsx:275
+#: src/components/views/CountByColumnDialog.tsx:212
 #: src/components/views/CountByQueryDialog.tsx:182
 #: src/components/views/ExportDialog.tsx:415
-#: src/components/views/PivotDialog.tsx:646
+#: src/components/views/PivotDialog.tsx:657
 msgid "Stop"
 msgstr "Stop"
 
-#: src/components/views/DataViewToolbar.tsx:163
+#: src/components/views/DataViewToolbar.tsx:169
 msgid "Stop query"
 msgstr "Stop query"
 
@@ -2185,7 +2217,7 @@ msgid "Tab width"
 msgstr "Tab width"
 
 #: src/components/PageTabs.tsx:607
-#: src/components/views/CountByColumnDialog.tsx:229
+#: src/components/views/CountByColumnDialog.tsx:240
 #: src/components/views/CountByQueryDialog.tsx:210
 msgid "Table"
 msgstr "Table"
@@ -2262,11 +2294,11 @@ msgstr "Token"
 msgid "Too many combinations ({0}); limit is {limit}"
 msgstr "Too many combinations ({0}); limit is {limit}"
 
-#: src/components/views/ColumnProfileDialog.tsx:304
+#: src/components/views/ColumnProfileDialog.tsx:317
 msgid "Top values"
 msgstr "Top values"
 
-#: src/components/views/ColumnProfileDialog.tsx:272
+#: src/components/views/ColumnProfileDialog.tsx:285
 #: src/pages/settings/DiagnosticsPanel.tsx:284
 msgid "Total"
 msgstr "Total"
@@ -2275,7 +2307,7 @@ msgstr "Total"
 msgid "Total WS"
 msgstr "Total WS"
 
-#: src/components/views/DataViewToolbar.tsx:210
+#: src/components/views/DataViewToolbar.tsx:225
 msgid "Transpose"
 msgstr "Transpose"
 
@@ -2382,7 +2414,7 @@ msgstr "Username"
 msgid "Value"
 msgstr "Value"
 
-#: src/components/views/DataViewToolbar.tsx:236
+#: src/components/views/DataViewToolbar.tsx:251
 msgid "Value Viewer"
 msgstr "Value Viewer"
 

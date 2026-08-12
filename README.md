@@ -17,7 +17,7 @@ Note: The current objective of this project is not to develop a fully functional
 
 ## Features
 
-- **Data browsing** — Canvas-rendered result grid with pagination, column hiding, transpose, result filtering, and per-cell value inspection.
+- **Data browsing** — Canvas-rendered result grid with pagination, column hiding, computed SQL columns, transpose, result filtering, and per-cell value inspection.
 - **SQL editor** — Monaco-based editor with schema-aware autocomplete, run / format / `EXPLAIN` actions, SQL bookmarks, and an optional per-statement split mode (toolbar toggle; default off).
 - **SQL template variables** — Write Jinja2-style `{{ variable }}` placeholders in SQL, declare values via a `/* @vars */` YAML block comment, and run multi-value queries (cartesian product → multiple result tabs) in one click. See [SQL Templates](#sql-templates) below.
 - **Pivot table** — Build pivots from row/column dimensions and measures (`count` / `sum` / `avg` / `min` / `max`), with high-cardinality warnings and copy-SQL support.

@@ -207,6 +207,8 @@ export type QueryTableParams = {
   offset: number;
   where?: string;
   orderBy?: string;
+  /** Appended after `*` in `SELECT *… FROM table`, e.g. `, a+1 AS a1`. */
+  selectExtras?: string;
   dialect?: DialectRef;
   /** When set, backend registers an inflight token; call `cancelQuery` with the same id. */
   requestId?: string;

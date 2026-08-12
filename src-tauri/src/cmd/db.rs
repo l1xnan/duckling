@@ -316,6 +316,8 @@ pub async fn query_table(
   offset: usize,
   #[allow(non_snake_case)] orderBy: Option<String>,
   r#where: Option<String>,
+  #[allow(non_snake_case)]
+  selectExtras: Option<String>,
   dialect: DialectPayload,
   #[allow(non_snake_case)]
   requestId: Option<String>,
@@ -323,23 +325,29 @@ pub async fn query_table(
   let d = resolve_connection(&registry, &sessions, dialect).await?;
   let where_s = r#where.unwrap_or_default();
   let order_s = orderBy.unwrap_or_default();
+  let select_s = selectExtras.unwrap_or_default();
 
   let start = Instant::now();
   let res = if let Some(ref rid) = requestId.filter(|s| !s.trim().is_empty()) {
     let (_guard, token) = InflightGuard::register(&inflight, rid)?;
     connector::cancel::with_cancel(
       Some(&token),
-      d.query_table(table, limit, offset, &where_s, &order_s),
+      d.query_table(table, limit, offset, &where_s, &order_s, &select_s),
     )
     .await
   } else {
-    d.query_table(table, limit, offset, &where_s, &order_s)
+    d.query_table(table, limit, offset, &where_s, &order_s, &select_s)
       .await
   };
   let duration = start.elapsed().as_millis();
   // Prefer backend-built SQL on success; on failure still surface a browse-style SQL.
   let fallback_sql = {
-    let mut s = format!("select * from {table}");
+    let extras = select_s.trim();
+    let mut s = if extras.is_empty() {
+      format!("select * from {table}")
+    } else {
+      format!("select *{extras} from {table}")
+    };
     if !where_s.is_empty() {
       s = format!("{s} where {where_s}");
     }

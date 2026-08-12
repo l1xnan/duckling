@@ -34,6 +34,10 @@ import {
   type PivotMeasure,
   type PivotSource,
 } from '@/lib/sql/pivot';
+import {
+  type ComputedColumn,
+  resolveAnalysisTableExpr,
+} from '@/lib/sql/computedColumns';
 import { cn } from '@/lib/utils';
 import type { SchemaType } from '@/stores/dataset';
 import {
@@ -51,6 +55,7 @@ export type PivotDialogProps = {
   /** Table browse source. */
   context?: TableContextType;
   sqlWhere?: string;
+  computedColumns?: ComputedColumn[];
   /** Query result source (subquery). */
   dbId?: string;
   sourceSql?: string;
@@ -131,6 +136,7 @@ export function PivotDialog({
   columns,
   context,
   sqlWhere,
+  computedColumns,
   dbId,
   sourceSql,
   initialRowField,
@@ -304,6 +310,7 @@ export function PivotDialog({
       page: 1,
       perPage: getDefaultPerPage(),
       sqlWhere,
+      computedColumns,
     });
 
     if (!param || !('table' in param) || !param.table || !param.dialect) {
@@ -317,12 +324,16 @@ export function PivotDialog({
     return {
       source: {
         kind: 'table',
-        tableExpr: param.table,
+        tableExpr: resolveAnalysisTableExpr(
+          param.table,
+          computedColumns,
+          dialectName,
+        ),
         dialect: dialectName,
       },
       dialectConn: param.dialect,
     };
-  }, [sourceSql, dbId, context, sqlWhere, t]);
+  }, [sourceSql, dbId, context, sqlWhere, computedColumns, t]);
 
   const handleRun = async () => {
     if (validation) {

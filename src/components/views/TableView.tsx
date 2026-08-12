@@ -20,6 +20,7 @@ import { usePrecision } from '@/stores/setting';
 import { TabContextType, TableContextType, useTabsStore } from '@/stores/tabs';
 
 import { ColumnProfileDialog } from './ColumnProfileDialog';
+import { ComputedColumnsDialog } from './ComputedColumnsDialog';
 import { CountByColumnDialog } from './CountByColumnDialog';
 import { DataViewToolbar } from './DataViewToolbar';
 import { PivotDialog } from './PivotDialog';
@@ -68,11 +69,13 @@ export function TableView({ context }: { context: TabContextType }) {
   const elapsed = usePageStore((s) => s.elapsed);
   const sqlWhere = usePageStore((s) => s.sqlWhere);
   const hiddenColumns = usePageStore((s) => s.hiddenColumns);
+  const computedColumns = usePageStore((s) => s.computedColumns);
   const dialogColumn = usePageStore((s) => s.dialogColumn);
   const setBeautify = usePageStore((s) => s.setBeautify);
   const setPagination = usePageStore((s) => s.setPagination);
   const setTranspose = usePageStore((s) => s.setTranspose);
   const setHiddenColumns = usePageStore((s) => s.setHiddenColumns);
+  const setComputedColumns = usePageStore((s) => s.setComputedColumns);
   const setCross = usePageStore((s) => s.setCross);
   const setDialogColumn = usePageStore((s) => s.setDialogColumn);
   const setSQLWhere = usePageStore((s) => s.setSQLWhere);
@@ -97,6 +100,7 @@ export function TableView({ context }: { context: TabContextType }) {
   const countByDialog = useDialog();
   const profileDialog = useDialog();
   const pivotDialog = useDialog();
+  const computedColumnsDialog = useDialog();
   const [resultFilter, setResultFilter] = useState('');
   const [profileColumn, setProfileColumn] = useState<string | undefined>();
   const [pivotRowField, setPivotRowField] = useState<string | undefined>();
@@ -232,6 +236,8 @@ export function TableView({ context }: { context: TabContextType }) {
           setPivotRowField(undefined);
           pivotDialog.trigger();
         }}
+        onComputedColumns={() => computedColumnsDialog.trigger()}
+        hasComputedColumns={computedColumns.length > 0}
       />
       <TableDataPanel
         loading={loading}
@@ -262,19 +268,27 @@ export function TableView({ context }: { context: TabContextType }) {
         column={dialogColumn}
         context={tableContext}
         sqlWhere={sqlWhere}
+        computedColumns={computedColumns}
       />
       <ColumnProfileDialog
         {...profileDialog.props}
         column={profileColumn}
         context={tableContext}
         sqlWhere={sqlWhere}
+        computedColumns={computedColumns}
       />
       <PivotDialog
         {...pivotDialog.props}
         columns={tableSchema ?? []}
         context={tableContext}
         sqlWhere={sqlWhere}
+        computedColumns={computedColumns}
         initialRowField={pivotRowField}
+      />
+      <ComputedColumnsDialog
+        {...computedColumnsDialog.props}
+        columns={computedColumns}
+        onApply={setComputedColumns}
       />
     </div>
   );

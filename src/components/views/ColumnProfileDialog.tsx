@@ -14,6 +14,10 @@ import {
   buildColumnTopNSql,
 } from '@/lib/sql/columnProfile';
 import {
+  type ComputedColumn,
+  resolveAnalysisTableExpr,
+} from '@/lib/sql/computedColumns';
+import {
   getDatabase,
   getParams,
   type TableContextType,
@@ -26,6 +30,7 @@ export type ColumnProfileDialogProps = {
   column?: string;
   context: TableContextType;
   sqlWhere?: string;
+  computedColumns?: ComputedColumn[];
 };
 
 type ProfileStats = {
@@ -56,6 +61,7 @@ export function ColumnProfileDialog({
   column,
   context,
   sqlWhere,
+  computedColumns,
 }: ColumnProfileDialogProps) {
   const { t } = useLingui();
   const [loading, setLoading] = useState(false);
@@ -100,6 +106,7 @@ export function ColumnProfileDialog({
           page: 1,
           perPage: getDefaultPerPage(),
           sqlWhere,
+          computedColumns,
         });
 
         if (!param || !('table' in param) || !param.table) {
@@ -110,14 +117,20 @@ export function ColumnProfileDialog({
           getDatabase(context.dbId)?.dialect ??
           (context.type === 'file' ? 'file' : 'generic');
 
+        const tableExpr = resolveAnalysisTableExpr(
+          param.table,
+          computedColumns,
+          dialectName,
+        );
+
         const profileSql = buildColumnProfileSql({
-          tableExpr: param.table,
+          tableExpr,
           column,
           dialect: dialectName,
           where: sqlWhere,
         });
         const topSql = buildColumnTopNSql({
-          tableExpr: param.table,
+          tableExpr,
           column,
           dialect: dialectName,
           where: sqlWhere,

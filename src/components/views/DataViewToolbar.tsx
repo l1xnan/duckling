@@ -8,6 +8,7 @@ import {
   CrossIcon,
   DownloadIcon,
   EyeIcon,
+  FunctionSquareIcon,
   LayoutGridIcon,
   RefreshCw,
   SearchIcon,
@@ -65,6 +66,9 @@ export interface DataViewToolbarProps {
   onApplyFilterToWhere?: () => void;
   /** Open pivot table dialog. */
   onPivot?: () => void;
+  /** Open computed columns dialog (table browse). */
+  onComputedColumns?: () => void;
+  hasComputedColumns?: boolean;
 }
 
 export function elapsedRender(elapsed?: number) {
@@ -98,6 +102,8 @@ export function DataViewToolbar({
   onResultFilterChange,
   onApplyFilterToWhere,
   onPivot,
+  onComputedColumns,
+  hasComputedColumns,
 }: DataViewToolbarProps) {
   const { t } = useLingui();
   const exportDialog = useDialog();
@@ -202,6 +208,15 @@ export function DataViewToolbar({
             </div>
           </PopoverContent>
         </Popover>
+
+        {onComputedColumns ? (
+          <TooltipButton
+            icon={<FunctionSquareIcon />}
+            onClick={onComputedColumns}
+            tooltip={t`Computed columns`}
+            active={hasComputedColumns}
+          />
+        ) : null}
 
         <TooltipButton icon={<CrossIcon />} onClick={setCross} tooltip={t`Cross`} active={cross} />
         <TooltipButton

@@ -101,9 +101,10 @@ pub trait Connection: Sync + Send {
     offset: usize,
     where_: &str,
     order_by: &str,
+    select_extras: &str,
   ) -> anyhow::Result<RawArrowData> {
-    let sql = self._table_query_sql(table, where_, order_by);
-    let mut limit_sql = self._table_query_sql(table, where_, order_by);
+    let sql = self._table_query_sql(table, where_, order_by, select_extras);
+    let mut limit_sql = self._table_query_sql(table, where_, order_by, select_extras);
 
     if limit != 0 {
       limit_sql = format!("{limit_sql} limit {limit}");
@@ -178,9 +179,20 @@ pub trait Connection: Sync + Send {
       .join(".")
   }
 
-  fn _table_query_sql(&self, table: &str, where_: &str, order_by: &str) -> String {
+  fn _table_query_sql(
+    &self,
+    table: &str,
+    where_: &str,
+    order_by: &str,
+    select_extras: &str,
+  ) -> String {
     let table = self.quote_table_ref(table);
-    let mut sql = format!("select * from {table}");
+    let extras = select_extras.trim();
+    let mut sql = if extras.is_empty() {
+      format!("select * from {table}")
+    } else {
+      format!("select *{extras} from {table}")
+    };
     if !where_.trim().is_empty() {
       sql = format!("{sql} where {where_}");
     }

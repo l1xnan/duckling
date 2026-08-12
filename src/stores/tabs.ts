@@ -19,6 +19,10 @@ import {
 
 import { isQueryErrorCode } from '@/lib/capabilities';
 import { connectionRef, type DialectRef } from '@/lib/connectionRef';
+import {
+  joinComputedSelectList,
+  type ComputedColumn,
+} from '@/lib/sql/computedColumns';
 
 import { Direction, SchemaType } from './dataset';
 import { getDbMap, getTableMap, whenRegistryReady } from './dbList';
@@ -79,6 +83,7 @@ export type QueryParamType = {
 
   sqlWhere?: string;
   sqlOrderBy?: string;
+  computedColumns?: ComputedColumn[];
 };
 /** Monaco range of the executed SQL fragment within the full editor document. */
 export type SqlSourceRange = {
@@ -529,11 +534,14 @@ export async function getParams(
     tableName = `read_json('${tableName}', union_by_name=true)`;
   }
 
+  const selectExtras = joinComputedSelectList(ctx.computedColumns ?? []);
+
   return {
     dialect,
     table: tableName,
     where: sqlWhere,
     orderBy: sqlOrderBy,
+    ...(selectExtras ? { selectExtras } : {}),
     ...param,
   };
 }

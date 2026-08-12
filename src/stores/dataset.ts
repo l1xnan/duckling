@@ -3,6 +3,9 @@ import { nanoid } from 'nanoid';
 import { createStore } from 'zustand';
 
 import { ResultType, TitleType } from '@/api';
+import {
+  type ComputedColumn,
+} from '@/lib/sql/computedColumns';
 import { nextOrderBy, orderByClause } from '@/lib/sql/orderBy';
 import { getDefaultBeautify, getDefaultPerPage } from '@/stores/setting';
 
@@ -82,6 +85,7 @@ export type DatasetState = {
   dialogColumn?: string;
   direction: Direction;
   hiddenColumns: Record<string, boolean>;
+  computedColumns: ComputedColumn[];
   /** In-flight refresh request id for cancel. */
   refreshRequestId?: string;
 };
@@ -105,6 +109,7 @@ export type DatasetAction = {
   setSQLOrderBy: (value: string) => void;
   setDialogColumn: (value: string) => void;
   setHiddenColumns: (key: string, value: boolean) => void;
+  setComputedColumns: (columns: ComputedColumn[]) => void;
   refresh: (stmt?: string) => Promise<ResultType | undefined>;
   /** Cancel the in-flight table refresh started by `refresh`. */
   cancelRefresh: () => Promise<void>;
@@ -146,6 +151,7 @@ export const createDatasetStore = (context: TabContextType) =>
     direction: 'horizontal',
     cross: false,
     hiddenColumns: {},
+    computedColumns: [],
 
     // action
     setStore: (res: object) => set((_) => res),
@@ -187,6 +193,10 @@ export const createDatasetStore = (context: TabContextType) =>
       set(({ hiddenColumns }) => ({
         hiddenColumns: { ...hiddenColumns, [key]: value },
       })),
+    setComputedColumns: (columns: ComputedColumn[]) => {
+      set({ computedColumns: columns, page: 1 });
+      void get().refresh();
+    },
 
     setOrderBy: (name, options) => {
       const context = get().context as TableContextType | undefined;
@@ -218,7 +228,7 @@ export const createDatasetStore = (context: TabContextType) =>
     },
 
     refresh: async () => {
-      const { page, perPage, sqlWhere, sqlOrderBy, orderBy } = get();
+      const { page, perPage, sqlWhere, sqlOrderBy, orderBy, computedColumns } = get();
       const context = get().context as TableContextType;
       const requestId = nanoid();
 
@@ -238,6 +248,7 @@ export const createDatasetStore = (context: TabContextType) =>
         perPage,
         sqlWhere,
         sqlOrderBy: orderClause,
+        computedColumns,
       };
       set({ loading: true, message: undefined, refreshRequestId: requestId });
       try {
