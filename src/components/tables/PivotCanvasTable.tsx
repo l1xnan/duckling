@@ -7,10 +7,8 @@ import { useMemo, useRef } from 'react';
 
 import { measureAlias, measureTitle, type PivotConfig } from '@/lib/sql/pivot';
 
-import { useTheme } from '@/hooks/theme-provider';
 import { useResolvedColorTheme } from '@/hooks/use-color-theme';
 import { useTableFontFamily, useTableFontSize } from '@/stores/setting';
-import { isDarkTheme } from '@/utils';
 
 import { makeTableTheme } from './theme';
 
@@ -42,8 +40,6 @@ export function PivotCanvasTable({
   className,
 }: PivotCanvasTableProps) {
   const tableRef = useRef<PivotTableAPI>(null);
-  const appTheme = useTheme();
-  const isDark = isDarkTheme(appTheme);
   const theme = useTableTheme();
 
   const option: PivotTableConstructorOptions = useMemo(() => {
@@ -96,7 +92,6 @@ export function PivotCanvasTable({
   return (
     <div className={className ?? 'h-full w-full min-h-0'}>
       <PivotTable
-        key={isDark ? 'dark' : 'light'}
         ref={tableRef as never}
         option={option}
         style={{ width: '100%', height: '100%' }}

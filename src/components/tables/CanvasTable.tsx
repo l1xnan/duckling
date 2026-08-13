@@ -570,7 +570,6 @@ function CanvasTable_({
   return (
     <div className="h-full w-full min-h-0 min-w-0 overflow-hidden select-text" style={style}>
       <ListTable
-        key={isDark ? 'dark' : 'light'}
         ref={tableRef}
         style={{ width: '100%', height: '100%' }}
         option={option}
