@@ -118,6 +118,36 @@ function NotificationItem({
   );
 }
 
+function StatusBarCursor({ editorId }: { editorId: string }) {
+  const cursor = useEditorCursorStore((s) => s.byEditor[editorId]);
+  const cursorParts = cursor ? editorCursorFormatParts(cursor) : null;
+  const cursorTitle = cursor ? formatEditorCursorLabel(cursor) : undefined;
+
+  if (!cursorParts) {
+    return null;
+  }
+
+  return (
+    <span className="tabular-nums whitespace-nowrap" title={cursorTitle}>
+      {cursorParts.kind === 'position' ? (
+        <Trans>
+          Ln {cursorParts.line}, Col {cursorParts.column}
+        </Trans>
+      ) : cursorParts.multiLine ? (
+        <Trans>
+          Ln {cursorParts.line}–{cursorParts.endLine} (
+          {cursorParts.selectedChars} selected)
+        </Trans>
+      ) : (
+        <Trans>
+          Ln {cursorParts.line}, Col {cursorParts.column} (
+          {cursorParts.selectedChars} selected)
+        </Trans>
+      )}
+    </span>
+  );
+}
+
 export function StatusBar() {
   const { t } = useLingui();
   const notifications = useNotificationStore((s) => s.notifications);
@@ -126,19 +156,16 @@ export function StatusBar() {
   const remove = useNotificationStore((s) => s.remove);
   const clear = useNotificationStore((s) => s.clear);
   const currentId = useTabsStore((s) => s.currentId);
-  const tabs = useTabsStore((s) => s.tabs);
-  const currentTab = currentId ? tabs[currentId] : undefined;
+  const currentTab = useTabsStore((s) =>
+    s.currentId ? s.tabs[s.currentId] : undefined,
+  );
   const connection = currentTab?.dbId
     ? getStoredDB(currentTab.dbId)
     : undefined;
   const left = buildStatusBarLeft(currentTab, connection);
   const leftLabel = left.segments.join(' · ');
-  const isEditor = currentTab?.type === 'editor' && !!currentId;
-  const cursor = useEditorCursorStore((s) =>
-    isEditor && currentId ? s.byEditor[currentId] : undefined,
-  );
-  const cursorParts = cursor ? editorCursorFormatParts(cursor) : null;
-  const cursorTitle = cursor ? formatEditorCursorLabel(cursor) : undefined;
+  const editorId =
+    currentTab?.type === 'editor' && currentId ? currentId : null;
 
   const unread = notifications.filter((n) => !n.read).length;
 
@@ -156,25 +183,7 @@ export function StatusBar() {
         )}
       </div>
       <div className="flex shrink-0 items-center gap-2">
-        {cursorParts ? (
-          <span className="tabular-nums whitespace-nowrap" title={cursorTitle}>
-            {cursorParts.kind === 'position' ? (
-              <Trans>
-                Ln {cursorParts.line}, Col {cursorParts.column}
-              </Trans>
-            ) : cursorParts.multiLine ? (
-              <Trans>
-                Ln {cursorParts.line}–{cursorParts.endLine} (
-                {cursorParts.selectedChars} selected)
-              </Trans>
-            ) : (
-              <Trans>
-                Ln {cursorParts.line}, Col {cursorParts.column} (
-                {cursorParts.selectedChars} selected)
-              </Trans>
-            )}
-          </span>
-        ) : null}
+        {editorId ? <StatusBarCursor editorId={editorId} /> : null}
         <Popover
           onOpenChange={(open) => {
             if (open) markAllRead();
