@@ -39,7 +39,8 @@ cargo test -p connector   # when changing connector
 ```
 
 After non-trivial TS changes: run **`pnpm lint`** and relevant **`pnpm test`**.  
-After user-visible string changes: **`pnpm i18n:extract`**, fill **zh-CN**, then **`pnpm i18n:compile`**.
+After user-visible string changes: **`pnpm i18n:extract`**, fill **zh-CN**, then **`pnpm i18n:compile`**.  
+After user-facing feature changes: **update the docs** in the same task (see [Documentation](#documentation--keep-in-sync-with-features)).
 
 ## Package management
 
@@ -150,6 +151,31 @@ tests/                # Vitest suite
 - Log with existing `log` macros; do not print secrets.
 - Sanitize filenames/ids before writing under app data (see scratch / vault helpers).
 
+## Documentation — keep in sync with features
+
+User-facing product docs live in **`website/`** (Rspress v2). Content is mirrored:
+
+| Locale | Path |
+|--------|------|
+| English (default) | `website/docs/en/` |
+| Chinese | `website/docs/zh/` |
+
+**Any user-facing feature add, change, or removal must update the docs in the same task** — not as a follow-up. Ship **en and zh together**. Do not leave one locale stale.
+
+Typical places:
+
+- Feature pages: `website/docs/{en,zh}/features/` (sidebar, SQL editor, data browsing, …)
+- Guides: `website/docs/{en,zh}/guide/` (installation, data sources, …)
+- Site conventions: [`website/AGENTS.md`](website/AGENTS.md)
+
+Also update `README.md` / `README.zh.md` when the change belongs in the repo overview (shortcuts, connectors, major capabilities).
+
+Rules:
+
+1. Match existing page structure; add a new page (and `_meta.json` / `_nav.json` in **both** locales) only when no current page covers it.
+2. Every new page needs `title` and `description` frontmatter in that locale’s language.
+3. Verify with **`pnpm docs:build`** when adding/renaming pages or nav entries. Do not commit `website/doc_build/`.
+
 ## Git & commits
 
 - Conventional commits: `feat|fix|chore|refactor|test|docs|style(scope): summary`.
@@ -165,6 +191,7 @@ tests/                # Vitest suite
 - Do not “fix” layout by removing `min-h-0` / `overflow-hidden` without understanding flex + VTable.
 - Do not add large dependencies for one-liners already covered by `radash` / `es-toolkit` / stdlib.
 - Do not commit generated Lingui `.mjs` or `target/` / `dist/` / `.env`.
+- Do not ship a user-facing feature or behavior change without updating **both** `website/docs/en/` and `website/docs/zh/`.
 
 ## Quick checklist before finishing a task
 
@@ -173,4 +200,5 @@ tests/                # Vitest suite
 - [ ] UI strings: extract + zh-CN + compile
 - [ ] Persistence path chosen correctly (app data vs session-only)
 - [ ] Tailwind utilities match v4 / existing tokens
+- [ ] User-facing change: docs updated in **en** and **zh** (`website/docs/`)
 - [ ] No secrets in logs or committed files
