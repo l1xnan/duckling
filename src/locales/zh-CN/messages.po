@@ -288,7 +288,7 @@ msgstr "国内镜像"
 msgid "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 msgstr "选择一套预设主题。每套预设均包含浅色与深色变体，会跟随应用明暗模式；也可在下方自定义各颜色。"
 
-#: src/components/StatusBar.tsx:214
+#: src/components/StatusBar.tsx:223
 #: src/components/views/ComputedColumnsDialog.tsx:131
 msgid "Clear all"
 msgstr "全部清除"
@@ -572,7 +572,7 @@ msgid "Default: {defaultPerPage}"
 msgstr "默认：{defaultPerPage}"
 
 #: src/components/PageTabs.tsx:213
-#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:133
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:153
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:101
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:264
 #: src/pages/sidebar/SqlCode.tsx:584
@@ -762,7 +762,7 @@ msgstr "导出已取消"
 msgid "Export completed"
 msgstr "导出完成"
 
-#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:130
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:135
 msgid "Export Connection"
 msgstr "导出连接"
 
@@ -863,7 +863,7 @@ msgstr "按此值筛选"
 msgid "Filter results…"
 msgstr "筛选结果…"
 
-#: src/pages/sidebar/VerticalTabs.tsx:205
+#: src/pages/sidebar/VerticalTabs.tsx:217
 msgid "Flat view"
 msgstr "平铺视图"
 
@@ -1161,20 +1161,20 @@ msgstr "查询间距行数"
 #. placeholder {0}: cursorParts.line
 #. placeholder {1}: cursorParts.endLine
 #. placeholder {2}: cursorParts.selectedChars
-#: src/components/StatusBar.tsx:166
+#: src/components/StatusBar.tsx:137
 msgid "Ln {0}–{1} ({2} selected)"
 msgstr "第 {0}–{1} 行（已选 {2}）"
 
 #. placeholder {0}: cursorParts.line
 #. placeholder {1}: cursorParts.column
-#: src/components/StatusBar.tsx:162
+#: src/components/StatusBar.tsx:133
 msgid "Ln {0}, Col {1}"
 msgstr "第 {0} 行，第 {1} 列"
 
 #. placeholder {0}: cursorParts.line
 #. placeholder {1}: cursorParts.column
 #. placeholder {2}: cursorParts.selectedChars
-#: src/components/StatusBar.tsx:171
+#: src/components/StatusBar.tsx:142
 msgid "Ln {0}, Col {1} ({2} selected)"
 msgstr "第 {0} 行，第 {1} 列（已选 {2}）"
 
@@ -1262,6 +1262,10 @@ msgstr "更多操作"
 msgid "More pages"
 msgstr "更多页"
 
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:150
+msgid "Move down"
+msgstr "下移"
+
 #: src/components/views/PivotDialog.tsx:484
 msgid "Move to columns"
 msgstr "移到列维"
@@ -1277,6 +1281,10 @@ msgstr "移到底部"
 #: src/components/views/ValueViewer.tsx:321
 msgid "Move to the top"
 msgstr "移到顶部"
+
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:143
+msgid "Move up"
+msgstr "上移"
 
 #: src/pages/settings/ColorThemePanel.tsx:72
 msgid "Muted"
@@ -1329,7 +1337,7 @@ msgstr "没有匹配的字体"
 msgid "No matching history"
 msgstr "无匹配历史"
 
-#: src/components/StatusBar.tsx:221
+#: src/components/StatusBar.tsx:230
 msgid "No notifications yet"
 msgstr "暂无通知"
 
@@ -1386,8 +1394,8 @@ msgstr "不限制"
 msgid "not selected"
 msgstr "未选择"
 
-#: src/components/StatusBar.tsx:190
-#: src/components/StatusBar.tsx:204
+#: src/components/StatusBar.tsx:199
+#: src/components/StatusBar.tsx:213
 msgid "Notifications"
 msgstr "通知"
 
@@ -1461,7 +1469,7 @@ msgstr "打开 SQL 编辑器"
 msgid "Open SQL folder"
 msgstr "打开 SQL 文件夹"
 
-#: src/components/tables/CanvasTable.tsx:668
+#: src/components/tables/CanvasTable.tsx:667
 msgid "Open table"
 msgstr "打开表"
 
@@ -1584,7 +1592,7 @@ msgstr "主色前景"
 msgid "Private Key"
 msgstr "私钥"
 
-#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:104
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:109
 msgid "Properties"
 msgstr "属性"
 
@@ -1634,7 +1642,7 @@ msgstr "原始(JSON)"
 msgid "Read csv file parameters, see: <0>csv parameters</0>"
 msgstr "读取 CSV 文件参数，参见： <0>csv parameters</0>"
 
-#: src/components/StatusBar.tsx:154
+#: src/components/StatusBar.tsx:181
 msgid "Ready"
 msgstr "就绪"
 
@@ -1653,7 +1661,7 @@ msgstr "参考：<0>Shiki TextMate Grammar & Theme Playground</0>。"
 #: src/components/views/DataViewToolbar.tsx:177
 #: src/hotkeys/registry.ts:127
 #: src/pages/settings/DiagnosticsPanel.tsx:197
-#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:124
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:129
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:273
 msgid "Refresh"
 msgstr "刷新"
@@ -1680,7 +1688,7 @@ msgstr "移除度量"
 
 #: src/components/PageTabs.tsx:206
 #: src/components/PageTabs.tsx:695
-#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:118
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:123
 #: src/pages/sidebar/dialog/RenameDialog.tsx:42
 msgid "Rename"
 msgstr "重命名"
@@ -1740,7 +1748,7 @@ msgstr "结果"
 msgid "Right"
 msgstr "右侧"
 
-#: src/pages/sidebar/VerticalTabs.tsx:223
+#: src/pages/sidebar/VerticalTabs.tsx:235
 msgid "Right align tab text"
 msgstr "右对齐标签文字"
 
@@ -2102,7 +2110,7 @@ msgstr "SQL 书签"
 msgid "SQL copied"
 msgstr "SQL 已复制"
 
-#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:111
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:116
 msgid "SQL Editor"
 msgstr "SQL 编辑器"
 
@@ -2239,7 +2247,7 @@ msgstr "表格字体大小"
 
 #: src/hotkeys/registry.ts:156
 #: src/pages/sidebar/aside.tsx:186
-#: src/pages/sidebar/VerticalTabs.tsx:198
+#: src/pages/sidebar/VerticalTabs.tsx:210
 msgid "Tabs"
 msgstr "标签页"
 
@@ -2318,7 +2326,7 @@ msgstr "总工作集"
 msgid "Transpose"
 msgstr "转置"
 
-#: src/pages/sidebar/VerticalTabs.tsx:214
+#: src/pages/sidebar/VerticalTabs.tsx:226
 msgid "Tree view"
 msgstr "树形视图"
 

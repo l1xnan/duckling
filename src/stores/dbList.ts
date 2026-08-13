@@ -180,6 +180,7 @@ type DBListAction = {
       secrets?: ConnectionSecrets;
     }>,
   ) => Promise<void>;
+  move: (id: string, direction: 'up' | 'down') => void;
 };
 
 function errorMessage(error: unknown, fallback: string): string {
@@ -501,6 +502,22 @@ export const useDBListStore = create<DBListStore>()(
               : item;
           }),
         }));
+      },
+
+      move: (id, direction) => {
+        set((state) => {
+          const idx = state.dbList.findIndex((item) => item.id === id);
+          if (idx < 0) {
+            return state;
+          }
+          const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+          if (targetIdx < 0 || targetIdx >= state.dbList.length) {
+            return state;
+          }
+          const list = [...state.dbList];
+          [list[idx], list[targetIdx]] = [list[targetIdx], list[idx]];
+          return { dbList: list };
+        });
       },
 
       importConnections: async (items) => {

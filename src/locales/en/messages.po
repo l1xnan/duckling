@@ -288,7 +288,7 @@ msgstr "China Mirror"
 msgid "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 msgstr "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 
-#: src/components/StatusBar.tsx:214
+#: src/components/StatusBar.tsx:223
 #: src/components/views/ComputedColumnsDialog.tsx:131
 msgid "Clear all"
 msgstr "Clear all"
@@ -572,7 +572,7 @@ msgid "Default: {defaultPerPage}"
 msgstr "Default: {defaultPerPage}"
 
 #: src/components/PageTabs.tsx:213
-#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:133
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:153
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:101
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:264
 #: src/pages/sidebar/SqlCode.tsx:584
@@ -762,7 +762,7 @@ msgstr "Export cancelled"
 msgid "Export completed"
 msgstr "Export completed"
 
-#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:130
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:135
 msgid "Export Connection"
 msgstr "Export Connection"
 
@@ -863,7 +863,7 @@ msgstr "Filter by this value"
 msgid "Filter results…"
 msgstr "Filter results…"
 
-#: src/pages/sidebar/VerticalTabs.tsx:205
+#: src/pages/sidebar/VerticalTabs.tsx:217
 msgid "Flat view"
 msgstr "Flat view"
 
@@ -1161,20 +1161,20 @@ msgstr "Lines between queries"
 #. placeholder {0}: cursorParts.line
 #. placeholder {1}: cursorParts.endLine
 #. placeholder {2}: cursorParts.selectedChars
-#: src/components/StatusBar.tsx:166
+#: src/components/StatusBar.tsx:137
 msgid "Ln {0}–{1} ({2} selected)"
 msgstr "Ln {0}–{1} ({2} selected)"
 
 #. placeholder {0}: cursorParts.line
 #. placeholder {1}: cursorParts.column
-#: src/components/StatusBar.tsx:162
+#: src/components/StatusBar.tsx:133
 msgid "Ln {0}, Col {1}"
 msgstr "Ln {0}, Col {1}"
 
 #. placeholder {0}: cursorParts.line
 #. placeholder {1}: cursorParts.column
 #. placeholder {2}: cursorParts.selectedChars
-#: src/components/StatusBar.tsx:171
+#: src/components/StatusBar.tsx:142
 msgid "Ln {0}, Col {1} ({2} selected)"
 msgstr "Ln {0}, Col {1} ({2} selected)"
 
@@ -1262,6 +1262,10 @@ msgstr "More actions"
 msgid "More pages"
 msgstr "More pages"
 
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:150
+msgid "Move down"
+msgstr "Move down"
+
 #: src/components/views/PivotDialog.tsx:484
 msgid "Move to columns"
 msgstr "Move to columns"
@@ -1277,6 +1281,10 @@ msgstr "Move to the bottom"
 #: src/components/views/ValueViewer.tsx:321
 msgid "Move to the top"
 msgstr "Move to the top"
+
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:143
+msgid "Move up"
+msgstr "Move up"
 
 #: src/pages/settings/ColorThemePanel.tsx:72
 msgid "Muted"
@@ -1329,7 +1337,7 @@ msgstr "No matching fonts"
 msgid "No matching history"
 msgstr "No matching history"
 
-#: src/components/StatusBar.tsx:221
+#: src/components/StatusBar.tsx:230
 msgid "No notifications yet"
 msgstr "No notifications yet"
 
@@ -1386,8 +1394,8 @@ msgstr "not limit"
 msgid "not selected"
 msgstr "not selected"
 
-#: src/components/StatusBar.tsx:190
-#: src/components/StatusBar.tsx:204
+#: src/components/StatusBar.tsx:199
+#: src/components/StatusBar.tsx:213
 msgid "Notifications"
 msgstr "Notifications"
 
@@ -1461,7 +1469,7 @@ msgstr "Open SQL editor"
 msgid "Open SQL folder"
 msgstr "Open SQL folder"
 
-#: src/components/tables/CanvasTable.tsx:668
+#: src/components/tables/CanvasTable.tsx:667
 msgid "Open table"
 msgstr "Open table"
 
@@ -1584,7 +1592,7 @@ msgstr "Primary foreground"
 msgid "Private Key"
 msgstr "Private Key"
 
-#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:104
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:109
 msgid "Properties"
 msgstr "Properties"
 
@@ -1634,7 +1642,7 @@ msgstr "Raw(JSON)"
 msgid "Read csv file parameters, see: <0>csv parameters</0>"
 msgstr "Read csv file parameters, see: <0>csv parameters</0>"
 
-#: src/components/StatusBar.tsx:154
+#: src/components/StatusBar.tsx:181
 msgid "Ready"
 msgstr "Ready"
 
@@ -1653,7 +1661,7 @@ msgstr "Reference: <0>Shiki TextMate Grammar & Theme Playground</0>."
 #: src/components/views/DataViewToolbar.tsx:177
 #: src/hotkeys/registry.ts:127
 #: src/pages/settings/DiagnosticsPanel.tsx:197
-#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:124
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:129
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:273
 msgid "Refresh"
 msgstr "Refresh"
@@ -1680,7 +1688,7 @@ msgstr "Remove measure"
 
 #: src/components/PageTabs.tsx:206
 #: src/components/PageTabs.tsx:695
-#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:118
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:123
 #: src/pages/sidebar/dialog/RenameDialog.tsx:42
 msgid "Rename"
 msgstr "Rename"
@@ -1740,7 +1748,7 @@ msgstr "Results"
 msgid "Right"
 msgstr "Right"
 
-#: src/pages/sidebar/VerticalTabs.tsx:223
+#: src/pages/sidebar/VerticalTabs.tsx:235
 msgid "Right align tab text"
 msgstr "Right align tab text"
 
@@ -2102,7 +2110,7 @@ msgstr "SQL bookmarks"
 msgid "SQL copied"
 msgstr "SQL copied"
 
-#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:111
+#: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:116
 msgid "SQL Editor"
 msgstr "SQL Editor"
 
@@ -2239,7 +2247,7 @@ msgstr "Table Font Size"
 
 #: src/hotkeys/registry.ts:156
 #: src/pages/sidebar/aside.tsx:186
-#: src/pages/sidebar/VerticalTabs.tsx:198
+#: src/pages/sidebar/VerticalTabs.tsx:210
 msgid "Tabs"
 msgstr "Tabs"
 
@@ -2318,7 +2326,7 @@ msgstr "Total WS"
 msgid "Transpose"
 msgstr "Transpose"
 
-#: src/pages/sidebar/VerticalTabs.tsx:214
+#: src/pages/sidebar/VerticalTabs.tsx:226
 msgid "Tree view"
 msgstr "Tree view"
 

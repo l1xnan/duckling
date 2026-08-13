@@ -521,4 +521,80 @@ describe('dbListStore connection lifecycle', () => {
       (useDBListStore.getState() as { getDB?: unknown }).getDB,
     ).toBeUndefined();
   });
+
+  it('move swaps connection order up and down', () => {
+    useDBListStore.setState({
+      dbList: [
+        {
+          id: 'c1',
+          dialect: 'mysql',
+          displayName: 'a',
+          data: { name: 'a', path: 'a' },
+        },
+        {
+          id: 'c2',
+          dialect: 'mysql',
+          displayName: 'b',
+          data: { name: 'b', path: 'b' },
+        },
+        {
+          id: 'c3',
+          dialect: 'mysql',
+          displayName: 'c',
+          data: { name: 'c', path: 'c' },
+        },
+      ],
+    });
+
+    useDBListStore.getState().move('c2', 'up');
+    expect(useDBListStore.getState().dbList.map((d) => d.id)).toEqual([
+      'c2',
+      'c1',
+      'c3',
+    ]);
+
+    useDBListStore.getState().move('c2', 'down');
+    expect(useDBListStore.getState().dbList.map((d) => d.id)).toEqual([
+      'c1',
+      'c2',
+      'c3',
+    ]);
+  });
+
+  it('move is no-op at list boundaries and for unknown id', () => {
+    useDBListStore.setState({
+      dbList: [
+        {
+          id: 'c1',
+          dialect: 'mysql',
+          displayName: 'a',
+          data: { name: 'a', path: 'a' },
+        },
+        {
+          id: 'c2',
+          dialect: 'mysql',
+          displayName: 'b',
+          data: { name: 'b', path: 'b' },
+        },
+      ],
+    });
+
+    useDBListStore.getState().move('c1', 'up');
+    expect(useDBListStore.getState().dbList.map((d) => d.id)).toEqual([
+      'c1',
+      'c2',
+    ]);
+
+    useDBListStore.getState().move('c2', 'down');
+    expect(useDBListStore.getState().dbList.map((d) => d.id)).toEqual([
+      'c1',
+      'c2',
+    ]);
+
+    useDBListStore.getState().move('missing', 'up');
+    expect(useDBListStore.getState().dbList.map((d) => d.id)).toEqual([
+      'c1',
+      'c2',
+    ]);
+  });
 });

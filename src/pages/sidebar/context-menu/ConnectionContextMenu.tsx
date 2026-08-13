@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/react/macro';
 import { useSetAtom } from 'jotai';
-import { Code, FileDown, RefreshCcw, Settings } from 'lucide-react';
+import { ArrowDown, ArrowUp, Code, FileDown, RefreshCcw, Settings } from 'lucide-react';
 import React, { PropsWithChildren, useEffect, useState } from 'react';
 
 import { ContextMenuItem } from '@/components/custom/context-menu';
@@ -38,7 +38,12 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
 }: PropsWithChildren<{ db: DBType }>) {
   const updateTab = useTabsStore((state) => state.update);
   const removeDB = useDBListStore((state) => state.remove);
+  const moveDB = useDBListStore((state) => state.move);
   const updateDB = useDBListStore((state) => state.updateByConfig);
+  const dbListLength = useDBListStore((state) => state.dbList.length);
+  const dbIndex = useDBListStore((state) =>
+    state.dbList.findIndex((item) => item.id === db.id),
+  );
   const selectedNode = useSelectedNodeStore((s) => s.selectedNode);
   const setDocs = useSetAtom(docsAtom);
 
@@ -128,6 +133,21 @@ export const ConnectionContextMenu = React.memo(function ConnectionContextMenu({
           </ContextMenuItem>
           <ContextMenuItem onSelect={() => setExportOpen(true)} icon={FileDown}>
             <Trans>Export Connection</Trans>
+          </ContextMenuItem>
+          <ContextMenuSeparator />
+          <ContextMenuItem
+            onSelect={() => moveDB(db.id, 'up')}
+            icon={ArrowUp}
+            disabled={dbIndex <= 0}
+          >
+            <Trans>Move up</Trans>
+          </ContextMenuItem>
+          <ContextMenuItem
+            onSelect={() => moveDB(db.id, 'down')}
+            icon={ArrowDown}
+            disabled={dbIndex < 0 || dbIndex >= dbListLength - 1}
+          >
+            <Trans>Move down</Trans>
           </ContextMenuItem>
           <ContextMenuItem inset onSelect={handleRemove} tabIndex={-1}>
             <Trans>Delete</Trans>
