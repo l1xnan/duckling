@@ -268,10 +268,14 @@ fn build_file_tree(paths: Vec<String>) -> Vec<TreeNode> {
     .iter()
     .map(|p| p.split('/').collect())
     .collect();
-  build_tree_from_segments(&split, &normalized)
+  build_tree_from_segments(&split, &normalized, "")
 }
 
-fn build_tree_from_segments(segments: &[Vec<&str>], full_paths: &[String]) -> Vec<TreeNode> {
+fn build_tree_from_segments(
+  segments: &[Vec<&str>],
+  full_paths: &[String],
+  prefix: &str,
+) -> Vec<TreeNode> {
   if segments.is_empty() {
     return vec![];
   }
@@ -309,32 +313,35 @@ fn build_tree_from_segments(segments: &[Vec<&str>], full_paths: &[String]) -> Ve
       });
     } else {
       // Directory node: collect remaining segments for children
-      let child_segs: Vec<Vec<&str>> = indices
+      let child_indices: Vec<usize> = indices
         .iter()
-        .filter(|&&i| segments[i].len() > 1)
+        .copied()
+        .filter(|&i| segments[i].len() > 1)
+        .collect();
+      let child_segs: Vec<Vec<&str>> = child_indices
+        .iter()
         .map(|&i| segments[i][1..].to_vec())
         .collect();
-      let child_paths: Vec<String> = indices
+      let child_paths: Vec<String> = child_indices
         .iter()
-        .filter(|&&i| full_paths[i].len() > 1)
         .map(|&i| full_paths[i].clone())
         .collect();
 
-      // Determine the directory path from the common prefix
-      let dir_path = if child_paths.is_empty() {
-        name.to_string()
+      let dir_path = if prefix.is_empty() {
+        (*name).to_string()
       } else {
-        // Use the parent directory of the first child as the dir path
-        Path::new(&child_paths[0])
-          .parent()
-          .map(|p| p.to_string_lossy().to_string().replace('\\', "/"))
-          .unwrap_or_else(|| name.to_string())
+        format!("{prefix}{name}")
       };
+      let child_prefix = format!("{dir_path}/");
 
       let children = if child_segs.is_empty() {
         None
       } else {
-        Some(build_tree_from_segments(&child_segs, &child_paths))
+        Some(build_tree_from_segments(
+          &child_segs,
+          &child_paths,
+          &child_prefix,
+        ))
       };
 
       nodes.push(TreeNode {
@@ -612,6 +619,35 @@ mod tests {
     assert_eq!(tree[1].node_type, "path");
     assert_eq!(tree[2].name, "zebra.csv");
     assert_eq!(tree[2].node_type, "csv");
+  }
+
+  #[test]
+  fn test_build_file_tree_nested_dir_paths() {
+    let paths = vec![
+      "data/project_a/20260101/a.parquet".to_string(),
+      "data/project_a/20260101/b.parquet".to_string(),
+      "data/project_a/processed/c.parquet".to_string(),
+      "data/project_a/raw/d.parquet".to_string(),
+    ];
+    let tree = build_file_tree(paths);
+    assert_eq!(tree.len(), 1);
+    assert_eq!(tree[0].name, "data");
+    assert_eq!(tree[0].path, "data");
+
+    let project = &tree[0].children.as_ref().unwrap()[0];
+    assert_eq!(project.name, "project_a");
+    assert_eq!(project.path, "data/project_a");
+    assert_eq!(project.children.as_ref().unwrap().len(), 3);
+
+    let dated = project
+      .children
+      .as_ref()
+      .unwrap()
+      .iter()
+      .find(|n| n.name == "20260101")
+      .unwrap();
+    assert_eq!(dated.path, "data/project_a/20260101");
+    assert_eq!(dated.children.as_ref().unwrap().len(), 2);
   }
 
   #[test]
