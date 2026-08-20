@@ -22,6 +22,7 @@ import {
 } from '@/components/custom/ui/context-menu';
 import { formatHotkey, getHotkey } from '@/hotkeys';
 import { canDropTable, canFind, canMetadata } from '@/lib/capabilities';
+import { isBrowsablePathNode } from '@/lib/treeNode';
 import { quoteTableExpr } from '@/lib/sql/countByColumn';
 import { createScratchEditor } from '@/lib/scratchSql';
 import { buildSampleSql } from '@/lib/sql/sample';
@@ -235,7 +236,7 @@ export function TableContextMenu({
           <ContextMenuItem onSelect={handleSample}>
             <Trans>Sample 100 rows</Trans>
           </ContextMenuItem>
-          {db.dialect == 'folder' ? (
+          {db.dialect === 'folder' ? (
             <>
               <ContextMenuItem onSelect={handleShowParquet}>
                 <Trans>Show *.parquet</Trans>
@@ -252,6 +253,15 @@ export function TableContextMenu({
               </ContextMenuItem>
               <ContextMenuItem onSelect={handkeOpenPath}>
                 <Trans>Open Path</Trans>
+              </ContextMenuItem>
+            </>
+          ) : isBrowsablePathNode(node, db.dialect) ? (
+            <>
+              <ContextMenuItem onSelect={handleShowParquet}>
+                <Trans>Show *.parquet</Trans>
+              </ContextMenuItem>
+              <ContextMenuItem onSelect={handleShowCsv}>
+                <Trans>Show *.csv</Trans>
               </ContextMenuItem>
             </>
           ) : null}

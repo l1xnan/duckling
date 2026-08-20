@@ -22,6 +22,7 @@ import React, {
 } from 'react';
 
 import { DelayedTooltip } from '@/components/custom/tooltip';
+import { isBrowsablePathNode } from '@/lib/treeNode';
 import { cn } from '@/lib/utils';
 import { ConnectionContextMenu } from '@/pages/sidebar/context-menu/ConnectionContextMenu';
 import { SchemaContextMenu } from '@/pages/sidebar/context-menu/SchemaContextMenu';
@@ -58,7 +59,7 @@ export function ContextNode({
     return children;
   }
 
-  const isDummy = data.type == 'path' && db.dialect != 'folder';
+  const isDummy = data.type === 'path' && !isBrowsablePathNode(data, db.dialect);
 
   return isRoot ? (
     <ConnectionContextMenu db={db}>{children}</ConnectionContextMenu>
