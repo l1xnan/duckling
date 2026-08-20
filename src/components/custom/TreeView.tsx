@@ -38,6 +38,8 @@ import { Node3Type, convertId, convertTreeToMap, filterTree } from '@/utils';
 
 import { getTypeIcon } from './Icons';
 
+const TREE_ROW_HEIGHT = 22.5;
+
 declare module '@headless-tree/core' {
   export interface ItemInstance<T> {
     onDoubleClick?: () => void;
@@ -173,7 +175,7 @@ const Inner = forwardRef<
   const virtualizer = useVirtualizer({
     count: tree.getItems().length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 22,
+    estimateSize: () => TREE_ROW_HEIGHT,
     overscan: 50,
   });
 

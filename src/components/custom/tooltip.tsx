@@ -53,31 +53,38 @@ export function DelayedTooltip({
   delay = 1000,
 }: DelayedTooltipProps) {
   const [open, setOpen] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const hoverTimeRef = useRef(0);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleOpen = () => {
-    hoverTimeRef.current = Date.now();
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
     timerRef.current = setTimeout(() => {
       setOpen(true);
     }, delay);
   };
 
   const handleClose = () => {
-    setOpen(false);
     if (timerRef.current) {
       clearTimeout(timerRef.current);
+      timerRef.current = null;
     }
+    closeTimerRef.current = setTimeout(() => {
+      setOpen(false);
+    }, 100);
   };
 
   useEffect(() => {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     };
   }, []);
 
   return (
-    <Tooltip open={open}>
+    <Tooltip open={open} disableHoverablePopup>
       <TooltipTrigger
         onMouseEnter={handleOpen}
         onMouseLeave={handleClose}
