@@ -5,7 +5,14 @@ import type {
 } from '@visactor/vtable';
 import { useMemo, useRef } from 'react';
 
-import { measureAlias, measureTitle, type PivotConfig } from '@/lib/sql/pivot';
+import {
+  applyPivotShowAs,
+  formatPivotPercent,
+  measureAlias,
+  measureTitle,
+  type PivotConfig,
+  type PivotShowAs,
+} from '@/lib/sql/pivot';
 
 import { useResolvedColorTheme } from '@/hooks/use-color-theme';
 import { useTableFontFamily, useTableFontSize } from '@/stores/setting';
@@ -15,6 +22,7 @@ import { makeTableTheme } from './theme';
 export type PivotCanvasTableProps = {
   records: Record<string, unknown>[];
   config: Pick<PivotConfig, 'rows' | 'columns' | 'measures'>;
+  showAs?: PivotShowAs;
   className?: string;
 };
 
@@ -37,10 +45,17 @@ function useTableTheme() {
 export function PivotCanvasTable({
   records,
   config,
+  showAs = 'value',
   className,
 }: PivotCanvasTableProps) {
   const tableRef = useRef<PivotTableAPI>(null);
   const theme = useTableTheme();
+  const isPercent = showAs !== 'value';
+
+  const displayRecords = useMemo(
+    () => applyPivotShowAs(records, config, showAs),
+    [records, config, showAs],
+  );
 
   const option: PivotTableConstructorOptions = useMemo(() => {
     const rows = (config.rows ?? []).map((f) => ({
@@ -59,17 +74,33 @@ export function PivotCanvasTable({
         indicatorKey: key,
         title: measureTitle(m),
         width: 'auto' as const,
+        sort: true,
+        ...(isPercent
+          ? {
+              format: (value: unknown) => {
+                if (value == null || value === '') return '';
+                const n =
+                  typeof value === 'number'
+                    ? value
+                    : typeof value === 'bigint'
+                      ? Number(value)
+                      : Number(value);
+                if (!Number.isFinite(n)) return String(value);
+                return formatPivotPercent(n, 100);
+              },
+            }
+          : {}),
       };
     });
 
     return {
-      records,
+      records: displayRecords,
       rows,
       columns,
       indicators,
       indicatorsAsCol: true,
       corner: { titleOnDimension: 'row' },
-      hideIndicatorName: indicators.length === 1,
+      hideIndicatorName: false,
       widthMode: 'autoWidth',
       heightMode: 'standard',
       defaultRowHeight: 24,
@@ -83,7 +114,14 @@ export function PivotCanvasTable({
         copySelected: true,
       },
     };
-  }, [records, config.rows, config.columns, config.measures, theme]);
+  }, [
+    displayRecords,
+    config.rows,
+    config.columns,
+    config.measures,
+    isPercent,
+    theme,
+  ]);
 
   if (!records.length) {
     return null;

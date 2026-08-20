@@ -32,6 +32,7 @@ import {
   type PivotAgg,
   type PivotConfig,
   type PivotMeasure,
+  type PivotShowAs,
   type PivotSource,
 } from '@/lib/sql/pivot';
 import {
@@ -154,6 +155,7 @@ export function PivotDialog({
   const [sql, setSql] = useState('');
   const [elapsed, setElapsed] = useState<number | undefined>();
   const [ranConfig, setRanConfig] = useState<PivotConfig | null>(null);
+  const [showAs, setShowAs] = useState<PivotShowAs>('value');
   const requestIdRef = useRef<string | null>(null);
   const initializedRef = useRef(false);
 
@@ -221,6 +223,7 @@ export function PivotDialog({
     setWarning(null);
     setElapsed(undefined);
     setRanConfig(null);
+    setShowAs('value');
   }, [open, initialRowField, fieldNames, columns]);
 
   const handleCancel = async () => {
@@ -463,6 +466,15 @@ export function PivotDialog({
     [columns],
   );
 
+  const showAsItems = useMemo(
+    () => [
+      { value: 'value' as const, label: t`Values` },
+      { value: 'rowPct' as const, label: t`% of row` },
+      { value: 'colPct' as const, label: t`% of column` },
+    ],
+    [t],
+  );
+
   return (
     <Dialog
       open={open}
@@ -580,7 +592,7 @@ export function PivotDialog({
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
           <Button
             type="button"
             size="sm"
@@ -591,6 +603,33 @@ export function PivotDialog({
           >
             <Trans>Run</Trans>
           </Button>
+          <div className="flex items-center gap-1.5">
+            <Label className="text-xs text-muted-foreground shrink-0">
+              <Trans>Show as</Trans>
+            </Label>
+            <Select
+              value={showAs}
+              onValueChange={(v) => setShowAs((v as PivotShowAs) ?? 'value')}
+              items={showAsItems}
+            >
+              <SelectTrigger size="sm" className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {showAsItems.map((item) => (
+                    <SelectItem
+                      key={item.value}
+                      value={item.value}
+                      label={item.label}
+                    >
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
           {validation ? (
             <span className="text-xs text-muted-foreground">
               {validation.message}
@@ -662,7 +701,11 @@ export function PivotDialog({
               {error}
             </div>
           ) : ranConfig && records.length > 0 ? (
-            <PivotCanvasTable records={records} config={ranConfig} />
+            <PivotCanvasTable
+              records={records}
+              config={ranConfig}
+              showAs={showAs}
+            />
           ) : (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
               {ranConfig ? (
@@ -782,3 +825,7 @@ function DimPanel({
 
 // keep msg for catalog extraction
 void msg`Pivot table`;
+void msg`Show as`;
+void msg`Values`;
+void msg`% of row`;
+void msg`% of column`;

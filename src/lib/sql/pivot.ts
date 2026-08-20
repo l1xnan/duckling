@@ -203,3 +203,70 @@ export function buildDistinctCountSql(
     where && where.trim().length > 0 ? ` WHERE ${where.trim()}` : '';
   return `SELECT COUNT(DISTINCT ${col}) AS distinct_count FROM ${from}${whereClause}`;
 }
+
+export type PivotShowAs = 'value' | 'rowPct' | 'colPct';
+
+function pivotMeasureKeys(
+  config: Pick<PivotConfig, 'measures'>,
+): string[] {
+  return config.measures.map(measureAlias);
+}
+
+function dimGroupKey(record: Record<string, unknown>, dims: string[]): string {
+  if (dims.length === 0) return '__all__';
+  return dims.map((d) => String(record[d] ?? '')).join('\0');
+}
+
+function parseMeasureValue(value: unknown): number | null {
+  if (value == null) return null;
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'bigint') return Number(value);
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+export function formatPivotPercent(value: number, total: number): string {
+  if (!total || total <= 0) return '0%';
+  return `${((value / total) * 100).toFixed(2)}%`;
+}
+
+export function applyPivotShowAs(
+  records: Record<string, unknown>[],
+  config: Pick<PivotConfig, 'rows' | 'columns' | 'measures'>,
+  showAs: PivotShowAs,
+): Record<string, unknown>[] {
+  if (showAs === 'value' || records.length === 0) {
+    return records;
+  }
+
+  const measureKeys = pivotMeasureKeys(config);
+  const groupDims = showAs === 'rowPct' ? config.rows : config.columns;
+  const totals = new Map<string, Record<string, number>>();
+
+  for (const record of records) {
+    const key = dimGroupKey(record, groupDims);
+    let group = totals.get(key);
+    if (!group) {
+      group = {};
+      totals.set(key, group);
+    }
+    for (const mk of measureKeys) {
+      const value = parseMeasureValue(record[mk]);
+      if (value == null) continue;
+      group[mk] = (group[mk] ?? 0) + value;
+    }
+  }
+
+  return records.map((record) => {
+    const key = dimGroupKey(record, groupDims);
+    const groupTotals = totals.get(key) ?? {};
+    const out = { ...record };
+    for (const mk of measureKeys) {
+      const value = parseMeasureValue(record[mk]);
+      if (value == null) continue;
+      const total = groupTotals[mk] ?? 0;
+      out[mk] = total > 0 ? (value / total) * 100 : 0;
+    }
+    return out;
+  });
+}

@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  applyPivotShowAs,
   buildDistinctCountSql,
   buildPivotSql,
+  formatPivotPercent,
   isNumericAgg,
   measureAlias,
   measureTitle,
@@ -159,5 +161,109 @@ describe('pivot SQL', () => {
     expect(isNumericAgg('avg')).toBe(true);
     expect(isNumericAgg('count')).toBe(false);
     expect(isNumericAgg('min')).toBe(false);
+  });
+});
+
+describe('pivot showAs', () => {
+  const config: Pick<PivotConfig, 'rows' | 'columns' | 'measures'> = {
+    rows: ['region'],
+    columns: ['year'],
+    measures: [
+      { field: '*', agg: 'count' },
+      { field: 'amount', agg: 'sum' },
+    ],
+  };
+
+  const records = [
+    { region: 'East', year: '2020', count_star: 30, sum_amount: 300 },
+    { region: 'East', year: '2021', count_star: 70, sum_amount: 700 },
+    { region: 'West', year: '2020', count_star: 50, sum_amount: 500 },
+    { region: 'West', year: '2021', count_star: 50, sum_amount: 500 },
+  ];
+
+  it('returns records unchanged for value mode', () => {
+    const out = applyPivotShowAs(records, config, 'value');
+    expect(out).toEqual(records);
+    expect(out).toBe(records);
+  });
+
+  it('computes row percentages per measure', () => {
+    const out = applyPivotShowAs(records, config, 'rowPct');
+    expect(out[0]?.count_star).toBe(30);
+    expect(out[1]?.count_star).toBe(70);
+    expect(out[0]?.sum_amount).toBe(30);
+    expect(out[1]?.sum_amount).toBe(70);
+    expect(out[2]?.count_star).toBe(50);
+    expect(out[3]?.count_star).toBe(50);
+  });
+
+  it('computes column percentages per measure', () => {
+    const out = applyPivotShowAs(records, config, 'colPct');
+    expect(out[0]?.count_star).toBeCloseTo(37.5);
+    expect(out[2]?.count_star).toBeCloseTo(62.5);
+    expect(out[0]?.sum_amount).toBeCloseTo(37.5);
+    expect(out[2]?.sum_amount).toBeCloseTo(62.5);
+  });
+
+  it('uses grand total when row dimension is empty', () => {
+    const colsOnly = {
+      rows: [] as string[],
+      columns: ['year'],
+      measures: [{ field: '*', agg: 'count' as const }],
+    };
+    const rows = [
+      { year: '2020', count_star: 25 },
+      { year: '2021', count_star: 75 },
+    ];
+    const out = applyPivotShowAs(rows, colsOnly, 'rowPct');
+    expect(out[0]?.count_star).toBeCloseTo(25);
+    expect(out[1]?.count_star).toBeCloseTo(75);
+  });
+
+  it('uses grand total when column dimension is empty', () => {
+    const rowsOnly = {
+      rows: ['region'],
+      columns: [] as string[],
+      measures: [{ field: 'amount', agg: 'sum' as const }],
+    };
+    const rows = [
+      { region: 'A', sum_amount: 40 },
+      { region: 'B', sum_amount: 60 },
+    ];
+    const out = applyPivotShowAs(rows, rowsOnly, 'colPct');
+    expect(out[0]?.sum_amount).toBeCloseTo(40);
+    expect(out[1]?.sum_amount).toBeCloseTo(60);
+  });
+
+  it('returns 0% denominator for zero totals', () => {
+    const out = applyPivotShowAs(
+      [{ region: 'A', year: '2020', sum_amount: 0 }],
+      {
+        rows: ['region'],
+        columns: ['year'],
+        measures: [{ field: 'amount', agg: 'sum' }],
+      },
+      'rowPct',
+    );
+    expect(out[0]?.sum_amount).toBe(0);
+    expect(formatPivotPercent(0, 0)).toBe('0%');
+  });
+
+  it('leaves non-numeric measure values unchanged', () => {
+    const out = applyPivotShowAs(
+      [{ region: 'A', year: '2020', sum_amount: 'n/a' }],
+      {
+        rows: ['region'],
+        columns: ['year'],
+        measures: [{ field: 'amount', agg: 'sum' }],
+      },
+      'rowPct',
+    );
+    expect(out[0]?.sum_amount).toBe('n/a');
+  });
+
+  it('formats pivot percent strings', () => {
+    expect(formatPivotPercent(12.345, 100)).toBe('12.35%');
+    expect(formatPivotPercent(1, 0)).toBe('0%');
   });
 });

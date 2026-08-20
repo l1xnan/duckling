@@ -11,6 +11,8 @@ Build pivots from **row dimensions**, **column dimensions**, and **measures** (`
 
 - **High-cardinality warnings** — get a heads-up before expanding an enormous set of categories.
 - **Copy-SQL support** — export the pivot definition as SQL for reuse or inspection.
+- **Show as** — after running, switch the result grid to **values**, **% of row**, or **% of column** (frontend-only; does not change the SQL). Each measure is normalized independently. If the query hits the **5000** group cap, percentages are relative to the returned groups only.
+- **Column header sort** — click a data column header to sort rows by that column’s cell values (asc / desc / clear). Sorting uses the currently displayed values (including percent mode) and does not re-query.
 
 ## Column profile
 

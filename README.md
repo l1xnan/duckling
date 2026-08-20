@@ -20,7 +20,7 @@ Note: The current objective of this project is not to develop a fully functional
 - **Data browsing** — Canvas-rendered result grid with pagination, column hiding, computed SQL columns, transpose, result filtering, and per-cell value inspection.
 - **SQL editor** — Monaco-based editor with schema-aware autocomplete, run / format / `EXPLAIN` actions, SQL bookmarks, and an optional per-statement split mode (toolbar toggle; default off).
 - **SQL template variables** — Write Jinja2-style `{{ variable }}` placeholders in SQL, declare values via a `/* @vars */` YAML block comment, and run multi-value queries (cartesian product → multiple result tabs) in one click. See [SQL Templates](#sql-templates) below.
-- **Pivot table** — Build pivots from row/column dimensions and measures (`count` / `sum` / `avg` / `min` / `max`), with high-cardinality warnings and copy-SQL support.
+- **Pivot table** — Build pivots from row/column dimensions and measures (`count` / `sum` / `avg` / `min` / `max`), with high-cardinality warnings, copy-SQL support, frontend row/column percent display, and column-header sort.
 - **Column profile** — Per-column statistics: total, null ratio, distinct count, min/max, and top values.
 - **Count by column** — Value distribution for a column (count + percent of all matching rows), shown as a table plus a bar chart.
 - **Value viewer** — Inspect a cell in raw / JSON form, with a "Calculate" tab for per-selection statistics (min/max/mean/…) exported as Markdown.
