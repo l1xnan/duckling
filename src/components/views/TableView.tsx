@@ -1,6 +1,13 @@
 import { Data as ArrowDataType } from '@apache-arrow/ts';
 import { Loader2Icon } from 'lucide-react';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { toast } from 'sonner';
 
 import { useDialog } from '@/components/custom/use-dialog';
@@ -18,6 +25,11 @@ import { SchemaType } from '@/stores/dataset';
 import { getStoredDB } from '@/stores/dbList';
 import { usePrecision } from '@/stores/setting';
 import { TabContextType, TableContextType, useTabsStore } from '@/stores/tabs';
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from '@/components/ui/resizable';
 
 import { ColumnProfileDialog } from './ColumnProfileDialog';
 import { ComputedColumnsDialog } from './ComputedColumnsDialog';
@@ -350,35 +362,50 @@ export const InputToolbar = memo(function InputToolbar({
   );
 
   return (
-    <div className="flex h-8 min-h-8 w-full flex-row items-center overflow-hidden border-b bg-background/40 font-mono">
-      <div className="flex min-w-0 flex-1 flex-row items-center overflow-hidden">
-        <div className="mx-2 min-w-fit text-sm text-muted-foreground">
-          WHERE
-        </div>
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <SingleLineEditor
-            className="text-sm"
-            initialValue={sqlWhere}
-            onChange={setSQLWhere}
-            onEnterDown={handleEnterDown}
-            completeMeta={whereCompleteMeta}
-          />
-        </div>
-      </div>
-      <div className="mx-2 h-5 w-px shrink-0 bg-border" />
-      <div className="flex min-w-0 flex-1 flex-row items-center overflow-hidden">
-        <div className="mx-2 min-w-fit text-sm text-muted-foreground">
-          ORDER BY
-        </div>
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <SingleLineEditor
-            initialValue={sqlOrderBy}
-            onChange={setSQLOrderBy}
-            onEnterDown={handleEnterDown}
-            completeMeta={orderCompleteMeta}
-          />
-        </div>
-      </div>
+    <div className="h-8 min-h-8 w-full shrink-0 overflow-hidden border-b bg-background/40 font-mono">
+      <ResizablePanelGroup
+        orientation="horizontal"
+        className="size-full items-center"
+      >
+        <ResizablePanel
+          defaultSize="50"
+          minSize="10"
+          maxSize="90"
+          className="flex min-w-0 flex-row items-center overflow-hidden"
+        >
+          <div className="mx-2 min-w-fit text-sm text-muted-foreground">
+            WHERE
+          </div>
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <SingleLineEditor
+              className="text-sm"
+              initialValue={sqlWhere}
+              onChange={setSQLWhere}
+              onEnterDown={handleEnterDown}
+              completeMeta={whereCompleteMeta}
+            />
+          </div>
+        </ResizablePanel>
+        <ResizableHandle className="mx-1 h-5 self-center after:w-2" />
+        <ResizablePanel
+          defaultSize="50"
+          minSize="10"
+          maxSize="90"
+          className="flex min-w-0 flex-row items-center overflow-hidden"
+        >
+          <div className="mx-2 min-w-fit text-sm text-muted-foreground">
+            ORDER BY
+          </div>
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <SingleLineEditor
+              initialValue={sqlOrderBy}
+              onChange={setSQLOrderBy}
+              onEnterDown={handleEnterDown}
+              completeMeta={orderCompleteMeta}
+            />
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 });
