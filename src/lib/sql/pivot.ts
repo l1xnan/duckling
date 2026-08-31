@@ -178,13 +178,24 @@ export function buildPivotSql(
       ? ` WHERE ${config.where.trim()}`
       : '';
   const lim = config.limit ?? DEFAULT_PIVOT_LIMIT;
+  const orderBy =
+    dims.length > 0
+      ? ` ORDER BY ${dims.map((f) => quoteIdent(f, dialect)).join(', ')}`
+      : '';
 
   return (
     `SELECT ${selectList}` +
     ` FROM ${from}${where}` +
     ` GROUP BY ${groupBy}` +
+    orderBy +
     ` LIMIT ${lim}`
   );
+}
+
+export function pivotDimensionSortFields(
+  config: Pick<PivotConfig, 'columns'>,
+): string[] {
+  return [...(config.columns ?? [])];
 }
 
 /**

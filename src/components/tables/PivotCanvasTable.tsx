@@ -1,4 +1,5 @@
 import { PivotTable } from '@visactor/react-vtable';
+import { TYPES } from '@visactor/vtable';
 import type {
   PivotTable as PivotTableAPI,
   PivotTableConstructorOptions,
@@ -10,6 +11,7 @@ import {
   formatPivotPercent,
   measureAlias,
   measureTitle,
+  pivotDimensionSortFields,
   type PivotConfig,
   type PivotShowAs,
 } from '@/lib/sql/pivot';
@@ -18,6 +20,17 @@ import { useResolvedColorTheme } from '@/hooks/use-color-theme';
 import { useTableFontFamily, useTableFontSize } from '@/stores/setting';
 
 import { makeTableTheme } from './theme';
+
+function makePivotColumnDimension(field: string) {
+  return {
+    dimensionKey: field,
+    title: field,
+    width: 'auto' as const,
+    sort: true,
+    showSort: true,
+    showSortInCorner: true,
+  };
+}
 
 export type PivotCanvasTableProps = {
   records: Record<string, unknown>[];
@@ -57,17 +70,22 @@ export function PivotCanvasTable({
     [records, config, showAs],
   );
 
+  const dimensionSortRules = useMemo(
+    () =>
+      pivotDimensionSortFields(config).map((sortField) => ({
+        sortField,
+        sortType: TYPES.SortType.asc,
+      })),
+    [config.columns],
+  );
+
   const option: PivotTableConstructorOptions = useMemo(() => {
     const rows = (config.rows ?? []).map((f) => ({
       dimensionKey: f,
       title: f,
       width: 'auto' as const,
     }));
-    const columns = (config.columns ?? []).map((f) => ({
-      dimensionKey: f,
-      title: f,
-      width: 'auto' as const,
-    }));
+    const columns = (config.columns ?? []).map(makePivotColumnDimension);
     const indicators = (config.measures ?? []).map((m) => {
       const key = measureAlias(m);
       return {
@@ -98,6 +116,9 @@ export function PivotCanvasTable({
       rows,
       columns,
       indicators,
+      dataConfig: {
+        sortRules: dimensionSortRules,
+      },
       indicatorsAsCol: true,
       corner: { titleOnDimension: 'row' },
       hideIndicatorName: false,
@@ -116,6 +137,7 @@ export function PivotCanvasTable({
     };
   }, [
     displayRecords,
+    dimensionSortRules,
     config.rows,
     config.columns,
     config.measures,

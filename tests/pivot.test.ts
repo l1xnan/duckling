@@ -8,6 +8,7 @@ import {
   isNumericAgg,
   measureAlias,
   measureTitle,
+  pivotDimensionSortFields,
   validatePivotConfig,
   type PivotConfig,
 } from '@/lib/sql/pivot';
@@ -41,6 +42,7 @@ describe('pivot SQL', () => {
     expect(sql).toContain('FROM "public"."orders"');
     expect(sql).toContain("WHERE status = 'ok'");
     expect(sql).toContain('GROUP BY "region", "city", "year"');
+    expect(sql).toContain('ORDER BY "region", "city", "year"');
     expect(sql).toContain('LIMIT 100');
   });
 
@@ -53,6 +55,7 @@ describe('pivot SQL', () => {
     expect(sql).toContain('SELECT `region`, `year`, SUM(`amount`) AS `sum_amount`');
     expect(sql).toContain('FROM `app`.`sales`');
     expect(sql).toContain('GROUP BY `region`, `year`');
+    expect(sql).toContain('ORDER BY `region`, `year`');
   });
 
   it('wraps subquery source', () => {
@@ -161,6 +164,14 @@ describe('pivot SQL', () => {
     expect(isNumericAgg('avg')).toBe(true);
     expect(isNumericAgg('count')).toBe(false);
     expect(isNumericAgg('min')).toBe(false);
+  });
+
+  it('builds stable column sort fields for pivot headers', () => {
+    expect(
+      pivotDimensionSortFields({
+        columns: ['year', 'month'],
+      }),
+    ).toEqual(['year', 'month']);
   });
 });
 
