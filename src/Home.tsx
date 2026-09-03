@@ -73,13 +73,14 @@ function Home() {
             style={{ width: leftWidth }}
           >
             <Sidebar side="left">
-              {ACTIVITIES.filter(({ id }) => id === leftPanelId).map(
-                ({ id, component: Component }) => (
-                  <Activity key={id} mode="visible">
-                    <Component />
-                  </Activity>
-                ),
-              )}
+              {ACTIVITIES.map(({ id, component: Component }) => (
+                <Activity
+                  key={id}
+                  mode={leftPanelId === id ? 'visible' : 'hidden'}
+                >
+                  <Component />
+                </Activity>
+              ))}
             </Sidebar>
             <div className={classes.controls}>
               <div className={classes.resizeVertical} onMouseDown={actionLeft} />
@@ -93,13 +94,14 @@ function Home() {
             style={{ width: rightWidth }}
           >
             <Sidebar side="right">
-              {ACTIVITIES.filter(({ id }) => id === rightPanelId).map(
-                ({ id, component: Component }) => (
-                  <Activity key={id} mode="visible">
-                    <Component />
-                  </Activity>
-                ),
-              )}
+              {ACTIVITIES.map(({ id, component: Component }) => (
+                <Activity
+                  key={id}
+                  mode={rightPanelId === id ? 'visible' : 'hidden'}
+                >
+                  <Component />
+                </Activity>
+              ))}
             </Sidebar>
             <div className={cn(classes.controls, classes.controlsLeft)}>
               <div className={classes.resizeVertical} onMouseDown={actionRight} />
