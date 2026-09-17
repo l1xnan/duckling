@@ -1,5 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "jsPlugins": ["@shadcn/lint"],
   "plugins": ["typescript", "unicorn", "import", "react"],
   "categories": {
     "correctness": "off"
