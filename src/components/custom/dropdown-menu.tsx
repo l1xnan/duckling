@@ -1,4 +1,4 @@
-import { ComponentProps, PropsWithChildren } from 'react';
+import { ComponentProps, PropsWithChildren, ReactNode } from 'react';
 
 import {
   DropdownMenuTrigger,
@@ -16,7 +16,7 @@ import { ChevronDownIcon } from 'lucide-react';
 export interface DropdownProps extends PropsWithChildren<
   ComponentProps<typeof UIDropdownMenu>
 > {
-  content: string;
+  content: ReactNode;
 }
 
 export function DropdownMenu({ content, children }: DropdownProps) {
@@ -25,9 +25,12 @@ export function DropdownMenu({ content, children }: DropdownProps) {
       <DropdownMenuTrigger>
         <PaginationContent>
           <PaginationItem>
-            <PaginationLink className="w-full px-2 text-xs" size={'sm'}>
+            <PaginationLink
+              className="w-full max-w-48 gap-1 px-2 text-xs"
+              size={'sm'}
+            >
               {content}
-              <ChevronDownIcon size={16} />
+              <ChevronDownIcon className="size-4 shrink-0" />
             </PaginationLink>
           </PaginationItem>
         </PaginationContent>

@@ -1,10 +1,10 @@
-import { Trans, useLingui } from '@lingui/react/macro';
-import { TooltipButton } from '@/components/custom/tooltip';
 import {
   DropdownMenu,
   DropdownMenuItem,
   DropdownMenuLabel,
 } from '@/components/custom/dropdown-menu';
+import { TooltipButton } from '@/components/custom/tooltip';
+import { Trans, useLingui } from '@lingui/react/macro';
 
 import { Stack, ToolbarBox, ToolbarContainer } from '@/components/Toolbar';
 
@@ -18,6 +18,7 @@ import {
   TextSelectIcon,
 } from 'lucide-react';
 
+import { getTypeIcon } from '@/components/custom/Icons';
 import {
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -25,7 +26,7 @@ import {
 } from '@/components/custom/ui/dropdown-menu';
 import { TooltipContent } from '@/components/ui/tooltip';
 import { formatHotkey, getHotkey } from '@/hotkeys';
-import { DBType, useDBListStore } from '@/stores/dbList';
+import { DBType, DialectType, useDBListStore } from '@/stores/dbList';
 import { IconArrowsSplit, IconInfinity, IconInfinityOff } from '@tabler/icons-react';
 import React from 'react';
 
@@ -40,6 +41,7 @@ const tooltipProps = {
 export function EditorToolbar({
   onClick,
   session,
+  sessionDialect,
   onHasLimit,
   hasLimit,
   onSplitStatements,
@@ -57,6 +59,7 @@ export function EditorToolbar({
   onClick: (action?: string) => void;
   onHasLimit: (limit: boolean) => void;
   session?: string;
+  sessionDialect?: DialectType;
   hasLimit?: boolean;
   onSplitStatements?: (enabled: boolean) => void;
   splitStatements?: boolean;
@@ -174,7 +177,11 @@ export function EditorToolbar({
           ) : null}
         </Stack>
         <Stack>
-          <Connection content={session} setSession={setSession} />
+          <Connection
+            content={session}
+            dialect={sessionDialect}
+            setSession={setSession}
+          />
         </Stack>
       </ToolbarBox>
     </ToolbarContainer>
@@ -183,15 +190,35 @@ export function EditorToolbar({
 
 export interface DropdownProps {
   content?: string;
+  dialect?: DialectType;
   setSession: (s: DBType) => void;
 }
 
-export default function Connection({ content, setSession }: DropdownProps) {
+export default function Connection({
+  content,
+  dialect,
+  setSession,
+}: DropdownProps) {
   const { t } = useLingui();
   const dbList = useDBListStore((s) => s.dbList);
+  const label = content ?? t`unknown`;
+  const sessionIcon = dialect
+    ? (getTypeIcon(dialect) ?? getTypeIcon('root'))
+    : null;
 
   return (
-    <DropdownMenu content={content ?? t`unknown`}>
+    <DropdownMenu
+      content={
+        <span className="flex min-w-0 items-center gap-1.5">
+          {sessionIcon ? (
+            <span className="flex shrink-0 items-center [&_svg]:size-3.5">
+              {sessionIcon}
+            </span>
+          ) : null}
+          <span className="min-w-0 truncate">{label}</span>
+        </span>
+      }
+    >
       <DropdownMenuContent className="w-full">
         <DropdownMenuGroup>
           <DropdownMenuLabel>
@@ -201,11 +228,15 @@ export default function Connection({ content, setSession }: DropdownProps) {
           {dbList.map((item) => (
             <DropdownMenuItem
               key={item.id}
+              className="gap-2"
               onSelect={() => {
                 setSession(item);
               }}
             >
-              {item.displayName}
+              <span className="flex shrink-0 items-center [&_svg]:size-4">
+                {getTypeIcon(item.dialect) ?? getTypeIcon('root')}
+              </span>
+              <span className="min-w-0 truncate">{item.displayName}</span>
             </DropdownMenuItem>
           ))}
         </DropdownMenuGroup>

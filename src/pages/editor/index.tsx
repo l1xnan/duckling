@@ -632,6 +632,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
       <EditorToolbar
         onClick={handleClick}
         session={db?.displayName}
+        sessionDialect={db?.dialect}
         setSession={handleSession}
         onHasLimit={setHasLimit}
         hasLimit={hasLimit}
