@@ -1,13 +1,26 @@
+import { ClauseHistoryPopover } from '@/components/custom/ClauseHistoryPopover';
 import { Input } from '@/components/custom/ui/input';
 import { cn } from '@/lib/utils';
 import { useLingui } from '@lingui/react/macro';
 import { Search } from 'lucide-react';
 import React from 'react';
 
+export type SearchInputHistoryProps = {
+  terms: string[];
+  ariaLabel: string;
+  recentLabel: string;
+  emptyLabel: string;
+  onSelect: (term: string) => void;
+  onRemove: (term: string) => void;
+  onClear: () => void;
+};
+
 export const SearchInput = React.forwardRef<
   HTMLInputElement,
-  React.ComponentProps<typeof Input>
->(({ className, placeholder, ...props }, ref) => {
+  React.ComponentProps<typeof Input> & {
+    history?: SearchInputHistoryProps;
+  }
+>(({ className, placeholder, history, ...props }, ref) => {
   const { t } = useLingui();
   return (
     <div
@@ -16,7 +29,22 @@ export const SearchInput = React.forwardRef<
         className,
       )}
     >
-      <Search className={'size-4 ml-2 text-muted-foreground'} />
+      {history ? (
+        <ClauseHistoryPopover
+          icon={Search}
+          terms={history.terms}
+          ariaLabel={history.ariaLabel}
+          recentLabel={history.recentLabel}
+          emptyLabel={history.emptyLabel}
+          onSelect={history.onSelect}
+          onRemove={history.onRemove}
+          onClear={history.onClear}
+          triggerClassName="ml-1"
+          contentAlign="start"
+        />
+      ) : (
+        <Search className="size-4 ml-2 text-muted-foreground" />
+      )}
       <Input
         ref={ref}
         placeholder={placeholder ?? t`Search`}
