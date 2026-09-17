@@ -1,5 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { LucideIcon, X } from 'lucide-react';
+import { ChevronDown, LucideIcon, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/custom/ui/button';
@@ -40,12 +40,16 @@ export function ClauseHistoryPopover({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         className={cn(
-          'flex size-7 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+          'relative flex size-7 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-accent-foreground',
           triggerClassName,
         )}
         aria-label={ariaLabel}
       >
         <Icon className="size-4" />
+        <ChevronDown
+          aria-hidden
+          className='pointer-events-none absolute right-0 bottom-1.5 size-2.5'
+        />
       </PopoverTrigger>
       <PopoverContent
         align={contentAlign}
