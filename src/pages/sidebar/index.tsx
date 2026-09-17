@@ -3,12 +3,16 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { invoke } from '@tauri-apps/api/core';
 import { History, X } from 'lucide-react';
 import { nanoid } from 'nanoid';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { getDB } from '@/api';
+import { useRevealInSidebar } from '@/hooks/useRevealInSidebar';
+import { isLocatableTab } from '@/lib/revealInSidebar';
 import { SideToolbar } from '@/pages/sidebar/SideToolbar';
 import { useDBListStore } from '@/stores/dbList';
 import { useDbSearchHistoryStore } from '@/stores/dbSearchHistory';
+import { useQuerySessionStore } from '@/stores/querySession';
+import { getEffectiveTab } from '@/stores/reveal';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 
 import { SearchInput } from '@/components/custom/search';
@@ -50,7 +54,7 @@ function useInitOpenFiles() {
   }, []);
 }
 
-export function DBTree() {
+export function DBTree({ panelActive = true }: { panelActive?: boolean }) {
   const { t } = useLingui();
   const dbList = useDBListStore((s) => s.dbList);
   const history = useDbSearchHistoryStore((s) => s.terms);
@@ -64,12 +68,34 @@ export function DBTree() {
   const [historyOpen, setHistoryOpen] = useState(false);
 
   const treeRef = useRef<TreeInstance<unknown>>(null);
+  const reveal = useRevealInSidebar();
+  const prepareReveal = useCallback(() => {
+    setSearch('');
+  }, []);
+  const activeTab = useTabsStore((s) =>
+    s.currentId ? s.tabs[s.currentId] : undefined,
+  );
+  // Result sub-tabs are tracked per-editor, not in the main tab store.
+  const activeResultKey = useQuerySessionStore((s) =>
+    activeTab?.type === 'editor'
+      ? (s.byEditor[activeTab.id]?.activeKey ?? null)
+      : null,
+  );
+  const effectiveTab = useMemo(
+    () => getEffectiveTab(activeTab, activeResultKey),
+    [activeTab, activeResultKey],
+  );
 
   const handleExpandAll = () => {
     treeRef.current?.expandAll();
   };
   const handleCollapseAll = () => {
     treeRef.current?.collapseAll();
+  };
+  const handleRevealCurrentTab = () => {
+    if (effectiveTab) {
+      reveal(effectiveTab);
+    }
   };
 
   const commitSearch = (term: string) => {
@@ -82,12 +108,16 @@ export function DBTree() {
   };
 
   return (
-    <div className="h-full overflow-hidden flex flex-col">
-      <SideToolbar
-        onExpandAll={handleExpandAll}
-        onCollapseAll={handleCollapseAll}
-      />
-      <div className="bg-background/40">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+      <div className="shrink-0">
+        <SideToolbar
+          onExpandAll={handleExpandAll}
+          onCollapseAll={handleCollapseAll}
+          onRevealCurrentTab={handleRevealCurrentTab}
+          revealDisabled={!isLocatableTab(effectiveTab)}
+        />
+      </div>
+      <div className="shrink-0 bg-background/40">
         <div className="relative">
           <SearchInput
             value={search}
@@ -170,7 +200,15 @@ export function DBTree() {
           </Popover>
         </div>
       </div>
-      <TreeView dbList={dbList} search={search} ref={treeRef} />
+      <div className="min-h-0 flex-1 overflow-hidden">
+        <TreeView
+          dbList={dbList}
+          search={search}
+          ref={treeRef}
+          revealActive={panelActive}
+          onPrepareReveal={prepareReveal}
+        />
+      </div>
     </div>
   );
 }

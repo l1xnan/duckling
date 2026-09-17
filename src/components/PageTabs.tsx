@@ -45,6 +45,7 @@ import { Input } from '@/components/custom/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/custom/ui/tabs';
 import { useTabDragSession } from '@/components/tabDragSession';
 import { openPath } from '@/api';
+import { isLocatableTab } from '@/lib/revealInSidebar';
 import { isScratchPath, removeScratch } from '@/lib/scratchSql';
 import { cn } from '@/lib/utils';
 import { docsAtom, favoriteAtom } from '@/stores/app';
@@ -94,11 +95,13 @@ export function TabItemContextMenu({
   tab,
   onRemove,
   onRemoveOther,
+  onRevealInSidebar,
   children,
 }: PropsWithChildren<{
   tab: TabContextType;
   onRemove: (key: string) => void;
   onRemoveOther: (key: string) => void;
+  onRevealInSidebar?: (tab: TabContextType) => void;
 }>) {
   const setFavorite = useSetAtom(favoriteAtom);
   const setDocs = useSetAtom(docsAtom);
@@ -172,6 +175,16 @@ export function TabItemContextMenu({
           >
             <Trans>Favorite</Trans>
           </ContextMenuItem>
+
+          {onRevealInSidebar && isLocatableTab(tab) ? (
+            <ContextMenuItem
+              onClick={async () => {
+                onRevealInSidebar(tab);
+              }}
+            >
+              <Trans>Reveal in sidebar</Trans>
+            </ContextMenuItem>
+          ) : null}
 
           <ContextMenuSeparator />
 
@@ -489,6 +502,7 @@ export function PageTabs({
 export interface TabItemProps {
   tab: TabContextType;
   onRemove: (id: string) => void;
+  onRevealInSidebar?: (tab: TabContextType) => void;
 }
 
 type TabItemMenuProps = {

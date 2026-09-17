@@ -127,7 +127,7 @@ msgstr "Add column"
 msgid "Add data"
 msgstr "Add data"
 
-#: src/pages/sidebar/SideToolbar.tsx:106
+#: src/pages/sidebar/SideToolbar.tsx:118
 msgid "Add data folder"
 msgstr "Add data folder"
 
@@ -220,7 +220,7 @@ msgstr "Calculate"
 msgid "Calls the external <0>sqlfmt</0> binary via Tauri."
 msgstr "Calls the external <0>sqlfmt</0> binary via Tauri."
 
-#: src/components/PageTabs.tsx:715
+#: src/components/PageTabs.tsx:729
 #: src/components/views/ComputedColumnsDialog.tsx:127
 #: src/components/views/ExportDialog.tsx:423
 #: src/components/views/MacroRunDialog.tsx:186
@@ -239,6 +239,10 @@ msgstr "Calls the external <0>sqlfmt</0> binary via Tauri."
 #: src/pages/sidebar/SqlCode.tsx:578
 msgid "Cancel"
 msgstr "Cancel"
+
+#: src/pages/sidebar/index.tsx:166
+msgid "Cannot find this tab in the database explorer"
+msgstr "Cannot find this tab in the database explorer"
 
 #: src/components/views/SchemaView.tsx:224
 #: src/components/views/SchemaView.tsx:374
@@ -298,7 +302,7 @@ msgstr "China Mirror"
 msgid "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 msgstr "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 
-#: src/pages/sidebar/index.tsx:125
+#: src/pages/sidebar/index.tsx:230
 msgid "Clear"
 msgstr "Clear"
 
@@ -343,7 +347,7 @@ msgstr "Click to update"
 msgid "ClickHouse"
 msgstr "ClickHouse"
 
-#: src/components/PageTabs.tsx:139
+#: src/components/PageTabs.tsx:142
 #: src/components/ui/sheet.tsx:75
 #: src/components/views/ValueViewer.tsx:330
 msgid "Close"
@@ -353,7 +357,7 @@ msgstr "Close"
 msgid "Close idle database sessions (connection pools, SSH tunnels) after this many minutes. Use 0 to keep sessions until the app exits or the connection is removed."
 msgstr "Close idle database sessions (connection pools, SSH tunnels) after this many minutes. Use 0 to keep sessions until the app exits or the connection is removed."
 
-#: src/components/PageTabs.tsx:146
+#: src/components/PageTabs.tsx:149
 msgid "Close Other"
 msgstr "Close Other"
 
@@ -374,7 +378,7 @@ msgstr "Code Font Family"
 msgid "Code Font Size"
 msgstr "Code Font Size"
 
-#: src/pages/sidebar/SideToolbar.tsx:98
+#: src/pages/sidebar/SideToolbar.tsx:103
 msgid "Collapse All"
 msgstr "Collapse All"
 
@@ -450,7 +454,7 @@ msgstr "Connection properties"
 msgid "Connection successful"
 msgstr "Connection successful"
 
-#: src/components/PageTabs.tsx:183
+#: src/components/PageTabs.tsx:196
 #: src/components/tables/CanvasTable.tsx:102
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:98
 #: src/pages/sidebar/context-menu/SchemaContextMenu.tsx:51
@@ -548,7 +552,7 @@ msgstr "Data type case"
 msgid "Database"
 msgstr "Database"
 
-#: src/pages/sidebar/SideToolbar.tsx:93
+#: src/pages/sidebar/SideToolbar.tsx:98
 msgid "Database Explorer"
 msgstr "Database Explorer"
 
@@ -564,7 +568,7 @@ msgstr "Databases"
 msgid "DB sessions"
 msgstr "DB sessions"
 
-#: src/pages/sidebar/SideToolbar.tsx:113
+#: src/pages/sidebar/SideToolbar.tsx:125
 msgid "DB setting"
 msgstr "DB setting"
 
@@ -585,7 +589,7 @@ msgstr "default: {0}"
 msgid "Default: {defaultPerPage}"
 msgstr "Default: {defaultPerPage}"
 
-#: src/components/PageTabs.tsx:213
+#: src/components/PageTabs.tsx:226
 #: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:153
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:101
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:274
@@ -681,7 +685,7 @@ msgstr "Duckling"
 msgid "e.g. Production bastion"
 msgstr "e.g. Production bastion"
 
-#: src/components/PageTabs.tsx:605
+#: src/components/PageTabs.tsx:619
 #: src/hotkeys/registry.ts:155
 #: src/pages/settings/AppSetting.tsx:100
 msgid "Editor"
@@ -749,7 +753,7 @@ msgstr "Est. result"
 msgid "Expand all"
 msgstr "Expand all"
 
-#: src/pages/sidebar/SideToolbar.tsx:95
+#: src/pages/sidebar/SideToolbar.tsx:100
 msgid "Expand All"
 msgstr "Expand All"
 
@@ -780,7 +784,7 @@ msgstr "Export completed"
 msgid "Export Connection"
 msgstr "Export Connection"
 
-#: src/pages/sidebar/SideToolbar.tsx:143
+#: src/pages/sidebar/SideToolbar.tsx:155
 msgid "Export connections"
 msgstr "Export connections"
 
@@ -847,6 +851,10 @@ msgstr "Failed to read memory log"
 msgid "Failed to refresh databases"
 msgstr "Failed to refresh databases"
 
+#: src/pages/sidebar/index.tsx:167
+msgid "Failed to reveal this tab in the database explorer"
+msgstr "Failed to reveal this tab in the database explorer"
+
 #: src/pages/settings/DiagnosticsPanel.tsx:104
 msgid "Failed to sample memory"
 msgstr "Failed to sample memory"
@@ -855,7 +863,7 @@ msgstr "Failed to sample memory"
 msgid "Failed to save connection secrets"
 msgstr "Failed to save connection secrets"
 
-#: src/components/PageTabs.tsx:173
+#: src/components/PageTabs.tsx:176
 #: src/pages/sidebar/aside.tsx:183
 #: src/pages/sidebar/Favorite.tsx:96
 msgid "Favorite"
@@ -877,7 +885,7 @@ msgstr "Filter by this value"
 msgid "Filter results…"
 msgstr "Filter results…"
 
-#: src/pages/sidebar/VerticalTabs.tsx:567
+#: src/pages/sidebar/VerticalTabs.tsx:576
 msgid "Flat view"
 msgstr "Flat view"
 
@@ -1034,7 +1042,7 @@ msgstr "Identifier case"
 msgid "Import"
 msgstr "Import"
 
-#: src/pages/sidebar/SideToolbar.tsx:136
+#: src/pages/sidebar/SideToolbar.tsx:148
 msgid "Import connections"
 msgstr "Import connections"
 
@@ -1264,7 +1272,7 @@ msgstr "Memory log cleared"
 msgid "Min"
 msgstr "Min"
 
-#: src/pages/sidebar/SideToolbar.tsx:129
+#: src/pages/sidebar/SideToolbar.tsx:141
 msgid "More actions"
 msgstr "More actions"
 
@@ -1308,7 +1316,7 @@ msgstr "Muted foreground"
 msgid "N/A"
 msgstr "N/A"
 
-#: src/components/PageTabs.tsx:704
+#: src/components/PageTabs.tsx:718
 #: src/pages/settings/SshProfilesForm.tsx:244
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:257
 #: src/pages/sidebar/dialog/RenameDialog.tsx:51
@@ -1355,7 +1363,7 @@ msgstr "No notifications yet"
 msgid "No query history yet"
 msgstr "No query history yet"
 
-#: src/pages/sidebar/index.tsx:131
+#: src/pages/sidebar/index.tsx:236
 msgid "No recent searches"
 msgstr "No recent searches"
 
@@ -1383,7 +1391,7 @@ msgstr "No SQL to export"
 msgid "No SSH profiles yet."
 msgstr "No SSH profiles yet."
 
-#: src/components/PageTabs.tsx:438
+#: src/components/PageTabs.tsx:451
 msgid "No tabs in this pane"
 msgstr "No tabs in this pane"
 
@@ -1429,7 +1437,7 @@ msgstr "Official GitHub Releases endpoint"
 msgid "Official uses GitHub Releases. China Mirror goes through gh-proxy.com for better connectivity in mainland China."
 msgstr "Official uses GitHub Releases. China Mirror goes through gh-proxy.com for better connectivity in mainland China."
 
-#: src/components/PageTabs.tsx:718
+#: src/components/PageTabs.tsx:732
 #: src/pages/sidebar/dialog/ConfigDialog.tsx:147
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:1212
 #: src/pages/sidebar/dialog/RenameDialog.tsx:64
@@ -1470,7 +1478,7 @@ msgstr "Open in editor"
 msgid "Open in new editor"
 msgstr "Open in new editor"
 
-#: src/components/PageTabs.tsx:202
+#: src/components/PageTabs.tsx:215
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:255
 msgid "Open Path"
 msgstr "Open Path"
@@ -1618,7 +1626,7 @@ msgstr "Protect secrets with a master password. Without this option, passwords a
 msgid "Proxy"
 msgstr "Proxy"
 
-#: src/components/PageTabs.tsx:611
+#: src/components/PageTabs.tsx:625
 msgid "Query"
 msgstr "Query"
 
@@ -1660,8 +1668,8 @@ msgstr "Read csv file parameters, see: <0>csv parameters</0>"
 msgid "Ready"
 msgstr "Ready"
 
-#: src/pages/sidebar/index.tsx:107
-#: src/pages/sidebar/index.tsx:114
+#: src/pages/sidebar/index.tsx:209
+#: src/pages/sidebar/index.tsx:219
 msgid "Recent searches"
 msgstr "Recent searches"
 
@@ -1689,12 +1697,12 @@ msgstr "Refresh"
 msgid "Refresh database list"
 msgstr "Refresh database list"
 
-#: src/pages/sidebar/SideToolbar.tsx:120
+#: src/pages/sidebar/SideToolbar.tsx:132
 msgid "Refresh DB"
 msgstr "Refresh DB"
 
 #: src/components/views/PivotDialog.tsx:774
-#: src/pages/sidebar/index.tsx:148
+#: src/pages/sidebar/index.tsx:254
 msgid "Remove"
 msgstr "Remove"
 
@@ -1706,8 +1714,8 @@ msgstr "Remove computed column"
 msgid "Remove measure"
 msgstr "Remove measure"
 
-#: src/components/PageTabs.tsx:206
-#: src/components/PageTabs.tsx:695
+#: src/components/PageTabs.tsx:219
+#: src/components/PageTabs.tsx:709
 #: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:123
 #: src/pages/sidebar/dialog/RenameDialog.tsx:42
 msgid "Rename"
@@ -1763,12 +1771,20 @@ msgstr "Result{baseCount}"
 msgid "Results"
 msgstr "Results"
 
+#: src/pages/sidebar/SideToolbar.tsx:107
+msgid "Reveal current tab"
+msgstr "Reveal current tab"
+
+#: src/components/PageTabs.tsx:185
+msgid "Reveal in sidebar"
+msgstr "Reveal in sidebar"
+
 #: src/pages/sidebar/aside.tsx:92
 #: src/pages/sidebar/aside.tsx:246
 msgid "Right"
 msgstr "Right"
 
-#: src/pages/sidebar/VerticalTabs.tsx:585
+#: src/pages/sidebar/VerticalTabs.tsx:594
 msgid "Right align tab text"
 msgstr "Right align tab text"
 
@@ -1859,12 +1875,12 @@ msgstr "Save values as @vars comment above SQL"
 msgid "Saved"
 msgstr "Saved"
 
-#: src/components/PageTabs.tsx:609
+#: src/components/PageTabs.tsx:623
 msgid "Schema"
 msgstr "Schema"
 
 #: src/components/custom/search.tsx:22
-#: src/components/PageTabs.tsx:603
+#: src/components/PageTabs.tsx:617
 #: src/components/views/SchemaView.tsx:133
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:252
 msgid "Search"
@@ -2095,8 +2111,8 @@ msgstr "Software Update"
 msgid "Some shortcuts share the same keys within a scope. Resolve conflicts by reassigning one of them."
 msgstr "Some shortcuts share the same keys within a scope. Resolve conflicts by reassigning one of them."
 
-#: src/components/PageTabs.tsx:457
-#: src/components/PageTabs.tsx:476
+#: src/components/PageTabs.tsx:470
+#: src/components/PageTabs.tsx:489
 #: src/components/views/ValueViewer.tsx:384
 msgid "Something went wrong"
 msgstr "Something went wrong"
@@ -2121,11 +2137,11 @@ msgstr "Specifies the string that separates columns within each row (line) of th
 msgid "Specifies the string that should appear before a data character sequence that matches the quote value."
 msgstr "Specifies the string that should appear before a data character sequence that matches the quote value."
 
-#: src/components/PageTabs.tsx:163
+#: src/components/PageTabs.tsx:166
 msgid "Split Down"
 msgstr "Split Down"
 
-#: src/components/PageTabs.tsx:156
+#: src/components/PageTabs.tsx:159
 msgid "Split Right"
 msgstr "Split Right"
 
@@ -2262,7 +2278,7 @@ msgstr "System"
 msgid "Tab width"
 msgstr "Tab width"
 
-#: src/components/PageTabs.tsx:607
+#: src/components/PageTabs.tsx:621
 #: src/components/views/CountByColumnDialog.tsx:273
 #: src/components/views/CountByQueryDialog.tsx:239
 msgid "Table"
@@ -2278,7 +2294,7 @@ msgstr "Table Font Size"
 
 #: src/hotkeys/registry.ts:156
 #: src/pages/sidebar/aside.tsx:186
-#: src/pages/sidebar/VerticalTabs.tsx:560
+#: src/pages/sidebar/VerticalTabs.tsx:569
 msgid "Tabs"
 msgstr "Tabs"
 
@@ -2357,7 +2373,7 @@ msgstr "Total WS"
 msgid "Transpose"
 msgstr "Transpose"
 
-#: src/pages/sidebar/VerticalTabs.tsx:576
+#: src/pages/sidebar/VerticalTabs.tsx:585
 msgid "Tree view"
 msgstr "Tree view"
 

@@ -10,6 +10,7 @@ import {
 } from '@headless-tree/core';
 import { useTree } from '@headless-tree/react';
 import { Virtualizer, useVirtualizer } from '@tanstack/react-virtual';
+import { useLingui } from '@lingui/react/macro';
 import { ChevronRight } from 'lucide-react';
 import React, {
   PropsWithChildren,
@@ -20,10 +21,17 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { toast } from 'sonner';
 
 import { DelayedTooltip } from '@/components/custom/tooltip';
+import {
+  nextFrame,
+  resolveDbNodeTarget,
+  revealNodeInTree,
+} from '@/lib/revealInSidebar';
 import { isBrowsablePathNode } from '@/lib/treeNode';
 import { cn } from '@/lib/utils';
+import { DB_TREE_ROOT, buildDatabaseTreeData } from '@/lib/dbTreeData';
 import { ConnectionContextMenu } from '@/pages/sidebar/context-menu/ConnectionContextMenu';
 import { SchemaContextMenu } from '@/pages/sidebar/context-menu/SchemaContextMenu';
 import { TableContextMenu } from '@/pages/sidebar/context-menu/TableContextMenu';
@@ -33,9 +41,10 @@ import {
   useDBListStore,
   useSelectedNodeStore,
 } from '@/stores/dbList';
+import { useRevealRequestStore } from '@/stores/reveal';
 import { TableContextType, useTabsStore } from '@/stores/tabs';
 import { NodeElementType } from '@/types';
-import { Node3Type, convertId, convertTreeToMap, filterTree } from '@/utils';
+import { Node3Type, convertTreeToMap, filterTree } from '@/utils';
 
 import { getTypeIcon } from './Icons';
 
@@ -213,12 +222,14 @@ const Inner = forwardRef<
   );
 });
 
-const ROOT = '__root__';
+const ROOT = DB_TREE_ROOT;
 
 interface TreeViewInnerProps {
   data: Record<string, Node3Type>;
   onSelectNode: (item: ItemInstance<Node3Type>) => void;
   onDoubleClickNode: (item: ItemInstance<Node3Type>) => void;
+  onPrepareReveal?: () => void;
+  revealActive?: boolean;
   ref?: React.Ref<unknown>;
 }
 
@@ -226,9 +237,17 @@ export function TreeViewInner({
   data,
   onSelectNode,
   onDoubleClickNode,
+  onPrepareReveal,
+  revealActive = true,
   ref,
 }: TreeViewInnerProps) {
+  const { t } = useLingui();
+  const revealRequest = useRevealRequestStore((s) => s.request);
+  const consumeRequest = useRevealRequestStore((s) => s.consumeRequest);
   const virtualizer = useRef<Virtualizer<HTMLDivElement, Element> | null>(null);
+  const treeInstanceRef = useRef<TreeInstance<Node3Type> | null>(null);
+  const dataRef = useRef(data);
+  dataRef.current = data;
   const [state, setState] = useState({});
 
   const customClickBehavior: FeatureImplementation = {
@@ -263,7 +282,9 @@ export function TreeViewInner({
     getItemName: (item) => item.getItemData()?.name,
     isItemFolder: (item) => !!item.getItemData()?.children,
     scrollToItem: (item) => {
-      virtualizer.current?.scrollToIndex(item.getItemMeta().index);
+      virtualizer.current?.scrollToIndex(item.getItemMeta().index, {
+        align: 'center',
+      });
     },
     dataLoader: {
       getItem: (id: string) => data[id],
@@ -278,46 +299,100 @@ export function TreeViewInner({
       customClickBehavior,
     ],
   });
+  treeInstanceRef.current = tree;
 
   useEffect(() => {
     tree.rebuildTree();
   }, [data]);
 
+  useEffect(() => {
+    if (!revealRequest || !revealActive) {
+      return;
+    }
+    const { tab, nonce } = revealRequest;
+    let cancelled = false;
+    void (async () => {
+      let stage: 'resolve' | 'expand' = 'resolve';
+      try {
+        onPrepareReveal?.();
+        await nextFrame();
+        await nextFrame();
+        const dbList = useDBListStore.getState().dbList;
+        const target = resolveDbNodeTarget(tab, dbList);
+        const treeInstance = treeInstanceRef.current;
+        let treeData = dataRef.current;
+        for (let attempt = 0; attempt < 8 && target && !treeData[target.nodeId]; attempt++) {
+          await nextFrame();
+          treeData = dataRef.current;
+        }
+        if (!target || !treeInstance || !treeData[target.nodeId]) {
+          throw new Error('not found');
+        }
+        if (cancelled) {
+          return;
+        }
+        stage = 'expand';
+        const item = await revealNodeInTree(
+          treeInstance,
+          target.nodeId,
+          treeData,
+          (index) => {
+            virtualizer.current?.scrollToIndex(index, { align: 'center' });
+          },
+        );
+        const nodeData = item.getItemData()?.data;
+        if (nodeData) {
+          useSelectedNodeStore
+            .getState()
+            .setSelectedNode(nodeData as unknown as NodeContextType);
+        }
+      } catch {
+        if (!cancelled) {
+          toast.warning(
+            stage === 'resolve'
+              ? t`Cannot find this tab in the database explorer`
+              : t`Failed to reveal this tab in the database explorer`,
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          consumeRequest(nonce);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [consumeRequest, onPrepareReveal, revealActive, revealRequest, t]);
+
   useImperativeHandle(ref, () => tree);
-  return <Inner tree={tree} ref={virtualizer} />;
+  return (
+    <div className="h-full min-h-0 overflow-hidden">
+      <Inner tree={tree} ref={virtualizer} />
+    </div>
+  );
 }
 
 interface TreeViewProps {
   dbList: DBType[];
   search?: string;
+  onPrepareReveal?: () => void;
+  revealActive?: boolean;
   ref?: React.Ref<unknown>;
 }
 
-export function TreeView({ dbList, search, ref }: TreeViewProps) {
+export function TreeView({
+  dbList,
+  search,
+  onPrepareReveal,
+  revealActive = true,
+  ref,
+}: TreeViewProps) {
   const updateTab = useTabsStore((s) => s.update);
   const setSelectedNode = useSelectedNodeStore((s) => s.setSelectedNode);
 
   const treeData = useMemo(() => {
-    const _treeData = {
-      id: ROOT,
-      children: dbList.map((db) => {
-        let treeData = convertId(db.data, db.id, db.displayName);
-        // Apply visibleDatabases filter if set
-        if (db.visibleDatabases && db.visibleDatabases.length > 0) {
-          treeData = {
-            ...treeData,
-            children: treeData.children?.filter(
-              (child) => db.visibleDatabases!.includes(child.name)
-            ),
-          };
-        }
-        return {
-          ...treeData,
-          loading: db.loading,
-          icon: db.dialect,
-        };
-      }),
-    };
+    const _treeData = buildDatabaseTreeData(dbList);
 
     return convertTreeToMap(
       filterTree(_treeData as NodeElementType, search) as NodeElementType,
@@ -362,11 +437,15 @@ export function TreeView({ dbList, search, ref }: TreeViewProps) {
     }
   };
   return (
-    <TreeViewInner
-      data={treeData}
-      ref={ref}
-      onSelectNode={handleSelectNode}
-      onDoubleClickNode={handleDoubleClickNode}
-    />
+    <div className="h-full min-h-0 overflow-hidden">
+      <TreeViewInner
+        data={treeData}
+        ref={ref}
+        revealActive={revealActive}
+        onPrepareReveal={onPrepareReveal}
+        onSelectNode={handleSelectNode}
+        onDoubleClickNode={handleDoubleClickNode}
+      />
+    </div>
   );
 }

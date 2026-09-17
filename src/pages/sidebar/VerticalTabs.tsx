@@ -15,6 +15,7 @@ import {
   resolveVerticalTabDrop,
   setVerticalTabGrabOffsetY,
 } from '@/components/verticalTabDrag';
+import { useRevealInSidebar } from '@/hooks/useRevealInSidebar';
 import { cn } from '@/lib/utils';
 import { useDBListStore } from '@/stores/dbList';
 import { TabContextType, useTabsStore } from '@/stores/tabs';
@@ -45,6 +46,7 @@ export function Node({
   tab,
   onRemove,
   onRemoveOther,
+  onRevealInSidebar,
   activate,
   onClick,
   visiable = true,
@@ -71,6 +73,7 @@ export function Node({
       tab={tab}
       onRemove={onRemove ?? (() => {})}
       onRemoveOther={onRemoveOther}
+      onRevealInSidebar={onRevealInSidebar}
     >
       <div
         id={`vertical-tab-${tab.id}`}
@@ -187,6 +190,7 @@ function ConnectionGroup({
   activateTab,
   removeTab,
   removeOtherTab,
+  onRevealInSidebar,
   alignEnd = false,
   insertIndicator,
   activeTabId,
@@ -202,6 +206,7 @@ function ConnectionGroup({
   activateTab: (id: string) => void;
   removeTab: (id: string) => void;
   removeOtherTab: (id: string) => void;
+  onRevealInSidebar?: (tab: TabContextType) => void;
   alignEnd?: boolean;
   insertIndicator: InsertIndicator;
   activeTabId: string | null;
@@ -254,6 +259,7 @@ function ConnectionGroup({
               alignEnd={alignEnd}
               onRemove={removeTab}
               onRemoveOther={removeOtherTab}
+              onRevealInSidebar={onRevealInSidebar}
               activate={tab.id === currentId}
               onClick={() => {
                 activateTab(tab.id);
@@ -353,6 +359,7 @@ function VerticalTabList({
 }) {
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [insertIndicator, setInsertIndicator] = useState<InsertIndicator>(null);
+  const revealInSidebar = useRevealInSidebar();
 
   useDragDropMonitor({
     onDragStart(event) {
@@ -412,6 +419,7 @@ function VerticalTabList({
               visiable
               onRemove={removeTab}
               onRemoveOther={removeOtherTab}
+              onRevealInSidebar={revealInSidebar}
               activate={id === currentId}
               onClick={() => {
                 activateTab(id);
@@ -444,6 +452,7 @@ function VerticalTabList({
           activateTab={activateTab}
           removeTab={removeTab}
           removeOtherTab={removeOtherTab}
+          onRevealInSidebar={revealInSidebar}
           alignEnd={alignEnd}
           insertIndicator={insertIndicator}
           activeTabId={activeTabId}

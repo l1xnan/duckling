@@ -21,6 +21,7 @@ import {
 } from '@/components/views';
 import { SearchView } from '@/components/views/SchemaView';
 import { PageProvider } from '@/hooks/context';
+import { useRevealInSidebar } from '@/hooks/useRevealInSidebar';
 import { findLeafByTab, type PaneLeaf } from '@/stores/tabLayout';
 import {
   SchemaContextType,
@@ -121,6 +122,7 @@ export function Main() {
       focusPane: s.focusPane,
     })),
   );
+  const revealInSidebar = useRevealInSidebar();
 
   const handleDragEnd = useCallback(
     (event: {
@@ -180,6 +182,7 @@ export function Main() {
               tab={tab}
               onRemove={removeTab}
               onRemoveOther={removeOtherTab}
+              onRevealInSidebar={revealInSidebar}
             >
               <CloseableItem tab={tab} onRemove={removeTab} />
             </TabItemContextMenu>
@@ -187,7 +190,7 @@ export function Main() {
         />
       );
     },
-    [activateTab, focusPane, removeOtherTab, removeTab, tabObj],
+    [activateTab, focusPane, removeOtherTab, removeTab, revealInSidebar, tabObj],
   );
 
   const sensors = useMemo(() => [PointerSensor], []);

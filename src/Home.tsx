@@ -78,7 +78,11 @@ function Home() {
                   key={id}
                   mode={leftPanelId === id ? 'visible' : 'hidden'}
                 >
-                  <Component />
+                  {id === 'database' ? (
+                    <DBTree panelActive={leftPanelId === id} />
+                  ) : (
+                    <Component />
+                  )}
                 </Activity>
               ))}
             </Sidebar>
@@ -99,7 +103,11 @@ function Home() {
                   key={id}
                   mode={rightPanelId === id ? 'visible' : 'hidden'}
                 >
-                  <Component />
+                  {id === 'database' ? (
+                    <DBTree panelActive={rightPanelId === id} />
+                  ) : (
+                    <Component />
+                  )}
                 </Activity>
               ))}
             </Sidebar>

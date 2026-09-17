@@ -10,6 +10,7 @@ import * as dialog from '@tauri-apps/plugin-dialog';
 import {
   ChevronsDownUpIcon,
   ChevronsUpDownIcon,
+  LocateFixed,
   MoreHorizontalIcon,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -39,9 +40,13 @@ import {
 export function SideToolbar({
   onExpandAll,
   onCollapseAll,
+  onRevealCurrentTab,
+  revealDisabled,
 }: {
   onExpandAll: () => void;
   onCollapseAll: () => void;
+  onRevealCurrentTab?: () => void;
+  revealDisabled?: boolean;
 }) {
   const { t } = useLingui();
   const [dbList, appendDB, updateDB] = useDBListStore(
@@ -97,6 +102,13 @@ export function SideToolbar({
           </TooltipButton>
           <TooltipButton tooltip={t`Collapse All`} onClick={onCollapseAll}>
             <ChevronsDownUpIcon />
+          </TooltipButton>
+          <TooltipButton
+            tooltip={t`Reveal current tab`}
+            disabled={revealDisabled}
+            onClick={onRevealCurrentTab}
+          >
+            <LocateFixed />
           </TooltipButton>
         </div>
       </div>
