@@ -1,4 +1,29 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.hoisted(() => {
+  const memory = new Map<string, string>();
+  const localStorage = {
+    getItem: (k: string) => memory.get(k) ?? null,
+    setItem: (k: string, v: string) => {
+      memory.set(k, v);
+    },
+    removeItem: (k: string) => {
+      memory.delete(k);
+    },
+    clear: () => {
+      memory.clear();
+    },
+    key: (_i: number) => null as string | null,
+    get length() {
+      return memory.size;
+    },
+  };
+  Object.defineProperty(globalThis, 'localStorage', {
+    value: localStorage,
+    configurable: true,
+    writable: true,
+  });
+});
 
 import {
   flattenSshTunnelForBackend,
