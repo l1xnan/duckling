@@ -650,10 +650,33 @@ pub fn date_to_days(t: &NaiveDate) -> i32 {
 }
 
 pub fn json_to_arrow<S: Serialize>(rows: &[S], schema: SchemaRef) -> anyhow::Result<RecordBatch> {
-  let mut decoder = ReaderBuilder::new(schema).build_decoder()?;
+  if rows.is_empty() {
+    return Ok(RecordBatch::new_empty(schema));
+  }
+  let mut decoder = ReaderBuilder::new(schema.clone()).build_decoder()?;
   decoder.serialize(rows)?;
-  let batch = decoder.flush()?.unwrap();
+  let batch = decoder
+    .flush()?
+    .unwrap_or_else(|| RecordBatch::new_empty(schema));
   Ok(batch)
+}
+
+#[cfg(test)]
+mod json_to_arrow_tests {
+  use super::*;
+  use std::sync::Arc;
+
+  #[test]
+  fn empty_rows_returns_empty_batch_with_schema() {
+    let schema = Arc::new(Schema::new(vec![
+      Field::new("a", DataType::LargeUtf8, true),
+      Field::new("b", DataType::Int64, true),
+    ]));
+    let batch = json_to_arrow(&[] as &[serde_json::Value], schema.clone()).unwrap();
+    assert_eq!(batch.num_rows(), 0);
+    assert_eq!(batch.num_columns(), 2);
+    assert_eq!(batch.schema(), schema);
+  }
 }
 
 /// Max bytes kept per string/binary cell when sending a grid preview to the UI.
