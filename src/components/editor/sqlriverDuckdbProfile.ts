@@ -2,10 +2,10 @@ import {
   POSTGRES_PROFILE,
   type DialectProfile,
   type DialectStatementHandler,
-} from 'holywell';
+} from 'sqlriver';
 
 /**
- * DuckDB statements holywell cannot fully format. Register them as
+ * DuckDB statements sqlriver cannot fully format. Register them as
  * statement starters + verbatim passthrough so top-level forms like
  * `PIVOT …` / `FROM …` do not fail tokenization as identifiers.
  */
@@ -47,8 +47,8 @@ const verbatimHandler: DialectStatementHandler = {
 
 let cached: DialectProfile | null = null;
 
-/** Custom holywell profile optimized for DuckDB (based on postgres). */
-export function getDuckdbHolywellProfile(): DialectProfile {
+/** Custom sqlriver profile optimized for DuckDB (based on postgres). */
+export function getDuckdbSqlriverProfile(): DialectProfile {
   if (cached) {
     return cached;
   }
@@ -86,3 +86,6 @@ export function getDuckdbHolywellProfile(): DialectProfile {
 
   return cached;
 }
+
+/** @deprecated Use `getDuckdbSqlriverProfile` (holywell was renamed to sqlriver). */
+export const getDuckdbHolywellProfile = getDuckdbSqlriverProfile;

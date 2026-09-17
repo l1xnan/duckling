@@ -1,19 +1,20 @@
-import { formatSQL as formatWithHolywell, type SQLDialect } from 'holywell';
+import { formatSQL as formatWithSqlriver, type SQLDialect } from 'sqlriver';
 import { format as formatWithSqlFormatter, type SqlLanguage } from 'sql-formatter';
 
 import { formatSqlWithSqlfmt } from '@/api';
-import { getDuckdbHolywellProfile } from '@/components/editor/holywellDuckdbProfile';
+import { getDuckdbSqlriverProfile } from '@/components/editor/sqlriverDuckdbProfile';
 import { DialectType } from '@/stores/dbList';
 import {
   SqlFormatterEngine,
-  resolveHolywellOptions,
+  normalizeSqlFormatterEngine,
   resolveSqlFormatterOptions,
   resolveSqlfmtOptions,
+  resolveSqlriverOptions,
   useSettingStore,
 } from '@/stores/setting';
 
 export type FormatSqlOptions = {
-  engine?: SqlFormatterEngine;
+  engine?: SqlFormatterEngine | 'holywell';
   dialect?: DialectType | string | null;
 };
 
@@ -40,8 +41,8 @@ export function toSqlFormatterLanguage(
   }
 }
 
-/** Map app connection dialect → holywell dialect / custom profile. */
-export function toHolywellDialect(
+/** Map app connection dialect → sqlriver dialect / custom profile. */
+export function toSqlriverDialect(
   dialect?: DialectType | string | null,
 ): SQLDialect {
   switch (dialect) {
@@ -53,19 +54,23 @@ export function toHolywellDialect(
     case 'quack':
     case 'folder':
     case 'file':
-      return getDuckdbHolywellProfile();
+      return getDuckdbSqlriverProfile();
     default:
       return 'ansi';
   }
 }
+
+/** @deprecated Use `toSqlriverDialect` (holywell was renamed to sqlriver). */
+export const toHolywellDialect = toSqlriverDialect;
 
 export async function formatSqlText(
   text: string,
   options: FormatSqlOptions = {},
 ): Promise<string> {
   const settings = useSettingStore.getState();
-  const resolved =
-    options.engine ?? settings.sql_formatter_engine ?? 'sql-formatter';
+  const resolved = normalizeSqlFormatterEngine(
+    options.engine ?? settings.sql_formatter_engine ?? 'sql-formatter',
+  );
 
   if (resolved === 'shandy-sqlfmt') {
     const sqlfmt = resolveSqlfmtOptions(settings);
@@ -76,12 +81,15 @@ export async function formatSqlText(
     });
   }
 
-  if (resolved === 'holywell') {
-    const holywell = resolveHolywellOptions(settings.holywell_options);
-    return formatWithHolywell(text, {
-      dialect: toHolywellDialect(options.dialect),
-      maxLineLength: holywell.maxLineLength,
-      recover: holywell.recover,
+  if (resolved === 'sqlriver') {
+    const sqlriver = resolveSqlriverOptions(
+      settings.sqlriver_options,
+      settings.holywell_options,
+    );
+    return formatWithSqlriver(text, {
+      dialect: toSqlriverDialect(options.dialect),
+      maxLineLength: sqlriver.maxLineLength,
+      recover: sqlriver.recover,
     });
   }
 

@@ -69,19 +69,20 @@ import {
 } from '@/lib/pagination';
 import {
   CsvParam,
-  HolywellOptions,
   LocalePreference,
   SettingState,
   SqlFormatterOptions,
   SqlfmtOptions,
-  defaultHolywellOptions,
+  SqlriverOptions,
   defaultSettings,
   defaultSqlFormatterOptions,
   defaultSqlfmtOptions,
-  resolveHolywellOptions,
+  defaultSqlriverOptions,
+  normalizeSqlFormatterEngine,
   resolveSessionIdleTtlMinutes,
   resolveSqlFormatterOptions,
   resolveSqlfmtOptions,
+  resolveSqlriverOptions,
   sessionIdleTtlMinutesToSecs,
   setSettings,
   sqlCaseOptions,
@@ -483,7 +484,7 @@ function Profile() {
 type SqlFormatSettings = {
   sql_formatter_engine: NonNullable<SettingState['sql_formatter_engine']>;
   sql_formatter_options: SqlFormatterOptions;
-  holywell_options: HolywellOptions;
+  sqlriver_options: SqlriverOptions;
   sqlfmt_options: SqlfmtOptions;
 };
 
@@ -497,12 +498,16 @@ function SqlFormatForm() {
   const settings = useSettingStore();
   const form = useForm<SqlFormatSettings>({
     defaultValues: {
-      sql_formatter_engine:
+      sql_formatter_engine: normalizeSqlFormatterEngine(
         settings.sql_formatter_engine ?? defaultSettings.sql_formatter_engine!,
+      ),
       sql_formatter_options: resolveSqlFormatterOptions(
         settings.sql_formatter_options,
       ),
-      holywell_options: resolveHolywellOptions(settings.holywell_options),
+      sqlriver_options: resolveSqlriverOptions(
+        settings.sqlriver_options,
+        settings.holywell_options,
+      ),
       sqlfmt_options: resolveSqlfmtOptions(settings),
     },
   });
@@ -568,9 +573,11 @@ function SqlFormatForm() {
   const onSubmit = (data: SqlFormatSettings) => {
     setSettings((s) => ({
       ...s,
-      sql_formatter_engine: data.sql_formatter_engine,
+      sql_formatter_engine: normalizeSqlFormatterEngine(data.sql_formatter_engine),
       sql_formatter_options: data.sql_formatter_options,
-      holywell_options: data.holywell_options,
+      sqlriver_options: data.sqlriver_options,
+      // Keep legacy key in sync so older builds still read the same values.
+      holywell_options: data.sqlriver_options,
       sqlfmt_options: data.sqlfmt_options,
       // Keep legacy key in sync for older readers / migration.
       sqlfmt_path: data.sqlfmt_options.path,
@@ -586,7 +593,9 @@ function SqlFormatForm() {
             name="sql_formatter_engine"
             render={({ field }) => {
               const selected =
-                sqlFormatterEngines.find((i) => i.id === field.value) ??
+                sqlFormatterEngines.find(
+                  (i) => i.id === normalizeSqlFormatterEngine(field.value),
+                ) ??
                 sqlFormatterEngines[0] ??
                 null;
 
@@ -1025,11 +1034,11 @@ function SqlFormatForm() {
             </div>
           ) : null}
 
-          {formatterEngine === 'holywell' ? (
+          {normalizeSqlFormatterEngine(formatterEngine) === 'sqlriver' ? (
             <div className="space-y-4 rounded-md border p-3">
               <div>
                 <Label className="text-sm font-medium">
-                  <Trans>holywell options</Trans>
+                  <Trans>sqlriver options</Trans>
                 </Label>
                 <p className="text-xs text-muted-foreground mt-1">
                   <Trans>
@@ -1039,7 +1048,7 @@ function SqlFormatForm() {
               </div>
               <FormField
                 control={form.control}
-                name="holywell_options.maxLineLength"
+                name="sqlriver_options.maxLineLength"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
@@ -1055,7 +1064,7 @@ function SqlFormatForm() {
                           field.onChange(
                             numberFromInput(
                               e.target.value,
-                              defaultHolywellOptions.maxLineLength,
+                              defaultSqlriverOptions.maxLineLength,
                             ),
                           )
                         }
@@ -1069,7 +1078,7 @@ function SqlFormatForm() {
               />
               <FormField
                 control={form.control}
-                name="holywell_options.recover"
+                name="sqlriver_options.recover"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-md border px-3 py-2">
                     <div className="space-y-0.5">

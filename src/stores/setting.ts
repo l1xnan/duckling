@@ -18,7 +18,10 @@ export type CsvParam = {
   quote?: string;
 };
 
-export type SqlFormatterEngine = 'sql-formatter' | 'holywell' | 'shandy-sqlfmt';
+export type SqlFormatterEngine = 'sql-formatter' | 'sqlriver' | 'shandy-sqlfmt';
+
+/** @deprecated `holywell` was renamed to `sqlriver`. Persisted values are migrated on read. */
+export type LegacySqlFormatterEngine = SqlFormatterEngine | 'holywell';
 
 export type SqlCaseOption = 'preserve' | 'upper' | 'lower';
 export type SqlIndentStyle = 'standard' | 'tabularLeft' | 'tabularRight';
@@ -40,11 +43,14 @@ export type SqlFormatterOptions = {
   newlineBeforeSemicolon: boolean;
 };
 
-/** Options for the `holywell` engine. */
-export type HolywellOptions = {
+/** Options for the `sqlriver` engine. */
+export type SqlriverOptions = {
   maxLineLength: number;
   recover: boolean;
 };
+
+/** @deprecated Use `SqlriverOptions` (holywell was renamed to sqlriver). */
+export type HolywellOptions = SqlriverOptions;
 
 export type SqlfmtDialect = 'polyglot' | 'clickhouse';
 
@@ -149,13 +155,18 @@ export type SettingState = {
     interval_sec?: number;
   };
   /** SQL formatting engine used by the Monaco editor. */
-  sql_formatter_engine?: SqlFormatterEngine;
+  sql_formatter_engine?: SqlFormatterEngine | 'holywell';
   /**
    * @deprecated Prefer `sqlfmt_options.path`. Kept for persisted settings migration.
    */
   sqlfmt_path?: string;
   sql_formatter_options?: Partial<SqlFormatterOptions>;
-  holywell_options?: Partial<HolywellOptions>;
+  sqlriver_options?: Partial<SqlriverOptions>;
+  /**
+   * @deprecated Use `sqlriver_options`. Kept for persisted settings migration
+   * (holywell was renamed to sqlriver).
+   */
+  holywell_options?: Partial<SqlriverOptions>;
   sqlfmt_options?: Partial<SqlfmtOptions>;
   editor_theme: {
     dark: string;
@@ -188,10 +199,13 @@ export const defaultSqlFormatterOptions: SqlFormatterOptions = {
   newlineBeforeSemicolon: false,
 };
 
-export const defaultHolywellOptions: HolywellOptions = {
+export const defaultSqlriverOptions: SqlriverOptions = {
   maxLineLength: 80,
   recover: true,
 };
+
+/** @deprecated Use `defaultSqlriverOptions`. */
+export const defaultHolywellOptions: SqlriverOptions = defaultSqlriverOptions;
 
 export const defaultSqlfmtOptions: SqlfmtOptions = {
   path: '',
@@ -237,7 +251,8 @@ export const defaultSettings: SettingState = {
   sql_formatter_engine: 'sql-formatter',
   sqlfmt_path: '',
   sql_formatter_options: defaultSqlFormatterOptions,
-  holywell_options: defaultHolywellOptions,
+  sqlriver_options: defaultSqlriverOptions,
+  holywell_options: defaultSqlriverOptions,
   sqlfmt_options: defaultSqlfmtOptions,
   editor_theme: {
     light: 'vitesse-light',
@@ -255,10 +270,39 @@ export function resolveSqlFormatterOptions(
   return { ...defaultSqlFormatterOptions, ...partial };
 }
 
+export function resolveSqlriverOptions(
+  partial?: Partial<SqlriverOptions> | null,
+  legacy?: Partial<SqlriverOptions> | null,
+): SqlriverOptions {
+  return { ...defaultSqlriverOptions, ...legacy, ...partial };
+}
+
+/** @deprecated Use `resolveSqlriverOptions` (holywell was renamed to sqlriver). */
 export function resolveHolywellOptions(
-  partial?: Partial<HolywellOptions> | null,
-): HolywellOptions {
-  return { ...defaultHolywellOptions, ...partial };
+  partial?: Partial<SqlriverOptions> | null,
+): SqlriverOptions {
+  return resolveSqlriverOptions(partial);
+}
+
+/** Map a persisted engine id to the current id (`holywell` → `sqlriver`). */
+export function normalizeSqlFormatterEngine(
+  engine?: string | null,
+): SqlFormatterEngine {
+  if (engine === 'holywell') {
+    return 'sqlriver';
+  }
+  if (
+    engine === 'sql-formatter' ||
+    engine === 'sqlriver' ||
+    engine === 'shandy-sqlfmt'
+  ) {
+    return engine;
+  }
+  const fallback = defaultSettings.sql_formatter_engine;
+  if (fallback === 'holywell') {
+    return 'sqlriver';
+  }
+  return fallback ?? 'sql-formatter';
 }
 
 export function resolveSqlfmtOptions(
@@ -459,8 +503,10 @@ export const useUpdaterSource = () =>
   );
 
 export const useSqlFormatterEngine = () =>
-  useSettingStore(
-    (s) => s.sql_formatter_engine ?? defaultSettings.sql_formatter_engine!,
+  useSettingStore((s) =>
+    normalizeSqlFormatterEngine(
+      s.sql_formatter_engine ?? defaultSettings.sql_formatter_engine!,
+    ),
   );
 
 export const useSqlfmtPath = () =>
@@ -477,8 +523,8 @@ export const sqlFormatterEngines: {
     description: msg`General-purpose SQL formatter`,
   },
   {
-    name: 'holywell',
-    id: 'holywell',
+    name: 'sqlriver',
+    id: 'sqlriver',
     description: msg`Simon Holywell's sqlstyle.guide (river alignment)`,
   },
   {
