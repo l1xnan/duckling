@@ -139,7 +139,7 @@ msgstr "添加字段…"
 msgid "Add SQL select items with an alias, for example <0>a + 1 AS a1</0>. Filtering follows your database’s SQL rules: aliases are often unavailable in WHERE (use the full expression); ORDER BY may accept aliases depending on the dialect."
 msgstr "添加带别名的 SQL 选择项，例如 <0>a + 1 AS a1</0>。过滤遵循所连数据库的 SQL 规则：`SELECT` 别名在多数方言中不能用于 WHERE（请写完整表达式）；ORDER BY 是否可用别名视数据库而定。"
 
-#: src/stores/setting.ts:553
+#: src/stores/setting.ts:557
 msgid "After operator"
 msgstr "运算符之后"
 
@@ -163,11 +163,11 @@ msgstr "应用到 WHERE"
 msgid "Are you absolutely sure?"
 msgstr "确定要继续吗？"
 
-#: src/pages/settings/AppSetting.tsx:1504
+#: src/pages/settings/AppSetting.tsx:1506
 msgid "Automatic updates"
 msgstr "自动更新"
 
-#: src/pages/settings/AppSetting.tsx:1175
+#: src/pages/settings/AppSetting.tsx:1177
 msgid "Available"
 msgstr "可用"
 
@@ -179,7 +179,7 @@ msgstr "背景"
 msgid "Base"
 msgstr "基础"
 
-#: src/stores/setting.ts:552
+#: src/stores/setting.ts:556
 msgid "Before operator"
 msgstr "运算符之前"
 
@@ -204,7 +204,7 @@ msgid "Border & status"
 msgstr "边框与状态"
 
 #: src/components/views/ExportDialog.tsx:276
-#: src/pages/settings/AppSetting.tsx:1148
+#: src/pages/settings/AppSetting.tsx:1150
 msgid "Browse"
 msgstr "浏览"
 
@@ -216,7 +216,7 @@ msgstr "内置"
 msgid "Calculate"
 msgstr "计算"
 
-#: src/pages/settings/AppSetting.tsx:1111
+#: src/pages/settings/AppSetting.tsx:1113
 msgid "Calls the external <0>sqlfmt</0> binary via Tauri."
 msgstr "通过 Tauri 调用外部 <0>sqlfmt</0> 可执行文件。"
 
@@ -225,9 +225,9 @@ msgstr "通过 Tauri 调用外部 <0>sqlfmt</0> 可执行文件。"
 #: src/components/views/ExportDialog.tsx:423
 #: src/components/views/MacroRunDialog.tsx:186
 #: src/pages/settings/AppSetting.tsx:471
-#: src/pages/settings/AppSetting.tsx:1275
-#: src/pages/settings/AppSetting.tsx:1575
-#: src/pages/settings/AppSetting.tsx:1702
+#: src/pages/settings/AppSetting.tsx:1277
+#: src/pages/settings/AppSetting.tsx:1577
+#: src/pages/settings/AppSetting.tsx:1704
 #: src/pages/settings/EditorForm.tsx:257
 #: src/pages/settings/SshProfilesForm.tsx:537
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:308
@@ -282,11 +282,11 @@ msgstr "图表 5"
 msgid "Charts"
 msgstr "图表"
 
-#: src/pages/settings/AppSetting.tsx:1159
+#: src/pages/settings/AppSetting.tsx:1161
 msgid "Check"
 msgstr "检查"
 
-#: src/pages/settings/AppSetting.tsx:1444
+#: src/pages/settings/AppSetting.tsx:1446
 msgid "Check for updates"
 msgstr "检查更新"
 
@@ -297,6 +297,10 @@ msgstr "国内镜像"
 #: src/pages/settings/ColorThemePanel.tsx:345
 msgid "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 msgstr "选择一套预设主题。每套预设均包含浅色与深色变体，会跟随应用明暗模式；也可在下方自定义各颜色。"
+
+#: src/pages/sidebar/index.tsx:125
+msgid "Clear"
+msgstr "清空"
 
 #: src/components/StatusBar.tsx:223
 #: src/components/views/ComputedColumnsDialog.tsx:131
@@ -331,11 +335,11 @@ msgstr "清除排序"
 msgid "Click a shortcut to record a new combination. Built-in editor and table shortcuts cannot be remapped here."
 msgstr "点击快捷键开始录制新组合。编辑器与表格内置快捷键无法在此修改。"
 
-#: src/pages/settings/AppSetting.tsx:1432
+#: src/pages/settings/AppSetting.tsx:1434
 msgid "Click to update"
 msgstr "点击更新"
 
-#: src/stores/setting.ts:561
+#: src/stores/setting.ts:565
 msgid "ClickHouse"
 msgstr "ClickHouse"
 
@@ -509,7 +513,7 @@ msgstr "交叉"
 msgid "CSV / TSV options"
 msgstr "CSV / TSV 选项"
 
-#: src/pages/settings/AppSetting.tsx:1405
+#: src/pages/settings/AppSetting.tsx:1407
 msgid "Current version: {version}"
 msgstr "当前版本：{version}"
 
@@ -535,7 +539,7 @@ msgstr "数据列"
 msgid "Data Folder"
 msgstr "数据文件夹"
 
-#: src/pages/settings/AppSetting.tsx:893
+#: src/pages/settings/AppSetting.tsx:895
 msgid "Data type case"
 msgstr "数据类型大小写"
 
@@ -564,7 +568,7 @@ msgstr "数据库会话"
 msgid "DB setting"
 msgstr "数据库设置"
 
-#: src/pages/settings/AppSetting.tsx:1545
+#: src/pages/settings/AppSetting.tsx:1547
 msgid "Debug"
 msgstr "调试"
 
@@ -605,7 +609,7 @@ msgstr "删除临时 SQL"
 msgid "Delete temporary SQL?"
 msgstr "删除临时 SQL？"
 
-#: src/pages/settings/AppSetting.tsx:1623
+#: src/pages/settings/AppSetting.tsx:1625
 msgid "Delim"
 msgstr "分隔符"
 
@@ -613,7 +617,7 @@ msgstr "分隔符"
 msgid "Delimiter"
 msgstr "分隔符"
 
-#: src/pages/settings/AppSetting.tsx:994
+#: src/pages/settings/AppSetting.tsx:996
 msgid "Dense operators"
 msgstr "紧凑运算符"
 
@@ -637,12 +641,12 @@ msgstr "危险前景色"
 msgid "Diagnostics"
 msgstr "诊断"
 
-#: src/pages/settings/AppSetting.tsx:1231
+#: src/pages/settings/AppSetting.tsx:1233
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:276
 msgid "Dialect"
 msgstr "方言"
 
-#: src/pages/settings/AppSetting.tsx:649
+#: src/pages/settings/AppSetting.tsx:651
 msgid "Dialect still follows the active connection. Defaults match previous behavior."
 msgstr "方言仍跟随当前连接。默认值与此前行为一致。"
 
@@ -657,7 +661,7 @@ msgid "Disable SSL"
 msgstr "禁用 SSL"
 
 #. placeholder {0}: update?.version
-#: src/pages/settings/AppSetting.tsx:1410
+#: src/pages/settings/AppSetting.tsx:1412
 msgid "Discover new version: {0}"
 msgstr "发现新版本：{0}"
 
@@ -665,7 +669,7 @@ msgstr "发现新版本：{0}"
 msgid "Distinct"
 msgstr "去重数"
 
-#: src/pages/settings/AppSetting.tsx:1419
+#: src/pages/settings/AppSetting.tsx:1421
 msgid "Downloading"
 msgstr "正在下载"
 
@@ -733,7 +737,7 @@ msgstr "启用 SSH"
 msgid "Enable statement split by default"
 msgstr "默认启用语句分割"
 
-#: src/pages/settings/AppSetting.tsx:1662
+#: src/pages/settings/AppSetting.tsx:1664
 msgid "Escape"
 msgstr "转义符"
 
@@ -814,11 +818,11 @@ msgstr "已导出连接（含加密密钥）"
 msgid "Exporting…"
 msgstr "正在导出…"
 
-#: src/pages/settings/AppSetting.tsx:689
+#: src/pages/settings/AppSetting.tsx:691
 msgid "Expression width"
 msgstr "表达式宽度"
 
-#: src/stores/setting.ts:529
+#: src/stores/setting.ts:533
 msgid "External sqlfmt CLI (dbt-oriented, via Tauri)"
 msgstr "外部 sqlfmt CLI（面向 dbt，经由 Tauri）"
 
@@ -949,7 +953,7 @@ msgstr "来自 @vars 注释"
 msgid "From ~/.ssh/config"
 msgstr "来自 ~/.ssh/config"
 
-#: src/pages/settings/AppSetting.tsx:856
+#: src/pages/settings/AppSetting.tsx:858
 msgid "Function case"
 msgstr "函数大小写"
 
@@ -957,7 +961,7 @@ msgstr "函数大小写"
 msgid "General"
 msgstr "通用"
 
-#: src/stores/setting.ts:519
+#: src/stores/setting.ts:523
 msgid "General-purpose SQL formatter"
 msgstr "通用 SQL 格式化器"
 
@@ -1022,7 +1026,7 @@ msgstr "主机"
 msgid "Host key"
 msgstr "主机密钥"
 
-#: src/pages/settings/AppSetting.tsx:817
+#: src/pages/settings/AppSetting.tsx:819
 msgid "Identifier case"
 msgstr "标识符大小写"
 
@@ -1066,11 +1070,11 @@ msgstr "包含表头行"
 msgid "Include passwords (encrypted)"
 msgstr "包含密码（加密）"
 
-#: src/pages/settings/AppSetting.tsx:743
+#: src/pages/settings/AppSetting.tsx:745
 msgid "Indent style"
 msgstr "缩进样式"
 
-#: src/pages/settings/AppSetting.tsx:975
+#: src/pages/settings/AppSetting.tsx:977
 msgid "Indent with tabs instead of spaces"
 msgstr "使用制表符而非空格缩进"
 
@@ -1086,7 +1090,7 @@ msgstr "生成 @vars 变量模板"
 msgid "Inserted @vars template"
 msgstr "已插入 @vars 模板"
 
-#: src/pages/settings/AppSetting.tsx:1164
+#: src/pages/settings/AppSetting.tsx:1166
 msgid "Install with <0>uv tool install shandy-sqlfmt</0> or set the full path to the <1>sqlfmt</1> binary."
 msgstr "可用 <0>uv tool install shandy-sqlfmt</0> 安装，或设置 <1>sqlfmt</1> 可执行文件的完整路径。"
 
@@ -1098,7 +1102,7 @@ msgstr "间隔"
 msgid "Invert"
 msgstr "反选"
 
-#: src/pages/settings/AppSetting.tsx:1349
+#: src/pages/settings/AppSetting.tsx:1351
 msgid "It's the latest version"
 msgstr "已是最新版本"
 
@@ -1106,7 +1110,7 @@ msgstr "已是最新版本"
 msgid "JSON options"
 msgstr "JSON 选项"
 
-#: src/pages/settings/AppSetting.tsx:1087
+#: src/pages/settings/AppSetting.tsx:1089
 msgid "Keep unparseable statements as raw text instead of failing"
 msgstr "无法解析的语句保留为原始文本，而不是失败"
 
@@ -1122,7 +1126,7 @@ msgstr "密钥口令"
 msgid "Keyboard shortcuts"
 msgstr "键盘快捷键"
 
-#: src/pages/settings/AppSetting.tsx:780
+#: src/pages/settings/AppSetting.tsx:782
 msgid "Keyword case"
 msgstr "关键字大小写"
 
@@ -1156,11 +1160,11 @@ msgstr "浅色"
 msgid "limit 500"
 msgstr "限制 500 行"
 
-#: src/pages/settings/AppSetting.tsx:1198
+#: src/pages/settings/AppSetting.tsx:1200
 msgid "Line length"
 msgstr "行宽"
 
-#: src/pages/settings/AppSetting.tsx:716
+#: src/pages/settings/AppSetting.tsx:718
 msgid "Lines between queries"
 msgstr "查询间距行数"
 
@@ -1193,11 +1197,11 @@ msgstr "加载中"
 msgid "Loading fonts..."
 msgstr "正在加载字体…"
 
-#: src/pages/settings/AppSetting.tsx:930
+#: src/pages/settings/AppSetting.tsx:932
 msgid "Logical operator newline"
 msgstr "逻辑运算符换行"
 
-#: src/stores/setting.ts:535
+#: src/stores/setting.ts:539
 msgid "Lower"
 msgstr "小写"
 
@@ -1240,7 +1244,7 @@ msgstr "主密码（若文件已加密）"
 msgid "Max"
 msgstr "最大值"
 
-#: src/pages/settings/AppSetting.tsx:1053
+#: src/pages/settings/AppSetting.tsx:1055
 msgid "Max line length"
 msgstr "最大行宽"
 
@@ -1315,11 +1319,11 @@ msgstr "名称"
 msgid "New Connection"
 msgstr "新建连接"
 
-#: src/pages/settings/AppSetting.tsx:1682
+#: src/pages/settings/AppSetting.tsx:1684
 msgid "New line"
 msgstr "换行符"
 
-#: src/pages/settings/AppSetting.tsx:1016
+#: src/pages/settings/AppSetting.tsx:1018
 msgid "Newline before semicolon"
 msgstr "分号前换行"
 
@@ -1350,6 +1354,10 @@ msgstr "暂无通知"
 #: src/pages/sidebar/History.tsx:298
 msgid "No query history yet"
 msgstr "暂无查询历史"
+
+#: src/pages/sidebar/index.tsx:131
+msgid "No recent searches"
+msgstr "暂无最近搜索"
 
 #: src/components/views/ColumnProfileDialog.tsx:328
 #: src/components/views/CountByColumnDialog.tsx:285
@@ -1387,7 +1395,7 @@ msgstr "未发现模板变量"
 msgid "None"
 msgstr "无"
 
-#: src/pages/settings/AppSetting.tsx:1181
+#: src/pages/settings/AppSetting.tsx:1183
 msgid "Not available"
 msgstr "不可用"
 
@@ -1417,7 +1425,7 @@ msgstr "共 {total}"
 msgid "Official GitHub Releases endpoint"
 msgstr "官方 GitHub Releases 端点"
 
-#: src/pages/settings/AppSetting.tsx:1487
+#: src/pages/settings/AppSetting.tsx:1489
 msgid "Official uses GitHub Releases. China Mirror goes through gh-proxy.com for better connectivity in mainland China."
 msgstr "官方源使用 GitHub Releases。国内镜像经 gh-proxy.com 转发，便于中国大陆访问。"
 
@@ -1441,11 +1449,11 @@ msgstr "每行一个值。多行会对每个值各执行一次（多个变量均
 msgid "Only selected databases will be shown in the sidebar"
 msgstr "仅选中的数据库会显示在侧边栏中"
 
-#: src/pages/settings/AppSetting.tsx:1564
+#: src/pages/settings/AppSetting.tsx:1566
 msgid "Open"
 msgstr "打开"
 
-#: src/pages/settings/AppSetting.tsx:1548
+#: src/pages/settings/AppSetting.tsx:1550
 msgid "Open developer debugging page"
 msgstr "打开开发者调试页面"
 
@@ -1487,7 +1495,7 @@ msgstr "打开存放应用设置的本地文件夹（settings.json）。"
 msgid "overrides active"
 msgstr "已有覆盖"
 
-#: src/pages/settings/AppSetting.tsx:997
+#: src/pages/settings/AppSetting.tsx:999
 msgid "Pack operators without spaces"
 msgstr "运算符两侧不留空格"
 
@@ -1499,7 +1507,7 @@ msgstr "分页"
 msgid "Parquet options"
 msgstr "Parquet 选项"
 
-#: src/pages/settings/AppSetting.tsx:1217
+#: src/pages/settings/AppSetting.tsx:1219
 msgid "Passed as <0>--line-length</0> (default 88)"
 msgstr "作为 <0>--line-length</0> 传入（默认 88）"
 
@@ -1551,11 +1559,11 @@ msgstr "透视表"
 msgid "Pivot with this column"
 msgstr "用此列透视"
 
-#: src/pages/settings/AppSetting.tsx:1019
+#: src/pages/settings/AppSetting.tsx:1021
 msgid "Place `;` on its own line"
 msgstr "将 `;` 单独放在一行"
 
-#: src/stores/setting.ts:560
+#: src/stores/setting.ts:564
 msgid "Polyglot (default)"
 msgstr "Polyglot（默认）"
 
@@ -1572,11 +1580,11 @@ msgstr "弹出层前景色"
 msgid "Port"
 msgstr "端口"
 
-#: src/pages/settings/AppSetting.tsx:1072
+#: src/pages/settings/AppSetting.tsx:1074
 msgid "Preferred maximum output width in display columns."
 msgstr "首选最大输出宽度（按显示列计）。"
 
-#: src/stores/setting.ts:536
+#: src/stores/setting.ts:540
 msgid "Preserve"
 msgstr "保持原样"
 
@@ -1606,7 +1614,7 @@ msgstr "属性"
 msgid "Protect secrets with a master password. Without this option, passwords are not exported."
 msgstr "使用主密码保护密钥。不勾选则不会导出密码。"
 
-#: src/pages/settings/AppSetting.tsx:1528
+#: src/pages/settings/AppSetting.tsx:1530
 msgid "Proxy"
 msgstr "代理"
 
@@ -1632,7 +1640,7 @@ msgid "Query failed"
 msgstr "查询失败"
 
 #: src/components/views/ExportDialog.tsx:311
-#: src/pages/settings/AppSetting.tsx:1643
+#: src/pages/settings/AppSetting.tsx:1645
 msgid "Quote"
 msgstr "引号"
 
@@ -1644,7 +1652,7 @@ msgstr "原始"
 msgid "Raw(JSON)"
 msgstr "原始(JSON)"
 
-#: src/pages/settings/AppSetting.tsx:1604
+#: src/pages/settings/AppSetting.tsx:1606
 msgid "Read csv file parameters, see: <0>csv parameters</0>"
 msgstr "读取 CSV 文件参数，参见： <0>csv parameters</0>"
 
@@ -1652,11 +1660,16 @@ msgstr "读取 CSV 文件参数，参见： <0>csv parameters</0>"
 msgid "Ready"
 msgstr "就绪"
 
+#: src/pages/sidebar/index.tsx:107
+#: src/pages/sidebar/index.tsx:114
+msgid "Recent searches"
+msgstr "最近搜索"
+
 #: src/components/views/ValueViewer.tsx:264
 msgid "Record"
 msgstr "记录"
 
-#: src/pages/settings/AppSetting.tsx:1084
+#: src/pages/settings/AppSetting.tsx:1086
 msgid "Recover on parse errors"
 msgstr "解析错误时恢复"
 
@@ -1681,6 +1694,7 @@ msgid "Refresh DB"
 msgstr "刷新数据库"
 
 #: src/components/views/PivotDialog.tsx:774
+#: src/pages/sidebar/index.tsx:148
 msgid "Remove"
 msgstr "移除"
 
@@ -1762,7 +1776,7 @@ msgstr "右对齐标签文字"
 msgid "Ring"
 msgstr "焦点环"
 
-#: src/pages/settings/AppSetting.tsx:1042
+#: src/pages/settings/AppSetting.tsx:1044
 msgid "River-alignment style; dialect follows the active connection."
 msgstr "河式对齐风格；方言跟随当前连接。"
 
@@ -1941,7 +1955,7 @@ msgstr "从 ~/.ssh/config 选择"
 msgid "Select private key"
 msgstr "选择私钥"
 
-#: src/pages/settings/AppSetting.tsx:615
+#: src/pages/settings/AppSetting.tsx:617
 msgid "Select SQL formatter"
 msgstr "选择 SQL 格式化器"
 
@@ -1957,7 +1971,7 @@ msgstr "会话"
 msgid "Session idle timeout (minutes)"
 msgstr "会话空闲超时（分钟）"
 
-#: src/pages/settings/AppSetting.tsx:1688
+#: src/pages/settings/AppSetting.tsx:1690
 msgid "Set the new line character(s) in the file. Options are '\\r','\\n', or '\\r\\n'."
 msgstr "设置文件中的换行符。可选 '\\r'、'\\n' 或 '\\r\\n'。"
 
@@ -1969,7 +1983,7 @@ msgstr "设置"
 msgid "Settings folder"
 msgstr "设置文件夹"
 
-#: src/pages/settings/AppSetting.tsx:1108
+#: src/pages/settings/AppSetting.tsx:1110
 msgid "shandy-sqlfmt options"
 msgstr "shandy-sqlfmt 选项"
 
@@ -2065,7 +2079,7 @@ msgstr "侧边栏主色前景"
 msgid "Sidebar ring"
 msgstr "侧边栏焦点环"
 
-#: src/stores/setting.ts:524
+#: src/stores/setting.ts:528
 msgid "Simon Holywell's sqlstyle.guide (river alignment)"
 msgstr "Simon Holywell 的 sqlstyle.guide（河式对齐）"
 
@@ -2095,15 +2109,15 @@ msgstr "升序排序"
 msgid "Sort descending"
 msgstr "降序排序"
 
-#: src/pages/settings/AppSetting.tsx:1649
+#: src/pages/settings/AppSetting.tsx:1651
 msgid "Specifies the quoting string to be used when a data value is quoted."
 msgstr "指定数据值被引用时使用的引号字符串。"
 
-#: src/pages/settings/AppSetting.tsx:1629
+#: src/pages/settings/AppSetting.tsx:1631
 msgid "Specifies the string that separates columns within each row (line) of the file."
 msgstr "指定文件每一行中分隔各列的字符串。"
 
-#: src/pages/settings/AppSetting.tsx:1668
+#: src/pages/settings/AppSetting.tsx:1670
 msgid "Specifies the string that should appear before a data character sequence that matches the quote value."
 msgstr "指定在与引号值匹配的数据字符序列前应出现的字符串。"
 
@@ -2127,7 +2141,7 @@ msgstr "SQL 已复制"
 msgid "SQL Editor"
 msgstr "SQL 编辑器"
 
-#: src/pages/settings/AppSetting.tsx:603
+#: src/pages/settings/AppSetting.tsx:605
 msgid "SQL Formatter Engine"
 msgstr "SQL 格式化引擎"
 
@@ -2135,19 +2149,19 @@ msgstr "SQL 格式化引擎"
 msgid "SQL Formatting"
 msgstr "SQL 格式化"
 
-#: src/pages/settings/AppSetting.tsx:646
+#: src/pages/settings/AppSetting.tsx:648
 msgid "sql-formatter options"
 msgstr "sql-formatter 选项"
 
-#: src/pages/settings/AppSetting.tsx:1129
+#: src/pages/settings/AppSetting.tsx:1131
 msgid "sqlfmt (from PATH) or absolute path"
 msgstr "sqlfmt（来自 PATH）或绝对路径"
 
-#: src/pages/settings/AppSetting.tsx:1123
+#: src/pages/settings/AppSetting.tsx:1125
 msgid "sqlfmt Executable"
 msgstr "sqlfmt 可执行文件"
 
-#: src/pages/settings/AppSetting.tsx:1039
+#: src/pages/settings/AppSetting.tsx:1041
 msgid "sqlriver options"
 msgstr "sqlriver 选项"
 
@@ -2207,7 +2221,7 @@ msgstr "SSH 用户"
 msgid "SSL"
 msgstr "SSL"
 
-#: src/stores/setting.ts:543
+#: src/stores/setting.ts:547
 msgid "Standard"
 msgstr "标准"
 
@@ -2244,7 +2258,7 @@ msgstr "严格（known_hosts）"
 msgid "System"
 msgstr "跟随系统"
 
-#: src/pages/settings/AppSetting.tsx:662
+#: src/pages/settings/AppSetting.tsx:664
 msgid "Tab width"
 msgstr "制表符宽度"
 
@@ -2268,11 +2282,11 @@ msgstr "表格字体大小"
 msgid "Tabs"
 msgstr "标签页"
 
-#: src/stores/setting.ts:544
+#: src/stores/setting.ts:548
 msgid "Tabular left"
 msgstr "左对齐表格"
 
-#: src/stores/setting.ts:545
+#: src/stores/setting.ts:549
 msgid "Tabular right"
 msgstr "右对齐表格"
 
@@ -2360,7 +2374,7 @@ msgstr "信任全部（不安全）"
 msgid "TSV uses tab as delimiter."
 msgstr "TSV 使用制表符作为分隔符。"
 
-#: src/pages/settings/AppSetting.tsx:1507
+#: src/pages/settings/AppSetting.tsx:1509
 msgid "Turn this off to prevent the app from checking for updates."
 msgstr "关闭后应用将不再检查更新。"
 
@@ -2381,22 +2395,22 @@ msgid "Unknown"
 msgstr "未知"
 
 #: src/pages/settings/AppSetting.tsx:476
-#: src/pages/settings/AppSetting.tsx:1280
-#: src/pages/settings/AppSetting.tsx:1580
-#: src/pages/settings/AppSetting.tsx:1707
+#: src/pages/settings/AppSetting.tsx:1282
+#: src/pages/settings/AppSetting.tsx:1582
+#: src/pages/settings/AppSetting.tsx:1709
 #: src/pages/settings/EditorForm.tsx:262
 msgid "Update"
 msgstr "更新"
 
-#: src/pages/settings/AppSetting.tsx:1353
+#: src/pages/settings/AppSetting.tsx:1355
 msgid "Update check failed: {message}"
 msgstr "检查更新失败：{message}"
 
-#: src/pages/settings/AppSetting.tsx:1388
+#: src/pages/settings/AppSetting.tsx:1390
 msgid "Update failed: {message}"
 msgstr "更新失败：{message}"
 
-#: src/pages/settings/AppSetting.tsx:1455
+#: src/pages/settings/AppSetting.tsx:1457
 msgid "Update source"
 msgstr "更新源"
 
@@ -2404,7 +2418,7 @@ msgstr "更新源"
 msgid "Updated @vars template"
 msgstr "已更新 @vars 模板"
 
-#: src/stores/setting.ts:534
+#: src/stores/setting.ts:538
 msgid "Upper"
 msgstr "大写"
 
@@ -2413,19 +2427,19 @@ msgstr "大写"
 msgid "Use \"{0}\""
 msgstr "使用“{0}”"
 
-#: src/pages/settings/AppSetting.tsx:1531
+#: src/pages/settings/AppSetting.tsx:1533
 msgid "use a proxy server for updater"
 msgstr "为更新器使用代理服务器"
 
-#: src/pages/settings/AppSetting.tsx:1260
+#: src/pages/settings/AppSetting.tsx:1262
 msgid "Use ClickHouse to preserve identifier case sensitivity"
 msgstr "使用 ClickHouse 以保留标识符大小写敏感性"
 
-#: src/pages/settings/AppSetting.tsx:972
+#: src/pages/settings/AppSetting.tsx:974
 msgid "Use tabs"
 msgstr "使用制表符"
 
-#: src/pages/settings/AppSetting.tsx:633
+#: src/pages/settings/AppSetting.tsx:635
 msgid "Used by Format Document / Format Selection in the SQL editor."
 msgstr "供 SQL 编辑器中的「格式化文档 / 格式化选区」使用。"
 
