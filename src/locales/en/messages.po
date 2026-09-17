@@ -240,7 +240,7 @@ msgstr "Calls the external <0>sqlfmt</0> binary via Tauri."
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/pages/sidebar/index.tsx:166
+#: src/components/custom/TreeView.tsx:353
 msgid "Cannot find this tab in the database explorer"
 msgstr "Cannot find this tab in the database explorer"
 
@@ -302,7 +302,8 @@ msgstr "China Mirror"
 msgid "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 msgstr "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 
-#: src/pages/sidebar/index.tsx:230
+#: src/components/views/TableView.tsx:367
+#: src/pages/sidebar/index.tsx:158
 msgid "Clear"
 msgstr "Clear"
 
@@ -851,7 +852,7 @@ msgstr "Failed to read memory log"
 msgid "Failed to refresh databases"
 msgstr "Failed to refresh databases"
 
-#: src/pages/sidebar/index.tsx:167
+#: src/components/custom/TreeView.tsx:354
 msgid "Failed to reveal this tab in the database explorer"
 msgstr "Failed to reveal this tab in the database explorer"
 
@@ -1363,9 +1364,17 @@ msgstr "No notifications yet"
 msgid "No query history yet"
 msgstr "No query history yet"
 
-#: src/pages/sidebar/index.tsx:236
+#: src/components/views/TableView.tsx:543
+msgid "No recent ORDER BY clauses"
+msgstr "No recent ORDER BY clauses"
+
+#: src/pages/sidebar/index.tsx:164
 msgid "No recent searches"
 msgstr "No recent searches"
+
+#: src/components/views/TableView.tsx:511
+msgid "No recent WHERE clauses"
+msgstr "No recent WHERE clauses"
 
 #: src/components/views/ColumnProfileDialog.tsx:328
 #: src/components/views/CountByColumnDialog.tsx:285
@@ -1668,10 +1677,26 @@ msgstr "Read csv file parameters, see: <0>csv parameters</0>"
 msgid "Ready"
 msgstr "Ready"
 
-#: src/pages/sidebar/index.tsx:209
-#: src/pages/sidebar/index.tsx:219
+#: src/components/views/TableView.tsx:542
+msgid "Recent ORDER BY"
+msgstr "Recent ORDER BY"
+
+#: src/components/views/TableView.tsx:541
+msgid "Recent ORDER BY clauses"
+msgstr "Recent ORDER BY clauses"
+
+#: src/pages/sidebar/index.tsx:137
+#: src/pages/sidebar/index.tsx:147
 msgid "Recent searches"
 msgstr "Recent searches"
+
+#: src/components/views/TableView.tsx:510
+msgid "Recent WHERE"
+msgstr "Recent WHERE"
+
+#: src/components/views/TableView.tsx:509
+msgid "Recent WHERE clauses"
+msgstr "Recent WHERE clauses"
 
 #: src/components/views/ValueViewer.tsx:264
 msgid "Record"
@@ -1702,7 +1727,8 @@ msgid "Refresh DB"
 msgstr "Refresh DB"
 
 #: src/components/views/PivotDialog.tsx:774
-#: src/pages/sidebar/index.tsx:254
+#: src/components/views/TableView.tsx:391
+#: src/pages/sidebar/index.tsx:182
 msgid "Remove"
 msgstr "Remove"
 

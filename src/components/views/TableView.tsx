@@ -1,5 +1,12 @@
 import { Data as ArrowDataType } from '@apache-arrow/ts';
-import { Loader2Icon } from 'lucide-react';
+import { Trans, useLingui } from '@lingui/react/macro';
+import {
+  ArrowDownUp,
+  ListFilter,
+  Loader2Icon,
+  LucideIcon,
+  X,
+} from 'lucide-react';
 import {
   memo,
   useCallback,
@@ -10,12 +17,23 @@ import {
 } from 'react';
 import { toast } from 'sonner';
 
+import { Button } from '@/components/custom/ui/button';
 import { useDialog } from '@/components/custom/use-dialog';
+import { SingleLineEditor } from '@/components/editor/SingleLineEditor';
 import {
   sqlComparisonOperators,
   sqlWhereKeywords,
 } from '@/components/editor/useRegister';
-import { SingleLineEditor } from '@/components/editor/SingleLineEditor';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from '@/components/ui/resizable';
 import { usePageStore } from '@/hooks/context';
 import { buildQuickFilterWhere, filterRows } from '@/lib/filterRows';
 import { quoteIdent } from '@/lib/sql/countByColumn';
@@ -24,12 +42,8 @@ import { cn } from '@/lib/utils';
 import { SchemaType } from '@/stores/dataset';
 import { getStoredDB } from '@/stores/dbList';
 import { usePrecision } from '@/stores/setting';
+import { useTableClauseHistoryStore } from '@/stores/tableClauseHistory';
 import { TabContextType, TableContextType, useTabsStore } from '@/stores/tabs';
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from '@/components/ui/resizable';
 
 import { ColumnProfileDialog } from './ColumnProfileDialog';
 import { ComputedColumnsDialog } from './ComputedColumnsDialog';
@@ -309,6 +323,111 @@ export function TableView({ context }: { context: TabContextType }) {
 
 const TMP_TABLE_NAME = '__tmp__';
 
+function ClauseHistoryPopover({
+  icon: Icon,
+  terms,
+  emptyLabel,
+  recentLabel,
+  ariaLabel,
+  onSelect,
+  onRemove,
+  onClear,
+}: {
+  icon: LucideIcon;
+  terms: string[];
+  emptyLabel: string;
+  recentLabel: string;
+  ariaLabel: string;
+  onSelect: (term: string) => void;
+  onRemove: (term: string) => void;
+  onClear: () => void;
+}) {
+  const { t } = useLingui();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger
+        className="flex size-7 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+        aria-label={ariaLabel}
+      >
+        <Icon className="size-4" />
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-72 max-w-[calc(100vw-2rem)] p-1">
+        <div className="flex items-center justify-between px-2">
+          <span className="text-xs text-muted-foreground">{recentLabel}</span>
+          {terms.length > 0 ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-auto px-1 text-xs text-muted-foreground"
+              onClick={() => {
+                onClear();
+                setOpen(false);
+              }}
+            >
+              <Trans>Clear</Trans>
+            </Button>
+          ) : null}
+        </div>
+        {terms.length === 0 ? (
+          <p className="px-2 py-2 text-center text-xs text-muted-foreground">
+            {emptyLabel}
+          </p>
+        ) : (
+          <div className="flex flex-col">
+            {terms.map((term) => (
+              <div
+                key={term}
+                title={term}
+                role="button"
+                tabIndex={0}
+                className={cn(
+                  'group flex h-6 min-w-0 cursor-pointer items-center justify-between pr-1 pl-2',
+                  'hover:bg-accent',
+                )}
+                onClick={() => {
+                  onSelect(term);
+                  setOpen(false);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelect(term);
+                    setOpen(false);
+                  }
+                }}
+              >
+                <span className="min-w-0 flex-1 truncate font-mono text-xs">
+                  {term}
+                </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t`Remove`}
+                  className={cn(
+                    'ml-1 size-5 shrink-0 hover:bg-selection',
+                    'hidden group-hover:block',
+                  )}
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onRemove(term);
+                  }}
+                >
+                  <X className="size-3.5" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export const InputToolbar = memo(function InputToolbar({
   context: _context,
   schema,
@@ -322,9 +441,49 @@ export const InputToolbar = memo(function InputToolbar({
   const sqlWhere = usePageStore((s) => s.sqlWhere);
   const sqlOrderBy = usePageStore((s) => s.sqlOrderBy);
 
-  const handleEnterDown = useCallback(async () => {
-    await refresh();
-  }, [refresh]);
+  const { t } = useLingui();
+  const whereTerms = useTableClauseHistoryStore((s) => s.whereTerms);
+  const orderByTerms = useTableClauseHistoryStore((s) => s.orderByTerms);
+  const pushWhere = useTableClauseHistoryStore((s) => s.pushWhere);
+  const pushOrderBy = useTableClauseHistoryStore((s) => s.pushOrderBy);
+  const removeWhere = useTableClauseHistoryStore((s) => s.removeWhere);
+  const removeOrderBy = useTableClauseHistoryStore((s) => s.removeOrderBy);
+  const clearWhere = useTableClauseHistoryStore((s) => s.clearWhere);
+  const clearOrderBy = useTableClauseHistoryStore((s) => s.clearOrderBy);
+
+  const handleWhereEnter = useCallback(
+    async (value: string) => {
+      setSQLWhere(value);
+      pushWhere(value);
+      await refresh();
+    },
+    [pushWhere, refresh, setSQLWhere],
+  );
+
+  const handleOrderByEnter = useCallback(
+    async (value: string) => {
+      setSQLOrderBy(value);
+      pushOrderBy(value);
+      await refresh();
+    },
+    [pushOrderBy, refresh, setSQLOrderBy],
+  );
+
+  const applyWhere = useCallback(
+    (term: string) => {
+      setSQLWhere(term);
+      void refresh();
+    },
+    [refresh, setSQLWhere],
+  );
+
+  const applyOrderBy = useCallback(
+    (term: string) => {
+      setSQLOrderBy(term);
+      void refresh();
+    },
+    [refresh, setSQLOrderBy],
+  );
 
   const columnMeta = useMemo(
     () => schema.map(({ name, type }) => ({ name, type: type ?? '' })),
@@ -373,15 +532,27 @@ export const InputToolbar = memo(function InputToolbar({
           maxSize="90"
           className="flex min-w-0 flex-row items-center overflow-hidden"
         >
-          <div className="mx-2 min-w-fit text-sm text-muted-foreground">
-            WHERE
+          <div className="ml-1 flex shrink-0 items-center gap-0.5">
+            <ClauseHistoryPopover
+              icon={ListFilter}
+              terms={whereTerms}
+              ariaLabel={t`Recent WHERE clauses`}
+              recentLabel={t`Recent WHERE`}
+              emptyLabel={t`No recent WHERE clauses`}
+              onSelect={applyWhere}
+              onRemove={removeWhere}
+              onClear={clearWhere}
+            />
+            <span className="min-w-fit pr-1 text-sm text-muted-foreground">
+              WHERE
+            </span>
           </div>
           <div className="min-w-0 flex-1 overflow-hidden">
             <SingleLineEditor
               className="text-sm"
               initialValue={sqlWhere}
               onChange={setSQLWhere}
-              onEnterDown={handleEnterDown}
+              onEnterDown={handleWhereEnter}
               completeMeta={whereCompleteMeta}
             />
           </div>
@@ -393,14 +564,26 @@ export const InputToolbar = memo(function InputToolbar({
           maxSize="90"
           className="flex min-w-0 flex-row items-center overflow-hidden"
         >
-          <div className="mx-2 min-w-fit text-sm text-muted-foreground">
-            ORDER BY
+          <div className="ml-1 flex shrink-0 items-center gap-0.5">
+            <ClauseHistoryPopover
+              icon={ArrowDownUp}
+              terms={orderByTerms}
+              ariaLabel={t`Recent ORDER BY clauses`}
+              recentLabel={t`Recent ORDER BY`}
+              emptyLabel={t`No recent ORDER BY clauses`}
+              onSelect={applyOrderBy}
+              onRemove={removeOrderBy}
+              onClear={clearOrderBy}
+            />
+            <span className="min-w-fit pr-1 text-sm text-muted-foreground">
+              ORDER BY
+            </span>
           </div>
           <div className="min-w-0 flex-1 overflow-hidden">
             <SingleLineEditor
               initialValue={sqlOrderBy}
               onChange={setSQLOrderBy}
-              onEnterDown={handleEnterDown}
+              onEnterDown={handleOrderByEnter}
               completeMeta={orderCompleteMeta}
             />
           </div>

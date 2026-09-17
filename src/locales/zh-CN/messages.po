@@ -240,7 +240,7 @@ msgstr "通过 Tauri 调用外部 <0>sqlfmt</0> 可执行文件。"
 msgid "Cancel"
 msgstr "取消"
 
-#: src/pages/sidebar/index.tsx:166
+#: src/components/custom/TreeView.tsx:353
 msgid "Cannot find this tab in the database explorer"
 msgstr "在数据库资源管理器中找不到该标签页"
 
@@ -302,7 +302,8 @@ msgstr "国内镜像"
 msgid "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 msgstr "选择一套预设主题。每套预设均包含浅色与深色变体，会跟随应用明暗模式；也可在下方自定义各颜色。"
 
-#: src/pages/sidebar/index.tsx:230
+#: src/components/views/TableView.tsx:367
+#: src/pages/sidebar/index.tsx:158
 msgid "Clear"
 msgstr "清空"
 
@@ -851,7 +852,7 @@ msgstr "读取内存日志失败"
 msgid "Failed to refresh databases"
 msgstr "刷新数据库列表失败"
 
-#: src/pages/sidebar/index.tsx:167
+#: src/components/custom/TreeView.tsx:354
 msgid "Failed to reveal this tab in the database explorer"
 msgstr "在数据库资源管理器中定位该标签页失败"
 
@@ -1363,9 +1364,17 @@ msgstr "暂无通知"
 msgid "No query history yet"
 msgstr "暂无查询历史"
 
-#: src/pages/sidebar/index.tsx:236
+#: src/components/views/TableView.tsx:543
+msgid "No recent ORDER BY clauses"
+msgstr "暂无 ORDER BY 历史"
+
+#: src/pages/sidebar/index.tsx:164
 msgid "No recent searches"
 msgstr "暂无最近搜索"
+
+#: src/components/views/TableView.tsx:511
+msgid "No recent WHERE clauses"
+msgstr "暂无 WHERE 历史"
 
 #: src/components/views/ColumnProfileDialog.tsx:328
 #: src/components/views/CountByColumnDialog.tsx:285
@@ -1668,10 +1677,26 @@ msgstr "读取 CSV 文件参数，参见： <0>csv parameters</0>"
 msgid "Ready"
 msgstr "就绪"
 
-#: src/pages/sidebar/index.tsx:209
-#: src/pages/sidebar/index.tsx:219
+#: src/components/views/TableView.tsx:542
+msgid "Recent ORDER BY"
+msgstr "最近 ORDER BY"
+
+#: src/components/views/TableView.tsx:541
+msgid "Recent ORDER BY clauses"
+msgstr "最近 ORDER BY 记录"
+
+#: src/pages/sidebar/index.tsx:137
+#: src/pages/sidebar/index.tsx:147
 msgid "Recent searches"
 msgstr "最近搜索"
+
+#: src/components/views/TableView.tsx:510
+msgid "Recent WHERE"
+msgstr "最近 WHERE"
+
+#: src/components/views/TableView.tsx:509
+msgid "Recent WHERE clauses"
+msgstr "最近 WHERE 记录"
 
 #: src/components/views/ValueViewer.tsx:264
 msgid "Record"
@@ -1702,7 +1727,8 @@ msgid "Refresh DB"
 msgstr "刷新数据库"
 
 #: src/components/views/PivotDialog.tsx:774
-#: src/pages/sidebar/index.tsx:254
+#: src/components/views/TableView.tsx:391
+#: src/pages/sidebar/index.tsx:182
 msgid "Remove"
 msgstr "移除"
 
