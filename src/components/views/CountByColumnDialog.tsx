@@ -1,7 +1,7 @@
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { nanoid } from 'nanoid';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { cancelQuery, query } from '@/api';
 import { SimpleBarChart } from '@/components/charts/SimpleBarChart';
@@ -24,11 +24,16 @@ import {
   resolveAnalysisTableExpr,
 } from '@/lib/sql/computedColumns';
 import {
+  findSchemaColumn,
+  formatSchemaScalar,
+} from '@/lib/formatDisplayValue';
+import type { SchemaType } from '@/stores/dataset';
+import {
   getDatabase,
   getParams,
   type TableContextType,
 } from '@/stores/tabs';
-import { getDefaultPerPage } from '@/stores/setting';
+import { getDefaultPerPage, usePrecision } from '@/stores/setting';
 
 export type CountByColumnDialogProps = {
   open: boolean;
@@ -39,6 +44,8 @@ export type CountByColumnDialogProps = {
   computedColumns?: ComputedColumn[];
   /** All matching rows in the parent table view (denominator for percent). */
   rowTotal?: number;
+  columns?: SchemaType[];
+  beautify?: boolean;
 };
 
 type CountRow = {
@@ -54,8 +61,11 @@ export function CountByColumnDialog({
   sqlWhere,
   computedColumns,
   rowTotal,
+  columns,
+  beautify = true,
 }: CountByColumnDialogProps) {
   const { t } = useLingui();
+  const precision = usePrecision();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rows, setRows] = useState<CountRow[]>([]);
@@ -196,7 +206,17 @@ export function CountByColumnDialog({
     };
   }, [open, column, context, sqlWhere, computedColumns, rowTotal, t]);
 
-  const displayRows = toCountByDisplayRows(rows, allRowsTotal);
+  const formatValue = useCallback(
+    (value: unknown) =>
+      formatSchemaScalar(
+        value,
+        column ? findSchemaColumn(columns, column) : undefined,
+        { beautify, precision },
+      ),
+    [beautify, column, columns, precision],
+  );
+
+  const displayRows = toCountByDisplayRows(rows, allRowsTotal, formatValue);
   const capped = displayRows.length >= 1000;
 
   return (

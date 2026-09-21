@@ -285,6 +285,8 @@ export function TableView({ context }: { context: TabContextType }) {
         sqlWhere={sqlWhere}
         computedColumns={computedColumns}
         rowTotal={total}
+        columns={tableSchema}
+        beautify={beautify}
       />
       <ColumnProfileDialog
         {...profileDialog.props}
@@ -292,6 +294,8 @@ export function TableView({ context }: { context: TabContextType }) {
         context={tableContext}
         sqlWhere={sqlWhere}
         computedColumns={computedColumns}
+        columns={tableSchema}
+        beautify={beautify}
       />
       <PivotDialog
         {...pivotDialog.props}
@@ -300,6 +304,7 @@ export function TableView({ context }: { context: TabContextType }) {
         sqlWhere={sqlWhere}
         computedColumns={computedColumns}
         initialRowField={pivotRowField}
+        beautify={beautify}
       />
       <ComputedColumnsDialog
         {...computedColumnsDialog.props}

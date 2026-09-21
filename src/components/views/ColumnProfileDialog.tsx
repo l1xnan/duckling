@@ -1,7 +1,7 @@
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { nanoid } from 'nanoid';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { cancelQuery, query } from '@/api';
 import Dialog from '@/components/custom/Dialog';
@@ -18,11 +18,16 @@ import {
   resolveAnalysisTableExpr,
 } from '@/lib/sql/computedColumns';
 import {
+  findSchemaColumn,
+  formatSchemaScalar,
+} from '@/lib/formatDisplayValue';
+import type { SchemaType } from '@/stores/dataset';
+import {
   getDatabase,
   getParams,
   type TableContextType,
 } from '@/stores/tabs';
-import { getDefaultPerPage } from '@/stores/setting';
+import { getDefaultPerPage, usePrecision } from '@/stores/setting';
 
 export type ColumnProfileDialogProps = {
   open: boolean;
@@ -31,6 +36,8 @@ export type ColumnProfileDialogProps = {
   context: TableContextType;
   sqlWhere?: string;
   computedColumns?: ComputedColumn[];
+  columns?: SchemaType[];
+  beautify?: boolean;
 };
 
 type ProfileStats = {
@@ -62,8 +69,11 @@ export function ColumnProfileDialog({
   context,
   sqlWhere,
   computedColumns,
+  columns,
+  beautify = true,
 }: ColumnProfileDialogProps) {
   const { t } = useLingui();
+  const precision = usePrecision();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<ProfileStats | null>(null);
@@ -229,13 +239,24 @@ export function ColumnProfileDialog({
     };
   }, [open, column, context, sqlWhere, t]);
 
+  const columnSchema = useMemo(
+    () => (column ? findSchemaColumn(columns, column) : undefined),
+    [column, columns],
+  );
+
+  const formatValue = useCallback(
+    (value: unknown) =>
+      formatSchemaScalar(value, columnSchema, { beautify, precision }),
+    [beautify, columnSchema, precision],
+  );
+
   const nullPct =
     stats && stats.total > 0
       ? ((stats.nullCount / stats.total) * 100).toFixed(2)
       : '0';
 
   const displayTop = topRows.map((r) => ({
-    value: r.value == null || r.value === '' ? '<null>' : String(r.value),
+    value: formatValue(r.value),
     count: r.count,
   }));
 
@@ -300,7 +321,7 @@ export function ColumnProfileDialog({
                 value={
                   stats?.minValue == null
                     ? '<null>'
-                    : String(stats.minValue)
+                    : formatValue(stats.minValue)
                 }
               />
               <StatCard
@@ -308,7 +329,7 @@ export function ColumnProfileDialog({
                 value={
                   stats?.maxValue == null
                     ? '<null>'
-                    : String(stats.maxValue)
+                    : formatValue(stats.maxValue)
                 }
               />
             </div>

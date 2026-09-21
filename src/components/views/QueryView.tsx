@@ -311,6 +311,8 @@ export function QueryView({
         dbId={ctx.dbId}
         sourceSql={ctx.sql || ctx.stmt || ''}
         rowTotal={ctx.total}
+        columns={ctx.tableSchema}
+        beautify={ctx.beautify}
       />
       <PivotDialog
         {...pivotDialog.props}
@@ -318,6 +320,7 @@ export function QueryView({
         dbId={ctx.dbId}
         sourceSql={ctx.sql || ctx.stmt || ''}
         initialRowField={pivotRowField}
+        beautify={ctx.beautify}
       />
     </div>
   );

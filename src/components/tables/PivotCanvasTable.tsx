@@ -7,6 +7,10 @@ import type {
 import { useMemo, useRef } from 'react';
 
 import {
+  formatAnalysisNumber,
+  formatPivotDimensionRecords,
+} from '@/lib/formatDisplayValue';
+import {
   applyPivotShowAs,
   formatPivotPercent,
   measureAlias,
@@ -15,9 +19,14 @@ import {
   type PivotConfig,
   type PivotShowAs,
 } from '@/lib/sql/pivot';
+import type { SchemaType } from '@/stores/dataset';
 
 import { useResolvedColorTheme } from '@/hooks/use-color-theme';
-import { useTableFontFamily, useTableFontSize } from '@/stores/setting';
+import {
+  usePrecision,
+  useTableFontFamily,
+  useTableFontSize,
+} from '@/stores/setting';
 
 import { makeTableTheme } from './theme';
 
@@ -37,6 +46,8 @@ export type PivotCanvasTableProps = {
   config: Pick<PivotConfig, 'rows' | 'columns' | 'measures'>;
   showAs?: PivotShowAs;
   className?: string;
+  columns?: SchemaType[];
+  beautify?: boolean;
 };
 
 function useTableTheme() {
@@ -60,15 +71,31 @@ export function PivotCanvasTable({
   config,
   showAs = 'value',
   className,
+  columns = [],
+  beautify = true,
 }: PivotCanvasTableProps) {
   const tableRef = useRef<PivotTableAPI>(null);
   const theme = useTableTheme();
+  const precision = usePrecision();
   const isPercent = showAs !== 'value';
-
-  const displayRecords = useMemo(
-    () => applyPivotShowAs(records, config, showAs),
-    [records, config, showAs],
+  const formatOptions = useMemo(
+    () => ({ beautify, precision }),
+    [beautify, precision],
   );
+
+  const displayRecords = useMemo(() => {
+    const withShowAs = applyPivotShowAs(records, config, showAs);
+    const dimensionFields = [
+      ...(config.rows ?? []),
+      ...(config.columns ?? []),
+    ];
+    return formatPivotDimensionRecords(
+      withShowAs,
+      dimensionFields,
+      columns,
+      formatOptions,
+    );
+  }, [records, config, showAs, columns, formatOptions]);
 
   const dimensionSortRules = useMemo(
     () =>
@@ -107,7 +134,14 @@ export function PivotCanvasTable({
                 return formatPivotPercent(n, 100);
               },
             }
-          : {}),
+          : {
+              format: (value: unknown) => {
+                if (value == null || value === '') return '';
+                return (
+                  formatAnalysisNumber(value, formatOptions) ?? String(value)
+                );
+              },
+            }),
       };
     });
 
@@ -142,6 +176,7 @@ export function PivotCanvasTable({
     config.columns,
     config.measures,
     isPercent,
+    formatOptions,
     theme,
   ]);
 

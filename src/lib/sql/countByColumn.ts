@@ -132,9 +132,13 @@ export async function resolveAllRowsTotal(
 export function toCountByDisplayRows(
   rows: Array<{ value: unknown; count: number }>,
   total: number,
+  formatValue?: (value: unknown) => string,
 ): Array<{ value: string; count: number; percent: string }> {
   const mapped = rows.map((row) => ({
-    value: row.value == null || row.value === '' ? '<null>' : String(row.value),
+    value:
+      row.value == null || row.value === ''
+        ? '<null>'
+        : (formatValue?.(row.value) ?? String(row.value)),
     count: row.count,
   }));
   return withCountPercent(mapped, total);

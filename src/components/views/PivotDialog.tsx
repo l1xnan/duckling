@@ -62,6 +62,7 @@ export type PivotDialogProps = {
   sourceSql?: string;
   /** Prefill a row dimension when opening from a column menu. */
   initialRowField?: string;
+  beautify?: boolean;
 };
 
 const AGG_OPTIONS: { value: PivotAgg; label: string }[] = [
@@ -141,6 +142,7 @@ export function PivotDialog({
   dbId,
   sourceSql,
   initialRowField,
+  beautify = true,
 }: PivotDialogProps) {
   const { t } = useLingui();
   const [rows, setRows] = useState<string[]>([]);
@@ -705,6 +707,8 @@ export function PivotDialog({
               records={records}
               config={ranConfig}
               showAs={showAs}
+              columns={columns}
+              beautify={beautify}
             />
           ) : (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">

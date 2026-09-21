@@ -1,7 +1,7 @@
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { nanoid } from 'nanoid';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { cancelQuery, query } from '@/api';
 import { SimpleBarChart } from '@/components/charts/SimpleBarChart';
@@ -22,7 +22,13 @@ import {
   buildCountBySubquerySql,
   buildSubqueryRowCountSql,
 } from '@/lib/sql/countBySubquery';
+import {
+  findSchemaColumn,
+  formatSchemaScalar,
+} from '@/lib/formatDisplayValue';
+import type { SchemaType } from '@/stores/dataset';
 import { getDatabase } from '@/stores/tabs';
+import { usePrecision } from '@/stores/setting';
 
 export type CountByQueryDialogProps = {
   open: boolean;
@@ -33,6 +39,8 @@ export type CountByQueryDialogProps = {
   sourceSql: string;
   /** All matching rows in the parent query result (denominator for percent). */
   rowTotal?: number;
+  columns?: SchemaType[];
+  beautify?: boolean;
 };
 
 type CountRow = {
@@ -47,8 +55,11 @@ export function CountByQueryDialog({
   dbId,
   sourceSql,
   rowTotal,
+  columns,
+  beautify = true,
 }: CountByQueryDialogProps) {
   const { t } = useLingui();
+  const precision = usePrecision();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rows, setRows] = useState<CountRow[]>([]);
@@ -162,7 +173,17 @@ export function CountByQueryDialog({
     };
   }, [open, column, dbId, sourceSql, rowTotal, t]);
 
-  const displayRows = toCountByDisplayRows(rows, allRowsTotal);
+  const formatValue = useCallback(
+    (value: unknown) =>
+      formatSchemaScalar(
+        value,
+        column ? findSchemaColumn(columns, column) : undefined,
+        { beautify, precision },
+      ),
+    [beautify, column, columns, precision],
+  );
+
+  const displayRows = toCountByDisplayRows(rows, allRowsTotal, formatValue);
   const capped = displayRows.length >= 1000;
 
   return (
