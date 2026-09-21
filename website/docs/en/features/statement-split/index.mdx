@@ -16,7 +16,7 @@ Click the **statement split** button (forked-arrows icon) next to Run:
 | **Off** (default) | Execute the entire editor buffer         | No current-statement highlight                                                                 |
 | **On**            | Execute only the statement at the cursor | Rectangle around that statement (width follows the widest line of text, not full editor width) |
 
-- With a **non-empty selection**, the selection is always executed (toggle ignored).
+- With a **non-empty selection**, the selection is executed (toggle ignored), except when the selection is a single CTE identifier — then Duckling previews that CTE (`SELECT * FROM <cte>`). See [SQL editor](/features/sql-editor#preview-a-cte).
 - Toggle state applies to the current editor tab; refreshing the app resets to off.
 
 ## How statements are bounded

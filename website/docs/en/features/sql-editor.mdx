@@ -9,10 +9,16 @@ The editor is based on [Monaco](https://microsoft.github.io/monaco-editor/) and 
 
 ## Actions
 
-- **Run** — `Mod+Enter` or the toolbar ▶ button executes the query (fastest path is a new tab with `Mod+Shift+Enter`).
+- **Run** — `Mod+Enter` or the toolbar ▶ button executes the query (fastest path is a new tab with `Mod+Shift+Enter`). With the cursor on a CTE name, Run previews that intermediate table (see below).
 - **Format** — `Shift+Alt+F` formats the document; `Mod+K` then `Mod+F` formats the selection.
 - **EXPLAIN** — inspect the execution plan of the current query.
 - **SQL bookmarks** — save and jump between marked statements.
+
+## Preview a CTE
+
+Put the cursor on a CTE name (or select only that identifier) and Run. Duckling keeps every CTE up to that name and executes `SELECT * FROM <cte>` without changing the editor text. The Run tooltip becomes **Run CTE sales**, and the result tab is titled **CTE sales**.
+
+Selecting a SQL fragment (more than one identifier) still runs the selection as-is.
 
 ## Statement split
 

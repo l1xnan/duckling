@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/components/views/PivotDialog.tsx:648
+#: src/components/views/PivotDialog.tsx:650
 msgid "(capped at {capLimit})"
 msgstr "(capped at {capLimit})"
 
@@ -22,19 +22,19 @@ msgid "(empty)"
 msgstr "(empty)"
 
 #. placeholder {0}: displayRows.length
-#: src/components/views/CountByColumnDialog.tsx:252
-#: src/components/views/CountByQueryDialog.tsx:218
+#: src/components/views/CountByColumnDialog.tsx:272
+#: src/components/views/CountByQueryDialog.tsx:239
 msgid "{0} distinct value(s)"
 msgstr "{0} distinct value(s)"
 
 #. placeholder {0}: displayRows.length
-#: src/components/views/CountByColumnDialog.tsx:248
-#: src/components/views/CountByQueryDialog.tsx:214
+#: src/components/views/CountByColumnDialog.tsx:268
+#: src/components/views/CountByQueryDialog.tsx:235
 msgid "{0} distinct value(s) (capped at 1000)"
 msgstr "{0} distinct value(s) (capped at 1000)"
 
 #. placeholder {0}: records.length
-#: src/components/views/PivotDialog.tsx:644
+#: src/components/views/PivotDialog.tsx:646
 msgid "{0} group(s)"
 msgstr "{0} group(s)"
 
@@ -45,7 +45,7 @@ msgid "{0} of {1} runs"
 msgstr "{0} of {1} runs"
 
 #. placeholder {0}: m.agg.toUpperCase()
-#: src/components/views/PivotDialog.tsx:200
+#: src/components/views/PivotDialog.tsx:202
 msgid "{0} requires a numeric field"
 msgstr "{0} requires a numeric field"
 
@@ -79,13 +79,13 @@ msgstr "{min}m ago"
 msgid "{sec}s ago"
 msgstr "{sec}s ago"
 
-#: src/components/views/PivotDialog.tsx:473
-#: src/components/views/PivotDialog.tsx:831
+#: src/components/views/PivotDialog.tsx:475
+#: src/components/views/PivotDialog.tsx:835
 msgid "% of column"
 msgstr "% of column"
 
-#: src/components/views/PivotDialog.tsx:472
-#: src/components/views/PivotDialog.tsx:830
+#: src/components/views/PivotDialog.tsx:474
+#: src/components/views/PivotDialog.tsx:834
 msgid "% of row"
 msgstr "% of row"
 
@@ -114,7 +114,7 @@ msgstr "Accent foreground"
 msgid "Accept new keys"
 msgstr "Accept new keys"
 
-#: src/components/views/PivotDialog.tsx:520
+#: src/components/views/PivotDialog.tsx:522
 #: src/pages/settings/SshProfilesForm.tsx:186
 msgid "Add"
 msgstr "Add"
@@ -131,7 +131,7 @@ msgstr "Add data"
 msgid "Add data folder"
 msgstr "Add data folder"
 
-#: src/components/views/PivotDialog.tsx:790
+#: src/components/views/PivotDialog.tsx:794
 msgid "Add field…"
 msgstr "Add field…"
 
@@ -187,11 +187,11 @@ msgstr "Before operator"
 msgid "Bookmark"
 msgstr "Bookmark"
 
-#: src/pages/editor/EditorToolbar.tsx:154
+#: src/pages/editor/EditorToolbar.tsx:167
 msgid "Bookmark SQL"
 msgstr "Bookmark SQL"
 
-#: src/pages/editor/index.tsx:312
+#: src/pages/editor/index.tsx:366
 msgid "Bookmarked"
 msgstr "Bookmarked"
 
@@ -257,8 +257,8 @@ msgstr "Card"
 msgid "Card foreground"
 msgstr "Card foreground"
 
-#: src/components/views/CountByColumnDialog.tsx:276
-#: src/components/views/CountByQueryDialog.tsx:242
+#: src/components/views/CountByColumnDialog.tsx:296
+#: src/components/views/CountByQueryDialog.tsx:263
 msgid "Chart"
 msgstr "Chart"
 
@@ -302,8 +302,7 @@ msgstr "China Mirror"
 msgid "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 msgstr "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 
-#: src/components/views/TableView.tsx:367
-#: src/pages/sidebar/index.tsx:158
+#: src/components/custom/ClauseHistoryPopover.tsx:71
 msgid "Clear"
 msgstr "Clear"
 
@@ -388,16 +387,16 @@ msgid "Color theme"
 msgstr "Color theme"
 
 #: src/components/tables/CanvasTable.tsx:99
-#: src/components/views/ColumnProfileDialog.tsx:252
-#: src/components/views/ColumnProfileDialog.tsx:358
+#: src/components/views/ColumnProfileDialog.tsx:273
+#: src/components/views/ColumnProfileDialog.tsx:379
 msgid "Column profile"
 msgstr "Column profile"
 
-#: src/components/views/ColumnProfileDialog.tsx:248
+#: src/components/views/ColumnProfileDialog.tsx:269
 msgid "Column profile: <0>{column}</0>"
 msgstr "Column profile: <0>{column}</0>"
 
-#: src/components/views/PivotDialog.tsx:499
+#: src/components/views/PivotDialog.tsx:501
 msgid "Columns"
 msgstr "Columns"
 
@@ -419,7 +418,7 @@ msgstr "Computed column {0}"
 msgid "Computed columns"
 msgstr "Computed columns"
 
-#: src/components/views/PivotDialog.tsx:714
+#: src/components/views/PivotDialog.tsx:718
 msgid "Configure dimensions and measures, then run"
 msgstr "Configure dimensions and measures, then run"
 
@@ -441,8 +440,8 @@ msgstr "Connection"
 msgid "Connection failed"
 msgstr "Connection failed"
 
-#: src/components/views/CountByQueryDialog.tsx:90
-#: src/components/views/PivotDialog.tsx:292
+#: src/components/views/CountByQueryDialog.tsx:101
+#: src/components/views/PivotDialog.tsx:294
 msgid "Connection not found"
 msgstr "Connection not found"
 
@@ -479,30 +478,30 @@ msgstr "Copy Field Name"
 msgid "Copy selection"
 msgstr "Copy selection"
 
-#: src/components/views/PivotDialog.tsx:676
+#: src/components/views/PivotDialog.tsx:678
 msgid "Copy SQL"
 msgstr "Copy SQL"
 
-#: src/components/views/ColumnProfileDialog.tsx:113
-#: src/components/views/CountByColumnDialog.tsx:107
-#: src/components/views/PivotDialog.tsx:305
-#: src/components/views/PivotDialog.tsx:320
+#: src/components/views/ColumnProfileDialog.tsx:123
+#: src/components/views/CountByColumnDialog.tsx:117
+#: src/components/views/PivotDialog.tsx:307
+#: src/components/views/PivotDialog.tsx:322
 msgid "Could not resolve table for this view"
 msgstr "Could not resolve table for this view"
 
-#: src/components/views/CountByColumnDialog.tsx:212
-#: src/components/views/CountByQueryDialog.tsx:178
+#: src/components/views/CountByColumnDialog.tsx:232
+#: src/components/views/CountByQueryDialog.tsx:199
 msgid "Count by column"
 msgstr "Count by column"
 
-#: src/components/views/CountByColumnDialog.tsx:208
-#: src/components/views/CountByQueryDialog.tsx:174
+#: src/components/views/CountByColumnDialog.tsx:228
+#: src/components/views/CountByQueryDialog.tsx:195
 msgid "Count by column: <0>{column}</0>"
 msgstr "Count by column: <0>{column}</0>"
 
 #: src/components/tables/CanvasTable.tsx:98
-#: src/components/views/CountByColumnDialog.tsx:312
-#: src/components/views/CountByQueryDialog.tsx:277
+#: src/components/views/CountByColumnDialog.tsx:332
+#: src/components/views/CountByQueryDialog.tsx:298
 msgid "Count by this column"
 msgstr "Count by this column"
 
@@ -517,6 +516,10 @@ msgstr "Cross"
 #: src/components/views/ExportDialog.tsx:284
 msgid "CSV / TSV options"
 msgstr "CSV / TSV options"
+
+#: src/pages/editor/index.tsx:502
+msgid "CTE {cteName}"
+msgstr "CTE {cteName}"
 
 #: src/pages/settings/AppSetting.tsx:1407
 msgid "Current version: {version}"
@@ -670,7 +673,7 @@ msgstr "Disable SSL"
 msgid "Discover new version: {0}"
 msgstr "Discover new version: {0}"
 
-#: src/components/views/ColumnProfileDialog.tsx:295
+#: src/components/views/ColumnProfileDialog.tsx:316
 msgid "Distinct"
 msgstr "Distinct"
 
@@ -709,18 +712,18 @@ msgstr "Editor Minimap"
 msgid "elapsed time: {0}"
 msgstr "elapsed time: {0}"
 
-#: src/components/views/ColumnProfileDialog.tsx:321
-#: src/components/views/CountByColumnDialog.tsx:257
-#: src/components/views/CountByQueryDialog.tsx:223
-#: src/components/views/PivotDialog.tsx:640
+#: src/components/views/ColumnProfileDialog.tsx:342
+#: src/components/views/CountByColumnDialog.tsx:277
+#: src/components/views/CountByQueryDialog.tsx:244
+#: src/components/views/PivotDialog.tsx:642
 msgid "elapsed: {elapsed}ms"
 msgstr "elapsed: {elapsed}ms"
 
-#: src/pages/editor/index.tsx:299
-#: src/pages/editor/index.tsx:319
-#: src/pages/editor/index.tsx:381
-#: src/pages/editor/index.tsx:521
-#: src/pages/editor/index.tsx:576
+#: src/pages/editor/index.tsx:353
+#: src/pages/editor/index.tsx:373
+#: src/pages/editor/index.tsx:435
+#: src/pages/editor/index.tsx:578
+#: src/pages/editor/index.tsx:633
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:48
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:67
 msgid "Empty SQL"
@@ -758,7 +761,7 @@ msgstr "Expand all"
 msgid "Expand All"
 msgstr "Expand All"
 
-#: src/pages/editor/EditorToolbar.tsx:136
+#: src/pages/editor/EditorToolbar.tsx:149
 msgid "EXPLAIN"
 msgstr "EXPLAIN"
 
@@ -929,7 +932,7 @@ msgid "Format document"
 msgstr "Format document"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.format'))
-#: src/pages/editor/EditorToolbar.tsx:120
+#: src/pages/editor/EditorToolbar.tsx:133
 msgid "Format document ({0})"
 msgstr "Format document ({0})"
 
@@ -946,7 +949,7 @@ msgid "Format Selection"
 msgstr "Format Selection"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.formatSelection'))
-#: src/pages/editor/EditorToolbar.tsx:127
+#: src/pages/editor/EditorToolbar.tsx:140
 msgid "Format selection ({0})"
 msgstr "Format selection ({0})"
 
@@ -1016,7 +1019,7 @@ msgstr "Hidden Column"
 msgid "Hide password"
 msgstr "Hide password"
 
-#: src/components/views/PivotDialog.tsx:386
+#: src/components/views/PivotDialog.tsx:388
 msgid "High column cardinality may produce a very wide pivot: {parts}. Results are capped at {cap} groups."
 msgstr "High column cardinality may produce a very wide pivot: {parts}. Results are capped at {cap} groups."
 
@@ -1091,11 +1094,11 @@ msgstr "Indent with tabs instead of spaces"
 msgid "Input"
 msgstr "Input"
 
-#: src/pages/editor/EditorToolbar.tsx:145
+#: src/pages/editor/EditorToolbar.tsx:158
 msgid "Insert @vars template"
 msgstr "Insert @vars template"
 
-#: src/pages/editor/index.tsx:405
+#: src/pages/editor/index.tsx:459
 msgid "Inserted @vars template"
 msgstr "Inserted @vars template"
 
@@ -1165,7 +1168,7 @@ msgstr "Left"
 msgid "Light"
 msgstr "Light"
 
-#: src/pages/editor/EditorToolbar.tsx:98
+#: src/pages/editor/EditorToolbar.tsx:111
 msgid "limit 500"
 msgstr "limit 500"
 
@@ -1249,7 +1252,7 @@ msgstr "Master password"
 msgid "Master password (if file is encrypted)"
 msgstr "Master password (if file is encrypted)"
 
-#: src/components/views/ColumnProfileDialog.tsx:307
+#: src/components/views/ColumnProfileDialog.tsx:328
 msgid "Max"
 msgstr "Max"
 
@@ -1257,7 +1260,7 @@ msgstr "Max"
 msgid "Max line length"
 msgstr "Max line length"
 
-#: src/components/views/PivotDialog.tsx:511
+#: src/components/views/PivotDialog.tsx:513
 msgid "Measures"
 msgstr "Measures"
 
@@ -1269,7 +1272,7 @@ msgstr "Memory diagnostics"
 msgid "Memory log cleared"
 msgstr "Memory log cleared"
 
-#: src/components/views/ColumnProfileDialog.tsx:299
+#: src/components/views/ColumnProfileDialog.tsx:320
 msgid "Min"
 msgstr "Min"
 
@@ -1285,11 +1288,11 @@ msgstr "More pages"
 msgid "Move down"
 msgstr "Move down"
 
-#: src/components/views/PivotDialog.tsx:496
+#: src/components/views/PivotDialog.tsx:498
 msgid "Move to columns"
 msgstr "Move to columns"
 
-#: src/components/views/PivotDialog.tsx:506
+#: src/components/views/PivotDialog.tsx:508
 msgid "Move to rows"
 msgstr "Move to rows"
 
@@ -1364,22 +1367,22 @@ msgstr "No notifications yet"
 msgid "No query history yet"
 msgstr "No query history yet"
 
-#: src/components/views/TableView.tsx:543
+#: src/components/views/TableView.tsx:462
 msgid "No recent ORDER BY clauses"
 msgstr "No recent ORDER BY clauses"
 
-#: src/pages/sidebar/index.tsx:164
+#: src/pages/sidebar/index.tsx:128
 msgid "No recent searches"
 msgstr "No recent searches"
 
-#: src/components/views/TableView.tsx:511
+#: src/components/views/TableView.tsx:430
 msgid "No recent WHERE clauses"
 msgstr "No recent WHERE clauses"
 
-#: src/components/views/ColumnProfileDialog.tsx:328
-#: src/components/views/CountByColumnDialog.tsx:285
-#: src/components/views/CountByQueryDialog.tsx:251
-#: src/components/views/PivotDialog.tsx:712
+#: src/components/views/ColumnProfileDialog.tsx:349
+#: src/components/views/CountByColumnDialog.tsx:305
+#: src/components/views/CountByQueryDialog.tsx:272
+#: src/components/views/PivotDialog.tsx:716
 msgid "No rows"
 msgstr "No rows"
 
@@ -1404,11 +1407,11 @@ msgstr "No SSH profiles yet."
 msgid "No tabs in this pane"
 msgstr "No tabs in this pane"
 
-#: src/pages/editor/index.tsx:387
+#: src/pages/editor/index.tsx:441
 msgid "No template variables found"
 msgstr "No template variables found"
 
-#: src/components/views/PivotDialog.tsx:752
+#: src/components/views/PivotDialog.tsx:756
 msgid "None"
 msgstr "None"
 
@@ -1416,7 +1419,7 @@ msgstr "None"
 msgid "Not available"
 msgstr "Not available"
 
-#: src/pages/editor/EditorToolbar.tsx:98
+#: src/pages/editor/EditorToolbar.tsx:111
 msgid "not limit"
 msgstr "not limit"
 
@@ -1430,7 +1433,7 @@ msgstr "not selected"
 msgid "Notifications"
 msgstr "Notifications"
 
-#: src/components/views/ColumnProfileDialog.tsx:287
+#: src/components/views/ColumnProfileDialog.tsx:308
 msgid "Nulls"
 msgstr "Nulls"
 
@@ -1553,8 +1556,8 @@ msgstr "Path"
 msgid "pending"
 msgstr "pending"
 
-#: src/components/views/CountByColumnDialog.tsx:263
-#: src/components/views/CountByQueryDialog.tsx:229
+#: src/components/views/CountByColumnDialog.tsx:283
+#: src/components/views/CountByQueryDialog.tsx:250
 msgid "Percent is relative to all matching rows ({allRowsTotal}); shown groups may sum to less than 100%."
 msgstr "Percent is relative to all matching rows ({allRowsTotal}); shown groups may sum to less than 100%."
 
@@ -1567,8 +1570,8 @@ msgid "Pin to right"
 msgstr "Pin to right"
 
 #: src/components/views/DataViewToolbar.tsx:232
-#: src/components/views/PivotDialog.tsx:482
-#: src/components/views/PivotDialog.tsx:827
+#: src/components/views/PivotDialog.tsx:484
+#: src/components/views/PivotDialog.tsx:831
 msgid "Pivot table"
 msgstr "Pivot table"
 
@@ -1639,20 +1642,20 @@ msgstr "Proxy"
 msgid "Query"
 msgstr "Query"
 
-#: src/components/views/ColumnProfileDialog.tsx:208
-#: src/components/views/CountByColumnDialog.tsx:174
-#: src/components/views/CountByQueryDialog.tsx:142
-#: src/components/views/PivotDialog.tsx:414
+#: src/components/views/ColumnProfileDialog.tsx:218
+#: src/components/views/CountByColumnDialog.tsx:184
+#: src/components/views/CountByQueryDialog.tsx:153
+#: src/components/views/PivotDialog.tsx:416
 msgid "Query cancelled"
 msgstr "Query cancelled"
 
-#: src/components/views/ColumnProfileDialog.tsx:161
-#: src/components/views/ColumnProfileDialog.tsx:166
-#: src/components/views/CountByColumnDialog.tsx:140
-#: src/components/views/CountByColumnDialog.tsx:160
-#: src/components/views/CountByQueryDialog.tsx:112
-#: src/components/views/CountByQueryDialog.tsx:128
-#: src/components/views/PivotDialog.tsx:404
+#: src/components/views/ColumnProfileDialog.tsx:171
+#: src/components/views/ColumnProfileDialog.tsx:176
+#: src/components/views/CountByColumnDialog.tsx:150
+#: src/components/views/CountByColumnDialog.tsx:170
+#: src/components/views/CountByQueryDialog.tsx:123
+#: src/components/views/CountByQueryDialog.tsx:139
+#: src/components/views/PivotDialog.tsx:406
 msgid "Query failed"
 msgstr "Query failed"
 
@@ -1677,24 +1680,24 @@ msgstr "Read csv file parameters, see: <0>csv parameters</0>"
 msgid "Ready"
 msgstr "Ready"
 
-#: src/components/views/TableView.tsx:542
+#: src/components/views/TableView.tsx:461
 msgid "Recent ORDER BY"
 msgstr "Recent ORDER BY"
 
-#: src/components/views/TableView.tsx:541
+#: src/components/views/TableView.tsx:460
 msgid "Recent ORDER BY clauses"
 msgstr "Recent ORDER BY clauses"
 
-#: src/pages/sidebar/index.tsx:137
-#: src/pages/sidebar/index.tsx:147
+#: src/pages/sidebar/index.tsx:126
+#: src/pages/sidebar/index.tsx:127
 msgid "Recent searches"
 msgstr "Recent searches"
 
-#: src/components/views/TableView.tsx:510
+#: src/components/views/TableView.tsx:429
 msgid "Recent WHERE"
 msgstr "Recent WHERE"
 
-#: src/components/views/TableView.tsx:509
+#: src/components/views/TableView.tsx:428
 msgid "Recent WHERE clauses"
 msgstr "Recent WHERE clauses"
 
@@ -1726,9 +1729,8 @@ msgstr "Refresh database list"
 msgid "Refresh DB"
 msgstr "Refresh DB"
 
-#: src/components/views/PivotDialog.tsx:774
-#: src/components/views/TableView.tsx:391
-#: src/pages/sidebar/index.tsx:182
+#: src/components/custom/ClauseHistoryPopover.tsx:110
+#: src/components/views/PivotDialog.tsx:778
 msgid "Remove"
 msgstr "Remove"
 
@@ -1736,7 +1738,7 @@ msgstr "Remove"
 msgid "Remove computed column"
 msgstr "Remove computed column"
 
-#: src/components/views/PivotDialog.tsx:584
+#: src/components/views/PivotDialog.tsx:586
 msgid "Remove measure"
 msgstr "Remove measure"
 
@@ -1777,7 +1779,7 @@ msgstr "Reset this mode"
 msgid "Reset to default"
 msgstr "Reset to default"
 
-#: src/pages/editor/index.tsx:447
+#: src/pages/editor/index.tsx:504
 msgid "Result · {label}"
 msgstr "Result · {label}"
 
@@ -1789,7 +1791,7 @@ msgstr "Result rows"
 msgid "Result tabs"
 msgstr "Result tabs"
 
-#: src/pages/editor/index.tsx:448
+#: src/pages/editor/index.tsx:505
 msgid "Result{baseCount}"
 msgstr "Result{baseCount}"
 
@@ -1822,7 +1824,7 @@ msgstr "Ring"
 msgid "River-alignment style; dialect follows the active connection."
 msgstr "River-alignment style; dialect follows the active connection."
 
-#: src/components/views/PivotDialog.tsx:489
+#: src/components/views/PivotDialog.tsx:491
 #: src/pages/settings/DiagnosticsPanel.tsx:293
 msgid "Rows"
 msgstr "Rows"
@@ -1833,17 +1835,27 @@ msgstr "Rows per page for newly opened data views and preview dialogs."
 
 #: src/components/editor/MonacoEditor.tsx:253
 #: src/components/views/MacroRunDialog.tsx:189
-#: src/components/views/PivotDialog.tsx:604
+#: src/components/views/PivotDialog.tsx:606
 msgid "Run"
 msgstr "Run"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.run'))
-#: src/pages/editor/EditorToolbar.tsx:81
+#: src/pages/editor/EditorToolbar.tsx:89
 msgid "Run ({0})"
 msgstr "Run ({0})"
 
-#. placeholder {0}: formatHotkey(getHotkey('editor.runNewTab'))
+#. placeholder {0}: formatHotkey(getHotkey('editor.run'))
 #: src/pages/editor/EditorToolbar.tsx:88
+msgid "Run CTE {runCteName} ({0})"
+msgstr "Run CTE {runCteName} ({0})"
+
+#. placeholder {0}: formatHotkey(getHotkey('editor.runNewTab'))
+#: src/pages/editor/EditorToolbar.tsx:99
+msgid "Run CTE {runCteName} in new tab ({0})"
+msgstr "Run CTE {runCteName} in new tab ({0})"
+
+#. placeholder {0}: formatHotkey(getHotkey('editor.runNewTab'))
+#: src/pages/editor/EditorToolbar.tsx:100
 msgid "Run in new tab ({0})"
 msgstr "Run in new tab ({0})"
 
@@ -1880,7 +1892,7 @@ msgid "Save"
 msgstr "Save"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.save'))
-#: src/pages/editor/EditorToolbar.tsx:165
+#: src/pages/editor/EditorToolbar.tsx:178
 msgid "Save ({0})"
 msgstr "Save ({0})"
 
@@ -1896,8 +1908,8 @@ msgstr "Save SQL file"
 msgid "Save values as @vars comment above SQL"
 msgstr "Save values as @vars comment above SQL"
 
-#: src/pages/editor/EditorToolbar.tsx:166
-#: src/pages/editor/index.tsx:207
+#: src/pages/editor/EditorToolbar.tsx:179
+#: src/pages/editor/index.tsx:233
 msgid "Saved"
 msgstr "Saved"
 
@@ -1905,7 +1917,7 @@ msgstr "Saved"
 msgid "Schema"
 msgstr "Schema"
 
-#: src/components/custom/search.tsx:22
+#: src/components/custom/search.tsx:50
 #: src/components/PageTabs.tsx:617
 #: src/components/views/SchemaView.tsx:133
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:252
@@ -2005,7 +2017,7 @@ msgstr "Select SQL formatter"
 msgid "Selection"
 msgstr "Selection"
 
-#: src/pages/editor/EditorToolbar.tsx:198
+#: src/pages/editor/EditorToolbar.tsx:235
 msgid "Session"
 msgstr "Session"
 
@@ -2051,8 +2063,8 @@ msgstr "Show *.parquet"
 msgid "Show a minimap overview on the right side of the SQL editor."
 msgstr "Show a minimap overview on the right side of the SQL editor."
 
-#: src/components/views/PivotDialog.tsx:608
-#: src/components/views/PivotDialog.tsx:828
+#: src/components/views/PivotDialog.tsx:610
+#: src/components/views/PivotDialog.tsx:832
 msgid "Show as"
 msgstr "Show as"
 
@@ -2175,7 +2187,7 @@ msgstr "Split Right"
 msgid "SQL bookmarks"
 msgstr "SQL bookmarks"
 
-#: src/components/views/PivotDialog.tsx:430
+#: src/components/views/PivotDialog.tsx:432
 msgid "SQL copied"
 msgstr "SQL copied"
 
@@ -2267,19 +2279,19 @@ msgstr "SSL"
 msgid "Standard"
 msgstr "Standard"
 
-#: src/pages/editor/EditorToolbar.tsx:110
+#: src/pages/editor/EditorToolbar.tsx:123
 msgid "Statement split: current statement"
 msgstr "Statement split: current statement"
 
-#: src/pages/editor/EditorToolbar.tsx:111
+#: src/pages/editor/EditorToolbar.tsx:124
 msgid "Statement split: entire buffer"
 msgstr "Statement split: entire buffer"
 
-#: src/components/views/ColumnProfileDialog.tsx:275
-#: src/components/views/CountByColumnDialog.tsx:235
-#: src/components/views/CountByQueryDialog.tsx:201
+#: src/components/views/ColumnProfileDialog.tsx:296
+#: src/components/views/CountByColumnDialog.tsx:255
+#: src/components/views/CountByQueryDialog.tsx:222
 #: src/components/views/ExportDialog.tsx:415
-#: src/components/views/PivotDialog.tsx:696
+#: src/components/views/PivotDialog.tsx:698
 msgid "Stop"
 msgstr "Stop"
 
@@ -2305,8 +2317,8 @@ msgid "Tab width"
 msgstr "Tab width"
 
 #: src/components/PageTabs.tsx:621
-#: src/components/views/CountByColumnDialog.tsx:273
-#: src/components/views/CountByQueryDialog.tsx:239
+#: src/components/views/CountByColumnDialog.tsx:293
+#: src/components/views/CountByQueryDialog.tsx:260
 msgid "Table"
 msgstr "Table"
 
@@ -2355,7 +2367,7 @@ msgid "This will permanently delete temporary SQL \"{pendingDisplayName}\". This
 msgstr "This will permanently delete temporary SQL \"{pendingDisplayName}\". This action cannot be undone."
 
 #. placeholder {0}: statements.length
-#: src/pages/editor/index.tsx:588
+#: src/pages/editor/index.tsx:645
 msgid "This will run {0} queries. Continue?"
 msgstr "This will run {0} queries. Continue?"
 
@@ -2378,15 +2390,15 @@ msgid "Token"
 msgstr "Token"
 
 #. placeholder {0}: statements.length
-#: src/pages/editor/index.tsx:582
+#: src/pages/editor/index.tsx:639
 msgid "Too many combinations ({0}); limit is {limit}"
 msgstr "Too many combinations ({0}); limit is {limit}"
 
-#: src/components/views/ColumnProfileDialog.tsx:317
+#: src/components/views/ColumnProfileDialog.tsx:338
 msgid "Top values"
 msgstr "Top values"
 
-#: src/components/views/ColumnProfileDialog.tsx:285
+#: src/components/views/ColumnProfileDialog.tsx:306
 #: src/pages/settings/DiagnosticsPanel.tsx:284
 msgid "Total"
 msgstr "Total"
@@ -2428,7 +2440,7 @@ msgstr "Uncheck to export NDJSON (one object per line)."
 msgid "Uncompressed"
 msgstr "Uncompressed"
 
-#: src/pages/editor/EditorToolbar.tsx:194
+#: src/pages/editor/EditorToolbar.tsx:214
 msgid "unknown"
 msgstr "unknown"
 
@@ -2456,7 +2468,7 @@ msgstr "Update failed: {message}"
 msgid "Update source"
 msgstr "Update source"
 
-#: src/pages/editor/index.tsx:404
+#: src/pages/editor/index.tsx:458
 msgid "Updated @vars template"
 msgstr "Updated @vars template"
 
@@ -2506,8 +2518,8 @@ msgstr "Value"
 msgid "Value Viewer"
 msgstr "Value Viewer"
 
-#: src/components/views/PivotDialog.tsx:471
-#: src/components/views/PivotDialog.tsx:829
+#: src/components/views/PivotDialog.tsx:473
+#: src/components/views/PivotDialog.tsx:833
 msgid "Values"
 msgstr "Values"
 

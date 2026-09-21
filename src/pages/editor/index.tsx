@@ -20,6 +20,7 @@ import {
 import VerticalContainer from '@/components/VerticalContainer';
 import { useAppHotkey } from '@/hotkeys';
 import { connectionRef } from '@/lib/connectionRef';
+import { resolveCtePreview } from '@/lib/sql/previewCte';
 import {
   findStatementAtOffset,
   statementSliceToSourceRange,
@@ -102,6 +103,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
   const [hasLimit, setHasLimit] = useState(true);
   const [splitStatements, setSplitStatements] = useState(defaultStatementSplit);
   const [canFormatSelection, setCanFormatSelection] = useState(false);
+  const [runCteName, setRunCteName] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const stmt = docs[id] ?? '';
@@ -114,12 +116,6 @@ export default function Editor({ context }: { context: EditorContextType }) {
   const dirty = useEditorDirtyStore((s) => !!s.dirty[id]);
   const setDirty = useEditorDirtyStore((s) => s.setDirty);
   const clearDirty = useEditorDirtyStore((s) => s.clear);
-
-  useEffect(() => {
-    void getSqlParser().then((p) => {
-      sqlParserRef.current = p;
-    });
-  }, []);
 
   useEffect(() => {
     if (!scratch) {
@@ -166,8 +162,37 @@ export default function Editor({ context }: { context: EditorContextType }) {
   }, [id, clearDirty]);
 
   const syncSelectionState = () => {
-    setCanFormatSelection(!!ref.current?.hasSelection());
+    const editor = ref.current;
+    const monaco = editor?.editor();
+    const model = monaco?.getModel();
+    setCanFormatSelection(!!editor?.hasSelection());
+    if (!monaco || !model) {
+      setRunCteName(null);
+      return;
+    }
+    const selection = monaco.getSelection();
+    const hasSel = selection && !selection.isEmpty();
+    const selectedText = hasSel && selection ? model.getValueInRange(selection) : undefined;
+    const position = hasSel && selection ? selection.getStartPosition() : monaco.getPosition();
+    if (!position) {
+      setRunCteName(null);
+      return;
+    }
+    const preview = resolveCtePreview(
+      model.getValue(),
+      model.getOffsetAt(position),
+      selectedText,
+      sqlParserRef.current ?? undefined,
+    );
+    setRunCteName(preview?.cteName ?? null);
   };
+
+  useEffect(() => {
+    void getSqlParser().then((p) => {
+      sqlParserRef.current = p;
+      syncSelectionState();
+    });
+  }, []);
 
   const handleFormat = (scope: 'document' | 'selection') => {
     if (scope === 'selection') {
@@ -191,6 +216,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
 
   const handleChange: OnChange = (value, _event) => {
     persistDoc(value ?? '');
+    syncSelectionState();
   };
 
   const handleSave = async () => {
@@ -216,15 +242,11 @@ export default function Editor({ context }: { context: EditorContextType }) {
     setActiveKeyStore(id, key);
   };
 
-  const getStmt = ():
+  const getStmt = (opts?: { previewCte?: boolean }):
     | {
         stmt: string;
-        sourceRange: {
-          startLineNumber: number;
-          startColumn: number;
-          endLineNumber: number;
-          endColumn: number;
-        };
+        sourceRange: SqlSourceRange;
+        cteName?: string;
       }
     | undefined => {
     const editor = ref.current;
@@ -234,8 +256,40 @@ export default function Editor({ context }: { context: EditorContextType }) {
       return;
     }
 
+    const fullSql = model.getValue();
     const selection = monaco.getSelection();
     const hasSel = selection && !selection.isEmpty();
+    if (opts?.previewCte) {
+      const selectedTextEarly =
+        hasSel && selection ? model.getValueInRange(selection) : undefined;
+      const previewPos =
+        hasSel && selection ? selection.getStartPosition() : monaco.getPosition();
+      if (previewPos) {
+        const preview = resolveCtePreview(
+          fullSql,
+          model.getOffsetAt(previewPos),
+          selectedTextEarly,
+          sqlParserRef.current ?? undefined,
+        );
+        if (preview) {
+          const slice = findStatementAtOffset(
+            fullSql,
+            model.getOffsetAt(previewPos),
+            sqlParserRef.current ?? undefined,
+          );
+          const sourceRange = slice
+            ? statementSliceToSourceRange(model, slice)
+            : {
+                startLineNumber: previewPos.lineNumber,
+                startColumn: previewPos.column,
+                endLineNumber: previewPos.lineNumber,
+                endColumn: previewPos.column,
+              };
+          return { stmt: preview.sql, sourceRange, cteName: preview.cteName };
+        }
+      }
+    }
+
     if (hasSel && selection) {
       const stmt = model.getValueInRange(selection);
       if (!stmt.trim()) {
@@ -415,6 +469,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
       statements: ExpandedStatement[],
       sourceRange: SqlSourceRange,
       action?: string,
+      cteName?: string,
     ) => {
       const multi = statements.length > 1;
       const currentActive = useQuerySessionStore.getState().byEditor[id]
@@ -443,9 +498,11 @@ export default function Editor({ context }: { context: EditorContextType }) {
         lastId = childId;
         const label = formatMacroLabel(item.binding);
         baseCount += 1;
-        const displayName = label
-          ? t`Result · ${label}`
-          : t`Result${baseCount}`;
+        const displayName = cteName
+          ? t`CTE ${cteName}`
+          : label
+            ? t`Result · ${label}`
+            : t`Result${baseCount}`;
 
         const reuse =
           !multi &&
@@ -516,7 +573,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
   );
 
   const handleClick = async (action?: string) => {
-    const got = getStmt();
+    const got = getStmt({ previewCte: true });
     if (!got?.stmt?.trim()) {
       toast.error(t`Empty SQL`);
       return;
@@ -598,7 +655,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
       return;
     }
 
-    spawnResultTabs(statements, sourceRange, action);
+    spawnResultTabs(statements, sourceRange, action, got.cteName);
   };
 
   // Run (Mod+Enter) is bound only in Monaco to avoid double-fire.
@@ -638,6 +695,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
         hasLimit={hasLimit}
         onSplitStatements={setSplitStatements}
         splitStatements={splitStatements}
+        runCteName={runCteName}
         onFormat={handleFormat}
         canFormatSelection={canFormatSelection}
         onBookmark={handleBookmark}

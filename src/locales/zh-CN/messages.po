@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/components/views/PivotDialog.tsx:648
+#: src/components/views/PivotDialog.tsx:650
 msgid "(capped at {capLimit})"
 msgstr "（上限 {capLimit}）"
 
@@ -22,19 +22,19 @@ msgid "(empty)"
 msgstr "（空）"
 
 #. placeholder {0}: displayRows.length
-#: src/components/views/CountByColumnDialog.tsx:252
-#: src/components/views/CountByQueryDialog.tsx:218
+#: src/components/views/CountByColumnDialog.tsx:272
+#: src/components/views/CountByQueryDialog.tsx:239
 msgid "{0} distinct value(s)"
 msgstr "{0} 个不同值"
 
 #. placeholder {0}: displayRows.length
-#: src/components/views/CountByColumnDialog.tsx:248
-#: src/components/views/CountByQueryDialog.tsx:214
+#: src/components/views/CountByColumnDialog.tsx:268
+#: src/components/views/CountByQueryDialog.tsx:235
 msgid "{0} distinct value(s) (capped at 1000)"
 msgstr "{0} 个不同值（上限 1000）"
 
 #. placeholder {0}: records.length
-#: src/components/views/PivotDialog.tsx:644
+#: src/components/views/PivotDialog.tsx:646
 msgid "{0} group(s)"
 msgstr "{0} 个分组"
 
@@ -45,7 +45,7 @@ msgid "{0} of {1} runs"
 msgstr "{0} / {1} 条运行记录"
 
 #. placeholder {0}: m.agg.toUpperCase()
-#: src/components/views/PivotDialog.tsx:200
+#: src/components/views/PivotDialog.tsx:202
 msgid "{0} requires a numeric field"
 msgstr "{0} 需要数值字段"
 
@@ -79,13 +79,13 @@ msgstr "{min} 分钟前"
 msgid "{sec}s ago"
 msgstr "{sec} 秒前"
 
-#: src/components/views/PivotDialog.tsx:473
-#: src/components/views/PivotDialog.tsx:831
+#: src/components/views/PivotDialog.tsx:475
+#: src/components/views/PivotDialog.tsx:835
 msgid "% of column"
 msgstr "列百分比"
 
-#: src/components/views/PivotDialog.tsx:472
-#: src/components/views/PivotDialog.tsx:830
+#: src/components/views/PivotDialog.tsx:474
+#: src/components/views/PivotDialog.tsx:834
 msgid "% of row"
 msgstr "行百分比"
 
@@ -114,7 +114,7 @@ msgstr "强调前景色"
 msgid "Accept new keys"
 msgstr "接受新密钥"
 
-#: src/components/views/PivotDialog.tsx:520
+#: src/components/views/PivotDialog.tsx:522
 #: src/pages/settings/SshProfilesForm.tsx:186
 msgid "Add"
 msgstr "添加"
@@ -131,7 +131,7 @@ msgstr "添加数据"
 msgid "Add data folder"
 msgstr "添加数据文件夹"
 
-#: src/components/views/PivotDialog.tsx:790
+#: src/components/views/PivotDialog.tsx:794
 msgid "Add field…"
 msgstr "添加字段…"
 
@@ -187,11 +187,11 @@ msgstr "运算符之前"
 msgid "Bookmark"
 msgstr "书签"
 
-#: src/pages/editor/EditorToolbar.tsx:154
+#: src/pages/editor/EditorToolbar.tsx:167
 msgid "Bookmark SQL"
 msgstr "收藏 SQL"
 
-#: src/pages/editor/index.tsx:312
+#: src/pages/editor/index.tsx:366
 msgid "Bookmarked"
 msgstr "已收藏"
 
@@ -257,8 +257,8 @@ msgstr "卡片"
 msgid "Card foreground"
 msgstr "卡片前景色"
 
-#: src/components/views/CountByColumnDialog.tsx:276
-#: src/components/views/CountByQueryDialog.tsx:242
+#: src/components/views/CountByColumnDialog.tsx:296
+#: src/components/views/CountByQueryDialog.tsx:263
 msgid "Chart"
 msgstr "图表"
 
@@ -302,8 +302,7 @@ msgstr "国内镜像"
 msgid "Choose a preset. Each preset includes light and dark variants that follow the app mode. Customize individual colors below."
 msgstr "选择一套预设主题。每套预设均包含浅色与深色变体，会跟随应用明暗模式；也可在下方自定义各颜色。"
 
-#: src/components/views/TableView.tsx:367
-#: src/pages/sidebar/index.tsx:158
+#: src/components/custom/ClauseHistoryPopover.tsx:71
 msgid "Clear"
 msgstr "清空"
 
@@ -388,16 +387,16 @@ msgid "Color theme"
 msgstr "配色主题"
 
 #: src/components/tables/CanvasTable.tsx:99
-#: src/components/views/ColumnProfileDialog.tsx:252
-#: src/components/views/ColumnProfileDialog.tsx:358
+#: src/components/views/ColumnProfileDialog.tsx:273
+#: src/components/views/ColumnProfileDialog.tsx:379
 msgid "Column profile"
 msgstr "列画像"
 
-#: src/components/views/ColumnProfileDialog.tsx:248
+#: src/components/views/ColumnProfileDialog.tsx:269
 msgid "Column profile: <0>{column}</0>"
 msgstr "列画像：<0>{column}</0>"
 
-#: src/components/views/PivotDialog.tsx:499
+#: src/components/views/PivotDialog.tsx:501
 msgid "Columns"
 msgstr "列维"
 
@@ -419,7 +418,7 @@ msgstr "计算列 {0}"
 msgid "Computed columns"
 msgstr "虚拟计算列"
 
-#: src/components/views/PivotDialog.tsx:714
+#: src/components/views/PivotDialog.tsx:718
 msgid "Configure dimensions and measures, then run"
 msgstr "配置维度与度量后运行"
 
@@ -441,8 +440,8 @@ msgstr "连接"
 msgid "Connection failed"
 msgstr "连接失败"
 
-#: src/components/views/CountByQueryDialog.tsx:90
-#: src/components/views/PivotDialog.tsx:292
+#: src/components/views/CountByQueryDialog.tsx:101
+#: src/components/views/PivotDialog.tsx:294
 msgid "Connection not found"
 msgstr "未找到连接"
 
@@ -479,30 +478,30 @@ msgstr "复制字段名"
 msgid "Copy selection"
 msgstr "复制选区"
 
-#: src/components/views/PivotDialog.tsx:676
+#: src/components/views/PivotDialog.tsx:678
 msgid "Copy SQL"
 msgstr "复制 SQL"
 
-#: src/components/views/ColumnProfileDialog.tsx:113
-#: src/components/views/CountByColumnDialog.tsx:107
-#: src/components/views/PivotDialog.tsx:305
-#: src/components/views/PivotDialog.tsx:320
+#: src/components/views/ColumnProfileDialog.tsx:123
+#: src/components/views/CountByColumnDialog.tsx:117
+#: src/components/views/PivotDialog.tsx:307
+#: src/components/views/PivotDialog.tsx:322
 msgid "Could not resolve table for this view"
 msgstr "无法解析此视图的表"
 
-#: src/components/views/CountByColumnDialog.tsx:212
-#: src/components/views/CountByQueryDialog.tsx:178
+#: src/components/views/CountByColumnDialog.tsx:232
+#: src/components/views/CountByQueryDialog.tsx:199
 msgid "Count by column"
 msgstr "按列计数"
 
-#: src/components/views/CountByColumnDialog.tsx:208
-#: src/components/views/CountByQueryDialog.tsx:174
+#: src/components/views/CountByColumnDialog.tsx:228
+#: src/components/views/CountByQueryDialog.tsx:195
 msgid "Count by column: <0>{column}</0>"
 msgstr "按列计数：<0>{column}</0>"
 
 #: src/components/tables/CanvasTable.tsx:98
-#: src/components/views/CountByColumnDialog.tsx:312
-#: src/components/views/CountByQueryDialog.tsx:277
+#: src/components/views/CountByColumnDialog.tsx:332
+#: src/components/views/CountByQueryDialog.tsx:298
 msgid "Count by this column"
 msgstr "按此列计数"
 
@@ -517,6 +516,10 @@ msgstr "交叉"
 #: src/components/views/ExportDialog.tsx:284
 msgid "CSV / TSV options"
 msgstr "CSV / TSV 选项"
+
+#: src/pages/editor/index.tsx:502
+msgid "CTE {cteName}"
+msgstr "CTE {cteName}"
 
 #: src/pages/settings/AppSetting.tsx:1407
 msgid "Current version: {version}"
@@ -670,7 +673,7 @@ msgstr "禁用 SSL"
 msgid "Discover new version: {0}"
 msgstr "发现新版本：{0}"
 
-#: src/components/views/ColumnProfileDialog.tsx:295
+#: src/components/views/ColumnProfileDialog.tsx:316
 msgid "Distinct"
 msgstr "去重数"
 
@@ -709,18 +712,18 @@ msgstr "编辑器缩略图"
 msgid "elapsed time: {0}"
 msgstr "耗时：{0}"
 
-#: src/components/views/ColumnProfileDialog.tsx:321
-#: src/components/views/CountByColumnDialog.tsx:257
-#: src/components/views/CountByQueryDialog.tsx:223
-#: src/components/views/PivotDialog.tsx:640
+#: src/components/views/ColumnProfileDialog.tsx:342
+#: src/components/views/CountByColumnDialog.tsx:277
+#: src/components/views/CountByQueryDialog.tsx:244
+#: src/components/views/PivotDialog.tsx:642
 msgid "elapsed: {elapsed}ms"
 msgstr "耗时：{elapsed}ms"
 
-#: src/pages/editor/index.tsx:299
-#: src/pages/editor/index.tsx:319
-#: src/pages/editor/index.tsx:381
-#: src/pages/editor/index.tsx:521
-#: src/pages/editor/index.tsx:576
+#: src/pages/editor/index.tsx:353
+#: src/pages/editor/index.tsx:373
+#: src/pages/editor/index.tsx:435
+#: src/pages/editor/index.tsx:578
+#: src/pages/editor/index.tsx:633
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:48
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:67
 msgid "Empty SQL"
@@ -758,7 +761,7 @@ msgstr "全部展开"
 msgid "Expand All"
 msgstr "全部展开"
 
-#: src/pages/editor/EditorToolbar.tsx:136
+#: src/pages/editor/EditorToolbar.tsx:149
 msgid "EXPLAIN"
 msgstr "EXPLAIN"
 
@@ -929,7 +932,7 @@ msgid "Format document"
 msgstr "格式化文档"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.format'))
-#: src/pages/editor/EditorToolbar.tsx:120
+#: src/pages/editor/EditorToolbar.tsx:133
 msgid "Format document ({0})"
 msgstr "格式化文档（{0}）"
 
@@ -946,7 +949,7 @@ msgid "Format Selection"
 msgstr "格式化选区"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.formatSelection'))
-#: src/pages/editor/EditorToolbar.tsx:127
+#: src/pages/editor/EditorToolbar.tsx:140
 msgid "Format selection ({0})"
 msgstr "格式化选区（{0}）"
 
@@ -1016,7 +1019,7 @@ msgstr "隐藏列"
 msgid "Hide password"
 msgstr "隐藏密码"
 
-#: src/components/views/PivotDialog.tsx:386
+#: src/components/views/PivotDialog.tsx:388
 msgid "High column cardinality may produce a very wide pivot: {parts}. Results are capped at {cap} groups."
 msgstr "列维基数过高可能导致透视结果过宽：{parts}。结果上限为 {cap} 个分组。"
 
@@ -1091,11 +1094,11 @@ msgstr "使用制表符而非空格缩进"
 msgid "Input"
 msgstr "输入框"
 
-#: src/pages/editor/EditorToolbar.tsx:145
+#: src/pages/editor/EditorToolbar.tsx:158
 msgid "Insert @vars template"
 msgstr "生成 @vars 变量模板"
 
-#: src/pages/editor/index.tsx:405
+#: src/pages/editor/index.tsx:459
 msgid "Inserted @vars template"
 msgstr "已插入 @vars 模板"
 
@@ -1165,7 +1168,7 @@ msgstr "左侧"
 msgid "Light"
 msgstr "浅色"
 
-#: src/pages/editor/EditorToolbar.tsx:98
+#: src/pages/editor/EditorToolbar.tsx:111
 msgid "limit 500"
 msgstr "限制 500 行"
 
@@ -1249,7 +1252,7 @@ msgstr "主密码"
 msgid "Master password (if file is encrypted)"
 msgstr "主密码（若文件已加密）"
 
-#: src/components/views/ColumnProfileDialog.tsx:307
+#: src/components/views/ColumnProfileDialog.tsx:328
 msgid "Max"
 msgstr "最大值"
 
@@ -1257,7 +1260,7 @@ msgstr "最大值"
 msgid "Max line length"
 msgstr "最大行宽"
 
-#: src/components/views/PivotDialog.tsx:511
+#: src/components/views/PivotDialog.tsx:513
 msgid "Measures"
 msgstr "度量"
 
@@ -1269,7 +1272,7 @@ msgstr "内存诊断"
 msgid "Memory log cleared"
 msgstr "内存日志已清空"
 
-#: src/components/views/ColumnProfileDialog.tsx:299
+#: src/components/views/ColumnProfileDialog.tsx:320
 msgid "Min"
 msgstr "最小值"
 
@@ -1285,11 +1288,11 @@ msgstr "更多页"
 msgid "Move down"
 msgstr "下移"
 
-#: src/components/views/PivotDialog.tsx:496
+#: src/components/views/PivotDialog.tsx:498
 msgid "Move to columns"
 msgstr "移到列维"
 
-#: src/components/views/PivotDialog.tsx:506
+#: src/components/views/PivotDialog.tsx:508
 msgid "Move to rows"
 msgstr "移到行维"
 
@@ -1364,22 +1367,22 @@ msgstr "暂无通知"
 msgid "No query history yet"
 msgstr "暂无查询历史"
 
-#: src/components/views/TableView.tsx:543
+#: src/components/views/TableView.tsx:462
 msgid "No recent ORDER BY clauses"
 msgstr "暂无 ORDER BY 历史"
 
-#: src/pages/sidebar/index.tsx:164
+#: src/pages/sidebar/index.tsx:128
 msgid "No recent searches"
 msgstr "暂无最近搜索"
 
-#: src/components/views/TableView.tsx:511
+#: src/components/views/TableView.tsx:430
 msgid "No recent WHERE clauses"
 msgstr "暂无 WHERE 历史"
 
-#: src/components/views/ColumnProfileDialog.tsx:328
-#: src/components/views/CountByColumnDialog.tsx:285
-#: src/components/views/CountByQueryDialog.tsx:251
-#: src/components/views/PivotDialog.tsx:712
+#: src/components/views/ColumnProfileDialog.tsx:349
+#: src/components/views/CountByColumnDialog.tsx:305
+#: src/components/views/CountByQueryDialog.tsx:272
+#: src/components/views/PivotDialog.tsx:716
 msgid "No rows"
 msgstr "无行"
 
@@ -1404,11 +1407,11 @@ msgstr "暂无 SSH 配置文件。"
 msgid "No tabs in this pane"
 msgstr "此窗格中没有标签页"
 
-#: src/pages/editor/index.tsx:387
+#: src/pages/editor/index.tsx:441
 msgid "No template variables found"
 msgstr "未发现模板变量"
 
-#: src/components/views/PivotDialog.tsx:752
+#: src/components/views/PivotDialog.tsx:756
 msgid "None"
 msgstr "无"
 
@@ -1416,7 +1419,7 @@ msgstr "无"
 msgid "Not available"
 msgstr "不可用"
 
-#: src/pages/editor/EditorToolbar.tsx:98
+#: src/pages/editor/EditorToolbar.tsx:111
 msgid "not limit"
 msgstr "不限制"
 
@@ -1430,7 +1433,7 @@ msgstr "未选择"
 msgid "Notifications"
 msgstr "通知"
 
-#: src/components/views/ColumnProfileDialog.tsx:287
+#: src/components/views/ColumnProfileDialog.tsx:308
 msgid "Nulls"
 msgstr "空值"
 
@@ -1553,8 +1556,8 @@ msgstr "路径"
 msgid "pending"
 msgstr "进行中"
 
-#: src/components/views/CountByColumnDialog.tsx:263
-#: src/components/views/CountByQueryDialog.tsx:229
+#: src/components/views/CountByColumnDialog.tsx:283
+#: src/components/views/CountByQueryDialog.tsx:250
 msgid "Percent is relative to all matching rows ({allRowsTotal}); shown groups may sum to less than 100%."
 msgstr "占比相对于全部匹配行（{allRowsTotal}）；因仅展示部分分组，各组占比之和可能小于 100%。"
 
@@ -1567,8 +1570,8 @@ msgid "Pin to right"
 msgstr "固定到右侧"
 
 #: src/components/views/DataViewToolbar.tsx:232
-#: src/components/views/PivotDialog.tsx:482
-#: src/components/views/PivotDialog.tsx:827
+#: src/components/views/PivotDialog.tsx:484
+#: src/components/views/PivotDialog.tsx:831
 msgid "Pivot table"
 msgstr "透视表"
 
@@ -1639,20 +1642,20 @@ msgstr "代理"
 msgid "Query"
 msgstr "查询"
 
-#: src/components/views/ColumnProfileDialog.tsx:208
-#: src/components/views/CountByColumnDialog.tsx:174
-#: src/components/views/CountByQueryDialog.tsx:142
-#: src/components/views/PivotDialog.tsx:414
+#: src/components/views/ColumnProfileDialog.tsx:218
+#: src/components/views/CountByColumnDialog.tsx:184
+#: src/components/views/CountByQueryDialog.tsx:153
+#: src/components/views/PivotDialog.tsx:416
 msgid "Query cancelled"
 msgstr "查询已取消"
 
-#: src/components/views/ColumnProfileDialog.tsx:161
-#: src/components/views/ColumnProfileDialog.tsx:166
-#: src/components/views/CountByColumnDialog.tsx:140
-#: src/components/views/CountByColumnDialog.tsx:160
-#: src/components/views/CountByQueryDialog.tsx:112
-#: src/components/views/CountByQueryDialog.tsx:128
-#: src/components/views/PivotDialog.tsx:404
+#: src/components/views/ColumnProfileDialog.tsx:171
+#: src/components/views/ColumnProfileDialog.tsx:176
+#: src/components/views/CountByColumnDialog.tsx:150
+#: src/components/views/CountByColumnDialog.tsx:170
+#: src/components/views/CountByQueryDialog.tsx:123
+#: src/components/views/CountByQueryDialog.tsx:139
+#: src/components/views/PivotDialog.tsx:406
 msgid "Query failed"
 msgstr "查询失败"
 
@@ -1677,24 +1680,24 @@ msgstr "读取 CSV 文件参数，参见： <0>csv parameters</0>"
 msgid "Ready"
 msgstr "就绪"
 
-#: src/components/views/TableView.tsx:542
+#: src/components/views/TableView.tsx:461
 msgid "Recent ORDER BY"
 msgstr "最近 ORDER BY"
 
-#: src/components/views/TableView.tsx:541
+#: src/components/views/TableView.tsx:460
 msgid "Recent ORDER BY clauses"
 msgstr "最近 ORDER BY 记录"
 
-#: src/pages/sidebar/index.tsx:137
-#: src/pages/sidebar/index.tsx:147
+#: src/pages/sidebar/index.tsx:126
+#: src/pages/sidebar/index.tsx:127
 msgid "Recent searches"
 msgstr "最近搜索"
 
-#: src/components/views/TableView.tsx:510
+#: src/components/views/TableView.tsx:429
 msgid "Recent WHERE"
 msgstr "最近 WHERE"
 
-#: src/components/views/TableView.tsx:509
+#: src/components/views/TableView.tsx:428
 msgid "Recent WHERE clauses"
 msgstr "最近 WHERE 记录"
 
@@ -1726,9 +1729,8 @@ msgstr "刷新数据库列表"
 msgid "Refresh DB"
 msgstr "刷新数据库"
 
-#: src/components/views/PivotDialog.tsx:774
-#: src/components/views/TableView.tsx:391
-#: src/pages/sidebar/index.tsx:182
+#: src/components/custom/ClauseHistoryPopover.tsx:110
+#: src/components/views/PivotDialog.tsx:778
 msgid "Remove"
 msgstr "移除"
 
@@ -1736,7 +1738,7 @@ msgstr "移除"
 msgid "Remove computed column"
 msgstr "删除计算列"
 
-#: src/components/views/PivotDialog.tsx:584
+#: src/components/views/PivotDialog.tsx:586
 msgid "Remove measure"
 msgstr "移除度量"
 
@@ -1777,7 +1779,7 @@ msgstr "重置当前模式"
 msgid "Reset to default"
 msgstr "恢复默认"
 
-#: src/pages/editor/index.tsx:447
+#: src/pages/editor/index.tsx:504
 msgid "Result · {label}"
 msgstr "结果 · {label}"
 
@@ -1789,7 +1791,7 @@ msgstr "结果行数"
 msgid "Result tabs"
 msgstr "结果页签"
 
-#: src/pages/editor/index.tsx:448
+#: src/pages/editor/index.tsx:505
 msgid "Result{baseCount}"
 msgstr "结果{baseCount}"
 
@@ -1822,7 +1824,7 @@ msgstr "焦点环"
 msgid "River-alignment style; dialect follows the active connection."
 msgstr "河式对齐风格；方言跟随当前连接。"
 
-#: src/components/views/PivotDialog.tsx:489
+#: src/components/views/PivotDialog.tsx:491
 #: src/pages/settings/DiagnosticsPanel.tsx:293
 msgid "Rows"
 msgstr "行维"
@@ -1833,17 +1835,27 @@ msgstr "新打开的数据视图与预览对话框的每页行数。"
 
 #: src/components/editor/MonacoEditor.tsx:253
 #: src/components/views/MacroRunDialog.tsx:189
-#: src/components/views/PivotDialog.tsx:604
+#: src/components/views/PivotDialog.tsx:606
 msgid "Run"
 msgstr "运行"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.run'))
-#: src/pages/editor/EditorToolbar.tsx:81
+#: src/pages/editor/EditorToolbar.tsx:89
 msgid "Run ({0})"
 msgstr "运行（{0}）"
 
-#. placeholder {0}: formatHotkey(getHotkey('editor.runNewTab'))
+#. placeholder {0}: formatHotkey(getHotkey('editor.run'))
 #: src/pages/editor/EditorToolbar.tsx:88
+msgid "Run CTE {runCteName} ({0})"
+msgstr "运行 CTE {runCteName}（{0}）"
+
+#. placeholder {0}: formatHotkey(getHotkey('editor.runNewTab'))
+#: src/pages/editor/EditorToolbar.tsx:99
+msgid "Run CTE {runCteName} in new tab ({0})"
+msgstr "在新标签页运行 CTE {runCteName}（{0}）"
+
+#. placeholder {0}: formatHotkey(getHotkey('editor.runNewTab'))
+#: src/pages/editor/EditorToolbar.tsx:100
 msgid "Run in new tab ({0})"
 msgstr "在新标签页运行（{0}）"
 
@@ -1880,7 +1892,7 @@ msgid "Save"
 msgstr "保存"
 
 #. placeholder {0}: formatHotkey(getHotkey('editor.save'))
-#: src/pages/editor/EditorToolbar.tsx:165
+#: src/pages/editor/EditorToolbar.tsx:178
 msgid "Save ({0})"
 msgstr "保存（{0}）"
 
@@ -1896,8 +1908,8 @@ msgstr "保存 SQL 文件"
 msgid "Save values as @vars comment above SQL"
 msgstr "将变量以 @vars 注释写入 SQL 上方"
 
-#: src/pages/editor/EditorToolbar.tsx:166
-#: src/pages/editor/index.tsx:207
+#: src/pages/editor/EditorToolbar.tsx:179
+#: src/pages/editor/index.tsx:233
 msgid "Saved"
 msgstr "已保存"
 
@@ -1905,7 +1917,7 @@ msgstr "已保存"
 msgid "Schema"
 msgstr "Schema"
 
-#: src/components/custom/search.tsx:22
+#: src/components/custom/search.tsx:50
 #: src/components/PageTabs.tsx:617
 #: src/components/views/SchemaView.tsx:133
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:252
@@ -2005,7 +2017,7 @@ msgstr "选择 SQL 格式化器"
 msgid "Selection"
 msgstr "选中色"
 
-#: src/pages/editor/EditorToolbar.tsx:198
+#: src/pages/editor/EditorToolbar.tsx:235
 msgid "Session"
 msgstr "会话"
 
@@ -2051,8 +2063,8 @@ msgstr "显示 *.parquet"
 msgid "Show a minimap overview on the right side of the SQL editor."
 msgstr "在 SQL 编辑器右侧显示代码缩略图。"
 
-#: src/components/views/PivotDialog.tsx:608
-#: src/components/views/PivotDialog.tsx:828
+#: src/components/views/PivotDialog.tsx:610
+#: src/components/views/PivotDialog.tsx:832
 msgid "Show as"
 msgstr "显示为"
 
@@ -2175,7 +2187,7 @@ msgstr "向右拆分"
 msgid "SQL bookmarks"
 msgstr "SQL 书签"
 
-#: src/components/views/PivotDialog.tsx:430
+#: src/components/views/PivotDialog.tsx:432
 msgid "SQL copied"
 msgstr "SQL 已复制"
 
@@ -2267,19 +2279,19 @@ msgstr "SSL"
 msgid "Standard"
 msgstr "标准"
 
-#: src/pages/editor/EditorToolbar.tsx:110
+#: src/pages/editor/EditorToolbar.tsx:123
 msgid "Statement split: current statement"
 msgstr "语句分割：当前语句"
 
-#: src/pages/editor/EditorToolbar.tsx:111
+#: src/pages/editor/EditorToolbar.tsx:124
 msgid "Statement split: entire buffer"
 msgstr "语句分割：整个编辑器"
 
-#: src/components/views/ColumnProfileDialog.tsx:275
-#: src/components/views/CountByColumnDialog.tsx:235
-#: src/components/views/CountByQueryDialog.tsx:201
+#: src/components/views/ColumnProfileDialog.tsx:296
+#: src/components/views/CountByColumnDialog.tsx:255
+#: src/components/views/CountByQueryDialog.tsx:222
 #: src/components/views/ExportDialog.tsx:415
-#: src/components/views/PivotDialog.tsx:696
+#: src/components/views/PivotDialog.tsx:698
 msgid "Stop"
 msgstr "停止"
 
@@ -2305,8 +2317,8 @@ msgid "Tab width"
 msgstr "制表符宽度"
 
 #: src/components/PageTabs.tsx:621
-#: src/components/views/CountByColumnDialog.tsx:273
-#: src/components/views/CountByQueryDialog.tsx:239
+#: src/components/views/CountByColumnDialog.tsx:293
+#: src/components/views/CountByQueryDialog.tsx:260
 msgid "Table"
 msgstr "表"
 
@@ -2355,7 +2367,7 @@ msgid "This will permanently delete temporary SQL \"{pendingDisplayName}\". This
 msgstr "将永久删除临时 SQL “{pendingDisplayName}”。此操作无法撤销。"
 
 #. placeholder {0}: statements.length
-#: src/pages/editor/index.tsx:588
+#: src/pages/editor/index.tsx:645
 msgid "This will run {0} queries. Continue?"
 msgstr "将执行 {0} 条查询，是否继续？"
 
@@ -2378,15 +2390,15 @@ msgid "Token"
 msgstr "令牌"
 
 #. placeholder {0}: statements.length
-#: src/pages/editor/index.tsx:582
+#: src/pages/editor/index.tsx:639
 msgid "Too many combinations ({0}); limit is {limit}"
 msgstr "组合过多（{0}）；上限为 {limit}"
 
-#: src/components/views/ColumnProfileDialog.tsx:317
+#: src/components/views/ColumnProfileDialog.tsx:338
 msgid "Top values"
 msgstr "高频值"
 
-#: src/components/views/ColumnProfileDialog.tsx:285
+#: src/components/views/ColumnProfileDialog.tsx:306
 #: src/pages/settings/DiagnosticsPanel.tsx:284
 msgid "Total"
 msgstr "总计"
@@ -2428,7 +2440,7 @@ msgstr "取消勾选则导出 NDJSON（每行一个对象）。"
 msgid "Uncompressed"
 msgstr "不压缩"
 
-#: src/pages/editor/EditorToolbar.tsx:194
+#: src/pages/editor/EditorToolbar.tsx:214
 msgid "unknown"
 msgstr "未知"
 
@@ -2456,7 +2468,7 @@ msgstr "更新失败：{message}"
 msgid "Update source"
 msgstr "更新源"
 
-#: src/pages/editor/index.tsx:404
+#: src/pages/editor/index.tsx:458
 msgid "Updated @vars template"
 msgstr "已更新 @vars 模板"
 
@@ -2506,8 +2518,8 @@ msgstr "值"
 msgid "Value Viewer"
 msgstr "值查看器"
 
-#: src/components/views/PivotDialog.tsx:471
-#: src/components/views/PivotDialog.tsx:829
+#: src/components/views/PivotDialog.tsx:473
+#: src/components/views/PivotDialog.tsx:833
 msgid "Values"
 msgstr "原始值"
 

@@ -209,7 +209,7 @@ Click the **statement split** button (forked-arrows icon) next to Run:
 | **Off** (default) | Execute the entire editor buffer | No current-statement highlight |
 | **On** | Execute only the statement at the cursor | Rectangle around that statement (width follows the widest line of text, not full editor width) |
 
-- With a **non-empty selection**, the selection is always executed (toggle ignored).
+- With a **non-empty selection**, the selection is executed (toggle ignored), except a single CTE identifier, which previews that CTE.
 - Toggle state applies to the current editor tab; refreshing the app resets to off.
 
 ### How statements are bounded
@@ -242,7 +242,7 @@ The `{}` button (next to EXPLAIN) scans the current selection (or the full buffe
 
 - `Mod+B` — toggle sidebar
 - `Mod+/` — keyboard shortcuts help
-- `Mod+Enter` — run SQL (split off: full buffer; split on: current statement)
+- `Mod+Enter` — run SQL (split off: full buffer; split on: current statement; cursor on a CTE name: preview that CTE)
 - `Mod+Shift+Enter` — run SQL in a new tab
 - `Shift+Alt+F` — format document
 - `Mod+K` then `Mod+F` — format selection

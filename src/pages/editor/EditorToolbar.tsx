@@ -55,6 +55,7 @@ export function EditorToolbar({
   onSave,
   canSave = false,
   dirty = false,
+  runCteName,
 }: {
   onClick: (action?: string) => void;
   onHasLimit: (limit: boolean) => void;
@@ -72,6 +73,7 @@ export function EditorToolbar({
   onSave?: () => void;
   canSave?: boolean;
   dirty?: boolean;
+  runCteName?: string | null;
 }) {
   const { t } = useLingui();
 
@@ -81,14 +83,22 @@ export function EditorToolbar({
         <Stack>
           <TooltipButton
             className="text-green-900"
-            tooltip={t`Run (${formatHotkey(getHotkey('editor.run'))})`}
+            tooltip={
+              runCteName
+                ? t`Run CTE ${runCteName} (${formatHotkey(getHotkey('editor.run'))})`
+                : t`Run (${formatHotkey(getHotkey('editor.run'))})`
+            }
             onClick={() => onClick()}
           >
             <PlayIcon fontSize="inherit" />
           </TooltipButton>
           <TooltipButton
             className="text-green-900"
-            tooltip={t`Run in new tab (${formatHotkey(getHotkey('editor.runNewTab'))})`}
+            tooltip={
+              runCteName
+                ? t`Run CTE ${runCteName} in new tab (${formatHotkey(getHotkey('editor.runNewTab'))})`
+                : t`Run in new tab (${formatHotkey(getHotkey('editor.runNewTab'))})`
+            }
             onClick={() => onClick('new')}
           >
             <ListPlusIcon fontSize="inherit" />
