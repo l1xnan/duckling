@@ -38,6 +38,20 @@ const tooltipProps = {
   className: 'font-mono text-xs',
 } as React.ComponentProps<typeof TooltipContent>;
 
+function CteRunMark({ visible }: { visible: boolean }) {
+  if (!visible) {
+    return null;
+  }
+  return (
+    <span
+      aria-hidden
+      className="pointer-events-none absolute -right-0.5 -bottom-px rounded-[1px] bg-primary px-px text-[6px] font-mono font-semibold leading-none text-primary-foreground"
+    >
+      CTE
+    </span>
+  );
+}
+
 export function EditorToolbar({
   onClick,
   session,
@@ -82,7 +96,10 @@ export function EditorToolbar({
       <ToolbarBox>
         <Stack>
           <TooltipButton
-            className="text-green-900"
+            className={
+              runCteName ? 'relative overflow-visible text-primary' : 'text-green-900'
+            }
+            active={!!runCteName}
             tooltip={
               runCteName
                 ? t`Run CTE ${runCteName} (${formatHotkey(getHotkey('editor.run'))})`
@@ -90,10 +107,16 @@ export function EditorToolbar({
             }
             onClick={() => onClick()}
           >
-            <PlayIcon fontSize="inherit" />
+            <span className="relative inline-flex size-4 [&>svg]:size-4">
+              <PlayIcon />
+              <CteRunMark visible={!!runCteName} />
+            </span>
           </TooltipButton>
           <TooltipButton
-            className="text-green-900"
+            className={
+              runCteName ? 'relative overflow-visible text-primary' : 'text-green-900'
+            }
+            active={!!runCteName}
             tooltip={
               runCteName
                 ? t`Run CTE ${runCteName} in new tab (${formatHotkey(getHotkey('editor.runNewTab'))})`
@@ -101,7 +124,10 @@ export function EditorToolbar({
             }
             onClick={() => onClick('new')}
           >
-            <ListPlusIcon fontSize="inherit" />
+            <span className="relative inline-flex size-4 [&>svg]:size-4">
+              <ListPlusIcon />
+              <CteRunMark visible={!!runCteName} />
+            </span>
           </TooltipButton>
 
           <TooltipButton
