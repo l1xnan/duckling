@@ -7,7 +7,7 @@ use async_trait::async_trait;
 use glob::glob;
 
 use crate::dialect::Connection;
-use crate::dialect::duckdb::duckdb_sync;
+use crate::dialect::duckdb::duckdb_sync::{self, escape_sql_char_literal};
 use crate::utils::{FunctionMeta, Metadata, RawArrowData, TreeNode};
 
 #[derive(Debug, Default, Clone)]
@@ -36,7 +36,7 @@ impl Connection for FolderConnection {
   }
 
   async fn query(&self, sql: &str, _limit: usize, _offset: usize) -> anyhow::Result<RawArrowData> {
-    let path = self.path.clone();
+    let path = escape_sql_char_literal(&self.path);
     let sql = sql.to_string();
     crate::dialect::run_blocking(move || {
       let conn = duckdb::Connection::open_in_memory()?;
@@ -47,7 +47,7 @@ impl Connection for FolderConnection {
   }
 
   async fn query_count(&self, sql: &str) -> anyhow::Result<usize> {
-    let path = self.path.clone();
+    let path = escape_sql_char_literal(&self.path);
     let sql = sql.to_string();
     crate::dialect::run_blocking(move || {
       let conn = duckdb::Connection::open_in_memory()?;
@@ -64,7 +64,7 @@ impl Connection for FolderConnection {
   }
 
   async fn functions(&self) -> anyhow::Result<Vec<FunctionMeta>> {
-    let path = self.path.clone();
+    let path = escape_sql_char_literal(&self.path);
     crate::dialect::run_blocking(move || {
       let conn = duckdb::Connection::open_in_memory()?;
       conn.execute(&format!("SET file_search_path='{path}'"), [])?;
@@ -83,30 +83,34 @@ impl Connection for FolderConnection {
 
     let path = Path::new(table);
     let ext = path.extension().unwrap_or_default();
+    let table_sql = escape_sql_char_literal(table);
     let sql = if path.is_dir() {
       let mut tmp = vec![];
       let pattern = format!("{table}/**/*.parquet");
       if exist_glob(&pattern) {
+        let pattern = escape_sql_char_literal(&pattern);
         tmp.push(format!("SELECT '*.parquet' as file_type, * FROM (DESCRIBE select * FROM read_parquet('{pattern}', union_by_name = true))"));
       }
 
       let pattern = format!("{table}/**/*.csv");
       if exist_glob(&pattern) {
+        let pattern = escape_sql_char_literal(&pattern);
         tmp.push(format!("SELECT '*.csv' as file_type, * FROM (DESCRIBE select * FROM read_csv('{pattern}', union_by_name = true))"));
       }
 
       let pattern = format!("{table}/**/*.tsv");
       if exist_glob(&pattern) {
+        let pattern = escape_sql_char_literal(&pattern);
         tmp.push(format!("SELECT '*.tsv' as file_type, * FROM (DESCRIBE select * FROM read_csv('{pattern}', union_by_name = true, delim = '\t'))"));
       }
 
       tmp.join("\n union all \n")
     } else if ext == "parquet" {
-      format!("DESCRIBE select * from read_parquet('{table}')")
+      format!("DESCRIBE select * from read_parquet('{table_sql}')")
     } else if ext == "csv" {
-      format!("DESCRIBE select * from read_csv('{table}', union_by_name=true)")
+      format!("DESCRIBE select * from read_csv('{table_sql}', union_by_name=true)")
     } else if ext == "tsv" {
-      format!("DESCRIBE select * from read_csv('{table}', union_by_name=true, delim='\t')")
+      format!("DESCRIBE select * from read_csv('{table_sql}', union_by_name=true, delim='\t')")
     } else {
       String::new()
     };
@@ -124,7 +128,7 @@ impl Connection for FolderConnection {
     Ok(String::new())
   }
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
-    let path = self.path.clone();
+    let path = escape_sql_char_literal(&self.path);
     let sql = self._table_count_sql(table, r#where);
     crate::dialect::run_blocking(move || {
       let conn = duckdb::Connection::open_in_memory()?;
@@ -150,7 +154,7 @@ impl Connection for FolderConnection {
     if let Some(t) = cancel {
       t.check()?;
     }
-    let path = self.path.clone();
+    let path = escape_sql_char_literal(&self.path);
     let sql = sql.to_string();
     let file = file.to_string();
     let format = format.to_string();
@@ -168,10 +172,12 @@ impl Connection for FolderConnection {
     let path = Path::new(table);
 
     let ext = path.extension().unwrap_or_default();
+    let table_sql = escape_sql_char_literal(table);
     let sql = if path.is_dir() {
       let mut tmp = vec![];
       let pattern = format!("{table}/**/*.parquet");
       if exist_glob(&pattern) {
+        let pattern = escape_sql_char_literal(&pattern);
         tmp.push(format!(
           "select * FROM read_parquet('{pattern}', union_by_name=true, filename=true)"
         ));
@@ -179,6 +185,7 @@ impl Connection for FolderConnection {
 
       let pattern = format!("{table}/**/*.csv");
       if exist_glob(&pattern) {
+        let pattern = escape_sql_char_literal(&pattern);
         tmp.push(format!(
           "select * FROM read_csv('{pattern}', union_by_name=true, filename=true)"
         ));
@@ -186,6 +193,7 @@ impl Connection for FolderConnection {
 
       let pattern = format!("{table}/**/*.tsv");
       if exist_glob(&pattern) {
+        let pattern = escape_sql_char_literal(&pattern);
         tmp.push(format!(
           "select * FROM read_csv('{pattern}', union_by_name=true, filename=true, delim='\t')"
         ));
@@ -193,13 +201,13 @@ impl Connection for FolderConnection {
 
       tmp.join("\n union all \n")
     } else if ext == "parquet" {
-      format!("select * from read_parquet('{table}', union_by_name=true, filename=true)")
+      format!("select * from read_parquet('{table_sql}', union_by_name=true, filename=true)")
     } else if ext == "csv" {
-      format!("select * from read_csv('{table}', union_by_name=true, filename=true)")
+      format!("select * from read_csv('{table_sql}', union_by_name=true, filename=true)")
     } else if ext == "tsv" {
-      format!("select * from read_csv('{table}', union_by_name=true, filename=true, delim='\t')")
+      format!("select * from read_csv('{table_sql}', union_by_name=true, filename=true, delim='\t')")
     } else if ext == "xlsx" {
-      format!("select * from read_xlsx('{table}', ignore_errors=true)")
+      format!("select * from read_xlsx('{table_sql}', ignore_errors=true)")
     } else {
       String::new()
     };
@@ -417,6 +425,28 @@ fn exist_glob(pattern: &str) -> bool {
   false
 }
 
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[tokio::test]
+  async fn show_column_escapes_quote_in_dir_name() {
+    let root = std::env::temp_dir().join(format!("duckling_folder_{}", nanoid::nanoid!(8)));
+    let dir = root.join("Bob's data");
+    let _ = fs::create_dir_all(&dir);
+    let _ = fs::write(dir.join("rows.csv"), "a,b\n1,x\n");
+
+    let conn = FolderConnection {
+      path: root.display().to_string(),
+      cwd: None,
+    };
+    let res = conn.show_column(None, &dir.display().to_string()).await;
+
+    let _ = fs::remove_dir_all(&root);
+    assert!(res.is_ok(), "{:?}", res.err());
+  }
+}
 
 #[tokio::test]
 #[ignore = "requires local parquet-testing fixtures"]
