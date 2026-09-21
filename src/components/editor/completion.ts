@@ -10,6 +10,7 @@ import {
   buildFunctionSuggestions,
   buildKeywordSuggestions,
   functionsForDialect,
+  isCompletionFunctionName,
   unionSuggestions,
 } from '@/components/editor/dialectSuggestions';
 import { completionRegistry, dialectRegistry } from '@/components/editor/monacoConfig';
@@ -83,6 +84,15 @@ export async function handleProvideCompletionItems(
 
   const word = model.getWordUntilPosition(position);
   const code = model.getValue();
+
+  // Enter is not a completion trigger; keep this even if `\n` is re-added
+  // to triggerCharacters so a newline never dumps the full function list.
+  if (
+    context?.triggerKind === monaco.languages.CompletionTriggerKind.TriggerCharacter &&
+    context.triggerCharacter === '\n'
+  ) {
+    return { suggestions: [] };
+  }
 
   let offset = model.getOffsetAt(position);
 
@@ -190,6 +200,9 @@ function unionFunctions(
   const seen = new Set<string>();
   const out: string[] = [];
   for (const name of [...db, ...curated]) {
+    if (!isCompletionFunctionName(name)) {
+      continue;
+    }
     const key = name.toLowerCase();
     if (seen.has(key)) {
       continue;

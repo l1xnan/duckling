@@ -7,6 +7,7 @@ import {
   buildFunctionSuggestions,
   buildKeywordSuggestions,
   functionsForDialect,
+  isCompletionFunctionName,
   unionSuggestions,
 } from '@/components/editor/dialectSuggestions';
 
@@ -84,6 +85,26 @@ describe('builders and merge', () => {
       { type: ContextType.FUNCTION, label: 'count', insertText: 'count($0)', snippet: true },
       { type: ContextType.FUNCTION, label: 'groupArray', insertText: 'groupArray($0)', snippet: true },
     ]);
+  });
+
+  it('drops DuckDB operator names that are not unquoted identifiers', () => {
+    for (const name of ['!__postfix', '!~~', '!~~*', '%', '&', '&&', '||', '->>']) {
+      expect(isCompletionFunctionName(name)).toBe(false);
+    }
+    expect(isCompletionFunctionName('count')).toBe(true);
+    expect(isCompletionFunctionName('read_parquet')).toBe(true);
+    expect(isCompletionFunctionName('groupArray')).toBe(true);
+
+    const items = buildFunctionSuggestions([
+      '!__postfix',
+      '!~~',
+      '%',
+      '&',
+      '&&',
+      'count',
+      'strftime',
+    ]);
+    expect(items.map((i) => i.label)).toEqual(['count', 'strftime']);
   });
 
   it('uses the default keyword list when none passed', () => {

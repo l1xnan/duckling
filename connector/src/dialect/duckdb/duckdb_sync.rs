@@ -235,6 +235,10 @@ pub(crate) fn list_functions(conn: &duckdb::Connection) -> anyhow::Result<Vec<Fu
   let mut out = Vec::new();
   for row in rows {
     let (name, kind) = row?;
+    // Skip operators catalogued as functions (`!~~`, `%`, `&&`, `!__postfix`).
+    if !is_completion_function_name(&name) {
+      continue;
+    }
     if seen.insert(name.to_lowercase()) {
       out.push(FunctionMeta {
         name,
@@ -243,6 +247,15 @@ pub(crate) fn list_functions(conn: &duckdb::Connection) -> anyhow::Result<Vec<Fu
     }
   }
   Ok(out)
+}
+
+fn is_completion_function_name(name: &str) -> bool {
+  let mut chars = name.chars();
+  match chars.next() {
+    Some(c) if c.is_ascii_alphabetic() || c == '_' => {}
+    _ => return false,
+  }
+  chars.all(|c| c.is_ascii_alphanumeric() || c == '_')
 }
 
 pub fn query(conn: &duckdb::Connection, sql: &str) -> anyhow::Result<RawArrowData> {
@@ -399,6 +412,26 @@ fn test_duckdb_functions_lists_builtins() {
       "duckdb_functions() missing {required}"
     );
   }
+  for f in &fns {
+    assert!(
+      is_completion_function_name(&f.name),
+      "operator-like function leaked into completion list: {}",
+      f.name
+    );
+  }
+}
+
+#[test]
+fn test_completion_function_name_rejects_operators() {
+  for name in ["!__postfix", "!~~", "!~~*", "%", "&", "&&", "||", "->>"] {
+    assert!(
+      !is_completion_function_name(name),
+      "{name} should not be a completion identifier"
+    );
+  }
+  assert!(is_completion_function_name("count"));
+  assert!(is_completion_function_name("read_parquet"));
+  assert!(is_completion_function_name("_internal"));
 }
 
 #[test]

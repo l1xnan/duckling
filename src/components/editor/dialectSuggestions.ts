@@ -201,9 +201,17 @@ export function buildKeywordSuggestions(keywords?: string[]): SuggestionType[] {
   }));
 }
 
+/**
+ * Unquoted SQL identifiers only. DuckDB catalogs operators as functions
+ * (`!~~`, `%`, `&&`, `!__postfix`, …); those are not useful in autocomplete.
+ */
+export function isCompletionFunctionName(name: string): boolean {
+  return /^[A-Za-z_][A-Za-z0-9_]*$/.test(name);
+}
+
 /** Function items insert as `name($0)` so the cursor lands inside the parens. */
 export function buildFunctionSuggestions(functions: string[]): SuggestionType[] {
-  return functions.map((name) => ({
+  return functions.filter(isCompletionFunctionName).map((name) => ({
     type: ContextType.FUNCTION,
     label: name,
     insertText: `${name}($0)`,

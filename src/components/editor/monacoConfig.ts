@@ -23,7 +23,9 @@ export function registerUriBasedCompletionProvider(languageId: string) {
   const disposable = monaco.languages.registerCompletionItemProvider(
     languageId,
     {
-      triggerCharacters: ['.', ' ', '(', "'", '"', '`', '\n'],
+      // Do not include `\n`: Enter should insert a newline, not open suggest
+      // (DuckDB operator names like `!~~` otherwise rank to the top).
+      triggerCharacters: ['.', ' ', '(', "'", '"', '`'],
       provideCompletionItems: (model, position, _context, _token) => {
         return handleProvideCompletionItems(model, position, _context);
       },
