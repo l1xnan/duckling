@@ -3,6 +3,7 @@
  */
 
 import { quoteIdent, quoteTableExpr } from '@/lib/sql/countByColumn';
+import { wrapSqlAsAliasedSubquery } from '@/lib/sql/wrapSubquery';
 
 export type PivotAgg = 'count' | 'sum' | 'avg' | 'min' | 'max';
 
@@ -153,8 +154,7 @@ function fromClause(source: PivotSource): string {
   if (source.kind === 'table') {
     return quoteTableExpr(source.tableExpr, source.dialect);
   }
-  const inner = source.sourceSql.trim().replace(/;+\s*$/, '');
-  return `(${inner}) AS __pivot_src`;
+  return wrapSqlAsAliasedSubquery(source.sourceSql, '__pivot_src');
 }
 
 export function buildPivotSql(

@@ -42,7 +42,7 @@ describe('count-by subquery SQL', () => {
       dialect: 'postgres',
       limit: 50,
     });
-    expect(sql).toContain('FROM (SELECT id, status FROM orders) AS __count_src');
+    expect(sql).toContain('FROM (\nSELECT id, status FROM orders\n) AS __count_src');
     expect(sql).toContain('GROUP BY "status"');
     expect(sql).toContain('LIMIT 50');
     expect(sql).not.toMatch(/orders\);/);

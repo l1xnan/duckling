@@ -71,7 +71,7 @@ describe('countByColumn SQL', () => {
 
   it('builds subquery row count SQL', () => {
     expect(buildSubqueryRowCountSql('SELECT * FROM t;')).toBe(
-      'SELECT COUNT(*) AS count FROM (SELECT * FROM t) AS __count_src',
+      'SELECT COUNT(*) AS count FROM (\nSELECT * FROM t\n) AS __count_src',
     );
   });
 });

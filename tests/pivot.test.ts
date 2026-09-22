@@ -65,7 +65,7 @@ describe('pivot SQL', () => {
       dialect: 'duckdb',
     });
     expect(sql).toContain(
-      'FROM (SELECT * FROM t WHERE x > 1) AS __pivot_src',
+      'FROM (\nSELECT * FROM t WHERE x > 1\n) AS __pivot_src',
     );
   });
 
@@ -156,7 +156,7 @@ describe('pivot SQL', () => {
       dialect: 'duckdb',
     });
     expect(subSql).toContain('COUNT(DISTINCT "year")');
-    expect(subSql).toContain('FROM (SELECT * FROM t) AS __pivot_src');
+    expect(subSql).toContain('FROM (\nSELECT * FROM t\n) AS __pivot_src');
   });
 
   it('classifies numeric aggregations', () => {
