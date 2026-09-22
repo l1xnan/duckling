@@ -23,6 +23,7 @@ import {
   joinComputedSelectList,
   type ComputedColumn,
 } from '@/lib/sql/computedColumns';
+import type { PivotMeasure, PivotShowAs } from '@/lib/sql/pivot';
 
 import { Direction, SchemaType } from './dataset';
 import { getDbMap, getTableMap, whenRegistryReady } from './dbList';
@@ -168,12 +169,43 @@ export type SearchContextType = {
   displayName: string;
 };
 
+/** JSON-safe column metadata for pivot tabs (Arrow DataType is not persistable). */
+export type PivotColumnSnapshot = { name: string; numeric: boolean };
+
+export type PivotContextType = {
+  id: string;
+  type: 'pivot';
+  displayName: string;
+  dbId: string;
+  beautify?: boolean;
+
+  sourceKind: 'table' | 'subquery';
+  /** Original table/file tab type, used by getParams for file sources. */
+  tableType?: string;
+  tableId?: string;
+  tableName?: string;
+  schema?: string;
+  sourceSql?: string;
+  sqlWhere?: string;
+  computedColumns?: ComputedColumn[];
+  columns: PivotColumnSnapshot[];
+
+  pivotRows: string[];
+  pivotColumns: string[];
+  pivotMeasures: PivotMeasure[];
+  showAs: PivotShowAs;
+
+  sourceTabId?: string;
+  lastSql?: string;
+};
+
 export type TabContextType =
   | SearchContextType
   | SchemaContextType
   | TableContextType
   | EditorContextType
-  | QueryContextType;
+  | QueryContextType
+  | PivotContextType;
 
 interface TabsState {
   /** Flat tab order derived from layout (for sidebar / compat). */

@@ -1,5 +1,5 @@
 import { DragOverlay, useDragDropMonitor } from '@dnd-kit/react';
-import { Code2Icon, SearchIcon, TableIcon } from 'lucide-react';
+import { Code2Icon, LayoutGridIcon, SearchIcon, TableIcon } from 'lucide-react';
 import {
   createContext,
   useContext,
@@ -260,6 +260,7 @@ export function resolveTabDrop(
 function OverlayIcon({ type }: { type: string }) {
   if (type === 'search') return <SearchIcon className="size-4 shrink-0" />;
   if (type === 'editor') return <Code2Icon className="size-4 shrink-0" />;
+  if (type === 'pivot') return <LayoutGridIcon className="size-4 shrink-0" />;
   return <TableIcon className="size-4 shrink-0" />;
 }
 

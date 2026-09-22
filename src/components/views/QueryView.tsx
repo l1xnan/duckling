@@ -321,6 +321,7 @@ export function QueryView({
         sourceSql={ctx.sql || ctx.stmt || ''}
         initialRowField={pivotRowField}
         beautify={ctx.beautify}
+        sourceTabId={editorId}
       />
     </div>
   );

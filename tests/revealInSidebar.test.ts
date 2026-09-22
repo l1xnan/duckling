@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import type { DBType } from '@/stores/dbList';
-import type { TabContextType } from '@/stores/tabs';
+import type { QueryContextType, TabContextType } from '@/stores/tabs';
 import { useQuerySessionStore } from '@/stores/querySession';
 import type { TreeNode } from '@/types';
 import { DB_TREE_ROOT } from '@/lib/dbTreeData';
@@ -107,7 +107,7 @@ describe('isLocatableTab', () => {
         type: 'editor',
       } as TabContextType),
     ).toBe(false);
-    for (const type of ['query', 'schema', 'search']) {
+    for (const type of ['query', 'schema', 'search', 'pivot']) {
       expect(
         isLocatableTab({ id: 'x', dbId: 'db1', displayName: 'x', type } as TabContextType),
       ).toBe(false);
@@ -253,7 +253,7 @@ describe('getEffectiveTab', () => {
       displayName: 'Result 1',
       type: 'query',
       stmt: 'select 1',
-    } as TabContextType;
+    } as QueryContextType;
     appendChild('D:/sql/q.sql', child);
     setActiveKey('D:/sql/q.sql', child.id);
     const effective = getEffectiveTab(editor, child.id);

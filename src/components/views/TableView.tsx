@@ -305,6 +305,7 @@ export function TableView({ context }: { context: TabContextType }) {
         computedColumns={computedColumns}
         initialRowField={pivotRowField}
         beautify={beautify}
+        sourceTabId={context.id}
       />
       <ComputedColumnsDialog
         {...computedColumnsDialog.props}

@@ -10,6 +10,7 @@ description: Pivot tables, column profiling, count-by-column, and the value view
 Build pivots from **row dimensions**, **column dimensions**, and **measures** (`count` / `sum` / `avg` / `min` / `max`), with:
 
 - **High-cardinality warnings** — get a heads-up before expanding an enormous set of categories.
+- **Open as a tab** — from the pivot dialog, choose **Open in tab** to keep the configuration in a dedicated workspace tab (`pivot` type). You can change dimensions and measures there and **Run** again. The tab remembers the source snapshot and config (not the result grid); after restart, click **Run** to refresh. Right-click the tab to **Copy pivot SQL** or **Go to source**.
 - **Copy-SQL support** — export the pivot definition as SQL for reuse or inspection.
 - **Show as** — after running, switch the result grid to **values**, **% of row**, or **% of column** (frontend-only; does not change the SQL). Each measure is normalized independently. If the query hits the **5000** group cap, percentages are relative to the returned groups only.
 - **Column header sort** — click a column dimension header (or corner title) or measure column header to sort (asc / desc / clear). Sorting uses the currently displayed values (including percent mode) and does not re-query. Column dimensions default to stable ascending order.

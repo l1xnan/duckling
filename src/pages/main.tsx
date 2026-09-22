@@ -17,6 +17,7 @@ import {
 import {
   ColumnSchemaView,
   DatabaseSchemaView,
+  PivotView,
   TableView,
 } from '@/components/views';
 import { SearchView } from '@/components/views/SchemaView';
@@ -24,6 +25,7 @@ import { PageProvider } from '@/hooks/context';
 import { useRevealInSidebar } from '@/hooks/useRevealInSidebar';
 import { findLeafByTab, type PaneLeaf } from '@/stores/tabLayout';
 import {
+  PivotContextType,
   SchemaContextType,
   TabContextType,
   TableContextType,
@@ -60,6 +62,9 @@ function TabContent({ tab }: { tab: TabContextType }) {
         <MonacoEditor context={tab} />
       </PageProvider>
     );
+  }
+  if (tab.type === 'pivot') {
+    return <PivotView context={tab as PivotContextType} />;
   }
 
   return (

@@ -67,7 +67,7 @@ export interface DataViewToolbarProps {
   onResultFilterChange?: (value: string) => void;
   /** Optional: apply filter text into server WHERE. */
   onApplyFilterToWhere?: () => void;
-  /** Open pivot table dialog. */
+  /** Open pivot table dialog (can convert to a workspace tab). */
   onPivot?: () => void;
   /** Open computed columns dialog (table browse). */
   onComputedColumns?: () => void;

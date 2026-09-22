@@ -13,6 +13,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   BookmarkIcon,
   Code2Icon,
+  LayoutGridIcon,
   SearchIcon,
   TableIcon,
   Trash2Icon,
@@ -100,7 +101,9 @@ export function Favorite() {
             ? SearchIcon
             : item.type == 'editor'
               ? Code2Icon
-              : TableIcon;
+              : item.type == 'pivot'
+                ? LayoutGridIcon
+                : TableIcon;
         return (
           <ItemLabel
             key={i}

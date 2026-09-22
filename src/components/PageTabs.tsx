@@ -9,6 +9,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Code2Icon,
+  LayoutGridIcon,
   SearchIcon,
   TableIcon,
   XIcon,
@@ -50,7 +51,7 @@ import { isScratchPath, removeScratch } from '@/lib/scratchSql';
 import { cn } from '@/lib/utils';
 import { docsAtom, favoriteAtom } from '@/stores/app';
 import { useEditorDirtyStore } from '@/stores/editorDirty';
-import { EditorContextType, TabContextType, useTabsStore } from '@/stores/tabs';
+import { EditorContextType, PivotContextType, TabContextType, useTabsStore } from '@/stores/tabs';
 import { toast } from 'sonner';
 
 export interface PageTabsProps {
@@ -87,6 +88,8 @@ export const TabTypeIcon = ({
     <SearchIcon {...props} />
   ) : type == 'editor' ? (
     <Code2Icon {...props} />
+  ) : type == 'pivot' ? (
+    <LayoutGridIcon {...props} />
   ) : (
     <TableIcon {...props} />
   );
@@ -103,13 +106,15 @@ export function TabItemContextMenu({
   onRemoveOther: (key: string) => void;
   onRevealInSidebar?: (tab: TabContextType) => void;
 }>) {
+  const { t } = useLingui();
   const setFavorite = useSetAtom(favoriteAtom);
   const setDocs = useSetAtom(docsAtom);
 
-  const { removeTab, split } = useTabsStore(
+  const { removeTab, split, active } = useTabsStore(
     useShallow((state) => ({
       removeTab: state.remove,
       split: state.split,
+      active: state.active,
     })),
   );
 
@@ -195,6 +200,33 @@ export function TabItemContextMenu({
           >
             <Trans>Copy</Trans>
           </ContextMenuItem>
+          {tab.type === 'pivot' ? (
+            <>
+              <ContextMenuSeparator />
+              <ContextMenuItem
+                onClick={async () => {
+                  const sql = (tab as PivotContextType).lastSql;
+                  if (!sql) {
+                    toast.error(t`No pivot SQL yet. Run the pivot first.`);
+                    return;
+                  }
+                  await writeText(sql);
+                }}
+              >
+                <Trans>Copy pivot SQL</Trans>
+              </ContextMenuItem>
+              {(tab as PivotContextType).sourceTabId ? (
+                <ContextMenuItem
+                  onClick={() => {
+                    const sid = (tab as PivotContextType).sourceTabId;
+                    if (sid) active(sid);
+                  }}
+                >
+                  <Trans>Go to source</Trans>
+                </ContextMenuItem>
+              ) : null}
+            </>
+          ) : null}
           {tab.type == 'editor' ? (
             <>
               <ContextMenuSeparator />
@@ -623,7 +655,9 @@ export function CloseableItem({ tab, onRemove }: TabItemProps) {
             ? t`Schema`
             : tab.type === 'query'
               ? t`Query`
-              : tab.type;
+              : tab.type === 'pivot'
+                ? t`Pivot`
+                : tab.type;
   const title =
     dirty && tab.type === 'editor'
       ? `${tab.displayName} *`
