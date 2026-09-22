@@ -1,10 +1,8 @@
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { writeText } from '@tauri-apps/plugin-clipboard-manager';
-import { CopyIcon, PlusIcon, XIcon } from 'lucide-react';
+import { PlusIcon, XIcon } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { toast } from 'sonner';
 
 import { cancelQuery, query } from '@/api';
 import Dialog from '@/components/custom/Dialog';
@@ -20,6 +18,7 @@ import {
   SelectValue,
 } from '@/components/custom/ui/select';
 import { Loading } from '@/components/views/TableView';
+import { SqlPreview } from '@/components/views/SqlPreview';
 import { isQueryErrorCode } from '@/lib/capabilities';
 import { connectionRef, type DialectRef } from '@/lib/connectionRef';
 import {
@@ -425,16 +424,6 @@ export function PivotDialog({
     }
   };
 
-  const handleCopySql = async () => {
-    if (!sql) return;
-    try {
-      await writeText(sql);
-      toast.success(t`SQL copied`);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : String(e));
-    }
-  };
-
   const capLimit = DEFAULT_PIVOT_LIMIT;
 
   const fieldSelectItems = useMemo(
@@ -662,25 +651,7 @@ export function PivotDialog({
           </div>
         ) : null}
 
-        {sql ? (
-          <div className="flex max-h-16 shrink-0 items-start gap-1 rounded-md border bg-muted/40">
-            <div className="min-w-0 flex-1 overflow-auto px-3 py-2 font-mono text-xs break-all select-text">
-              {sql}
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xs"
-              className="m-1 shrink-0"
-              onClick={() => {
-                void handleCopySql();
-              }}
-              aria-label={t`Copy SQL`}
-            >
-              <CopyIcon className="size-3.5" />
-            </Button>
-          </div>
-        ) : null}
+        {sql ? <SqlPreview sql={sql} /> : null}
 
         {/* Result */}
         <div className="min-h-0 flex-1 overflow-hidden rounded-md border">

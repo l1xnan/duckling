@@ -8,6 +8,7 @@ import Dialog from '@/components/custom/Dialog';
 import { SimpleTable } from '@/components/tables';
 import { Button } from '@/components/custom/ui/button';
 import { Loading } from '@/components/views/TableView';
+import { SqlPreview } from '@/components/views/SqlPreview';
 import { isQueryErrorCode } from '@/lib/capabilities';
 import {
   buildColumnProfileSql,
@@ -276,11 +277,7 @@ export function ColumnProfileDialog({
       className="min-w-[min(720px,90vw)] h-[min(560px,90vh)]"
     >
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden pt-2">
-        {sql ? (
-          <div className="shrink-0 max-h-20 overflow-auto rounded-md border bg-muted/40 px-3 py-2 font-mono text-xs break-all select-text">
-            {sql}
-          </div>
-        ) : null}
+        {sql ? <SqlPreview sql={sql} /> : null}
 
         {loading ? (
           <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3">

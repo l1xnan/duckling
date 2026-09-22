@@ -2,9 +2,11 @@ import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { IconDecimal } from '@tabler/icons-react';
+import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import {
   CodeIcon,
   Columns3CogIcon,
+  CopyIcon,
   CrossIcon,
   DownloadIcon,
   EyeIcon,
@@ -15,6 +17,7 @@ import {
   SquareIcon,
   XIcon,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Stack, ToolbarContainer } from '@/components/Toolbar';
 
@@ -243,8 +246,22 @@ export function DataViewToolbar({
               />
             }
           ></PopoverTrigger>
-          <PopoverContent className="h-[160px] w-[min(90vw,32rem)] pr-2">
+          <PopoverContent className="relative h-[160px] w-[min(90vw,32rem)] pr-2 pl-8">
             <SQLCodeViewer className="text-sm" sql={sql ?? ''} />
+            <TooltipButton
+              icon={<CopyIcon className="size-3.5" />}
+              tooltip={t`Copy SQL`}
+              disabled={!sql}
+              className="absolute top-1 left-1"
+              onClick={() => {
+                if (!sql) return;
+                void writeText(sql)
+                  .then(() => toast.success(t`SQL copied`))
+                  .catch((e) =>
+                    toast.error(e instanceof Error ? e.message : String(e)),
+                  );
+              }}
+            />
           </PopoverContent>
         </Popover>
 
