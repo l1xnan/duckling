@@ -7,12 +7,14 @@ import {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useLayoutEffect,
   useRef,
 } from 'react';
 
 import type { Parser } from '@/ast';
 import { getSqlParser } from '@/ast/parserSingleton';
 import { CompleteMetaType } from '@/ast/analyze';
+import { attachEditorViewState } from '@/components/editor/attachEditorViewState';
 import { useRegister } from '@/components/editor/useRegister';
 import { i18n } from '@/i18n';
 import { cursorStateFromMonaco } from '@/lib/editorCursorFormat';
@@ -49,6 +51,8 @@ const MonacoEditor = forwardRef<
     onRun: () => void;
     /** When set, cursor/selection is published for the status bar. */
     editorId?: string;
+    /** When false, the editor tab is hidden; used to save/restore scroll. */
+    editorActive?: boolean;
     /** Highlight and run only the statement at the cursor (when no selection). */
     statementSplitEnabled?: boolean;
   }
@@ -57,6 +61,7 @@ const MonacoEditor = forwardRef<
     completeMeta,
     dialect,
     editorId,
+    editorActive = true,
     statementSplitEnabled = false,
     ...props
   },
@@ -68,8 +73,13 @@ const MonacoEditor = forwardRef<
   });
   const sqlParserRef = useRef<Parser | null>(null);
   const refreshStatementHighlightRef = useRef<(() => void) | null>(null);
+  const viewStateHandleRef = useRef<ReturnType<
+    typeof attachEditorViewState
+  > | null>(null);
   const statementSplitEnabledRef = useRef(statementSplitEnabled);
   statementSplitEnabledRef.current = statementSplitEnabled;
+  const editorActiveRef = useRef(editorActive);
+  editorActiveRef.current = editorActive;
 
   useEffect(() => {
     void getSqlParser().then((p) => {
@@ -81,6 +91,17 @@ const MonacoEditor = forwardRef<
   useEffect(() => {
     refreshStatementHighlightRef.current?.();
   }, [statementSplitEnabled]);
+
+  useLayoutEffect(() => {
+    viewStateHandleRef.current?.setActive(editorActive);
+  }, [editorActive]);
+
+  useEffect(() => {
+    return () => {
+      viewStateHandleRef.current?.dispose();
+      viewStateHandleRef.current = null;
+    };
+  }, []);
 
   useEffect(() => {
     if (!editorId) {
@@ -141,6 +162,13 @@ const MonacoEditor = forwardRef<
     handleEditorDidMount(editor, monaco);
 
     if (editorId) {
+      viewStateHandleRef.current?.dispose();
+      const handle = attachEditorViewState(
+        editor,
+        editorId,
+        editorActiveRef.current,
+      );
+      viewStateHandleRef.current = handle;
       let raf = 0;
       const stmtDecorations = editor.createDecorationsCollection([]);
       const updateStatementHighlight = () => {
@@ -244,6 +272,8 @@ const MonacoEditor = forwardRef<
         d3.dispose();
         stmtDecorations.clear();
         refreshStatementHighlightRef.current = null;
+        viewStateHandleRef.current?.dispose();
+        viewStateHandleRef.current = null;
         useEditorCursorStore.getState().clear(editorId);
       });
     }
@@ -350,6 +380,7 @@ const MonacoEditor = forwardRef<
       keepCurrentModel
       {...props}
       options={{
+        automaticLayout: true,
         minimap: {
           enabled: codeEditorMinimap,
         },

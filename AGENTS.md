@@ -116,6 +116,7 @@ Durable app data lives under the Tauri **app data dir** (Windows: `%APPDATA%\com
 | Connections (no secrets) | `connections.json` |
 | SSH profiles (no secrets) | `ssh-profiles.json` |
 | Tabs / layout | `tabs.json` |
+| SQL editor scroll / cursor | `editor-view-state.json` |
 | Folders, bookmarks, runs, favorites | `workspace.json` |
 | Scratch SQL | `scratch/{id}.sql` |
 | Secrets | OS keyring + vault under app data — **never** put passwords in connections JSON or logs |

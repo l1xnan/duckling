@@ -19,6 +19,7 @@ import {
 
 import { isQueryErrorCode } from '@/lib/capabilities';
 import { connectionRef, type DialectRef } from '@/lib/connectionRef';
+import type { EditorViewStateSnapshot } from '@/lib/editorViewState';
 import {
   joinComputedSelectList,
   type ComputedColumn,
@@ -28,6 +29,7 @@ import type { PivotMeasure, PivotShowAs } from '@/lib/sql/pivot';
 import { Direction, SchemaType } from './dataset';
 import { getDbMap, getTableMap, whenRegistryReady } from './dbList';
 import { useQuerySessionStore } from './querySession';
+import { useEditorViewStateStore } from './editorViewState';
 import { getDefaultPerPage, useSettingStore } from './setting';
 import {
   addTabToLeaf,
@@ -136,6 +138,8 @@ export type EditorContextType = {
    * - Legacy: may be absent until migration
    */
   path?: string;
+  /** Legacy copy in tabs.json; live state is editor-view-state.json. */
+  viewState?: EditorViewStateSnapshot;
 };
 
 export type TableContextType = {
@@ -266,8 +270,12 @@ export const useTabsStore = create<TabsState & TabsAction>()(
       append: (tab: TabContextType) =>
         set((state) => {
           if (state.ids.includes(tab.id)) {
+            const prev = state.tabs[tab.id];
             return {
-              tabs: { ...state.tabs, [tab.id]: tab },
+              tabs: {
+                ...state.tabs,
+                [tab.id]: (prev ? { ...prev, ...tab } : tab) as TabContextType,
+              },
             };
           }
           const focus = resolveFocusedPaneId(state.layout, state.focusedPaneId);
@@ -308,8 +316,12 @@ export const useTabsStore = create<TabsState & TabsAction>()(
           const sameIds =
             derived.ids.length === state.ids.length &&
             derived.ids.every((id, i) => id === state.ids[i]);
+          const prevTab = state.tabs[item.id];
           return {
-            tabs: { ...state.tabs, [item.id]: item },
+            tabs: {
+              ...state.tabs,
+              [item.id]: (prevTab ? { ...prevTab, ...item } : item) as TabContextType,
+            },
             ...derived,
             ids: sameIds ? state.ids : derived.ids,
           };
@@ -323,7 +335,7 @@ export const useTabsStore = create<TabsState & TabsAction>()(
           return {
             tabs: {
               ...state.tabs,
-              [item.id]: item,
+              [item.id]: { ...state.tabs[item.id], ...item },
             },
           };
         });
@@ -363,6 +375,7 @@ export const useTabsStore = create<TabsState & TabsAction>()(
         // Side effects after set — keep updater pure.
         if (clearSession) {
           useQuerySessionStore.getState().clearEditor(key);
+          useEditorViewStateStore.getState().clear(key);
         }
       },
       removeOther: (key) => {
@@ -381,8 +394,10 @@ export const useTabsStore = create<TabsState & TabsAction>()(
           };
         });
         const session = useQuerySessionStore.getState();
+        const viewState = useEditorViewStateStore.getState();
         for (const id of clearedIds) {
           session.clearEditor(id);
+          viewState.clear(id);
         }
       },
       focusPane: (paneId) =>

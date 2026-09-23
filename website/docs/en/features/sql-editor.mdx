@@ -14,6 +14,8 @@ The editor is based on [Monaco](https://microsoft.github.io/monaco-editor/) and 
 - **EXPLAIN** — inspect the execution plan of the current query.
 - **SQL bookmarks** — save and jump between marked statements.
 
+The editor remembers **scroll position and cursor** per tab. Switching away and back, or reopening Duckling with the same tab, restores where you left off.
+
 ## Preview a CTE
 
 Put the cursor on a CTE name (or select only that identifier) and Run. Duckling keeps every CTE up to that name and executes `SELECT * FROM <cte>` without changing the editor text. The ▶ and new-tab buttons switch to the primary color with a **CTE** badge, the tooltip becomes **Run CTE sales**, and the result tab is titled **CTE sales**.

@@ -106,6 +106,10 @@ export const sshProfilesFileStorage: StateStorage =
 export const tabsFileStorage: StateStorage =
   createTauriFileStorage('tabs.json');
 
+/** SQL editor scroll/cursor per tab → editor-view-state.json */
+export const editorViewStateFileStorage: StateStorage =
+  createTauriFileStorage('editor-view-state.json');
+
 /** sqlFolders, bookmarks, runs, favorite → workspace.json */
 export const workspaceFileStorage: StateStorage =
   createTauriFileStorage('workspace.json');

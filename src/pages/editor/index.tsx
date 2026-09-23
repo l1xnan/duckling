@@ -43,6 +43,7 @@ import {
 import { bookmarksAtom, docsAtom, runsAtom } from '@/stores/app';
 import { DBType, useConnection, useConnectionMeta } from '@/stores/dbList';
 import { useEditorDirtyStore } from '@/stores/editorDirty';
+import { findLeafByTab } from '@/stores/tabLayout';
 import {
   EditorContextType,
   QueryContextType,
@@ -91,6 +92,9 @@ export default function Editor({ context }: { context: EditorContextType }) {
 
   const [docs, setDocs] = useAtom(docsAtom);
   const currentTab = useTabsStore((s) => s.currentId);
+  const editorActive = useTabsStore(
+    (s) => findLeafByTab(s.layout, id)?.activeId === id,
+  );
 
   const activeKey = useQuerySessionStore((s) => s.byEditor[id]?.activeKey);
   const childCount = useQuerySessionStore(
@@ -715,6 +719,7 @@ export default function Editor({ context }: { context: EditorContextType }) {
           <MonacoEditor
             ref={ref}
             editorId={id}
+            editorActive={editorActive}
             value={stmt}
             language="sql"
             onChange={handleChange}

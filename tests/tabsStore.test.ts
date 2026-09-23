@@ -27,6 +27,7 @@ const { memory } = vi.hoisted(() => {
 });
 
 import { useQuerySessionStore } from '@/stores/querySession';
+import { useEditorViewStateStore } from '@/stores/editorViewState';
 import { useTabsStore, type TabContextType } from '@/stores/tabs';
 
 function editorTab(id: string): TabContextType {
@@ -65,6 +66,7 @@ describe('tabsStore P0 invariants', () => {
       focusedPaneId: leaf.id,
     });
     useQuerySessionStore.setState({ byEditor: {} });
+    useEditorViewStateStore.setState({ byEditor: {} });
   });
 
   it('update is immutable and upserts + activates', () => {
@@ -125,10 +127,22 @@ describe('tabsStore P0 invariants', () => {
 
   it('remove without force keeps editor tab object but drops from ids', () => {
     useTabsStore.getState().update(editorTab('e1'));
+    useEditorViewStateStore.getState().setViewState('e1', {
+      scrollLeft: 0,
+      firstLine: 8,
+      firstColumn: 1,
+      firstPositionDeltaTop: 0,
+      cursorLine: 8,
+      cursorColumn: 1,
+      selectionStartLine: 8,
+      selectionStartColumn: 1,
+      inSelectionMode: false,
+    });
     useTabsStore.getState().remove('e1', false);
 
     expect(useTabsStore.getState().ids).toEqual([]);
     expect(useTabsStore.getState().tabs.e1).toBeDefined();
+    expect(useEditorViewStateStore.getState().byEditor.e1?.firstLine).toBe(8);
   });
 
   it('remove force drops editor and clears session', () => {
@@ -147,11 +161,23 @@ describe('tabsStore P0 invariants', () => {
       direction: 'horizontal',
       cross: false,
     } as never);
+    useEditorViewStateStore.getState().setViewState('e1', {
+      scrollLeft: 0,
+      firstLine: 20,
+      firstColumn: 1,
+      firstPositionDeltaTop: 0,
+      cursorLine: 20,
+      cursorColumn: 1,
+      selectionStartLine: 20,
+      selectionStartColumn: 1,
+      inSelectionMode: false,
+    });
 
     useTabsStore.getState().remove('e1', true);
 
     expect(useTabsStore.getState().tabs.e1).toBeUndefined();
     expect(useQuerySessionStore.getState().byEditor.e1).toBeUndefined();
+    expect(useEditorViewStateStore.getState().byEditor.e1).toBeUndefined();
   });
 
   it('split right places tab in new focused pane', () => {
