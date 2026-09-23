@@ -94,7 +94,7 @@ export function TableDataPanel({
 
   return (
     <ResizablePanelGroup
-      orientation={direction}
+      orientation={direction === 'vertical' ? 'vertical' : 'horizontal'}
       className="min-h-0 min-w-0 flex-1"
     >
       <ResizablePanel

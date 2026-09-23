@@ -215,12 +215,13 @@ export function QueryView({
     [ctx?.hiddenColumns, patch],
   );
 
+  const direction = ctx?.direction === 'vertical' ? 'vertical' : 'horizontal';
+
   const handleSetDirection = useCallback(() => {
     patch({
-      direction:
-        ctx?.direction === 'horizontal' ? 'vertical' : 'horizontal',
+      direction: direction === 'horizontal' ? 'vertical' : 'horizontal',
     });
-  }, [ctx?.direction, patch]);
+  }, [direction, patch]);
 
   const handleCountByColumn = useCallback(
     (col?: string) => {
@@ -294,7 +295,7 @@ export function QueryView({
         transpose={ctx.transpose}
         cross={ctx.cross}
         showValue={ctx.showValue}
-        direction={ctx.direction}
+        direction={direction}
         setShowValue={handleShowValue}
         setDirection={handleSetDirection}
         onCountByColumn={handleCountByColumn}

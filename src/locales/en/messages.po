@@ -191,7 +191,7 @@ msgstr "Bookmark"
 msgid "Bookmark SQL"
 msgstr "Bookmark SQL"
 
-#: src/pages/editor/index.tsx:366
+#: src/pages/editor/index.tsx:367
 msgid "Bookmarked"
 msgstr "Bookmarked"
 
@@ -524,7 +524,7 @@ msgstr "Cross"
 msgid "CSV / TSV options"
 msgstr "CSV / TSV options"
 
-#: src/pages/editor/index.tsx:502
+#: src/pages/editor/index.tsx:503
 msgid "CTE {cteName}"
 msgstr "CTE {cteName}"
 
@@ -726,11 +726,11 @@ msgstr "elapsed time: {0}"
 msgid "elapsed: {elapsed}ms"
 msgstr "elapsed: {elapsed}ms"
 
-#: src/pages/editor/index.tsx:353
-#: src/pages/editor/index.tsx:373
-#: src/pages/editor/index.tsx:435
-#: src/pages/editor/index.tsx:578
-#: src/pages/editor/index.tsx:633
+#: src/pages/editor/index.tsx:354
+#: src/pages/editor/index.tsx:374
+#: src/pages/editor/index.tsx:436
+#: src/pages/editor/index.tsx:579
+#: src/pages/editor/index.tsx:634
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:48
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:67
 msgid "Empty SQL"
@@ -1111,7 +1111,7 @@ msgstr "Input"
 msgid "Insert @vars template"
 msgstr "Insert @vars template"
 
-#: src/pages/editor/index.tsx:459
+#: src/pages/editor/index.tsx:460
 msgid "Inserted @vars template"
 msgstr "Inserted @vars template"
 
@@ -1309,13 +1309,13 @@ msgstr "Move to columns"
 msgid "Move to rows"
 msgstr "Move to rows"
 
-#: src/components/views/ValueViewer.tsx:313
+#: src/components/views/ValueViewer.tsx:321
 msgid "Move to the bottom"
 msgstr "Move to the bottom"
 
-#: src/components/views/ValueViewer.tsx:321
-msgid "Move to the top"
-msgstr "Move to the top"
+#: src/components/views/ValueViewer.tsx:313
+msgid "Move to the right"
+msgstr "Move to the right"
 
 #: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:143
 msgid "Move up"
@@ -1424,7 +1424,7 @@ msgstr "No SSH profiles yet."
 msgid "No tabs in this pane"
 msgstr "No tabs in this pane"
 
-#: src/pages/editor/index.tsx:441
+#: src/pages/editor/index.tsx:442
 msgid "No template variables found"
 msgstr "No template variables found"
 
@@ -1815,7 +1815,7 @@ msgstr "Reset this mode"
 msgid "Reset to default"
 msgstr "Reset to default"
 
-#: src/pages/editor/index.tsx:504
+#: src/pages/editor/index.tsx:505
 msgid "Result · {label}"
 msgstr "Result · {label}"
 
@@ -1827,7 +1827,7 @@ msgstr "Result rows"
 msgid "Result tabs"
 msgstr "Result tabs"
 
-#: src/pages/editor/index.tsx:505
+#: src/pages/editor/index.tsx:506
 msgid "Result{baseCount}"
 msgstr "Result{baseCount}"
 
@@ -1945,7 +1945,7 @@ msgid "Save values as @vars comment above SQL"
 msgstr "Save values as @vars comment above SQL"
 
 #: src/pages/editor/EditorToolbar.tsx:205
-#: src/pages/editor/index.tsx:233
+#: src/pages/editor/index.tsx:234
 msgid "Saved"
 msgstr "Saved"
 
@@ -2404,7 +2404,7 @@ msgid "This will permanently delete temporary SQL \"{pendingDisplayName}\". This
 msgstr "This will permanently delete temporary SQL \"{pendingDisplayName}\". This action cannot be undone."
 
 #. placeholder {0}: statements.length
-#: src/pages/editor/index.tsx:645
+#: src/pages/editor/index.tsx:646
 msgid "This will run {0} queries. Continue?"
 msgstr "This will run {0} queries. Continue?"
 
@@ -2427,7 +2427,7 @@ msgid "Token"
 msgstr "Token"
 
 #. placeholder {0}: statements.length
-#: src/pages/editor/index.tsx:639
+#: src/pages/editor/index.tsx:640
 msgid "Too many combinations ({0}); limit is {limit}"
 msgstr "Too many combinations ({0}); limit is {limit}"
 
@@ -2505,7 +2505,7 @@ msgstr "Update failed: {message}"
 msgid "Update source"
 msgstr "Update source"
 
-#: src/pages/editor/index.tsx:458
+#: src/pages/editor/index.tsx:459
 msgid "Updated @vars template"
 msgstr "Updated @vars template"
 

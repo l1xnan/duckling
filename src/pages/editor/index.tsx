@@ -79,6 +79,7 @@ function createStore(item: Partial<QueryContextType>) {
     beautify: getDefaultBeautify(),
     totalCount: 0,
     ...item,
+    direction: item.direction === 'vertical' ? 'vertical' : 'horizontal',
   } as QueryContextType;
 }
 

@@ -191,7 +191,7 @@ msgstr "书签"
 msgid "Bookmark SQL"
 msgstr "收藏 SQL"
 
-#: src/pages/editor/index.tsx:366
+#: src/pages/editor/index.tsx:367
 msgid "Bookmarked"
 msgstr "已收藏"
 
@@ -524,7 +524,7 @@ msgstr "交叉"
 msgid "CSV / TSV options"
 msgstr "CSV / TSV 选项"
 
-#: src/pages/editor/index.tsx:502
+#: src/pages/editor/index.tsx:503
 msgid "CTE {cteName}"
 msgstr "CTE {cteName}"
 
@@ -726,11 +726,11 @@ msgstr "耗时：{0}"
 msgid "elapsed: {elapsed}ms"
 msgstr "耗时：{elapsed}ms"
 
-#: src/pages/editor/index.tsx:353
-#: src/pages/editor/index.tsx:373
-#: src/pages/editor/index.tsx:435
-#: src/pages/editor/index.tsx:578
-#: src/pages/editor/index.tsx:633
+#: src/pages/editor/index.tsx:354
+#: src/pages/editor/index.tsx:374
+#: src/pages/editor/index.tsx:436
+#: src/pages/editor/index.tsx:579
+#: src/pages/editor/index.tsx:634
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:48
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:67
 msgid "Empty SQL"
@@ -1111,7 +1111,7 @@ msgstr "输入框"
 msgid "Insert @vars template"
 msgstr "生成 @vars 变量模板"
 
-#: src/pages/editor/index.tsx:459
+#: src/pages/editor/index.tsx:460
 msgid "Inserted @vars template"
 msgstr "已插入 @vars 模板"
 
@@ -1309,13 +1309,13 @@ msgstr "移到列维"
 msgid "Move to rows"
 msgstr "移到行维"
 
-#: src/components/views/ValueViewer.tsx:313
+#: src/components/views/ValueViewer.tsx:321
 msgid "Move to the bottom"
 msgstr "移到底部"
 
-#: src/components/views/ValueViewer.tsx:321
-msgid "Move to the top"
-msgstr "移到顶部"
+#: src/components/views/ValueViewer.tsx:313
+msgid "Move to the right"
+msgstr "移到右侧"
 
 #: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:143
 msgid "Move up"
@@ -1424,7 +1424,7 @@ msgstr "暂无 SSH 配置文件。"
 msgid "No tabs in this pane"
 msgstr "此窗格中没有标签页"
 
-#: src/pages/editor/index.tsx:441
+#: src/pages/editor/index.tsx:442
 msgid "No template variables found"
 msgstr "未发现模板变量"
 
@@ -1815,7 +1815,7 @@ msgstr "重置当前模式"
 msgid "Reset to default"
 msgstr "恢复默认"
 
-#: src/pages/editor/index.tsx:504
+#: src/pages/editor/index.tsx:505
 msgid "Result · {label}"
 msgstr "结果 · {label}"
 
@@ -1827,7 +1827,7 @@ msgstr "结果行数"
 msgid "Result tabs"
 msgstr "结果页签"
 
-#: src/pages/editor/index.tsx:505
+#: src/pages/editor/index.tsx:506
 msgid "Result{baseCount}"
 msgstr "结果{baseCount}"
 
@@ -1945,7 +1945,7 @@ msgid "Save values as @vars comment above SQL"
 msgstr "将变量以 @vars 注释写入 SQL 上方"
 
 #: src/pages/editor/EditorToolbar.tsx:205
-#: src/pages/editor/index.tsx:233
+#: src/pages/editor/index.tsx:234
 msgid "Saved"
 msgstr "已保存"
 
@@ -2404,7 +2404,7 @@ msgid "This will permanently delete temporary SQL \"{pendingDisplayName}\". This
 msgstr "将永久删除临时 SQL “{pendingDisplayName}”。此操作无法撤销。"
 
 #. placeholder {0}: statements.length
-#: src/pages/editor/index.tsx:645
+#: src/pages/editor/index.tsx:646
 msgid "This will run {0} queries. Continue?"
 msgstr "将执行 {0} 条查询，是否继续？"
 
@@ -2427,7 +2427,7 @@ msgid "Token"
 msgstr "令牌"
 
 #. placeholder {0}: statements.length
-#: src/pages/editor/index.tsx:639
+#: src/pages/editor/index.tsx:640
 msgid "Too many combinations ({0}); limit is {limit}"
 msgstr "组合过多（{0}）；上限为 {limit}"
 
@@ -2505,7 +2505,7 @@ msgstr "更新失败：{message}"
 msgid "Update source"
 msgstr "更新源"
 
-#: src/pages/editor/index.tsx:458
+#: src/pages/editor/index.tsx:459
 msgid "Updated @vars template"
 msgstr "已更新 @vars 模板"
 

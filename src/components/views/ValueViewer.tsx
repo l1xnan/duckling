@@ -304,21 +304,21 @@ export function ValueViewer({
             />
           ) : null}
 
-          {direction == 'horizontal' ? (
+          {direction === 'vertical' ? (
+            <TooltipButton
+              icon={<PanelRightIcon className="size-5" />}
+              onClick={() => {
+                setDirection();
+              }}
+              tooltip={t`Move to the right`}
+            />
+          ) : (
             <TooltipButton
               icon={<PanelBottomIcon className="size-5" />}
               onClick={() => {
                 setDirection();
               }}
               tooltip={t`Move to the bottom`}
-            />
-          ) : (
-            <TooltipButton
-              icon={<PanelRightIcon className="size-5" />}
-              onClick={() => {
-                setDirection();
-              }}
-              tooltip={t`Move to the top`}
             />
           )}
 
