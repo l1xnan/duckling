@@ -1,4 +1,5 @@
 import { quoteIdent } from '@/lib/sql/countByColumn';
+import { wrapSqlAsAliasedSubquery } from '@/lib/sql/wrapSubquery';
 
 /**
  * Build a single equality (or IS NULL) predicate for drill-down from a cell.
@@ -35,4 +36,12 @@ export function mergeWhere(existing: string | undefined, predicate: string): str
   if (!prev) return predicate;
   if (!predicate.trim()) return prev;
   return `(${prev}) AND (${predicate})`;
+}
+
+/** Wrap a statement so an extra predicate filters its result rows. */
+export function buildFilteredSubquerySql(sourceSql: string, where: string): string {
+  const predicate = where.trim();
+  const source = sourceSql.trim();
+  if (!predicate) return source;
+  return `SELECT * FROM ${wrapSqlAsAliasedSubquery(source, '__filter_src')} WHERE ${predicate}`;
 }

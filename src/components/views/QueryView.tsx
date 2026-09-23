@@ -5,6 +5,11 @@ import { nanoid } from 'nanoid';
 import { useDialog } from '@/components/custom/use-dialog';
 import { isQueryErrorCode } from '@/lib/capabilities';
 import { filterRows } from '@/lib/filterRows';
+import {
+  buildCellPredicate,
+  buildFilteredSubquerySql,
+  mergeWhere,
+} from '@/lib/sql/drillDown';
 import { runsAtom } from '@/stores/app';
 import {
   mapParseLocationToDocument,
@@ -14,6 +19,7 @@ import { usePrecision } from '@/stores/setting';
 import {
   cancelExecuteSQL,
   executeSQL,
+  getDatabase,
   getQueryChild,
   useQuerySessionStore,
   type QueryContextType,
@@ -39,6 +45,7 @@ export function QueryView({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const requestIdRef = useRef<string | null>(null);
+  const queryWhereRef = useRef('');
 
   const patch = useCallback(
     (
@@ -102,12 +109,21 @@ export function QueryView({
         if (!current) {
           return;
         }
-        const res = await executeSQL(current, { requestId });
-        const failedSql = res?.sql || current.stmt || current.sql;
+        const where = queryWhereRef.current.trim();
+        const baseStmt = (current.stmt ?? '').trim();
+        const runCtx =
+          where && baseStmt
+            ? {
+                ...current,
+                stmt: buildFilteredSubquerySql(baseStmt, where),
+              }
+            : current;
+        const res = await executeSQL(runCtx, { requestId });
+        const failedSql = res?.sql || runCtx.stmt || current.sql;
         patch((prev) => ({
           ...prev,
           ...res,
-          sql: res?.sql || prev.sql || current.stmt,
+          sql: res?.sql || runCtx.stmt || prev.sql || current.stmt,
         }));
         patchHistoryResult(current.id ?? queryId, {
           elapsed: res?.elapsed,
@@ -232,6 +248,20 @@ export function QueryView({
     [countByDialog],
   );
 
+  const handleFilterCountValue = useCallback(
+    (value: unknown) => {
+      if (!countColumn) return;
+      const current = getQueryChild(editorId, queryId);
+      if (!current?.stmt?.trim()) return;
+      const dialect = getDatabase(current.dbId)?.dialect ?? 'generic';
+      const predicate = buildCellPredicate(countColumn, value, dialect);
+      queryWhereRef.current = mergeWhere(queryWhereRef.current, predicate);
+      patch({ page: 1 });
+      void handleQuery({ ...current, page: 1 });
+    },
+    [countColumn, editorId, handleQuery, patch, queryId],
+  );
+
   const handlePivotColumn = useCallback(
     (col?: string) => {
       if (!col) return;
@@ -314,6 +344,7 @@ export function QueryView({
         rowTotal={ctx.total}
         columns={ctx.tableSchema}
         beautify={ctx.beautify}
+        onFilterByValue={handleFilterCountValue}
       />
       <PivotDialog
         {...pivotDialog.props}

@@ -614,19 +614,47 @@ export type SimpleTableProps = {
   setHiddenColumns?: (col: string, hidden: boolean) => void;
   /** Body context menu: open the selected row as a table tab. */
   onOpenTable?: (row: Record<string, unknown>) => void;
+  /**
+   * Body context menu on `filterField` (or every data column when omitted):
+   * filter using this row.
+   */
+  onFilterByValue?: (row: Record<string, unknown>) => void;
+  /** When set, "Filter by this value" is shown only for this column field. */
+  filterField?: string;
 };
+
+function bodyColumnField(
+  table: ListTableAPI,
+  col: number,
+  row: number,
+): string {
+  const define = table.getBodyColumnDefine?.(col, row) as
+    | { field?: string }
+    | undefined;
+  return String(define?.field ?? '');
+}
 
 export function SimpleTable({
   data,
   hiddenColumns,
   setHiddenColumns,
   onOpenTable,
+  onFilterByValue,
+  filterField,
 }: SimpleTableProps) {
   const tableRef = useRef<ListTableAPI>(null);
+  const onFilterByValueRef = useRef(onFilterByValue);
+  onFilterByValueRef.current = onFilterByValue;
   const theme = useTableTheme();
   const [plugins, setPlugins] = useState<IVTablePlugin[]>([]);
 
-  const columnKeys = useMemo(() => Object.keys((data[0] as Record<string, unknown>) ?? {}), [data]);
+  const columnKeys = useMemo(
+    () =>
+      Object.keys((data[0] as Record<string, unknown>) ?? {}).filter(
+        (key) => key !== '__raw',
+      ),
+    [data],
+  );
 
   const contextMenuPlugin = useMemo(() => {
     type MenuEntry =
@@ -661,6 +689,15 @@ export function SimpleTable({
         customIcon: iconCopyCsv,
       },
     ];
+    const bodyFilterGroup: MenuEntry[] = onFilterByValue
+      ? [
+          {
+            text: i18n._(MENU_FILTER_BY_VALUE),
+            menuKey: 'filter-by-value',
+            customIcon: iconFilter,
+          },
+        ]
+      : [];
     const bodyOpenGroup: MenuEntry[] = onOpenTable
       ? [
           {
@@ -688,8 +725,17 @@ export function SimpleTable({
       : [];
 
     return new ContextMenuPlugin({
-      bodyCellMenuItems: joinGroups(bodyCopyGroup, bodyOpenGroup),
+      bodyCellMenuItems: joinGroups(bodyCopyGroup, bodyFilterGroup, bodyOpenGroup),
       headerCellMenuItems: joinGroups(headerCopyGroup, headerLayoutGroup),
+      beforeShowAdjustMenuItems: (menuItems, table, col, row) => {
+        if (!onFilterByValue || !filterField) return menuItems;
+        const field = bodyColumnField(table as ListTableAPI, col, row);
+        if (field === filterField) return menuItems;
+        return menuItems.filter(
+          (item) =>
+            typeof item === 'string' || item.menuKey !== 'filter-by-value',
+        );
+      },
       menuClickCallback: async (e: MenuClickEventArgs, table: ListTableAPI) => {
         if (e.colIndex === undefined || e.rowIndex === undefined) {
           return;
@@ -706,6 +752,11 @@ export function SimpleTable({
           await writeText(table?.getCopyValue() ?? '');
         } else if (menuKey === 'copy-as-csv') {
           await copySelectedAsCsv(table);
+        } else if (menuKey === 'filter-by-value' && onFilterByValueRef.current) {
+          const record = table.getRecordByCell?.(e.colIndex, e.rowIndex) as
+            | Record<string, unknown>
+            | undefined;
+          if (record) onFilterByValueRef.current(record);
         } else if (menuKey === 'open-table' && onOpenTable) {
           const record = table.getRecordByCell?.(e.colIndex, e.rowIndex) as
             | Record<string, unknown>
@@ -714,7 +765,7 @@ export function SimpleTable({
         }
       },
     });
-  }, [setHiddenColumns, onOpenTable, i18n.locale]);
+  }, [setHiddenColumns, onOpenTable, onFilterByValue, filterField, i18n.locale]);
 
   const option: ListTableConstructorOptions = useMemo(
     () => ({

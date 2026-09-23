@@ -47,6 +47,8 @@ export type CountByColumnDialogProps = {
   rowTotal?: number;
   columns?: SchemaType[];
   beautify?: boolean;
+  /** Apply the raw group value as a SQL predicate on the counted column. */
+  onFilterByValue?: (value: unknown) => void;
 };
 
 type CountRow = {
@@ -64,6 +66,7 @@ export function CountByColumnDialog({
   rowTotal,
   columns,
   beautify = true,
+  onFilterByValue,
 }: CountByColumnDialogProps) {
   const { t } = useLingui();
   const precision = usePrecision();
@@ -217,7 +220,21 @@ export function CountByColumnDialog({
     [beautify, column, columns, precision],
   );
 
-  const displayRows = toCountByDisplayRows(rows, allRowsTotal, formatValue);
+  const handleFilterRow = useCallback(
+    (record: Record<string, unknown>) => {
+      if (!onFilterByValue) return;
+      onFilterByValue(record.__raw);
+      onOpenChange(false);
+    },
+    [onFilterByValue, onOpenChange],
+  );
+
+  const displayRows = toCountByDisplayRows(rows, allRowsTotal, formatValue).map(
+    (row, index) => ({
+      ...row,
+      __raw: rows[index]?.value,
+    }),
+  );
   const capped = displayRows.length >= 1000;
 
   return (
@@ -302,7 +319,11 @@ export function CountByColumnDialog({
                     <Trans>No rows</Trans>
                   </div>
                 ) : (
-                  <SimpleTable data={displayRows} />
+                  <SimpleTable
+                    data={displayRows}
+                    filterField="value"
+                    onFilterByValue={onFilterByValue ? handleFilterRow : undefined}
+                  />
                 )}
               </TabsContent>
               <TabsContent

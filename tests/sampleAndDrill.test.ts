@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildCellPredicate, mergeWhere } from '@/lib/sql/drillDown';
+import {
+  buildCellPredicate,
+  buildFilteredSubquerySql,
+  mergeWhere,
+} from '@/lib/sql/drillDown';
 import { buildExplainSql, buildSampleSql } from '@/lib/sql/sample';
 
 describe('buildSampleSql', () => {
@@ -43,5 +47,12 @@ describe('drill-down predicates', () => {
   it('merges WHERE with AND', () => {
     expect(mergeWhere(undefined, 'a = 1')).toBe('a = 1');
     expect(mergeWhere('b > 0', 'a = 1')).toBe('(b > 0) AND (a = 1)');
+  });
+
+  it('wraps a statement with an extra predicate', () => {
+    expect(buildFilteredSubquerySql('SELECT * FROM t;', '"status" = \'open\'')).toBe(
+      'SELECT * FROM (\nSELECT * FROM t\n) AS __filter_src WHERE "status" = \'open\'',
+    );
+    expect(buildFilteredSubquerySql('SELECT 1', '   ')).toBe('SELECT 1');
   });
 });

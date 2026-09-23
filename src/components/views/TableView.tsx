@@ -171,6 +171,14 @@ export function TableView({ context }: { context: TabContextType }) {
     [refresh, resolveDialect, setSQLWhere, sqlWhere],
   );
 
+  const handleFilterCountValue = useCallback(
+    (value: unknown) => {
+      if (!dialogColumn) return;
+      handleDrillDown(dialogColumn, value);
+    },
+    [dialogColumn, handleDrillDown],
+  );
+
   const handleCancel = useCallback(async () => {
     try {
       await cancelRefresh();
@@ -287,6 +295,7 @@ export function TableView({ context }: { context: TabContextType }) {
         rowTotal={total}
         columns={tableSchema}
         beautify={beautify}
+        onFilterByValue={handleFilterCountValue}
       />
       <ColumnProfileDialog
         {...profileDialog.props}

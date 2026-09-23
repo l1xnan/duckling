@@ -1,6 +1,6 @@
 ---
 title: Analysis Tools
-description: Pivot tables, column profiling, count-by-column, and the value viewer.
+description: Pivot tables, column profiling, count-by-column with value filters, and the value viewer.
 ---
 
 # Analysis Tools
@@ -30,6 +30,7 @@ Show the value distribution for a single column as a **table plus a bar chart**:
 - **Denominator** — percent uses the same row set as the parent view (table browse or query result), including any **WHERE** / result filter. Duckling reuses the view’s total row count when available; otherwise it runs a separate `COUNT(*)`.
 - **Cap** — results are limited to the top **1000** distinct values (by count). When capped, a note explains that percent is still relative to **all** matching rows, so the shown groups may sum to less than 100%. When not capped, group percents should add up to about 100%.
 - **Chart** — the bar chart still plots **count** (not percent).
+- **Context menu** — right-click the result table to **Copy** or **Copy as CSV**. On the **value** column, **Filter by this value** adds that raw value to the parent SQL (`column = value`, or `IS NULL`) and refreshes. Table browse appends the predicate to **WHERE**. Query results keep the original statement and re-run it inside a filtered subquery.
 
 Available from the column header menu in table browse and query results.
 
