@@ -302,7 +302,7 @@ pub fn export(
   Ok(())
 }
 
-fn escape_sql_char_literal(value: &str) -> String {
+pub(crate) fn escape_sql_char_literal(value: &str) -> String {
   value.replace('\'', "''")
 }
 

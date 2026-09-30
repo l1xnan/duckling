@@ -4,7 +4,7 @@ use async_trait::async_trait;
 
 use crate::utils::RawArrowData;
 use crate::dialect::Connection;
-use crate::dialect::duckdb::duckdb_sync;
+use crate::dialect::duckdb::duckdb_sync::{self, escape_sql_char_literal};
 use crate::utils::{FunctionMeta, TreeNode, get_file_name};
 
 #[derive(Debug, Default)]
@@ -79,13 +79,14 @@ impl Connection for FileConnection {
         .extension()
         .and_then(|e| e.to_str())
         .unwrap_or("");
+      let table_sql = escape_sql_char_literal(table);
       match ext {
-        "parquet" => format!("read_parquet('{table}')"),
-        "csv" => format!("read_csv('{table}', union_by_name=true)"),
-        "tsv" => format!("read_csv('{table}', union_by_name=true, delim='\\t')"),
-        "json" | "jsonl" => format!("read_json('{table}', union_by_name=true)"),
-        "xlsx" => format!("read_xlsx('{table}')"),
-        _ => format!("'{table}'"),
+        "parquet" => format!("read_parquet('{table_sql}')"),
+        "csv" => format!("read_csv('{table_sql}', union_by_name=true)"),
+        "tsv" => format!("read_csv('{table_sql}', union_by_name=true, delim='\\t')"),
+        "json" | "jsonl" => format!("read_json('{table_sql}', union_by_name=true)"),
+        "xlsx" => format!("read_xlsx('{table_sql}')"),
+        _ => format!("'{table_sql}'"),
       }
     };
     let sql = format!("DESCRIBE SELECT * FROM {source}");
@@ -95,5 +96,26 @@ impl Connection for FileConnection {
 
   fn normalize(&self, name: &str) -> String {
     name.to_string()
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[tokio::test]
+  async fn show_column_escapes_quote_in_file_name() {
+    let root = std::env::temp_dir().join(format!("duckling_file_{}", nanoid::nanoid!(8)));
+    let _ = std::fs::create_dir_all(&root);
+    let file = root.join("Bob's rows.csv");
+    let _ = std::fs::write(&file, "a,b\n1,x\n");
+
+    let conn = FileConnection {
+      path: file.display().to_string(),
+    };
+    let res = conn.show_column(None, &file.display().to_string()).await;
+
+    let _ = std::fs::remove_dir_all(&root);
+    assert!(res.is_ok(), "{:?}", res.err());
   }
 }
