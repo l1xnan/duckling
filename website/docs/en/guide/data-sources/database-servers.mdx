@@ -19,6 +19,8 @@ Host / port / database / user / password, plus **SSL mode** selection.
 
 Host / port / database / user / password over the **HTTP interface** (usually port `8123`).
 
+Opening a database (its table list) prioritizes the key `system.tables` columns, in this order: table name, schema name, engine parameters, engine, table size (shown as `MiB` / `GiB`), last modified, table comment, row count, and metadata path. Every other column is hidden by default — turn them on from the **Hidden Column** menu in the toolbar.
+
 ## Doris / StarRocks
 
 Experimental, not heavily tested. Connect through the **MySQL protocol**, usually on port `9030`.

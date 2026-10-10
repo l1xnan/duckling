@@ -19,6 +19,8 @@ description: MySQL、PostgreSQL、ClickHouse 与实验性的 Doris / StarRocks �
 
 通过 **HTTP 接口**（端口一般为 `8123`）连接，填写主机 / 端口 / 数据库 / 用户名 / 密码。
 
+打开数据库（表列表）时，默认优先展示 `system.tables` 中的关键列，顺序为：表名、Schema 名称、引擎参数、引擎、表大小（以 `MiB` / `GiB` 显示）、最后修改时间、表描述、行数、元数据路径。其余列默认隐藏，可在工具栏的**隐藏列**菜单中勾选显示。
+
 ## Doris / StarRocks
 
 实验性，未充分测试。通过 **MySQL 协议**连接，端口默认为 `9030`。

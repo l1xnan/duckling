@@ -11,6 +11,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Loading } from '@/components/views/TableView';
 import { connectionRef } from '@/lib/connectionRef';
+import { clickhouseTableDefaults } from '@/lib/schemaColumns';
+import { useConnection } from '@/stores/dbList';
 import {
   SchemaContextType,
   TableContextType,
@@ -60,8 +62,11 @@ function resolveTableId(
   return name;
 }
 
-function useSchemaTableState(data: unknown[]) {
-  const [hiddenColumns, setHiddenColumnsState] = useState<
+function useSchemaTableState(
+  data: unknown[],
+  defaultHiddenColumns: Record<string, boolean> = {},
+) {
+  const [hiddenOverrides, setHiddenOverrides] = useState<
     Record<string, boolean>
   >({});
   const [search, setSearch] = useState('');
@@ -71,8 +76,13 @@ function useSchemaTableState(data: unknown[]) {
     [data],
   );
 
+  const hiddenColumns = useMemo(
+    () => ({ ...defaultHiddenColumns, ...hiddenOverrides }),
+    [defaultHiddenColumns, hiddenOverrides],
+  );
+
   const setHiddenColumns = useCallback((col: string, hidden: boolean) => {
-    setHiddenColumnsState((prev) => ({ ...prev, [col]: hidden }));
+    setHiddenOverrides((prev) => ({ ...prev, [col]: hidden }));
   }, []);
 
   const filtered = useMemo(
@@ -182,8 +192,18 @@ export function DatabaseSchemaView({
 }) {
   const currentTab = useTabsStore((s) => s.currentId);
   const updateTab = useTabsStore((s) => s.update);
+  const connection = useConnection(context.dbId);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<unknown[]>([]);
+
+  const { rows, defaultHiddenColumns } = useMemo(() => {
+    if (connection?.dialect !== 'clickhouse') {
+      return { rows: data, defaultHiddenColumns: {} };
+    }
+    const { data: clickhouseRows, hiddenColumns } =
+      clickhouseTableDefaults(data);
+    return { rows: clickhouseRows, defaultHiddenColumns: hiddenColumns };
+  }, [connection?.dialect, data]);
 
   const {
     search,
@@ -192,7 +212,7 @@ export function DatabaseSchemaView({
     columnKeys,
     hiddenColumns,
     setHiddenColumns,
-  } = useSchemaTableState(data);
+  } = useSchemaTableState(rows, defaultHiddenColumns);
 
   const handleQuery = async () => {
     try {
