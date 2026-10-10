@@ -1,7 +1,10 @@
 // Type declarations for modules without bundled types
 
+// @monaco-editor/loader and @monaco-editor/react still type against the
+// pre-0.56 deep path; map it to the 0.56 editor API so `Monaco`/`OnMount`
+// keep matching the namespace handed to `loader.config()`.
 declare module 'monaco-editor/esm/vs/editor/editor.api' {
-  export * from 'monaco-editor';
+  export * from 'monaco-editor/editor/editor.api';
 }
 
 declare module 'monaco-sql-languages' {

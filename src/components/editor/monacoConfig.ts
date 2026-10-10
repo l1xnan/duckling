@@ -3,7 +3,7 @@ import { CompleteMetaType } from '@/ast/analyze';
 import { handleProvideCompletionItems } from '@/components/editor/completion';
 import { formatSqlText } from '@/components/editor/sqlFormat';
 import { DialectType } from '@/stores/dbList';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monaco from 'monaco-editor/editor';
 
 export const completionRegistry = new Map<string, CompleteMetaType>();
 export const dialectRegistry = new Map<string, DialectType | undefined>();

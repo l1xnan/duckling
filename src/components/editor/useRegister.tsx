@@ -1,5 +1,5 @@
 import { Monaco, useMonaco } from '@monaco-editor/react';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monaco from 'monaco-editor/editor';
 import { nanoid } from 'nanoid';
 import { useCallback, useEffect, useRef } from 'react';
 

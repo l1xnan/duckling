@@ -5,7 +5,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import MonacoEditor from '@monaco-editor/react';
 
 import { ChevronsDownUpIcon, ChevronsUpDownIcon, LetterTextIcon, PanelBottomIcon, PanelRightIcon, XIcon } from 'lucide-react';
-import { editor } from 'monaco-editor';
+import type { editor } from 'monaco-editor';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { arrowToJSON } from '@/api';

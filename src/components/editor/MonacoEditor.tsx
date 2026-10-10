@@ -1,6 +1,6 @@
 import { msg } from '@lingui/core/macro';
 import { BeforeMount, Editor, EditorProps, OnMount } from '@monaco-editor/react';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monaco from 'monaco-editor/editor';
 
 import {
   ForwardedRef,

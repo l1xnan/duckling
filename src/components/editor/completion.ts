@@ -15,8 +15,8 @@ import {
 } from '@/components/editor/dialectSuggestions';
 import { completionRegistry, dialectRegistry } from '@/components/editor/monacoConfig';
 import type { DialectRef } from '@/lib/connectionRef';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { Position } from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monaco from 'monaco-editor/editor';
+import { Position } from 'monaco-editor/editor';
 
 const parser = await getSqlParser();
 
