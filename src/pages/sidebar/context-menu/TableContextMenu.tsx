@@ -40,6 +40,7 @@ import { useSetAtom } from 'jotai';
 import { RefreshCcw } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { PropsWithChildren } from 'react';
+import { toast } from 'sonner';
 
 export function TableContextMenu({
   children,
@@ -50,6 +51,7 @@ export function TableContextMenu({
   const append = useTabsStore((state) => state.append);
   const active = useTabsStore((state) => state.active);
   const updateDB = useDBListStore((state) => state.updateByConfig);
+  const removeNode = useDBListStore((state) => state.removeNode);
   const setDocs = useSetAtom(docsAtom);
 
   const alertDialog = useDialog();
@@ -57,13 +59,6 @@ export function TableContextMenu({
   const allowDrop = canDropTable(db.dialect);
   const allowFind = canFind(db.dialect);
   const allowMetadata = canMetadata(db.dialect);
-
-  const handleDropTable: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
-    e.stopPropagation();
-    if (!allowDrop) return;
-    const { connectionRef } = await import('@/lib/connectionRef');
-    await dropTable(node.path, connectionRef(db.id));
-  };
 
   const handleRefresh = async () => {
     const latest = getStoredDB(db.id);
@@ -73,6 +68,20 @@ export function TableContextMenu({
     } else {
       // Refresh tree via connection id only (backend has credentials).
       await updateDB(db.id, { dialect: db.dialect } as DialectConfig);
+    }
+  };
+
+  const handleDropTable: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
+    e.stopPropagation();
+    if (!allowDrop) return;
+    try {
+      const { connectionRef } = await import('@/lib/connectionRef');
+      await dropTable(node.path, connectionRef(db.id));
+      alertDialog.dismiss();
+      removeNode(db.id, node.path);
+      await handleRefresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : String(error));
     }
   };
 

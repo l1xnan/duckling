@@ -487,6 +487,46 @@ describe('dbListStore connection lifecycle', () => {
     });
   });
 
+  it('removeNode drops one node from the cached tree only for that connection', () => {
+    useDBListStore.setState({
+      dbList: [
+        {
+          id: 'c1',
+          dialect: 'folder',
+          displayName: 'data',
+          data: {
+            name: 'data',
+            path: '/data',
+            children: [
+              { name: 'a.csv', path: '/data/a.csv' },
+              { name: 'b.csv', path: '/data/b.csv' },
+            ],
+          },
+        },
+        {
+          id: 'c2',
+          dialect: 'folder',
+          displayName: 'other',
+          data: {
+            name: 'other',
+            path: '/other',
+            children: [{ name: 'a.csv', path: '/other/a.csv' }],
+          },
+        },
+      ],
+    });
+
+    useDBListStore.getState().removeNode('c1', '/data/a.csv');
+
+    const [c1, c2] = useDBListStore.getState().dbList;
+    expect(c1.data.children?.map((child) => child.path)).toEqual([
+      '/data/b.csv',
+    ]);
+    expect(c2.data.children?.map((child) => child.path)).toEqual([
+      '/other/a.csv',
+    ]);
+  });
+
   it('append does not leave ghost row when register fails', async () => {
     registerConnectionBackend.mockRejectedValueOnce(new Error('register down'));
 

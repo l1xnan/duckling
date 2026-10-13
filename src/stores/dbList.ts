@@ -15,6 +15,7 @@ import {
   syncConnectionsBackend,
   unregisterConnectionBackend,
 } from '@/lib/connectionRef';
+import { removeTreeNode } from '@/lib/treeNode';
 import { TreeNode } from '@/types';
 
 import { deleteDbCache, loadDbCaches, setDbCache } from './dbCache';
@@ -162,6 +163,8 @@ type DBListState = {
 type DBListAction = {
   append: (db: DBType) => Promise<void>;
   update: (id: string, db: Partial<DBType>) => void;
+  /** Drop a node from a connection's cached tree (local echo of a delete). */
+  removeNode: (id: string, path: string) => void;
   remove: (id: string) => void;
   rename: (id: string, displayName: string) => void;
   setCwd: (cwd: string, id: string) => Promise<void>;
@@ -417,6 +420,15 @@ export const useDBListStore = create<DBListStore>()(
         set((state) => ({
           dbList: state.dbList.map((item) =>
             item.id !== id ? item : { ...item, ...db },
+          ),
+        })),
+
+      removeNode: (id, path) =>
+        set((state) => ({
+          dbList: state.dbList.map((item) =>
+            item.id !== id
+              ? item
+              : { ...item, data: removeTreeNode(item.data, path) },
           ),
         })),
 
