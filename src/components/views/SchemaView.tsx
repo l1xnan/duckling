@@ -1,10 +1,11 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { Columns3CogIcon, RefreshCw, Search } from 'lucide-react';
-import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { Columns3CogIcon, RefreshCw } from 'lucide-react';
 import { isEmpty } from 'radash';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import { find, showColumns, showSchema } from '@/api';
+import { SearchInput } from '@/components/custom/search';
 import { TooltipButton } from '@/components/custom/tooltip';
 import { Label } from '@/components/custom/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -17,20 +18,13 @@ import {
   sizeColumnFormatters,
 } from '@/lib/schemaColumns';
 import { useConnection } from '@/stores/dbList';
-import {
-  SchemaContextType,
-  TableContextType,
-  useTabsStore,
-} from '@/stores/tabs';
+import { useDbSearchHistoryStore } from '@/stores/dbSearchHistory';
+import { SchemaContextType, TableContextType, useTabsStore } from '@/stores/tabs';
 
 import { SimpleTable } from '../tables/CanvasTable';
 import { Button } from '../ui/button';
-import { Input } from '../ui/input';
 
-function getRowField(
-  row: Record<string, unknown>,
-  ...keys: string[]
-): string | undefined {
+function getRowField(row: Record<string, unknown>, ...keys: string[]): string | undefined {
   for (const key of keys) {
     const lower = key.toLowerCase();
     for (const [k, v] of Object.entries(row)) {
@@ -42,23 +36,12 @@ function getRowField(
   return undefined;
 }
 
-function resolveTableId(
-  row: Record<string, unknown>,
-  schema?: string,
-): string | undefined {
-  const name = getRowField(
-    row,
-    'table_name',
-    'TABLE_NAME',
-    'name',
-    'Name',
-    'NAME',
-  );
+function resolveTableId(row: Record<string, unknown>, schema?: string): string | undefined {
+  const name = getRowField(row, 'table_name', 'TABLE_NAME', 'name', 'Name', 'NAME');
   if (!name) return undefined;
 
   const tableSchema =
-    getRowField(row, 'table_schema', 'TABLE_SCHEMA', 'schema', 'Schema') ??
-    schema;
+    getRowField(row, 'table_schema', 'TABLE_SCHEMA', 'schema', 'Schema') ?? schema;
 
   if (tableSchema && !name.includes('.')) {
     return `${tableSchema}.${name}`;
@@ -66,19 +49,11 @@ function resolveTableId(
   return name;
 }
 
-function useSchemaTableState(
-  data: unknown[],
-  defaultHiddenColumns: Record<string, boolean> = {},
-) {
-  const [hiddenOverrides, setHiddenOverrides] = useState<
-    Record<string, boolean>
-  >({});
+function useSchemaTableState(data: unknown[], defaultHiddenColumns: Record<string, boolean> = {}) {
+  const [hiddenOverrides, setHiddenOverrides] = useState<Record<string, boolean>>({});
   const [search, setSearch] = useState('');
 
-  const columnKeys = useMemo(
-    () => Object.keys((data[0] as Record<string, unknown>) ?? {}),
-    [data],
-  );
+  const columnKeys = useMemo(() => Object.keys((data[0] as Record<string, unknown>) ?? {}), [data]);
 
   const hiddenColumns = useMemo(
     () => ({ ...defaultHiddenColumns, ...hiddenOverrides }),
@@ -97,10 +72,7 @@ function useSchemaTableState(
         }
 
         const match = Object.entries(item ?? {}).filter(([key, val]) => {
-          return (
-            key.toLocaleLowerCase().includes('name') &&
-            String(val).includes(search)
-          );
+          return key.toLocaleLowerCase().includes('name') && String(val).includes(search);
         });
 
         return match.length > 0;
@@ -134,31 +106,49 @@ function SchemaToolbar({
   setHiddenColumns: (col: string, hidden: boolean) => void;
 }) {
   const { t } = useLingui();
+  const history = useDbSearchHistoryStore((s) => s.terms);
+  const pushHistory = useDbSearchHistoryStore((s) => s.push);
+  const removeHistory = useDbSearchHistoryStore((s) => s.remove);
+  const clearHistory = useDbSearchHistoryStore((s) => s.clear);
+
+  const commitSearch = (term: string) => {
+    const text = term.trim();
+    if (!text) {
+      return;
+    }
+    onSearchChange(text);
+    pushHistory(text);
+  };
 
   return (
-    <div className="h-8 flex flex-row justify-between items-center">
-      <div className="relative flex-1">
-        <Search className="absolute left-2 top-2 h-4 w-4 text-muted-foreground" />
-        <Input
-          value={search}
-          onChange={(e) => {
-            onSearchChange(e.target.value);
-          }}
-          placeholder={t`Search`}
-          className="w-full h-full pl-8 py-0.5 text-xs focus-visible:ring-0 shadow-none rounded-none border-t-0 border-b transition-none"
-        />
-      </div>
+    <div className="h-8 flex flex-row items-center gap-1 px-1">
+      <SearchInput
+        value={search}
+        onChange={(e) => {
+          onSearchChange(e.target.value);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            commitSearch(search);
+          }
+        }}
+        className="h-7 w-80 shrink-0 border"
+        history={{
+          terms: history,
+          ariaLabel: t`Recent searches`,
+          recentLabel: t`Recent searches`,
+          emptyLabel: t`No recent searches`,
+          onSelect: commitSearch,
+          onRemove: removeHistory,
+          onClear: clearHistory,
+        }}
+      />
 
       <div className="flex items-center">
         {columnKeys.length > 0 ? (
           <Popover>
             <PopoverTrigger
-              render={
-                <TooltipButton
-                  icon={<Columns3CogIcon />}
-                  tooltip={t`Hidden Column`}
-                />
-              }
+              render={<TooltipButton icon={<Columns3CogIcon />} tooltip={t`Hidden Column`} />}
             />
             <PopoverContent>
               <div className="flex flex-col gap-2">
@@ -189,11 +179,7 @@ function SchemaToolbar({
   );
 }
 
-export function DatabaseSchemaView({
-  context,
-}: {
-  context: SchemaContextType;
-}) {
+export function DatabaseSchemaView({ context }: { context: SchemaContextType }) {
   const currentTab = useTabsStore((s) => s.currentId);
   const updateTab = useTabsStore((s) => s.update);
   const connection = useConnection(context.dbId);
@@ -202,11 +188,7 @@ export function DatabaseSchemaView({
 
   const { rows, defaultHiddenColumns, sizeColumns } = useMemo(() => {
     if (connection?.dialect === 'clickhouse') {
-      const {
-        data: clickhouseRows,
-        hiddenColumns,
-        sizeColumns,
-      } = clickhouseTableDefaults(data);
+      const { data: clickhouseRows, hiddenColumns, sizeColumns } = clickhouseTableDefaults(data);
       return {
         rows: clickhouseRows,
         defaultHiddenColumns: hiddenColumns,
@@ -214,11 +196,7 @@ export function DatabaseSchemaView({
       };
     }
     if (connection?.dialect === 'mysql') {
-      const {
-        data: mysqlRows,
-        hiddenColumns,
-        sizeColumns,
-      } = mysqlTableDefaults(data);
+      const { data: mysqlRows, hiddenColumns, sizeColumns } = mysqlTableDefaults(data);
       return {
         rows: mysqlRows,
         defaultHiddenColumns: hiddenColumns,
@@ -228,27 +206,15 @@ export function DatabaseSchemaView({
     return { rows: data, defaultHiddenColumns: {}, sizeColumns: [] };
   }, [connection?.dialect, data]);
 
-  const fieldFormatters = useMemo(
-    () => sizeColumnFormatters(sizeColumns),
-    [sizeColumns],
-  );
+  const fieldFormatters = useMemo(() => sizeColumnFormatters(sizeColumns), [sizeColumns]);
 
-  const {
-    search,
-    setSearch,
-    filtered,
-    columnKeys,
-    hiddenColumns,
-    setHiddenColumns,
-  } = useSchemaTableState(rows, defaultHiddenColumns);
+  const { search, setSearch, filtered, columnKeys, hiddenColumns, setHiddenColumns } =
+    useSchemaTableState(rows, defaultHiddenColumns);
 
   const handleQuery = async () => {
     try {
       setLoading(true);
-      const { data } = await showSchema(
-        context.schema as string,
-        connectionRef(context.dbId),
-      );
+      const { data } = await showSchema(context.schema as string, connectionRef(context.dbId));
       setData(data);
     } catch (error) {
       toast.error((error as Error).message);
@@ -272,8 +238,7 @@ export function DatabaseSchemaView({
         toast.error(t`Cannot resolve table name from row`);
         return;
       }
-      const name =
-        getRowField(row, 'table_name', 'TABLE_NAME', 'name', 'Name') ?? tableId;
+      const name = getRowField(row, 'table_name', 'TABLE_NAME', 'name', 'Name') ?? tableId;
       const item: TableContextType = {
         id: `${context.dbId}:${tableId}`,
         dbId: context.dbId,
@@ -320,22 +285,13 @@ export function ColumnSchemaView({ context }: { context: TableContextType }) {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<unknown[]>([]);
 
-  const {
-    search,
-    setSearch,
-    filtered,
-    columnKeys,
-    hiddenColumns,
-    setHiddenColumns,
-  } = useSchemaTableState(data);
+  const { search, setSearch, filtered, columnKeys, hiddenColumns, setHiddenColumns } =
+    useSchemaTableState(data);
 
   const handleQuery = async () => {
     try {
       setLoading(true);
-      const { data } = await showColumns(
-        context.tableId as string,
-        connectionRef(context.dbId),
-      );
+      const { data } = await showColumns(context.tableId as string, connectionRef(context.dbId));
       setData(data);
     } catch (error) {
       toast.error((error as Error).message);
@@ -383,14 +339,8 @@ export function SearchView({ context }: { context: TableContextType }) {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<unknown[]>([]);
 
-  const {
-    search,
-    setSearch,
-    filtered,
-    columnKeys,
-    hiddenColumns,
-    setHiddenColumns,
-  } = useSchemaTableState(data);
+  const { search, setSearch, filtered, columnKeys, hiddenColumns, setHiddenColumns } =
+    useSchemaTableState(data);
 
   const handleQuery = async () => {
     try {
@@ -423,8 +373,7 @@ export function SearchView({ context }: { context: TableContextType }) {
         toast.error(t`Cannot resolve table name from row`);
         return;
       }
-      const name =
-        getRowField(row, 'table_name', 'TABLE_NAME', 'name', 'Name') ?? tableId;
+      const name = getRowField(row, 'table_name', 'TABLE_NAME', 'name', 'Name') ?? tableId;
       const item: TableContextType = {
         id: `${context.dbId}:${tableId}`,
         dbId: context.dbId,
