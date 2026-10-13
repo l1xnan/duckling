@@ -15,6 +15,24 @@ The result grid is rendered on Canvas for performance, and includes:
 - **Column analysis** — from a column header menu, open [Count by column](/features/analysis#count-by-column), column profile, or pivot.
 - **Per-cell value inspection** — open any cell in the [Value viewer](/features/analysis#value-viewer) for raw / JSON views and statistics.
 
+## Copying data
+
+Select cells or a range, then right-click to copy as:
+
+| Menu item | Output | Header |
+| --- | --- | --- |
+| **Copy** | Plain text (tab-separated, as selected) | Follows the selection |
+| **Copy as CSV** / **Copy as TSV** | Comma / tab separated | Follows the selection |
+| **Copy as CSV with header** | Comma separated | Always included |
+| **Copy as Markdown table** | GFM table (`\|` escaped, newlines become `<br>`) | Always included |
+| **Copy as HTML table** | `<table>` — pastes into docs and rich-text editors | Always included |
+| **Copy as JSON** | Array of row objects keyed by column name | n/a |
+
+- **Header source** — when the selection includes the header row, real column names are used; otherwise it falls back to the column field, then to the column position (`col0`).
+- **Values** — the raw cell values: `NULL` / empty renders as an empty field in CSV / TSV / Markdown / HTML, and as `null` in JSON.
+- **Transpose** — a transposed view is **transposed back** into a regular table on copy: each row is one original column, named after its label cell.
+- Copying more than 2000 rows reports the row count, so a large copy never looks like it silently did nothing.
+
 ## Value viewer
 
 Inspect a cell in **raw** or **JSON** form, with a **Calculate** tab that computes per-selection statistics (min / max / mean / …) and exports them as Markdown — handy for quick sanity checks on a selection of values.

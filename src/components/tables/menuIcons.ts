@@ -35,6 +35,24 @@ export const iconCopyCsv = lucideSvg(
     '<path d="M8 13h2"/><path d="M14 13h2"/><path d="M8 17h2"/><path d="M14 17h2"/>',
 );
 
+/** Braces — copy as JSON. */
+export const iconCopyJson = lucideSvg(
+  '<path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/>' +
+    '<path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/>',
+);
+
+/** Hash — copy as Markdown table. */
+export const iconCopyMarkdown = lucideSvg(
+  '<line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/>' +
+    '<line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/>',
+);
+
+/** CodeXml — copy as HTML table. */
+export const iconCopyHtml = lucideSvg(
+  '<path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/>' +
+    '<path d="m14.5 4-5 16"/>',
+);
+
 /** ArrowUpNarrowWide — sort ascending. */
 export const iconSortAsc = lucideSvg(
   '<path d="m3 8 4-4 4 4"/><path d="M7 4v16"/>' +

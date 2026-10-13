@@ -10,6 +10,7 @@ import {
 } from '@visactor/vtable';
 import { ContextMenuPlugin, MenuClickEventArgs } from '@visactor/vtable-plugins';
 import { IVTablePlugin } from '@visactor/vtable/es/plugins';
+import { toast } from 'sonner';
 
 import type { ComponentProps } from 'react';
 import { CSSProperties, memo, useMemo, useRef, useState } from 'react';
@@ -18,6 +19,7 @@ import { SelectedCellType } from '@/components/views/TableView';
 import { useTheme } from '@/hooks/theme-provider';
 import { useResolvedColorTheme } from '@/hooks/use-color-theme';
 import { i18n } from '@/i18n';
+import { CopyFormat, planCopy } from '@/lib/tableClipboard';
 import { OrderByType, SchemaType } from '@/stores/dataset';
 import { useTableFontFamily, useTableFontSize } from '@/stores/setting';
 import { isDarkTheme, isNumberType, uniqueArray } from '@/utils';
@@ -29,6 +31,9 @@ import { HighlightHeaderWhenSelectCellPlugin } from './highlight-header-when-sel
 import {
   iconCopy,
   iconCopyCsv,
+  iconCopyHtml,
+  iconCopyJson,
+  iconCopyMarkdown,
   iconCountBy,
   iconField,
   iconFilter,
@@ -101,6 +106,82 @@ const MENU_PIVOT_COLUMN = msg`Pivot with this column`;
 const MENU_FILTER_BY_VALUE = msg`Filter by this value`;
 const MENU_COPY = msg`Copy`;
 const MENU_COPY_AS_CSV = msg`Copy as CSV`;
+const MENU_COPY_AS_CSV_HEADER = msg`Copy as CSV with header`;
+const MENU_COPY_AS_TSV = msg`Copy as TSV`;
+const MENU_COPY_AS_MARKDOWN = msg`Copy as Markdown table`;
+const MENU_COPY_AS_HTML = msg`Copy as HTML table`;
+const MENU_COPY_AS_JSON = msg`Copy as JSON`;
+const MSG_COPIED = msg`Copied`;
+const MSG_COPY_FAILED = msg`Copy failed`;
+
+/**
+ * The "copy as …" entries shared by the data grid and the simple schema table.
+ * `Copy as CSV` keeps its own key, so it stays separate from these.
+ */
+const copyFormatMenuEntries = (): {
+  text: string;
+  menuKey: string;
+  customIcon: typeof iconCopy;
+}[] => [
+  {
+    text: i18n._(MENU_COPY_AS_CSV_HEADER),
+    menuKey: 'copy-as-csv-header',
+    customIcon: iconCopyCsv,
+  },
+  {
+    text: i18n._(MENU_COPY_AS_TSV),
+    menuKey: 'copy-as-tsv',
+    customIcon: iconCopyCsv,
+  },
+  {
+    text: i18n._(MENU_COPY_AS_MARKDOWN),
+    menuKey: 'copy-as-markdown',
+    customIcon: iconCopyMarkdown,
+  },
+  {
+    text: i18n._(MENU_COPY_AS_HTML),
+    menuKey: 'copy-as-html',
+    customIcon: iconCopyHtml,
+  },
+  {
+    text: i18n._(MENU_COPY_AS_JSON),
+    menuKey: 'copy-as-json',
+    customIcon: iconCopyJson,
+  },
+];
+
+/**
+ * Toasting every copy would be noise; surface one only when the payload is big
+ * enough that the user may wonder whether it finished.
+ */
+const COPY_TOAST_ROW_THRESHOLD = 2000;
+
+/** Copy the selection in `format`, reporting failures and large payloads. */
+const copySelection = async (table: ListTableAPI | null, format: CopyFormat) => {
+  if (!table) {
+    return;
+  }
+  try {
+    const plan = planCopy(
+      {
+        transpose: table.transpose,
+        cells: table.getSelectedCellInfos() ?? [],
+      },
+      format,
+    );
+    if (!plan || !plan.text) {
+      return;
+    }
+    await writeText(plan.text);
+    if (plan.rowCount >= COPY_TOAST_ROW_THRESHOLD) {
+      toast.success(`${i18n._(MSG_COPIED)}: ${plan.rowCount}`);
+    }
+  } catch (error) {
+    toast.error(
+      `${i18n._(MSG_COPY_FAILED)}: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+};
 
 const copySelectedAsCsv = async (table: ListTableAPI | null) => {
   if (!table) {
@@ -333,6 +414,7 @@ function CanvasTable_({
         menuKey: 'copy-as-csv',
         customIcon: iconCopyCsv,
       },
+      ...copyFormatMenuEntries(),
     ];
     const bodyFilterGroup: MenuEntry[] = onDrillDown
       ? [
@@ -484,6 +566,8 @@ function CanvasTable_({
           await writeText(table?.getCopyValue() ?? '');
         } else if (menuKey == 'copy-as-csv') {
           await copySelectedAsCsv(table);
+        } else if (menuKey.startsWith('copy-as-')) {
+          await copySelection(table, menuKey.slice('copy-as-'.length) as CopyFormat);
         } else if (menuKey == 'filter-by-value' && onDrillDown) {
           const value = table.getCellRawValue(e.colIndex, e.rowIndex);
           const define = table.getBodyColumnDefine?.(e.colIndex, e.rowIndex) as
@@ -694,6 +778,7 @@ export function SimpleTable({
         menuKey: 'copy-as-csv',
         customIcon: iconCopyCsv,
       },
+      ...copyFormatMenuEntries(),
     ];
     const bodyFilterGroup: MenuEntry[] = onFilterByValue
       ? [
@@ -758,6 +843,8 @@ export function SimpleTable({
           await writeText(table?.getCopyValue() ?? '');
         } else if (menuKey === 'copy-as-csv') {
           await copySelectedAsCsv(table);
+        } else if (menuKey.startsWith('copy-as-')) {
+          await copySelection(table, menuKey.slice('copy-as-'.length) as CopyFormat);
         } else if (menuKey === 'filter-by-value' && onFilterByValueRef.current) {
           const record = table.getRecordByCell?.(e.colIndex, e.rowIndex) as
             | Record<string, unknown>

@@ -5,7 +5,7 @@ description: Duckling 全部功能概览：浏览、SQL、分析、导出等。
 
 # 功能总览
 
-- **数据浏览** — 基于 Canvas 渲染的结果网格，支持分页、隐藏列、转置、结果过滤与单元格值查看。详见[数据浏览](/features/data-browsing)。
+- **数据浏览** — 基于 Canvas 渲染的结果网格，支持分页、隐藏列、转置、结果过滤、多格式复制（文本 / CSV / TSV / Markdown / HTML / JSON）与单元格值查看。详见[数据浏览](/features/data-browsing)。
 - **SQL 编辑器** — 基于 Monaco，具备表/列感知的自动补全、运行 / 格式化 / `EXPLAIN`、SQL 书签与可选的按语句分割模式。详见 [SQL 编辑器](/features/sql-editor)。
 - **SQL 模板变量** — 写入 Jinja2 风格 `{{ variable }}` 占位符，通过 `/* @vars */` YAML 块注释声明值，一键运行多值查询（笛卡尔积 → 多个结果标签页）。详见 [SQL 模板](/features/sql-templates/)。
 - **透视表** — 通过行维 / 列维与度量（`count` / `sum` / `avg` / `min` / `max`）构建透视，提供高基数警告、复制 SQL、前端行/列百分比展示与列/度量表头排序。可将透视弹窗转为独立工作区标签，并在标签页中再次修改配置。
