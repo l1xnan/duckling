@@ -105,6 +105,7 @@ const MENU_COLUMN_PROFILE = msg`Column profile`;
 const MENU_PIVOT_COLUMN = msg`Pivot with this column`;
 const MENU_FILTER_BY_VALUE = msg`Filter by this value`;
 const MENU_COPY = msg`Copy`;
+const MENU_ADVANCED_COPY = msg`Advanced copy`;
 const MENU_COPY_AS_CSV = msg`Copy as CSV`;
 const MENU_COPY_AS_CSV_HEADER = msg`Copy as CSV with header`;
 const MENU_COPY_AS_TSV = msg`Copy as TSV`;
@@ -114,15 +115,37 @@ const MENU_COPY_AS_JSON = msg`Copy as JSON`;
 const MSG_COPIED = msg`Copied`;
 const MSG_COPY_FAILED = msg`Copy failed`;
 
-/**
- * The "copy as …" entries shared by the data grid and the simple schema table.
- * `Copy as CSV` keeps its own key, so it stays separate from these.
- */
-const copyFormatMenuEntries = (): {
+/** A VTable `ContextMenuPlugin` entry: a separator (`string`) or a menu item. */
+type MenuEntry = string | {
   text: string;
   menuKey: string;
-  customIcon: typeof iconCopy;
-}[] => [
+  shortcut?: string;
+  customIcon?: { svg: string; width?: number; height?: number };
+  customClassName?: { arrow?: string | string[] };
+  children?: MenuEntry[];
+};
+
+/** Join menu groups, inserting a separator between non-empty ones. */
+const joinMenuGroups = (...groups: MenuEntry[][]): MenuEntry[] => {
+  const out: MenuEntry[] = [];
+  for (const group of groups) {
+    if (!group.length) continue;
+    if (out.length) out.push('---');
+    out.push(...group);
+  }
+  return out;
+};
+
+/**
+ * Every "copy as …" format, grouped under a single submenu so the first level of
+ * the cell context menu stays short.
+ */
+const copyAsMenuChildren = (): MenuEntry[] => [
+  {
+    text: i18n._(MENU_COPY_AS_CSV),
+    menuKey: 'copy-as-csv',
+    customIcon: iconCopyCsv,
+  },
   {
     text: i18n._(MENU_COPY_AS_CSV_HEADER),
     menuKey: 'copy-as-csv-header',
@@ -149,6 +172,18 @@ const copyFormatMenuEntries = (): {
     customIcon: iconCopyJson,
   },
 ];
+
+/**
+ * The submenu entry holding `copyAsMenuChildren`. The parent carries no
+ * `copy-as-` key prefix because parent items have no click handler.
+ */
+const advancedCopyMenuEntry = (): MenuEntry => ({
+  text: i18n._(MENU_ADVANCED_COPY),
+  menuKey: 'copy-advanced',
+  customIcon: iconCopy,
+  customClassName: { arrow: 'vtable-submenu-arrow' },
+  children: copyAsMenuChildren(),
+});
 
 /**
  * Toasting every copy would be noise; surface one only when the payload is big
@@ -383,25 +418,6 @@ function CanvasTable_({
   );
 
   const contextMenuPlugin = useMemo(() => {
-    type MenuEntry =
-      | string
-      | {
-          text: string;
-          menuKey: string;
-          shortcut?: string;
-          customIcon?: { svg: string; width?: number; height?: number };
-        };
-
-    const joinGroups = (...groups: MenuEntry[][]): MenuEntry[] => {
-      const out: MenuEntry[] = [];
-      for (const g of groups) {
-        if (!g.length) continue;
-        if (out.length) out.push('---');
-        out.push(...g);
-      }
-      return out;
-    };
-
     const bodyCopyGroup: MenuEntry[] = [
       {
         text: i18n._(MENU_COPY),
@@ -409,12 +425,7 @@ function CanvasTable_({
         shortcut: formatHotkey(getHotkey('table.copy')),
         customIcon: iconCopy,
       },
-      {
-        text: i18n._(MENU_COPY_AS_CSV),
-        menuKey: 'copy-as-csv',
-        customIcon: iconCopyCsv,
-      },
-      ...copyFormatMenuEntries(),
+      advancedCopyMenuEntry(),
     ];
     const bodyFilterGroup: MenuEntry[] = onDrillDown
       ? [
@@ -501,8 +512,8 @@ function CanvasTable_({
     ];
 
     return new ContextMenuPlugin({
-      bodyCellMenuItems: joinGroups(bodyCopyGroup, bodyFilterGroup),
-      headerCellMenuItems: joinGroups(
+      bodyCellMenuItems: joinMenuGroups(bodyCopyGroup, bodyFilterGroup),
+      headerCellMenuItems: joinMenuGroups(
         headerCopyGroup,
         headerSortGroup,
         headerAnalyzeGroup,
@@ -747,25 +758,6 @@ export function SimpleTable({
   );
 
   const contextMenuPlugin = useMemo(() => {
-    type MenuEntry =
-      | string
-      | {
-          text: string;
-          menuKey: string;
-          shortcut?: string;
-          customIcon?: { svg: string; width?: number; height?: number };
-        };
-
-    const joinGroups = (...groups: MenuEntry[][]): MenuEntry[] => {
-      const out: MenuEntry[] = [];
-      for (const g of groups) {
-        if (!g.length) continue;
-        if (out.length) out.push('---');
-        out.push(...g);
-      }
-      return out;
-    };
-
     const bodyCopyGroup: MenuEntry[] = [
       {
         text: i18n._(MENU_COPY),
@@ -773,12 +765,7 @@ export function SimpleTable({
         shortcut: formatHotkey(getHotkey('table.copy')),
         customIcon: iconCopy,
       },
-      {
-        text: i18n._(MENU_COPY_AS_CSV),
-        menuKey: 'copy-as-csv',
-        customIcon: iconCopyCsv,
-      },
-      ...copyFormatMenuEntries(),
+      advancedCopyMenuEntry(),
     ];
     const bodyFilterGroup: MenuEntry[] = onFilterByValue
       ? [
@@ -816,8 +803,8 @@ export function SimpleTable({
       : [];
 
     return new ContextMenuPlugin({
-      bodyCellMenuItems: joinGroups(bodyCopyGroup, bodyFilterGroup, bodyOpenGroup),
-      headerCellMenuItems: joinGroups(headerCopyGroup, headerLayoutGroup),
+      bodyCellMenuItems: joinMenuGroups(bodyCopyGroup, bodyFilterGroup, bodyOpenGroup),
+      headerCellMenuItems: joinMenuGroups(headerCopyGroup, headerLayoutGroup),
       beforeShowAdjustMenuItems: (menuItems, table, col, row) => {
         if (!onFilterByValue || !filterField) return menuItems;
         const field = bodyColumnField(table as ListTableAPI, col, row);

@@ -17,16 +17,16 @@ The result grid is rendered on Canvas for performance, and includes:
 
 ## Copying data
 
-Select cells or a range, then right-click to copy as:
+Select cells or a range, then right-click: **Copy** (plain text) sits at the top level, and the remaining formats live under the **Advanced copy** submenu to keep the menu short.
 
 | Menu item | Output | Header |
 | --- | --- | --- |
 | **Copy** | Plain text (tab-separated, as selected) | Follows the selection |
-| **Copy as CSV** / **Copy as TSV** | Comma / tab separated | Follows the selection |
-| **Copy as CSV with header** | Comma separated | Always included |
-| **Copy as Markdown table** | GFM table (`\|` escaped, newlines become `<br>`) | Always included |
-| **Copy as HTML table** | `<table>` — pastes into docs and rich-text editors | Always included |
-| **Copy as JSON** | Array of row objects keyed by column name | n/a |
+| Advanced copy → **Copy as CSV** / **Copy as TSV** | Comma / tab separated | Follows the selection |
+| Advanced copy → **Copy as CSV with header** | Comma separated | Always included |
+| Advanced copy → **Copy as Markdown table** | GFM table (`\|` escaped, newlines become `<br>`) | Always included |
+| Advanced copy → **Copy as HTML table** | `<table>` — pastes into docs and rich-text editors | Always included |
+| Advanced copy → **Copy as JSON** | Array of row objects keyed by column name | n/a |
 
 - **Header source** — when the selection includes the header row, real column names are used; otherwise it falls back to the column field, then to the column position (`col0`).
 - **Values** — the raw cell values: `NULL` / empty renders as an empty field in CSV / TSV / Markdown / HTML, and as `null` in JSON.

@@ -80,6 +80,12 @@ body .vtable__bubble-tooltip-element__content {
   background-color: var(--accent) !important;
 }
 
+/* Submenu arrow is styled inline (#666) by the plugin, so it needs !important. */
+.vtable-submenu-arrow {
+  color: var(--popover-foreground) !important;
+  opacity: 0.6;
+}
+
 body .monaco-editor .sql-current-statement {
   background-color: color-mix(in oklch, var(--primary) 12%, transparent);
   border-left: 1px solid color-mix(in oklch, var(--primary) 45%, transparent);

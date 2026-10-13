@@ -139,6 +139,10 @@ msgstr "Add field…"
 msgid "Add SQL select items with an alias, for example <0>a + 1 AS a1</0>. Filtering follows your database’s SQL rules: aliases are often unavailable in WHERE (use the full expression); ORDER BY may accept aliases depending on the dialect."
 msgstr "Add SQL select items with an alias, for example <0>a + 1 AS a1</0>. Filtering follows your database’s SQL rules: aliases are often unavailable in WHERE (use the full expression); ORDER BY may accept aliases depending on the dialect."
 
+#: src/components/tables/CanvasTable.tsx:108
+msgid "Advanced copy"
+msgstr "Advanced copy"
+
 #: src/stores/setting.ts:557
 msgid "After operator"
 msgstr "After operator"
@@ -331,7 +335,7 @@ msgstr "Clear pinned"
 msgid "Clear search"
 msgstr "Clear search"
 
-#: src/components/tables/CanvasTable.tsx:450
+#: src/components/tables/CanvasTable.tsx:461
 msgid "Clear sort"
 msgstr "Clear sort"
 
@@ -454,7 +458,7 @@ msgstr "Connection properties"
 msgid "Connection successful"
 msgstr "Connection successful"
 
-#: src/components/tables/CanvasTable.tsx:114
+#: src/components/tables/CanvasTable.tsx:115
 msgid "Copied"
 msgstr "Copied"
 
@@ -466,19 +470,19 @@ msgstr "Copied"
 msgid "Copy"
 msgstr "Copy"
 
-#: src/components/tables/CanvasTable.tsx:108
+#: src/components/tables/CanvasTable.tsx:109
 msgid "Copy as CSV"
 msgstr "Copy as CSV"
 
-#: src/components/tables/CanvasTable.tsx:109
+#: src/components/tables/CanvasTable.tsx:110
 msgid "Copy as CSV with header"
 msgstr "Copy as CSV with header"
 
-#: src/components/tables/CanvasTable.tsx:112
+#: src/components/tables/CanvasTable.tsx:113
 msgid "Copy as HTML table"
 msgstr "Copy as HTML table"
 
-#: src/components/tables/CanvasTable.tsx:113
+#: src/components/tables/CanvasTable.tsx:114
 msgid "Copy as JSON"
 msgstr "Copy as JSON"
 
@@ -486,15 +490,15 @@ msgstr "Copy as JSON"
 msgid "Copy as Markdown"
 msgstr "Copy as Markdown"
 
-#: src/components/tables/CanvasTable.tsx:111
+#: src/components/tables/CanvasTable.tsx:112
 msgid "Copy as Markdown table"
 msgstr "Copy as Markdown table"
 
-#: src/components/tables/CanvasTable.tsx:110
+#: src/components/tables/CanvasTable.tsx:111
 msgid "Copy as TSV"
 msgstr "Copy as TSV"
 
-#: src/components/tables/CanvasTable.tsx:115
+#: src/components/tables/CanvasTable.tsx:116
 msgid "Copy failed"
 msgstr "Copy failed"
 
@@ -1554,7 +1558,7 @@ msgstr "Open SQL editor"
 msgid "Open SQL folder"
 msgstr "Open SQL folder"
 
-#: src/components/tables/CanvasTable.tsx:795
+#: src/components/tables/CanvasTable.tsx:782
 msgid "Open table"
 msgstr "Open table"
 
@@ -2225,11 +2229,11 @@ msgstr "Some shortcuts share the same keys within a scope. Resolve conflicts by 
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
-#: src/components/tables/CanvasTable.tsx:440
+#: src/components/tables/CanvasTable.tsx:451
 msgid "Sort ascending"
 msgstr "Sort ascending"
 
-#: src/components/tables/CanvasTable.tsx:445
+#: src/components/tables/CanvasTable.tsx:456
 msgid "Sort descending"
 msgstr "Sort descending"
 
