@@ -6,6 +6,7 @@ import {
   clickhouseTableDefaults,
   formatReadableSize,
   mysqlTableDefaults,
+  sizeColumnFormatters,
 } from '@/lib/schemaColumns';
 
 describe('formatReadableSize', () => {
@@ -66,19 +67,24 @@ describe('clickhouseTableDefaults', () => {
     });
   });
 
-  it('renders sizes readably', () => {
-    const { data } = clickhouseTableDefaults(rows);
-    expect(data[0].total_bytes).toBe('1.50 KiB');
+  it('keeps raw sizes and reports them as display-only size columns', () => {
+    const { data, sizeColumns } = clickhouseTableDefaults(rows);
+    expect(data[0].total_bytes).toBe(1536);
     expect(data[0].name).toBe('events');
+    expect(sizeColumns).toEqual(['total_bytes']);
   });
 
   it('tolerates missing priority columns and empty input', () => {
-    const { data } = clickhouseTableDefaults([{ name: 't', engine: 'Log' }]);
+    const { data, sizeColumns } = clickhouseTableDefaults([
+      { name: 't', engine: 'Log' },
+    ]);
     expect(Object.keys(data[0])).toEqual(['name', 'engine']);
+    expect(sizeColumns).toEqual([]);
 
     expect(clickhouseTableDefaults([])).toEqual({
       data: [],
       hiddenColumns: {},
+      sizeColumns: [],
     });
   });
 });
@@ -149,16 +155,17 @@ describe('mysqlTableDefaults', () => {
     expect(hiddenColumns.DATA_LENGTH).toBeUndefined();
   });
 
-  it('renders data and index sizes readably and keeps other values', () => {
-    const { data } = mysqlTableDefaults(rows);
-    expect(data[0].DATA_LENGTH).toBe('1.50 KiB');
-    expect(data[0].INDEX_LENGTH).toBe('1.00 KiB');
+  it('keeps raw sizes, reports size columns and leaves other values alone', () => {
+    const { data, sizeColumns } = mysqlTableDefaults(rows);
+    expect(data[0].DATA_LENGTH).toBe(1536);
+    expect(data[0].INDEX_LENGTH).toBe(1024);
+    expect(sizeColumns).toEqual(['DATA_LENGTH', 'INDEX_LENGTH']);
     expect(data[0].TABLE_NAME).toBe('orders');
     expect(data[0].TABLE_ROWS).toBe(1200);
   });
 
   it('matches column names case-insensitively', () => {
-    const { data, hiddenColumns } = mysqlTableDefaults([
+    const { data, hiddenColumns, sizeColumns } = mysqlTableDefaults([
       {
         table_name: 'orders',
         data_length: 2048,
@@ -172,14 +179,43 @@ describe('mysqlTableDefaults', () => {
       'data_length',
       'table_collation',
     ]);
-    expect(data[0].data_length).toBe('2.00 KiB');
+    expect(data[0].data_length).toBe(2048);
+    expect(sizeColumns).toEqual(['data_length']);
     expect(hiddenColumns).toEqual({ table_collation: true });
   });
 
   it('tolerates missing priority columns and empty input', () => {
-    const { data } = mysqlTableDefaults([{ TABLE_NAME: 'v', TABLE_TYPE: 'VIEW' }]);
+    const { data, sizeColumns } = mysqlTableDefaults([
+      { TABLE_NAME: 'v', TABLE_TYPE: 'VIEW' },
+    ]);
     expect(Object.keys(data[0])).toEqual(['TABLE_NAME', 'TABLE_TYPE']);
+    expect(sizeColumns).toEqual([]);
 
-    expect(mysqlTableDefaults([])).toEqual({ data: [], hiddenColumns: {} });
+    expect(mysqlTableDefaults([])).toEqual({
+      data: [],
+      hiddenColumns: {},
+      sizeColumns: [],
+    });
+  });
+});
+
+describe('sizeColumnFormatters', () => {
+  it('formats only the rendered text, keeping records sortable by bytes', () => {
+    const rows = [
+      { TABLE_NAME: 'small', DATA_LENGTH: 1536, INDEX_LENGTH: 0 },
+      { TABLE_NAME: 'large', DATA_LENGTH: 3 * 1024 ** 3, INDEX_LENGTH: 1024 },
+    ];
+    const { data, sizeColumns } = mysqlTableDefaults(rows);
+    const formatters = sizeColumnFormatters(sizeColumns);
+
+    expect(formatters.DATA_LENGTH(data[0].DATA_LENGTH)).toBe('1.50 KiB');
+    expect(formatters.INDEX_LENGTH(data[1].INDEX_LENGTH)).toBe('1.00 KiB');
+    expect(formatters.TABLE_NAME).toBeUndefined();
+
+    // Sorting compares the raw values the formatter was handed, not its text.
+    const sorted = [...data].sort(
+      (a, b) => Number(a.DATA_LENGTH) - Number(b.DATA_LENGTH),
+    );
+    expect(sorted.map((row) => row.TABLE_NAME)).toEqual(['small', 'large']);
   });
 });

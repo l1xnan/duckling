@@ -60,6 +60,11 @@ export type SchemaTableDefaults = {
   data: Record<string, unknown>[];
   /** Columns outside the priority list — hidden until the user shows them. */
   hiddenColumns: Record<string, boolean>;
+  /**
+   * Byte-size columns, left raw in `data` so the grid keeps sorting them by
+   * real bytes; render them with `formatReadableSize`.
+   */
+  sizeColumns: string[];
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -67,9 +72,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Reorder rows so `priorityColumns` come first, render `sizeColumns` readably,
- * and report the remaining columns as hidden by default. Matching ignores case
- * because server metadata casing differs between dialects.
+ * Reorder rows so `priorityColumns` come first and report the remaining
+ * columns as hidden by default. Matching ignores case because server metadata
+ * casing differs between dialects. Values are never rewritten: size columns
+ * are reported in `sizeColumns` so the caller can format them for display
+ * while sorting keeps comparing the raw byte counts.
  */
 function priorityTableDefaults(
   rows: unknown[],
@@ -79,7 +86,7 @@ function priorityTableDefaults(
   const records = (rows ?? []).filter(isRecord);
   const first = records[0];
   if (!first) {
-    return { data: records, hiddenColumns: {} };
+    return { data: records, hiddenColumns: {}, sizeColumns: [] };
   }
 
   const rank = new Map<string, number>();
@@ -107,19 +114,21 @@ function priorityTableDefaults(
   const data = records.map((record) => {
     const next: Record<string, unknown> = {};
     for (const key of ordered) {
-      next[key] = sizes.has(key.toLowerCase())
-        ? formatReadableSize(record[key])
-        : record[key];
+      next[key] = record[key];
     }
     return next;
   });
 
-  return { data, hiddenColumns };
+  return {
+    data,
+    hiddenColumns,
+    sizeColumns: ordered.filter((key) => sizes.has(key.toLowerCase())),
+  };
 }
 
 /**
- * Reorder `system.tables` rows so the priority columns come first, render
- * byte sizes readably, and report the remaining columns as hidden by default.
+ * Reorder `system.tables` rows so the priority columns come first, report
+ * `total_bytes` as a display-formatted size column, and hide the rest.
  */
 export function clickhouseTableDefaults(rows: unknown[]): SchemaTableDefaults {
   return priorityTableDefaults(rows, CLICKHOUSE_TABLE_PRIORITY_COLUMNS, [
@@ -129,11 +138,26 @@ export function clickhouseTableDefaults(rows: unknown[]): SchemaTableDefaults {
 
 /**
  * Same default view as ClickHouse for `information_schema.tables` rows: key
- * columns first, sizes readably, everything else hidden.
+ * columns first, data and index sizes formatted, everything else hidden.
  */
 export function mysqlTableDefaults(rows: unknown[]): SchemaTableDefaults {
   return priorityTableDefaults(rows, MYSQL_TABLE_PRIORITY_COLUMNS, [
     'DATA_LENGTH',
     'INDEX_LENGTH',
   ]);
+}
+
+/**
+ * Display formatters for the size columns of a schema table view. The records
+ * keep raw byte counts, so the grid sorts them numerically and only the
+ * rendered text becomes readable.
+ */
+export function sizeColumnFormatters(
+  sizeColumns: readonly string[],
+): Record<string, (value: unknown) => unknown> {
+  const formatters: Record<string, (value: unknown) => unknown> = {};
+  for (const key of sizeColumns) {
+    formatters[key] = formatReadableSize;
+  }
+  return formatters;
 }

@@ -11,7 +11,7 @@ Server databases are configured with connection details in the sidebar.
 
 Host / port / database / user / password.
 
-Opening a database (its table list) prioritizes the key `information_schema.tables` columns, in this order: table name, schema name, table type, engine, data size, index size (shown as `MiB` / `GiB`), last modified, table comment, and row count. Every other column is hidden by default — turn them on from the **Hidden Column** menu in the toolbar.
+Opening a database (its table list) prioritizes the key `information_schema.tables` columns, in this order: table name, schema name, table type, engine, data size, index size (shown as `MiB` / `GiB`), last modified, table comment, and row count. Sizes are only rendered readably — sorting still compares the real byte counts. Every other column is hidden by default — turn them on from the **Hidden Column** menu in the toolbar.
 
 ## PostgreSQL
 
@@ -21,7 +21,7 @@ Host / port / database / user / password, plus **SSL mode** selection.
 
 Host / port / database / user / password over the **HTTP interface** (usually port `8123`).
 
-Opening a database (its table list) prioritizes the key `system.tables` columns, in this order: table name, schema name, engine parameters, engine, table size (shown as `MiB` / `GiB`), last modified, table comment, row count, and metadata path. Every other column is hidden by default — turn them on from the **Hidden Column** menu in the toolbar.
+Opening a database (its table list) prioritizes the key `system.tables` columns, in this order: table name, schema name, engine parameters, engine, table size (shown as `MiB` / `GiB`), last modified, table comment, row count, and metadata path. Sizes are only rendered readably — sorting still compares the real byte counts. Every other column is hidden by default — turn them on from the **Hidden Column** menu in the toolbar.
 
 ## Doris / StarRocks
 

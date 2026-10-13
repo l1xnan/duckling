@@ -612,6 +612,11 @@ export type SimpleTableProps = {
   data: unknown[];
   hiddenColumns?: Record<string, boolean>;
   setHiddenColumns?: (col: string, hidden: boolean) => void;
+  /**
+   * Display-only formatters by field. Records keep their raw values, so
+   * sorting and the row context menu still see the underlying data.
+   */
+  fieldFormatters?: Record<string, (value: unknown) => unknown>;
   /** Body context menu: open the selected row as a table tab. */
   onOpenTable?: (row: Record<string, unknown>) => void;
   /**
@@ -638,6 +643,7 @@ export function SimpleTable({
   data,
   hiddenColumns,
   setHiddenColumns,
+  fieldFormatters,
   onOpenTable,
   onFilterByValue,
   filterField,
@@ -796,12 +802,16 @@ export function SimpleTable({
           },
         },
         ...columnKeys.map((key) => {
+          const format = fieldFormatters?.[key];
           return {
             field: key,
             title: key,
             dragHeader: true,
             sort: true,
             hide: hiddenColumns?.[key],
+            fieldFormat: format
+              ? (record: Record<string, unknown>) => format(record?.[key])
+              : undefined,
           } as ColumnDefine;
         }),
       ],
@@ -816,7 +826,7 @@ export function SimpleTable({
       },
       plugins: plugins.length > 0 ? plugins : [],
     }),
-    [data, theme, columnKeys, hiddenColumns, plugins],
+    [data, theme, columnKeys, hiddenColumns, fieldFormatters, plugins],
   );
 
   return (

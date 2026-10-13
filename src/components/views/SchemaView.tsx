@@ -11,7 +11,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Loading } from '@/components/views/TableView';
 import { connectionRef } from '@/lib/connectionRef';
-import { clickhouseTableDefaults, mysqlTableDefaults } from '@/lib/schemaColumns';
+import {
+  clickhouseTableDefaults,
+  mysqlTableDefaults,
+  sizeColumnFormatters,
+} from '@/lib/schemaColumns';
 import { useConnection } from '@/stores/dbList';
 import {
   SchemaContextType,
@@ -196,18 +200,38 @@ export function DatabaseSchemaView({
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<unknown[]>([]);
 
-  const { rows, defaultHiddenColumns } = useMemo(() => {
+  const { rows, defaultHiddenColumns, sizeColumns } = useMemo(() => {
     if (connection?.dialect === 'clickhouse') {
-      const { data: clickhouseRows, hiddenColumns } =
-        clickhouseTableDefaults(data);
-      return { rows: clickhouseRows, defaultHiddenColumns: hiddenColumns };
+      const {
+        data: clickhouseRows,
+        hiddenColumns,
+        sizeColumns,
+      } = clickhouseTableDefaults(data);
+      return {
+        rows: clickhouseRows,
+        defaultHiddenColumns: hiddenColumns,
+        sizeColumns,
+      };
     }
     if (connection?.dialect === 'mysql') {
-      const { data: mysqlRows, hiddenColumns } = mysqlTableDefaults(data);
-      return { rows: mysqlRows, defaultHiddenColumns: hiddenColumns };
+      const {
+        data: mysqlRows,
+        hiddenColumns,
+        sizeColumns,
+      } = mysqlTableDefaults(data);
+      return {
+        rows: mysqlRows,
+        defaultHiddenColumns: hiddenColumns,
+        sizeColumns,
+      };
     }
-    return { rows: data, defaultHiddenColumns: {} };
+    return { rows: data, defaultHiddenColumns: {}, sizeColumns: [] };
   }, [connection?.dialect, data]);
+
+  const fieldFormatters = useMemo(
+    () => sizeColumnFormatters(sizeColumns),
+    [sizeColumns],
+  );
 
   const {
     search,
@@ -281,6 +305,7 @@ export function DatabaseSchemaView({
               data={filtered}
               hiddenColumns={hiddenColumns}
               setHiddenColumns={setHiddenColumns}
+              fieldFormatters={fieldFormatters}
               onOpenTable={handleOpenTable}
             />
           )}
