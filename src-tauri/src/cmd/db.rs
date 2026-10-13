@@ -481,6 +481,19 @@ pub async fn show_schema(
   Ok(ArrowResponse::from_raw_data(res, None, None))
 }
 
+/// Files below a directory (folder / quack connections).
+#[tauri::command]
+pub async fn list_files(
+  registry: State<'_, ConnectionRegistry>,
+  sessions: State<'_, SessionManager>,
+  path: &str,
+  dialect: DialectPayload,
+) -> Result<ArrowResponse, String> {
+  let d = resolve_connection(&registry, &sessions, dialect).await?;
+  let res = d.list_files(path).await;
+  Ok(ArrowResponse::from_raw_data(res, None, None))
+}
+
 #[tauri::command]
 pub async fn show_column(
   registry: State<'_, ConnectionRegistry>,

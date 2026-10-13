@@ -9,6 +9,8 @@ pub mod capabilities;
 pub mod clickhouse;
 pub mod duckdb;
 pub mod file;
+/// File listings shared by the file-backed dialects (folder, quack).
+pub(crate) mod file_list;
 pub mod folder;
 pub mod mysql;
 pub mod postgres;
@@ -138,6 +140,11 @@ pub trait Connection: Sync + Send {
 
   async fn show_column(&self, _schema: Option<&str>, _table: &str) -> anyhow::Result<RawArrowData> {
     Err(unsupported("show_column"))
+  }
+
+  /// Files below a directory, for the file-backed dialects (folder, quack).
+  async fn list_files(&self, _path: &str) -> anyhow::Result<RawArrowData> {
+    Err(unsupported("list_files"))
   }
 
   async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {

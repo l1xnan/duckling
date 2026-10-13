@@ -2,10 +2,13 @@ import { describe, expect, it } from 'vitest';
 
 import {
   CLICKHOUSE_TABLE_PRIORITY_COLUMNS,
+  FILE_LIST_PRIORITY_COLUMNS,
   MYSQL_TABLE_PRIORITY_COLUMNS,
   clickhouseTableDefaults,
+  fileListDefaults,
   formatReadableSize,
   mysqlTableDefaults,
+  schemaTableDefaultsFor,
   sizeColumnFormatters,
 } from '@/lib/schemaColumns';
 
@@ -217,5 +220,68 @@ describe('sizeColumnFormatters', () => {
       (a, b) => Number(a.DATA_LENGTH) - Number(b.DATA_LENGTH),
     );
     expect(sorted.map((row) => row.TABLE_NAME)).toEqual(['small', 'large']);
+  });
+});
+
+describe('fileListDefaults', () => {
+  const rows = [
+    {
+      filename: '/data/orders.csv',
+      size: 1536,
+      rows: 120,
+      last_modified: '2024-02-01 00:00:00',
+      content: 'ignored',
+    },
+  ];
+
+  it('keeps the file columns in order and hides the rest', () => {
+    const { data, hiddenColumns, sizeColumns } = fileListDefaults(rows);
+
+    expect(Object.keys(data[0])).toEqual([
+      ...FILE_LIST_PRIORITY_COLUMNS,
+      'content',
+    ]);
+    expect(hiddenColumns).toEqual({ content: true });
+    expect(data[0].rows).toBe(120);
+    expect(data[0].last_modified).toBe('2024-02-01 00:00:00');
+    expect(sizeColumns).toEqual(['size']);
+  });
+
+  it('renders the byte size readably while sorting on the raw value', () => {
+    const { data, sizeColumns } = fileListDefaults(rows);
+
+    expect(data[0].size).toBe(1536);
+    expect(sizeColumnFormatters(sizeColumns).size(1536)).toBe('1.50 KiB');
+  });
+
+  it('tolerates an empty folder', () => {
+    expect(fileListDefaults([])).toEqual({
+      data: [],
+      hiddenColumns: {},
+      sizeColumns: [],
+    });
+  });
+});
+
+describe('schemaTableDefaultsFor', () => {
+  it('picks the defaults per dialect', () => {
+    expect(
+      schemaTableDefaultsFor('MySQL', [{ TABLE_NAME: 't', DATA_LENGTH: 1024 }])
+        ?.sizeColumns,
+    ).toEqual(['DATA_LENGTH']);
+    expect(
+      schemaTableDefaultsFor('clickhouse', [{ name: 't', total_bytes: 1024 }])
+        ?.sizeColumns,
+    ).toEqual(['total_bytes']);
+  });
+
+  it('leaves dialects without a default view untouched', () => {
+    const rows = [{ table_name: 't' }];
+    expect(schemaTableDefaultsFor('postgres', rows)).toBeUndefined();
+    expect(schemaTableDefaultsFor('sqlite', rows)).toBeUndefined();
+    expect(schemaTableDefaultsFor(undefined, rows)).toBeUndefined();
+    // File listings are driven by the tab flag, not by the dialect.
+    expect(schemaTableDefaultsFor('folder', rows)).toBeUndefined();
+    expect(schemaTableDefaultsFor('quack', rows)).toBeUndefined();
   });
 });

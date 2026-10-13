@@ -148,6 +148,36 @@ export function mysqlTableDefaults(rows: unknown[]): SchemaTableDefaults {
 }
 
 /**
+ * File listings (folder / quack directories) have no schema: the table list is
+ * the readable files below a directory, with the byte size rendered readably.
+ */
+export const FILE_LIST_PRIORITY_COLUMNS = [
+  'filename',
+  'size',
+  'rows',
+  'last_modified',
+] as const;
+
+export function fileListDefaults(rows: unknown[]): SchemaTableDefaults {
+  return priorityTableDefaults(rows, FILE_LIST_PRIORITY_COLUMNS, ['size']);
+}
+
+/** Default table-list view for a dialect, when it has one. */
+export function schemaTableDefaultsFor(
+  dialect: string | undefined | null,
+  rows: unknown[],
+): SchemaTableDefaults | undefined {
+  switch ((dialect ?? '').toLowerCase()) {
+    case 'clickhouse':
+      return clickhouseTableDefaults(rows);
+    case 'mysql':
+      return mysqlTableDefaults(rows);
+    default:
+      return undefined;
+  }
+}
+
+/**
  * Display formatters for the size columns of a schema table view. The records
  * keep raw byte counts, so the grid sorts them numerically and only the
  * rendered text becomes readable.

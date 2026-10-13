@@ -149,6 +149,7 @@ fn main() {
       cmd::db::list_databases,
       cmd::db::test_connection,
       cmd::db::show_schema,
+      cmd::db::list_files,
       cmd::db::show_column,
       cmd::db::drop_table,
       cmd::db::all_columns,

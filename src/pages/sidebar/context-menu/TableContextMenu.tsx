@@ -30,6 +30,7 @@ import { SearchDialog } from '@/pages/sidebar/dialog/SearchDialog';
 import { docsAtom } from '@/stores/app';
 import { DBType, DialectConfig, getStoredDB, useDBListStore } from '@/stores/dbList';
 import {
+  SchemaContextType,
   TableContextType,
   useTabsStore,
 } from '@/stores/tabs';
@@ -59,6 +60,8 @@ export function TableContextMenu({
   const allowDrop = canDropTable(db.dialect);
   const allowFind = canFind(db.dialect);
   const allowMetadata = canMetadata(db.dialect);
+  /** Real directories of file-backed connections can be listed as tables. */
+  const isFileListNode = isBrowsablePathNode(node, db.dialect);
 
   const handleRefresh = async () => {
     const latest = getStoredDB(db.id);
@@ -138,6 +141,19 @@ export function TableContextMenu({
           : undefined,
       displayName: node?.name as string,
       type: 'table',
+    };
+    updateTab!(item);
+  };
+
+  const handleShowFileList = (e: Event) => {
+    e.stopPropagation();
+    const item: SchemaContextType = {
+      id: nanoid(),
+      dbId: db.id,
+      schema: node.path,
+      files: true,
+      displayName: node?.name as string,
+      type: 'schema',
     };
     updateTab!(item);
   };
@@ -245,6 +261,14 @@ export function TableContextMenu({
           <ContextMenuItem onSelect={handleSample}>
             <Trans>Sample 100 rows</Trans>
           </ContextMenuItem>
+          {isFileListNode ? (
+            <>
+              <ContextMenuItem onSelect={handleShowFileList}>
+                <Trans>Show file list</Trans>
+              </ContextMenuItem>
+              <ContextMenuSeparator />
+            </>
+          ) : null}
           {db.dialect === 'folder' ? (
             <>
               <ContextMenuItem onSelect={handleShowParquet}>

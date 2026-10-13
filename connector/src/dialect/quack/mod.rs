@@ -121,6 +121,23 @@ impl Connection for QuackConnection {
     self.query(&sql, 0, 0).await
   }
 
+  /// The file tree node is a directory on the Quack server: list it through
+  /// the remote engine's `read_blob`, which reports size and last write time
+  /// without transferring file contents.
+  async fn list_files(&self, path: &str) -> anyhow::Result<RawArrowData> {
+    let this = self.clone();
+    let dir = path.to_string();
+    crate::dialect::run_blocking(move || {
+      let conn = this.connect()?;
+      let wrap = |sql: &str| this.wrap_sql(sql);
+      let mut entries =
+        crate::dialect::file_list::remote_files(&conn.inner, &dir, &wrap)?;
+      crate::dialect::file_list::fill_row_counts(&mut entries, &conn.inner, &wrap);
+      crate::dialect::file_list::entries_to_raw_data(&entries)
+    })
+    .await
+  }
+
   async fn all_columns(&self) -> anyhow::Result<Vec<Metadata>> {
     let this = self.clone();
     crate::dialect::run_blocking(move || {

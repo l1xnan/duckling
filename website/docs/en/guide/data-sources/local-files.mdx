@@ -13,9 +13,13 @@ Open a `*.duckdb` file directly. An optional **working path** can be attached so
 
 Connect to a Quack instance via **URI + token** — in-memory or remote Quack.
 
+Directories in the Quack file tree support **Show file list** too: the listing is resolved by the Quack server's `read_blob`, so paths, sizes and timestamps come from the server, and row counts are computed there as well.
+
 ## Data folder
 
 Pick a directory to browse `parquet`, `csv`, `json`, and other files without any database. Duckling reads the folder as a data source for quick exploration.
+
+Right-click a folder in the sidebar and choose **Show file list** to list every readable file below it with its path, size, row count, and last modified time. Sizes render as `KiB` / `MiB` / `GiB` but sort by real bytes. Parquet row counts come from the file footer, `csv` / `tsv` / `json` are counted by reading the file, and other formats or files above 128 MiB show no count. Opening a row reads that file as a table.
 
 ## SQLite
 

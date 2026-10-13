@@ -4,7 +4,7 @@ import { isEmpty } from 'radash';
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { find, showColumns, showSchema } from '@/api';
+import { find, listFiles, showColumns, showSchema } from '@/api';
 import { SearchInput } from '@/components/custom/search';
 import { TooltipButton } from '@/components/custom/tooltip';
 import { Label } from '@/components/custom/ui/label';
@@ -12,11 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Loading } from '@/components/views/TableView';
 import { connectionRef } from '@/lib/connectionRef';
-import {
-  clickhouseTableDefaults,
-  mysqlTableDefaults,
-  sizeColumnFormatters,
-} from '@/lib/schemaColumns';
+import { fileListDefaults, schemaTableDefaultsFor, sizeColumnFormatters } from '@/lib/schemaColumns';
 import { useConnection } from '@/stores/dbList';
 import { useDbSearchHistoryStore } from '@/stores/dbSearchHistory';
 import { SchemaContextType, TableContextType, useTabsStore } from '@/stores/tabs';
@@ -36,8 +32,22 @@ function getRowField(row: Record<string, unknown>, ...keys: string[]): string | 
   return undefined;
 }
 
+/** Last path segment, so a file row can name its tab after the file itself. */
+function baseName(value: string): string {
+  const parts = value.split(/[\\/]/);
+  return parts[parts.length - 1] || value;
+}
+
 function resolveTableId(row: Record<string, unknown>, schema?: string): string | undefined {
-  const name = getRowField(row, 'table_name', 'TABLE_NAME', 'name', 'Name', 'NAME');
+  const name = getRowField(
+    row,
+    'table_name',
+    'TABLE_NAME',
+    'name',
+    'Name',
+    'NAME',
+    'filename',
+  );
   if (!name) return undefined;
 
   const tableSchema =
@@ -187,24 +197,18 @@ export function DatabaseSchemaView({ context }: { context: SchemaContextType }) 
   const [data, setData] = useState<unknown[]>([]);
 
   const { rows, defaultHiddenColumns, sizeColumns } = useMemo(() => {
-    if (connection?.dialect === 'clickhouse') {
-      const { data: clickhouseRows, hiddenColumns, sizeColumns } = clickhouseTableDefaults(data);
-      return {
-        rows: clickhouseRows,
-        defaultHiddenColumns: hiddenColumns,
-        sizeColumns,
-      };
+    const defaults = context.files
+      ? fileListDefaults(data)
+      : schemaTableDefaultsFor(connection?.dialect, data);
+    if (!defaults) {
+      return { rows: data, defaultHiddenColumns: {}, sizeColumns: [] };
     }
-    if (connection?.dialect === 'mysql') {
-      const { data: mysqlRows, hiddenColumns, sizeColumns } = mysqlTableDefaults(data);
-      return {
-        rows: mysqlRows,
-        defaultHiddenColumns: hiddenColumns,
-        sizeColumns,
-      };
-    }
-    return { rows: data, defaultHiddenColumns: {}, sizeColumns: [] };
-  }, [connection?.dialect, data]);
+    return {
+      rows: defaults.data,
+      defaultHiddenColumns: defaults.hiddenColumns,
+      sizeColumns: defaults.sizeColumns,
+    };
+  }, [context.files, connection?.dialect, data]);
 
   const fieldFormatters = useMemo(() => sizeColumnFormatters(sizeColumns), [sizeColumns]);
 
@@ -214,7 +218,10 @@ export function DatabaseSchemaView({ context }: { context: SchemaContextType }) 
   const handleQuery = async () => {
     try {
       setLoading(true);
-      const { data } = await showSchema(context.schema as string, connectionRef(context.dbId));
+      const dialect = connectionRef(context.dbId);
+      const { data } = context.files
+        ? await listFiles(context.schema as string, dialect)
+        : await showSchema(context.schema as string, dialect);
       setData(data);
     } catch (error) {
       toast.error((error as Error).message);
@@ -243,7 +250,7 @@ export function DatabaseSchemaView({ context }: { context: SchemaContextType }) 
         id: `${context.dbId}:${tableId}`,
         dbId: context.dbId,
         tableId,
-        displayName: name,
+        displayName: baseName(name),
         type: 'table',
       };
       updateTab(item);
@@ -378,7 +385,7 @@ export function SearchView({ context }: { context: TableContextType }) {
         id: `${context.dbId}:${tableId}`,
         dbId: context.dbId,
         tableId,
-        displayName: name,
+        displayName: baseName(name),
         type: 'table',
       };
       updateTab(item);

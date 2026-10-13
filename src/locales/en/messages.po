@@ -22,14 +22,14 @@ msgid "(empty)"
 msgstr "(empty)"
 
 #. placeholder {0}: displayRows.length
-#: src/components/views/CountByColumnDialog.tsx:269
-#: src/components/views/CountByQueryDialog.tsx:236
+#: src/components/views/CountByColumnDialog.tsx:286
+#: src/components/views/CountByQueryDialog.tsx:253
 msgid "{0} distinct value(s)"
 msgstr "{0} distinct value(s)"
 
 #. placeholder {0}: displayRows.length
-#: src/components/views/CountByColumnDialog.tsx:265
-#: src/components/views/CountByQueryDialog.tsx:232
+#: src/components/views/CountByColumnDialog.tsx:282
+#: src/components/views/CountByQueryDialog.tsx:249
 msgid "{0} distinct value(s) (capped at 1000)"
 msgstr "{0} distinct value(s) (capped at 1000)"
 
@@ -159,7 +159,7 @@ msgstr "Apply"
 msgid "Apply filter to WHERE"
 msgstr "Apply filter to WHERE"
 
-#: src/pages/sidebar/context-menu/TableContextMenu.tsx:298
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:331
 msgid "Are you absolutely sure?"
 msgstr "Are you absolutely sure?"
 
@@ -191,7 +191,7 @@ msgstr "Bookmark"
 msgid "Bookmark SQL"
 msgstr "Bookmark SQL"
 
-#: src/pages/editor/index.tsx:367
+#: src/pages/editor/index.tsx:371
 msgid "Bookmarked"
 msgstr "Bookmarked"
 
@@ -230,7 +230,7 @@ msgstr "Calls the external <0>sqlfmt</0> binary via Tauri."
 #: src/pages/settings/AppSetting.tsx:1704
 #: src/pages/settings/EditorForm.tsx:257
 #: src/pages/settings/SshProfilesForm.tsx:537
-#: src/pages/sidebar/context-menu/TableContextMenu.tsx:308
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:341
 #: src/pages/sidebar/dialog/ConfigDialog.tsx:135
 #: src/pages/sidebar/dialog/ConnectionTransferDialog.tsx:282
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:1202
@@ -244,8 +244,8 @@ msgstr "Cancel"
 msgid "Cannot find this tab in the database explorer"
 msgstr "Cannot find this tab in the database explorer"
 
-#: src/components/views/SchemaView.tsx:224
-#: src/components/views/SchemaView.tsx:374
+#: src/components/views/SchemaView.tsx:245
+#: src/components/views/SchemaView.tsx:380
 msgid "Cannot resolve table name from row"
 msgstr "Cannot resolve table name from row"
 
@@ -257,8 +257,8 @@ msgstr "Card"
 msgid "Card foreground"
 msgstr "Card foreground"
 
-#: src/components/views/CountByColumnDialog.tsx:293
-#: src/components/views/CountByQueryDialog.tsx:260
+#: src/components/views/CountByColumnDialog.tsx:310
+#: src/components/views/CountByQueryDialog.tsx:277
 msgid "Chart"
 msgstr "Chart"
 
@@ -423,7 +423,7 @@ msgid "Configure dimensions and measures, then run"
 msgstr "Configure dimensions and measures, then run"
 
 #. placeholder {0}: node.path
-#: src/pages/sidebar/context-menu/TableContextMenu.tsx:301
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:334
 msgid "Confirm deletion of table: <0>{0}</0>"
 msgstr "Confirm deletion of table: <0>{0}</0>"
 
@@ -440,7 +440,7 @@ msgstr "Connection"
 msgid "Connection failed"
 msgstr "Connection failed"
 
-#: src/components/views/CountByQueryDialog.tsx:102
+#: src/components/views/CountByQueryDialog.tsx:105
 #: src/components/views/PivotWorkbench.tsx:306
 msgid "Connection not found"
 msgstr "Connection not found"
@@ -458,7 +458,7 @@ msgstr "Connection successful"
 #: src/components/tables/CanvasTable.tsx:102
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:98
 #: src/pages/sidebar/context-menu/SchemaContextMenu.tsx:51
-#: src/pages/sidebar/context-menu/TableContextMenu.tsx:278
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:311
 msgid "Copy"
 msgstr "Copy"
 
@@ -490,25 +490,25 @@ msgid "Copy SQL"
 msgstr "Copy SQL"
 
 #: src/components/views/ColumnProfileDialog.tsx:124
-#: src/components/views/CountByColumnDialog.tsx:118
+#: src/components/views/CountByColumnDialog.tsx:121
 #: src/components/views/PivotWorkbench.tsx:324
 #: src/components/views/PivotWorkbench.tsx:339
 msgid "Could not resolve table for this view"
 msgstr "Could not resolve table for this view"
 
-#: src/components/views/CountByColumnDialog.tsx:233
-#: src/components/views/CountByQueryDialog.tsx:200
+#: src/components/views/CountByColumnDialog.tsx:250
+#: src/components/views/CountByQueryDialog.tsx:217
 msgid "Count by column"
 msgstr "Count by column"
 
-#: src/components/views/CountByColumnDialog.tsx:229
-#: src/components/views/CountByQueryDialog.tsx:196
+#: src/components/views/CountByColumnDialog.tsx:246
+#: src/components/views/CountByQueryDialog.tsx:213
 msgid "Count by column: <0>{column}</0>"
 msgstr "Count by column: <0>{column}</0>"
 
 #: src/components/tables/CanvasTable.tsx:98
-#: src/components/views/CountByColumnDialog.tsx:329
-#: src/components/views/CountByQueryDialog.tsx:295
+#: src/components/views/CountByColumnDialog.tsx:350
+#: src/components/views/CountByQueryDialog.tsx:316
 msgid "Count by this column"
 msgstr "Count by this column"
 
@@ -524,7 +524,7 @@ msgstr "Cross"
 msgid "CSV / TSV options"
 msgstr "CSV / TSV options"
 
-#: src/pages/editor/index.tsx:503
+#: src/pages/editor/index.tsx:507
 msgid "CTE {cteName}"
 msgstr "CTE {cteName}"
 
@@ -546,7 +546,7 @@ msgid "Dark"
 msgstr "Dark"
 
 #: src/components/views/DataViewToolbar.tsx:195
-#: src/components/views/SchemaView.tsx:152
+#: src/components/views/SchemaView.tsx:166
 msgid "Data Columns"
 msgstr "Data Columns"
 
@@ -603,7 +603,7 @@ msgstr "Default: {defaultPerPage}"
 #: src/components/PageTabs.tsx:258
 #: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:153
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:101
-#: src/pages/sidebar/context-menu/TableContextMenu.tsx:274
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:307
 #: src/pages/sidebar/SqlCode.tsx:584
 msgid "Delete"
 msgstr "Delete"
@@ -636,7 +636,7 @@ msgstr "Delimiter"
 msgid "Dense operators"
 msgstr "Dense operators"
 
-#: src/pages/sidebar/context-menu/TableContextMenu.tsx:234
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:259
 msgid "Describe table"
 msgstr "Describe table"
 
@@ -720,17 +720,17 @@ msgid "elapsed time: {0}"
 msgstr "elapsed time: {0}"
 
 #: src/components/views/ColumnProfileDialog.tsx:339
-#: src/components/views/CountByColumnDialog.tsx:274
-#: src/components/views/CountByQueryDialog.tsx:241
+#: src/components/views/CountByColumnDialog.tsx:291
+#: src/components/views/CountByQueryDialog.tsx:258
 #: src/components/views/PivotWorkbench.tsx:705
 msgid "elapsed: {elapsed}ms"
 msgstr "elapsed: {elapsed}ms"
 
-#: src/pages/editor/index.tsx:354
-#: src/pages/editor/index.tsx:374
-#: src/pages/editor/index.tsx:436
-#: src/pages/editor/index.tsx:579
-#: src/pages/editor/index.tsx:634
+#: src/pages/editor/index.tsx:358
+#: src/pages/editor/index.tsx:378
+#: src/pages/editor/index.tsx:440
+#: src/pages/editor/index.tsx:583
+#: src/pages/editor/index.tsx:638
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:48
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:67
 msgid "Empty SQL"
@@ -951,7 +951,7 @@ msgstr "Format float columns using Float precision above in new results. You can
 msgid "Format selection"
 msgstr "Format selection"
 
-#: src/components/editor/MonacoEditor.tsx:274
+#: src/components/editor/MonacoEditor.tsx:304
 msgid "Format Selection"
 msgstr "Format Selection"
 
@@ -960,7 +960,7 @@ msgstr "Format Selection"
 msgid "Format selection ({0})"
 msgstr "Format selection ({0})"
 
-#: src/components/editor/MonacoEditor.tsx:263
+#: src/components/editor/MonacoEditor.tsx:293
 msgid "Format SQL"
 msgstr "Format SQL"
 
@@ -1019,7 +1019,7 @@ msgid "Hidden column"
 msgstr "Hidden column"
 
 #: src/components/views/DataViewToolbar.tsx:190
-#: src/components/views/SchemaView.tsx:145
+#: src/components/views/SchemaView.tsx:161
 msgid "Hidden Column"
 msgstr "Hidden Column"
 
@@ -1111,7 +1111,7 @@ msgstr "Input"
 msgid "Insert @vars template"
 msgstr "Insert @vars template"
 
-#: src/pages/editor/index.tsx:460
+#: src/pages/editor/index.tsx:464
 msgid "Inserted @vars template"
 msgstr "Inserted @vars template"
 
@@ -1384,21 +1384,22 @@ msgstr "No pivot SQL yet. Run the pivot first."
 msgid "No query history yet"
 msgstr "No query history yet"
 
-#: src/components/views/TableView.tsx:463
+#: src/components/views/TableView.tsx:472
 msgid "No recent ORDER BY clauses"
 msgstr "No recent ORDER BY clauses"
 
+#: src/components/views/SchemaView.tsx:150
 #: src/pages/sidebar/index.tsx:128
 msgid "No recent searches"
 msgstr "No recent searches"
 
-#: src/components/views/TableView.tsx:431
+#: src/components/views/TableView.tsx:440
 msgid "No recent WHERE clauses"
 msgstr "No recent WHERE clauses"
 
 #: src/components/views/ColumnProfileDialog.tsx:346
-#: src/components/views/CountByColumnDialog.tsx:302
-#: src/components/views/CountByQueryDialog.tsx:269
+#: src/components/views/CountByColumnDialog.tsx:319
+#: src/components/views/CountByQueryDialog.tsx:286
 #: src/components/views/PivotWorkbench.tsx:760
 msgid "No rows"
 msgstr "No rows"
@@ -1424,7 +1425,7 @@ msgstr "No SSH profiles yet."
 msgid "No tabs in this pane"
 msgstr "No tabs in this pane"
 
-#: src/pages/editor/index.tsx:442
+#: src/pages/editor/index.tsx:446
 msgid "No template variables found"
 msgstr "No template variables found"
 
@@ -1513,7 +1514,7 @@ msgid "Open in tab"
 msgstr "Open in tab"
 
 #: src/components/PageTabs.tsx:247
-#: src/pages/sidebar/context-menu/TableContextMenu.tsx:255
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:288
 msgid "Open Path"
 msgstr "Open Path"
 
@@ -1525,7 +1526,7 @@ msgstr "Open SQL editor"
 msgid "Open SQL folder"
 msgstr "Open SQL folder"
 
-#: src/components/tables/CanvasTable.tsx:667
+#: src/components/tables/CanvasTable.tsx:710
 msgid "Open table"
 msgstr "Open table"
 
@@ -1578,8 +1579,8 @@ msgstr "Path"
 msgid "pending"
 msgstr "pending"
 
-#: src/components/views/CountByColumnDialog.tsx:280
-#: src/components/views/CountByQueryDialog.tsx:247
+#: src/components/views/CountByColumnDialog.tsx:297
+#: src/components/views/CountByQueryDialog.tsx:264
 msgid "Percent is relative to all matching rows ({allRowsTotal}); shown groups may sum to less than 100%."
 msgstr "Percent is relative to all matching rows ({allRowsTotal}); shown groups may sum to less than 100%."
 
@@ -1679,18 +1680,18 @@ msgid "Query"
 msgstr "Query"
 
 #: src/components/views/ColumnProfileDialog.tsx:219
-#: src/components/views/CountByColumnDialog.tsx:185
-#: src/components/views/CountByQueryDialog.tsx:154
+#: src/components/views/CountByColumnDialog.tsx:188
+#: src/components/views/CountByQueryDialog.tsx:157
 #: src/components/views/PivotWorkbench.tsx:445
 msgid "Query cancelled"
 msgstr "Query cancelled"
 
 #: src/components/views/ColumnProfileDialog.tsx:172
 #: src/components/views/ColumnProfileDialog.tsx:177
-#: src/components/views/CountByColumnDialog.tsx:151
-#: src/components/views/CountByColumnDialog.tsx:171
-#: src/components/views/CountByQueryDialog.tsx:124
-#: src/components/views/CountByQueryDialog.tsx:140
+#: src/components/views/CountByColumnDialog.tsx:154
+#: src/components/views/CountByColumnDialog.tsx:174
+#: src/components/views/CountByQueryDialog.tsx:127
+#: src/components/views/CountByQueryDialog.tsx:143
 #: src/components/views/PivotWorkbench.tsx:435
 msgid "Query failed"
 msgstr "Query failed"
@@ -1716,24 +1717,26 @@ msgstr "Read csv file parameters, see: <0>csv parameters</0>"
 msgid "Ready"
 msgstr "Ready"
 
-#: src/components/views/TableView.tsx:462
+#: src/components/views/TableView.tsx:471
 msgid "Recent ORDER BY"
 msgstr "Recent ORDER BY"
 
-#: src/components/views/TableView.tsx:461
+#: src/components/views/TableView.tsx:470
 msgid "Recent ORDER BY clauses"
 msgstr "Recent ORDER BY clauses"
 
+#: src/components/views/SchemaView.tsx:148
+#: src/components/views/SchemaView.tsx:149
 #: src/pages/sidebar/index.tsx:126
 #: src/pages/sidebar/index.tsx:127
 msgid "Recent searches"
 msgstr "Recent searches"
 
-#: src/components/views/TableView.tsx:430
+#: src/components/views/TableView.tsx:439
 msgid "Recent WHERE"
 msgstr "Recent WHERE"
 
-#: src/components/views/TableView.tsx:429
+#: src/components/views/TableView.tsx:438
 msgid "Recent WHERE clauses"
 msgstr "Recent WHERE clauses"
 
@@ -1753,7 +1756,7 @@ msgstr "Reference: <0>Shiki TextMate Grammar & Theme Playground</0>."
 #: src/hotkeys/registry.ts:127
 #: src/pages/settings/DiagnosticsPanel.tsx:197
 #: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:129
-#: src/pages/sidebar/context-menu/TableContextMenu.tsx:283
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:316
 msgid "Refresh"
 msgstr "Refresh"
 
@@ -1815,7 +1818,7 @@ msgstr "Reset this mode"
 msgid "Reset to default"
 msgstr "Reset to default"
 
-#: src/pages/editor/index.tsx:505
+#: src/pages/editor/index.tsx:509
 msgid "Result · {label}"
 msgstr "Result · {label}"
 
@@ -1827,7 +1830,7 @@ msgstr "Result rows"
 msgid "Result tabs"
 msgstr "Result tabs"
 
-#: src/pages/editor/index.tsx:506
+#: src/pages/editor/index.tsx:510
 msgid "Result{baseCount}"
 msgstr "Result{baseCount}"
 
@@ -1869,7 +1872,7 @@ msgstr "Rows"
 msgid "Rows per page for newly opened data views and preview dialogs."
 msgstr "Rows per page for newly opened data views and preview dialogs."
 
-#: src/components/editor/MonacoEditor.tsx:253
+#: src/components/editor/MonacoEditor.tsx:283
 #: src/components/views/MacroRunDialog.tsx:189
 #: src/components/views/PivotWorkbench.tsx:649
 msgid "Run"
@@ -1907,7 +1910,7 @@ msgstr "Run SQL in new tab"
 msgid "Run with variables"
 msgstr "Run with variables"
 
-#: src/pages/sidebar/context-menu/TableContextMenu.tsx:237
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:262
 msgid "Sample 100 rows"
 msgstr "Sample 100 rows"
 
@@ -1945,7 +1948,7 @@ msgid "Save values as @vars comment above SQL"
 msgstr "Save values as @vars comment above SQL"
 
 #: src/pages/editor/EditorToolbar.tsx:205
-#: src/pages/editor/index.tsx:234
+#: src/pages/editor/index.tsx:238
 msgid "Saved"
 msgstr "Saved"
 
@@ -1955,8 +1958,7 @@ msgstr "Schema"
 
 #: src/components/custom/search.tsx:50
 #: src/components/PageTabs.tsx:649
-#: src/components/views/SchemaView.tsx:133
-#: src/pages/sidebar/context-menu/TableContextMenu.tsx:252
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:285
 msgid "Search"
 msgstr "Search"
 
@@ -2085,13 +2087,13 @@ msgstr "Shortcut updated"
 msgid "Shortcuts restored to defaults"
 msgstr "Shortcuts restored to defaults"
 
-#: src/pages/sidebar/context-menu/TableContextMenu.tsx:245
-#: src/pages/sidebar/context-menu/TableContextMenu.tsx:264
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:278
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:297
 msgid "Show *.csv"
 msgstr "Show *.csv"
 
-#: src/pages/sidebar/context-menu/TableContextMenu.tsx:242
-#: src/pages/sidebar/context-menu/TableContextMenu.tsx:261
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:275
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:294
 msgid "Show *.parquet"
 msgstr "Show *.parquet"
 
@@ -2104,13 +2106,17 @@ msgstr "Show a minimap overview on the right side of the SQL editor."
 msgid "Show as"
 msgstr "Show as"
 
-#: src/pages/sidebar/context-menu/TableContextMenu.tsx:231
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:256
 msgid "Show columns"
 msgstr "Show columns"
 
 #: src/pages/sidebar/context-menu/SchemaContextMenu.tsx:46
 msgid "Show Database"
 msgstr "Show Database"
+
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:267
+msgid "Show file list"
+msgstr "Show file list"
 
 #: src/pages/settings/SshProfilesForm.tsx:386
 #: src/pages/settings/SshProfilesForm.tsx:454
@@ -2125,7 +2131,7 @@ msgstr "Show password"
 msgid "Show SQL"
 msgstr "Show SQL"
 
-#: src/pages/sidebar/context-menu/TableContextMenu.tsx:225
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:250
 msgid "Show table"
 msgstr "Show table"
 
@@ -2325,8 +2331,8 @@ msgid "Statement split: entire buffer"
 msgstr "Statement split: entire buffer"
 
 #: src/components/views/ColumnProfileDialog.tsx:293
-#: src/components/views/CountByColumnDialog.tsx:252
-#: src/components/views/CountByQueryDialog.tsx:219
+#: src/components/views/CountByColumnDialog.tsx:269
+#: src/components/views/CountByQueryDialog.tsx:236
 #: src/components/views/ExportDialog.tsx:415
 #: src/components/views/PivotWorkbench.tsx:742
 msgid "Stop"
@@ -2354,8 +2360,8 @@ msgid "Tab width"
 msgstr "Tab width"
 
 #: src/components/PageTabs.tsx:653
-#: src/components/views/CountByColumnDialog.tsx:290
-#: src/components/views/CountByQueryDialog.tsx:257
+#: src/components/views/CountByColumnDialog.tsx:307
+#: src/components/views/CountByQueryDialog.tsx:274
 msgid "Table"
 msgstr "Table"
 
@@ -2404,7 +2410,7 @@ msgid "This will permanently delete temporary SQL \"{pendingDisplayName}\". This
 msgstr "This will permanently delete temporary SQL \"{pendingDisplayName}\". This action cannot be undone."
 
 #. placeholder {0}: statements.length
-#: src/pages/editor/index.tsx:646
+#: src/pages/editor/index.tsx:650
 msgid "This will run {0} queries. Continue?"
 msgstr "This will run {0} queries. Continue?"
 
@@ -2427,7 +2433,7 @@ msgid "Token"
 msgstr "Token"
 
 #. placeholder {0}: statements.length
-#: src/pages/editor/index.tsx:640
+#: src/pages/editor/index.tsx:644
 msgid "Too many combinations ({0}); limit is {limit}"
 msgstr "Too many combinations ({0}); limit is {limit}"
 
@@ -2505,7 +2511,7 @@ msgstr "Update failed: {message}"
 msgid "Update source"
 msgstr "Update source"
 
-#: src/pages/editor/index.tsx:459
+#: src/pages/editor/index.tsx:463
 msgid "Updated @vars template"
 msgstr "Updated @vars template"
 
@@ -2588,6 +2594,6 @@ msgstr "Write as JSON array"
 msgid "WV"
 msgstr "WV"
 
-#: src/pages/sidebar/context-menu/TableContextMenu.tsx:313
+#: src/pages/sidebar/context-menu/TableContextMenu.tsx:346
 msgid "Yes"
 msgstr "Yes"

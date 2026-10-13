@@ -8,6 +8,7 @@ use glob::glob;
 
 use crate::dialect::Connection;
 use crate::dialect::duckdb::duckdb_sync;
+use crate::dialect::file_list;
 use crate::utils::{FunctionMeta, Metadata, RawArrowData, TreeNode};
 
 #[derive(Debug, Default, Clone)]
@@ -112,6 +113,13 @@ impl Connection for FolderConnection {
     };
     log::info!("show columns: {}", &sql);
     self.query(&sql, 0, 0).await
+  }
+
+  /// A folder connection is a filesystem directory: it has no schema, and its
+  /// "tables" are the readable files below it.
+  async fn list_files(&self, path: &str) -> anyhow::Result<RawArrowData> {
+    let dir = path.to_string();
+    crate::dialect::run_blocking(move || file_list::file_list(&dir)).await
   }
 
   async fn drop_table(&self, _schema: Option<&str>, table: &str) -> anyhow::Result<String> {
@@ -231,8 +239,6 @@ impl Connection for FolderConnection {
   }
 }
 
-static EXTENSIONS: &[&'static str] = &["csv", "tsv", "parquet", "xlsx", "json", "jsonl"];
-
 impl FolderConnection {
   #[allow(dead_code)]
   fn new(path: &str) -> Self {
@@ -254,7 +260,7 @@ impl FolderConnection {
           && path // 提取扩展名并匹配目标类型
             .extension()
             .and_then(|ext| ext.to_str())
-            .map(|ext| EXTENSIONS.contains(&ext.to_lowercase().as_str()))
+            .map(|ext| file_list::READABLE_EXTENSIONS.contains(&ext.to_lowercase().as_str()))
             .unwrap_or(false)
       })
       .collect();
@@ -358,7 +364,7 @@ pub fn directory_tree<P: AsRef<Path>>(path: P) -> Option<TreeNode> {
 
     if let Some(file_ext) = path.extension() {
       let file_ext = file_ext.to_string_lossy().to_string();
-      if !EXTENSIONS.contains(&file_ext.as_str()) {
+      if !file_list::READABLE_EXTENSIONS.contains(&file_ext.as_str()) {
         return None;
       }
 

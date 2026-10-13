@@ -158,6 +158,8 @@ export type SchemaContextType = {
   dbId: string;
   schema: string;
   path?: string;
+  /** `schema` is a directory: list its files rather than its tables. */
+  files?: boolean;
 
   type: string;
   displayName: string;

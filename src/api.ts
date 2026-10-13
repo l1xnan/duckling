@@ -565,6 +565,15 @@ export async function showSchema(
   return convert(res as ArrowResponse);
 }
 
+/** Files below a directory (folder / quack connections). */
+export async function listFiles(
+  path: string,
+  dialect: DialectRef,
+): Promise<ResultType> {
+  const res = await invoke('list_files', { path, dialect });
+  return convert(res as ArrowResponse);
+}
+
 export async function showColumns(
   table: string,
   dialect: DialectRef,
