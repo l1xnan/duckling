@@ -11,6 +11,8 @@ description: MySQL、PostgreSQL、ClickHouse 与实验性的 Doris / StarRocks �
 
 主机 / 端口 / 数据库 / 用户名 / 密码。
 
+打开数据库（表列表）时，默认优先展示 `information_schema.tables` 中的关键列，顺序为：表名、Schema 名称、表类型、引擎、数据大小、索引大小（以 `MiB` / `GiB` 显示）、最后修改时间、表描述、行数。其余列默认隐藏，可在工具栏的**隐藏列**菜单中勾选显示。
+
 ## PostgreSQL
 
 主机 / 端口 / 数据库 / 用户名 / 密码，外加 **SSL 模式**选择。

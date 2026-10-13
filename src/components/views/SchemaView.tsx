@@ -11,7 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Loading } from '@/components/views/TableView';
 import { connectionRef } from '@/lib/connectionRef';
-import { clickhouseTableDefaults } from '@/lib/schemaColumns';
+import { clickhouseTableDefaults, mysqlTableDefaults } from '@/lib/schemaColumns';
 import { useConnection } from '@/stores/dbList';
 import {
   SchemaContextType,
@@ -197,12 +197,16 @@ export function DatabaseSchemaView({
   const [data, setData] = useState<unknown[]>([]);
 
   const { rows, defaultHiddenColumns } = useMemo(() => {
-    if (connection?.dialect !== 'clickhouse') {
-      return { rows: data, defaultHiddenColumns: {} };
+    if (connection?.dialect === 'clickhouse') {
+      const { data: clickhouseRows, hiddenColumns } =
+        clickhouseTableDefaults(data);
+      return { rows: clickhouseRows, defaultHiddenColumns: hiddenColumns };
     }
-    const { data: clickhouseRows, hiddenColumns } =
-      clickhouseTableDefaults(data);
-    return { rows: clickhouseRows, defaultHiddenColumns: hiddenColumns };
+    if (connection?.dialect === 'mysql') {
+      const { data: mysqlRows, hiddenColumns } = mysqlTableDefaults(data);
+      return { rows: mysqlRows, defaultHiddenColumns: hiddenColumns };
+    }
+    return { rows: data, defaultHiddenColumns: {} };
   }, [connection?.dialect, data]);
 
   const {

@@ -11,6 +11,8 @@ Server databases are configured with connection details in the sidebar.
 
 Host / port / database / user / password.
 
+Opening a database (its table list) prioritizes the key `information_schema.tables` columns, in this order: table name, schema name, table type, engine, data size, index size (shown as `MiB` / `GiB`), last modified, table comment, and row count. Every other column is hidden by default — turn them on from the **Hidden Column** menu in the toolbar.
+
 ## PostgreSQL
 
 Host / port / database / user / password, plus **SSL mode** selection.

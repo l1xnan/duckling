@@ -14,9 +14,22 @@ export const CLICKHOUSE_TABLE_PRIORITY_COLUMNS = [
   'metadata_path',
 ] as const;
 
-const PRIORITY_COLUMN_SET: ReadonlySet<string> = new Set(
-  CLICKHOUSE_TABLE_PRIORITY_COLUMNS,
-);
+/**
+ * MySQL `information_schema.tables` counterpart of the ClickHouse list: the
+ * same kind of information (table, schema, kind, engine, size, last modified,
+ * comment, rows) shown first when a database is opened.
+ */
+export const MYSQL_TABLE_PRIORITY_COLUMNS = [
+  'TABLE_NAME',
+  'TABLE_SCHEMA',
+  'TABLE_TYPE',
+  'ENGINE',
+  'DATA_LENGTH',
+  'INDEX_LENGTH',
+  'UPDATE_TIME',
+  'TABLE_COMMENT',
+  'TABLE_ROWS',
+] as const;
 
 const SIZE_UNITS = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'] as const;
 
@@ -54,25 +67,39 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Reorder `system.tables` rows so the priority columns come first, render
- * byte sizes readably, and report the remaining columns as hidden by default.
+ * Reorder rows so `priorityColumns` come first, render `sizeColumns` readably,
+ * and report the remaining columns as hidden by default. Matching ignores case
+ * because server metadata casing differs between dialects.
  */
-export function clickhouseTableDefaults(rows: unknown[]): SchemaTableDefaults {
+function priorityTableDefaults(
+  rows: unknown[],
+  priorityColumns: readonly string[],
+  sizeColumns: readonly string[],
+): SchemaTableDefaults {
   const records = (rows ?? []).filter(isRecord);
   const first = records[0];
   if (!first) {
     return { data: records, hiddenColumns: {} };
   }
 
+  const rank = new Map<string, number>();
+  for (const [index, column] of priorityColumns.entries()) {
+    rank.set(column.toLowerCase(), index);
+  }
+  const sizes = new Set(sizeColumns.map((column) => column.toLowerCase()));
+
   const keys = Object.keys(first);
+  const isPriority = (key: string) => rank.has(key.toLowerCase());
   const ordered = [
-    ...CLICKHOUSE_TABLE_PRIORITY_COLUMNS.filter((key) => keys.includes(key)),
-    ...keys.filter((key) => !PRIORITY_COLUMN_SET.has(key)),
+    ...keys
+      .filter(isPriority)
+      .sort((a, b) => rank.get(a.toLowerCase())! - rank.get(b.toLowerCase())!),
+    ...keys.filter((key) => !isPriority(key)),
   ];
 
   const hiddenColumns: Record<string, boolean> = {};
   for (const key of ordered) {
-    if (!PRIORITY_COLUMN_SET.has(key)) {
+    if (!isPriority(key)) {
       hiddenColumns[key] = true;
     }
   }
@@ -80,11 +107,33 @@ export function clickhouseTableDefaults(rows: unknown[]): SchemaTableDefaults {
   const data = records.map((record) => {
     const next: Record<string, unknown> = {};
     for (const key of ordered) {
-      next[key] =
-        key === 'total_bytes' ? formatReadableSize(record[key]) : record[key];
+      next[key] = sizes.has(key.toLowerCase())
+        ? formatReadableSize(record[key])
+        : record[key];
     }
     return next;
   });
 
   return { data, hiddenColumns };
+}
+
+/**
+ * Reorder `system.tables` rows so the priority columns come first, render
+ * byte sizes readably, and report the remaining columns as hidden by default.
+ */
+export function clickhouseTableDefaults(rows: unknown[]): SchemaTableDefaults {
+  return priorityTableDefaults(rows, CLICKHOUSE_TABLE_PRIORITY_COLUMNS, [
+    'total_bytes',
+  ]);
+}
+
+/**
+ * Same default view as ClickHouse for `information_schema.tables` rows: key
+ * columns first, sizes readably, everything else hidden.
+ */
+export function mysqlTableDefaults(rows: unknown[]): SchemaTableDefaults {
+  return priorityTableDefaults(rows, MYSQL_TABLE_PRIORITY_COLUMNS, [
+    'DATA_LENGTH',
+    'INDEX_LENGTH',
+  ]);
 }
