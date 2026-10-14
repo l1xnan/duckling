@@ -12,7 +12,9 @@ import {
   ChevronsUpDownIcon,
   LocateFixed,
   MoreHorizontalIcon,
+  SearchIcon,
 } from 'lucide-react';
+import { useSetAtom } from 'jotai';
 import { useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
@@ -26,7 +28,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/custom/ui/dropdown-menu';
+import { formatHotkey, getHotkey } from '@/hotkeys';
 import { ConfigDialog } from '@/pages/sidebar/dialog/ConfigDialog';
+import { openAnythingOpenAtom } from '@/stores/openAnything';
 import { ConnectionTransferDialog } from '@/pages/sidebar/dialog/ConnectionTransferDialog';
 import { DatabaseDialog } from '@/pages/sidebar/dialog/DatabaseDialog';
 import {
@@ -49,6 +53,8 @@ export function SideToolbar({
   revealDisabled?: boolean;
 }) {
   const { t } = useLingui();
+  const setOpenAnythingOpen = useSetAtom(openAnythingOpenAtom);
+  const openAnythingShortcut = formatHotkey(getHotkey('openAnything'));
   const [dbList, appendDB, updateDB] = useDBListStore(
     useShallow((s) => [s.dbList, s.append, s.updateByConfig]),
   );
@@ -97,6 +103,12 @@ export function SideToolbar({
       <div className="h-8 min-h-8 w-full px-2 flex items-center justify-between border-b">
         <div className="font-semibold text-sm">{t`Database Explorer`}</div>
         <div className="flex items-center">
+          <TooltipButton
+            tooltip={t`Open anything (${openAnythingShortcut})`}
+            onClick={() => setOpenAnythingOpen(true)}
+          >
+            <SearchIcon />
+          </TooltipButton>
           <TooltipButton tooltip={t`Expand All`} onClick={onExpandAll}>
             <ChevronsUpDownIcon />
           </TooltipButton>

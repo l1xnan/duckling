@@ -127,7 +127,7 @@ msgstr "Add column"
 msgid "Add data"
 msgstr "Add data"
 
-#: src/pages/sidebar/SideToolbar.tsx:118
+#: src/pages/sidebar/SideToolbar.tsx:130
 msgid "Add data folder"
 msgstr "Add data folder"
 
@@ -240,7 +240,7 @@ msgstr "Calls the external <0>sqlfmt</0> binary via Tauri."
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:1202
 #: src/pages/sidebar/dialog/RenameDialog.tsx:61
 #: src/pages/sidebar/dialog/SearchDialog.tsx:69
-#: src/pages/sidebar/SqlCode.tsx:578
+#: src/pages/sidebar/SqlCode.tsx:565
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -365,12 +365,12 @@ msgstr "Close idle database sessions (connection pools, SSH tunnels) after this 
 msgid "Close Other"
 msgstr "Close Other"
 
-#: src/hotkeys/registry.ts:99
+#: src/hotkeys/registry.ts:107
 msgid "Close tab"
 msgstr "Close tab"
 
 #: src/pages/sidebar/aside.tsx:184
-#: src/pages/sidebar/SqlCode.tsx:457
+#: src/pages/sidebar/SqlCode.tsx:444
 msgid "Code"
 msgstr "Code"
 
@@ -382,7 +382,7 @@ msgstr "Code Font Family"
 msgid "Code Font Size"
 msgstr "Code Font Size"
 
-#: src/pages/sidebar/SideToolbar.tsx:103
+#: src/pages/sidebar/SideToolbar.tsx:115
 msgid "Collapse All"
 msgstr "Collapse All"
 
@@ -449,7 +449,7 @@ msgstr "Connection failed"
 msgid "Connection not found"
 msgstr "Connection not found"
 
-#: src/hotkeys/registry.ts:113
+#: src/hotkeys/registry.ts:121
 msgid "Connection properties"
 msgstr "Connection properties"
 
@@ -457,6 +457,10 @@ msgstr "Connection properties"
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:1158
 msgid "Connection successful"
 msgstr "Connection successful"
+
+#: src/components/custom/OpenAnythingDialog.tsx:59
+msgid "Connections"
+msgstr "Connections"
 
 #: src/components/tables/CanvasTable.tsx:115
 msgid "Copied"
@@ -511,7 +515,7 @@ msgstr "Copy Field Name"
 msgid "Copy pivot SQL"
 msgstr "Copy pivot SQL"
 
-#: src/hotkeys/registry.ts:141
+#: src/hotkeys/registry.ts:149
 msgid "Copy selection"
 msgstr "Copy selection"
 
@@ -595,14 +599,15 @@ msgstr "Data type case"
 msgid "Database"
 msgstr "Database"
 
-#: src/pages/sidebar/SideToolbar.tsx:98
+#: src/pages/sidebar/SideToolbar.tsx:104
 msgid "Database Explorer"
 msgstr "Database Explorer"
 
-#: src/hotkeys/registry.ts:157
+#: src/hotkeys/registry.ts:165
 msgid "Database tree"
 msgstr "Database tree"
 
+#: src/components/custom/OpenAnythingDialog.tsx:58
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:242
 msgid "Databases"
 msgstr "Databases"
@@ -611,7 +616,7 @@ msgstr "Databases"
 msgid "DB sessions"
 msgstr "DB sessions"
 
-#: src/pages/sidebar/SideToolbar.tsx:125
+#: src/pages/sidebar/SideToolbar.tsx:137
 msgid "DB setting"
 msgstr "DB setting"
 
@@ -636,7 +641,7 @@ msgstr "Default: {defaultPerPage}"
 #: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:153
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:101
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:307
-#: src/pages/sidebar/SqlCode.tsx:584
+#: src/pages/sidebar/SqlCode.tsx:571
 msgid "Delete"
 msgstr "Delete"
 
@@ -644,15 +649,15 @@ msgstr "Delete"
 msgid "Delete bookmark"
 msgstr "Delete bookmark"
 
-#: src/hotkeys/registry.ts:134
+#: src/hotkeys/registry.ts:142
 msgid "Delete connection"
 msgstr "Delete connection"
 
-#: src/pages/sidebar/SqlCode.tsx:520
+#: src/pages/sidebar/SqlCode.tsx:507
 msgid "Delete temporary SQL"
 msgstr "Delete temporary SQL"
 
-#: src/pages/sidebar/SqlCode.tsx:567
+#: src/pages/sidebar/SqlCode.tsx:554
 msgid "Delete temporary SQL?"
 msgstr "Delete temporary SQL?"
 
@@ -729,7 +734,7 @@ msgid "e.g. Production bastion"
 msgstr "e.g. Production bastion"
 
 #: src/components/PageTabs.tsx:651
-#: src/hotkeys/registry.ts:155
+#: src/hotkeys/registry.ts:163
 #: src/pages/settings/AppSetting.tsx:100
 msgid "Editor"
 msgstr "Editor"
@@ -796,7 +801,7 @@ msgstr "Est. result"
 msgid "Expand all"
 msgstr "Expand all"
 
-#: src/pages/sidebar/SideToolbar.tsx:100
+#: src/pages/sidebar/SideToolbar.tsx:112
 msgid "Expand All"
 msgstr "Expand All"
 
@@ -827,7 +832,7 @@ msgstr "Export completed"
 msgid "Export Connection"
 msgstr "Export Connection"
 
-#: src/pages/sidebar/SideToolbar.tsx:155
+#: src/pages/sidebar/SideToolbar.tsx:167
 msgid "Export connections"
 msgstr "Export connections"
 
@@ -912,6 +917,10 @@ msgstr "Failed to save connection secrets"
 msgid "Favorite"
 msgstr "Favorite"
 
+#: src/components/custom/OpenAnythingDialog.tsx:60
+msgid "Favorites"
+msgstr "Favorites"
+
 #: src/components/views/ValueViewer.tsx:429
 msgid "Field"
 msgstr "Field"
@@ -919,6 +928,10 @@ msgstr "Field"
 #: src/components/views/ExportDialog.tsx:267
 msgid "File path"
 msgstr "File path"
+
+#: src/components/custom/OpenAnythingDialog.tsx:57
+msgid "Files"
+msgstr "Files"
 
 #: src/components/tables/CanvasTable.tsx:106
 msgid "Filter by this value"
@@ -966,7 +979,7 @@ msgstr "Foreground"
 msgid "Format"
 msgstr "Format"
 
-#: src/hotkeys/registry.ts:76
+#: src/hotkeys/registry.ts:84
 msgid "Format document"
 msgstr "Format document"
 
@@ -979,7 +992,7 @@ msgstr "Format document ({0})"
 msgid "Format float columns using Float precision above in new results. You can still toggle this per view from the toolbar."
 msgstr "Format float columns using Float precision above in new results. You can still toggle this per view from the toolbar."
 
-#: src/hotkeys/registry.ts:84
+#: src/hotkeys/registry.ts:92
 msgid "Format selection"
 msgstr "Format selection"
 
@@ -1008,7 +1021,7 @@ msgstr "From ~/.ssh/config"
 msgid "Function case"
 msgstr "Function case"
 
-#: src/hotkeys/registry.ts:154
+#: src/hotkeys/registry.ts:162
 msgid "General"
 msgstr "General"
 
@@ -1091,7 +1104,7 @@ msgstr "Identifier case"
 msgid "Import"
 msgstr "Import"
 
-#: src/pages/sidebar/SideToolbar.tsx:148
+#: src/pages/sidebar/SideToolbar.tsx:160
 msgid "Import connections"
 msgstr "Import connections"
 
@@ -1177,7 +1190,7 @@ msgid "Key Passphrase"
 msgstr "Key Passphrase"
 
 #: src/hotkeys/HotkeysHelpDialog.tsx:43
-#: src/hotkeys/registry.ts:54
+#: src/hotkeys/registry.ts:62
 #: src/pages/settings/AppSetting.tsx:102
 #: src/pages/settings/HotkeysForm.tsx:68
 msgid "Keyboard shortcuts"
@@ -1321,7 +1334,7 @@ msgstr "Memory log cleared"
 msgid "Min"
 msgstr "Min"
 
-#: src/pages/sidebar/SideToolbar.tsx:141
+#: src/pages/sidebar/SideToolbar.tsx:153
 msgid "More actions"
 msgstr "More actions"
 
@@ -1429,6 +1442,10 @@ msgstr "No recent searches"
 msgid "No recent WHERE clauses"
 msgstr "No recent WHERE clauses"
 
+#: src/components/custom/OpenAnythingDialog.tsx:242
+msgid "No results found."
+msgstr "No results found."
+
 #: src/components/views/ColumnProfileDialog.tsx:346
 #: src/components/views/CountByColumnDialog.tsx:319
 #: src/components/views/CountByQueryDialog.tsx:286
@@ -1523,6 +1540,15 @@ msgstr "Only selected databases will be shown in the sidebar"
 msgid "Open"
 msgstr "Open"
 
+#: src/components/custom/OpenAnythingDialog.tsx:231
+#: src/hotkeys/registry.ts:55
+msgid "Open anything"
+msgstr "Open anything"
+
+#: src/pages/sidebar/SideToolbar.tsx:107
+msgid "Open anything ({openAnythingShortcut})"
+msgstr "Open anything ({openAnythingShortcut})"
+
 #: src/pages/settings/AppSetting.tsx:1550
 msgid "Open developer debugging page"
 msgstr "Open developer debugging page"
@@ -1550,11 +1576,11 @@ msgstr "Open in tab"
 msgid "Open Path"
 msgstr "Open Path"
 
-#: src/hotkeys/registry.ts:120
+#: src/hotkeys/registry.ts:128
 msgid "Open SQL editor"
 msgstr "Open SQL editor"
 
-#: src/pages/sidebar/SqlCode.tsx:463
+#: src/pages/sidebar/SqlCode.tsx:450
 msgid "Open SQL folder"
 msgstr "Open SQL folder"
 
@@ -1785,7 +1811,7 @@ msgid "Reference: <0>Shiki TextMate Grammar & Theme Playground</0>."
 msgstr "Reference: <0>Shiki TextMate Grammar & Theme Playground</0>."
 
 #: src/components/views/DataViewToolbar.tsx:180
-#: src/hotkeys/registry.ts:127
+#: src/hotkeys/registry.ts:135
 #: src/pages/settings/DiagnosticsPanel.tsx:197
 #: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:129
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:316
@@ -1796,7 +1822,7 @@ msgstr "Refresh"
 msgid "Refresh database list"
 msgstr "Refresh database list"
 
-#: src/pages/sidebar/SideToolbar.tsx:132
+#: src/pages/sidebar/SideToolbar.tsx:144
 msgid "Refresh DB"
 msgstr "Refresh DB"
 
@@ -1820,7 +1846,7 @@ msgstr "Remove measure"
 msgid "Rename"
 msgstr "Rename"
 
-#: src/hotkeys/registry.ts:106
+#: src/hotkeys/registry.ts:114
 msgid "Rename connection"
 msgstr "Rename connection"
 
@@ -1870,7 +1896,7 @@ msgstr "Result{baseCount}"
 msgid "Results"
 msgstr "Results"
 
-#: src/pages/sidebar/SideToolbar.tsx:107
+#: src/pages/sidebar/SideToolbar.tsx:119
 msgid "Reveal current tab"
 msgstr "Reveal current tab"
 
@@ -1930,11 +1956,11 @@ msgstr "Run CTE {runCteName} in new tab ({0})"
 msgid "Run in new tab ({0})"
 msgstr "Run in new tab ({0})"
 
-#: src/hotkeys/registry.ts:61
+#: src/hotkeys/registry.ts:69
 msgid "Run SQL"
 msgstr "Run SQL"
 
-#: src/hotkeys/registry.ts:69
+#: src/hotkeys/registry.ts:77
 msgid "Run SQL in new tab"
 msgstr "Run SQL in new tab"
 
@@ -1971,7 +1997,7 @@ msgstr "Save ({0})"
 msgid "Save bastion hosts once, then reuse them when adding MySQL or Postgres connections."
 msgstr "Save bastion hosts once, then reuse them when adding MySQL or Postgres connections."
 
-#: src/hotkeys/registry.ts:92
+#: src/hotkeys/registry.ts:100
 msgid "Save SQL file"
 msgstr "Save SQL file"
 
@@ -1993,6 +2019,10 @@ msgstr "Schema"
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:285
 msgid "Search"
 msgstr "Search"
+
+#: src/components/custom/OpenAnythingDialog.tsx:232
+msgid "Search databases, tables, favorites, and SQL files"
+msgstr "Search databases, tables, favorites, and SQL files"
 
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:1058
 msgid "Search databases..."
@@ -2257,6 +2287,7 @@ msgstr "Split Down"
 msgid "Split Right"
 msgstr "Split Right"
 
+#: src/components/custom/OpenAnythingDialog.tsx:61
 #: src/pages/sidebar/Favorite.tsx:121
 msgid "SQL bookmarks"
 msgstr "SQL bookmarks"
@@ -2269,6 +2300,10 @@ msgstr "SQL copied"
 #: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:116
 msgid "SQL Editor"
 msgstr "SQL Editor"
+
+#: src/components/custom/OpenAnythingDialog.tsx:63
+msgid "SQL files"
+msgstr "SQL files"
 
 #: src/pages/settings/AppSetting.tsx:605
 msgid "SQL Formatter Engine"
@@ -2405,7 +2440,11 @@ msgstr "Table Font Family"
 msgid "Table Font Size"
 msgstr "Table Font Size"
 
-#: src/hotkeys/registry.ts:156
+#: src/components/custom/OpenAnythingDialog.tsx:55
+msgid "Tables"
+msgstr "Tables"
+
+#: src/hotkeys/registry.ts:164
 #: src/pages/sidebar/aside.tsx:186
 #: src/pages/sidebar/VerticalTabs.tsx:569
 msgid "Tabs"
@@ -2419,9 +2458,13 @@ msgstr "Tabular left"
 msgid "Tabular right"
 msgstr "Tabular right"
 
-#: src/pages/sidebar/SqlCode.tsx:330
+#: src/pages/sidebar/SqlCode.tsx:331
 msgid "Temporary Files"
 msgstr "Temporary Files"
+
+#: src/components/custom/OpenAnythingDialog.tsx:62
+msgid "Temporary queries"
+msgstr "Temporary queries"
 
 #: src/pages/sidebar/dialog/ConfigDialog.tsx:144
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:1209
@@ -2437,7 +2480,7 @@ msgstr "Testing…"
 msgid "This shortcut is built into the editor or table and cannot be changed."
 msgstr "This shortcut is built into the editor or table and cannot be changed."
 
-#: src/pages/sidebar/SqlCode.tsx:570
+#: src/pages/sidebar/SqlCode.tsx:557
 msgid "This will permanently delete temporary SQL \"{pendingDisplayName}\". This action cannot be undone."
 msgstr "This will permanently delete temporary SQL \"{pendingDisplayName}\". This action cannot be undone."
 
@@ -2450,7 +2493,7 @@ msgstr "This will run {0} queries. Continue?"
 msgid "Time"
 msgstr "Time"
 
-#: src/hotkeys/registry.ts:47
+#: src/hotkeys/registry.ts:48
 msgid "Toggle sidebar"
 msgstr "Toggle sidebar"
 
@@ -2506,6 +2549,10 @@ msgstr "TSV uses tab as delimiter."
 #: src/pages/settings/AppSetting.tsx:1509
 msgid "Turn this off to prevent the app from checking for updates."
 msgstr "Turn this off to prevent the app from checking for updates."
+
+#: src/components/custom/OpenAnythingDialog.tsx:237
+msgid "Type to search…"
+msgstr "Type to search…"
 
 #: src/components/views/ExportDialog.tsx:346
 msgid "Uncheck to export NDJSON (one object per line)."
@@ -2601,6 +2648,10 @@ msgstr "Values"
 #: src/components/views/MacroRunDialog.tsx:94
 msgid "Variable \"{name}\" requires at least one value"
 msgstr "Variable \"{name}\" requires at least one value"
+
+#: src/components/custom/OpenAnythingDialog.tsx:56
+msgid "Views"
+msgstr "Views"
 
 #: src/pages/settings/DiagnosticsPanel.tsx:227
 msgid "WebView"

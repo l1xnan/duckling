@@ -41,6 +41,7 @@ describe('hotkey registry', () => {
   it('exposes expected core bindings', () => {
     expect(HOTKEYS['editor.run'].hotkey).toBe('Mod+Enter');
     expect(HOTKEYS['editor.run'].displayOnly).toBe(true);
+    expect(HOTKEYS['openAnything'].hotkey).toBe('Mod+P');
     expect(HOTKEYS['hotkeys.help'].hotkey).toBe('Mod+/');
     expect(HOTKEYS['tree.refresh'].hotkey).toBe('F5');
   });

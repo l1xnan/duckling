@@ -5,7 +5,8 @@ import { ChevronRight, Code2Icon, FolderClock, FolderIcon, FolderPlus, RefreshCw
 import { Dispatch, ReactNode, SetStateAction, useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { listSqlDir, readTextFile } from '@/api';
+import { listSqlDir } from '@/api';
+import { openSqlWorkspaceFile } from '@/lib/openSqlWorkspaceFile';
 import { getTypeIcon } from '@/components/custom/Icons';
 import { SearchInput } from '@/components/custom/search';
 import { useDialog } from '@/components/custom/use-dialog';
@@ -419,26 +420,12 @@ export function SqlCode() {
   };
 
   const handleOpenFile = async (node: TreeNode) => {
-    const path = node.path.replace(/\\/g, '/');
-    const existing = tabs[path];
-    if (existing) {
-      updateTab(existing);
-      return;
-    }
-
-    try {
-      const content = await readTextFile(path);
-      setDocs((prev) => ({ ...prev, [path]: content }));
-      updateTab({
-        id: path,
-        dbId: resolveDbId(),
-        displayName: node.name,
-        type: 'editor',
-        path,
-      } satisfies EditorContextType);
-    } catch (e) {
-      toast.error(String(e));
-    }
+    await openSqlWorkspaceFile(node, {
+      tabs,
+      updateTab,
+      setDocs,
+      resolveDbId,
+    });
   };
 
   const handleOpenFolder = async () => {

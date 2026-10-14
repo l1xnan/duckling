@@ -242,6 +242,7 @@ SELECT * FROM a;
 ### 键盘快捷键
 
 - `Mod+B` — 切换侧边栏
+- `Mod+P` — 打开任意对象（全局搜索）
 - `Mod+/` — 快捷键帮助
 - `Mod+Enter` — 运行 SQL（分割关闭：全文；分割开启：当前语句；光标在 CTE 名上：预览该中间表）
 - `Mod+Shift+Enter` — 在新标签中运行 SQL

@@ -1,8 +1,10 @@
 import { HotkeysProvider } from '@tanstack/react-hotkeys';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useState, type ReactNode } from 'react';
 
+import { OpenAnythingDialog } from '@/components/custom/OpenAnythingDialog';
 import { createScratchEditor } from '@/lib/scratchSql';
+import { openAnythingOpenAtom } from '@/stores/openAnything';
 import { activePanelsAtom } from '@/pages/sidebar/aside';
 import { docsAtom } from '@/stores/app';
 import {
@@ -43,6 +45,8 @@ function isConnectionRoot(node: NodeContextType | null): boolean {
  */
 function HotkeysBindings({ children }: { children: ReactNode }) {
   const [helpOpen, setHelpOpen] = useState(false);
+  const openAnythingOpen = useAtomValue(openAnythingOpenAtom);
+  const setOpenAnythingOpen = useSetAtom(openAnythingOpenAtom);
   const setActivePanels = useSetAtom(activePanelsAtom);
   const setDocs = useSetAtom(docsAtom);
   const selectedNode = useSelectedNodeStore((s) => s.selectedNode);
@@ -52,7 +56,7 @@ function HotkeysBindings({ children }: { children: ReactNode }) {
   const currentId = useTabsStore((s) => s.currentId);
   const tabs = useTabsStore((s) => s.tabs);
 
-  const treeEnabled = !!selectedNode && !helpOpen;
+  const treeEnabled = !!selectedNode && !helpOpen && !openAnythingOpen;
 
   useAppHotkey('sidebar.toggle', () => {
     setActivePanels((prev) => {
@@ -71,6 +75,10 @@ function HotkeysBindings({ children }: { children: ReactNode }) {
 
   useAppHotkey('hotkeys.help', () => {
     setHelpOpen((o) => !o);
+  });
+
+  useAppHotkey('openAnything', () => {
+    setOpenAnythingOpen((o) => !o);
   });
 
   useAppHotkey(
@@ -167,6 +175,7 @@ function HotkeysBindings({ children }: { children: ReactNode }) {
     <>
       {children}
       <HotkeysHelpDialog open={helpOpen} onOpenChange={setHelpOpen} />
+      <OpenAnythingDialog />
     </>
   );
 }

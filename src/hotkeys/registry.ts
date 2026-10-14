@@ -12,6 +12,7 @@ export type HotkeyCategory =
 
 export type HotkeyId =
   | 'sidebar.toggle'
+  | 'openAnything'
   | 'hotkeys.help'
   | 'editor.run'
   | 'editor.runNewTab'
@@ -45,6 +46,13 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDef> = {
     id: 'sidebar.toggle',
     hotkey: 'Mod+B',
     label: msg`Toggle sidebar`,
+    category: 'general',
+    scope: 'global',
+  },
+  'openAnything': {
+    id: 'openAnything',
+    hotkey: 'Mod+P',
+    label: msg`Open anything`,
     category: 'general',
     scope: 'global',
   },

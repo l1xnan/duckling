@@ -127,7 +127,7 @@ msgstr "添加列"
 msgid "Add data"
 msgstr "添加数据"
 
-#: src/pages/sidebar/SideToolbar.tsx:118
+#: src/pages/sidebar/SideToolbar.tsx:130
 msgid "Add data folder"
 msgstr "添加数据文件夹"
 
@@ -240,7 +240,7 @@ msgstr "通过 Tauri 调用外部 <0>sqlfmt</0> 可执行文件。"
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:1202
 #: src/pages/sidebar/dialog/RenameDialog.tsx:61
 #: src/pages/sidebar/dialog/SearchDialog.tsx:69
-#: src/pages/sidebar/SqlCode.tsx:578
+#: src/pages/sidebar/SqlCode.tsx:565
 msgid "Cancel"
 msgstr "取消"
 
@@ -365,12 +365,12 @@ msgstr "空闲多少分钟后关闭数据库会话（连接池、SSH 隧道）�
 msgid "Close Other"
 msgstr "关闭其他"
 
-#: src/hotkeys/registry.ts:99
+#: src/hotkeys/registry.ts:107
 msgid "Close tab"
 msgstr "关闭标签页"
 
 #: src/pages/sidebar/aside.tsx:184
-#: src/pages/sidebar/SqlCode.tsx:457
+#: src/pages/sidebar/SqlCode.tsx:444
 msgid "Code"
 msgstr "代码"
 
@@ -382,7 +382,7 @@ msgstr "代码字体"
 msgid "Code Font Size"
 msgstr "代码字体大小"
 
-#: src/pages/sidebar/SideToolbar.tsx:103
+#: src/pages/sidebar/SideToolbar.tsx:115
 msgid "Collapse All"
 msgstr "全部折叠"
 
@@ -449,7 +449,7 @@ msgstr "连接失败"
 msgid "Connection not found"
 msgstr "未找到连接"
 
-#: src/hotkeys/registry.ts:113
+#: src/hotkeys/registry.ts:121
 msgid "Connection properties"
 msgstr "连接属性"
 
@@ -457,6 +457,10 @@ msgstr "连接属性"
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:1158
 msgid "Connection successful"
 msgstr "连接成功"
+
+#: src/components/custom/OpenAnythingDialog.tsx:59
+msgid "Connections"
+msgstr "连接"
 
 #: src/components/tables/CanvasTable.tsx:115
 msgid "Copied"
@@ -511,7 +515,7 @@ msgstr "复制字段名"
 msgid "Copy pivot SQL"
 msgstr "复制透视 SQL"
 
-#: src/hotkeys/registry.ts:141
+#: src/hotkeys/registry.ts:149
 msgid "Copy selection"
 msgstr "复制选区"
 
@@ -595,14 +599,15 @@ msgstr "数据类型大小写"
 msgid "Database"
 msgstr "数据库"
 
-#: src/pages/sidebar/SideToolbar.tsx:98
+#: src/pages/sidebar/SideToolbar.tsx:104
 msgid "Database Explorer"
 msgstr "数据库资源管理器"
 
-#: src/hotkeys/registry.ts:157
+#: src/hotkeys/registry.ts:165
 msgid "Database tree"
 msgstr "数据库树"
 
+#: src/components/custom/OpenAnythingDialog.tsx:58
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:242
 msgid "Databases"
 msgstr "数据库"
@@ -611,7 +616,7 @@ msgstr "数据库"
 msgid "DB sessions"
 msgstr "数据库会话"
 
-#: src/pages/sidebar/SideToolbar.tsx:125
+#: src/pages/sidebar/SideToolbar.tsx:137
 msgid "DB setting"
 msgstr "数据库设置"
 
@@ -636,7 +641,7 @@ msgstr "默认：{defaultPerPage}"
 #: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:153
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:101
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:307
-#: src/pages/sidebar/SqlCode.tsx:584
+#: src/pages/sidebar/SqlCode.tsx:571
 msgid "Delete"
 msgstr "删除"
 
@@ -644,15 +649,15 @@ msgstr "删除"
 msgid "Delete bookmark"
 msgstr "删除书签"
 
-#: src/hotkeys/registry.ts:134
+#: src/hotkeys/registry.ts:142
 msgid "Delete connection"
 msgstr "删除连接"
 
-#: src/pages/sidebar/SqlCode.tsx:520
+#: src/pages/sidebar/SqlCode.tsx:507
 msgid "Delete temporary SQL"
 msgstr "删除临时 SQL"
 
-#: src/pages/sidebar/SqlCode.tsx:567
+#: src/pages/sidebar/SqlCode.tsx:554
 msgid "Delete temporary SQL?"
 msgstr "删除临时 SQL？"
 
@@ -729,7 +734,7 @@ msgid "e.g. Production bastion"
 msgstr "例如：生产跳板机"
 
 #: src/components/PageTabs.tsx:651
-#: src/hotkeys/registry.ts:155
+#: src/hotkeys/registry.ts:163
 #: src/pages/settings/AppSetting.tsx:100
 msgid "Editor"
 msgstr "编辑器"
@@ -796,7 +801,7 @@ msgstr "结果估算"
 msgid "Expand all"
 msgstr "全部展开"
 
-#: src/pages/sidebar/SideToolbar.tsx:100
+#: src/pages/sidebar/SideToolbar.tsx:112
 msgid "Expand All"
 msgstr "全部展开"
 
@@ -827,7 +832,7 @@ msgstr "导出完成"
 msgid "Export Connection"
 msgstr "导出连接"
 
-#: src/pages/sidebar/SideToolbar.tsx:155
+#: src/pages/sidebar/SideToolbar.tsx:167
 msgid "Export connections"
 msgstr "导出连接"
 
@@ -912,6 +917,10 @@ msgstr "保存连接密钥失败"
 msgid "Favorite"
 msgstr "收藏"
 
+#: src/components/custom/OpenAnythingDialog.tsx:60
+msgid "Favorites"
+msgstr "收藏"
+
 #: src/components/views/ValueViewer.tsx:429
 msgid "Field"
 msgstr "字段"
@@ -919,6 +928,10 @@ msgstr "字段"
 #: src/components/views/ExportDialog.tsx:267
 msgid "File path"
 msgstr "文件路径"
+
+#: src/components/custom/OpenAnythingDialog.tsx:57
+msgid "Files"
+msgstr "文件"
 
 #: src/components/tables/CanvasTable.tsx:106
 msgid "Filter by this value"
@@ -966,7 +979,7 @@ msgstr "前景色"
 msgid "Format"
 msgstr "格式"
 
-#: src/hotkeys/registry.ts:76
+#: src/hotkeys/registry.ts:84
 msgid "Format document"
 msgstr "格式化文档"
 
@@ -979,7 +992,7 @@ msgstr "格式化文档（{0}）"
 msgid "Format float columns using Float precision above in new results. You can still toggle this per view from the toolbar."
 msgstr "在新结果中按上方的浮点精度格式化浮点列；仍可在各视图工具栏中单独切换。"
 
-#: src/hotkeys/registry.ts:84
+#: src/hotkeys/registry.ts:92
 msgid "Format selection"
 msgstr "格式化选区"
 
@@ -1008,7 +1021,7 @@ msgstr "来自 ~/.ssh/config"
 msgid "Function case"
 msgstr "函数大小写"
 
-#: src/hotkeys/registry.ts:154
+#: src/hotkeys/registry.ts:162
 msgid "General"
 msgstr "通用"
 
@@ -1091,7 +1104,7 @@ msgstr "标识符大小写"
 msgid "Import"
 msgstr "导入"
 
-#: src/pages/sidebar/SideToolbar.tsx:148
+#: src/pages/sidebar/SideToolbar.tsx:160
 msgid "Import connections"
 msgstr "导入连接"
 
@@ -1177,7 +1190,7 @@ msgid "Key Passphrase"
 msgstr "密钥口令"
 
 #: src/hotkeys/HotkeysHelpDialog.tsx:43
-#: src/hotkeys/registry.ts:54
+#: src/hotkeys/registry.ts:62
 #: src/pages/settings/AppSetting.tsx:102
 #: src/pages/settings/HotkeysForm.tsx:68
 msgid "Keyboard shortcuts"
@@ -1321,7 +1334,7 @@ msgstr "内存日志已清空"
 msgid "Min"
 msgstr "最小值"
 
-#: src/pages/sidebar/SideToolbar.tsx:141
+#: src/pages/sidebar/SideToolbar.tsx:153
 msgid "More actions"
 msgstr "更多操作"
 
@@ -1429,6 +1442,10 @@ msgstr "暂无最近搜索"
 msgid "No recent WHERE clauses"
 msgstr "暂无 WHERE 历史"
 
+#: src/components/custom/OpenAnythingDialog.tsx:242
+msgid "No results found."
+msgstr "未找到结果。"
+
 #: src/components/views/ColumnProfileDialog.tsx:346
 #: src/components/views/CountByColumnDialog.tsx:319
 #: src/components/views/CountByQueryDialog.tsx:286
@@ -1523,6 +1540,15 @@ msgstr "仅选中的数据库会显示在侧边栏中"
 msgid "Open"
 msgstr "打开"
 
+#: src/components/custom/OpenAnythingDialog.tsx:231
+#: src/hotkeys/registry.ts:55
+msgid "Open anything"
+msgstr "打开任意对象"
+
+#: src/pages/sidebar/SideToolbar.tsx:107
+msgid "Open anything ({openAnythingShortcut})"
+msgstr "打开任意对象（{openAnythingShortcut}）"
+
 #: src/pages/settings/AppSetting.tsx:1550
 msgid "Open developer debugging page"
 msgstr "打开开发者调试页面"
@@ -1550,11 +1576,11 @@ msgstr "在标签页中打开"
 msgid "Open Path"
 msgstr "打开路径"
 
-#: src/hotkeys/registry.ts:120
+#: src/hotkeys/registry.ts:128
 msgid "Open SQL editor"
 msgstr "打开 SQL 编辑器"
 
-#: src/pages/sidebar/SqlCode.tsx:463
+#: src/pages/sidebar/SqlCode.tsx:450
 msgid "Open SQL folder"
 msgstr "打开 SQL 文件夹"
 
@@ -1785,7 +1811,7 @@ msgid "Reference: <0>Shiki TextMate Grammar & Theme Playground</0>."
 msgstr "参考：<0>Shiki TextMate Grammar & Theme Playground</0>。"
 
 #: src/components/views/DataViewToolbar.tsx:180
-#: src/hotkeys/registry.ts:127
+#: src/hotkeys/registry.ts:135
 #: src/pages/settings/DiagnosticsPanel.tsx:197
 #: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:129
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:316
@@ -1796,7 +1822,7 @@ msgstr "刷新"
 msgid "Refresh database list"
 msgstr "刷新数据库列表"
 
-#: src/pages/sidebar/SideToolbar.tsx:132
+#: src/pages/sidebar/SideToolbar.tsx:144
 msgid "Refresh DB"
 msgstr "刷新数据库"
 
@@ -1820,7 +1846,7 @@ msgstr "移除度量"
 msgid "Rename"
 msgstr "重命名"
 
-#: src/hotkeys/registry.ts:106
+#: src/hotkeys/registry.ts:114
 msgid "Rename connection"
 msgstr "重命名连接"
 
@@ -1870,7 +1896,7 @@ msgstr "结果{baseCount}"
 msgid "Results"
 msgstr "结果"
 
-#: src/pages/sidebar/SideToolbar.tsx:107
+#: src/pages/sidebar/SideToolbar.tsx:119
 msgid "Reveal current tab"
 msgstr "定位当前标签页"
 
@@ -1930,11 +1956,11 @@ msgstr "在新标签页运行 CTE {runCteName}（{0}）"
 msgid "Run in new tab ({0})"
 msgstr "在新标签页运行（{0}）"
 
-#: src/hotkeys/registry.ts:61
+#: src/hotkeys/registry.ts:69
 msgid "Run SQL"
 msgstr "运行 SQL"
 
-#: src/hotkeys/registry.ts:69
+#: src/hotkeys/registry.ts:77
 msgid "Run SQL in new tab"
 msgstr "在新标签页运行 SQL"
 
@@ -1971,7 +1997,7 @@ msgstr "保存（{0}）"
 msgid "Save bastion hosts once, then reuse them when adding MySQL or Postgres connections."
 msgstr "先保存跳板机，添加 MySQL 或 Postgres 连接时可复用。"
 
-#: src/hotkeys/registry.ts:92
+#: src/hotkeys/registry.ts:100
 msgid "Save SQL file"
 msgstr "保存 SQL 文件"
 
@@ -1993,6 +2019,10 @@ msgstr "Schema"
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:285
 msgid "Search"
 msgstr "搜索"
+
+#: src/components/custom/OpenAnythingDialog.tsx:232
+msgid "Search databases, tables, favorites, and SQL files"
+msgstr "搜索数据库、表、收藏和 SQL 文件"
 
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:1058
 msgid "Search databases..."
@@ -2257,6 +2287,7 @@ msgstr "向下拆分"
 msgid "Split Right"
 msgstr "向右拆分"
 
+#: src/components/custom/OpenAnythingDialog.tsx:61
 #: src/pages/sidebar/Favorite.tsx:121
 msgid "SQL bookmarks"
 msgstr "SQL 书签"
@@ -2269,6 +2300,10 @@ msgstr "SQL 已复制"
 #: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:116
 msgid "SQL Editor"
 msgstr "SQL 编辑器"
+
+#: src/components/custom/OpenAnythingDialog.tsx:63
+msgid "SQL files"
+msgstr "SQL 文件"
 
 #: src/pages/settings/AppSetting.tsx:605
 msgid "SQL Formatter Engine"
@@ -2405,7 +2440,11 @@ msgstr "表格字体"
 msgid "Table Font Size"
 msgstr "表格字体大小"
 
-#: src/hotkeys/registry.ts:156
+#: src/components/custom/OpenAnythingDialog.tsx:55
+msgid "Tables"
+msgstr "表"
+
+#: src/hotkeys/registry.ts:164
 #: src/pages/sidebar/aside.tsx:186
 #: src/pages/sidebar/VerticalTabs.tsx:569
 msgid "Tabs"
@@ -2419,9 +2458,13 @@ msgstr "左对齐表格"
 msgid "Tabular right"
 msgstr "右对齐表格"
 
-#: src/pages/sidebar/SqlCode.tsx:330
+#: src/pages/sidebar/SqlCode.tsx:331
 msgid "Temporary Files"
 msgstr "临时文件"
+
+#: src/components/custom/OpenAnythingDialog.tsx:62
+msgid "Temporary queries"
+msgstr "临时查询"
 
 #: src/pages/sidebar/dialog/ConfigDialog.tsx:144
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:1209
@@ -2437,7 +2480,7 @@ msgstr "测试中…"
 msgid "This shortcut is built into the editor or table and cannot be changed."
 msgstr "此快捷键由编辑器或表格内置，无法修改。"
 
-#: src/pages/sidebar/SqlCode.tsx:570
+#: src/pages/sidebar/SqlCode.tsx:557
 msgid "This will permanently delete temporary SQL \"{pendingDisplayName}\". This action cannot be undone."
 msgstr "将永久删除临时 SQL “{pendingDisplayName}”。此操作无法撤销。"
 
@@ -2450,7 +2493,7 @@ msgstr "将执行 {0} 条查询，是否继续？"
 msgid "Time"
 msgstr "时间"
 
-#: src/hotkeys/registry.ts:47
+#: src/hotkeys/registry.ts:48
 msgid "Toggle sidebar"
 msgstr "切换侧边栏"
 
@@ -2506,6 +2549,10 @@ msgstr "TSV 使用制表符作为分隔符。"
 #: src/pages/settings/AppSetting.tsx:1509
 msgid "Turn this off to prevent the app from checking for updates."
 msgstr "关闭后应用将不再检查更新。"
+
+#: src/components/custom/OpenAnythingDialog.tsx:237
+msgid "Type to search…"
+msgstr "输入以搜索…"
 
 #: src/components/views/ExportDialog.tsx:346
 msgid "Uncheck to export NDJSON (one object per line)."
@@ -2601,6 +2648,10 @@ msgstr "原始值"
 #: src/components/views/MacroRunDialog.tsx:94
 msgid "Variable \"{name}\" requires at least one value"
 msgstr "变量 \"{name}\" 至少需要一个值"
+
+#: src/components/custom/OpenAnythingDialog.tsx:56
+msgid "Views"
+msgstr "视图"
 
 #: src/pages/settings/DiagnosticsPanel.tsx:227
 msgid "WebView"

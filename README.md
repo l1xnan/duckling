@@ -242,6 +242,7 @@ The `{}` button (next to EXPLAIN) scans the current selection (or the full buffe
 ### Keyboard shortcuts
 
 - `Mod+B` — toggle sidebar
+- `Mod+P` — open anything (global search)
 - `Mod+/` — keyboard shortcuts help
 - `Mod+Enter` — run SQL (split off: full buffer; split on: current statement; cursor on a CTE name: preview that CTE)
 - `Mod+Shift+Enter` — run SQL in a new tab
