@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildColumnProfileSql,
-  buildColumnTopNSql,
+  buildColumnProfileSubquerySql,
 } from '@/lib/sql/columnProfile';
 import { buildCountBySubquerySql } from '@/lib/sql/countBySubquery';
 
@@ -22,15 +22,16 @@ describe('column profile SQL', () => {
     expect(sql).toContain("WHERE status <> ''");
   });
 
-  it('builds top-N distribution', () => {
-    const sql = buildColumnTopNSql({
-      tableExpr: 't',
-      column: 'c',
-      dialect: 'mysql',
-      topN: 5,
+  it('builds profile aggregates over a subquery', () => {
+    const sql = buildColumnProfileSubquerySql({
+      sourceSql: 'SELECT id, status FROM orders;',
+      column: 'status',
+      dialect: 'postgres',
     });
-    expect(sql).toContain('SELECT `c` AS value, COUNT(*) AS count');
-    expect(sql).toContain('LIMIT 5');
+    expect(sql).toContain('COUNT(*) AS total');
+    expect(sql).toContain('COUNT(DISTINCT "status") AS distinct_count');
+    expect(sql).toContain('FROM (\nSELECT id, status FROM orders\n) AS __count_src');
+    expect(sql).not.toMatch(/orders\);/);
   });
 });
 

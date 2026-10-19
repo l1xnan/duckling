@@ -34,7 +34,6 @@ import {
   iconCopyHtml,
   iconCopyJson,
   iconCopyMarkdown,
-  iconCountBy,
   iconField,
   iconFilter,
   iconHide,
@@ -64,10 +63,8 @@ export interface TableProps<T = unknown> {
   setHiddenColumns: (col: string, hidden: boolean) => void;
   onSelectedCell?: (value: SelectedCellType | null) => void;
   onSelectedCellInfos?: (cells: SelectedCellType[][] | null) => void;
-  /** Header context menu: count distinct values for this column. */
-  onCountByColumn?: (columnName: string) => void;
-  /** Header context menu: column profile (null/distinct/min/max/top-N). */
-  onProfileColumn?: (columnName: string) => void;
+  /** Header context menu: column profile (stats, distribution, filter). */
+  onColumnProfile?: (columnName: string) => void;
   /** Header context menu: open pivot with this column as a row dimension. */
   onPivotColumn?: (columnName: string) => void;
   /**
@@ -100,7 +97,6 @@ const MENU_PIN_LEFT = msg`Pin to left`;
 const MENU_PIN_RIGHT = msg`Pin to right`;
 const MENU_PIN_CLEAR = msg`Clear pinned`;
 const MENU_HIDDEN_COLUMN = msg`Hidden column`;
-const MENU_COUNT_BY_COLUMN = msg`Count by this column`;
 const MENU_COLUMN_PROFILE = msg`Column profile`;
 const MENU_PIVOT_COLUMN = msg`Pivot with this column`;
 const MENU_FILTER_BY_VALUE = msg`Filter by this value`;
@@ -307,8 +303,7 @@ function CanvasTable_({
   hiddenColumns,
   onSelectedCell,
   onSelectedCellInfos,
-  onCountByColumn,
-  onProfileColumn,
+  onColumnProfile,
   onPivotColumn,
   onOrderByColumn,
   onDrillDown,
@@ -464,12 +459,7 @@ function CanvasTable_({
         ]
       : [];
     const headerAnalyzeGroup: MenuEntry[] = [
-      {
-        menuKey: 'count-by-column',
-        text: i18n._(MENU_COUNT_BY_COLUMN),
-        customIcon: iconCountBy,
-      },
-      ...(onProfileColumn
+      ...(onColumnProfile
         ? [
             {
               menuKey: 'column-profile',
@@ -545,16 +535,11 @@ function CanvasTable_({
               .replace(/\s*[↑↓]\s*$/, '')
               .trim();
             if (col) onOrderByColumn?.(col, { clear: true });
-          } else if (menuKey === 'count-by-column') {
-            const col = String(field ?? '')
-              .replace(/\s*[↑↓]\s*$/, '')
-              .trim();
-            onCountByColumn?.(col);
           } else if (menuKey === 'column-profile') {
             const col = String(field ?? '')
               .replace(/\s*[↑↓]\s*$/, '')
               .trim();
-            onProfileColumn?.(col);
+            onColumnProfile?.(col);
           } else if (menuKey === 'pivot-column') {
             const col = String(field ?? '')
               .replace(/\s*[↑↓]\s*$/, '')
@@ -595,8 +580,7 @@ function CanvasTable_({
     });
   }, [
     setHiddenColumns,
-    onCountByColumn,
-    onProfileColumn,
+    onColumnProfile,
     onPivotColumn,
     onOrderByColumn,
     onDrillDown,

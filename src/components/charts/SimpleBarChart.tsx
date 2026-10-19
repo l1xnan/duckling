@@ -1,5 +1,5 @@
 /**
- * Lightweight SVG bar chart for count-by / profile top-N data.
+ * Lightweight SVG bar chart for column profile distributions.
  * No external chart dependency.
  */
 

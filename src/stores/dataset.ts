@@ -82,7 +82,6 @@ export type DatasetState = {
   transpose?: boolean;
   cross?: boolean;
   showValue?: boolean;
-  dialogColumn?: string;
   direction: Direction;
   hiddenColumns: Record<string, boolean>;
   computedColumns: ComputedColumn[];
@@ -107,7 +106,6 @@ export type DatasetAction = {
   setCross?: () => void;
   setSQLWhere: (value: string) => void;
   setSQLOrderBy: (value: string) => void;
-  setDialogColumn: (value: string) => void;
   setHiddenColumns: (key: string, value: boolean) => void;
   setComputedColumns: (columns: ComputedColumn[]) => void;
   refresh: (stmt?: string) => Promise<ResultType | undefined>;
@@ -188,7 +186,6 @@ export const createDatasetStore = (context: TabContextType) =>
         orderBy: value.trim() ? undefined : get().orderBy,
       }));
     },
-    setDialogColumn: (dialogColumn: string) => set((_) => ({ dialogColumn })),
     setHiddenColumns: (key: string, value: boolean) =>
       set(({ hiddenColumns }) => ({
         hiddenColumns: { ...hiddenColumns, [key]: value },

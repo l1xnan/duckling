@@ -1,19 +1,27 @@
-import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { nanoid } from 'nanoid';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { cancelQuery, query } from '@/api';
+import { SimpleBarChart } from '@/components/charts/SimpleBarChart';
 import Dialog from '@/components/custom/Dialog';
 import { SimpleTable } from '@/components/tables';
 import { Button } from '@/components/custom/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/custom/ui/tabs';
 import { Loading } from '@/components/views/TableView';
 import { SqlPreview } from '@/components/views/SqlPreview';
 import { isQueryErrorCode } from '@/lib/capabilities';
+import { connectionRef } from '@/lib/connectionRef';
 import {
   buildColumnProfileSql,
-  buildColumnTopNSql,
+  buildColumnProfileSubquerySql,
 } from '@/lib/sql/columnProfile';
+import {
+  buildCountByColumnSql,
+  mapCountByRows,
+  toCountByDisplayRows,
+} from '@/lib/sql/countByColumn';
+import { buildCountBySubquerySql } from '@/lib/sql/countBySubquery';
 import {
   type ComputedColumn,
   resolveAnalysisTableExpr,
@@ -30,16 +38,32 @@ import {
 } from '@/stores/tabs';
 import { getDefaultPerPage, usePrecision } from '@/stores/setting';
 
-export type ColumnProfileDialogProps = {
+const DISTRIBUTION_LIMIT = 1000;
+
+type SharedProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   column?: string;
-  context: TableContextType;
-  sqlWhere?: string;
-  computedColumns?: ComputedColumn[];
   columns?: SchemaType[];
   beautify?: boolean;
+  /** Apply the raw group value as a SQL predicate on the profiled column. */
+  onFilterByValue?: (value: unknown) => void;
 };
+
+export type ColumnProfileDialogProps = SharedProps &
+  (
+    | {
+        kind: 'table';
+        context: TableContextType;
+        sqlWhere?: string;
+        computedColumns?: ComputedColumn[];
+      }
+    | {
+        kind: 'query';
+        dbId: string;
+        sourceSql: string;
+      }
+  );
 
 type ProfileStats = {
   total: number;
@@ -49,7 +73,7 @@ type ProfileStats = {
   maxValue: unknown;
 };
 
-type TopRow = { value: unknown; count: number };
+type CountRow = { value: unknown; count: number };
 
 function pickField(row: Record<string, unknown>, keys: string[]): unknown {
   for (const k of keys) {
@@ -63,22 +87,42 @@ function toNumber(v: unknown): number {
   return Number(v) || 0;
 }
 
-export function ColumnProfileDialog({
-  open,
-  onOpenChange,
-  column,
-  context,
-  sqlWhere,
-  computedColumns,
-  columns,
-  beautify = true,
-}: ColumnProfileDialogProps) {
+function parseProfileStats(row: Record<string, unknown>): ProfileStats {
+  return {
+    total: toNumber(pickField(row, ['total', 'TOTAL', 'Total'])),
+    nullCount: toNumber(
+      pickField(row, ['null_count', 'NULL_COUNT', 'Null_count']),
+    ),
+    distinctCount: toNumber(
+      pickField(row, ['distinct_count', 'DISTINCT_COUNT', 'Distinct_count']),
+    ),
+    minValue: pickField(row, ['min_value', 'MIN_VALUE', 'Min_value']),
+    maxValue: pickField(row, ['max_value', 'MAX_VALUE', 'Max_value']),
+  };
+}
+
+export function ColumnProfileDialog(props: ColumnProfileDialogProps) {
+  const {
+    open,
+    onOpenChange,
+    column,
+    columns,
+    beautify = true,
+    onFilterByValue,
+    kind,
+  } = props;
+  const context = kind === 'table' ? props.context : undefined;
+  const sqlWhere = kind === 'table' ? props.sqlWhere : undefined;
+  const computedColumns = kind === 'table' ? props.computedColumns : undefined;
+  const dbId = kind === 'query' ? props.dbId : undefined;
+  const sourceSql = kind === 'query' ? props.sourceSql : '';
+
   const { t } = useLingui();
   const precision = usePrecision();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<ProfileStats | null>(null);
-  const [topRows, setTopRows] = useState<TopRow[]>([]);
+  const [rows, setRows] = useState<CountRow[]>([]);
   const [sql, setSql] = useState<string>('');
   const [elapsed, setElapsed] = useState<number | undefined>();
   const requestIdRef = useRef<string | null>(null);
@@ -87,7 +131,10 @@ export function ColumnProfileDialog({
     const rid = requestIdRef.current;
     if (!rid) return;
     try {
-      await cancelQuery(rid);
+      await Promise.all([
+        cancelQuery(`${rid}-p`),
+        cancelQuery(`${rid}-d`),
+      ]);
     } catch (e) {
       console.error(e);
     }
@@ -95,6 +142,7 @@ export function ColumnProfileDialog({
 
   useEffect(() => {
     if (!open || !column) return;
+    if (kind === 'query' && !sourceSql.trim()) return;
 
     let cancelled = false;
     const requestId = nanoid();
@@ -104,65 +152,95 @@ export function ColumnProfileDialog({
       setLoading(true);
       setError(null);
       setStats(null);
-      setTopRows([]);
+      setRows([]);
       setSql('');
       setElapsed(undefined);
 
       try {
-        const param = await getParams({
-          type: context.type,
-          dbId: context.dbId,
-          tableId: context.tableId,
-          tableName: context.tableName,
-          page: 1,
-          perPage: getDefaultPerPage(),
-          sqlWhere,
-          computedColumns,
-        });
+        let profileSql: string;
+        let distSql: string;
+        let dialect: Parameters<typeof query>[0]['dialect'];
 
-        if (!param || !('table' in param) || !param.table) {
-          throw new Error(t`Could not resolve table for this view`);
+        if (kind === 'table') {
+          if (!context) {
+            throw new Error(t`Could not resolve table for this view`);
+          }
+          const param = await getParams({
+            type: context.type,
+            dbId: context.dbId,
+            tableId: context.tableId,
+            tableName: context.tableName,
+            page: 1,
+            perPage: getDefaultPerPage(),
+            sqlWhere,
+            computedColumns,
+          });
+
+          if (!param || !('table' in param) || !param.table) {
+            throw new Error(t`Could not resolve table for this view`);
+          }
+
+          const dialectName =
+            getDatabase(context.dbId)?.dialect ??
+            (context.type === 'file' ? 'file' : 'generic');
+          const tableExpr = resolveAnalysisTableExpr(
+            param.table,
+            computedColumns,
+            dialectName,
+          );
+          profileSql = buildColumnProfileSql({
+            tableExpr,
+            column,
+            dialect: dialectName,
+            where: sqlWhere,
+          });
+          distSql = buildCountByColumnSql({
+            tableExpr,
+            column,
+            dialect: dialectName,
+            where: sqlWhere,
+            limit: DISTRIBUTION_LIMIT,
+          });
+          dialect = param.dialect;
+        } else {
+          if (!dbId) {
+            throw new Error(t`Connection not found`);
+          }
+          const db = getDatabase(dbId);
+          if (!db) {
+            throw new Error(t`Connection not found`);
+          }
+          const dialectName = db.dialect ?? 'generic';
+          profileSql = buildColumnProfileSubquerySql({
+            sourceSql,
+            column,
+            dialect: dialectName,
+          });
+          distSql = buildCountBySubquerySql({
+            sourceSql,
+            column,
+            dialect: dialectName,
+            limit: DISTRIBUTION_LIMIT,
+          });
+          dialect = connectionRef(dbId);
         }
 
-        const dialectName =
-          getDatabase(context.dbId)?.dialect ??
-          (context.type === 'file' ? 'file' : 'generic');
+        setSql(`${profileSql};\n${distSql}`);
 
-        const tableExpr = resolveAnalysisTableExpr(
-          param.table,
-          computedColumns,
-          dialectName,
-        );
-
-        const profileSql = buildColumnProfileSql({
-          tableExpr,
-          column,
-          dialect: dialectName,
-          where: sqlWhere,
-        });
-        const topSql = buildColumnTopNSql({
-          tableExpr,
-          column,
-          dialect: dialectName,
-          where: sqlWhere,
-          topN: 10,
-        });
-        setSql(`${profileSql};\n${topSql}`);
-
-        const [profileRes, topRes] = await Promise.all([
+        const [profileRes, distRes] = await Promise.all([
           query({
             sql: profileSql,
-            dialect: param.dialect,
+            dialect,
             limit: 0,
             offset: 0,
             requestId: `${requestId}-p`,
           }),
           query({
-            sql: topSql,
-            dialect: param.dialect,
+            sql: distSql,
+            dialect,
             limit: 0,
             offset: 0,
-            requestId: `${requestId}-t`,
+            requestId: `${requestId}-d`,
           }),
         ]);
 
@@ -173,45 +251,16 @@ export function ColumnProfileDialog({
           setElapsed(profileRes.elapsed);
           return;
         }
-        if (isQueryErrorCode(topRes.code)) {
-          setError(topRes.message || t`Query failed`);
-          setElapsed(topRes.elapsed);
+        if (isQueryErrorCode(distRes.code)) {
+          setError(distRes.message || t`Query failed`);
+          setElapsed(distRes.elapsed);
           return;
         }
 
         const row = (profileRes.data?.[0] ?? {}) as Record<string, unknown>;
-        setStats({
-          total: toNumber(
-            pickField(row, ['total', 'TOTAL', 'Total']),
-          ),
-          nullCount: toNumber(
-            pickField(row, ['null_count', 'NULL_COUNT', 'Null_count']),
-          ),
-          distinctCount: toNumber(
-            pickField(row, [
-              'distinct_count',
-              'DISTINCT_COUNT',
-              'Distinct_count',
-            ]),
-          ),
-          minValue: pickField(row, ['min_value', 'MIN_VALUE', 'Min_value']),
-          maxValue: pickField(row, ['max_value', 'MAX_VALUE', 'Max_value']),
-        });
-
-        setTopRows(
-          (topRes.data ?? []).map((r) => {
-            const rec = r as Record<string, unknown>;
-            const value =
-              pickField(rec, ['value', 'VALUE', 'Value']) ??
-              Object.values(rec)[0];
-            const countRaw =
-              pickField(rec, ['count', 'COUNT', 'Count']) ??
-              Object.values(rec)[1] ??
-              0;
-            return { value, count: toNumber(countRaw) };
-          }),
-        );
-        setElapsed((profileRes.elapsed ?? 0) + (topRes.elapsed ?? 0));
+        setStats(parseProfileStats(row));
+        setRows(mapCountByRows(distRes.data ?? []));
+        setElapsed((profileRes.elapsed ?? 0) + (distRes.elapsed ?? 0));
       } catch (e) {
         if (!cancelled) {
           const msgText = e instanceof Error ? e.message : String(e);
@@ -234,11 +283,21 @@ export function ColumnProfileDialog({
       const rid = requestIdRef.current;
       if (rid === requestId) {
         void cancelQuery(`${rid}-p`).catch(() => {});
-        void cancelQuery(`${rid}-t`).catch(() => {});
+        void cancelQuery(`${rid}-d`).catch(() => {});
         requestIdRef.current = null;
       }
     };
-  }, [open, column, context, sqlWhere, t]);
+  }, [
+    open,
+    column,
+    kind,
+    context,
+    sqlWhere,
+    computedColumns,
+    dbId,
+    sourceSql,
+    t,
+  ]);
 
   const columnSchema = useMemo(
     () => (column ? findSchemaColumn(columns, column) : undefined),
@@ -251,15 +310,28 @@ export function ColumnProfileDialog({
     [beautify, columnSchema, precision],
   );
 
+  const handleFilterRow = useCallback(
+    (record: Record<string, unknown>) => {
+      if (!onFilterByValue) return;
+      onFilterByValue(record.__raw);
+      onOpenChange(false);
+    },
+    [onFilterByValue, onOpenChange],
+  );
+
   const nullPct =
     stats && stats.total > 0
       ? ((stats.nullCount / stats.total) * 100).toFixed(2)
       : '0';
 
-  const displayTop = topRows.map((r) => ({
-    value: formatValue(r.value),
-    count: r.count,
-  }));
+  const allRowsTotal = stats?.total ?? 0;
+  const displayRows = toCountByDisplayRows(rows, allRowsTotal, formatValue).map(
+    (row, index) => ({
+      ...row,
+      __raw: rows[index]?.value,
+    }),
+  );
+  const capped = displayRows.length >= DISTRIBUTION_LIMIT;
 
   return (
     <Dialog
@@ -304,9 +376,7 @@ export function ColumnProfileDialog({
               <StatCard
                 label={t`Nulls`}
                 value={
-                  stats
-                    ? `${stats.nullCount} (${nullPct}%)`
-                    : '—'
+                  stats ? `${stats.nullCount} (${nullPct}%)` : '—'
                 }
               />
               <StatCard
@@ -330,25 +400,72 @@ export function ColumnProfileDialog({
                 }
               />
             </div>
-            <div className="flex shrink-0 items-center justify-between text-xs text-muted-foreground">
-              <span>
-                <Trans>Top values</Trans>
-              </span>
-              {elapsed != null ? (
+            <div className="flex shrink-0 flex-col gap-1 text-xs text-muted-foreground">
+              <div className="flex items-center justify-between">
                 <span>
-                  <Trans>elapsed: {elapsed}ms</Trans>
+                  {capped ? (
+                    <Trans>
+                      {displayRows.length} distinct value(s) (capped at 1000)
+                    </Trans>
+                  ) : (
+                    <Trans>{displayRows.length} distinct value(s)</Trans>
+                  )}
+                </span>
+                {elapsed != null ? (
+                  <span>
+                    <Trans>elapsed: {elapsed}ms</Trans>
+                  </span>
+                ) : null}
+              </div>
+              {capped ? (
+                <span>
+                  <Trans>
+                    Percent is relative to all matching rows ({allRowsTotal});
+                    shown groups may sum to less than 100%.
+                  </Trans>
                 </span>
               ) : null}
             </div>
-            <div className="min-h-0 flex-1 overflow-hidden rounded-md border">
-              {displayTop.length === 0 ? (
-                <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-                  <Trans>No rows</Trans>
-                </div>
-              ) : (
-                <SimpleTable data={displayTop} />
-              )}
-            </div>
+            <Tabs defaultValue="table" className="min-h-0 flex-1 flex flex-col">
+              <TabsList variant="line" className="shrink-0">
+                <TabsTrigger value="table">
+                  <Trans>Table</Trans>
+                </TabsTrigger>
+                <TabsTrigger value="chart">
+                  <Trans>Chart</Trans>
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent
+                value="table"
+                className="min-h-0 flex-1 overflow-hidden rounded-md border mt-2"
+              >
+                {displayRows.length === 0 ? (
+                  <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
+                    <Trans>No rows</Trans>
+                  </div>
+                ) : (
+                  <SimpleTable
+                    data={displayRows}
+                    filterField="value"
+                    onFilterByValue={
+                      onFilterByValue ? handleFilterRow : undefined
+                    }
+                  />
+                )}
+              </TabsContent>
+              <TabsContent
+                value="chart"
+                className="min-h-0 flex-1 overflow-auto rounded-md border mt-2 p-2"
+              >
+                <SimpleBarChart
+                  data={displayRows.slice(0, 30).map((r) => ({
+                    label: r.value,
+                    value: r.count,
+                  }))}
+                  height={360}
+                />
+              </TabsContent>
+            </Tabs>
           </>
         )}
       </div>
@@ -372,5 +489,3 @@ function StatCard({
     </div>
   );
 }
-
-void msg`Column profile`;

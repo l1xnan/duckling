@@ -38,8 +38,7 @@ export type TableDataPanelProps = {
     columnName: string,
     options?: { desc?: boolean; clear?: boolean },
   ) => void;
-  onCountByColumn?: (columnName: string) => void;
-  onProfileColumn?: (columnName: string) => void;
+  onColumnProfile?: (columnName: string) => void;
   onPivotColumn?: (columnName: string) => void;
   onDrillDown?: (columnName: string, value: unknown) => void;
   beforeTable?: ReactNode;
@@ -63,8 +62,7 @@ export function TableDataPanel({
   setShowValue,
   setDirection,
   onOrderByColumn,
-  onCountByColumn,
-  onProfileColumn,
+  onColumnProfile,
   onPivotColumn,
   onDrillDown,
   beforeTable,
@@ -120,8 +118,7 @@ export function TableDataPanel({
                 cross={cross}
                 onSelectedCell={onSelectedCell}
                 onSelectedCellInfos={onSelectedCellInfos}
-                onCountByColumn={onCountByColumn}
-                onProfileColumn={onProfileColumn}
+                onColumnProfile={onColumnProfile}
                 onPivotColumn={onPivotColumn}
                 onOrderByColumn={onOrderByColumn}
                 onDrillDown={onDrillDown}

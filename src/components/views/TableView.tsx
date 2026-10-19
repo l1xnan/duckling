@@ -36,7 +36,6 @@ import { TabContextType, TableContextType, useTabsStore } from '@/stores/tabs';
 
 import { ColumnProfileDialog } from './ColumnProfileDialog';
 import { ComputedColumnsDialog } from './ComputedColumnsDialog';
-import { CountByColumnDialog } from './CountByColumnDialog';
 import { DataViewToolbar } from './DataViewToolbar';
 import { PivotDialog } from './PivotDialog';
 import { TableDataPanel } from './TableDataPanel';
@@ -85,14 +84,12 @@ export function TableView({ context }: { context: TabContextType }) {
   const sqlWhere = usePageStore((s) => s.sqlWhere);
   const hiddenColumns = usePageStore((s) => s.hiddenColumns);
   const computedColumns = usePageStore((s) => s.computedColumns);
-  const dialogColumn = usePageStore((s) => s.dialogColumn);
   const setBeautify = usePageStore((s) => s.setBeautify);
   const setPagination = usePageStore((s) => s.setPagination);
   const setTranspose = usePageStore((s) => s.setTranspose);
   const setHiddenColumns = usePageStore((s) => s.setHiddenColumns);
   const setComputedColumns = usePageStore((s) => s.setComputedColumns);
   const setCross = usePageStore((s) => s.setCross);
-  const setDialogColumn = usePageStore((s) => s.setDialogColumn);
   const setSQLWhere = usePageStore((s) => s.setSQLWhere);
 
   const currentTab = useTabsStore((s) => s.currentId);
@@ -112,7 +109,6 @@ export function TableView({ context }: { context: TabContextType }) {
   }, [context.id, currentTab, refresh]);
   const precision = usePrecision();
 
-  const countByDialog = useDialog();
   const profileDialog = useDialog();
   const pivotDialog = useDialog();
   const computedColumnsDialog = useDialog();
@@ -173,10 +169,10 @@ export function TableView({ context }: { context: TabContextType }) {
 
   const handleFilterCountValue = useCallback(
     (value: unknown) => {
-      if (!dialogColumn) return;
-      handleDrillDown(dialogColumn, value);
+      if (!profileColumn) return;
+      handleDrillDown(profileColumn, value);
     },
-    [dialogColumn, handleDrillDown],
+    [profileColumn, handleDrillDown],
   );
 
   const handleCancel = useCallback(async () => {
@@ -187,16 +183,7 @@ export function TableView({ context }: { context: TabContextType }) {
     }
   }, [cancelRefresh]);
 
-  const handleCountByColumn = useCallback(
-    (col?: string) => {
-      if (!col) return;
-      setDialogColumn(col);
-      countByDialog.trigger();
-    },
-    [countByDialog, setDialogColumn],
-  );
-
-  const handleProfileColumn = useCallback(
+  const handleColumnProfile = useCallback(
     (col?: string) => {
       if (!col) return;
       setProfileColumn(col.replace(/\s*[↑↓]\s*$/, '').trim());
@@ -277,8 +264,7 @@ export function TableView({ context }: { context: TabContextType }) {
         direction={direction}
         setShowValue={setShowValue}
         setDirection={setDirection}
-        onCountByColumn={handleCountByColumn}
-        onProfileColumn={handleProfileColumn}
+        onColumnProfile={handleColumnProfile}
         onPivotColumn={handlePivotColumn}
         onOrderByColumn={handleOrderByColumn}
         onDrillDown={handleDrillDown}
@@ -286,25 +272,16 @@ export function TableView({ context }: { context: TabContextType }) {
           <InputToolbar context={tableContext} schema={tableSchema ?? []} />
         }
       />
-      <CountByColumnDialog
-        {...countByDialog.props}
-        column={dialogColumn}
-        context={tableContext}
-        sqlWhere={sqlWhere}
-        computedColumns={computedColumns}
-        rowTotal={total}
-        columns={tableSchema}
-        beautify={beautify}
-        onFilterByValue={handleFilterCountValue}
-      />
       <ColumnProfileDialog
         {...profileDialog.props}
+        kind="table"
         column={profileColumn}
         context={tableContext}
         sqlWhere={sqlWhere}
         computedColumns={computedColumns}
         columns={tableSchema}
         beautify={beautify}
+        onFilterByValue={handleFilterCountValue}
       />
       <PivotDialog
         {...pivotDialog.props}

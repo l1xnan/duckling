@@ -71,12 +71,6 @@ export const iconSortClear = lucideSvg(
     '<path d="m15 9 6 6"/><path d="m21 9-6 6"/>',
 );
 
-/** ChartColumn — count by column. */
-export const iconCountBy = lucideSvg(
-  '<path d="M3 3v16a2 2 0 0 0 2 2h16"/>' +
-    '<path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
-);
-
 /** LayoutGrid — pivot table. */
 export const iconPivot = lucideSvg(
   '<rect width="7" height="7" x="3" y="3" rx="1"/>' +

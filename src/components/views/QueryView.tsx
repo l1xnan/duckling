@@ -25,7 +25,7 @@ import {
   type QueryContextType,
 } from '@/stores/tabs';
 
-import { CountByQueryDialog } from './CountByQueryDialog';
+import { ColumnProfileDialog } from './ColumnProfileDialog';
 import { DataViewToolbar } from './DataViewToolbar';
 import { PivotDialog } from './PivotDialog';
 import { TableDataPanel } from './TableDataPanel';
@@ -178,9 +178,9 @@ export function QueryView({
   const precision = usePrecision();
 
   const [resultFilter, setResultFilter] = useState('');
-  const [countColumn, setCountColumn] = useState<string | undefined>();
+  const [profileColumn, setProfileColumn] = useState<string | undefined>();
   const [pivotRowField, setPivotRowField] = useState<string | undefined>();
-  const countByDialog = useDialog();
+  const profileDialog = useDialog();
   const pivotDialog = useDialog();
 
   const handleRefresh = useCallback(async () => {
@@ -239,27 +239,27 @@ export function QueryView({
     });
   }, [direction, patch]);
 
-  const handleCountByColumn = useCallback(
+  const handleColumnProfile = useCallback(
     (col?: string) => {
       if (!col) return;
-      setCountColumn(col.replace(/\s*[↑↓]\s*$/, '').trim());
-      countByDialog.trigger();
+      setProfileColumn(col.replace(/\s*[↑↓]\s*$/, '').trim());
+      profileDialog.trigger();
     },
-    [countByDialog],
+    [profileDialog],
   );
 
   const handleFilterCountValue = useCallback(
     (value: unknown) => {
-      if (!countColumn) return;
+      if (!profileColumn) return;
       const current = getQueryChild(editorId, queryId);
       if (!current?.stmt?.trim()) return;
       const dialect = getDatabase(current.dbId)?.dialect ?? 'generic';
-      const predicate = buildCellPredicate(countColumn, value, dialect);
+      const predicate = buildCellPredicate(profileColumn, value, dialect);
       queryWhereRef.current = mergeWhere(queryWhereRef.current, predicate);
       patch({ page: 1 });
       void handleQuery({ ...current, page: 1 });
     },
-    [countColumn, editorId, handleQuery, patch, queryId],
+    [profileColumn, editorId, handleQuery, patch, queryId],
   );
 
   const handlePivotColumn = useCallback(
@@ -328,7 +328,7 @@ export function QueryView({
         direction={direction}
         setShowValue={handleShowValue}
         setDirection={handleSetDirection}
-        onCountByColumn={handleCountByColumn}
+        onColumnProfile={handleColumnProfile}
         onPivotColumn={handlePivotColumn}
         emptyOverlay={
           showErrorOnly ? (
@@ -336,12 +336,12 @@ export function QueryView({
           ) : undefined
         }
       />
-      <CountByQueryDialog
-        {...countByDialog.props}
-        column={countColumn}
+      <ColumnProfileDialog
+        {...profileDialog.props}
+        kind="query"
+        column={profileColumn}
         dbId={ctx.dbId}
         sourceSql={ctx.sql || ctx.stmt || ''}
-        rowTotal={ctx.total}
         columns={ctx.tableSchema}
         beautify={ctx.beautify}
         onFilterByValue={handleFilterCountValue}

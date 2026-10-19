@@ -22,14 +22,12 @@ msgid "(empty)"
 msgstr "(empty)"
 
 #. placeholder {0}: displayRows.length
-#: src/components/views/CountByColumnDialog.tsx:286
-#: src/components/views/CountByQueryDialog.tsx:253
+#: src/components/views/ColumnProfileDialog.tsx:411
 msgid "{0} distinct value(s)"
 msgstr "{0} distinct value(s)"
 
 #. placeholder {0}: displayRows.length
-#: src/components/views/CountByColumnDialog.tsx:282
-#: src/components/views/CountByQueryDialog.tsx:249
+#: src/components/views/ColumnProfileDialog.tsx:407
 msgid "{0} distinct value(s) (capped at 1000)"
 msgstr "{0} distinct value(s) (capped at 1000)"
 
@@ -139,7 +137,7 @@ msgstr "Add field…"
 msgid "Add SQL select items with an alias, for example <0>a + 1 AS a1</0>. Filtering follows your database’s SQL rules: aliases are often unavailable in WHERE (use the full expression); ORDER BY may accept aliases depending on the dialect."
 msgstr "Add SQL select items with an alias, for example <0>a + 1 AS a1</0>. Filtering follows your database’s SQL rules: aliases are often unavailable in WHERE (use the full expression); ORDER BY may accept aliases depending on the dialect."
 
-#: src/components/tables/CanvasTable.tsx:108
+#: src/components/tables/CanvasTable.tsx:104
 msgid "Advanced copy"
 msgstr "Advanced copy"
 
@@ -261,8 +259,7 @@ msgstr "Card"
 msgid "Card foreground"
 msgstr "Card foreground"
 
-#: src/components/views/CountByColumnDialog.tsx:310
-#: src/components/views/CountByQueryDialog.tsx:277
+#: src/components/views/ColumnProfileDialog.tsx:435
 msgid "Chart"
 msgstr "Chart"
 
@@ -327,7 +324,7 @@ msgstr "Clear filter"
 msgid "Clear log"
 msgstr "Clear log"
 
-#: src/components/tables/CanvasTable.tsx:101
+#: src/components/tables/CanvasTable.tsx:98
 msgid "Clear pinned"
 msgstr "Clear pinned"
 
@@ -335,7 +332,7 @@ msgstr "Clear pinned"
 msgid "Clear search"
 msgstr "Clear search"
 
-#: src/components/tables/CanvasTable.tsx:461
+#: src/components/tables/CanvasTable.tsx:456
 msgid "Clear sort"
 msgstr "Clear sort"
 
@@ -390,13 +387,12 @@ msgstr "Collapse All"
 msgid "Color theme"
 msgstr "Color theme"
 
-#: src/components/tables/CanvasTable.tsx:104
-#: src/components/views/ColumnProfileDialog.tsx:274
-#: src/components/views/ColumnProfileDialog.tsx:376
+#: src/components/tables/CanvasTable.tsx:100
+#: src/components/views/ColumnProfileDialog.tsx:346
 msgid "Column profile"
 msgstr "Column profile"
 
-#: src/components/views/ColumnProfileDialog.tsx:270
+#: src/components/views/ColumnProfileDialog.tsx:342
 msgid "Column profile: <0>{column}</0>"
 msgstr "Column profile: <0>{column}</0>"
 
@@ -444,7 +440,8 @@ msgstr "Connection"
 msgid "Connection failed"
 msgstr "Connection failed"
 
-#: src/components/views/CountByQueryDialog.tsx:105
+#: src/components/views/ColumnProfileDialog.tsx:207
+#: src/components/views/ColumnProfileDialog.tsx:211
 #: src/components/views/PivotWorkbench.tsx:306
 msgid "Connection not found"
 msgstr "Connection not found"
@@ -458,35 +455,35 @@ msgstr "Connection properties"
 msgid "Connection successful"
 msgstr "Connection successful"
 
-#: src/components/custom/OpenAnythingDialog.tsx:59
+#: src/components/custom/OpenAnythingDialog.tsx:47
 msgid "Connections"
 msgstr "Connections"
 
-#: src/components/tables/CanvasTable.tsx:115
+#: src/components/tables/CanvasTable.tsx:111
 msgid "Copied"
 msgstr "Copied"
 
 #: src/components/PageTabs.tsx:201
-#: src/components/tables/CanvasTable.tsx:107
+#: src/components/tables/CanvasTable.tsx:103
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:98
 #: src/pages/sidebar/context-menu/SchemaContextMenu.tsx:51
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:311
 msgid "Copy"
 msgstr "Copy"
 
-#: src/components/tables/CanvasTable.tsx:109
+#: src/components/tables/CanvasTable.tsx:105
 msgid "Copy as CSV"
 msgstr "Copy as CSV"
 
-#: src/components/tables/CanvasTable.tsx:110
+#: src/components/tables/CanvasTable.tsx:106
 msgid "Copy as CSV with header"
 msgstr "Copy as CSV with header"
 
-#: src/components/tables/CanvasTable.tsx:113
+#: src/components/tables/CanvasTable.tsx:109
 msgid "Copy as HTML table"
 msgstr "Copy as HTML table"
 
-#: src/components/tables/CanvasTable.tsx:114
+#: src/components/tables/CanvasTable.tsx:110
 msgid "Copy as JSON"
 msgstr "Copy as JSON"
 
@@ -494,19 +491,19 @@ msgstr "Copy as JSON"
 msgid "Copy as Markdown"
 msgstr "Copy as Markdown"
 
-#: src/components/tables/CanvasTable.tsx:112
+#: src/components/tables/CanvasTable.tsx:108
 msgid "Copy as Markdown table"
 msgstr "Copy as Markdown table"
 
-#: src/components/tables/CanvasTable.tsx:111
+#: src/components/tables/CanvasTable.tsx:107
 msgid "Copy as TSV"
 msgstr "Copy as TSV"
 
-#: src/components/tables/CanvasTable.tsx:116
+#: src/components/tables/CanvasTable.tsx:112
 msgid "Copy failed"
 msgstr "Copy failed"
 
-#: src/components/tables/CanvasTable.tsx:98
+#: src/components/tables/CanvasTable.tsx:95
 msgid "Copy Field Name"
 msgstr "Copy Field Name"
 
@@ -525,28 +522,12 @@ msgstr "Copy selection"
 msgid "Copy SQL"
 msgstr "Copy SQL"
 
-#: src/components/views/ColumnProfileDialog.tsx:124
-#: src/components/views/CountByColumnDialog.tsx:121
+#: src/components/views/ColumnProfileDialog.tsx:166
+#: src/components/views/ColumnProfileDialog.tsx:180
 #: src/components/views/PivotWorkbench.tsx:324
 #: src/components/views/PivotWorkbench.tsx:339
 msgid "Could not resolve table for this view"
 msgstr "Could not resolve table for this view"
-
-#: src/components/views/CountByColumnDialog.tsx:250
-#: src/components/views/CountByQueryDialog.tsx:217
-msgid "Count by column"
-msgstr "Count by column"
-
-#: src/components/views/CountByColumnDialog.tsx:246
-#: src/components/views/CountByQueryDialog.tsx:213
-msgid "Count by column: <0>{column}</0>"
-msgstr "Count by column: <0>{column}</0>"
-
-#: src/components/tables/CanvasTable.tsx:103
-#: src/components/views/CountByColumnDialog.tsx:350
-#: src/components/views/CountByQueryDialog.tsx:316
-msgid "Count by this column"
-msgstr "Count by this column"
 
 #: src/pages/settings/SshProfilesForm.tsx:543
 msgid "Create"
@@ -607,7 +588,7 @@ msgstr "Database Explorer"
 msgid "Database tree"
 msgstr "Database tree"
 
-#: src/components/custom/OpenAnythingDialog.tsx:58
+#: src/components/custom/OpenAnythingDialog.tsx:46
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:242
 msgid "Databases"
 msgstr "Databases"
@@ -717,7 +698,7 @@ msgstr "Disable SSL"
 msgid "Discover new version: {0}"
 msgstr "Discover new version: {0}"
 
-#: src/components/views/ColumnProfileDialog.tsx:313
+#: src/components/views/ColumnProfileDialog.tsx:383
 msgid "Distinct"
 msgstr "Distinct"
 
@@ -756,9 +737,7 @@ msgstr "Editor Minimap"
 msgid "elapsed time: {0}"
 msgstr "elapsed time: {0}"
 
-#: src/components/views/ColumnProfileDialog.tsx:339
-#: src/components/views/CountByColumnDialog.tsx:291
-#: src/components/views/CountByQueryDialog.tsx:258
+#: src/components/views/ColumnProfileDialog.tsx:416
 #: src/components/views/PivotWorkbench.tsx:705
 msgid "elapsed: {elapsed}ms"
 msgstr "elapsed: {elapsed}ms"
@@ -917,7 +896,7 @@ msgstr "Failed to save connection secrets"
 msgid "Favorite"
 msgstr "Favorite"
 
-#: src/components/custom/OpenAnythingDialog.tsx:60
+#: src/components/custom/OpenAnythingDialog.tsx:48
 msgid "Favorites"
 msgstr "Favorites"
 
@@ -929,11 +908,11 @@ msgstr "Field"
 msgid "File path"
 msgstr "File path"
 
-#: src/components/custom/OpenAnythingDialog.tsx:57
+#: src/components/custom/OpenAnythingDialog.tsx:45
 msgid "Files"
 msgstr "Files"
 
-#: src/components/tables/CanvasTable.tsx:106
+#: src/components/tables/CanvasTable.tsx:102
 msgid "Filter by this value"
 msgstr "Filter by this value"
 
@@ -1059,7 +1038,7 @@ msgstr "Go to source"
 msgid "Help"
 msgstr "Help"
 
-#: src/components/tables/CanvasTable.tsx:102
+#: src/components/tables/CanvasTable.tsx:99
 msgid "Hidden column"
 msgstr "Hidden column"
 
@@ -1310,7 +1289,7 @@ msgstr "Master password"
 msgid "Master password (if file is encrypted)"
 msgstr "Master password (if file is encrypted)"
 
-#: src/components/views/ColumnProfileDialog.tsx:325
+#: src/components/views/ColumnProfileDialog.tsx:395
 msgid "Max"
 msgstr "Max"
 
@@ -1330,7 +1309,7 @@ msgstr "Memory diagnostics"
 msgid "Memory log cleared"
 msgstr "Memory log cleared"
 
-#: src/components/views/ColumnProfileDialog.tsx:317
+#: src/components/views/ColumnProfileDialog.tsx:387
 msgid "Min"
 msgstr "Min"
 
@@ -1429,7 +1408,7 @@ msgstr "No pivot SQL yet. Run the pivot first."
 msgid "No query history yet"
 msgstr "No query history yet"
 
-#: src/components/views/TableView.tsx:472
+#: src/components/views/TableView.tsx:449
 msgid "No recent ORDER BY clauses"
 msgstr "No recent ORDER BY clauses"
 
@@ -1438,17 +1417,15 @@ msgstr "No recent ORDER BY clauses"
 msgid "No recent searches"
 msgstr "No recent searches"
 
-#: src/components/views/TableView.tsx:440
+#: src/components/views/TableView.tsx:417
 msgid "No recent WHERE clauses"
 msgstr "No recent WHERE clauses"
 
-#: src/components/custom/OpenAnythingDialog.tsx:242
+#: src/components/custom/OpenAnythingDialog.tsx:218
 msgid "No results found."
 msgstr "No results found."
 
-#: src/components/views/ColumnProfileDialog.tsx:346
-#: src/components/views/CountByColumnDialog.tsx:319
-#: src/components/views/CountByQueryDialog.tsx:286
+#: src/components/views/ColumnProfileDialog.tsx:444
 #: src/components/views/PivotWorkbench.tsx:760
 msgid "No rows"
 msgstr "No rows"
@@ -1500,7 +1477,7 @@ msgstr "not selected"
 msgid "Notifications"
 msgstr "Notifications"
 
-#: src/components/views/ColumnProfileDialog.tsx:305
+#: src/components/views/ColumnProfileDialog.tsx:377
 msgid "Nulls"
 msgstr "Nulls"
 
@@ -1540,7 +1517,7 @@ msgstr "Only selected databases will be shown in the sidebar"
 msgid "Open"
 msgstr "Open"
 
-#: src/components/custom/OpenAnythingDialog.tsx:231
+#: src/components/custom/OpenAnythingDialog.tsx:207
 #: src/hotkeys/registry.ts:55
 msgid "Open anything"
 msgstr "Open anything"
@@ -1584,7 +1561,7 @@ msgstr "Open SQL editor"
 msgid "Open SQL folder"
 msgstr "Open SQL folder"
 
-#: src/components/tables/CanvasTable.tsx:782
+#: src/components/tables/CanvasTable.tsx:766
 msgid "Open table"
 msgstr "Open table"
 
@@ -1637,16 +1614,15 @@ msgstr "Path"
 msgid "pending"
 msgstr "pending"
 
-#: src/components/views/CountByColumnDialog.tsx:297
-#: src/components/views/CountByQueryDialog.tsx:264
+#: src/components/views/ColumnProfileDialog.tsx:422
 msgid "Percent is relative to all matching rows ({allRowsTotal}); shown groups may sum to less than 100%."
 msgstr "Percent is relative to all matching rows ({allRowsTotal}); shown groups may sum to less than 100%."
 
-#: src/components/tables/CanvasTable.tsx:99
+#: src/components/tables/CanvasTable.tsx:96
 msgid "Pin to left"
 msgstr "Pin to left"
 
-#: src/components/tables/CanvasTable.tsx:100
+#: src/components/tables/CanvasTable.tsx:97
 msgid "Pin to right"
 msgstr "Pin to right"
 
@@ -1661,7 +1637,7 @@ msgstr "Pivot"
 msgid "Pivot table"
 msgstr "Pivot table"
 
-#: src/components/tables/CanvasTable.tsx:105
+#: src/components/tables/CanvasTable.tsx:101
 msgid "Pivot with this column"
 msgstr "Pivot with this column"
 
@@ -1737,19 +1713,13 @@ msgstr "Proxy"
 msgid "Query"
 msgstr "Query"
 
-#: src/components/views/ColumnProfileDialog.tsx:219
-#: src/components/views/CountByColumnDialog.tsx:188
-#: src/components/views/CountByQueryDialog.tsx:157
+#: src/components/views/ColumnProfileDialog.tsx:268
 #: src/components/views/PivotWorkbench.tsx:445
 msgid "Query cancelled"
 msgstr "Query cancelled"
 
-#: src/components/views/ColumnProfileDialog.tsx:172
-#: src/components/views/ColumnProfileDialog.tsx:177
-#: src/components/views/CountByColumnDialog.tsx:154
-#: src/components/views/CountByColumnDialog.tsx:174
-#: src/components/views/CountByQueryDialog.tsx:127
-#: src/components/views/CountByQueryDialog.tsx:143
+#: src/components/views/ColumnProfileDialog.tsx:250
+#: src/components/views/ColumnProfileDialog.tsx:255
 #: src/components/views/PivotWorkbench.tsx:435
 msgid "Query failed"
 msgstr "Query failed"
@@ -1775,11 +1745,11 @@ msgstr "Read csv file parameters, see: <0>csv parameters</0>"
 msgid "Ready"
 msgstr "Ready"
 
-#: src/components/views/TableView.tsx:471
+#: src/components/views/TableView.tsx:448
 msgid "Recent ORDER BY"
 msgstr "Recent ORDER BY"
 
-#: src/components/views/TableView.tsx:470
+#: src/components/views/TableView.tsx:447
 msgid "Recent ORDER BY clauses"
 msgstr "Recent ORDER BY clauses"
 
@@ -1790,11 +1760,11 @@ msgstr "Recent ORDER BY clauses"
 msgid "Recent searches"
 msgstr "Recent searches"
 
-#: src/components/views/TableView.tsx:439
+#: src/components/views/TableView.tsx:416
 msgid "Recent WHERE"
 msgstr "Recent WHERE"
 
-#: src/components/views/TableView.tsx:438
+#: src/components/views/TableView.tsx:415
 msgid "Recent WHERE clauses"
 msgstr "Recent WHERE clauses"
 
@@ -2020,7 +1990,7 @@ msgstr "Schema"
 msgid "Search"
 msgstr "Search"
 
-#: src/components/custom/OpenAnythingDialog.tsx:232
+#: src/components/custom/OpenAnythingDialog.tsx:208
 msgid "Search databases, tables, favorites, and SQL files"
 msgstr "Search databases, tables, favorites, and SQL files"
 
@@ -2259,11 +2229,11 @@ msgstr "Some shortcuts share the same keys within a scope. Resolve conflicts by 
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
-#: src/components/tables/CanvasTable.tsx:451
+#: src/components/tables/CanvasTable.tsx:446
 msgid "Sort ascending"
 msgstr "Sort ascending"
 
-#: src/components/tables/CanvasTable.tsx:456
+#: src/components/tables/CanvasTable.tsx:451
 msgid "Sort descending"
 msgstr "Sort descending"
 
@@ -2287,7 +2257,7 @@ msgstr "Split Down"
 msgid "Split Right"
 msgstr "Split Right"
 
-#: src/components/custom/OpenAnythingDialog.tsx:61
+#: src/components/custom/OpenAnythingDialog.tsx:49
 #: src/pages/sidebar/Favorite.tsx:121
 msgid "SQL bookmarks"
 msgstr "SQL bookmarks"
@@ -2301,7 +2271,7 @@ msgstr "SQL copied"
 msgid "SQL Editor"
 msgstr "SQL Editor"
 
-#: src/components/custom/OpenAnythingDialog.tsx:63
+#: src/components/custom/OpenAnythingDialog.tsx:51
 msgid "SQL files"
 msgstr "SQL files"
 
@@ -2397,9 +2367,7 @@ msgstr "Statement split: current statement"
 msgid "Statement split: entire buffer"
 msgstr "Statement split: entire buffer"
 
-#: src/components/views/ColumnProfileDialog.tsx:293
-#: src/components/views/CountByColumnDialog.tsx:269
-#: src/components/views/CountByQueryDialog.tsx:236
+#: src/components/views/ColumnProfileDialog.tsx:365
 #: src/components/views/ExportDialog.tsx:415
 #: src/components/views/PivotWorkbench.tsx:742
 msgid "Stop"
@@ -2427,8 +2395,7 @@ msgid "Tab width"
 msgstr "Tab width"
 
 #: src/components/PageTabs.tsx:653
-#: src/components/views/CountByColumnDialog.tsx:307
-#: src/components/views/CountByQueryDialog.tsx:274
+#: src/components/views/ColumnProfileDialog.tsx:432
 msgid "Table"
 msgstr "Table"
 
@@ -2440,7 +2407,7 @@ msgstr "Table Font Family"
 msgid "Table Font Size"
 msgstr "Table Font Size"
 
-#: src/components/custom/OpenAnythingDialog.tsx:55
+#: src/components/custom/OpenAnythingDialog.tsx:43
 msgid "Tables"
 msgstr "Tables"
 
@@ -2462,7 +2429,7 @@ msgstr "Tabular right"
 msgid "Temporary Files"
 msgstr "Temporary Files"
 
-#: src/components/custom/OpenAnythingDialog.tsx:62
+#: src/components/custom/OpenAnythingDialog.tsx:50
 msgid "Temporary queries"
 msgstr "Temporary queries"
 
@@ -2512,11 +2479,7 @@ msgstr "Token"
 msgid "Too many combinations ({0}); limit is {limit}"
 msgstr "Too many combinations ({0}); limit is {limit}"
 
-#: src/components/views/ColumnProfileDialog.tsx:335
-msgid "Top values"
-msgstr "Top values"
-
-#: src/components/views/ColumnProfileDialog.tsx:303
+#: src/components/views/ColumnProfileDialog.tsx:375
 #: src/pages/settings/DiagnosticsPanel.tsx:284
 msgid "Total"
 msgstr "Total"
@@ -2550,7 +2513,7 @@ msgstr "TSV uses tab as delimiter."
 msgid "Turn this off to prevent the app from checking for updates."
 msgstr "Turn this off to prevent the app from checking for updates."
 
-#: src/components/custom/OpenAnythingDialog.tsx:237
+#: src/components/custom/OpenAnythingDialog.tsx:213
 msgid "Type to search…"
 msgstr "Type to search…"
 
@@ -2649,7 +2612,7 @@ msgstr "Values"
 msgid "Variable \"{name}\" requires at least one value"
 msgstr "Variable \"{name}\" requires at least one value"
 
-#: src/components/custom/OpenAnythingDialog.tsx:56
+#: src/components/custom/OpenAnythingDialog.tsx:44
 msgid "Views"
 msgstr "Views"
 
