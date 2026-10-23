@@ -38,7 +38,12 @@ export function formatSchemaScalar(
   if (out === null || out === undefined) {
     return '<null>';
   }
-  if (typeof out === 'number' && options.beautify && options.precision != null) {
+  if (
+    typeof out === 'number' &&
+    !Number.isInteger(out) &&
+    options.beautify &&
+    options.precision != null
+  ) {
     return formatAnalysisNumber(out, options) ?? String(out);
   }
   return String(out);
@@ -88,9 +93,13 @@ export function formatPivotDimensionRecords(
         next[field] = raw;
         continue;
       }
-      next[field] = col
-        ? formatSchemaScalar(raw, col, options)
-        : (formatAnalysisNumber(raw, options) ?? raw);
+      if (col) {
+        next[field] = formatSchemaScalar(raw, col, options);
+      } else if (typeof raw === 'number' && !Number.isInteger(raw)) {
+        next[field] = formatAnalysisNumber(raw, options) ?? raw;
+      } else {
+        next[field] = raw;
+      }
     }
     return next;
   });
