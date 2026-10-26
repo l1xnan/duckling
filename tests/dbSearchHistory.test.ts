@@ -30,10 +30,12 @@ import {
   MAX_DB_SEARCH_HISTORY,
   useDbSearchHistoryStore,
 } from '@/stores/dbSearchHistory';
+import { useColumnSearchHistoryStore } from '@/stores/columnSearchHistory';
 
 beforeEach(() => {
   memory.clear();
   useDbSearchHistoryStore.setState({ terms: [] });
+  useColumnSearchHistoryStore.setState({ terms: [] });
 });
 
 describe('dbSearchHistory', () => {
@@ -102,5 +104,16 @@ describe('dbSearchHistory', () => {
     );
     await useDbSearchHistoryStore.persist.rehydrate();
     expect(useDbSearchHistoryStore.getState().terms).toEqual(['orders']);
+  });
+
+  it('keeps column search history separate from db search history', () => {
+    useDbSearchHistoryStore.getState().push('users');
+    useColumnSearchHistoryStore.getState().push('created_at');
+
+    expect(useDbSearchHistoryStore.getState().terms).toEqual(['users']);
+    expect(useColumnSearchHistoryStore.getState().terms).toEqual([
+      'created_at',
+    ]);
+    expect(memory.get('column-search-history')).toBeTruthy();
   });
 });

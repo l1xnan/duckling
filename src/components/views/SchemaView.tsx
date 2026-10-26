@@ -14,7 +14,7 @@ import { Loading } from '@/components/views/TableView';
 import { connectionRef } from '@/lib/connectionRef';
 import { fileListDefaults, schemaTableDefaultsFor, sizeColumnFormatters } from '@/lib/schemaColumns';
 import { useConnection } from '@/stores/dbList';
-import { useDbSearchHistoryStore } from '@/stores/dbSearchHistory';
+import { useColumnSearchHistoryStore } from '@/stores/columnSearchHistory';
 import { SchemaContextType, TableContextType, useTabsStore } from '@/stores/tabs';
 
 import { SimpleTable } from '../tables/CanvasTable';
@@ -116,10 +116,10 @@ function SchemaToolbar({
   setHiddenColumns: (col: string, hidden: boolean) => void;
 }) {
   const { t } = useLingui();
-  const history = useDbSearchHistoryStore((s) => s.terms);
-  const pushHistory = useDbSearchHistoryStore((s) => s.push);
-  const removeHistory = useDbSearchHistoryStore((s) => s.remove);
-  const clearHistory = useDbSearchHistoryStore((s) => s.clear);
+  const history = useColumnSearchHistoryStore((s) => s.terms);
+  const pushHistory = useColumnSearchHistoryStore((s) => s.push);
+  const removeHistory = useColumnSearchHistoryStore((s) => s.remove);
+  const clearHistory = useColumnSearchHistoryStore((s) => s.clear);
 
   const commitSearch = (term: string) => {
     const text = term.trim();
