@@ -14,6 +14,7 @@ Build pivots from **row dimensions**, **column dimensions**, and **measures** (`
 - **Copy-SQL support** — export the pivot definition as SQL for reuse or inspection.
 - **Show as** — after running, switch the result grid to **values**, **% of row**, or **% of column** (frontend-only; does not change the SQL). Each measure is normalized independently. If the query hits the **5000** group cap, percentages are relative to the returned groups only.
 - **Column header sort** — click a column dimension header (or corner title) or measure column header to sort (asc / desc / clear). Sorting uses the currently displayed values (including percent mode) and does not re-query. Column dimensions default to stable ascending order.
+- **Resizable dialog** — drag any edge or corner to resize the pivot dialog. The size resets when the app restarts.
 
 ## Column profile
 
@@ -25,6 +26,7 @@ Open **Column profile** from the column header menu in table browse and query re
 - **Cap** — the table lists the top **1000** distinct values by count. When capped, a note explains that percent is still relative to **all** matching rows, so the shown groups may sum to less than 100%. When not capped, group percents should add up to about 100%.
 - **Chart** — the bar chart plots **count** (not percent) for the first 30 groups.
 - **Context menu** — right-click the result table to **Copy** or **Copy as CSV**. On the **value** column, **Filter by this value** adds that raw value to the parent SQL (`column = value`, or `IS NULL`) and refreshes. Table browse appends the predicate to **WHERE**. Query results keep the original statement and re-run it inside a filtered subquery.
+- **Resizable dialog** — drag any edge or corner to resize the profile dialog. The size resets when the app restarts.
 
 ## Value viewer
 

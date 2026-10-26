@@ -346,7 +346,12 @@ export function ColumnProfileDialog(props: ColumnProfileDialogProps) {
           <Trans>Column profile</Trans>
         )
       }
-      className="min-w-[min(720px,90vw)] h-[min(560px,90vh)]"
+      resizable={{
+        defaultWidth: 720,
+        defaultHeight: 560,
+        minWidth: 480,
+        minHeight: 360,
+      }}
     >
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden pt-2">
         {sql ? <SqlPreview sql={sql} /> : null}

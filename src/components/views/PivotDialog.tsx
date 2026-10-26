@@ -52,7 +52,12 @@ export function PivotDialog({
       open={open}
       onOpenChange={onOpenChange}
       title={<Trans>Pivot table</Trans>}
-      className="min-w-[min(960px,95vw)] h-[min(720px,92vh)] max-h-[min(720px,92vh)]"
+      resizable={{
+        defaultWidth: 960,
+        defaultHeight: 720,
+        minWidth: 640,
+        minHeight: 480,
+      }}
     >
       {open ? (
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden pt-2">
