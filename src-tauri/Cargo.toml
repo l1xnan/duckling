@@ -46,6 +46,10 @@ rand = "0.8"
 minijinja = { version = "3", features = ["serde"] }
 serde_yaml = "0.9"
 
+[target."cfg(windows)".dependencies]
+webview2-com = "0.39"
+windows-core = "0.62"
+
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
 tauri-plugin-updater = "^2.11.0"
 reqwest = { version = "0.13", default-features = false, features = [

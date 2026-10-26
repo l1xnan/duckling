@@ -93,6 +93,37 @@ fn handle_file_associations(app: AppHandle, files: Vec<PathBuf>) {
   app.state::<OpenedFiles>().0.lock().unwrap().replace(files);
 }
 
+#[cfg(windows)]
+fn disable_webview_autofill(app: &tauri::App) -> tauri::Result<()> {
+  use tauri::Manager;
+  use webview2_com::Microsoft::Web::WebView2::Win32::ICoreWebView2Settings4;
+  use windows_core::Interface;
+
+  let Some(window) = app.get_webview_window("main") else {
+    return Ok(());
+  };
+
+  window.with_webview(|webview| unsafe {
+    let Ok(core) = webview.controller().CoreWebView2() else {
+      return;
+    };
+    let Ok(settings) = core.Settings() else {
+      return;
+    };
+    let Ok(settings) = settings.cast::<ICoreWebView2Settings4>() else {
+      log::warn!("WebView2 runtime does not expose autofill settings");
+      return;
+    };
+
+    if let Err(err) = settings.SetIsGeneralAutofillEnabled(false) {
+      log::warn!("failed to disable WebView2 autofill: {err}");
+    }
+    if let Err(err) = settings.SetIsPasswordAutosaveEnabled(false) {
+      log::warn!("failed to disable WebView2 password autosave: {err}");
+    }
+  })
+}
+
 fn handle_updater(app: &mut tauri::App) -> tauri::Result<()> {
   #[cfg(desktop)]
   app
@@ -133,6 +164,9 @@ fn main() {
 
       #[cfg(any(windows, target_os = "linux"))]
       handle_open_files(app);
+
+      #[cfg(windows)]
+      let _ = disable_webview_autofill(app);
 
       let _ = handle_updater(app);
 
