@@ -108,7 +108,7 @@ export function Pagination({
           props?.onChange(page, pageSize);
         }}
       />
-      <span className="mr-1 text-xs">
+      <span className="mr-1 shrink-0 whitespace-nowrap text-xs">
         {count < total ? t`of ${total}` : null}
       </span>
       <TooltipButton
