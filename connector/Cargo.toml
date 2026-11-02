@@ -8,10 +8,10 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 parquet = "60"
 arrow = { version = "60", features = ["prettyprint", "csv"] }
-duckdb = { version = "1.20000.0" }
+duckdb = { version = "1.20000.1" }
 futures-util = "0.3"
 rust_decimal = { version = "1", features = ["db-tokio-postgres"] }
-rusqlite = { version = "^0.40.1", features = [
+rusqlite = { version = "^0.41.1", features = [
   "bundled",
   "column_decltype",
   "modern_sqlite",

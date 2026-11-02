@@ -45,7 +45,6 @@ fn make_builder(data_type: &DataType) -> Box<dyn ArrayBuilder> {
 pub fn db_result_to_arrow(stmt: &mut Statement) -> anyhow::Result<arrow::record_batch::RecordBatch> {
   let data_types: Vec<DataType> = stmt
     .columns()
-    .iter()
     .map(|col| db_to_arrow_type(col.decl_type()))
     .collect();
 

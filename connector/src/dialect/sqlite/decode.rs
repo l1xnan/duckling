@@ -67,15 +67,13 @@ fn value_to_cell(val: &Value, kind: LogicalKind) -> PreviewCell {
 
 /// Decode a prepared statement result into [`PreviewGrid`].
 pub fn statement_to_grid(stmt: &mut Statement, sql: &str) -> anyhow::Result<PreviewGrid> {
-  let names: Vec<String> = stmt.column_names().iter().map(|s| s.to_string()).collect();
+  let names: Vec<String> = stmt.column_names().map(|s| s.to_string()).collect();
   let kinds: Vec<LogicalKind> = stmt
     .columns()
-    .iter()
     .map(|c| decl_to_kind(c.decl_type()))
     .collect();
   let native_types: Vec<String> = stmt
     .columns()
-    .iter()
     .map(|c| c.decl_type().unwrap_or("").to_string())
     .collect();
 
