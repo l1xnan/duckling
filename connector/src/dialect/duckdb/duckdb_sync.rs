@@ -3,28 +3,106 @@ use crate::utils::{Table, Title, TreeNode, build_tree, get_file_name};
 use arrow::array::RecordBatch;
 use arrow::datatypes::DataType;
 use arrow::datatypes::FieldRef;
+use duckdb::ffi;
 use std::collections::HashMap;
+use std::ffi::{CStr, CString};
 use std::fmt;
+use std::os::raw::c_char;
+use std::ptr;
+use std::sync::OnceLock;
+
+/// DuckDB opens database files with an exclusive OS lock, so opening the same
+/// file twice (even in one process) fails. All file connections go through one
+/// process-wide instance cache instead, which keeps a single database instance
+/// and lets each operation use its own SQL session.
+fn instance_cache() -> ffi::duckdb_instance_cache {
+  // Held as `usize` so the `OnceLock` stays `Sync`; DuckDB's cache is thread-safe.
+  static CACHE: OnceLock<usize> = OnceLock::new();
+  *CACHE.get_or_init(|| unsafe { ffi::duckdb_create_instance_cache() as usize })
+    as ffi::duckdb_instance_cache
+}
+
+#[derive(Debug)]
+struct CachedDatabase(ffi::duckdb_database);
+
+unsafe impl Send for CachedDatabase {}
+
+impl Drop for CachedDatabase {
+  fn drop(&mut self) {
+    if !self.0.is_null() {
+      unsafe { ffi::duckdb_close(&mut self.0) };
+    }
+  }
+}
+
+fn open_shared(path: &str) -> duckdb::Result<(duckdb::Connection, CachedDatabase)> {
+  let c_path = CString::new(path)?;
+  let mut db: ffi::duckdb_database = ptr::null_mut();
+  let mut err: *mut c_char = ptr::null_mut();
+  let state = unsafe {
+    ffi::duckdb_get_or_create_from_cache(
+      instance_cache(),
+      c_path.as_ptr(),
+      &mut db,
+      ptr::null_mut(),
+      &mut err,
+    )
+  };
+  if state != ffi::DuckDBSuccess {
+    let message = if err.is_null() {
+      None
+    } else {
+      let message = unsafe { CStr::from_ptr(err) }
+        .to_string_lossy()
+        .into_owned();
+      unsafe { ffi::duckdb_free(err as *mut std::ffi::c_void) };
+      Some(message)
+    };
+    return Err(duckdb::Error::DuckDBFailure(
+      ffi::Error::new(state),
+      message,
+    ));
+  }
+  let inner = match unsafe { duckdb::Connection::open_from_raw(db) } {
+    Ok(inner) => inner,
+    Err(error) => {
+      unsafe { ffi::duckdb_close(&mut db) };
+      return Err(error);
+    }
+  };
+  Ok((inner, CachedDatabase(db)))
+}
 
 #[derive(Debug)]
 pub struct DuckDbSyncConnection {
   pub(crate) inner: duckdb::Connection,
+  /// Keeps the shared instance alive until `inner` is dropped.
+  _db: Option<CachedDatabase>,
   pub path: String,
   pub cwd: Option<String>,
 }
 
 impl DuckDbSyncConnection {
   pub(crate) fn new(path: Option<String>, cwd: Option<String>) -> duckdb::Result<Self> {
-    let cfg = duckdb::Config::default();
     let path = path.unwrap_or(":memory:".to_string());
-    let inner = duckdb::Connection::open_with_flags(&path, cfg)?;
+    let (inner, db) = if path.is_empty() || path == ":memory:" {
+      (duckdb::Connection::open_in_memory()?, None)
+    } else {
+      let (inner, db) = open_shared(&path)?;
+      (inner, Some(db))
+    };
     if let Some(_cwd) = cwd.clone() {
       inner.execute(
         format!("SET file_search_path='{_cwd}'").as_str(),
         duckdb::params![],
       )?;
     }
-    Ok(Self { path, inner, cwd })
+    Ok(Self {
+      path,
+      inner,
+      _db: db,
+      cwd,
+    })
   }
 
   pub(crate) fn show_schema(&self, schema: &str) -> anyhow::Result<RecordBatch> {
@@ -475,4 +553,83 @@ fn export_csv_streams_without_materializing_preview() {
   assert!(content.contains("id") || content.contains("1"));
   assert!(content.contains("hello"));
   let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn shares_one_instance_per_duckdb_file() {
+  let dir = std::env::temp_dir().join(format!("duckling_duckdb_shared_{}", nanoid::nanoid!(8)));
+  let _ = std::fs::create_dir_all(&dir);
+  let path = dir.join("shared.duckdb").to_string_lossy().to_string();
+
+  let first = DuckDbSyncConnection::new(Some(path.clone()), None).unwrap();
+  first
+    .inner
+    .execute_batch("create table t(i integer); insert into t values (1)")
+    .unwrap();
+
+  // Holding the first connection open used to hit the exclusive file lock.
+  let second = DuckDbSyncConnection::new(Some(path.clone()), None).unwrap();
+  let count: i64 = second
+    .inner
+    .query_row("select count(*) from t", [], |row| row.get(0))
+    .unwrap();
+  assert_eq!(count, 1);
+
+  drop(first);
+  drop(second);
+
+  // The file is released once the last connection is gone.
+  let third = DuckDbSyncConnection::new(Some(path), None).unwrap();
+  let count: i64 = third
+    .inner
+    .query_row("select count(*) from t", [], |row| row.get(0))
+    .unwrap();
+  assert_eq!(count, 1);
+  drop(third);
+
+  let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn concurrent_connections_share_one_duckdb_file() {
+  let dir = std::env::temp_dir().join(format!("duckling_duckdb_parallel_{}", nanoid::nanoid!(8)));
+  let _ = std::fs::create_dir_all(&dir);
+  let path = dir.join("parallel.duckdb").to_string_lossy().to_string();
+
+  let seed = DuckDbSyncConnection::new(Some(path.clone()), None).unwrap();
+  seed
+    .inner
+    .execute_batch("create table t(i integer); insert into t values (1), (2)")
+    .unwrap();
+  drop(seed);
+
+  let handles: Vec<_> = (0..4)
+    .map(|_| {
+      let path = path.clone();
+      std::thread::spawn(move || -> Result<i64, String> {
+        let conn = DuckDbSyncConnection::new(Some(path), None).map_err(|e| e.to_string())?;
+        conn
+          .inner
+          .query_row("select count(*) from t", [], |row| row.get(0))
+          .map_err(|e| e.to_string())
+      })
+    })
+    .collect();
+
+  for handle in handles {
+    assert_eq!(handle.join().unwrap().unwrap(), 2);
+  }
+
+  let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn in_memory_connections_stay_isolated() {
+  let first = DuckDbSyncConnection::new(None, None).unwrap();
+  let second = DuckDbSyncConnection::new(None, None).unwrap();
+  first
+    .inner
+    .execute_batch("create table only_in_first(i integer)")
+    .unwrap();
+  assert!(second.inner.prepare("select * from only_in_first").is_err());
 }
