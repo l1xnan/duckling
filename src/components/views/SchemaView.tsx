@@ -5,6 +5,7 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import { find, listFiles, showColumns, showSchema } from '@/api';
+import { ToolbarContainer } from '@/components/Toolbar';
 import { SearchInput } from '@/components/custom/search';
 import { TooltipButton } from '@/components/custom/tooltip';
 import { Label } from '@/components/custom/ui/label';
@@ -131,7 +132,7 @@ function SchemaToolbar({
   };
 
   return (
-    <div className="h-8 flex flex-row items-center gap-1 px-1">
+    <ToolbarContainer contentClassName="min-w-40 justify-start gap-1 px-1">
       <SearchInput
         value={search}
         onChange={(e) => {
@@ -142,7 +143,7 @@ function SchemaToolbar({
             commitSearch(search);
           }
         }}
-        className="h-7 w-80 shrink-0 border"
+        className="h-7 min-w-0 max-w-80 flex-1 border"
         history={{
           terms: history,
           ariaLabel: t`Recent searches`,
@@ -154,7 +155,7 @@ function SchemaToolbar({
         }}
       />
 
-      <div className="flex items-center">
+      <div className="flex shrink-0 items-center">
         {columnKeys.length > 0 ? (
           <Popover>
             <PopoverTrigger
@@ -185,7 +186,7 @@ function SchemaToolbar({
           <RefreshCw className="h-4 w-4" />
         </Button>
       </div>
-    </div>
+    </ToolbarContainer>
   );
 }
 

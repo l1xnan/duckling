@@ -100,9 +100,14 @@ export function SideToolbar({
   const d = useDialog();
   return (
     <>
-      <div className="h-8 min-h-8 w-full px-2 flex items-center justify-between border-b">
-        <div className="font-semibold text-sm">{t`Database Explorer`}</div>
-        <div className="flex items-center">
+      <ToolbarContainer contentClassName="min-w-32 gap-1 px-2">
+        <div
+          className="min-w-0 flex-1 truncate font-semibold text-sm"
+          title={t`Database Explorer`}
+        >
+          {t`Database Explorer`}
+        </div>
+        <div className="flex shrink-0 items-center">
           <TooltipButton
             tooltip={t`Open anything (${openAnythingShortcut})`}
             onClick={() => setOpenAnythingOpen(true)}
@@ -123,7 +128,7 @@ export function SideToolbar({
             <LocateFixed />
           </TooltipButton>
         </div>
-      </div>
+      </ToolbarContainer>
       <ToolbarContainer>
         <Stack>
           <TooltipButton
