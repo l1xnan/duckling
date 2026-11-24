@@ -665,6 +665,13 @@ export async function listSqlDir(path: string): Promise<TreeNode> {
   return invoke<TreeNode>('list_sql_dir', { path });
 }
 
+export async function searchSqlContents(
+  paths: string[],
+  query: string,
+): Promise<string[]> {
+  return invoke<string[]>('search_sql_contents', { paths, query });
+}
+
 export async function readTextFile(path: string): Promise<string> {
   return invoke<string>('read_text_file', { path });
 }

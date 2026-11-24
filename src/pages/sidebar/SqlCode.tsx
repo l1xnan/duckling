@@ -1,11 +1,11 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import * as dialog from '@tauri-apps/plugin-dialog';
-import { useAtom, useSetAtom } from 'jotai';
-import { ChevronRight, Code2Icon, FolderClock, FolderIcon, FolderPlus, RefreshCw, XIcon } from 'lucide-react';
-import { Dispatch, ReactNode, SetStateAction, useCallback, useEffect, useState } from 'react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { ChevronRight, Code2Icon, FileSearch, FolderClock, FolderIcon, FolderPlus, RefreshCw, XIcon } from 'lucide-react';
+import { Dispatch, ReactNode, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import { listSqlDir } from '@/api';
+import { listSqlDir, searchSqlContents } from '@/api';
 import { openSqlWorkspaceFile } from '@/lib/openSqlWorkspaceFile';
 import { getTypeIcon } from '@/components/custom/Icons';
 import { SearchInput } from '@/components/custom/search';
@@ -21,13 +21,19 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/custom/ui/button';
+import { TooltipButton } from '@/components/custom/tooltip';
 import { migrateScratchSqlFromDocs } from '@/lib/migrateScratchSql';
 import {
   isScratchPath,
   readScratch,
   removeScratch,
 } from '@/lib/scratchSql';
-import { cn } from '@/lib/utils';
+import {
+  collectSqlFilePaths,
+  filterSqlTree,
+  normalizeSqlPath,
+  textIncludesQuery,
+} from '@/lib/sqlCodeSearch';
 import { atomStore } from '@/stores';
 import { docsAtom, sqlFoldersAtom } from '@/stores/app';
 import { useDBListStore, useSelectedNodeStore } from '@/stores/dbList';
@@ -36,28 +42,7 @@ import { TreeNode } from '@/types';
 
 import { Container } from './Favorite';
 
-function matchesQuery(text: string, query: string) {
-  return !query || text.toLowerCase().includes(query);
-}
-
-/** Keep nodes that match query (by name) or have matching descendants. */
-function filterSqlTree(node: TreeNode, query: string): TreeNode | null {
-  if (!query) {
-    return node;
-  }
-  const selfMatch = matchesQuery(node.name, query);
-  const isDir = node.type === 'path' || (node.children?.length ?? 0) > 0;
-  if (!isDir) {
-    return selfMatch ? node : null;
-  }
-  const children = (node.children ?? [])
-    .map((child) => filterSqlTree(child, query))
-    .filter((child): child is TreeNode => child != null);
-  if (selfMatch || children.length > 0) {
-    return { ...node, children };
-  }
-  return null;
-}
+import { cn } from '@/lib/utils';
 
 function TreeRow({
   label,
@@ -195,12 +180,16 @@ function LocalSqlFolder({
   onOpenFile,
   onRemove,
   search,
+  contentHits,
+  onTree,
 }: {
   rootPath: string;
   currentId?: string | null;
   onOpenFile: (node: TreeNode) => void;
   onRemove: () => void;
   search: string;
+  contentHits: ReadonlySet<string>;
+  onTree: (rootPath: string, tree: TreeNode | null) => void;
 }) {
   const [tree, setTree] = useState<TreeNode | null>(null);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
@@ -223,13 +212,17 @@ function LocalSqlFolder({
     void load();
   }, [load]);
 
+  useEffect(() => {
+    onTree(rootPath, tree);
+  }, [onTree, rootPath, tree]);
+
   const folderName =
     tree?.name || rootPath.replace(/\\/g, '/').split('/').filter(Boolean).pop() || rootPath;
-  const filtered = tree ? filterSqlTree(tree, search) : null;
+  const filtered = tree ? filterSqlTree(tree, search, contentHits) : null;
   const forceExpand = !!search;
   const rootVisible =
     !search ||
-    matchesQuery(folderName, search) ||
+    textIncludesQuery(folderName, search) ||
     (filtered?.children?.length ?? 0) > 0;
 
   if (!rootVisible) {
@@ -318,9 +311,15 @@ export function SqlCode() {
   const dbList = useDBListStore((s) => s.dbList);
   const selectedNode = useSelectedNodeStore((s) => s.selectedNode);
   const setDocs = useSetAtom(docsAtom);
+  const docs = useAtomValue(docsAtom);
   const [sqlFolders, setSqlFolders] = useAtom(sqlFoldersAtom);
+  const [folderTrees, setFolderTrees] = useState<Record<string, TreeNode | null>>({});
+  const [contentHits, setContentHits] = useState<ReadonlySet<string>>(() => new Set());
+  const contentRequest = useRef(0);
+  const searchedQuery = useRef('');
 
   const [search, setSearch] = useState('');
+  const [searchContent, setSearchContent] = useState(false);
   const [tempExpanded, setTempExpanded] = useState(true);
   const [scratchDir, setScratchDir] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<EditorContextType | null>(
@@ -356,22 +355,93 @@ export function SqlCode() {
     };
   }, []);
 
-  const scratchTabs = Object.values(tabs).filter(
-    (tab): tab is EditorContextType =>
-      tab.type === 'editor' &&
-      (!(tab as EditorContextType).path ||
-        isScratchPath((tab as EditorContextType).path, scratchDir)),
+  const scratchTabs = useMemo(
+    () =>
+      Object.values(tabs).filter(
+        (tab): tab is EditorContextType =>
+          tab.type === 'editor' &&
+          (!(tab as EditorContextType).path ||
+            isScratchPath((tab as EditorContextType).path, scratchDir)),
+      ),
+    [scratchDir, tabs],
   );
-  const visibleScratchTabs = scratchTabs.filter((tab) =>
-    matchesQuery(tab.displayName, query),
+  const visibleScratchTabs = scratchTabs.filter(
+    (tab) => textIncludesQuery(tab.displayName, query) || contentHits.has(tab.id),
   );
   const showTempFolder =
     !query ||
-    matchesQuery(tempLabel, query) ||
-    matchesQuery('temporary', query) ||
-    matchesQuery('临时', query) ||
+    textIncludesQuery(tempLabel, query) ||
+    textIncludesQuery('temporary', query) ||
+    textIncludesQuery('临时', query) ||
     visibleScratchTabs.length > 0;
   const tempOpen = !!query || tempExpanded;
+
+  const handleTree = useCallback((rootPath: string, tree: TreeNode | null) => {
+    setFolderTrees((prev) => (prev[rootPath] === tree ? prev : { ...prev, [rootPath]: tree }));
+  }, []);
+
+  useEffect(() => {
+    const request = ++contentRequest.current;
+    const queryChanged = searchedQuery.current !== query;
+    searchedQuery.current = query;
+    if (!query || !searchContent) {
+      setContentHits(new Set());
+      return;
+    }
+    if (queryChanged) {
+      setContentHits(new Set());
+    }
+    const timer = setTimeout(() => {
+      void (async () => {
+        const hits = new Set<string>();
+        const disk: string[] = [];
+        const scratchByPath = new Map<string, string>();
+        for (const tree of Object.values(folderTrees)) {
+          if (!tree) continue;
+          for (const path of collectSqlFilePaths(tree)) {
+            const memory = docs[path];
+            if (memory != null) {
+              if (textIncludesQuery(memory, query)) hits.add(path);
+            } else {
+              disk.push(path);
+            }
+          }
+        }
+        for (const tab of scratchTabs) {
+          const memory = docs[tab.id];
+          if (memory != null) {
+            if (textIncludesQuery(memory, query)) hits.add(tab.id);
+          } else if (tab.path) {
+            const path = normalizeSqlPath(tab.path);
+            disk.push(path);
+            scratchByPath.set(path, tab.id);
+          }
+        }
+        try {
+          if (disk.length > 0) {
+            const matched = await searchSqlContents(disk, query);
+            if (request !== contentRequest.current) return;
+            for (const path of matched) {
+              const key = normalizeSqlPath(path);
+              hits.add(key);
+              const scratchId = scratchByPath.get(key);
+              if (scratchId) hits.add(scratchId);
+            }
+          }
+        } catch (error) {
+          if (request === contentRequest.current) {
+            toast.error(String(error));
+          }
+        }
+        if (request === contentRequest.current) {
+          setContentHits(hits);
+        }
+      })();
+    }, 200);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [docs, folderTrees, query, scratchTabs, searchContent]);
 
   const resolveDbId = () => {
     if (selectedNode?.dbId) {
@@ -456,13 +526,30 @@ export function SqlCode() {
         </Button>
       }
     >
-      <div className="bg-background/40">
+      <div className="flex items-center border-b bg-background/40">
         <SearchInput
           value={search}
+          className="min-w-0 flex-1 border-b-0"
           onChange={(e) => {
             setSearch(e.target.value);
           }}
         />
+        <TooltipButton
+          active={searchContent}
+          aria-pressed={searchContent}
+          aria-label={
+            searchContent ? t`Search file names only` : t`Search file contents`
+          }
+          tooltip={
+            searchContent ? t`Search file names only` : t`Search file contents`
+          }
+          className="mr-1 shrink-0"
+          onClick={() => {
+            setSearchContent((value) => !value);
+          }}
+        >
+          <FileSearch className="size-3.5" />
+        </TooltipButton>
       </div>
       {showTempFolder ? (
         <div>
@@ -525,11 +612,19 @@ export function SqlCode() {
           rootPath={folder}
           currentId={currentId}
           search={query}
+          contentHits={contentHits}
+          onTree={handleTree}
           onOpenFile={(node) => {
             void handleOpenFile(node);
           }}
           onRemove={() => {
             setSqlFolders((prev) => prev.filter((p) => p !== folder));
+            setFolderTrees((prev) => {
+              if (!(folder in prev)) return prev;
+              const next = { ...prev };
+              delete next[folder];
+              return next;
+            });
           }}
         />
       ))}

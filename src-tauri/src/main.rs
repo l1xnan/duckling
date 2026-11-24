@@ -204,6 +204,7 @@ fn main() {
       cmd::sql_template::expand_sql_template,
       cmd::app::opened_files,
       cmd::app::list_sql_dir,
+      cmd::app::search_sql_contents,
       cmd::app::read_text_file,
       cmd::app::write_text_file,
       cmd::app::get_scratch_dir,

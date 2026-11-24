@@ -182,6 +182,35 @@ pub async fn list_sql_dir(path: &str) -> Result<TreeNode, String> {
     .ok_or_else(|| format!("unable to list sql directory: {path}"))
 }
 
+const SQL_CONTENT_SCAN_LIMIT: u64 = 1_048_576;
+
+fn sql_file_contains(path: &str, query_lower: &str) -> bool {
+  let meta = match std::fs::metadata(path) {
+    Ok(meta) if meta.is_file() => meta,
+    _ => return false,
+  };
+  if meta.len() > SQL_CONTENT_SCAN_LIMIT {
+    return false;
+  }
+  let text = match std::fs::read_to_string(path) {
+    Ok(text) => text,
+    Err(_) => return false,
+  };
+  text.to_lowercase().contains(query_lower)
+}
+
+#[tauri::command]
+pub async fn search_sql_contents(paths: Vec<String>, query: String) -> Result<Vec<String>, String> {
+  let query = query.trim().to_lowercase();
+  if query.is_empty() {
+    return Ok(Vec::new());
+  }
+  Ok(paths
+    .into_iter()
+    .filter(|path| sql_file_contains(path, &query))
+    .collect())
+}
+
 #[tauri::command]
 pub async fn read_text_file(path: &str) -> Result<String, String> {
   let p = Path::new(path);

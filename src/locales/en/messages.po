@@ -138,7 +138,7 @@ msgid "Add SQL select items with an alias, for example <0>a + 1 AS a1</0>. Filte
 msgstr "Add SQL select items with an alias, for example <0>a + 1 AS a1</0>. Filtering follows your database’s SQL rules: aliases are often unavailable in WHERE (use the full expression); ORDER BY may accept aliases depending on the dialect."
 
 #: src/components/tables/CanvasTable.tsx:104
-#: src/components/tables/TanStackDataTable.tsx:722
+#: src/components/tables/TanStackDataTable.tsx:774
 msgid "Advanced copy"
 msgstr "Advanced copy"
 
@@ -239,7 +239,7 @@ msgstr "Calls the external <0>sqlfmt</0> binary via Tauri."
 #: src/pages/sidebar/dialog/DatabaseDialog.tsx:1202
 #: src/pages/sidebar/dialog/RenameDialog.tsx:61
 #: src/pages/sidebar/dialog/SearchDialog.tsx:69
-#: src/pages/sidebar/SqlCode.tsx:565
+#: src/pages/sidebar/SqlCode.tsx:660
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -336,7 +336,7 @@ msgid "Clear log"
 msgstr "Clear log"
 
 #: src/components/tables/CanvasTable.tsx:98
-#: src/components/tables/TanStackDataTable.tsx:707
+#: src/components/tables/TanStackDataTable.tsx:759
 msgid "Clear pinned"
 msgstr "Clear pinned"
 
@@ -345,7 +345,7 @@ msgid "Clear search"
 msgstr "Clear search"
 
 #: src/components/tables/CanvasTable.tsx:456
-#: src/components/tables/TanStackDataTable.tsx:672
+#: src/components/tables/TanStackDataTable.tsx:724
 msgid "Clear sort"
 msgstr "Clear sort"
 
@@ -380,7 +380,7 @@ msgid "Close tab"
 msgstr "Close tab"
 
 #: src/pages/sidebar/aside.tsx:184
-#: src/pages/sidebar/SqlCode.tsx:444
+#: src/pages/sidebar/SqlCode.tsx:514
 msgid "Code"
 msgstr "Code"
 
@@ -401,7 +401,7 @@ msgid "Color theme"
 msgstr "Color theme"
 
 #: src/components/tables/CanvasTable.tsx:100
-#: src/components/tables/TanStackDataTable.tsx:679
+#: src/components/tables/TanStackDataTable.tsx:731
 #: src/components/views/ColumnProfileDialog.tsx:346
 msgid "Column profile"
 msgstr "Column profile"
@@ -474,13 +474,13 @@ msgid "Connections"
 msgstr "Connections"
 
 #: src/components/tables/CanvasTable.tsx:111
-#: src/components/tables/TanStackDataTable.tsx:395
+#: src/components/tables/TanStackDataTable.tsx:401
 msgid "Copied"
 msgstr "Copied"
 
 #: src/components/PageTabs.tsx:201
 #: src/components/tables/CanvasTable.tsx:103
-#: src/components/tables/TanStackDataTable.tsx:716
+#: src/components/tables/TanStackDataTable.tsx:771
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:98
 #: src/pages/sidebar/context-menu/SchemaContextMenu.tsx:51
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:311
@@ -488,22 +488,22 @@ msgid "Copy"
 msgstr "Copy"
 
 #: src/components/tables/CanvasTable.tsx:105
-#: src/components/tables/TanStackDataTable.tsx:725
+#: src/components/tables/TanStackDataTable.tsx:777
 msgid "Copy as CSV"
 msgstr "Copy as CSV"
 
 #: src/components/tables/CanvasTable.tsx:106
-#: src/components/tables/TanStackDataTable.tsx:728
+#: src/components/tables/TanStackDataTable.tsx:780
 msgid "Copy as CSV with header"
 msgstr "Copy as CSV with header"
 
 #: src/components/tables/CanvasTable.tsx:109
-#: src/components/tables/TanStackDataTable.tsx:737
+#: src/components/tables/TanStackDataTable.tsx:789
 msgid "Copy as HTML table"
 msgstr "Copy as HTML table"
 
 #: src/components/tables/CanvasTable.tsx:110
-#: src/components/tables/TanStackDataTable.tsx:740
+#: src/components/tables/TanStackDataTable.tsx:792
 msgid "Copy as JSON"
 msgstr "Copy as JSON"
 
@@ -512,22 +512,22 @@ msgid "Copy as Markdown"
 msgstr "Copy as Markdown"
 
 #: src/components/tables/CanvasTable.tsx:108
-#: src/components/tables/TanStackDataTable.tsx:734
+#: src/components/tables/TanStackDataTable.tsx:786
 msgid "Copy as Markdown table"
 msgstr "Copy as Markdown table"
 
 #: src/components/tables/CanvasTable.tsx:107
-#: src/components/tables/TanStackDataTable.tsx:731
+#: src/components/tables/TanStackDataTable.tsx:783
 msgid "Copy as TSV"
 msgstr "Copy as TSV"
 
 #: src/components/tables/CanvasTable.tsx:112
-#: src/components/tables/TanStackDataTable.tsx:399
+#: src/components/tables/TanStackDataTable.tsx:405
 msgid "Copy failed"
 msgstr "Copy failed"
 
 #: src/components/tables/CanvasTable.tsx:95
-#: src/components/tables/TanStackDataTable.tsx:654
+#: src/components/tables/TanStackDataTable.tsx:706
 msgid "Copy Field Name"
 msgstr "Copy Field Name"
 
@@ -646,7 +646,7 @@ msgstr "Default: {defaultPerPage}"
 #: src/pages/sidebar/context-menu/ConnectionContextMenu.tsx:153
 #: src/pages/sidebar/context-menu/HistoryContextMenu.tsx:101
 #: src/pages/sidebar/context-menu/TableContextMenu.tsx:307
-#: src/pages/sidebar/SqlCode.tsx:571
+#: src/pages/sidebar/SqlCode.tsx:666
 msgid "Delete"
 msgstr "Delete"
 
@@ -658,11 +658,11 @@ msgstr "Delete bookmark"
 msgid "Delete connection"
 msgstr "Delete connection"
 
-#: src/pages/sidebar/SqlCode.tsx:507
+#: src/pages/sidebar/SqlCode.tsx:594
 msgid "Delete temporary SQL"
 msgstr "Delete temporary SQL"
 
-#: src/pages/sidebar/SqlCode.tsx:554
+#: src/pages/sidebar/SqlCode.tsx:649
 msgid "Delete temporary SQL?"
 msgstr "Delete temporary SQL?"
 
@@ -943,7 +943,7 @@ msgid "Files"
 msgstr "Files"
 
 #: src/components/tables/CanvasTable.tsx:102
-#: src/components/tables/TanStackDataTable.tsx:753
+#: src/components/tables/TanStackDataTable.tsx:805
 msgid "Filter by this value"
 msgstr "Filter by this value"
 
@@ -1070,7 +1070,7 @@ msgid "Help"
 msgstr "Help"
 
 #: src/components/tables/CanvasTable.tsx:99
-#: src/components/tables/TanStackDataTable.tsx:710
+#: src/components/tables/TanStackDataTable.tsx:762
 msgid "Hidden column"
 msgstr "Hidden column"
 
@@ -1589,7 +1589,7 @@ msgstr "Open Path"
 msgid "Open SQL editor"
 msgstr "Open SQL editor"
 
-#: src/pages/sidebar/SqlCode.tsx:450
+#: src/pages/sidebar/SqlCode.tsx:520
 msgid "Open SQL folder"
 msgstr "Open SQL folder"
 
@@ -1651,12 +1651,12 @@ msgid "Percent is relative to all matching rows ({allRowsTotal}); shown groups m
 msgstr "Percent is relative to all matching rows ({allRowsTotal}); shown groups may sum to less than 100%."
 
 #: src/components/tables/CanvasTable.tsx:96
-#: src/components/tables/TanStackDataTable.tsx:694
+#: src/components/tables/TanStackDataTable.tsx:746
 msgid "Pin to left"
 msgstr "Pin to left"
 
 #: src/components/tables/CanvasTable.tsx:97
-#: src/components/tables/TanStackDataTable.tsx:702
+#: src/components/tables/TanStackDataTable.tsx:754
 msgid "Pin to right"
 msgstr "Pin to right"
 
@@ -1672,7 +1672,7 @@ msgid "Pivot table"
 msgstr "Pivot table"
 
 #: src/components/tables/CanvasTable.tsx:101
-#: src/components/tables/TanStackDataTable.tsx:684
+#: src/components/tables/TanStackDataTable.tsx:736
 msgid "Pivot with this column"
 msgstr "Pivot with this column"
 
@@ -2033,6 +2033,16 @@ msgstr "Search databases, tables, favorites, and SQL files"
 msgid "Search databases..."
 msgstr "Search databases..."
 
+#: src/pages/sidebar/SqlCode.tsx:541
+#: src/pages/sidebar/SqlCode.tsx:544
+msgid "Search file contents"
+msgstr "Search file contents"
+
+#: src/pages/sidebar/SqlCode.tsx:541
+#: src/pages/sidebar/SqlCode.tsx:544
+msgid "Search file names only"
+msgstr "Search file names only"
+
 #: src/pages/sidebar/History.tsx:275
 msgid "Search history…"
 msgstr "Search history…"
@@ -2265,12 +2275,12 @@ msgid "Something went wrong"
 msgstr "Something went wrong"
 
 #: src/components/tables/CanvasTable.tsx:446
-#: src/components/tables/TanStackDataTable.tsx:662
+#: src/components/tables/TanStackDataTable.tsx:714
 msgid "Sort ascending"
 msgstr "Sort ascending"
 
 #: src/components/tables/CanvasTable.tsx:451
-#: src/components/tables/TanStackDataTable.tsx:667
+#: src/components/tables/TanStackDataTable.tsx:719
 msgid "Sort descending"
 msgstr "Sort descending"
 
@@ -2466,7 +2476,7 @@ msgstr "Tabular left"
 msgid "Tabular right"
 msgstr "Tabular right"
 
-#: src/pages/sidebar/SqlCode.tsx:331
+#: src/pages/sidebar/SqlCode.tsx:330
 msgid "Temporary Files"
 msgstr "Temporary Files"
 
@@ -2488,7 +2498,7 @@ msgstr "Testing…"
 msgid "This shortcut is built into the editor or table and cannot be changed."
 msgstr "This shortcut is built into the editor or table and cannot be changed."
 
-#: src/pages/sidebar/SqlCode.tsx:557
+#: src/pages/sidebar/SqlCode.tsx:652
 msgid "This will permanently delete temporary SQL \"{pendingDisplayName}\". This action cannot be undone."
 msgstr "This will permanently delete temporary SQL \"{pendingDisplayName}\". This action cannot be undone."
 
