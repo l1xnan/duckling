@@ -111,6 +111,12 @@ export function updaterEndpointForSource(source?: UpdaterSource | null): string 
   return source === 'china' ? UPDATER_ENDPOINT_CHINA : UPDATER_ENDPOINT_OFFICIAL;
 }
 
+export type TableRender = 'canvas' | 'dom';
+
+export function resolveTableRender(value?: string | null): TableRender {
+  return value === 'dom' ? 'dom' : 'canvas';
+}
+
 export type SettingState = {
   precision: number;
   /** Default rows per page for new data views and previews. */
@@ -123,13 +129,17 @@ export type SettingState = {
   main_font_family: string;
   /** Font family for Monaco / SQL code editors. */
   code_font_family?: string;
-  /** Font size (px) for the data table canvas renderer. */
+  /** Font size (px) for the data table. */
   table_font_size?: number;
+  /**
+   * Result-grid implementation.
+   * `canvas` is VisActor VTable. `dom` is a virtualized TanStack Table.
+   */
+  table_render: TableRender;
   /** Font size (px) for Monaco / SQL code editors. */
   code_font_size?: number;
   /** Whether Monaco shows the minimap. Default true. */
   code_editor_minimap?: boolean;
-  table_render: string;
   auto_update?: boolean;
   proxy?: string;
   debug?: string;
@@ -473,6 +483,9 @@ export const useTableFontSize = () =>
   useSettingStore(
     (s) => s.table_font_size ?? defaultSettings.table_font_size!,
   );
+
+export const useTableRender = () =>
+  useSettingStore((s) => resolveTableRender(s.table_render));
 
 export const useMainFontFamily = () =>
   useSettingStore(

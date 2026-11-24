@@ -12,6 +12,9 @@ body .vtable__menu-element {
   background-color: var(--popover);
   border-width: 1px;
   border-color: var(--border);
+  min-width: 12rem;
+  padding: 0.25rem;
+  border-radius: var(--radius-md, 0.375rem);
   --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --tw-shadow-colored:
     0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
@@ -29,11 +32,13 @@ body .vtable__menu-element__item:hover {
 }
 
 body .vtable__menu-element__item {
-  height: calc(var(--spacing) * 6);
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
+  height: auto;
+  min-height: 1.75rem;
+  padding: 0.25rem 0.5rem;
   font-size: 0.75rem;
-  margin: 0 0.25rem;
+  line-height: 1rem;
+  margin: 0;
+  border-radius: 0.125rem;
 }
 
 .vtable__menu-element__content.vtable__menu-element__item-text {
@@ -60,6 +65,9 @@ body .vtable__bubble-tooltip-element__content {
   background-color: var(--popover) !important;
   border-width: 1px;
   border-color: var(--border);
+  min-width: 12rem;
+  padding: 0.25rem;
+  border-radius: var(--radius-md, 0.375rem);
   max-height: none !important;
   overflow-y: visible !important;
   --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -72,8 +80,10 @@ body .vtable__bubble-tooltip-element__content {
 
 .vtable-context-menu-item {
   color: var(--popover-foreground) !important;
-  padding-top: 0.25rem !important;
-  padding-bottom: 0.25rem !important;
+  min-height: 1.75rem;
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
 
 .vtable-context-menu-item:hover {

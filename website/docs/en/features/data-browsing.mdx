@@ -1,11 +1,16 @@
 ---
 title: Data Browsing
-description: Canvas-rendered result grid with pagination, transpose, filtering, and cell inspection.
+description: Result grid with Canvas or DOM rendering, pagination, transpose, filtering, and cell inspection.
 ---
 
 # Data Browsing
 
-The result grid is rendered on Canvas for performance, and includes:
+The result grid pages through data. In **Appearance** settings, **Table renderer** chooses the implementation:
+
+- **Canvas (VTable)** — the default. Cells are drawn on a canvas.
+- **DOM (TanStack Table)** — a virtualized HTML grid with the same paging, column hiding, pinning, transpose, copy formats, column profile, pivot, and cell inspection.
+
+Both renderers share one page of rows (10, 100, 500, or 1000). The DOM grid keeps only the visible cells in the document.
 
 - **Pagination** — when a source is opened (or a SQL query without automatic results), the grid pages through the data.
 - **Column hiding** — show or hide columns to focus on what matters.

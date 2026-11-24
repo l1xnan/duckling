@@ -188,6 +188,7 @@ function Profile() {
       main_font_family: data.main_font_family,
       table_font_family: data.table_font_family,
       table_font_size: data.table_font_size,
+      table_render: data.table_render === 'dom' ? 'dom' : 'canvas',
       precision: data.precision,
       default_per_page: resolveDefaultPerPage(data.default_per_page),
       default_beautify: data.default_beautify ?? true,
@@ -274,9 +275,7 @@ function Profile() {
                   placeholder={t`Search system fonts`}
                 />
                 <FormDescription>
-                  <Trans>
-                    Used by the data table canvas renderer. Custom names are allowed.
-                  </Trans>
+                  <Trans>Used by the data table. Custom names are allowed.</Trans>
                 </FormDescription>
               </FormItem>
             )}
@@ -307,6 +306,47 @@ function Profile() {
                 </FormControl>
                 <FormDescription>
                   <Trans>Font size in pixels for the data table (8–32).</Trans>
+                </FormDescription>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="table_render"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  <Trans>Table renderer</Trans>
+                </FormLabel>
+                <Select
+                  value={field.value === 'dom' ? 'dom' : 'canvas'}
+                  onValueChange={(value) => field.onChange(value === 'dom' ? 'dom' : 'canvas')}
+                  items={[
+                    { value: 'canvas', label: t`Canvas (VTable)` },
+                    { value: 'dom', label: t`DOM (TanStack Table)` },
+                  ]}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="canvas" label={t`Canvas (VTable)`}>
+                        {t`Canvas (VTable)`}
+                      </SelectItem>
+                      <SelectItem value="dom" label={t`DOM (TanStack Table)`}>
+                        {t`DOM (TanStack Table)`}
+                      </SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  <Trans>
+                    Canvas keeps the current grid. DOM uses a virtualized TanStack Table with the
+                    same paging, pinning, copy, and column actions.
+                  </Trans>
                 </FormDescription>
               </FormItem>
             )}

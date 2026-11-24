@@ -8,12 +8,14 @@ import {
 } from 'react';
 
 import { CanvasTable } from '@/components/tables/CanvasTable';
+import { TanStackDataTable } from '@/components/tables/TanStackDataTable';
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
 import { Direction, OrderByType, SchemaType } from '@/stores/dataset';
+import { useTableRender } from '@/stores/setting';
 
 import { Loading, SelectedCellType } from './TableView';
 import { ValueViewer } from './ValueViewer';
@@ -89,6 +91,8 @@ export function TableDataPanel({
   );
 
   const hideTable = loading || Boolean(emptyOverlay);
+  const tableRender = useTableRender();
+  const Grid = tableRender === 'dom' ? TanStackDataTable : CanvasTable;
 
   return (
     <ResizablePanelGroup
@@ -105,7 +109,7 @@ export function TableDataPanel({
             <Suspense fallback={<Loading />}>
               {loading ? <Loading /> : null}
               {emptyOverlay}
-              <CanvasTable
+              <Grid
                 style={hideTable ? { display: 'none', ...style } : style}
                 data={data}
                 schema={schema}
