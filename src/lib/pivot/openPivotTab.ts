@@ -8,14 +8,14 @@ import {
   type PivotColumnSnapshot,
   type PivotContextType,
 } from '@/stores/tabs';
-import { isNumberType } from '@/utils';
+import { isNumberType, isNumericSqlType } from '@/utils';
 
 export function columnsFromSchema(
   schema: SchemaType[],
 ): PivotColumnSnapshot[] {
   return (schema ?? []).map((c) => ({
     name: c.name,
-    numeric: isNumberType(c.dataType),
+    numeric: isNumberType(c.dataType) || isNumericSqlType(c.type),
   }));
 }
 

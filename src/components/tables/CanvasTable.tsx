@@ -22,7 +22,7 @@ import { i18n } from '@/i18n';
 import { CopyFormat, planCopy } from '@/lib/tableClipboard';
 import { OrderByType, SchemaType } from '@/stores/dataset';
 import { useTableFontFamily, useTableFontSize } from '@/stores/setting';
-import { isDarkTheme, isNumberType, uniqueArray } from '@/utils';
+import { isDarkTheme, isNumberType, isNumericSqlType, uniqueArray } from '@/utils';
 
 import { formatHotkey, getHotkey } from '@/hotkeys';
 
@@ -255,7 +255,7 @@ const handleColumnStyle = (
   { dataType, type }: FieldFormatParamsType,
 ) => {
   const style: Record<string, string> = {};
-  if (isNumberType(dataType) || type?.toLowerCase()?.includes('decimal')) {
+  if (isNumberType(dataType) || isNumericSqlType(type)) {
     style['textAlign'] = 'right';
   }
   if (arg.dataValue === null || arg.dataValue === undefined) {

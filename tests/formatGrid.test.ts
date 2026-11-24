@@ -55,6 +55,26 @@ describe('date and float display', () => {
       }),
     ).toBe('1.23');
   });
+
+  it('formats ClickHouse float strings when the Arrow type is still text', () => {
+    const textType = new Utf8();
+    expect(
+      formatCellForGrid('1.23456789', textType, {
+        dataType: textType,
+        type: 'Nullable(Float64)',
+        beautify: true,
+        precision: 3,
+      }),
+    ).toBe('1.235');
+    expect(
+      formatCellForGrid('1.23456789', textType, {
+        dataType: textType,
+        type: 'String',
+        beautify: true,
+        precision: 3,
+      }),
+    ).toBe('1.23456789');
+  });
 });
 
 describe('handleFieldFormat', () => {

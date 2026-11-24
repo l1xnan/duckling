@@ -4,13 +4,16 @@ use std::sync::{Arc, Mutex};
 
 use crate::dialect::Connection;
 use crate::ssh_tunnel::{DbSshConfig, SshTunnel};
-use crate::utils::{build_tree, json_to_arrow, FunctionMeta, Metadata, RawArrowData, Table, TreeNode};
-use arrow::datatypes::*;
+use crate::utils::{FunctionMeta, Metadata, RawArrowData, Table, TreeNode, build_tree};
 use async_trait::async_trait;
 use clickhouse::{Client, Row};
 use serde::{Deserialize, Serialize};
 
 use crate::utils::Title;
+
+mod type_arrow;
+
+use type_arrow::clickhouse_json_to_batch;
 
 pub struct ClickhouseLive {
   _tunnel: Option<SshTunnel>,
@@ -115,13 +118,15 @@ impl Connection for ClickhouseConnection {
       order by name
     ";
     let rows = client.query(sql).fetch_all::<(String, String)>().await?;
-    Ok(rows
-      .into_iter()
-      .map(|(name, kind)| FunctionMeta {
-        name,
-        kind: Some(kind),
-      })
-      .collect())
+    Ok(
+      rows
+        .into_iter()
+        .map(|(name, kind)| FunctionMeta {
+          name,
+          kind: Some(kind),
+        })
+        .collect(),
+    )
   }
 
   async fn table_row_count(&self, table: &str, r#where: &str) -> anyhow::Result<usize> {
@@ -347,13 +352,11 @@ impl ClickhouseConnection {
 
     let default: Vec<serde_json::Value> = Vec::default();
     let data = res.data.as_array().unwrap_or(&default);
-    let fields = res
-      .meta
-      .into_iter()
-      .map(|m| Field::new(m.name, DataType::LargeUtf8, true))
-      .collect::<Vec<Field>>();
-    let schema = Arc::new(Schema::new(fields));
-    let batch = json_to_arrow(data, schema)?;
+    let columns = titles
+      .iter()
+      .map(|t| (t.name.clone(), t.r#type.clone()))
+      .collect::<Vec<_>>();
+    let batch = clickhouse_json_to_batch(&columns, data)?;
     Ok(RawArrowData {
       total: batch.num_rows(),
       batch,

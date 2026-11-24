@@ -81,6 +81,23 @@ function formatTimestampScalar(
   return dayjs(value as string | number | Date).format(DATE_TIME_FORMAT);
 }
 
+function floatDisplayNumber(value: unknown): number | null {
+  if (typeof value === "number") {
+    return value;
+  }
+  if (typeof value === "string") {
+    const text = value.trim();
+    if (!text) {
+      return null;
+    }
+    const n = Number(text);
+    if (Number.isFinite(n)) {
+      return n;
+    }
+  }
+  return null;
+}
+
 const formatArrowValue = (
   value: unknown,
   dataType: DataType,
@@ -149,16 +166,14 @@ const formatArrowValue = (
     typeLower.includes("real") ||
     (typeLower.includes("decimal") && !typeLower.includes("("));
 
-  if (
-    options.beautify &&
-    options.precision != null &&
-    floatLike &&
-    typeof value === "number"
-  ) {
-    try {
-      return value.toFixed(options.precision);
-    } catch (_error) {
-      return value;
+  if (options.beautify && options.precision != null && floatLike) {
+    const n = floatDisplayNumber(value);
+    if (n != null) {
+      try {
+        return n.toFixed(options.precision);
+      } catch (_error) {
+        return value;
+      }
     }
   }
 

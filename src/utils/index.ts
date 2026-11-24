@@ -48,6 +48,17 @@ export function isNumber(dataType: string) {
   );
 }
 
+/** SQL / driver type name that should be treated as a number (e.g. ClickHouse `Float64`). */
+const NUMERIC_SQL_TYPE =
+  /(?:^|[^a-z0-9_])(u?int(?:8|16|32|64|128|256)?|float(?:32|64)?|bfloat16|double|real|decimal(?:32|64|128|256)?|numeric)(?![a-z0-9_])/i;
+
+export function isNumericSqlType(type?: string): boolean {
+  if (!type) {
+    return false;
+  }
+  return NUMERIC_SQL_TYPE.test(type);
+}
+
 export function isNumberType(dataType: DataType) {
   return (
     DataType.isDecimal(dataType) ||

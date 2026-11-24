@@ -73,6 +73,20 @@ describe('openPivotTab', () => {
     ]);
   });
 
+  it('treats ClickHouse float type names as numeric when values are text', () => {
+    const text: SchemaType = {
+      name: 'amount',
+      dataType: new Utf8(),
+      nullable: true,
+      metadata: null,
+      type: 'Float64',
+    };
+    expect(columnsFromSchema([schemaCol('region', false), text])).toEqual([
+      { name: 'region', numeric: false },
+      { name: 'amount', numeric: true },
+    ]);
+  });
+
   it('defaults measure to sum of first numeric field', () => {
     expect(
       defaultPivotMeasure([
