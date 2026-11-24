@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -34,7 +35,7 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from '@/components/custom/ui/context-menu';
-import { formatCellForGrid } from '@/components/tables/format';
+import { columnWidthSample, formatCellForGrid } from '@/components/tables/format';
 import {
   columnPinningFor,
   estimateColumnWidth,
@@ -56,6 +57,14 @@ import { isNumberType, isNumericSqlType } from '@/utils';
 
 const ROW_H = 24;
 const HEADER_H = 28;
+
+function resolvedColumnWidth(
+  column: { id: string; columnDef: { size?: number } },
+  sizing: Record<string, number>,
+): number {
+  return sizing[column.id] ?? column.columnDef.size ?? 120;
+}
+
 const features = {
   columnVisibilityFeature,
   columnPinningFeature,
@@ -161,10 +170,13 @@ function TanStackDataTableInner({
       enableResizing: false,
     };
     const fields = schema.map((column) => {
-      const samples = records.slice(0, 24).map((row) => {
-        const value = row[column.name];
-        return value == null ? '' : String(value);
-      });
+      const samples = records.slice(0, 24).map((row) =>
+        columnWidthSample(row[column.name], column.dataType, {
+          type: column.type,
+          beautify,
+          precision,
+        }),
+      );
       return {
         id: column.name,
         accessorKey: column.name,
@@ -173,7 +185,7 @@ function TanStackDataTableInner({
       } satisfies GridColumn;
     });
     return [series, ...fields];
-  }, [fontSize, orderBy, records, schema, transpose]);
+  }, [beautify, fontSize, orderBy, precision, records, schema, transpose]);
 
   const gridData = useMemo(() => {
     if (!transpose) return records;
@@ -226,12 +238,17 @@ function TanStackDataTableInner({
     [left, center, right],
   );
 
-  const leftWidth = left.reduce((sum, column) => sum + column.getSize(), 0);
-  const rightWidth = right.reduce((sum, column) => sum + column.getSize(), 0);
-  const totalWidth =
-    leftWidth +
-    center.reduce((sum, column) => sum + column.getSize(), 0) +
-    rightWidth;
+  const widthOf = (column: (typeof leaf)[number]) =>
+    resolvedColumnWidth(column, columnSizing);
+  const leftWidth = left.reduce((sum, column) => sum + widthOf(column), 0);
+  const rightWidth = right.reduce((sum, column) => sum + widthOf(column), 0);
+  const centerStarts: number[] = [];
+  let centerCursor = 0;
+  for (const column of center) {
+    centerStarts.push(centerCursor);
+    centerCursor += widthOf(column);
+  }
+  const totalWidth = leftWidth + centerCursor + rightWidth;
 
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
@@ -243,9 +260,19 @@ function TanStackDataTableInner({
     horizontal: true,
     count: center.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize: (index) => center[index]?.getSize() ?? 120,
+    estimateSize: (index) => {
+      const column = center[index];
+      return column ? widthOf(column) : 120;
+    },
     overscan: 3,
   });
+
+  useLayoutEffect(() => {
+    for (let index = 0; index < center.length; index += 1) {
+      const column = center[index];
+      if (column) colVirtualizer.resizeItem(index, widthOf(column));
+    }
+  }, [center, colVirtualizer, columnSizing]);
 
   useEffect(() => {
     setAnchor(null);
@@ -412,7 +439,8 @@ function TanStackDataTableInner({
     event.preventDefault();
     event.stopPropagation();
     const startX = event.clientX;
-    const start = leaf.find((column) => column.id === columnId)?.getSize() ?? 120;
+    const column = leaf.find((item) => item.id === columnId);
+    const start = column ? widthOf(column) : 120;
     const move = (ev: PointerEvent) => {
       const next = Math.max(48, Math.round(start + ev.clientX - startX));
       setColumnSizing((prev) => ({ ...prev, [columnId]: next }));
@@ -484,15 +512,18 @@ function TanStackDataTableInner({
         style={{
           left: leftPx,
           top: topPx,
-          width: column.getSize(),
+          width: widthOf(column),
           height: isHeader ? HEADER_H : ROW_H,
           lineHeight: `${isHeader ? HEADER_H : ROW_H}px`,
           fontSize,
           zIndex: pinned ? (isHeader ? 4 : 2) : isHeader ? 3 : 0,
+          borderColor: selected
+            ? 'color-mix(in srgb, var(--primary) 42%, var(--background))'
+            : undefined,
           backgroundColor: isHeader
             ? undefined
             : selected
-              ? 'color-mix(in srgb, var(--primary) 15%, var(--background))'
+              ? 'color-mix(in srgb, var(--primary) 10%, var(--background))'
               : highlighted
                 ? 'color-mix(in srgb, var(--accent) 40%, var(--background))'
                 : striped
@@ -530,13 +561,13 @@ function TanStackDataTableInner({
   let leftOffset = 0;
   const leftPlaced = left.map((column) => {
     const placed = { column, left: leftOffset, index: leaf.indexOf(column) };
-    leftOffset += column.getSize();
+    leftOffset += widthOf(column);
     return placed;
   });
   let rightOffset = 0;
   const rightPlaced = right.map((column) => {
     const placed = { column, left: rightOffset, index: leaf.indexOf(column) };
-    rightOffset += column.getSize();
+    rightOffset += widthOf(column);
     return placed;
   });
 
@@ -582,7 +613,7 @@ function TanStackDataTableInner({
                   column,
                   left.length + virtual.index,
                   0,
-                  leftWidth + virtual.start,
+                  leftWidth + (centerStarts[virtual.index] ?? 0),
                   0,
                   false,
                 );
@@ -597,7 +628,7 @@ function TanStackDataTableInner({
                     column,
                     left.length + virtualCol.index,
                     virtual.index + 1,
-                    leftWidth + virtualCol.start,
+                    leftWidth + (centerStarts[virtualCol.index] ?? 0),
                     HEADER_H + virtual.start,
                     false,
                   );

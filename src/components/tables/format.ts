@@ -158,15 +158,11 @@ const formatArrowValue = (
     return formatDateScalar(value, true);
   }
 
-  const typeLower = options.type?.toLowerCase() ?? "";
-  const floatLike =
-    DataType.isFloat(dataType) ||
-    typeLower.includes("float") ||
-    typeLower.includes("double") ||
-    typeLower.includes("real") ||
-    (typeLower.includes("decimal") && !typeLower.includes("("));
-
-  if (options.beautify && options.precision != null && floatLike) {
+  if (
+    options.beautify &&
+    options.precision != null &&
+    isFloatLike(dataType, options.type)
+  ) {
     const n = floatDisplayNumber(value);
     if (n != null) {
       try {
@@ -179,6 +175,41 @@ const formatArrowValue = (
 
   return value;
 };
+
+function isFloatLike(dataType: DataType, type?: string): boolean {
+  const typeLower = type?.toLowerCase() ?? "";
+  return (
+    DataType.isFloat(dataType) ||
+    typeLower.includes("float") ||
+    typeLower.includes("double") ||
+    typeLower.includes("real") ||
+    (typeLower.includes("decimal") && !typeLower.includes("("))
+  );
+}
+
+export function columnWidthSample(
+  value: unknown,
+  dataType: DataType,
+  options: { type?: string; beautify?: boolean; precision?: number },
+): string {
+  if (value == null) return "";
+  if (
+    options.beautify &&
+    options.precision != null &&
+    isFloatLike(dataType, options.type)
+  ) {
+    const formatted = formatCellForGrid(value, dataType, {
+      dataType,
+      type: options.type,
+      beautify: true,
+      precision: options.precision,
+    });
+    if (formatted == null) return "";
+    if (typeof formatted === "object") return JSON.stringify(formatted);
+    return String(formatted);
+  }
+  return String(value);
+}
 
 export function formatCellForGrid(
   rawValue: unknown,

@@ -1,7 +1,8 @@
 import { DateDay, Field, Float64, Int32, List, Struct, Utf8 } from '@apache-arrow/ts';
 import { describe, expect, it } from 'vitest';
 
-import { formatCellForGrid, handleFieldFormat } from '@/components/tables/format';
+import { columnWidthSample, formatCellForGrid, handleFieldFormat } from '@/components/tables/format';
+import { estimateColumnWidth } from '@/components/tables/tanstackGrid';
 
 const listType = new List(new Field('item', new Int32()));
 const structType = new Struct([
@@ -54,6 +55,38 @@ describe('date and float display', () => {
         precision: 2,
       }),
     ).toBe('1.23');
+  });
+
+  it('measures float column width from the precision-limited text', () => {
+    const floatType = new Float64();
+    const raw = 1.2345678901234567;
+    const limited = columnWidthSample(raw, floatType, {
+      beautify: true,
+      precision: 4,
+    });
+    expect(limited).toBe('1.2346');
+    expect(estimateColumnWidth(['amount', limited], 13)).toBeLessThan(
+      estimateColumnWidth(['amount', String(raw)], 13),
+    );
+    expect(
+      columnWidthSample(raw, floatType, { beautify: false, precision: 4 }),
+    ).toBe(String(raw));
+
+    const textType = new Utf8();
+    expect(
+      columnWidthSample('1.23456789', textType, {
+        type: 'Nullable(Float64)',
+        beautify: true,
+        precision: 3,
+      }),
+    ).toBe('1.235');
+    expect(
+      columnWidthSample('1.23456789', textType, {
+        type: 'String',
+        beautify: true,
+        precision: 3,
+      }),
+    ).toBe('1.23456789');
   });
 
   it('formats ClickHouse float strings when the Arrow type is still text', () => {
