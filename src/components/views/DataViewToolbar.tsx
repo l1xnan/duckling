@@ -180,7 +180,7 @@ export function DataViewToolbar({
             tooltip={t`Refresh`}
           />
         )}
-        <div className="text-xs ml-6">
+        <div className="shrink-0 whitespace-nowrap text-xs ml-6">
           <Trans>elapsed time: {elapsedRender(elapsed)}</Trans>
         </div>
       </Stack>

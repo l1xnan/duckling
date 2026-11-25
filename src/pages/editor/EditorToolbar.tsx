@@ -251,7 +251,9 @@ export default function Connection({
               {sessionIcon}
             </span>
           ) : null}
-          <span className="min-w-0 truncate">{label}</span>
+          <span className="min-w-0 truncate" title={label}>
+            {label}
+          </span>
         </span>
       }
     >
